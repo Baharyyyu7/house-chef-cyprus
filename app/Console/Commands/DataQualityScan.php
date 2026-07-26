@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\DataQualityIssue;
 use App\Services\DataQualityService;
 use Illuminate\Console\Command;
 
@@ -14,10 +13,8 @@ final class DataQualityScan extends Command
 
     public function handle(DataQualityService $quality): int
     {
-        $issues = $quality->report();
-        foreach ($issues as $issue) {
-            DataQualityIssue::updateOrCreate(['issue_type' => $issue['issue_type'], 'entity_public_id' => $issue['entity_public_id'], 'resolution_status' => 'open'], $issue + ['detected_at' => now(), 'resolution_status' => 'open']);
-        } $this->info(count($issues).' sorun kaydedildi.');
+        $result = $quality->scan();
+        $this->info("Skor {$result['score']} | yeni {$result['new']} | güncellenen {$result['updated']} | çözülen {$result['resolved']}");
 
         return self::SUCCESS;
     }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\DataQualityController;
 use App\Http\Controllers\Admin\IngredientController as AdminIngredientController;
 use App\Http\Controllers\Admin\NutritionController as AdminNutritionController;
 use App\Http\Controllers\Admin\RecipeController as AdminRecipeController;
@@ -40,6 +41,11 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
     Route::get('/', AdminDashboardController::class)->name('dashboard');
+    Route::get('veri-kalitesi', [DataQualityController::class, 'index'])->name('data-quality.index');
+    Route::get('veri-kalitesi/{issue}', [DataQualityController::class, 'show'])->name('data-quality.show');
+    Route::post('veri-kalitesi/tara', [DataQualityController::class, 'scan'])->name('data-quality.scan');
+    Route::post('veri-kalitesi/{issue}/coz', [DataQualityController::class, 'resolve'])->name('data-quality.resolve');
+    Route::post('veri-kalitesi/{issue}/yeniden-ac', [DataQualityController::class, 'reopen'])->name('data-quality.reopen');
     Route::get('beslenme', [AdminNutritionController::class, 'index'])->name('nutrition.index');
     Route::get('beslenme/snapshots/{snapshot}', [AdminNutritionController::class, 'snapshot'])->name('nutrition.snapshots.show');
     Route::get('beslenme/gecmis', [AdminNutritionController::class, 'history'])->name('nutrition.history');
