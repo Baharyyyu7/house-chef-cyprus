@@ -41,6 +41,8 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
     Route::get('/', AdminDashboardController::class)->name('dashboard');
     Route::get('beslenme', [AdminNutritionController::class, 'index'])->name('nutrition.index');
+    Route::get('beslenme/snapshots/{snapshot}', [AdminNutritionController::class, 'snapshot'])->name('nutrition.snapshots.show');
+    Route::get('beslenme/gecmis', [AdminNutritionController::class, 'history'])->name('nutrition.history');
     Route::post('beslenme/nutrients', [AdminNutritionController::class, 'saveNutrient'])->name('nutrition.nutrients.store');
     Route::put('beslenme/nutrients/{nutrient}', [AdminNutritionController::class, 'saveNutrient'])->name('nutrition.nutrients.update');
     Route::post('beslenme/allergens', [AdminNutritionController::class, 'saveAllergen'])->name('nutrition.allergens.store');

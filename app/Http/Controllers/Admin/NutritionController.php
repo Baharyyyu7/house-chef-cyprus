@@ -16,6 +16,7 @@ use App\Models\NutritionRecalculationRun;
 use App\Models\NutritionSetting;
 use App\Models\Recipe;
 use App\Models\RecipeAllergenOverride;
+use App\Models\RecipeNutritionSnapshot;
 use App\Services\NutritionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,11 +26,27 @@ use Illuminate\View\View;
 
 final class NutritionController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorizeAdmin();
 
-        return view('admin.nutrition.index', ['nutrients' => Nutrient::query()->orderBy('sort_order')->get(), 'allergens' => Allergen::query()->orderBy('sort_order')->get(), 'tags' => DietaryTag::query()->orderBy('sort_order')->get(), 'ingredients' => Ingredient::query()->withCount('nutritionFacts')->orderBy('name')->get(), 'recipes' => Recipe::query()->withCount('nutritionSnapshots')->orderBy('title')->get(), 'relations' => IngredientAllergenDetail::query()->with(['ingredient', 'allergen'])->get(), 'overrides' => RecipeAllergenOverride::query()->with(['allergen'])->get(), 'settings' => NutritionSetting::query()->orderBy('key')->get(), 'runs' => NutritionRecalculationRun::query()->with('recipe')->latest()->limit(20)->get()]);
+        $relations = IngredientAllergenDetail::query()->with(['ingredient', 'allergen'])->when($request->ingredient_id, fn ($q, $v) => $q->where('ingredient_id', $v))->when($request->allergen_id, fn ($q, $v) => $q->where('allergen_id', $v))->when($request->relation_type, fn ($q, $v) => $q->where('relation_type', $v))->when($request->has('verified'), fn ($q) => $q->where('is_verified', $request->boolean('verified')))->get();
+
+        return view('admin.nutrition.index', ['nutrients' => Nutrient::query()->orderBy('sort_order')->get(), 'allergens' => Allergen::query()->orderBy('sort_order')->get(), 'tags' => DietaryTag::query()->orderBy('sort_order')->get(), 'ingredients' => Ingredient::query()->withCount('nutritionFacts')->orderBy('name')->get(), 'recipes' => Recipe::query()->withCount('nutritionSnapshots')->orderBy('title')->get(), 'relations' => $relations, 'overrides' => RecipeAllergenOverride::query()->with(['allergen'])->get(), 'settings' => NutritionSetting::query()->orderBy('key')->get(), 'runs' => NutritionRecalculationRun::query()->with('recipe')->latest()->limit(20)->get(), 'snapshots' => RecipeNutritionSnapshot::query()->with('recipe')->latest('calculated_at')->get()]);
+    }
+
+    public function snapshot(RecipeNutritionSnapshot $snapshot): View
+    {
+        $this->authorizeAdmin();
+
+        return view('admin.nutrition.snapshot', compact('snapshot'));
+    }
+
+    public function history(): View
+    {
+        $this->authorizeAdmin();
+
+        return view('admin.nutrition.history', ['runs' => NutritionRecalculationRun::query()->with('recipe')->latest()->paginate(50)]);
     }
 
     public function saveNutrient(Request $request, ?Nutrient $nutrient = null): RedirectResponse
