@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,4 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+        $exceptions->render(function (Throwable $exception, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json(['message' => 'İstek işlenemedi.', 'error_code' => 'internal_error', 'errors' => [], 'request_id' => (string) Str::ulid(), 'status' => 500], 500);
+            }
+        });
     })->create();
