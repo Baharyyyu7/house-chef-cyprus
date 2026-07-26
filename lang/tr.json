@@ -1,0 +1,15 @@
+{
+  "Email": "E-posta",
+  "Password": "Şifre",
+  "Confirm Password": "Şifre tekrarı",
+  "Remember me": "Beni hatırla",
+  "Forgot your password?": "Şifrenizi mi unuttunuz?",
+  "Log in": "Giriş yap",
+  "Register": "Kayıt ol",
+  "Name": "Ad soyad",
+  "Already registered?": "Zaten üye misiniz?",
+  "Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.": "Sorun değil. E-posta adresinizi girin; şifre yenileme bağlantısını size gönderelim.",
+  "Email Password Reset Link": "Şifre yenileme bağlantısı gönder",
+  "Reset Password": "Şifreyi yenile",
+  "Resend Verification Email": "Doğrulama e-postasını yeniden gönder"
+}
