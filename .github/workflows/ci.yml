@@ -3,6 +3,10 @@ on: [push, pull_request]
 jobs:
   quality:
     runs-on: ubuntu-latest
+    env:
+      APP_KEY: base64:MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE=
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ":memory:"
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
