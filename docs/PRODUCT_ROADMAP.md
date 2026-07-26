@@ -1,8 +1,10 @@
 # Ürün Yol Haritası
 
-1. **Faz 2 — Domain sertleştirme:** translation, units, nutrition, provenance, public ID, API resource sözleşmeleri.
-2. **Faz 3 — Ana tarif deneyimi:** gelişmiş arama, pantry eşleştirme, cooking session ve erişilebilir PWA.
-3. **Faz 4 — Topluluk:** kullanıcı tarifleri, medya, yorum/puan, moderasyon ve audit.
-4. **Faz 5 — Kişiselleştirme:** profil/diyet/alerjen tercihi, aile profilleri, öneriler.
-5. **Faz 6 — Planlama:** haftalık plan, alışveriş listesi, market fiyat connector'ları.
-6. **Faz 7 — Gelişmiş AI:** provider routing, görsel/ses, maliyet izleme ve güvenlik.
+1. **Recipe Domain Excellence:** tarif execution, malzeme/pantry matching ve nutrition/allergen güvenilirliği tamamlanır.
+2. **GitHub Automation — Aşama A:** her sprintte CI quality gate, Dependabot, audit, secret kontrolü, PR şablonu ve güvenli workflow ilkeleri.
+3. **SEO Content Hub — Aşama B:** sitemap, metadata/schema, kırık link, Lighthouse, accessibility ve visual regression kontrolleri.
+4. **Topluluk:** kullanıcı tarifleri, medya, yorum/puan, moderasyon ve audit.
+5. **Kişiselleştirme:** profil/diyet/alerjen tercihi, aile profilleri ve öneriler.
+6. **Planlama:** haftalık plan, alışveriş listesi, market fiyat connector'ları.
+7. **Production platform — Aşama C:** staging/production deploy, environment protection, backup, health check ve rollback.
+8. **Gelişmiş AI — Aşama D:** provider routing, görsel/ses, maliyet izleme; plan erişirse Copilot review/cloud-agent destekleri.
