@@ -4,6 +4,7 @@ return [
 
     'health' => [
         'stuck_after_seconds' => (int) env('QUEUE_STUCK_AFTER_SECONDS', 300),
+        'heartbeat_stale_after_seconds' => (int) env('QUEUE_HEARTBEAT_STALE_AFTER_SECONDS', 120),
     ],
 
     /*

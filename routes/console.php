@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('data:quality-scan')->daily()->withoutOverlapping()->onOneServer();
+Schedule::command('cache:warm --section=lookups')->daily()->withoutOverlapping();

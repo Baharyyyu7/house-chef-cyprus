@@ -18,6 +18,10 @@ final class RecalculateRecipeNutritionJob implements ShouldBeUnique, ShouldQueue
 
     public int $tries = 3;
 
+    public int $timeout = 120;
+
+    public string $queue = 'nutrition';
+
     public int $uniqueFor = 300;
 
     public array $backoff = [30, 120];
@@ -39,7 +43,7 @@ final class RecalculateRecipeNutritionJob implements ShouldBeUnique, ShouldQueue
             $nutrition->invalidate($recipe);
             $result = $nutrition->snapshot($recipe);
             $run?->update(['status' => 'completed', 'finished_at' => now(), 'new_confidence' => $result['confidence_score'], 'new_completeness' => $result['completeness_percentage']]);
-            app(QueueHealthService::class)->heartbeat();
+            app(QueueHealthService::class)->completed();
         } catch (\Throwable $exception) {
             $run?->update(['status' => 'failed', 'finished_at' => now(), 'error_code' => 'NUTRITION_RECALCULATION_FAILED', 'error_message' => 'Besin hesaplama işlemi tamamlanamadı.']);
             cache()->forever('queue.last_failed_job_at', now()->toIso8601String());
