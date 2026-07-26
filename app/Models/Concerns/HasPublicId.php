@@ -2,14 +2,17 @@
 
 namespace App\Models\Concerns;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 trait HasPublicId
 {
     protected static function bootHasPublicId(): void
     {
-        static::creating(function ($model): void {
-            $model->public_id ??= (string) Str::ulid();
+        static::creating(function (Model $model): void {
+            if ($model->getAttribute('public_id') === null) {
+                $model->setAttribute('public_id', (string) Str::ulid());
+            }
         });
     }
 }

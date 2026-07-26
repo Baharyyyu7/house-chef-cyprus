@@ -13,17 +13,23 @@ return new class extends Migration
     {
         Schema::create('recipe_steps', function (Blueprint $table) {
             $table->id();
+            $table->string('public_id')->unique();
             $table->foreignId('recipe_id')->constrained()->cascadeOnDelete();
-            $table->unsignedSmallInteger('step_number');
+            $table->unsignedSmallInteger('position');
             $table->string('title');
-            $table->text('instructions');
-            $table->unsignedSmallInteger('duration_minutes')->nullable();
-            $table->unsignedSmallInteger('temperature_celsius')->nullable();
+            $table->text('instruction');
+            $table->unsignedInteger('duration_seconds')->nullable();
+            $table->unsignedSmallInteger('temperature_value')->nullable();
+            $table->string('temperature_unit', 12)->nullable();
+            $table->boolean('timer_required')->default(false);
+            $table->boolean('is_optional')->default(false);
             $table->string('equipment')->nullable();
-            $table->string('tip')->nullable();
-            $table->string('safety_note')->nullable();
+            $table->text('chef_tip')->nullable();
+            $table->text('safety_note')->nullable();
+            $table->string('animation_key')->nullable();
+            $table->string('completion_hint')->nullable();
             $table->timestamps();
-            $table->unique(['recipe_id', 'step_number']);
+            $table->unique(['recipe_id', 'position']);
         });
     }
 

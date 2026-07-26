@@ -32,9 +32,16 @@ final class HouseChefSeeder extends Seeder
             foreach (array_values(array_slice($ingredients->all(), $index % 4, 4, true)) as $position => $ingredient) {
                 $recipe->ingredients()->syncWithoutDetaching([$ingredient->id => ['quantity' => $position + 1, 'unit' => 'adet', 'is_optional' => false, 'sort_order' => $position + 1]]);
             }
-            $recipe->steps()->firstOrCreate(['step_number' => 1], ['title' => 'Hazırlık', 'instructions' => 'Malzemeleri yıkayın, doğrayın ve ölçüleri hazırlayın.', 'duration_minutes' => $prep]);
-            $recipe->steps()->firstOrCreate(['step_number' => 2], ['title' => 'Pişirme', 'instructions' => 'Malzemeleri tarifin gerektirdiği sırayla pişirin ve kıvamını kontrol edin.', 'duration_minutes' => $cook]);
-            $recipe->steps()->firstOrCreate(['step_number' => 3], ['title' => 'Servis', 'instructions' => 'Tarifi dinlendirin ve sıcak servis edin.', 'duration_minutes' => 5, 'tip' => 'Taze yeşillikle servis edebilirsiniz.']);
+            $steps = [
+                ['position' => 1, 'title' => 'Hazırlık', 'instruction' => 'Malzemeleri yıkayın, doğrayın ve ölçüleri hazırlayın.', 'duration_seconds' => $prep * 60, 'equipment' => 'Kesme tahtası ve bıçak'],
+                ['position' => 2, 'title' => 'Ön hazırlık', 'instruction' => 'Tencereyi veya tavayı orta ısıda hazırlayın, malzemeleri sıraya koyun.', 'duration_seconds' => 300, 'is_optional' => $index < 4, 'chef_tip' => 'Malzemeleri önceden hazırlamak pişirme sırasında kontrolü artırır.'],
+                ['position' => 3, 'title' => 'Pişirme', 'instruction' => 'Malzemeleri tarifin gerektirdiği sırayla pişirin ve kıvamını kontrol edin.', 'duration_seconds' => max(60, $cook * 60), 'timer_required' => true, 'temperature_value' => $index < 4 ? 180 : null, 'temperature_unit' => $index < 4 ? 'celsius' : null, 'equipment' => $index < 4 ? 'Fırın veya tava' : 'Tava', 'safety_note' => $index < 4 ? 'Sıcak ekipmana çıplak elle dokunmayın; fırın eldiveni kullanın.' : null],
+                ['position' => 4, 'title' => 'Servis', 'instruction' => 'Tarifi dinlendirin, son kontrolü yapın ve sıcak servis edin.', 'duration_seconds' => 300, 'chef_tip' => 'Taze yeşillikle servis edebilirsiniz.', 'completion_hint' => 'Sos parlak ve malzemeler eşit sıcaklıktaysa tarif hazırdır.'],
+            ];
+            foreach ($steps as $step) {
+                $step['public_id'] = (string) Str::ulid();
+                $recipe->steps()->updateOrCreate(['position' => $step['position']], $step);
+            }
         }
     }
 }
