@@ -11,6 +11,8 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\IngredientExplorerController;
 use App\Http\Controllers\PantryController;
 use App\Http\Controllers\RecipeController;
+use App\Models\Ingredient;
+use App\Models\Recipe;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [RecipeController::class, 'index'])->name('home');
@@ -64,7 +66,17 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('beslenme/tarifler/{recipe}/invalidate', [AdminNutritionController::class, 'invalidate'])->name('nutrition.snapshots.invalidate');
     Route::post('beslenme/tarifler/{recipe}/recalculate', [AdminNutritionController::class, 'recalculate'])->name('nutrition.snapshots.recalculate');
     Route::resource('tarifler', AdminRecipeController::class)->names('recipes')->parameters(['tarifler' => 'recipe'])->except(['show']);
+    Route::get('tarifler/public/{publicId}/duzenle', function (string $publicId, AdminRecipeController $controller) {
+        $recipe = Recipe::query()->where('public_id', $publicId)->firstOrFail();
+
+        return $controller->edit($recipe);
+    })->name('recipes.edit-public');
     Route::get('malzemeler', [AdminIngredientController::class, 'index'])->name('ingredients.index');
+    Route::get('malzemeler/public/{publicId}/duzenle', function (string $publicId, AdminIngredientController $controller) {
+        $ingredient = Ingredient::query()->where('public_id', $publicId)->firstOrFail();
+
+        return $controller->edit($ingredient);
+    })->name('ingredients.edit-public');
     Route::get('malzemeler/{ingredient}/duzenle', [AdminIngredientController::class, 'edit'])->name('ingredients.edit');
     Route::put('malzemeler/{ingredient}', [AdminIngredientController::class, 'update'])->name('ingredients.update');
     Route::post('malzemeler/{ingredient}/aliaslar', [AdminIngredientController::class, 'storeAlias'])->name('ingredients.aliases.store');

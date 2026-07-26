@@ -6,6 +6,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DataQualityIssue;
+use App\Models\Ingredient;
+use App\Models\NutritionFact;
+use App\Models\Recipe;
 use App\Services\DataQualityService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,7 +30,7 @@ final class DataQualityController extends Controller
     {
         $this->admin();
 
-        return view('admin.data-quality.show', compact('issue'));
+        return view('admin.data-quality.show', ['issue' => $issue, 'entityLink' => $this->entityLink($issue)]);
     }
 
     public function resolve(DataQualityIssue $issue): RedirectResponse
@@ -57,5 +60,18 @@ final class DataQualityController extends Controller
     private function admin(): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
+    }
+
+    /** @return array{label:string,url:string}|null */
+    private function entityLink(DataQualityIssue $issue): ?array
+    {
+        return match ($issue->entity_type) {
+            Recipe::class => Recipe::query()->where('public_id', $issue->entity_public_id)->exists()
+                ? ['label' => 'Tarifi yönet', 'url' => route('admin.recipes.edit-public', $issue->entity_public_id)] : null,
+            Ingredient::class => Ingredient::query()->where('public_id', $issue->entity_public_id)->exists()
+                ? ['label' => 'Malzemeyi yönet', 'url' => route('admin.ingredients.edit-public', $issue->entity_public_id)] : null,
+            NutritionFact::class => ['label' => 'Beslenme yönetimine git', 'url' => route('admin.nutrition.index')],
+            default => null,
+        };
     }
 }
