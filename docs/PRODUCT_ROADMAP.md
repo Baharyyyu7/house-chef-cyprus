@@ -1,12 +1,30 @@
-# Ürün Yol Haritası
+# Kesin Ürün Geliştirme Sırası
 
-1. **Recipe Domain Excellence:** tarif execution, malzeme/pantry matching ve nutrition/allergen güvenilirliği tamamlanır.
-2. **GitHub Automation — Aşama A:** her sprintte CI quality gate, Dependabot, audit, secret kontrolü, PR şablonu ve güvenli workflow ilkeleri.
-3. **SEO Content Hub — Aşama B:** sitemap, metadata/schema, kırık link, Lighthouse, accessibility ve visual regression kontrolleri.
-4. **Topluluk:** kullanıcı tarifleri, medya, yorum/puan, moderasyon ve audit.
-5. **Kişiselleştirme:** profil/diyet/alerjen tercihi, aile profilleri ve öneriler.
-6. **Planlama:** haftalık plan, alışveriş listesi, market fiyat connector'ları.
-7. **Production platform — Aşama C:** staging/production deploy, environment protection, backup, health check ve rollback.
-8. **Gelişmiş AI — Aşama D:** provider routing, görsel/ses, maliyet izleme; plan erişirse Copilot review/cloud-agent destekleri.
+Blog/SEO Content Hub, teknik altyapı ve ana ürün çekirdeği eksiksiz kapanmadan başlatılmaz.
 
-> Tasarım referansı: Bu konuşmada onaylanan House Chef Cyprus koyu yeşil/altın/krem marka görseli, Technical Foundation kapanışından sonra Visual Design Implementation fazında kullanılacaktır. Bu not mevcut teknik kapsamı değiştirmez.
+1. **Technical Foundation A:** Nutrition 3B ve Data Quality kapanışı.
+2. **Technical Foundation B:** Cache, Queue ve Scheduler güvenilirliği.
+3. **Technical Foundation C:** Security hardening ve Media güvenliği.
+4. **Technical Foundation D:** Observability, Health ve Backup/Restore doğrulaması.
+5. **Technical Foundation E:** API v1 stabilizasyonu, GitHub Quality Gate ve clean install.
+6. **Final Product Core Audit:** Recipe, Pantry, Nutrition, Allergen, Dietary ve Data Quality çekirdeği regresyon denetimi.
+7. **Visual Design Implementation:** Onaylı koyu yeşil/altın/krem House Chef Cyprus referansı uygulanır.
+8. **AI Chef çekirdeği.**
+9. **SEO Content Hub ve Blog.**
+10. **Community.**
+11. **Premium UX ve Animasyon.**
+12. **Monetization.**
+13. **Import Engine V1.5.**
+14. **Production ve mobil hazırlık.**
+
+## Blog/SEO geçiş kapısı
+
+Blog/SEO yalnızca A–E ve Final Product Core Audit tamamlandığında; testler, Pint,
+PHPStan, production build ve GitHub Actions başarılı olduğunda; backup/restore,
+security hardening, API v1 stabilitesi ve clean install doğrulandığında başlar.
+
+Import Engine V1.5, premium admin polish, çoklu dil, Redis, S3 ve büyük ölçek
+optimizasyonları bu geçiş için zorunlu değildir; kendi backlog'larında kalır.
+
+> Tasarım referansı: Bu konuşmada onaylanan House Chef Cyprus koyu yeşil/altın/krem
+> marka görseli, yalnızca 7. fazda uygulanacaktır.
