@@ -10,8 +10,10 @@ final class RecipeObserver
 {
     public function updated(Recipe $recipe): void
     {
-        if ($recipe->wasChanged('servings')) {
-            DB::afterCommit(fn () => app(NutritionService::class)->invalidate($recipe));
+        if ($recipe->wasChanged()) {
+            DB::afterCommit(function () use ($recipe): void {
+                app(NutritionService::class)->invalidate($recipe);
+            });
         }
     }
 }

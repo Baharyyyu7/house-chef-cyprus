@@ -7,6 +7,8 @@ namespace App\Services;
 use App\Models\NutritionFact;
 use App\Models\Recipe;
 use App\Models\RecipeNutritionSnapshot;
+use App\Services\Cache\CacheInvalidationService;
+use App\Services\Cache\CacheKeyFactory;
 use Illuminate\Support\Facades\Cache;
 
 /** Computes transparent nutrition totals from ingredient facts without float arithmetic. */
@@ -14,13 +16,15 @@ final class NutritionService
 {
     private const SCALE = 6;
 
+    public function __construct(private readonly CacheKeyFactory $keys) {}
+
     /**
      * @return array<string, mixed>
      */
     public function calculate(Recipe $recipe, ?int $servings = null, bool $includeOptional = true): array
     {
         $servings ??= max(1, (int) $recipe->servings);
-        $key = "nutrition:recipe:{$recipe->public_id}:servings:{$servings}:optional:".($includeOptional ? '1' : '0');
+        $key = $this->keys->nutrition($recipe, $servings, $includeOptional);
 
         return Cache::remember($key, now()->addHour(), fn (): array => $this->calculateFresh($recipe, $servings, $includeOptional));
     }
@@ -41,8 +45,7 @@ final class NutritionService
 
     public function invalidate(Recipe $recipe): void
     {
-        Cache::forget("nutrition:recipe:{$recipe->public_id}:servings:".max(1, (int) $recipe->servings).':optional:1');
-        Cache::forget("nutrition:recipe:{$recipe->public_id}:servings:".max(1, (int) $recipe->servings).':optional:0');
+        app(CacheInvalidationService::class)->recipe($recipe);
         foreach (RecipeNutritionSnapshot::query()->where('recipe_id', $recipe->id)->get() as $snapshot) {
             Cache::forget("nutrition:recipe:{$recipe->public_id}:servings:{$snapshot->servings}:optional:1");
             Cache::forget("nutrition:recipe:{$recipe->public_id}:servings:{$snapshot->servings}:optional:0");
