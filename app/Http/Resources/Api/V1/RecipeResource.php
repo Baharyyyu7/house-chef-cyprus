@@ -2,12 +2,16 @@
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Models\Recipe;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @property Recipe $resource */
 final class RecipeResource extends JsonResource
 {
     public function toArray($request): array
     {
-        return ['public_id' => $this->public_id, 'title' => $this->title, 'slug' => $this->slug, 'excerpt' => $this->excerpt, 'servings' => $this->servings, 'difficulty' => $this->difficulty, 'total_minutes' => $this->totalMinutes(), 'cuisine' => $this->cuisine?->only(['public_id', 'name', 'slug']), 'category' => $this->category?->only(['public_id', 'name', 'slug']), 'ingredients' => $this->whenLoaded('ingredients', fn () => $this->ingredients->map(fn ($i) => ['public_id' => $i->public_id, 'name' => $i->name, 'quantity' => $i->pivot->quantity, 'unit' => $i->pivot->unit]))];
+        $recipe = $this->resource;
+
+        return ['public_id' => $recipe->public_id, 'title' => $recipe->title, 'slug' => $recipe->slug, 'excerpt' => $recipe->excerpt, 'servings' => $recipe->servings, 'difficulty' => $recipe->difficulty, 'total_minutes' => $recipe->totalMinutes(), 'cuisine' => $recipe->cuisine?->only(['public_id', 'name', 'slug']), 'category' => $recipe->category?->only(['public_id', 'name', 'slug']), 'ingredients' => $this->whenLoaded('ingredients', fn () => $recipe->ingredients->map(fn ($ingredient) => ['public_id' => $ingredient->public_id, 'name' => $ingredient->name, 'quantity' => data_get($ingredient, 'pivot.quantity'), 'unit' => data_get($ingredient, 'pivot.unit')]))];
     }
 }

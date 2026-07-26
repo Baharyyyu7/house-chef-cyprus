@@ -6,6 +6,7 @@ use App\Models\Concerns\HasPublicId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/** @property string $public_id */
 class Ingredient extends Model
 {
     use HasPublicId;

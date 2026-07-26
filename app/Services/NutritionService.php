@@ -8,11 +8,16 @@ use App\Models\Recipe;
 
 final class NutritionService
 {
-    /** @return array<string, mixed> */
+    /** @return array<string, float|string> */
     public function perServing(Recipe $recipe, int $servings): array
     {
         $factor = max(1, $servings) / max(1, $recipe->servings);
+        $nutrition = [];
 
-        return collect($recipe->nutrition ?? [])->map(fn ($value) => is_numeric($value) ? round((float) $value * $factor, 1) : $value)->all();
+        foreach ($recipe->nutrition ?? [] as $nutrient => $value) {
+            $nutrition[$nutrient] = is_numeric($value) ? round((float) $value * $factor, 1) : (string) $value;
+        }
+
+        return $nutrition;
     }
 }

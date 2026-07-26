@@ -11,7 +11,7 @@ final class DemoAiProvider implements AiProviderInterface
 {
     public function answer(string $question, ?Recipe $recipe = null, array $context = []): string
     {
-        $name = $recipe?->title ?? 'seçtiğiniz tarif';
+        $name = $recipe === null ? 'seçtiğiniz tarif' : $recipe->title;
 
         return "Demo AI Şef: {$name} için sorunu anladım. Malzeme değişikliklerinde kıvamı küçük adımlarla ayarlayın ve alerjenleri mutlaka kontrol edin. Bu yanıt tıbbi veya diyetisyen tavsiyesi değildir.";
     }

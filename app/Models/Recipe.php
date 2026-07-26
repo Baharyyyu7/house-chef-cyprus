@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property string $public_id
+ * @property array<string, float|int|string>|null $nutrition
+ */
 class Recipe extends Model
 {
     use HasPublicId;
