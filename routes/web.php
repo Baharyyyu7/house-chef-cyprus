@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\IngredientController as AdminIngredientController;
 use App\Http\Controllers\Admin\RecipeController as AdminRecipeController;
 use App\Http\Controllers\Admin\RecipeStepController as AdminRecipeStepController;
 use App\Http\Controllers\CookingSessionController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\IngredientExplorerController;
 use App\Http\Controllers\PantryController;
 use App\Http\Controllers\RecipeController;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +20,7 @@ Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('d
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
+    Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])->name('ingredients.explore');
     Route::post('/tarifler/{recipe:slug}/favori', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
     Route::get('/dolabim', [PantryController::class, 'index'])->name('pantry.index');
     Route::post('/dolabim', [PantryController::class, 'store'])->name('pantry.store');
@@ -37,6 +40,11 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
     Route::get('/', AdminDashboardController::class)->name('dashboard');
     Route::resource('tarifler', AdminRecipeController::class)->names('recipes')->parameters(['tarifler' => 'recipe'])->except(['show']);
+    Route::get('malzemeler', [AdminIngredientController::class, 'index'])->name('ingredients.index');
+    Route::get('malzemeler/{ingredient}/duzenle', [AdminIngredientController::class, 'edit'])->name('ingredients.edit');
+    Route::put('malzemeler/{ingredient}', [AdminIngredientController::class, 'update'])->name('ingredients.update');
+    Route::post('malzemeler/{ingredient}/aliaslar', [AdminIngredientController::class, 'storeAlias'])->name('ingredients.aliases.store');
+    Route::post('malzemeler/{ingredient}/alternatifler', [AdminIngredientController::class, 'storeSubstitution'])->name('ingredients.substitutions.store');
     Route::get('tarifler/{recipe}/adimlar', [AdminRecipeStepController::class, 'index'])->name('recipes.steps.index');
     Route::get('tarifler/{recipe}/adimlar/ekle', [AdminRecipeStepController::class, 'create'])->name('recipes.steps.create');
     Route::post('tarifler/{recipe}/adimlar', [AdminRecipeStepController::class, 'store'])->name('recipes.steps.store');

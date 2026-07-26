@@ -7,6 +7,8 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Cuisine;
 use App\Models\Ingredient;
+use App\Models\IngredientAlias;
+use App\Models\IngredientSubstitution;
 use App\Models\Recipe;
 use App\Models\Unit;
 use App\Models\User;
@@ -24,11 +26,29 @@ final class HouseChefSeeder extends Seeder
         $admin->update(['role' => 'admin']);
         $category = Category::query()->firstOrCreate(['slug' => 'ana-yemek'], ['name' => 'Ana Yemek', 'description' => 'Doyurucu tarifler']);
         $cuisines = collect(['Kıbrıs Mutfağı' => 'Kıbrıs', 'Türk Mutfağı' => 'Türkiye', 'İtalyan Mutfağı' => 'İtalya', 'Japon Mutfağı' => 'Japonya', 'Meksika Mutfağı' => 'Meksika', 'Lübnan Mutfağı' => 'Lübnan'])->mapWithKeys(fn (string $country, string $name) => [$name => Cuisine::query()->firstOrCreate(['slug' => Str::slug($name)], ['name' => $name, 'country' => $country])]);
+        $cuisines->each(fn (Cuisine $cuisine) => $cuisine->public_id ?? $cuisine->update(['public_id' => (string) Str::ulid()]));
         $ingredientNames = ['tavuk', 'soğan', 'sarımsak', 'domates', 'zeytinyağı', 'pirinç', 'limon', 'yoğurt', 'patates', 'maydanoz', 'nohut', 'makarna'];
-        $ingredients = collect($ingredientNames)->mapWithKeys(fn (string $name) => [$name => Ingredient::query()->firstOrCreate(['slug' => Str::slug($name)], ['name' => Str::headline($name), 'default_unit' => 'adet'])]);
+        $ingredients = collect($ingredientNames)->mapWithKeys(fn (string $name) => [$name => Ingredient::query()->firstOrCreate(['slug' => Str::slug($name)], ['name' => Str::headline($name), 'canonical_name' => Str::headline($name), 'default_unit' => 'adet'])]);
+        $ingredients->each(fn (Ingredient $ingredient) => $ingredient->public_id ?? $ingredient->update(['public_id' => (string) Str::ulid()]));
+        foreach (['soğan' => ['taze soğan', 'yeşil soğan'], 'yoğurt' => ['yoghurt'], 'kabartma tozu' => ['hamur kabartma tozu'], 'tavuk' => ['tavuk eti'], 'domates' => ['domatesler']] as $ingredientName => $aliases) {
+            $ingredient = $ingredients->get($ingredientName);
+            if ($ingredient === null) {
+                continue;
+            }
+            foreach ($aliases as $alias) {
+                IngredientAlias::query()->firstOrCreate(['ingredient_id' => $ingredient->id, 'normalized_alias' => Str::of($alias)->lower()->ascii()->replaceMatches('/[^a-z0-9]+/', ' ')->squish()->value(), 'locale' => 'tr'], ['alias' => $alias, 'source_type' => 'editorial', 'confidence_score' => 100]);
+            }
+        }
+        $substitutions = [['yoğurt', 'limon'], ['limon', 'yoğurt'], ['tavuk', 'nohut'], ['nohut', 'tavuk'], ['makarna', 'pirinç'], ['pirinç', 'makarna'], ['patates', 'nohut'], ['nohut', 'patates'], ['domates', 'yoğurt'], ['sarımsak', 'soğan']];
+        foreach ($substitutions as [$ingredientName, $substituteName]) {
+            IngredientSubstitution::query()->firstOrCreate(['ingredient_id' => $ingredients[$ingredientName]->id, 'substitute_ingredient_id' => $ingredients[$substituteName]->id, 'substitution_type' => 'emergency'], ['ratio' => 1, 'confidence_score' => 75, 'is_verified' => true, 'is_active' => true, 'notes' => 'Demo alternatifi']);
+        }
         $recipes = [['Kıbrıs Usulü Fırın Tavuk', 'Kıbrıs Mutfağı', 20, 45], ['Zeytinyağlı Nohutlu Pilav', 'Türk Mutfağı', 15, 30], ['Limonlu Akdeniz Makarnası', 'İtalyan Mutfağı', 10, 20], ['Sebzeli Teriyaki Tavuk', 'Japon Mutfağı', 20, 18], ['Fırın Sebzeli Taco Kasesi', 'Meksika Mutfağı', 20, 25], ['Yoğurtlu Nohut Salatası', 'Lübnan Mutfağı', 15, 0], ['Domatesli Tavuk Sote', 'Türk Mutfağı', 15, 25], ['Limonlu Otlu Patates', 'Kıbrıs Mutfağı', 15, 35], ['Sarımsaklı Zeytinyağlı Makarna', 'İtalyan Mutfağı', 10, 15], ['Pirinçli Tavuk Çorbası', 'Türk Mutfağı', 15, 35], ['Nohutlu Akdeniz Kasesi', 'Lübnan Mutfağı', 20, 10], ['Fırında Baharatlı Tavuk', 'Meksika Mutfağı', 15, 40]];
         foreach ($recipes as $index => [$title, $cuisine, $prep, $cook]) {
             $recipe = Recipe::query()->firstOrCreate(['slug' => Str::slug($title)], ['title' => $title, 'cuisine_id' => $cuisines[$cuisine]->id, 'category_id' => $category->id, 'excerpt' => 'Mevsim malzemeleriyle hazırlanan, ev mutfağına uygun özgün demo tarifi.', 'description' => 'Bu tarif House Chef Cyprus için hazırlanmış örnek içeriktir. Damak tadınıza göre baharat oranını ayarlayabilirsiniz.', 'prep_minutes' => $prep, 'cook_minutes' => $cook, 'servings' => 4, 'difficulty' => $index % 3 === 0 ? 'Orta' : 'Kolay', 'dietary_tags' => $index % 2 === 0 ? ['Yüksek protein'] : ['Akdeniz tipi'], 'allergens' => $index % 2 === 0 ? [] : ['Gluten'], 'nutrition' => ['kalori' => 420, 'protein' => 28, 'karbonhidrat' => 44, 'yağ' => 14], 'storage_notes' => ['buzdolabi_gun' => 2, 'uyari' => 'Soğuduktan sonra kapalı kapta saklayın.'], 'source_name' => 'House Chef Cyprus özgün demo', 'reliability_score' => 100, 'status' => 'published', 'is_featured' => $index < 4]);
+            if ($recipe->public_id === null) {
+                $recipe->update(['public_id' => (string) Str::ulid()]);
+            }
             foreach (array_values(array_slice($ingredients->all(), $index % 4, 4, true)) as $position => $ingredient) {
                 $recipe->ingredients()->syncWithoutDetaching([$ingredient->id => ['quantity' => $position + 1, 'unit' => 'adet', 'is_optional' => false, 'sort_order' => $position + 1]]);
             }
