@@ -18,7 +18,7 @@ final class RecipeController extends Controller
             $q->latest();
         }
 
-return RecipeResource::collection($q->paginate(min(50, max(1, (int) $request->integer('per_page', 20)))));
+        return RecipeResource::collection($q->paginate(min(50, max(1, (int) $request->integer('per_page', 20)))));
     }
 
     public function show(Recipe $recipe)
