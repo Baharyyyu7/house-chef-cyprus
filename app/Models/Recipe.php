@@ -58,6 +58,16 @@ class Recipe extends Model
         return $this->morphMany(Media::class, 'mediable')->orderBy('sort_order');
     }
 
+    public function allergens(): BelongsToMany
+    {
+        return $this->belongsToMany(Allergen::class, 'recipe_allergens')->withPivot(['risk_type', 'derived_from']);
+    }
+
+    public function dietaryTags(): BelongsToMany
+    {
+        return $this->belongsToMany(DietaryTag::class, 'recipe_dietary_tag');
+    }
+
     public function totalMinutes(): int
     {
         return $this->prep_minutes + $this->cook_minutes + $this->rest_minutes;

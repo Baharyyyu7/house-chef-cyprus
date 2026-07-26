@@ -1,0 +1,6 @@
+openapi: 3.0.3
+info: {title: House Chef Cyprus API, version: v1}
+paths:
+  /api/v1/health: {get: {responses: {'200': {description: OK}}}}
+  /api/v1/recipes: {get: {parameters: [{name: search, in: query, schema: {type: string}}], responses: {'200': {description: Recipe page}}}}
+  /api/v1/recipes/{public_id}: {get: {parameters: [{name: public_id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Recipe}}}}
