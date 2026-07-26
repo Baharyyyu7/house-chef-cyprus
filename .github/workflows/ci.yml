@@ -13,9 +13,9 @@ jobs:
         with: {php-version: '8.5', extensions: sqlite3, coverage: none}
       - run: composer install --no-interaction --prefer-dist
       - run: npm ci
+      - run: npm run build
       - run: php artisan test
       - run: ./vendor/bin/pint --test
       - run: ./vendor/bin/phpstan analyse --memory-limit=1G
-      - run: npm run build
       - run: composer audit
       - run: npm audit --omit=dev --audit-level=high
