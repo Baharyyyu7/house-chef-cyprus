@@ -1,5 +1,11 @@
 # Changelog
 
+## Technical Foundation A — Kontrollü Kapanış
+
+- Nutrition 3B filtre sözleşmesi, Data Quality Engine ve yönetim akışları tamamlandı.
+- Data Quality scan yaşam döngüsü, kalite skorları, scheduler kaydı, entity bağlantıları ve yetkilendirme doğrulandı.
+- 419/500 hata ekranı tarayıcı regresyonu production öncesi Final QA backlog'una taşındı.
+
 ## Recipe Domain Excellence — Sprint 3
 
 - Nutrient, ingredient nutrition fact, cache snapshot ve güven/tamamlanma hesaplama altyapısı eklendi.
