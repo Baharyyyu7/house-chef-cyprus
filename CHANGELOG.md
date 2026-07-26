@@ -9,6 +9,7 @@
 ## Recipe Domain Excellence — Sprint 3A
 
 - Nutrition yönetim ekranı, audit log, snapshot invalidate/recalculate komutları ve otomatik invalidation observer'ları eklendi.
+- Alerjen ilişki/override ve dietary threshold veri modeli ile recalculation history altyapısı genişletildi.
 
 ## Recipe Domain Excellence — Sprint 1
 

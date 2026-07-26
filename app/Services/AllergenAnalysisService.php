@@ -24,9 +24,14 @@ final class AllergenAnalysisService
                 }
             }
         }
-        foreach ($recipe->allergenOverrideRecords()->with('allergen')->get() as $override) {
+        foreach ($recipe->allergenOverrideRecords()->with('allergen')->where('is_active', true)->orderByDesc('is_verified')->get() as $override) {
             $allergen = $override->allergen()->firstOrFail();
             $type = $override->risk_type;
+            if ($type === 'does_not_contain') {
+                $groups['contains'] = array_values(array_filter($groups['contains'], fn (array $item): bool => $item['public_id'] !== $allergen->public_id));
+
+                continue;
+            }
             $groups[$type][] = ['public_id' => $allergen->public_id, 'name' => $allergen->name, 'confidence_score' => 100, 'ingredient' => null, 'optional' => false, 'verified' => true, 'override' => true, 'reason' => $override->derived_from];
         }
         foreach ($groups as &$items) {

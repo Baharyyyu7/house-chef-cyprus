@@ -6,6 +6,8 @@
 - `nutrition_facts`: Ingredient veya gelecekte recipe için basis, source, origin, confidence ve doğrulama zamanı taşıyan polymorphic fact kayıtları.
 - `recipe_nutrition_snapshots`: Porsiyon bazlı hesaplanmış payload, tamamlanma/güven skoru ve invalidation zamanı.
 - `ingredient_allergen_details`: Malzeme alerjen ilişkisi, risk türü, doğrulama ve kaynak bilgisi.
+- `nutrition_settings`: Yönetilebilir dietary eşikleri için merkezi decimal değerler.
+- `nutrition_recalculation_runs`: Snapshot yeniden hesaplama tetikleme, durum ve güvenli hata geçmişi.
 
 ## Recipe execution
 

@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class IngredientAllergenDetail extends Model
 {
-    protected $fillable = ['ingredient_id', 'allergen_id', 'relation_type', 'confidence_score', 'source_type', 'is_verified', 'notes'];
+    protected $fillable = ['ingredient_id', 'allergen_id', 'relation_type', 'confidence_score', 'source_type', 'source_name', 'is_verified', 'is_active', 'notes'];
 
     protected function casts(): array
     {
-        return ['is_verified' => 'boolean'];
+        return ['is_verified' => 'boolean', 'is_active' => 'boolean'];
     }
 
     /** @return BelongsTo<Ingredient, $this> */

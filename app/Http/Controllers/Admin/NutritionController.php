@@ -10,8 +10,12 @@ use App\Models\Allergen;
 use App\Models\AuditLog;
 use App\Models\DietaryTag;
 use App\Models\Ingredient;
+use App\Models\IngredientAllergenDetail;
 use App\Models\Nutrient;
+use App\Models\NutritionRecalculationRun;
+use App\Models\NutritionSetting;
 use App\Models\Recipe;
+use App\Models\RecipeAllergenOverride;
 use App\Services\NutritionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,7 +29,7 @@ final class NutritionController extends Controller
     {
         $this->authorizeAdmin();
 
-        return view('admin.nutrition.index', ['nutrients' => Nutrient::query()->orderBy('sort_order')->get(), 'allergens' => Allergen::query()->orderBy('sort_order')->get(), 'tags' => DietaryTag::query()->orderBy('sort_order')->get(), 'ingredients' => Ingredient::query()->withCount('nutritionFacts')->orderBy('name')->get(), 'recipes' => Recipe::query()->withCount('nutritionSnapshots')->orderBy('title')->get()]);
+        return view('admin.nutrition.index', ['nutrients' => Nutrient::query()->orderBy('sort_order')->get(), 'allergens' => Allergen::query()->orderBy('sort_order')->get(), 'tags' => DietaryTag::query()->orderBy('sort_order')->get(), 'ingredients' => Ingredient::query()->withCount('nutritionFacts')->orderBy('name')->get(), 'recipes' => Recipe::query()->withCount('nutritionSnapshots')->orderBy('title')->get(), 'relations' => IngredientAllergenDetail::query()->with(['ingredient', 'allergen'])->get(), 'overrides' => RecipeAllergenOverride::query()->with(['allergen'])->get(), 'settings' => NutritionSetting::query()->orderBy('key')->get(), 'runs' => NutritionRecalculationRun::query()->with('recipe')->latest()->limit(20)->get()]);
     }
 
     public function saveNutrient(Request $request, ?Nutrient $nutrient = null): RedirectResponse
@@ -74,6 +78,40 @@ final class NutritionController extends Controller
         return back()->with('status', 'Besin değeri kaydedildi.');
     }
 
+    public function saveRelation(Request $request): RedirectResponse
+    {
+        $this->authorizeAdmin();
+        $data = $request->validate(['ingredient_id' => ['required', 'exists:ingredients,id'], 'allergen_id' => ['required', 'exists:allergens,id'], 'relation_type' => ['required', 'in:contains,may_contain,cross_contamination_risk,derived_from'], 'confidence_score' => ['required', 'integer', 'between:0,100'], 'source_type' => ['required', 'string', 'max:30'], 'source_name' => ['nullable', 'string', 'max:255'], 'is_verified' => ['nullable', 'boolean'], 'notes' => ['nullable', 'string']]);
+        if (($data['is_verified'] ?? false) && empty($data['source_name'])) {
+            return back()->withErrors(['source_name' => 'Doğrulanmış ilişki için kaynak zorunludur.']);
+        } IngredientAllergenDetail::query()->updateOrCreate(['ingredient_id' => $data['ingredient_id'], 'allergen_id' => $data['allergen_id']], $data);
+        $this->audit('nutrition.ingredient_allergen.saved', (object) ['id' => $data['ingredient_id']]);
+
+        return back()->with('status', 'Malzeme alerjen ilişkisi kaydedildi.');
+    }
+
+    public function saveOverride(Request $request): RedirectResponse
+    {
+        $this->authorizeAdmin();
+        $data = $request->validate(['recipe_id' => ['required', 'exists:recipes,id'], 'allergen_id' => ['required', 'exists:allergens,id'], 'risk_type' => ['required', 'in:contains,does_not_contain,may_contain,uncertain'], 'derived_from' => ['required', 'string', 'max:255'], 'source_type' => ['required', 'string', 'max:30'], 'source_name' => ['nullable', 'string', 'max:255'], 'is_verified' => ['nullable', 'boolean'], 'notes' => ['nullable', 'string']]);
+        RecipeAllergenOverride::query()->updateOrCreate(['recipe_id' => $data['recipe_id'], 'allergen_id' => $data['allergen_id']], $data + ['is_active' => true, 'updated_by' => auth()->id(), 'updated_at' => now()]);
+        $recipe = Recipe::findOrFail($data['recipe_id']);
+        app(NutritionService::class)->invalidate($recipe);
+        $this->audit('nutrition.recipe_allergen_override.saved', $recipe);
+
+        return back()->with('status', 'Tarif alerjen override kaydedildi.');
+    }
+
+    public function saveSetting(Request $request): RedirectResponse
+    {
+        $this->authorizeAdmin();
+        $data = $request->validate(['key' => ['required', 'in:high_protein_min_grams_per_serving,low_calorie_max_kcal_per_serving,ketogenic_max_net_carbs_per_serving,ketogenic_min_fat_ratio,confidence_required_for_verified_result,completeness_required_for_verified_result'], 'value' => ['required', 'decimal:0,4', 'min:0'], 'unit' => ['nullable', 'string', 'max:20']]);
+        NutritionSetting::query()->updateOrCreate(['key' => $data['key']], $data);
+        $this->audit('nutrition.setting.saved', (object) ['id' => 0]);
+
+        return back()->with('status', 'Beslenme eşiği kaydedildi.');
+    }
+
     public function invalidate(Request $request, Recipe $recipe, NutritionService $nutrition): RedirectResponse
     {
         $this->authorizeAdmin();
@@ -86,7 +124,8 @@ final class NutritionController extends Controller
     public function recalculate(Request $request, Recipe $recipe): RedirectResponse
     {
         $this->authorizeAdmin();
-        RecalculateRecipeNutritionJob::dispatch($recipe->id);
+        $run = NutritionRecalculationRun::query()->create(['recipe_id' => $recipe->id, 'triggered_by' => auth()->id(), 'status' => 'pending']);
+        RecalculateRecipeNutritionJob::dispatch($recipe->id, $run->id);
         $this->audit('nutrition.recalculation.queued', $recipe);
 
         return back()->with('status', 'Yeniden hesaplama sıraya alındı.');

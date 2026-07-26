@@ -48,6 +48,9 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('beslenme/dietary-tags', [AdminNutritionController::class, 'saveDietaryTag'])->name('nutrition.dietary-tags.store');
     Route::put('beslenme/dietary-tags/{tag}', [AdminNutritionController::class, 'saveDietaryTag'])->name('nutrition.dietary-tags.update');
     Route::post('beslenme/malzemeler/{ingredient}/facts', [AdminNutritionController::class, 'saveFact'])->name('nutrition.facts.store');
+    Route::post('beslenme/ingredient-allergens', [AdminNutritionController::class, 'saveRelation'])->name('nutrition.relations.store');
+    Route::post('beslenme/recipe-allergen-overrides', [AdminNutritionController::class, 'saveOverride'])->name('nutrition.overrides.store');
+    Route::post('beslenme/settings', [AdminNutritionController::class, 'saveSetting'])->name('nutrition.settings.store');
     Route::post('beslenme/tarifler/{recipe}/invalidate', [AdminNutritionController::class, 'invalidate'])->name('nutrition.snapshots.invalidate');
     Route::post('beslenme/tarifler/{recipe}/recalculate', [AdminNutritionController::class, 'recalculate'])->name('nutrition.snapshots.recalculate');
     Route::resource('tarifler', AdminRecipeController::class)->names('recipes')->parameters(['tarifler' => 'recipe'])->except(['show']);
