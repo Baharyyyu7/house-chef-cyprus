@@ -30,5 +30,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::define('access-admin', fn ($user): bool => $user->isAdmin());
         RateLimiter::for('ai', fn (Request $request) => Limit::perMinute(10)->by($request->user()?->id ?: $request->ip()));
+        RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
     }
 }
