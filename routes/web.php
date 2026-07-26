@@ -51,7 +51,9 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::put('beslenme/dietary-tags/{tag}', [AdminNutritionController::class, 'saveDietaryTag'])->name('nutrition.dietary-tags.update');
     Route::post('beslenme/malzemeler/{ingredient}/facts', [AdminNutritionController::class, 'saveFact'])->name('nutrition.facts.store');
     Route::post('beslenme/ingredient-allergens', [AdminNutritionController::class, 'saveRelation'])->name('nutrition.relations.store');
+    Route::post('beslenme/ingredient-allergens/{relation}/toggle', [AdminNutritionController::class, 'toggleRelation'])->name('nutrition.relations.toggle');
     Route::post('beslenme/recipe-allergen-overrides', [AdminNutritionController::class, 'saveOverride'])->name('nutrition.overrides.store');
+    Route::post('beslenme/recipe-allergen-overrides/{override}/toggle', [AdminNutritionController::class, 'toggleOverride'])->name('nutrition.overrides.toggle');
     Route::post('beslenme/settings', [AdminNutritionController::class, 'saveSetting'])->name('nutrition.settings.store');
     Route::post('beslenme/tarifler/{recipe}/invalidate', [AdminNutritionController::class, 'invalidate'])->name('nutrition.snapshots.invalidate');
     Route::post('beslenme/tarifler/{recipe}/recalculate', [AdminNutritionController::class, 'recalculate'])->name('nutrition.snapshots.recalculate');

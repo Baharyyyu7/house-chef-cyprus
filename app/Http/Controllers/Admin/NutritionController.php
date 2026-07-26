@@ -107,6 +107,15 @@ final class NutritionController extends Controller
         return back()->with('status', 'Malzeme alerjen ilişkisi kaydedildi.');
     }
 
+    public function toggleRelation(IngredientAllergenDetail $relation): RedirectResponse
+    {
+        $this->authorizeAdmin();
+        $relation->update(['is_active' => ! $relation->is_active]);
+        $this->audit('nutrition.ingredient_allergen.toggled', $relation);
+
+        return back()->with('status', $relation->is_active ? 'İlişki yeniden etkinleştirildi.' : 'İlişki pasif yapıldı.');
+    }
+
     public function saveOverride(Request $request): RedirectResponse
     {
         $this->authorizeAdmin();
@@ -117,6 +126,15 @@ final class NutritionController extends Controller
         $this->audit('nutrition.recipe_allergen_override.saved', $recipe);
 
         return back()->with('status', 'Tarif alerjen override kaydedildi.');
+    }
+
+    public function toggleOverride(RecipeAllergenOverride $override): RedirectResponse
+    {
+        $this->authorizeAdmin();
+        $override->update(['is_active' => ! $override->is_active, 'updated_by' => auth()->id(), 'updated_at' => now()]);
+        $this->audit('nutrition.recipe_allergen_override.toggled', $override);
+
+        return back()->with('status', $override->is_active ? 'Override yeniden etkinleştirildi.' : 'Override pasif yapıldı.');
     }
 
     public function saveSetting(Request $request): RedirectResponse
