@@ -18,40 +18,50 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
 
     public function search(array $filters): LengthAwarePaginator
     {
-        $recipes = Recipe::query()->with(['cuisine', 'category', 'media', 'recipeIngredients.ingredient.nutritionFacts.nutrient'])
+        $query = Recipe::query()->with(['cuisine', 'category', 'media', 'recipeIngredients.ingredient.nutritionFacts.nutrient'])
             ->where('status', 'published')
             ->when($filters['q'] ?? null, fn ($query, string $term) => $query->where(fn ($nested) => $nested->where('title', 'like', "%{$term}%")->orWhereHas('ingredients', fn ($ingredients) => $ingredients->where('name', 'like', "%{$term}%"))))
             ->when($filters['cuisine'] ?? null, fn ($query, string $slug) => $query->whereHas('cuisine', fn ($cuisines) => $cuisines->where('slug', $slug)))
-            ->when($filters['max_minutes'] ?? null, fn ($query, int $minutes) => $query->whereRaw('(prep_minutes + cook_minutes + rest_minutes) <= ?', [$minutes]))
-            ->orderByDesc('is_featured')->latest()->get()->filter(function (Recipe $recipe) use ($filters): bool {
-                $nutrition = $this->nutrition->calculate($recipe);
-                $protein = (string) data_get($nutrition, 'nutrients.protein.per_serving', '0');
-                $calories = (string) data_get($nutrition, 'nutrients.energy_kcal.per_serving', '0');
-                if (isset($filters['min_protein']) && bccomp($protein, (string) $filters['min_protein'], 4) < 0) {
+            ->when($filters['category'] ?? null, fn ($query, string $slug) => $query->whereHas('category', fn ($categories) => $categories->where('slug', $slug)))
+            ->when($filters['ingredient'] ?? null, fn ($query, string $publicId) => $query->whereHas('ingredients', fn ($ingredients) => $ingredients->where('public_id', $publicId)))
+            ->when($filters['difficulty'] ?? null, fn ($query, string $difficulty) => $query->where('difficulty', $difficulty))
+            ->when($filters['max_minutes'] ?? null, fn ($query, int $minutes) => $query->whereRaw('(prep_minutes + cook_minutes + rest_minutes) <= ?', [$minutes]));
+
+        if (($filters['sort'] ?? null) === 'time') {
+            $query->orderByRaw('(prep_minutes + cook_minutes + rest_minutes)');
+        } else {
+            $query->orderByDesc('is_featured')->latest();
+        }
+
+        $recipes = $query->get()->filter(function (Recipe $recipe) use ($filters): bool {
+            $nutrition = $this->nutrition->calculate($recipe);
+            $protein = (string) data_get($nutrition, 'nutrients.protein.per_serving', '0');
+            $calories = (string) data_get($nutrition, 'nutrients.energy_kcal.per_serving', '0');
+            if (isset($filters['min_protein']) && bccomp($protein, (string) $filters['min_protein'], 4) < 0) {
+                return false;
+            }
+            if (isset($filters['max_calories']) && (bccomp($calories, '0', 4) === 0 || bccomp($calories, (string) $filters['max_calories'], 4) > 0)) {
+                return false;
+            }
+            if (($filters['verified_only'] ?? false) && ($nutrition['confidence_score'] < 80 || $nutrition['completeness_percentage'] < 90 || $nutrition['contains_estimated_values'])) {
+                return false;
+            }
+            if ($tag = ($filters['dietary_tag'] ?? $filters['diet'] ?? null)) {
+                $status = $this->dietary->assess($recipe)[$tag]['status'] ?? 'uncertain';
+                if (! in_array($status, ['compatible', 'manually_verified'], true)) {
                     return false;
                 }
-                if (isset($filters['max_calories']) && (bccomp($calories, '0', 4) === 0 || bccomp($calories, (string) $filters['max_calories'], 4) > 0)) {
-                    return false;
-                }
-                if (($filters['verified_only'] ?? false) && ($nutrition['confidence_score'] < 80 || $nutrition['completeness_percentage'] < 90 || $nutrition['contains_estimated_values'])) {
-                    return false;
-                }
-                if ($tag = ($filters['dietary_tag'] ?? $filters['diet'] ?? null)) {
-                    $status = $this->dietary->assess($recipe)[$tag]['status'] ?? 'uncertain';
-                    if (! in_array($status, ['compatible', 'manually_verified'], true)) {
+            }
+            if ($allergen = ($filters['exclude_allergen'] ?? null)) {
+                foreach ($this->allergens->analyse($recipe)['groups']['contains'] as $item) {
+                    if ($item['public_id'] === $allergen) {
                         return false;
                     }
                 }
-                if ($allergen = ($filters['exclude_allergen'] ?? null)) {
-                    foreach ($this->allergens->analyse($recipe)['groups']['contains'] as $item) {
-                        if ($item['public_id'] === $allergen) {
-                            return false;
-                        }
-                    }
-                }
+            }
 
-                return true;
-            })->values();
+            return true;
+        })->values();
         $perPage = min(50, max(1, (int) ($filters['per_page'] ?? 12)));
         $page = max(1, (int) ($filters['page'] ?? 1));
 

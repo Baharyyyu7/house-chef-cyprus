@@ -9,6 +9,7 @@ use App\Models\DataQualityIssue;
 use App\Services\DataQualityService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 final class DataQualityController extends Controller
@@ -19,7 +20,7 @@ final class DataQualityController extends Controller
         $issues = DataQualityIssue::query()->when($request->severity, fn ($q, $v) => $q->where('severity', $v))->when($request->issue_type, fn ($q, $v) => $q->where('issue_type', $v))->when($request->entity_type, fn ($q, $v) => $q->where('entity_type', $v))->when($request->status, fn ($q, $v) => $q->where('resolution_status', $v))->when($request->q, fn ($q, $v) => $q->where('message', 'like', "%$v%"))->latest('last_detected_at')->paginate(30)->withQueryString();
         $open = DataQualityIssue::where('resolution_status', 'open');
 
-        return view('admin.data-quality.index', ['issues' => $issues, 'score' => $quality->score(), 'counts' => ['critical' => (clone $open)->where('severity', 'critical')->count(), 'error' => (clone $open)->where('severity', 'error')->count(), 'warning' => (clone $open)->where('severity', 'warning')->count()], 'lastScan' => DataQualityIssue::max('last_detected_at')]);
+        return view('admin.data-quality.index', ['issues' => $issues, 'score' => $quality->score(), 'categoryScores' => $quality->categoryScores(), 'counts' => ['critical' => (clone $open)->where('severity', 'critical')->count(), 'error' => (clone $open)->where('severity', 'error')->count(), 'warning' => (clone $open)->where('severity', 'warning')->count()], 'lastScan' => DataQualityIssue::max('last_detected_at'), 'schedulerStatus' => Cache::get('data_quality.last_scan')]);
     }
 
     public function show(DataQualityIssue $issue): View
@@ -55,6 +56,6 @@ final class DataQualityController extends Controller
 
     private function admin(): void
     {
-        abort_unless(auth()->user()?->isAdmin(),403);
+        abort_unless(auth()->user()?->isAdmin(), 403);
     }
 }

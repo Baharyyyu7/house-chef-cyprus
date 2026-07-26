@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Contracts\Search\RecipeSearchInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\RecipeResource;
 use App\Models\Recipe;
@@ -9,16 +10,28 @@ use Illuminate\Http\Request;
 
 final class RecipeController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, RecipeSearchInterface $search)
     {
-        $q = Recipe::query()->with(['cuisine', 'category'])->where('status', 'published')->when($request->search, fn ($b, $v) => $b->where('title', 'like', "%$v%"))->when($request->cuisine, fn ($b, $v) => $b->whereHas('cuisine', fn ($q) => $q->where('slug', $v)))->when($request->category, fn ($b, $v) => $b->whereHas('category', fn ($q) => $q->where('slug', $v)))->when($request->ingredient, fn ($b, $v) => $b->whereHas('ingredients', fn ($q) => $q->where('public_id', $v)))->when($request->difficulty, fn ($b, $v) => $b->where('difficulty', $v))->when($request->max_time, fn ($b, $v) => $b->whereRaw('(prep_minutes+cook_minutes+rest_minutes)<=?', [$v]))->when($request->dietary_tag, fn ($b, $v) => $b->whereHas('dietaryTags', fn ($tags) => $tags->where('code', $v)))->when($request->exclude_allergen, fn ($b, $v) => $b->whereDoesntHave('recipeIngredients.ingredient.allergenDetails.allergen', fn ($allergens) => $allergens->where('code', $v)));
-        if ($request->sort === 'time') {
-            $q->orderByRaw('(prep_minutes+cook_minutes+rest_minutes)');
-        } else {
-            $q->latest();
-        }
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:120'],
+            'cuisine' => ['nullable', 'string', 'max:120'],
+            'category' => ['nullable', 'string', 'max:120'],
+            'ingredient' => ['nullable', 'string', 'max:26'],
+            'difficulty' => ['nullable', 'string', 'max:50'],
+            'max_time' => ['nullable', 'integer', 'min:1', 'max:1440'],
+            'min_protein' => ['nullable', 'numeric', 'min:0', 'max:10000'],
+            'max_calories' => ['nullable', 'numeric', 'min:1', 'max:100000'],
+            'verified_only' => ['nullable', 'boolean'],
+            'dietary_tag' => ['nullable', 'string', 'max:100'],
+            'exclude_allergen' => ['nullable', 'string', 'max:26'],
+            'sort' => ['nullable', 'in:newest,time'],
+            'page' => ['nullable', 'integer', 'min:1'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
+        ]);
+        $filters['q'] = $filters['search'] ?? null;
+        $filters['max_minutes'] = $filters['max_time'] ?? null;
 
-        return RecipeResource::collection($q->paginate(min(50, max(1, (int) $request->integer('per_page', 20)))));
+        return RecipeResource::collection($search->search($filters));
     }
 
     public function show(Recipe $recipe)
