@@ -17,6 +17,10 @@ Blog/SEO Content Hub, teknik altyapı ve ana ürün çekirdeği eksiksiz kapanma
 13. **Import Engine V1.5.**
 14. **Production ve mobil hazırlık.**
 
+> **Privacy-Aware Geo Analytics:** Ülke/şehir düzeyindeki yaklaşık analiz, bu
+> sırayı değiştirmez. Production ve mobil hazırlık kapsamında, yalnızca gizlilik,
+> saklama politikası ve kullanıcı tercihleri doğrulandıktan sonra ele alınır.
+
 ## Blog/SEO geçiş kapısı
 
 Blog/SEO yalnızca A–E ve Final Product Core Audit tamamlandığında; testler, Pint,
