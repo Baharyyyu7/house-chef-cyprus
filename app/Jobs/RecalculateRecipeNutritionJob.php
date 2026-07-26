@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Models\NutritionRecalculationRun;
 use App\Models\Recipe;
 use App\Services\NutritionService;
+use App\Services\QueueHealthService;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -38,8 +39,10 @@ final class RecalculateRecipeNutritionJob implements ShouldBeUnique, ShouldQueue
             $nutrition->invalidate($recipe);
             $result = $nutrition->snapshot($recipe);
             $run?->update(['status' => 'completed', 'finished_at' => now(), 'new_confidence' => $result['confidence_score'], 'new_completeness' => $result['completeness_percentage']]);
+            app(QueueHealthService::class)->heartbeat();
         } catch (\Throwable $exception) {
             $run?->update(['status' => 'failed', 'finished_at' => now(), 'error_code' => 'NUTRITION_RECALCULATION_FAILED', 'error_message' => 'Besin hesaplama işlemi tamamlanamadı.']);
+            cache()->forever('queue.last_failed_job_at', now()->toIso8601String());
             throw $exception;
         }
     }

@@ -2,6 +2,10 @@
 
 return [
 
+    'health' => [
+        'stuck_after_seconds' => (int) env('QUEUE_STUCK_AFTER_SECONDS', 300),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Default Queue Connection Name
