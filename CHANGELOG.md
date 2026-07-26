@@ -6,6 +6,10 @@
 - Tarif bazlı alerjen analizi ve belirsizliği koruyan diyet uyumluluğu eklendi.
 - Nutrition/allergen/dietary tag API uçları ile tarif detay kartları eklendi.
 
+## Recipe Domain Excellence — Sprint 3A
+
+- Nutrition yönetim ekranı, audit log, snapshot invalidate/recalculate komutları ve otomatik invalidation observer'ları eklendi.
+
 ## Recipe Domain Excellence — Sprint 1
 
 - Tarif adımları public ULID, sıralama, süre, sıcaklık, timer, opsiyonellik ve rehber alanlarıyla genişletildi.

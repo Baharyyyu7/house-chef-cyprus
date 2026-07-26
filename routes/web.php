@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\IngredientController as AdminIngredientController;
+use App\Http\Controllers\Admin\NutritionController as AdminNutritionController;
 use App\Http\Controllers\Admin\RecipeController as AdminRecipeController;
 use App\Http\Controllers\Admin\RecipeStepController as AdminRecipeStepController;
 use App\Http\Controllers\CookingSessionController;
@@ -39,6 +40,16 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
     Route::get('/', AdminDashboardController::class)->name('dashboard');
+    Route::get('beslenme', [AdminNutritionController::class, 'index'])->name('nutrition.index');
+    Route::post('beslenme/nutrients', [AdminNutritionController::class, 'saveNutrient'])->name('nutrition.nutrients.store');
+    Route::put('beslenme/nutrients/{nutrient}', [AdminNutritionController::class, 'saveNutrient'])->name('nutrition.nutrients.update');
+    Route::post('beslenme/allergens', [AdminNutritionController::class, 'saveAllergen'])->name('nutrition.allergens.store');
+    Route::put('beslenme/allergens/{allergen}', [AdminNutritionController::class, 'saveAllergen'])->name('nutrition.allergens.update');
+    Route::post('beslenme/dietary-tags', [AdminNutritionController::class, 'saveDietaryTag'])->name('nutrition.dietary-tags.store');
+    Route::put('beslenme/dietary-tags/{tag}', [AdminNutritionController::class, 'saveDietaryTag'])->name('nutrition.dietary-tags.update');
+    Route::post('beslenme/malzemeler/{ingredient}/facts', [AdminNutritionController::class, 'saveFact'])->name('nutrition.facts.store');
+    Route::post('beslenme/tarifler/{recipe}/invalidate', [AdminNutritionController::class, 'invalidate'])->name('nutrition.snapshots.invalidate');
+    Route::post('beslenme/tarifler/{recipe}/recalculate', [AdminNutritionController::class, 'recalculate'])->name('nutrition.snapshots.recalculate');
     Route::resource('tarifler', AdminRecipeController::class)->names('recipes')->parameters(['tarifler' => 'recipe'])->except(['show']);
     Route::get('malzemeler', [AdminIngredientController::class, 'index'])->name('ingredients.index');
     Route::get('malzemeler/{ingredient}/duzenle', [AdminIngredientController::class, 'edit'])->name('ingredients.edit');

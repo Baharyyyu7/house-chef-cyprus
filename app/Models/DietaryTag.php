@@ -9,10 +9,10 @@ class DietaryTag extends Model
 {
     use HasPublicId;
 
-    protected $fillable = ['public_id', 'code', 'name', 'description', 'is_active'];
+    protected $fillable = ['public_id', 'code', 'name', 'description', 'rule_type', 'threshold_config', 'is_active', 'sort_order'];
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return ['is_active' => 'boolean', 'threshold_config' => 'array'];
     }
 }

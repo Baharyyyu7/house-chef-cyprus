@@ -10,7 +10,7 @@ class Allergen extends Model
 {
     use HasPublicId;
 
-    protected $fillable = ['public_id', 'code', 'name', 'is_active'];
+    protected $fillable = ['public_id', 'code', 'name', 'description', 'is_active', 'sort_order'];
 
     protected function casts(): array
     {

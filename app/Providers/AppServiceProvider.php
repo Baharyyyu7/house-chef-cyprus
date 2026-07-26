@@ -4,6 +4,12 @@ namespace App\Providers;
 
 use App\Contracts\AI\AiProviderInterface;
 use App\Contracts\Search\RecipeSearchInterface;
+use App\Models\NutritionFact;
+use App\Models\Recipe;
+use App\Models\RecipeIngredient;
+use App\Observers\NutritionFactObserver;
+use App\Observers\RecipeIngredientObserver;
+use App\Observers\RecipeObserver;
 use App\Services\AI\DemoAiProvider;
 use App\Services\Search\DatabaseRecipeSearch;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -28,6 +34,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RecipeIngredient::observe(RecipeIngredientObserver::class);
+        NutritionFact::observe(NutritionFactObserver::class);
+        Recipe::observe(RecipeObserver::class);
         Gate::define('access-admin', fn ($user): bool => $user->isAdmin());
         RateLimiter::for('ai', fn (Request $request) => Limit::perMinute(10)->by($request->user()?->id ?: $request->ip()));
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
