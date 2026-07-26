@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Cuisine;
 use App\Models\Ingredient;
 use App\Models\Recipe;
+use App\Models\Unit;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -16,6 +17,9 @@ final class HouseChefSeeder extends Seeder
 {
     public function run(): void
     {
+        foreach ([['g', 'Gram', 'g', 'weight', true, 1], ['kg', 'Kilogram', 'kg', 'weight', true, 1000], ['ml', 'Mililitre', 'ml', 'volume', true, 1], ['l', 'Litre', 'l', 'volume', true, 1000], ['adet', 'Adet', 'adet', 'count', false, null], ['yk', 'Yemek kaşığı', 'yk', 'household', false, null], ['ck', 'Çay kaşığı', 'çk', 'household', false, null]] as [$code, $name, $symbol, $type, $metric, $factor]) {
+            Unit::query()->firstOrCreate(['code' => $code], ['public_id' => (string) Str::ulid(), 'name' => $name, 'symbol' => $symbol, 'unit_type' => $type, 'is_metric' => $metric, 'conversion_factor' => $factor]);
+        }
         $admin = User::query()->firstOrCreate(['email' => 'admin@housechef.local'], ['name' => 'House Chef Yöneticisi', 'password' => 'ChangeMe123!', 'email_verified_at' => now(), 'role' => 'admin']);
         $admin->update(['role' => 'admin']);
         $category = Category::query()->firstOrCreate(['slug' => 'ana-yemek'], ['name' => 'Ana Yemek', 'description' => 'Doyurucu tarifler']);
