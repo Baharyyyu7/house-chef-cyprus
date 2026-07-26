@@ -62,14 +62,27 @@ class Recipe extends Model
         return $this->morphMany(Media::class, 'mediable')->orderBy('sort_order');
     }
 
-    public function allergens(): BelongsToMany
+    /** @return BelongsToMany<Allergen, $this> */
+    public function allergenOverrides(): BelongsToMany
     {
         return $this->belongsToMany(Allergen::class, 'recipe_allergens')->withPivot(['risk_type', 'derived_from']);
+    }
+
+    /** @return HasMany<RecipeAllergenOverride, $this> */
+    public function allergenOverrideRecords(): HasMany
+    {
+        return $this->hasMany(RecipeAllergenOverride::class);
     }
 
     public function dietaryTags(): BelongsToMany
     {
         return $this->belongsToMany(DietaryTag::class, 'recipe_dietary_tag');
+    }
+
+    /** @return HasMany<RecipeNutritionSnapshot, $this> */
+    public function nutritionSnapshots(): HasMany
+    {
+        return $this->hasMany(RecipeNutritionSnapshot::class);
     }
 
     public function totalMinutes(): int

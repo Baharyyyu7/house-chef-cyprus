@@ -6,6 +6,7 @@ use App\Models\Concerns\HasPublicId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /** @property string $public_id */
 class Ingredient extends Model
@@ -41,5 +42,17 @@ class Ingredient extends Model
     public function defaultUnit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'default_unit_id');
+    }
+
+    /** @return MorphMany<NutritionFact, $this> */
+    public function nutritionFacts(): MorphMany
+    {
+        return $this->morphMany(NutritionFact::class, 'nutritionable');
+    }
+
+    /** @return HasMany<IngredientAllergenDetail, $this> */
+    public function allergenDetails(): HasMany
+    {
+        return $this->hasMany(IngredientAllergenDetail::class);
     }
 }

@@ -1,5 +1,12 @@
 # Database Schema
 
+## Nutrition and allergens
+
+- `nutrients`: Public ULID ile besin tanımı, birim, hassasiyet, makro/mikro türü ve sıralama.
+- `nutrition_facts`: Ingredient veya gelecekte recipe için basis, source, origin, confidence ve doğrulama zamanı taşıyan polymorphic fact kayıtları.
+- `recipe_nutrition_snapshots`: Porsiyon bazlı hesaplanmış payload, tamamlanma/güven skoru ve invalidation zamanı.
+- `ingredient_allergen_details`: Malzeme alerjen ilişkisi, risk türü, doğrulama ve kaynak bilgisi.
+
 ## Recipe execution
 
 - `recipe_steps`: Tarif adımları; `public_id`, `recipe_id`, benzersiz `position`, süre,
