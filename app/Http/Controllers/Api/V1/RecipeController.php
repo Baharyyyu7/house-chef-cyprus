@@ -23,13 +23,15 @@ final class RecipeController extends Controller
             'max_calories' => ['nullable', 'numeric', 'min:1', 'max:100000'],
             'verified_only' => ['nullable', 'boolean'],
             'dietary_tag' => ['nullable', 'exists:dietary_tags,code'],
-            'exclude_allergen' => ['nullable', 'exists:allergens,public_id'],
+            'exclude_allergens' => ['nullable', 'array', 'max:20'],
+            'exclude_allergens.*' => ['distinct', 'exists:allergens,public_id'],
             'sort' => ['nullable', 'in:newest,time'],
             'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
         ]);
         $filters['q'] = $filters['search'] ?? null;
         $filters['max_minutes'] = $filters['max_time'] ?? null;
+        $filters['exclude_allergens'] = $filters['exclude_allergens'] ?? [];
 
         return RecipeResource::collection($search->search($filters));
     }

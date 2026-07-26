@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Contracts\Search\RecipeSearchInterface;
+use App\Models\Allergen;
 use App\Models\Ingredient;
 use App\Models\Nutrient;
 use App\Models\Recipe;
@@ -46,6 +47,14 @@ final class NutritionSearchContractTest extends TestCase
         $this->assertSame([$recipe->public_id], $serviceIds);
         $this->assertSame($serviceIds, $apiIds);
         $this->assertSame($serviceIds, $matchIds);
+    }
+
+    public function test_allergen_exclusion_contract_validates_an_array_and_rejects_unknown_or_oversized_input(): void
+    {
+        $allergen = Allergen::create(['public_id' => (string) Str::ulid(), 'code' => 'test-milk', 'name' => 'Test süt', 'is_active' => true]);
+        $this->getJson('/api/v1/recipes?exclude_allergens[]='.$allergen->public_id)->assertOk();
+        $this->getJson('/api/v1/recipes?exclude_allergens[]=unknown')->assertStatus(422)->assertJsonPath('error_code', 'VALIDATION_ERROR');
+        $this->postJson('/api/v1/recipe-match', ['filters' => ['exclude_allergens' => array_fill(0, 21, $allergen->public_id)]])->assertStatus(422)->assertJsonPath('error_code', 'VALIDATION_ERROR');
     }
 
     /** @return array{0: Recipe, 1: Ingredient, 2: Nutrient} */

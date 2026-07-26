@@ -52,9 +52,12 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
                     return false;
                 }
             }
-            if ($allergen = ($filters['exclude_allergen'] ?? null)) {
+            // Contract: only confirmed `contains` excludes a recipe. `may_contain`
+            // and `cross_contamination_risk` remain visible as safety information.
+            $excludedAllergens = array_values(array_unique(array_filter($filters['exclude_allergens'] ?? [$filters['exclude_allergen'] ?? null])));
+            if ($excludedAllergens !== []) {
                 foreach ($this->allergens->analyse($recipe)['groups']['contains'] as $item) {
-                    if ($item['public_id'] === $allergen) {
+                    if (in_array($item['public_id'], $excludedAllergens, true)) {
                         return false;
                     }
                 }
