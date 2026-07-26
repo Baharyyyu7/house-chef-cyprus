@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Contracts\Search\RecipeSearchInterface;
 use App\Models\Ingredient;
 use App\Models\Nutrient;
 use App\Models\Recipe;
@@ -31,6 +32,20 @@ final class NutritionSearchContractTest extends TestCase
     {
         $this->getJson('/api/v1/recipes?min_protein=-1')->assertStatus(422)->assertJsonPath('error_code', 'VALIDATION_ERROR');
         $this->getJson('/api/v1/recipes?per_page=51')->assertStatus(422)->assertJsonPath('error_code', 'VALIDATION_ERROR');
+    }
+
+    public function test_web_service_api_and_recipe_match_share_the_same_computed_filter_results(): void
+    {
+        [$recipe, $ingredient, $nutrient] = $this->recipeWithProtein('20');
+        $ingredient->nutritionFacts()->create(['nutrient_id' => $nutrient->id, 'value' => '20', 'basis_type' => 'per_100g', 'basis_amount' => '100', 'source_type' => 'editorial', 'origin' => 'verified', 'confidence_score' => 100]);
+        $filters = ['min_protein' => 10, 'verified_only' => true, 'per_page' => 12];
+        $serviceIds = collect(app(RecipeSearchInterface::class)->search($filters)->items())->pluck('public_id')->values()->all();
+        $apiIds = collect($this->getJson('/api/v1/recipes?min_protein=10&verified_only=1')->json('data'))->pluck('public_id')->values()->all();
+        $matchIds = collect($this->postJson('/api/v1/recipe-match', ['filters' => $filters])->json('data'))->pluck('recipe_public_id')->values()->all();
+
+        $this->assertSame([$recipe->public_id], $serviceIds);
+        $this->assertSame($serviceIds, $apiIds);
+        $this->assertSame($serviceIds, $matchIds);
     }
 
     /** @return array{0: Recipe, 1: Ingredient, 2: Nutrient} */
