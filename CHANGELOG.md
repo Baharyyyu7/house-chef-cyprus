@@ -55,3 +55,6 @@
 # Public Pages V3 Part 2
 
 - Matching, pantry ve favorites için V3 public/member arayüzü; açıklanabilir eşleştirme, expiry bilgisi ve filtre sözleşmeleri eklendi.
+# Public Pages V3 Part 3
+
+- Mobile-first Cooking Mode ve ortak V3 auth surface uygulandı.

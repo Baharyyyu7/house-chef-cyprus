@@ -120,7 +120,7 @@ final class RecipeDomainSprintTest extends TestCase
         $this->get(route('recipes.show', $recipe))->assertOk()->assertSee('Yapım adımları')->assertSee('Şef püf noktası')->assertSee('Güvenlik notu');
         $this->actingAs($user)->post(route('cooking-sessions.start', $recipe), ['servings' => 4])->assertRedirect();
         $session = CookingSession::firstOrFail();
-        $this->actingAs($user)->get(route('cooking-sessions.show', $session))->assertOk()->assertSee('YEMEK YAPMA MODU');
+        $this->actingAs($user)->get(route('cooking-sessions.show', $session))->assertOk()->assertSee('Yemek yapma modu');
     }
 
     public function test_admin_can_manage_steps_while_member_is_denied(): void
