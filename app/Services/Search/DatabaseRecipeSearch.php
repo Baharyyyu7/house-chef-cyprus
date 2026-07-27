@@ -23,12 +23,14 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
             ->with([
                 'cuisine:id,public_id,name,slug',
                 'category:id,public_id,name,slug',
+                'media:id,mediable_type,mediable_id,path,alt_text,is_placeholder,sort_order',
                 'dietaryTags:id,code',
                 'allergenOverrideRecords.allergen:id,public_id,name',
                 'recipeIngredients.ingredient.nutritionFacts.nutrient',
                 'recipeIngredients.ingredient.allergenDetails.allergen:id,public_id,name',
             ])
             ->where('status', 'published')
+            ->where('verification_status', 'verified')
             ->when($filters['q'] ?? null, fn ($query, string $term) => $query->where(fn ($nested) => $nested->where('title', 'like', "%{$term}%")->orWhereHas('ingredients', fn ($ingredients) => $ingredients->where('name', 'like', "%{$term}%"))))
             ->when($filters['cuisine'] ?? null, fn ($query, string $slug) => $query->whereHas('cuisine', fn ($cuisines) => $cuisines->where('slug', $slug)))
             ->when($filters['category'] ?? null, fn ($query, string $slug) => $query->whereHas('category', fn ($categories) => $categories->where('slug', $slug)))

@@ -74,7 +74,7 @@ final class IngredientMatchingSprintTest extends TestCase
     {
         $tomato = $this->ingredient('Domates');
         $yogurt = $this->ingredient('Yoğurt');
-        $recipe = Recipe::create(['title' => 'Eşleştirme Tarifi', 'slug' => 'eslestirme-'.Str::lower(Str::random(8)), 'servings' => 2, 'prep_minutes' => 5, 'cook_minutes' => 10, 'rest_minutes' => 0, 'difficulty' => 'Kolay', 'status' => 'published']);
+        $recipe = Recipe::create(['title' => 'Eşleştirme Tarifi', 'slug' => 'eslestirme-'.Str::lower(Str::random(8)), 'servings' => 2, 'prep_minutes' => 5, 'cook_minutes' => 10, 'rest_minutes' => 0, 'difficulty' => 'Kolay', 'status' => 'published', 'verification_status' => 'verified']);
         $recipe->ingredients()->attach($tomato->id, ['quantity' => 1, 'unit' => 'adet', 'sort_order' => 1]);
         $recipe->ingredients()->attach($yogurt->id, ['quantity' => 1, 'unit' => 'adet', 'sort_order' => 2]);
 

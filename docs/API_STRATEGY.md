@@ -8,3 +8,7 @@ OpenAPI 3.1 sözleşmesi [openapi.yaml](openapi.yaml) dosyasındadır ve `php ar
 Recipe detail responses retain legacy `ingredients` and add `ingredient_lines` with public ingredient identity, display quantity/measure, canonical quantity/unit, conversion confidence, preparation note, optional flag and group. Integer keys are not exposed.
 
 `ingredient_lines[].conversion` additionally exposes safe `source_type`; `scaling_policy` documents portion behavior without leaking conversion or recipe-line integer keys.
+
+## Faz 3 content trust extension
+
+Recipe responses now add a backwards-compatible `content_trust` object: verification status, completeness score/status and last editorial review time. Source notes, authoring notes, internal confidence rationale and integer identifiers are never serialized. Public list/detail routes only return `published` + `verified` recipes.

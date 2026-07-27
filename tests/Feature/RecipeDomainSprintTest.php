@@ -150,6 +150,6 @@ final class RecipeDomainSprintTest extends TestCase
 
     private function recipe(): Recipe
     {
-        return Recipe::create(['title' => 'Test Tarifi '.Str::random(8), 'slug' => 'test-tarifi-'.Str::lower(Str::random(8)), 'servings' => 4, 'prep_minutes' => 5, 'cook_minutes' => 10, 'rest_minutes' => 0, 'difficulty' => 'Kolay', 'status' => 'published']);
+        return Recipe::create(['title' => 'Test Tarifi '.Str::random(8), 'slug' => 'test-tarifi-'.Str::lower(Str::random(8)), 'servings' => 4, 'prep_minutes' => 5, 'cook_minutes' => 10, 'rest_minutes' => 0, 'difficulty' => 'Kolay', 'status' => 'published', 'verification_status' => 'verified']);
     }
 }

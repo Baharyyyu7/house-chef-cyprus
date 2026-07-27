@@ -30,3 +30,7 @@ Household conversion records require a source type and source name. Demo seed co
 ## Phase 2 quality guardrails
 
 Data Quality reports recipe lines that are missing a managed ingredient group and preserves an explicit legacy fallback. Canonical conversion completeness, confidence and source remain independently reportable; expiry prevents pantry stock from being treated as available by matching.
+
+## Master Redesign Faz 3
+
+`content_sources`, `recipe_provenances` ve media trust metadata'sı aktif kullanımdadır. Public tarifler `published` ve `verified` olmalıdır; aksi halde web, API ve ingredient matching sonuçlarına dahil edilmez. Data Quality'nin Content Trust kategorisi aktif kaynak, yayın doğrulaması ve provenance açıklarını görünür kılar.

@@ -10,5 +10,4 @@ Malzeme ikonları kullanıcıya hızlı tanıma sağlar; besin, alerjen veya kal
 
 ## İlk kapsam
 
-İlk 24 sık malzeme için tasarım tokenlarıyla uyumlu icon manifest hazırlanır: sebze, meyve, tahıl, süt ürünü, protein, bakliyat, yağ/baharat grupları. Üretim verisine toplu ikon atama ancak manifest, lisans ve dark/light QA tamamlanınca yapılır.
-
+İlk 24 sık malzeme için tasarım tokenlarıyla uyumlu `icon_key`, `icon_label` ve `icon_status=pilot` metadata'sı oluşturuldu. Pilot yalnız admin malzeme listesi ve malzeme seçicisindedir; erişilebilir isim görünür kalır ve ikon yoksa güvenli metin fallback kullanılır.

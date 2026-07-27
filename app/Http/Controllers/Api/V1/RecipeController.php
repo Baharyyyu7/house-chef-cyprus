@@ -38,7 +38,7 @@ final class RecipeController extends Controller
 
     public function show(Recipe $recipe)
     {
-        abort_unless($recipe->status === 'published', 404);
+        abort_unless($recipe->status === 'published' && $recipe->verification_status === 'verified', 404);
 
         return (new RecipeResource($recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient', 'recipeIngredients.group', 'recipeIngredients.conversion'])))->additional(['request_id' => (string) request()->attributes->get('request_id')]);
     }

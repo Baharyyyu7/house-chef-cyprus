@@ -108,6 +108,7 @@ final class ProductCoreAuditTest extends TestCase
             'servings' => 2,
             'difficulty' => 'Kolay',
             'status' => 'published',
+            'verification_status' => 'verified',
         ]);
     }
 }

@@ -92,7 +92,7 @@ final class NutritionSearchContractTest extends TestCase
     {
         $ingredient = Ingredient::create(['name' => 'Protein malzemesi', 'canonical_name' => 'Protein malzemesi', 'slug' => 'protein-'.Str::lower(Str::random(8)), 'is_active' => true]);
         $nutrient = Nutrient::create(['public_id' => (string) Str::ulid(), 'code' => 'protein', 'name' => 'Protein', 'unit' => 'g', 'category' => 'macro', 'is_active' => true]);
-        $recipe = Recipe::create(['title' => 'Protein tarif', 'slug' => 'protein-tarif-'.Str::lower(Str::random(8)), 'description' => 'Açıklama', 'servings' => 1, 'prep_minutes' => 1, 'cook_minutes' => 1, 'rest_minutes' => 0, 'difficulty' => 'Kolay', 'status' => 'published']);
+        $recipe = Recipe::create(['title' => 'Protein tarif', 'slug' => 'protein-tarif-'.Str::lower(Str::random(8)), 'description' => 'Açıklama', 'servings' => 1, 'prep_minutes' => 1, 'cook_minutes' => 1, 'rest_minutes' => 0, 'difficulty' => 'Kolay', 'status' => 'published', 'verification_status' => 'verified']);
         $recipe->ingredients()->attach($ingredient->id, ['quantity' => '100', 'unit' => 'g', 'sort_order' => 1]);
 
         return [$recipe, $ingredient, $nutrient];
@@ -104,7 +104,7 @@ final class NutritionSearchContractTest extends TestCase
         $ingredient = Ingredient::create(['name' => $title.' malzemesi', 'canonical_name' => $title, 'slug' => Str::slug($title).'-'.Str::lower(Str::random(6)), 'is_active' => true]);
         $protein = Nutrient::firstOrCreate(['code' => 'protein'], ['public_id' => (string) Str::ulid(), 'name' => 'Protein', 'unit' => 'g', 'category' => 'macro', 'is_active' => true]);
         $energy = Nutrient::firstOrCreate(['code' => 'energy_kcal'], ['public_id' => (string) Str::ulid(), 'name' => 'Enerji', 'unit' => 'kcal', 'category' => 'energy', 'is_active' => true]);
-        $recipe = Recipe::create(['title' => $title, 'slug' => Str::slug($title).'-'.Str::lower(Str::random(6)), 'description' => 'Açıklama', 'servings' => 1, 'prep_minutes' => $minutes, 'cook_minutes' => 0, 'rest_minutes' => 0, 'difficulty' => 'Kolay', 'status' => 'published']);
+        $recipe = Recipe::create(['title' => $title, 'slug' => Str::slug($title).'-'.Str::lower(Str::random(6)), 'description' => 'Açıklama', 'servings' => 1, 'prep_minutes' => $minutes, 'cook_minutes' => 0, 'rest_minutes' => 0, 'difficulty' => 'Kolay', 'status' => 'published', 'verification_status' => 'verified']);
         $recipe->ingredients()->attach($ingredient->id, ['quantity' => '100', 'unit' => 'g', 'sort_order' => 1]);
 
         return [$recipe, $ingredient, $protein, $energy];

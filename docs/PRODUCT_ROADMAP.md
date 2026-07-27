@@ -20,6 +20,10 @@ Production öncesi zorunlu işler Foundation kapanış belgesinde listelenir. Re
 
 Household measurement and ingredient-specific conversion infrastructure is active. Content expansion remains blocked until measurement QA is complete.
 
+## Master Redesign Phase 3 — completed on `visual-redesign-v2`
+
+First 50 House Chef Cyprus editorial recipes now use a versioned, idempotent dataset with provenance, completeness, verification and publication guards. The next permitted work is controlled public/member/admin delivery QA; external scraping, large import, AI, SEO/blog and community work remain outside this phase.
+
 ## Master Redesign Phase 2 — closed
 
 Household measurement, conversion provenance, pantry canonical storage and recipe ingredient group management are complete on the visual redesign branch. Recipe enrichment and new public product modules remain separately planned; this closure does not begin Phase 3.

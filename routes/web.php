@@ -104,12 +104,12 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('beslenme/tarifler/{recipe}/recalculate', [AdminNutritionController::class, 'recalculate'])->name('nutrition.snapshots.recalculate');
     Route::resource('tarifler', AdminRecipeController::class)->names('recipes')->parameters(['tarifler' => 'recipe'])->except(['show']);
     Route::get('icerik-dogrulama', [RecipeVerificationController::class, 'index'])->name('recipe-verification.index');
-    Route::get('icerik-dogrulama/{recipe}', [RecipeVerificationController::class, 'show'])->name('recipe-verification.show');
-    Route::post('icerik-dogrulama/{recipe}/incele', [RecipeVerificationController::class, 'approve'])->name('recipe-verification.approve');
-    Route::post('icerik-dogrulama/{recipe}/duzeltme-iste', [RecipeVerificationController::class, 'requestChanges'])->name('recipe-verification.request-changes');
-    Route::post('icerik-dogrulama/{recipe}/reddet', [RecipeVerificationController::class, 'reject'])->name('recipe-verification.reject');
-    Route::post('icerik-dogrulama/{recipe}/yayinla', [RecipeVerificationController::class, 'publish'])->name('recipe-verification.publish');
-    Route::post('icerik-dogrulama/{recipe}/yayindan-kaldir', [RecipeVerificationController::class, 'unpublish'])->name('recipe-verification.unpublish');
+    Route::get('icerik-dogrulama/{recipe:public_id}', [RecipeVerificationController::class, 'show'])->name('recipe-verification.show');
+    Route::post('icerik-dogrulama/{recipe:public_id}/incele', [RecipeVerificationController::class, 'approve'])->name('recipe-verification.approve');
+    Route::post('icerik-dogrulama/{recipe:public_id}/duzeltme-iste', [RecipeVerificationController::class, 'requestChanges'])->name('recipe-verification.request-changes');
+    Route::post('icerik-dogrulama/{recipe:public_id}/reddet', [RecipeVerificationController::class, 'reject'])->name('recipe-verification.reject');
+    Route::post('icerik-dogrulama/{recipe:public_id}/yayinla', [RecipeVerificationController::class, 'publish'])->name('recipe-verification.publish');
+    Route::post('icerik-dogrulama/{recipe:public_id}/yayindan-kaldir', [RecipeVerificationController::class, 'unpublish'])->name('recipe-verification.unpublish');
     Route::get('tarifler/public/{publicId}/malzemeler', [RecipeIngredientController::class, 'indexPublic'])->name('recipes.ingredients.index-public');
     Route::get('tarifler/{recipe}/malzemeler', [RecipeIngredientController::class, 'index'])->name('recipes.ingredients.index');
     Route::post('tarifler/{recipe}/malzemeler', [RecipeIngredientController::class, 'store'])->name('recipes.ingredients.store');

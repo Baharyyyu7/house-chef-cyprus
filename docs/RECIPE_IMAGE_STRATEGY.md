@@ -14,5 +14,4 @@ Her kullanılabilir görsel source/creator, license, license URL veya izin notu,
 - İlk 50 doğrulanmış tarif: en az bir kullanılabilir tarif görseli veya dürüst placeholder.
 - Mutfak/kategori yüzeyleri: ayrı, lisansı doğrulanmış banner planı.
 
-Rastgele web görseli indirme, görünür kaynak izni olmadan yeniden kullanım ve aynı placeholder'ın gerçek görsel gibi sunulması yasaktır.
-
+Rastgele web görseli indirme, görünür kaynak izni olmadan yeniden kullanım ve aynı placeholder'ın gerçek görsel gibi sunulması yasaktır. Faz 3'te sekiz erişilebilir, markalı SVG placeholder varyasyonu eklendi; bunlar `is_placeholder=true`, lisans ve attribution metadata'sı ile açıkça ayrılır.

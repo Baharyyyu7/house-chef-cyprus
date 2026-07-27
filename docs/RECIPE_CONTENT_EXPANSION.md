@@ -45,6 +45,10 @@ Tarif görseli `missing/placeholder/generated/licensed/original/verified/rejecte
 ## Başarı ölçütü
 
 Tarif sayısı tek başına kalite ölçütü değildir. Her tarifin completeness, confidence, source ve UI anlaşılabilirliği doğrulanır; eksik bilgi varsa güvenli biçimde görünür kılınır.
+
+## Faz 3 teslimi
+
+Versioned `first_50.php` katalog dosyası ve `recipes:import-editorial` komutu 50 idempotent editoryal kayıt üretir. Kayıtlar source/provenance, household/canonical satırlar, grup, adım, nutrition, dietary/allergen sinyalleri, completeness skoru, lisanslı markalı placeholder ve public ULID içerir. Gerçek dış kaynak importu bu kapsamda değildir.
 # Measurement prerequisite
 
 New editorial recipes must carry household display quantities, canonical calculation values, conversion confidence and source/provenance before publication.

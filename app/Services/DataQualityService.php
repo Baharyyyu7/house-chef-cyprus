@@ -177,7 +177,7 @@ final class DataQualityService
             'ingredient' => fn (DataQualityIssue $issue): bool => in_array($issue->entity_type, [Ingredient::class, IngredientAlias::class, IngredientSubstitution::class], true),
             'nutrition' => fn (DataQualityIssue $issue): bool => $issue->entity_type === NutritionFact::class || str_contains($issue->issue_type, 'nutrition'),
             'media' => fn (DataQualityIssue $issue): bool => str_contains($issue->issue_type, 'media'),
-            'provenance' => fn (DataQualityIssue $issue): bool => str_contains($issue->issue_type, 'provenance'),
+            'provenance' => fn (DataQualityIssue $issue): bool => str_contains($issue->issue_type, 'provenance') || str_contains($issue->issue_type, 'content_source') || str_contains($issue->issue_type, 'verification') || str_contains($issue->issue_type, 'published_unverified'),
             'measurement' => fn (DataQualityIssue $issue): bool => str_contains($issue->issue_type, 'measurement') || str_contains($issue->issue_type, 'conversion'),
         ];
         $scores = ['overall' => $this->score()];

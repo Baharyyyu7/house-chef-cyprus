@@ -55,6 +55,13 @@ Mevcut unique constraint'ler tekrarlanmaz.
 SQLite şeması Laravel migration’larıyla oluşturulur; temiz kurulum kalite kapısı migration/seed ve ikinci seed çalıştırır. Ayrıntılı taşınabilirlik denetimi için [database portability](docs/DATABASE_PORTABILITY.md) belgesine bakın.
 
 Foundation A–E kapatıldı; production hedef veritabanı seçildiğinde MySQL/PostgreSQL üzerinde ayrı staging migration denemesi zorunludur.
+
+## Editorial content trust
+
+- `content_sources`: public ULID, entity public identity, source/lisans/dil/ülke, erişim-inceleme zamanı, confidence ve lifecycle metadata'sı.
+- `recipe_provenances`: recipe ile kaynak arasındaki alan-bazlı ilişki, source hash, verification ve review metadata'sı.
+- `recipes`: verification/editorial/completeness alanları ile equipment, tips, storage, serving, reheating, freezing, seasonality ve image trust alanları.
+- `ingredients`: düşük-riskli pilot için `icon_key`, `icon_label` ve `icon_status` metadata'sı.
 # Household measurement additions
 
 `ingredient_unit_conversions` holds sourced ingredient-specific conversions. `recipe_ingredients` has additive display and canonical columns; legacy quantity, unit and grams remain supported.

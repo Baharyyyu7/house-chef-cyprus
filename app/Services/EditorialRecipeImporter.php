@@ -120,6 +120,16 @@ final class EditorialRecipeImporter
     private function syncEditorialContent(Recipe $recipe, int $index): void
     {
         $ingredientNames = ['soğan', 'sarımsak', 'domates', 'patates', 'biber', 'havuç', 'limon', 'zeytinyağı', 'pirinç', 'bulgur', 'makarna', 'un', 'yumurta', 'süt', 'yoğurt', 'peynir', 'tavuk', 'kırmızı et', 'balık', 'tuz', 'karabiber', 'maydanoz', 'nane', 'kekik', 'nohut', 'mercimek'];
+        foreach (array_slice($ingredientNames, 0, 24) as $pilotName) {
+            $pilot = Ingredient::query()->firstOrCreate(['slug' => Str::slug($pilotName)], ['public_id' => (string) Str::ulid(), 'name' => Str::headline($pilotName), 'canonical_name' => Str::headline($pilotName), 'default_unit' => 'adet', 'is_active' => true, 'icon_key' => $this->iconKey($pilotName), 'icon_label' => Str::headline($pilotName).' ikonu', 'icon_status' => 'pilot']);
+            if ($pilot->icon_key === null) {
+                $pilot->update(['icon_key' => $this->iconKey($pilotName), 'icon_label' => Str::headline($pilotName).' ikonu', 'icon_status' => 'pilot']);
+            }
+        }
+        // The editorial dataset owns its ingredient lines. Clearing legacy demo
+        // pivots keeps every published recipe on the same measurement contract.
+        $recipe->recipeIngredients()->delete();
+        $recipe->ingredientGroups()->delete();
         $selected = array_slice(array_merge(array_slice($ingredientNames, $index % 18), $ingredientNames), 0, 4);
         $groups = [
             'Ana malzemeler' => RecipeIngredientGroup::query()->firstOrCreate(['recipe_id' => $recipe->id, 'name' => 'Ana malzemeler'], ['public_id' => (string) Str::ulid(), 'sort_order' => 1]),
@@ -146,7 +156,7 @@ final class EditorialRecipeImporter
         $source = ContentSource::query()->updateOrCreate(['entity_type' => Recipe::class, 'entity_public_id' => $recipe->public_id, 'source_name' => 'House Chef Cyprus özgün editoryal içerik'], ['public_id' => (string) Str::ulid(), 'source_type' => 'original_content', 'source_title' => $recipe->title.' editoryal kayıt', 'accessed_at' => now(), 'license' => 'House Chef Cyprus original editorial content', 'language' => 'tr', 'country' => 'CY', 'verification_status' => 'verified', 'confidence' => 90, 'reviewed_at' => now(), 'last_checked_at' => now(), 'is_active' => true]);
         RecipeProvenance::query()->updateOrCreate(['recipe_id' => $recipe->id, 'field_name' => 'recipe_content'], ['public_id' => (string) Str::ulid(), 'content_source_id' => $source->id, 'source_type' => 'original_content', 'license' => $source->license, 'source_url' => null, 'content_hash' => hash('sha256', $recipe->title.'|'.$recipe->description), 'retrieved_at' => now(), 'verification_status' => 'verified', 'confidence' => 90, 'reviewed_at' => now(), 'last_checked_at' => now(), 'is_active' => true]);
         app(NutritionService::class)->calculate($recipe->fresh());
-        Media::query()->updateOrCreate(['mediable_type' => Recipe::class, 'mediable_id' => $recipe->id, 'sort_order' => 0], ['public_id' => (string) Str::ulid(), 'kind' => 'image', 'disk' => 'public', 'path' => 'placeholders/'.($index % 8 + 1).'/'.$recipe->slug.'.svg', 'visibility' => 'public', 'alt_text' => $recipe->title.' için temsili görsel', 'processing_status' => 'ready', 'thumbnail_status' => 'ready', 'source_name' => 'House Chef Cyprus', 'license' => 'House Chef Cyprus branded placeholder', 'attribution' => 'House Chef Cyprus', 'verification_status' => 'researched', 'confidence' => 100, 'reviewed_at' => now(), 'is_placeholder' => true]);
+        Media::query()->updateOrCreate(['mediable_type' => Recipe::class, 'mediable_id' => $recipe->id, 'sort_order' => 0], ['public_id' => (string) Str::ulid(), 'kind' => 'image', 'disk' => 'public', 'path' => 'placeholders/'.($index % 8 + 1).'/recipe.svg', 'visibility' => 'public', 'alt_text' => $recipe->title.' için temsili görsel', 'processing_status' => 'ready', 'thumbnail_status' => 'ready', 'source_name' => 'House Chef Cyprus', 'license' => 'House Chef Cyprus branded placeholder', 'attribution' => 'House Chef Cyprus', 'verification_status' => 'researched', 'confidence' => 100, 'reviewed_at' => now(), 'is_placeholder' => true]);
     }
 
     private function descriptionFor(string $title, string $cuisine): string

@@ -26,7 +26,7 @@ final class IngredientMatchingService
         $selected = Ingredient::query()->whereIn('public_id', array_values(array_unique($ingredientPublicIds)))->pluck('id')->all();
         $excluded = Ingredient::query()->whereIn('public_id', array_values(array_unique($excludedPublicIds)))->pluck('id')->all();
 
-        return Recipe::query()->where('status', 'published')->with(['ingredients', 'recipeIngredients.ingredient'])->get()
+        return Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->with(['ingredients', 'recipeIngredients.ingredient'])->get()
             ->reject(fn (Recipe $recipe) => $recipe->recipeIngredients->contains(fn ($row) => in_array($row->ingredient_id, $excluded, true)))
             ->map(fn (Recipe $recipe) => $this->evaluate($recipe, $selected, [], collect()))
             ->filter(fn (array $match) => (! $onlyExact || $match['can_cook_exactly']) && ($includeSubstitutions || ! $match['can_cook_with_substitutions']) && $match['missing_required_count'] <= $maxMissing)

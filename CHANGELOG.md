@@ -4,6 +4,8 @@
 
 - Added the V3 semantic design token, shared primitive, motion and SVG icon foundation on `visual-redesign-v2`.
 - Localized the profile form pilot and applied V3 pilot surfaces to favorites and the admin dashboard.
+- Added the Phase 3 editorial content trust model, completeness/publication guard, admin verification queue and idempotent first-50 recipe catalogue.
+- Added provenance-safe public recipe summaries, branded placeholder variants and initial ingredient icon metadata pilot.
 
 ## Master Product Redesign — Faz 0 Planı
 

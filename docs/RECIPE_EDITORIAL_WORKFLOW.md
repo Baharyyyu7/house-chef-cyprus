@@ -9,4 +9,4 @@
 7. Editoryal onay ve `verified`
 8. Publication guard üzerinden yayın
 
-`draft`, `researched`, `editorial_review`, `data_review`, `verified`, `published`, `needs_update`, `deprecated` durumları ayrı tutulur. Bir import işlemi hiçbir tarifi doğrudan yayınlamaz.
+`draft`, `researched`, `editorial_review`, `data_review`, `verified`, `published`, `needs_update`, `deprecated` durumları ayrı tutulur. Versioned editorial importer yalnız House Chef Cyprus'un denetlenmiş `original_content` kataloğunu günceller; üçüncü taraf importu veya AI taslağı doğrudan yayınlayamaz.
