@@ -2,11 +2,11 @@
 
 1. Technical Foundation A–E — tamamlandı.
 2. Final Product Core Audit — kontrollü olarak geçti; çekirdek regresyonlar kapatıldı.
-3. Visual Redesign V2 preview — Ana sayfa, public header/footer ve özgün marka sistemi warm ivory–terracotta–charcoal yönünde yenilenir. Ana sayfa onayı sonrasında tarif listesi/detayı ve diğer ürün ekranları ayrı kontrollü teslimlerde ele alınır.
-4. AI Chef.
-5. SEO Content Hub ve Blog.
+3. Master Product Redesign, Recipe Data & Admin Program — Faz 0 envanter ve plan tamamlanmayı bekler; kullanıcı onayı sonrası V3 design/motion/form/table/icon, household measurement, 50 verified recipe, public/member UX ve admin analytics sırasıyla uygulanır.
+4. AI Chef — Master Product Redesign programından sonra.
+5. SEO Content Hub ve Blog — Master Product Redesign programından sonra.
 6. Community.
-7. Premium UX ve animasyon.
+7. Premium UX ve animasyon — V3 motion temelinin üstüne.
 8. Monetization.
 9. Import Engine V1.5.
 10. Production ve mobil hazırlık.

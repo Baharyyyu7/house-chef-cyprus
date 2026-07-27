@@ -1,5 +1,10 @@
 # Changelog
 
+## Master Product Redesign — Faz 0 Planı
+
+- Tüm public/member/admin route ve ekran envanteri; recipe measurement/content, admin analytics, motion ve visual QA açıkları belgelendi.
+- Uygulama kodu değiştirilmeden V3 tasarım sistemi, household measurement, 50 tarif editorial programı, public/member UX ve admin analytics için bağımlılıklı faz sırası tanımlandı.
+
 ## Visual Redesign V2 Preview
 
 - Ana sayfa ile ortak public header/footer, warm ivory–terracotta–charcoal tasarım diliyle yeniden ele alındı.
