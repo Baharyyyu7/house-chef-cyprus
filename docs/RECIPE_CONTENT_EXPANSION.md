@@ -17,13 +17,14 @@ Her yeni veya yenilenen tarif şu alanları taşır: özgün başlık/kısa ve u
 
 Her açıklama House Chef Cyprus için özgün yazılır. Dış kaynakların metni, sırası, görseli veya telifli varlığı kopyalanmaz. Nefis Yemek Tarifleri, Yemek.com ve belgelenmiş güvenilir kaynaklar yalnız kontrollü doğrulama referansı olarak incelenir; lisans, erişim koşulu ve kaynak notu kaydedilir. Toplu scraping bu programın dışındadır.
 
-## Tarif sayısı hedefi
+## Tarif sayısı hedefi ve doğrulama kapısı
 
 | Hedef | Miktar | Kapsam | Kapanış |
 | --- | ---: | --- | --- |
 | Editorial Faz 1 | 50 | Türk/Kıbrıs/Akdeniz; kahvaltı, çorba, ana yemek, zeytinyağlı, hamur işi, tatlı, salata, atıştırmalık, pratik, vegan/vegetarian | Her tarif kalite checklist + provenance + özgün medya planı |
 | Editorial Faz 2 | 150 | Kategori/cuisine boşlukları, mevsim ve diet çeşitliliği | Data quality kritik issue yok |
-| Editorial Faz 3 | 500+ | Kontrollü import ve editorial review | Import Engine V1.5 ve lisans kapısı |
+| Editorial Faz 3 | 500 | Kontrollü editorial büyüme | Duplicate, kaynak ve görsel kalite kapısı |
+| Editorial Faz 4 | 1.000+ | Dünya mutfakları genişlemesi | Taxonomy, lisans ve content-review kapasitesi |
 
 İlk 50 için minimum öneri: Türk 18, Kıbrıs 10, Akdeniz 8, kahvaltı 5, çorba 5, ana yemek 12, zeytinyağlı 5, hamur işi 4, tatlı 4, salata 4, atıştırmalık/pratik 6; kategoriler bir tarifte birden fazla işaretlenebildiği için dağılım çakışabilir. En az 10 vegetarian ve 8 vegan adayı, ancak dietary sonucu gerçek analizden gelmelidir.
 
@@ -32,10 +33,14 @@ Her açıklama House Chef Cyprus için özgün yazılır. Dış kaynakların met
 1. Editorial brief ve kaynak araştırma notu.
 2. Household/canonical measurement doğrulaması.
 3. Ingredient alias, allergen, diet, nutrition ve substitution kontrolü.
-4. Özgün metin + source/provenance + verification metadata.
+4. Özgün metin + source/provenance + verification metadata; `draft/researched/verified/published/needs_review/deprecated` yaşam döngüsü.
 5. Telif uygun özgün/izinli media manifesti.
 6. Idempotent seed, data quality scan ve admin preview.
 7. Reviewer onayı; published state.
+
+## Görsel, trust ve import sınırı
+
+Tarif görseli `missing/placeholder/generated/licensed/original/verified/rejected` durumu ve lisans metadata'sı olmadan gerçek editorial görsel sayılmaz. İlk 50 tarifte rastgele web görseli veya toplu scraping kullanılmaz. Import Engine V1.5 yalnız gerçek kaynak seçildiğinde, 100+ içe aktarma ya da otomatik güncelleme ihtiyacı doğduğunda değerlendirilir.
 
 ## Başarı ölçütü
 

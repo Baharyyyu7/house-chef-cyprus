@@ -13,17 +13,22 @@ Mevcut Laravel/Blade/Livewire/Alpine/Tailwind mimarisi korunur. Ayrı SPA veya a
 | 0 | Envanter, veri ve UX açıklarını doğrulamak | Bu plan ve alt strateji belgeleri | Yok | Doküman link denetimi | Düşük; mevcut route/model incelemesi | Kullanıcı planı onayı |
 | 1 | Global Design V3, motion, form, table, icon sözleşmesi | `resources/css/app.css`, layoutlar, yeniden kullanılabilir Blade bileşenleri | Yok | Light/dark, keyboard, 375–1440 QA | Orta; mevcut Alpine/Livewire ile uyum | Token, focus, reduced-motion ve bileşen testleri tamam |
 | 2 | Recipe domain ve household measurement modeli | Unit, ingredient conversion/density, recipe ingredient migrationları, `UnitConversionService` | Evet, geriye uyumlu | Dönüşüm/precision/uncertainty/nutrition/matching testleri | Yüksek; canonical hesap koruması | Household gösterim + canonical hesap güvenli |
-| 3 | İlk 50 doğrulanmış tarif için editorial veri/seed programı | Seed veri seti, provenance, medya manifesti | Gerekirse yalnız veri alanları | Veri kalite raporu, seed idempotency | Orta; telif/lisans doğrulaması | 50 özgün, kaynaklı, tutarlı tarif |
-| 4 | Public sayfaları kontrollü teslimlerle yenilemek | Tarif listesi/detayı, pantry/favorites | Yok veya yalnız presentation metadata | Sayfa bazlı feature + browser QA | Orta; V3 bileşenlerine bağlı | Her sayfanın light/dark/mobile/empty/error/loading QA'sı |
-| 5 | Cooking ve matching UX | Ingredient picker, matching sonuçları, cooking session | Gerekirse preference alanları | Matching/cooking regresyonu | Orta; Faz 2 ölçü modeli | Mobil cooking ve filtre sözleşmesi korunur |
-| 6 | Profile ve auth deneyimi | Breeze/Volt görünümleri, profil form bileşenleri | Tercih alanları gerekirse | Auth/verification/profile testleri | Orta; auth davranışı korunur | Tüm metinler Türkçe, erişilebilir formlar |
-| 7 | Admin shell, dashboard ve gerçek grafik altyapısı | Admin layout/sidebar/dashboard, aggregate servisler | Metrik aggregate gerekirse | Admin authorization, empty/loading/chart QA | Orta; gerçek veri yoksa grafik yok | Sahte veri olmadan dönem filtreli dashboard |
-| 8 | Admin CRUD ekranları | Tarif/ingredient/nutrition/media/data-quality/system ekranları | Faz 2 ile uyumlu | CRUD, policy, table/form QA | Yüksek; ekran sayısı fazla | Tek tip form/table davranışı ve route smoke |
-| 9 | Responsive ve accessibility hardening | Tüm public/member/admin ekranlar | Yok | 375/768/1024/1440, keyboard, contrast | Orta | WCAG AA'ya yakın kritik akışlar |
-| 10 | Visual QA turu 1 | Browser senaryoları ve screenshot matrisi | Yok | Gerçek browser QA | Düşük | Bulgu listesi önceliklendirilir |
-| 11 | Düzeltme turu | Yalnız QA bulguları | Gerekirse küçük migration | Regresyon | Düşük/orta | Kritik/P1 bulgu kalmaz |
-| 12 | Visual QA turu 2 | Aynı QA matrisi | Yok | Gerçek browser QA | Düşük | Onay paketi hazırlanır |
-| 13 | Full regression ve release hazırlığı | Tüm kalite kapıları | Yok | Test/Pint/PHPStan/build/CI/clean install | Orta | Kullanıcı release onayı |
+| 3 | Data Trust, provenance ve verification | Editorial review state, source/license/check history | Evet, geriye uyumlu | Trust/data-quality testleri | Yüksek; veri modelinin temeli | Tarif/ingredient/media güven sinyali izlenebilir |
+| 4 | İlk 50 doğrulanmış tarif | Editorial seed, kaynak notu, quality checklist | Yalnız gerekli editorial alanlar | Idempotent seed + quality scan | Orta; telif/lisans doğrulaması | 50 özgün, kaynaklı, tutarlı tarif |
+| 5 | Tarif görselleri ve ingredient icon sistemi | Media manifest, focal point, SVG icon planı | Gerekirse metadata | License/accessibility QA | Orta | İlk 20 tarifte kontrollü görsel kalite |
+| 6 | Public sayfaları kontrollü teslimlerle yenilemek | Tarif listesi/detayı, pantry/favorites | Yok veya presentation metadata | Sayfa bazlı feature + browser QA | Orta; Faz 1–5'e bağlı | Light/dark/mobile/empty/error/loading QA |
+| 7 | Matching, Cooking ve Profile/Auth UX | Picker, cooking, profile/Volt görünümü | Gerekirse preference alanları | Matching/cooking/auth regresyonu | Orta | Türkçe, erişilebilir UX |
+| 8 | Admin shell, dashboard, grafikler ve CRUD redesign | Admin layout/dashboard/recipe/ingredient/nutrition/operations | Aggregate/trust alanları gerekirse | Policy/table/form/chart QA | Yüksek | Gerçek veri veya dürüst empty state |
+| 9 | About, How It Works, FAQ ve Editorial pages | Yeni bilgi mimarisi/modülleri | Evet, yalnız gerektiğinde | Content/FAQ structured data QA | Orta | Gerçek metin ve çalışan route'lar |
+| 10 | Blog/SEO teknik temeli | Sitemap, metadata, canonical, structured data | Evet | SEO/link/schema QA | Orta | Editorial onaylı yayın altyapısı |
+| 11 | Blog içerik otomasyonu | Brief/review/schedule workflow | Evet | Approval/audit/quality QA | Yüksek | Otomatik yayın yok, editör onayı zorunlu |
+| 12 | Dünya mutfakları genişlemesi | Cuisine taxonomy ve editorial katalog | Evet | Taxonomy/provenance QA | Orta | Hiyerarşi ve verification açık |
+| 13 | Responsive ve accessibility hardening | Tüm public/member/admin ekranlar | Yok | 375/768/1024/1440, keyboard, contrast | Orta | WCAG AA'ya yakın kritik akışlar |
+| 14 | Visual QA turu 1 | Browser senaryoları ve screenshot matrisi | Yok | Gerçek browser QA | Düşük | Bulgu listesi önceliklendirilir |
+| 15 | Düzeltme turu | Yalnız QA bulguları | Gerekirse küçük migration | Regresyon | Düşük/orta | Kritik/P1 bulgu kalmaz |
+| 16 | Visual QA turu 2 | Aynı QA matrisi | Yok | Gerçek browser QA | Düşük | Onay paketi hazırlanır |
+| 17 | Full regression QA | Tüm kalite kapıları | Yok | Test/Pint/PHPStan/build/CI/clean install | Orta | Kullanıcı release onayı |
+| 18 | Production readiness | Environment, monitoring, release/rollback checklist | Ortama bağlı | Staging/health/restore QA | Orta | Production onayı |
 
 ## Faz 1 — ayrıntılı uygulama planı
 
@@ -61,12 +66,13 @@ V3 için tek kaynaklı token, motion, form, table ve icon sözleşmesi kurmak; h
 - 12 demo tarifin tekrar eden metin, zorunlu alan ve provenance kalite denetimi.
 - Gerçek görsel varlık stratejisi; aynı placeholder'ın tekrar kullanımını bitirme planı.
 
-### P1 — ana kullanıcı deneyimi
+### P1 — data trust ve ana kullanıcı deneyimi
 
 - Tarif listesi ve detay redesign'i.
 - Matching, pantry, favorites ve cooking UX.
 - Türkçe profile/auth formları.
-- İlk 50 doğrulanmış editorial tarif.
+- Data Trust/verification ve ilk 50 doğrulanmış editorial tarif.
+- Tarif image manifesti ve ingredient icon sözleşmesi.
 
 ### P2 — yönetim verimliliği
 
@@ -78,6 +84,7 @@ V3 için tek kaynaklı token, motion, form, table ve icon sözleşmesi kurmak; h
 
 - Visual QA turları, contrast/accessibility, screenshot regression yaklaşımı.
 - Trend/metric history bulunuyorsa gerçek grafikler; yoksa açık empty state.
+- About/FAQ/Editoryal sayfalar, Blog/SEO teknik temeli ve content workflow yalnız ilgili veri/UX fazları kapandıktan sonra.
 
 ## Çıkış kriterleri
 

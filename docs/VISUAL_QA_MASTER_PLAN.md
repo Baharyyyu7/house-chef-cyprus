@@ -13,6 +13,8 @@ Her teslim light/dark, 375/768/1024/1440 px, keyboard focus ve reduced-motion du
 | Auth/profile | Türkçe metin, validation, verification, password, destructive action confirmation |
 | Admin | admin/member policy, filters/table overflow, CRUD form error/success, detail/action feedback |
 | Operations | health/backups/events/jobs/data quality için güvenli empty/error ve sensitive data mask |
+| Bilgi/SEO (gelecek) | About/How It Works/FAQ/Editorial içerik doğruluğu, breadcrumb, canonical, schema görünürlüğü ve kırık-footer-link yokluğu |
+| Görseller/ikonlar | hero/card crop, alt text, source/license state, dark/light contrast ve dekoratif ikon erişilebilirliği |
 
 ## QA turları
 
@@ -28,3 +30,4 @@ Her teslim light/dark, 375/768/1024/1440 px, keyboard focus ve reduced-motion du
 - Veri yokken sahte chart/metric yok; action feedback açık.
 - İşlevsel route, authorization, public ID ve API sözleşmeleri bozulmaz.
 - Her ana sayfa için state: normal, loading, empty, validation/error ve authorization/error değerlendirilir.
+- SEO ya da bilgi sayfası route'u ancak içerik ve hedef bağlantı hazır olduğunda QA matrisine canlı sayfa olarak eklenir.

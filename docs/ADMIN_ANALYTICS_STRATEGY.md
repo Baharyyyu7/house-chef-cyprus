@@ -34,6 +34,7 @@ Her chart bileşeni: 24 saat/7 gün/30 gün/90 gün seçici, loading skeleton, a
 3. **Recipe admin:** completeness/status/nutrition/allergen/media filtresi; wizard ve preview.
 4. **Ingredient 360°:** aliases, substitutions, nutrition, allergens, household conversions, density, storage, verification ve source.
 5. **Operations:** Data Quality, Failed Jobs, System Status, Events, Backups/Restore için aynı table/detail/action sözleşmesi.
+6. **Verification queue (gelecek):** source/license/verification state, stale review, image-rights ve household conversion güveni için gerçek aggregate'ler; bulk review yalnız audit log ve uygun policy ile.
 
 ## Test ve güvenlik
 

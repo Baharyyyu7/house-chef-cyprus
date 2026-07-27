@@ -44,6 +44,10 @@ Geriye uyumlu migration ile önerilen yapılar:
 
 `IngredientDensityResolverInterface` veya eşdeğer resolver, önce exact verified conversion, sonra kullanıcı tanımlı güvenilir conversion, en son "unresolved" sonucunu döndürür. Fallback gram tahmini üretmez.
 
+## Trust ve verification sözleşmesi
+
+Her ingredient-specific dönüşümün kaynak adı/URL'si, confidence, `verified_at`, reviewer ve aktiflik durumu vardır. `verified` dönüşüm ile AI/import tahmini ayrı tutulur. Density resolver yalnız aktif ve doğrulanmış kaydı otomatik hesapta kullanır; açık/ambiguous kayıt kullanıcı arayüzünde belirsizlik olarak görünür.
+
 ## UI, admin ve test gereksinimleri
 
 - Tarif detay, pantry ve recipe admin household display'i önceliklendirir; canonical değeri yalnız açıklama/hesap gerektiğinde gösterir.

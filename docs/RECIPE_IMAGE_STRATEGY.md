@@ -1,0 +1,18 @@
+# Recipe Image Strategy
+
+## Görsel durumları
+
+`missing`, `placeholder`, `generated`, `licensed`, `original`, `verified`, `rejected`. Yayın önceliği: özgün içerik; ardından lisanslı/doğrulanmış içerik; kontrollü ve açıkça işaretlenmiş AI görseli; son olarak marka placeholder'ı.
+
+## Zorunlu metadata
+
+Her kullanılabilir görsel source/creator, license, license URL veya izin notu, uploaded/checked zamanı, alt text, focal point, crop türevleri, doğrulama durumu ve gerektiğinde content-origin bilgisini taşır. Lisansı belirsiz görsel yayınlanmaz.
+
+## Aşamalı hedef
+
+- İlk 20 öne çıkan tarif: tutarlı hero/card görüntüsü ve alternatif metin.
+- İlk 50 doğrulanmış tarif: en az bir kullanılabilir tarif görseli veya dürüst placeholder.
+- Mutfak/kategori yüzeyleri: ayrı, lisansı doğrulanmış banner planı.
+
+Rastgele web görseli indirme, görünür kaynak izni olmadan yeniden kullanım ve aynı placeholder'ın gerçek görsel gibi sunulması yasaktır.
+
