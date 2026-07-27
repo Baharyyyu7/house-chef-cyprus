@@ -42,3 +42,6 @@ Sıradaki faz Technical Foundation C — Security ve Media'dır.
 # Foundation C media operations
 
 Foundation C adds secure real-image upload, public/private storage separation, queued thumbnail processing, admin media operations, safe cleanup commands and media health visibility. Media upload is local-disk based behind `MediaStorageInterface`; S3 implementation and video transcoding remain future production work.
+# Technical Foundation
+
+Foundation E API Contract & OpenAPI ile GitHub Quality Gate/Clean Install alt fazları, API sözleşmesi, route/config/view cache güvenliği, seed idempotency ve yerel otomasyon üzerinde ilerlemektedir.

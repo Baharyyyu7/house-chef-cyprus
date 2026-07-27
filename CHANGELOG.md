@@ -66,3 +66,8 @@
 
 - Added secure admin image upload, re-encoding, EXIF stripping, public/private storage separation and queued thumbnail variants.
 - Added media management, safe orphan/temporary maintenance commands, scheduler entries and media health status.
+# Changelog
+
+## Unreleased
+
+- Foundation E quality gate, clean-install ve environment validation altyapısı.

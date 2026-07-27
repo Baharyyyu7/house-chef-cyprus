@@ -1,21 +1,37 @@
 name: CI
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       APP_KEY: base64:MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE=
       DB_CONNECTION: sqlite
       DB_DATABASE: ":memory:"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: shivammathur/setup-php@v2
         with: {php-version: '8.5', extensions: sqlite3, coverage: none}
       - run: composer install --no-interaction --prefer-dist
       - run: npm ci
+      - run: php artisan migrate:fresh --seed
+      - run: php artisan db:seed
       - run: npm run build
       - run: php artisan test
       - run: ./vendor/bin/pint --test
       - run: ./vendor/bin/phpstan analyse --memory-limit=1G
+      - run: php artisan api:openapi-check
+      - run: php artisan api:openapi-check --json
+      - run: php artisan app:environment-check --json
+      - run: php artisan config:cache && php artisan route:cache && php artisan view:cache
+      - run: ./scripts/secret-scan.sh && ./scripts/forbidden-file-scan.sh && ./scripts/docs-link-check.sh
+      - run: bash -n setup.sh start.sh stop.sh restart.sh status.sh test.sh backup.sh restore.sh update.sh scripts/*.sh
       - run: composer audit
       - run: npm audit --omit=dev --audit-level=high

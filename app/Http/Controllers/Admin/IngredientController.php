@@ -24,6 +24,11 @@ final class IngredientController extends Controller
         return view('admin.ingredients.edit', ['ingredient' => $ingredient->load(['aliases', 'substitutions.substitute']), 'ingredients' => Ingredient::query()->whereKeyNot($ingredient->id)->orderBy('name')->get()]);
     }
 
+    public function editPublic(string $publicId): View
+    {
+        return $this->edit(Ingredient::query()->where('public_id', $publicId)->firstOrFail());
+    }
+
     public function update(Request $request, Ingredient $ingredient): RedirectResponse
     {
         $ingredient->update($request->validate(['category' => ['nullable', 'string', 'max:100'], 'is_active' => ['nullable', 'boolean'], 'is_perishable' => ['nullable', 'boolean'], 'typical_shelf_life_days' => ['nullable', 'integer', 'min:0'], 'storage_type' => ['nullable', 'in:pantry,fridge,freezer,other'], 'notes' => ['nullable', 'string']]));

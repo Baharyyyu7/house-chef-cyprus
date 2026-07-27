@@ -32,3 +32,6 @@ optimizasyonları bu geçiş için zorunlu değildir; kendi backlog'larında kal
 
 > Tasarım referansı: Bu konuşmada onaylanan House Chef Cyprus koyu yeşil/altın/krem
 > marka görseli, yalnızca 7. fazda uygulanacaktır.
+# Product Roadmap
+
+Mevcut öncelik Technical Foundation E'nin kalite kapısı ve temiz kurulum doğrulamasıdır. Bu kapanmadan tasarım, AI Chef, SEO/Blog, Community ve Import Engine geliştirmesine geçilmez.

@@ -36,6 +36,11 @@ final class RecipeController extends Controller
         return view('admin.recipes.form', ['recipe' => $recipe, 'cuisines' => Cuisine::orderBy('name')->get(), 'categories' => Category::orderBy('name')->get()]);
     }
 
+    public function editPublic(string $publicId): View
+    {
+        return $this->edit(Recipe::query()->where('public_id', $publicId)->firstOrFail());
+    }
+
     public function update(StoreRecipeRequest $request, Recipe $recipe): RedirectResponse
     {
         $recipe->update($request->validated());
