@@ -30,6 +30,7 @@ Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])->name('ingredients.explore');
+    Route::get('/favoriler', [FavoriteController::class, 'index'])->name('favorites.index');
     Route::post('/tarifler/{recipe:slug}/favori', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
     Route::get('/dolabim', [PantryController::class, 'index'])->name('pantry.index');
     Route::post('/dolabim', [PantryController::class, 'store'])->name('pantry.store');

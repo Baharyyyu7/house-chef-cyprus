@@ -18,7 +18,11 @@ final class SystemEventsAdminTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
         $event = SystemEvent::create(['event_type' => 'test', 'severity' => 'error', 'message' => 'Güvenli mesaj', 'correlation_id' => 'REQ-1', 'metadata' => ['token' => 'secret', 'safe' => 'ok', 'trace' => 'x']]);
-        $this->actingAs($admin)->get(route('admin.system-events.index', ['request_id' => 'REQ-1']))->assertOk()->assertSee('REQ-1');
+        $this->actingAs($admin)->get(route('admin.system-events.index', ['request_id' => 'REQ-1']))
+            ->assertOk()
+            ->assertSee('REQ-1')
+            ->assertSee(route('admin.system-events.show', $event), false)
+            ->assertSee('Detay');
         $this->get(route('admin.system-events.show', $event))->assertOk()->assertDontSee('secret')->assertDontSee('trace');
         $this->post(route('admin.system-events.resolve', $event))->assertRedirect();
         $this->post(route('admin.system-events.resolve', $event))->assertRedirect();

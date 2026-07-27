@@ -14,7 +14,9 @@ final class SecureHeaders
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
-        $scriptPolicy = app()->environment('production') ? "script-src 'self'" : "script-src 'self' 'unsafe-inline'";
+        // Livewire and Alpine compile their declarative expressions at runtime. Blocking
+        // unsafe-eval here prevents authentication, profile, and cooking interactions.
+        $scriptPolicy = "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
         $response->headers->set('Content-Security-Policy', "default-src 'self'; {$scriptPolicy}; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'");
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');

@@ -14,14 +14,20 @@ final class PantryController extends Controller
 {
     public function index(): View
     {
-        return view('pantry.index', ['items' => auth()->user()->pantryItems()->with('ingredient')->orderBy('expires_at')->get(), 'ingredients' => Ingredient::orderBy('name')->get()]);
+        $editing = request()->integer('edit');
+
+        return view('pantry.index', [
+            'items' => auth()->user()->pantryItems()->with('ingredient')->orderBy('expires_at')->get(),
+            'ingredients' => Ingredient::orderBy('name')->get(),
+            'editingItem' => $editing > 0 ? auth()->user()->pantryItems()->find($editing) : null,
+        ]);
     }
 
     public function store(StorePantryItemRequest $request): RedirectResponse
     {
         auth()->user()->pantryItems()->updateOrCreate(['ingredient_id' => $request->integer('ingredient_id')], $request->safe()->except('ingredient_id'));
 
-        return back()->with('status', 'Malzeme dolaba eklendi.');
+        return redirect()->route('pantry.index')->with('status', 'Malzeme dolabınız güncellendi.');
     }
 
     public function destroy(PantryItem $pantryItem): RedirectResponse

@@ -1,5 +1,12 @@
 # Changelog
 
+## Final Product Core Audit
+
+- Livewire/Alpine CSP regresyonu kapatıldı; lokal gerçek giriş akışı yeniden çalışır durumda doğrulandı.
+- Kullanıcıya özel Favorites listesi, görünür pantry düzenleme ve tarif görünürlüğü korumaları tamamlandı.
+- System Events listesi gerçek detay ekranına bağlandı; kullanılmayan Favorite modeli kaldırıldı.
+- Ürün çekirdeği kontrollü olarak Visual Design aşamasına hazır kabul edildi.
+
 ## Foundation E — Final Audit
 
 - API v1 success/error envelope, 16 endpoint OpenAPI 3.1 coverage ve sözleşme kontrol komutu tamamlandı.

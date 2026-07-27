@@ -29,7 +29,15 @@ final class RecipeController extends Controller
 
         $nutritionResult = $nutrition->snapshot($recipe, $servings);
 
-        return view('recipes.show', ['recipe' => $recipe, 'servings' => $servings, 'nutrition' => $nutritionResult, 'allergenAnalysis' => $allergens->analyse($recipe), 'dietaryCompatibility' => $dietary->assess($recipe, $servings), 'match' => $request->user() ? $matching->match($recipe, $request->user()) : null]);
+        return view('recipes.show', [
+            'recipe' => $recipe,
+            'servings' => $servings,
+            'nutrition' => $nutritionResult,
+            'allergenAnalysis' => $allergens->analyse($recipe),
+            'dietaryCompatibility' => $dietary->assess($recipe, $servings),
+            'match' => $request->user() ? $matching->match($recipe, $request->user()) : null,
+            'isFavorited' => $request->user()?->favoriteRecipes()->whereKey($recipe->id)->exists() ?? false,
+        ]);
     }
 
     public function ai(Request $request, Recipe $recipe, AiProviderInterface $provider)

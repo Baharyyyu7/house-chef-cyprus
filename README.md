@@ -1,6 +1,6 @@
 # House Chef Cyprus
 
-Türkçe tarif, malzeme dolabı, beslenme ve veri kalitesi platformu. Technical Foundation A–E tamamlanmıştır; sıradaki çalışma Final Product Core Audit’tir.
+Türkçe tarif, malzeme dolabı, beslenme ve veri kalitesi platformu. Technical Foundation A–E ve Final Product Core Audit tamamlanmıştır; sıradaki çalışma Visual Design Implementation'dır.
 
 ## Yerelde başlatma
 

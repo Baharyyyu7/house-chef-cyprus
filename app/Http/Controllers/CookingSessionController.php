@@ -18,6 +18,7 @@ final class CookingSessionController extends Controller
 {
     public function start(Request $request, Recipe $recipe, CookingSessionService $sessions): RedirectResponse
     {
+        abort_unless($recipe->status === 'published' || $request->user()?->isAdmin(), 404);
         $session = $sessions->startOrResume($request->user(), $recipe, max(1, (int) $request->integer('servings', $recipe->servings)));
 
         return redirect()->route('cooking-sessions.show', $session);
