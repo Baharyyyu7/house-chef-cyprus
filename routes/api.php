@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\RecipeController;
 use App\Http\Controllers\Api\V1\RecipeMatchController;
 use App\Http\Controllers\Api\V1\RecipeNutritionController;
 use App\Http\Controllers\HealthController;
+use App\Http\Middleware\RequireJsonApi;
 use App\Models\Allergen;
 use App\Models\Category;
 use App\Models\Cuisine;
@@ -31,5 +32,5 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
     Route::get('nutrients', fn () => response()->json(['data' => Nutrient::query()->where('is_active', true)->orderBy('sort_order')->get(['public_id', 'code', 'name', 'category', 'unit', 'decimal_precision', 'daily_reference_value'])]));
     Route::get('allergens', fn () => response()->json(['data' => Allergen::query()->where('is_active', true)->orderBy('name')->get(['public_id', 'code', 'name'])]));
     Route::get('dietary-tags', fn () => response()->json(['data' => DietaryTag::query()->where('is_active', true)->orderBy('name')->get(['public_id', 'code', 'name', 'description'])]));
-    Route::post('recipe-match', RecipeMatchController::class);
+    Route::post('recipe-match', RecipeMatchController::class)->middleware(RequireJsonApi::class);
 });

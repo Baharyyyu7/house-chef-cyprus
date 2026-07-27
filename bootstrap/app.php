@@ -8,6 +8,9 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -30,15 +33,32 @@ return Application::configure(basePath: dirname(__DIR__))
         );
         $exceptions->render(function (Throwable $exception, Request $request) {
             if ($request->is('api/*') && $exception instanceof ValidationException) {
-                return response()->json(['message' => 'İstek tamamlanamadı.', 'error_code' => 'VALIDATION_ERROR', 'errors' => $exception->errors(), 'request_id' => (string) $request->attributes->get('request_id'), 'status' => 422], 422);
+                return response()->json(['error' => ['code' => 'VALIDATION_ERROR', 'message' => 'İstek tamamlanamadı.', 'details' => $exception->errors()], 'request_id' => (string) $request->attributes->get('request_id')], 422)->header('X-Request-ID', (string) $request->attributes->get('request_id'));
             }
             if ($request->is('api/*') && $exception instanceof NotFoundHttpException) {
-                return response()->json(['message' => 'İstek tamamlanamadı.', 'error_code' => 'RESOURCE_NOT_FOUND', 'errors' => [], 'request_id' => (string) $request->attributes->get('request_id'), 'status' => 404], 404);
+                return response()->json(['error' => ['code' => 'RESOURCE_NOT_FOUND', 'message' => 'İstek tamamlanamadı.', 'details' => []], 'request_id' => (string) $request->attributes->get('request_id')], 404)->header('X-Request-ID', (string) $request->attributes->get('request_id'));
+            }
+            if ($request->is('api/*') && $exception instanceof MethodNotAllowedHttpException) {
+                return response()->json(['error' => ['code' => 'METHOD_NOT_ALLOWED', 'message' => 'İstek tamamlanamadı.', 'details' => []], 'request_id' => (string) $request->attributes->get('request_id')], 405)->header('X-Request-ID', (string) $request->attributes->get('request_id'));
+            }
+            if ($request->is('api/*') && $exception instanceof BadRequestHttpException) {
+                return response()->json(['error' => ['code' => 'MALFORMED_REQUEST', 'message' => 'İstek tamamlanamadı.', 'details' => []], 'request_id' => (string) $request->attributes->get('request_id')], 400)->header('X-Request-ID', (string) $request->attributes->get('request_id'));
+            }
+            if ($request->is('api/*') && $exception instanceof HttpExceptionInterface) {
+                $status = $exception->getStatusCode();
+                $code = match ($status) {
+                    413 => 'PAYLOAD_TOO_LARGE',
+                    415 => 'UNSUPPORTED_MEDIA_TYPE',
+                    429 => 'RATE_LIMIT_EXCEEDED',
+                    default => 'REQUEST_ERROR',
+                };
+
+                return response()->json(['error' => ['code' => $code, 'message' => 'İstek tamamlanamadı.', 'details' => []], 'request_id' => (string) $request->attributes->get('request_id')], $status, $exception->getHeaders())->header('X-Request-ID', (string) $request->attributes->get('request_id'));
             }
             if ($request->is('api/*')) {
                 app(ErrorReporterInterface::class)->report($exception, ['request_id' => $request->attributes->get('request_id')]);
 
-                return response()->json(['message' => 'İstek tamamlanamadı.', 'error_code' => 'INTERNAL_ERROR', 'errors' => [], 'request_id' => (string) $request->attributes->get('request_id'), 'status' => 500], 500);
+                return response()->json(['error' => ['code' => 'INTERNAL_ERROR', 'message' => 'İstek tamamlanamadı.', 'details' => []], 'request_id' => (string) $request->attributes->get('request_id')], 500)->header('X-Request-ID', (string) $request->attributes->get('request_id'));
             }
         });
     })->create();

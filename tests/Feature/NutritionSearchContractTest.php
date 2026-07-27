@@ -33,8 +33,8 @@ final class NutritionSearchContractTest extends TestCase
 
     public function test_api_rejects_invalid_nutrition_filter_and_too_high_page_size(): void
     {
-        $this->getJson('/api/v1/recipes?min_protein=-1')->assertStatus(422)->assertJsonPath('error_code', 'VALIDATION_ERROR');
-        $this->getJson('/api/v1/recipes?per_page=51')->assertStatus(422)->assertJsonPath('error_code', 'VALIDATION_ERROR');
+        $this->getJson('/api/v1/recipes?min_protein=-1')->assertStatus(422)->assertJsonPath('error.code', 'VALIDATION_ERROR');
+        $this->getJson('/api/v1/recipes?per_page=51')->assertStatus(422)->assertJsonPath('error.code', 'VALIDATION_ERROR');
     }
 
     public function test_web_service_api_and_recipe_match_share_the_same_computed_filter_results(): void
@@ -55,8 +55,8 @@ final class NutritionSearchContractTest extends TestCase
     {
         $allergen = Allergen::create(['public_id' => (string) Str::ulid(), 'code' => 'test-milk', 'name' => 'Test süt', 'is_active' => true]);
         $this->getJson('/api/v1/recipes?exclude_allergens[]='.$allergen->public_id)->assertOk();
-        $this->getJson('/api/v1/recipes?exclude_allergens[]=unknown')->assertStatus(422)->assertJsonPath('error_code', 'VALIDATION_ERROR');
-        $this->postJson('/api/v1/recipe-match', ['filters' => ['exclude_allergens' => array_fill(0, 21, $allergen->public_id)]])->assertStatus(422)->assertJsonPath('error_code', 'VALIDATION_ERROR');
+        $this->getJson('/api/v1/recipes?exclude_allergens[]=unknown')->assertStatus(422)->assertJsonPath('error.code', 'VALIDATION_ERROR');
+        $this->postJson('/api/v1/recipe-match', ['filters' => ['exclude_allergens' => array_fill(0, 21, $allergen->public_id)]])->assertStatus(422)->assertJsonPath('error.code', 'VALIDATION_ERROR');
     }
 
     public function test_representative_filter_matrix_uses_the_shared_contract(): void

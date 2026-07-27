@@ -33,13 +33,13 @@ final class RecipeController extends Controller
         $filters['max_minutes'] = $filters['max_time'] ?? null;
         $filters['exclude_allergens'] = $filters['exclude_allergens'] ?? [];
 
-        return RecipeResource::collection($search->search($filters));
+        return RecipeResource::collection($search->search($filters))->additional(['request_id' => (string) $request->attributes->get('request_id')]);
     }
 
     public function show(Recipe $recipe)
     {
         abort_unless($recipe->status === 'published', 404);
 
-        return new RecipeResource($recipe->load(['cuisine', 'category', 'ingredients']));
+        return (new RecipeResource($recipe->load(['cuisine', 'category', 'ingredients'])))->additional(['request_id' => (string) request()->attributes->get('request_id')]);
     }
 }

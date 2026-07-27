@@ -17,11 +17,19 @@ final class RecipeMatchController extends Controller
         if (isset($validated['filters'])) {
             $recipes = $search->search($validated['filters']);
 
-            return response()->json(['data' => collect($recipes->items())->map(fn ($recipe) => ['recipe_public_id' => $recipe->public_id, 'title' => $recipe->title])->values(), 'meta' => ['current_page' => $recipes->currentPage(), 'per_page' => $recipes->perPage(), 'total' => $recipes->total()]]);
+            return response()->json([
+                'data' => collect($recipes->items())->map(fn ($recipe) => ['recipe_public_id' => $recipe->public_id, 'title' => $recipe->title])->values(),
+                'meta' => ['current_page' => $recipes->currentPage(), 'per_page' => $recipes->perPage(), 'total' => $recipes->total()],
+                'links' => ['first' => $recipes->url(1), 'last' => $recipes->url($recipes->lastPage()), 'prev' => $recipes->previousPageUrl(), 'next' => $recipes->nextPageUrl()],
+            ]);
         }
         abort_unless(isset($validated['ingredients']), 422);
         $results = $matching->findRecipes($validated['ingredients'], $validated['excluded'] ?? [], (bool) ($validated['exact_only'] ?? false), (bool) ($validated['include_substitutions'] ?? true), (int) ($validated['max_missing'] ?? 2));
 
-        return response()->json(['data' => $results->map(fn (array $result) => collect($result)->except(['recipe', 'rank'])->all())->values()]);
+        return response()->json([
+            'data' => $results->map(fn (array $result) => collect($result)->except(['recipe', 'rank'])->all())->values(),
+            'meta' => ['total' => $results->count()],
+            'links' => [],
+        ]);
     }
 }

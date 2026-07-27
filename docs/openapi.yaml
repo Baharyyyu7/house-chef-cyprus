@@ -1,6 +1,54 @@
-openapi: 3.0.3
-info: {title: House Chef Cyprus API, version: v1}
+openapi: 3.1.0
+info:
+  title: House Chef Cyprus API
+  version: v1
+  description: Public API. All identifiers exposed to clients are public ULIDs.
 paths:
-  /api/v1/health: {get: {responses: {'200': {description: OK}}}}
-  /api/v1/recipes: {get: {parameters: [{name: search, in: query, schema: {type: string}}], responses: {'200': {description: Recipe page}}}}
-  /api/v1/recipes/{public_id}: {get: {parameters: [{name: public_id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Recipe}}}}
+  /api/v1/health: { get: { responses: { '200': { $ref: '#/components/responses/SingleResponse' } } } }
+  /api/v1/status: { get: { responses: { '200': { $ref: '#/components/responses/SingleResponse' } } } }
+  /api/v1/version: { get: { responses: { '200': { $ref: '#/components/responses/SingleResponse' } } } }
+  /api/v1/recipes:
+    get:
+      parameters: [{ $ref: '#/components/parameters/Page' }, { $ref: '#/components/parameters/PerPage' }, { $ref: '#/components/parameters/Sort' }, { name: search, in: query, schema: { type: string } }]
+      responses: { '200': { $ref: '#/components/responses/CollectionResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } }
+  /api/v1/recipes/{public_id}:
+    get:
+      parameters: [{ $ref: '#/components/parameters/PublicId' }]
+      responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '404': { $ref: '#/components/responses/ErrorResponse' } }
+  /api/v1/recipes/{public_id}/nutrition:
+    get:
+      parameters: [{ $ref: '#/components/parameters/PublicId' }, { name: servings, in: query, schema: { type: integer, minimum: 1, maximum: 24 } }]
+      responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '404': { $ref: '#/components/responses/ErrorResponse' } }
+  /api/v1/recipes/{public_id}/allergens:
+    get:
+      parameters: [{ $ref: '#/components/parameters/PublicId' }]
+      responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '404': { $ref: '#/components/responses/ErrorResponse' } }
+  /api/v1/ingredients: { get: { responses: { '200': { $ref: '#/components/responses/CollectionResponse' } } } }
+  /api/v1/ingredients/{public_id}/nutrition:
+    get: { parameters: [{ $ref: '#/components/parameters/PublicId' }], responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '404': { $ref: '#/components/responses/ErrorResponse' } } }
+  /api/v1/ingredients/{public_id}/substitutions:
+    get: { parameters: [{ $ref: '#/components/parameters/PublicId' }], responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '404': { $ref: '#/components/responses/ErrorResponse' } } }
+  /api/v1/cuisines: { get: { responses: { '200': { $ref: '#/components/responses/CollectionResponse' } } } }
+  /api/v1/categories: { get: { responses: { '200': { $ref: '#/components/responses/CollectionResponse' } } } }
+  /api/v1/nutrients: { get: { responses: { '200': { $ref: '#/components/responses/SingleResponse' } } } }
+  /api/v1/allergens: { get: { responses: { '200': { $ref: '#/components/responses/SingleResponse' } } } }
+  /api/v1/dietary-tags: { get: { responses: { '200': { $ref: '#/components/responses/SingleResponse' } } } }
+  /api/v1/recipe-match:
+    post:
+      requestBody: { required: true, content: { application/json: { schema: { type: object } } } }
+      responses: { '200': { $ref: '#/components/responses/CollectionResponse' }, '400': { $ref: '#/components/responses/ErrorResponse' }, '415': { $ref: '#/components/responses/ErrorResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } }
+components:
+  parameters:
+    PublicId: { name: public_id, in: path, required: true, schema: { type: string, pattern: '^[0-9A-HJKMNP-TV-Z]{26}$' } }
+    Page: { name: page, in: query, schema: { type: integer, minimum: 1 } }
+    PerPage: { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 50 } }
+    Sort: { name: sort, in: query, schema: { type: string, enum: [newest, time] } }
+  schemas:
+    Error: { type: object, required: [code, message, details], properties: { code: { type: string }, message: { type: string }, details: { type: object } } }
+    ErrorEnvelope: { type: object, required: [error, request_id], properties: { error: { $ref: '#/components/schemas/Error' }, request_id: { type: string } } }
+    SingleEnvelope: { type: object, required: [data, request_id], properties: { data: {}, request_id: { type: string } } }
+    CollectionEnvelope: { type: object, required: [data, meta, links, request_id], properties: { data: { type: array, items: {} }, meta: { type: object }, links: { type: object }, request_id: { type: string } } }
+  responses:
+    SingleResponse: { description: Successful response, content: { application/json: { schema: { $ref: '#/components/schemas/SingleEnvelope' } } } }
+    CollectionResponse: { description: Paginated successful response, content: { application/json: { schema: { $ref: '#/components/schemas/CollectionEnvelope' } } } }
+    ErrorResponse: { description: Standard API error, content: { application/json: { schema: { $ref: '#/components/schemas/ErrorEnvelope' } } } }

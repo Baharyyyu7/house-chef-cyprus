@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Services\Observability\MetricService;
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -21,6 +22,16 @@ final class RequestContext
         $request->attributes->set('request_id', $requestId);
         $response = $next($request);
         $duration = (int) ((hrtime(true) - $startedAt) / 1_000_000);
+
+        if ($request->is('api/*') && $response instanceof JsonResponse) {
+            $payload = $response->getData(true);
+
+            if (is_array($payload) && ! array_key_exists('request_id', $payload)) {
+                $payload['request_id'] = $requestId;
+                $response->setData($payload);
+            }
+        }
+
         $response->headers->set('X-Request-ID', $requestId);
         app(MetricService::class)->recordRequest($request, $response->getStatusCode(), $duration);
         Log::info('request.completed', ['request_id' => $requestId, 'user_public_id' => $request->user()?->getAttribute('public_id'), 'route' => optional($request->route())->getName(), 'method' => $request->method(), 'status' => $response->getStatusCode(), 'duration_ms' => $duration, 'ip_hash' => hash_hmac('sha256', (string) $request->ip(), (string) config('app.key')), 'user_agent' => Str::limit((string) $request->userAgent(), 160), 'environment' => app()->environment()]);

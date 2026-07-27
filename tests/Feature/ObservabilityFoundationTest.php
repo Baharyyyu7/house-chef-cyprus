@@ -15,7 +15,7 @@ final class ObservabilityFoundationTest extends TestCase
     public function test_health_endpoints_are_safe_and_requests_receive_a_correlation_id(): void
     {
         $this->get('/health')->assertOk()->assertHeader('X-Request-ID')->assertJsonStructure(['status', 'checked_at']);
-        $this->getJson('/api/v1/health')->assertOk()->assertHeader('X-Request-ID')->assertJsonMissing(['components']);
+        $this->getJson('/api/v1/health')->assertOk()->assertHeader('X-Request-ID')->assertJsonStructure(['data' => ['status', 'checked_at'], 'request_id'])->assertJsonMissing(['components']);
         $this->getJson('/api/v1/version')->assertOk()->assertJsonPath('data.locale', 'tr');
     }
 
