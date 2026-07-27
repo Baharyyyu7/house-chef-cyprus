@@ -1,5 +1,10 @@
 # Changelog
 
+## Technical Foundation B — Resmî Kapanış
+
+- Cache, queue, scheduler ve database performance kapsamı; baseline ve indeks
+  stratejisi dokümantasyonuyla kapatıldı.
+
 ## Technical Foundation B — Database Performance
 
 - Sorgu kalıpları için hedefli, taşınabilir indeksler ve merkezî pagination

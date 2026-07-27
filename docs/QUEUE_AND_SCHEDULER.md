@@ -33,3 +33,7 @@ hata yeniden iletilir.
 
 Lokal doğrulama için `php artisan schedule:list` ve `php artisan schedule:run`
 kullanılabilir.
+
+`queue:health` yalnızca gözlem yapar; worker heartbeat'i yapay olarak yenilemez.
+Bu nedenle worker yoksa dashboard doğru biçimde unavailable/stale durumunu
+gösterebilir.
