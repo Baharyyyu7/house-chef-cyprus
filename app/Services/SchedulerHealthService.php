@@ -27,6 +27,12 @@ final class SchedulerHealthService
     /** @return array<string, mixed> */
     public function snapshot(): array
     {
-        return Cache::get('scheduler.health', ['status' => 'never_run', 'task_count' => 2]) + ['task_count' => 2];
+        $snapshot = Cache::get('scheduler.health', ['status' => 'never_run', 'task_count' => 2]);
+        $lastStartedAt = $snapshot['last_started_at'] ?? null;
+        if ($snapshot['status'] === 'healthy' && is_string($lastStartedAt) && abs(now()->diffInHours($lastStartedAt)) > 26) {
+            $snapshot['status'] = 'delayed';
+        }
+
+        return $snapshot + ['task_count' => 2];
     }
 }

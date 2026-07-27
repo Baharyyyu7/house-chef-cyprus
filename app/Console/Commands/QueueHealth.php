@@ -15,7 +15,6 @@ final class QueueHealth extends Command
 
     public function handle(QueueHealthService $health): int
     {
-        $health->heartbeat();
         $snapshot = $health->snapshot();
         if ($this->option('json')) {
             $this->line(json_encode($snapshot, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));

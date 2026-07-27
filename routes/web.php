@@ -44,6 +44,9 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
     Route::get('/', AdminDashboardController::class)->name('dashboard');
+    Route::post('sistem-durumu/queue-yenile', [AdminDashboardController::class, 'refreshQueue'])->name('system-status.refresh-queue');
+    Route::post('sistem-durumu/scheduler-yenile', [AdminDashboardController::class, 'refreshScheduler'])->name('system-status.refresh-scheduler');
+    Route::post('sistem-durumu/cache-yenile', [AdminDashboardController::class, 'refreshCache'])->name('system-status.refresh-cache');
     Route::get('basarisiz-isler', [FailedJobController::class, 'index'])->name('failed-jobs.index');
     Route::get('basarisiz-isler/{uuid}', [FailedJobController::class, 'show'])->name('failed-jobs.show');
     Route::post('basarisiz-isler/{uuid}/retry', [FailedJobController::class, 'retry'])->name('failed-jobs.retry');

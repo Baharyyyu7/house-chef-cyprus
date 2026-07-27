@@ -32,6 +32,9 @@ final class QueueHealthService
             'last_successful_job_at' => Cache::get('queue.last_successful_job_at'),
             'last_failed_job_at' => Cache::get('queue.last_failed_job_at'),
             'repeated_failures' => DB::table('failed_jobs')->where('failed_at', '>=', now()->subDay())->count(),
+            'worker_count' => $heartbeat === null ? 0 : 1,
+            'healthy_workers' => $workerStatus === 'healthy' ? 1 : 0,
+            'unavailable_workers' => $workerStatus === 'unavailable' ? 1 : 0,
             'overall_status' => $stuck > 0 || ($workerStatus === 'unavailable' && $reserved > 0) ? 'degraded' : 'healthy',
         ];
     }

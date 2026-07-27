@@ -54,6 +54,17 @@ final class QueueSchedulerFoundationTest extends TestCase
         $this->assertSame('unavailable', app(QueueHealthService::class)->snapshot()['worker_status']);
     }
 
+    public function test_empty_queue_reports_zero_counts(): void
+    {
+        Cache::forget('queue.worker_heartbeat');
+        $health = app(QueueHealthService::class)->snapshot();
+
+        $this->assertSame(0, $health['pending_jobs']);
+        $this->assertSame(0, $health['reserved_jobs']);
+        $this->assertSame(0, $health['failed_jobs']);
+        $this->assertSame(0, $health['stuck_jobs']);
+    }
+
     public function test_admin_can_view_retry_and_forget_failed_jobs_with_audit_trail(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
@@ -93,6 +104,28 @@ final class QueueSchedulerFoundationTest extends TestCase
         $this->assertSame(2, AuditLog::query()->where('action', 'queue.failed_job.retry')->count());
     }
 
+    public function test_invalid_failed_job_actions_return_not_found_and_filters_are_available(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $missingUuid = (string) Str::uuid();
+        $this->actingAs($admin)->post(route('admin.failed-jobs.retry', $missingUuid))->assertNotFound();
+        $this->actingAs($admin)->delete(route('admin.failed-jobs.forget', $missingUuid))->assertNotFound();
+
+        $this->failedJob();
+        $this->actingAs($admin)->get(route('admin.failed-jobs.index', ['queue' => 'nutrition', 'retryable' => 'yes', 'from' => now()->toDateString()]))->assertOk()->assertSee('Retry uygun');
+    }
+
+    public function test_admin_can_refresh_system_health_without_member_access(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $member = User::factory()->create(['role' => 'member', 'email_verified_at' => now()]);
+
+        $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk()->assertSee('Queue yenile')->assertSee('Scheduler yenile')->assertSee('Cache yenile');
+        $this->actingAs($admin)->post(route('admin.system-status.refresh-queue'))->assertRedirect();
+        $this->assertNotNull(Cache::get('admin.system_health.last_refresh_at'));
+        $this->actingAs($member)->post(route('admin.system-status.refresh-cache'))->assertForbidden();
+    }
+
     public function test_scheduler_records_success_and_failure_lifecycle(): void
     {
         $service = app(SchedulerHealthService::class);
@@ -114,6 +147,16 @@ final class QueueSchedulerFoundationTest extends TestCase
         $this->assertSame('failed', $failure['status']);
         $this->assertSame('SCHEDULER_TASK_FAILED', $failure['last_error_code']);
         $this->assertArrayHasKey('last_failed_at', $failure);
+    }
+
+    public function test_scheduler_reports_never_run_and_delayed_states(): void
+    {
+        Cache::forget('scheduler.health');
+        $service = app(SchedulerHealthService::class);
+        $this->assertSame('never_run', $service->snapshot()['status']);
+
+        Cache::forever('scheduler.health', ['status' => 'healthy', 'last_started_at' => now()->subHours(27)->toIso8601String()]);
+        $this->assertSame('delayed', $service->snapshot()['status']);
     }
 
     private function failedJob(): string

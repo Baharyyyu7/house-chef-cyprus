@@ -20,6 +20,8 @@ final class FailedJobController extends Controller
         $jobs = DB::table('failed_jobs')
             ->when($request->string('queue')->isNotEmpty(), fn ($query) => $query->where('queue', $request->string('queue')->toString()))
             ->when($request->string('job')->isNotEmpty(), fn ($query) => $query->where('payload', 'like', '%'.addcslashes($request->string('job')->toString(), '%_\\').'%'))
+            ->when($request->string('retryable')->toString() === 'yes', fn ($query) => $query->where('payload', 'like', '%"job"%'))
+            ->when($request->string('retryable')->toString() === 'no', fn ($query) => $query->where('payload', 'not like', '%"job"%'))
             ->when($request->date('from'), fn ($query, $from) => $query->where('failed_at', '>=', $from->startOfDay()))
             ->when($request->date('to'), fn ($query, $to) => $query->where('failed_at', '<=', $to->endOfDay()))
             ->latest('failed_at')
@@ -45,19 +47,21 @@ final class FailedJobController extends Controller
     public function retry(string $uuid): RedirectResponse
     {
         $this->admin();
+        $this->jobOrFail($uuid);
         Artisan::call('queue:retry', ['id' => [$uuid]]);
         $this->audit('queue.failed_job.retry', $uuid);
 
-        return back()->with('status', 'İş güvenli olarak yeniden deneme kuyruğuna alındı.');
+        return to_route('admin.failed-jobs.index')->with('status', 'İş güvenli olarak yeniden deneme kuyruğuna alındı.');
     }
 
     public function forget(string $uuid): RedirectResponse
     {
         $this->admin();
+        $this->jobOrFail($uuid);
         Artisan::call('queue:forget', ['id' => $uuid]);
         $this->audit('queue.failed_job.forget', $uuid);
 
-        return back()->with('status', 'Başarısız iş kaydı unutuldu.');
+        return to_route('admin.failed-jobs.index')->with('status', 'Başarısız iş kaydı unutuldu.');
     }
 
     public function retryMany(Request $request): RedirectResponse
@@ -65,12 +69,15 @@ final class FailedJobController extends Controller
         $this->admin();
         $data = $request->validate(['uuids' => ['required', 'array', 'max:50'], 'uuids.*' => ['uuid']]);
         $uuids = array_values(array_unique($data['uuids']));
+        foreach ($uuids as $uuid) {
+            $this->jobOrFail($uuid);
+        }
         Artisan::call('queue:retry', ['id' => $uuids]);
         foreach ($uuids as $uuid) {
             $this->audit('queue.failed_job.retry', $uuid);
         }
 
-        return back()->with('status', count($uuids).' iş yeniden deneme kuyruğuna alındı.');
+        return to_route('admin.failed-jobs.index')->with('status', count($uuids).' iş yeniden deneme kuyruğuna alındı.');
     }
 
     private function present(object $job): object
@@ -90,6 +97,11 @@ final class FailedJobController extends Controller
     private function audit(string $action, string $uuid): void
     {
         AuditLog::create(['user_id' => auth()->id(), 'action' => $action, 'auditable_type' => 'failed_job', 'auditable_id' => 0, 'metadata' => ['job_uuid' => $uuid]]);
+    }
+
+    private function jobOrFail(string $uuid): void
+    {
+        abort_unless(DB::table('failed_jobs')->where('uuid', $uuid)->exists(), 404);
     }
 
     private function admin(): void
