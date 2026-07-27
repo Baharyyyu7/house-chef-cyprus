@@ -27,6 +27,10 @@ Data Trust, provenance, completeness, publication guard, admin doğrulama kuyru�
 
 Faz 4 henüz kodlanmamıştır. Uygulama sırası: (1) tarif listesi, (2) tarif detayı, (3) Ne Pişirebilirim, (4) Dolap, (5) Favoriler, (6) Cooking Mode, (7) profil ve auth, (8) header/footer bütünlüğü, (9) responsive/accessibility QA, (10) Visual QA Tur 1.
 
+### Public Pages V3 / Part 1 — tamamlandı
+
+Tarif listesi ve tarif detay ekranları V3 kart, filtre, deterministic placeholder, household ölçü, kaynak/güven özeti, responsive, light/dark ve reduced-motion sözleşmesine taşındı. Matching, Pantry, Favorites, Cooking Mode ve auth redesign'i bu Part 1 kapsamına dahil değildir.
+
 Kapanış kriterleri: V3 component sözleşmesiyle uyum, light/dark görünüm, 375/768/1024/1440 genişlikleri, keyboard/focus/reduced-motion desteği, boş/yükleniyor/hata durumları, gerçek browser QA ve regresyon kalite kapısının geçmesidir. About/How It Works/FAQ için yalnız görsel altyapı bu fazda hazırlanabilir; içerik/SEO çalışması başlatılmaz.
 | 6 | Public sayfaları kontrollü teslimlerle yenilemek | Tarif listesi/detayı, pantry/favorites | Yok veya presentation metadata | Sayfa bazlı feature + browser QA | Orta; Faz 1–5'e bağlı | Light/dark/mobile/empty/error/loading QA |
 | 7 | Matching, Cooking ve Profile/Auth UX | Picker, cooking, profile/Volt görünümü | Gerekirse preference alanları | Matching/cooking/auth regresyonu | Orta | Türkçe, erişilebilir UX |

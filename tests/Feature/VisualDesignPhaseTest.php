@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\Allergen;
+use App\Models\Category;
+use App\Models\DietaryTag;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -140,5 +143,39 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('Kaynak ve güncellik')
             ->assertSee('AI Şef')
             ->assertSee('fetchpriority="high"', false);
+    }
+
+    public function test_recipe_archive_keeps_advanced_filter_values_in_the_public_url_and_exposes_removable_filter_controls(): void
+    {
+        $this->seed();
+        $category = Category::query()->whereNotNull('public_id')->firstOrFail();
+        $dietaryTag = DietaryTag::query()->firstOrFail();
+        $allergen = Allergen::query()->firstOrFail();
+
+        $this->get(route('recipes.index', [
+            'category' => $category->slug,
+            'dietary_tag' => $dietaryTag->code,
+            'exclude_allergens' => [$allergen->public_id],
+            'sort' => 'time',
+        ]))
+            ->assertOk()
+            ->assertSee('Gelişmiş filtreler')
+            ->assertSee('Kesin alerjenleri hariç tut')
+            ->assertSee('Tümünü temizle')
+            ->assertSee('sort=time', false)
+            ->assertSee('exclude_allergens', false);
+    }
+
+    public function test_recipe_detail_shows_related_verified_recipes_without_exposing_internal_editorial_data(): void
+    {
+        $this->seed();
+        $recipe = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->firstOrFail();
+
+        $this->get(route('recipes.show', $recipe))
+            ->assertOk()
+            ->assertSee('Benzer tarifler')
+            ->assertSee('House Chef Cyprus editoryal kontrolünden geçti')
+            ->assertDontSee('editorial_reviewed_by_user_id')
+            ->assertDontSee('seed_demo');
     }
 }

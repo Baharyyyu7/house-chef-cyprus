@@ -8,6 +8,7 @@
 - Added provenance-safe public recipe summaries, branded placeholder variants and initial ingredient icon metadata pilot.
 - Closed Master Redesign Faz 3 documentation at 50 published/verified editorial recipes; Faz 3A/3B/3C intermediate targets are superseded and the controlled 150-recipe expansion remains deferred.
 - Defined Public Pages V3 Redesign as the next active scope without starting its implementation.
+- Completed Public Pages V3 / Part 1: verified recipe catalogue filters, V3 reusable recipe cards, deterministic media placeholders, detail hero, household serving controls, trust/source summaries, conditional equipment/tips/storage panels and related recipes.
 
 ## Master Product Redesign — Faz 0 Planı
 

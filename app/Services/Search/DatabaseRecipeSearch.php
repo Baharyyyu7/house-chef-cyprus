@@ -24,7 +24,7 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
                 'cuisine:id,public_id,name,slug',
                 'category:id,public_id,name,slug',
                 'media:id,mediable_type,mediable_id,path,alt_text,is_placeholder,sort_order',
-                'dietaryTags:id,code',
+                'dietaryTags:id,code,name',
                 'allergenOverrideRecords.allergen:id,public_id,name',
                 'recipeIngredients.ingredient.nutritionFacts.nutrient',
                 'recipeIngredients.ingredient.allergenDetails.allergen:id,public_id,name',

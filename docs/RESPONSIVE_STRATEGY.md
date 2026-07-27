@@ -6,3 +6,7 @@ Geniş tablolarda içerik gizlenmez; `hc-table-wrap` yatay kaydırma sağlar. Pu
 # V3 responsive addendum
 
 Global primitive QA genişlikleri 375, 768, 1024 ve 1440 px'tir. Butonlar minimum 44 px touch target, table shell kontrollü yatay scroll, drawer mobile focus/escape davranışı ve uzun Türkçe metin sarımı taşır. Tüm admin tabloları bu fazda taşınmaz; düşük riskli pilot sözleşmeyi doğrular.
+
+## Public Recipe V3
+
+Tarif koleksiyonu 375 px'te tek, 768 px'te iki, 1024 px'te üç ve geniş ekranda dört kart sütununa geçer. Detay sayfasında metadata sarılır, bölüm navigasyonu yatay kayar, malzeme rail'i yalnız geniş ekranda sticky olur ve hero yüksekliği içerikten bağımsız aşırı büyümez.

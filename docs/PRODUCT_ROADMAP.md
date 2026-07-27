@@ -3,7 +3,7 @@
 1. Technical Foundation A–E — tamamlandı.
 2. Final Product Core Audit — kontrollü olarak geçti; çekirdek regresyonlar kapatıldı.
 3. Master Product Redesign, Recipe Data & Admin Program — household measurement ve Faz 3 Data Trust/50 verified recipe/image-icon pilotu tamamlandı. Faz 3A'nın 20 tariflik ara hedefi **SUPERSEDED BY COMPLETED FAZ 3** kabul edilir; 150 tariflik genişleme backlog'dadır ve başlatılmayacaktır.
-4. Sıradaki aktif faz: Public Pages V3 Redesign — tarif listesi, tarif detayı, Ne Pişirebilirim, Dolap, Favoriler, Cooking Mode, profil/auth, header/footer bütünlüğü ve responsive/accessibility QA.
+4. Public Pages V3 Redesign — Part 1 tamamlandı: tarif listesi ve tarif detayı. Sıradaki yalnız kullanıcı onayı sonrası bölüm; Ne Pişirebilirim, Dolap, Favoriler, Cooking Mode, profil/auth, header/footer bütünlüğü ve responsive/accessibility QA.
 5. Bilgi mimarisi — Hakkımızda, Nasıl Çalışır, SSS, Editoryal İlkeler ve gerçek gizlilik/kullanım sayfaları.
 6. Blog/SEO teknik temeli ve editoryal otomasyon — yalnız data trust, içerik onayı ve public UX temelinden sonra.
 7. Dünya mutfakları editorial genişlemesi.

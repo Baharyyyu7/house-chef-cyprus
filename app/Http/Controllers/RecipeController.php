@@ -6,7 +6,10 @@ namespace App\Http\Controllers;
 
 use App\Contracts\AI\AiProviderInterface;
 use App\Contracts\Search\RecipeSearchInterface;
+use App\Models\Allergen;
+use App\Models\Category;
 use App\Models\Cuisine;
+use App\Models\DietaryTag;
 use App\Models\Recipe;
 use App\Services\AllergenAnalysisService;
 use App\Services\DietaryCompatibilityService;
@@ -19,7 +22,18 @@ final class RecipeController extends Controller
 {
     public function index(Request $request, RecipeSearchInterface $search)
     {
-        return view('recipes.index', ['recipes' => $search->search($request->only(['q', 'cuisine', 'diet', 'max_minutes'])), 'cuisines' => Cuisine::orderBy('name')->get()]);
+        $filters = $request->only([
+            'q', 'cuisine', 'category', 'difficulty', 'dietary_tag', 'exclude_allergens',
+            'max_minutes', 'min_protein', 'max_calories', 'sort', 'page',
+        ]);
+
+        return view('recipes.index', [
+            'recipes' => $search->search($filters),
+            'cuisines' => Cuisine::orderBy('name')->get(),
+            'categories' => Category::orderBy('name')->get(),
+            'dietaryTags' => DietaryTag::orderBy('name')->get(),
+            'allergens' => Allergen::orderBy('name')->get(),
+        ]);
     }
 
     public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay)
@@ -39,6 +53,19 @@ final class RecipeController extends Controller
             'match' => $request->user() ? $matching->match($recipe, $request->user()) : null,
             'isFavorited' => $request->user()?->favoriteRecipes()->whereKey($recipe->id)->exists() ?? false,
             'ingredientLines' => $ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings),
+            'relatedRecipes' => Recipe::query()
+                ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'verification_status'])
+                ->with(['cuisine:id,public_id,name,slug', 'category:id,public_id,name,slug', 'media:id,mediable_type,mediable_id,path,alt_text,is_placeholder,verification_status,sort_order', 'dietaryTags:id,code,name'])
+                ->where('status', 'published')
+                ->where('verification_status', 'verified')
+                ->whereKeyNot($recipe->id)
+                ->where(function ($query) use ($recipe): void {
+                    $query->where('category_id', $recipe->category_id)
+                        ->orWhere('cuisine_id', $recipe->cuisine_id);
+                })
+                ->orderByRaw('case when category_id = ? then 0 else 1 end', [$recipe->category_id])
+                ->limit(4)
+                ->get(),
         ]);
     }
 
