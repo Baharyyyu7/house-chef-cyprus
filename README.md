@@ -1,6 +1,6 @@
 # House Chef Cyprus
 
-Türkçe tarif, malzeme dolabı, beslenme ve veri kalitesi platformu. Technical Foundation A–E ve Final Product Core Audit tamamlanmıştır; sıradaki çalışma Visual Design Implementation'dır.
+Türkçe tarif, malzeme dolabı, beslenme ve veri kalitesi platformu. Technical Foundation A–E ve Final Product Core Audit tamamlanmıştır; Visual Design Phase 1, ana kullanıcı ve yönetim deneyimini responsive House Chef Cyprus tasarım sistemiyle yeniler.
 
 ## Yerelde başlatma
 

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Search\RecipeSearchInterface;
+use App\Models\Allergen;
+use App\Models\DietaryTag;
 use App\Models\Ingredient;
 use App\Services\IngredientMatchingService;
 use Illuminate\Http\Request;
@@ -11,13 +14,58 @@ use Illuminate\View\View;
 
 final class IngredientExplorerController extends Controller
 {
-    public function index(Request $request, IngredientMatchingService $matching): View
+    public function index(Request $request, IngredientMatchingService $matching, RecipeSearchInterface $search): View
     {
-        $selected = array_values(array_unique(array_filter($request->input('ingredients', []), 'is_string')));
+        $validated = $request->validate([
+            'ingredients' => ['nullable', 'array', 'max:50'],
+            'ingredients.*' => ['string', 'max:32'],
+            'excluded' => ['nullable', 'array', 'max:50'],
+            'excluded.*' => ['string', 'max:32'],
+            'use_pantry' => ['nullable', 'boolean'],
+            'exact_only' => ['nullable', 'boolean'],
+            'include_substitutions' => ['nullable', 'boolean'],
+            'max_missing' => ['nullable', 'integer', 'min:0', 'max:10'],
+            'min_protein' => ['nullable', 'numeric', 'min:0'],
+            'max_calories' => ['nullable', 'numeric', 'min:1'],
+            'verified_only' => ['nullable', 'boolean'],
+            'dietary_tag' => ['nullable', 'exists:dietary_tags,code'],
+            'exclude_allergens' => ['nullable', 'array', 'max:20'],
+            'exclude_allergens.*' => ['distinct', 'exists:allergens,public_id'],
+            'max_minutes' => ['nullable', 'integer', 'min:1', 'max:1440'],
+            'sort' => ['nullable', 'in:newest,time'],
+        ]);
+
+        $selected = array_values(array_unique(array_filter($validated['ingredients'] ?? [], 'is_string')));
         if ($request->boolean('use_pantry')) {
             $selected = $request->user()->pantryItems()->where('is_available', true)->where(fn ($query) => $query->whereNull('expires_at')->orWhereDate('expires_at', '>=', today()))->with('ingredient')->get()->pluck('ingredient.public_id')->all();
         }
 
-        return view('ingredients.explore', ['ingredients' => Ingredient::query()->where('is_active', true)->with('aliases')->orderBy('name')->get(), 'selected' => $selected, 'results' => $selected === [] ? collect() : $matching->findRecipes($selected, $request->input('excluded', []), $request->boolean('exact_only'), $request->boolean('include_substitutions', true), min(10, max(0, $request->integer('max_missing', 2))))]);
+        $results = $selected === [] ? collect() : $matching->findRecipes(
+            $selected,
+            $validated['excluded'] ?? [],
+            $request->boolean('exact_only'),
+            $request->boolean('include_substitutions', true),
+            min(10, max(0, $request->integer('max_missing', 2))),
+        );
+
+        $searchFilters = collect($validated)->only(['min_protein', 'max_calories', 'dietary_tag', 'exclude_allergens', 'max_minutes', 'sort'])->filter(fn ($value) => $value !== null && $value !== [])->all();
+        if ($request->boolean('verified_only')) {
+            $searchFilters['verified_only'] = true;
+        }
+        if ($searchFilters !== [] && $results->isNotEmpty()) {
+            $eligible = collect($search->search([...$searchFilters, 'per_page' => 50])->items())->keyBy('id');
+            $results = $results->filter(fn (array $result) => $eligible->has($result['recipe']->id))->values();
+            if (($searchFilters['sort'] ?? null) === 'time') {
+                $results = $results->sortBy(fn (array $result) => $result['recipe']->totalMinutes())->values();
+            }
+        }
+
+        return view('ingredients.explore', [
+            'ingredients' => Ingredient::query()->where('is_active', true)->with('aliases')->orderBy('name')->get(),
+            'allergens' => Allergen::query()->where('is_active', true)->orderBy('sort_order')->get(),
+            'dietaryTags' => DietaryTag::query()->where('is_active', true)->orderBy('sort_order')->get(),
+            'selected' => $selected,
+            'results' => $results,
+        ]);
     }
 }

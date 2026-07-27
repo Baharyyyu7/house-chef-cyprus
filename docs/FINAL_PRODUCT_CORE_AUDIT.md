@@ -22,7 +22,7 @@ Tarih: 27 Temmuz 2026. Denetlenen çalışma alanı yalnızca House Chef Cyprus'
 
 ## Kısmi çalışan / ertelenen alanlar
 
-- `Ne Pişirebilirim` ekranı pantry, manuel seçim, exact/effective match, eksik ve substitution açıklamalarını sunar. Nutrition/dietary/allergen filtreleri ortak `RecipeSearchInterface` üzerinden API ve tarif listesinde eksiksizdir; matching ekranının bunları kendi seçili malzeme sonucu ile tek formda birleştirmesi sonraki çekirdek UX iyileştirmesidir. Bu durum API sözleşmesini veya temel matching'i bozmaz.
+- `Ne Pişirebilirim` ekranı pantry, manuel seçim, exact/effective match, eksik ve substitution açıklamalarını sunar. Nutrition/dietary/allergen, süre ve sıralama filtreleri seçili malzeme sonucu ile ortak `RecipeSearchInterface` üzerinden tek görsel akışta birleşir.
 - AI Şef, ekranda açıkça **demo asistan** olarak işaretlidir. Gerçek sağlayıcı/anahtar entegrasyonu AI Chef fazına ertelenmiştir.
 - Ingredient–allergen ve recipe override için ayrı ayrıntılı düzenleme ekranları Premium Admin UX backlog'undadır; mevcut create/toggle yönetimi çalışır.
 
@@ -47,6 +47,10 @@ Tarih: 27 Temmuz 2026. Denetlenen çalışma alanı yalnızca House Chef Cyprus'
 ## Faz geçiş kararı
 
 **KONTROLLÜ GEÇTİ.** Çekirdek kullanıcı akışları çalışır ve Visual Design Implementation aşamasına geçebilir. Bu karar gerçek AI sağlayıcısı, import motoru, çoklu dil, Redis/S3 veya premium admin polish'in tamamlandığı anlamına gelmez.
+
+## Visual Design Phase 1 güncellemesi
+
+Visual Design Phase 1 sonrasında ana kullanıcı akışları House Chef Cyprus marka sistemiyle yeniden sunulur: özgün SVG logo, forest/cream/gold token'ları, responsive public/admin navigasyon, erişilebilir form/boş durum bileşenleri ve mobil-first ekran düzenleri uygulanmıştır. Bu güncelleme mevcut route, auth, API ve ürün sözleşmelerini değiştirmez.
 
 ## Sonraki fazların ön koşulları
 

@@ -1,30 +1,3 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-
-        <title>{{ config('app.name', 'Laravel') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/" wire:navigate>
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
-            </div>
-
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-                {{ $slot }}
-            </div>
-        </div>
-    </body>
-</html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="csrf-token" content="{{ csrf_token() }}"><meta name="theme-color" content="#153224"><link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}"><link rel="preconnect" href="https://fonts.bunny.net"><link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&family=playfair-display:500,600,700&display=swap" rel="stylesheet" /><title>House Chef Cyprus</title>@vite(['resources/css/app.css', 'resources/js/app.js'])</head>
+<body class="min-h-screen bg-[radial-gradient(circle_at_top_left,_#e8d5a5,_transparent_36%),linear-gradient(135deg,_#fbf7ee,_#eaf0e7)] font-sans text-ink antialiased dark:bg-forest-950"><main class="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-5 py-10"><a class="mx-auto mb-8" href="{{ route('home') }}"><x-brand-logo /></a><section class="hc-card p-6 sm:p-8">{{ $slot }}</section><p class="mt-6 text-center text-xs text-muted">© {{ date('Y') }} House Chef Cyprus</p></main>@livewireScripts</body></html>
