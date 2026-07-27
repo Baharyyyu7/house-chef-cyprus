@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\RecipeController as AdminRecipeController;
 use App\Http\Controllers\Admin\RecipeStepController as AdminRecipeStepController;
 use App\Http\Controllers\CookingSessionController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\HealthController;
 use App\Http\Controllers\IngredientExplorerController;
 use App\Http\Controllers\PantryController;
 use App\Http\Controllers\RecipeController;
@@ -18,6 +19,7 @@ use App\Models\Recipe;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [RecipeController::class, 'index'])->name('home');
+Route::get('/health', HealthController::class)->name('health');
 Route::get('/tarifler', [RecipeController::class, 'index'])->name('recipes.index');
 Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])->name('recipes.show');
 Route::post('/tarifler/{recipe:slug}/ai', [RecipeController::class, 'ai'])->middleware('throttle:ai')->name('recipes.ai');

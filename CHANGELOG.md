@@ -62,5 +62,7 @@
 - “Elimde bunlar var” ekranı ve ingredient yönetim ekranları eklendi.
 # Unreleased
 
+- Added Foundation D request correlation, safe health endpoints, structured local error reporting, metrics foundation and verified SQLite backup commands.
+
 - Added secure admin image upload, re-encoding, EXIF stripping, public/private storage separation and queued thumbnail variants.
 - Added media management, safe orphan/temporary maintenance commands, scheduler entries and media health status.

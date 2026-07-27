@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Contracts\AI\AiProviderInterface;
 use App\Contracts\Media\MediaStorageInterface;
+use App\Contracts\Observability\ErrorReporterInterface;
 use App\Contracts\Search\RecipeSearchInterface;
 use App\Models\NutritionFact;
 use App\Models\Recipe;
@@ -13,6 +14,7 @@ use App\Observers\RecipeIngredientObserver;
 use App\Observers\RecipeObserver;
 use App\Services\AI\DemoAiProvider;
 use App\Services\Media\LocalMediaStorage;
+use App\Services\Observability\LocalLogErrorReporter;
 use App\Services\Search\DatabaseRecipeSearch;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -30,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(RecipeSearchInterface::class, DatabaseRecipeSearch::class);
         $this->app->bind(AiProviderInterface::class, DemoAiProvider::class);
         $this->app->bind(MediaStorageInterface::class, LocalMediaStorage::class);
+        $this->app->bind(ErrorReporterInterface::class, LocalLogErrorReporter::class);
     }
 
     /**

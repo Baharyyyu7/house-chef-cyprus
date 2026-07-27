@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\RecipeAllergenController;
 use App\Http\Controllers\Api\V1\RecipeController;
 use App\Http\Controllers\Api\V1\RecipeMatchController;
 use App\Http\Controllers\Api\V1\RecipeNutritionController;
+use App\Http\Controllers\HealthController;
 use App\Models\Allergen;
 use App\Models\Category;
 use App\Models\Cuisine;
@@ -15,7 +16,9 @@ use App\Models\Nutrient;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
-    Route::get('health', fn () => response()->json(['data' => ['status' => 'ok', 'locale' => app()->getLocale()]]));
+    Route::get('health', HealthController::class);
+    Route::get('status', HealthController::class);
+    Route::get('version', fn () => response()->json(['data' => ['version' => 'v0.4-foundation-d', 'locale' => app()->getLocale()]]));
     Route::get('recipes', [RecipeController::class, 'index']);
     Route::get('recipes/{recipe:public_id}', [RecipeController::class, 'show']);
     Route::get('recipes/{recipe:public_id}/nutrition', RecipeNutritionController::class);
