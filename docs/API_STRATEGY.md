@@ -6,3 +6,5 @@ OpenAPI 3.1 sözleşmesi [openapi.yaml](openapi.yaml) dosyasındadır ve `php ar
 # Phase 2 measurement extension
 
 Recipe detail responses retain legacy `ingredients` and add `ingredient_lines` with public ingredient identity, display quantity/measure, canonical quantity/unit, conversion confidence, preparation note, optional flag and group. Integer keys are not exposed.
+
+`ingredient_lines[].conversion` additionally exposes safe `source_type`; `scaling_policy` documents portion behavior without leaking conversion or recipe-line integer keys.

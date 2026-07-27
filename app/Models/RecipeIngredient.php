@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPublicId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RecipeIngredient extends Model
 {
+    use HasPublicId;
+
     protected $fillable = ['recipe_id', 'ingredient_id', 'quantity', 'display_quantity', 'unit', 'display_measure_code', 'display_note', 'unit_id', 'grams', 'canonical_quantity', 'canonical_unit', 'ingredient_unit_conversion_id', 'conversion_confidence', 'conversion_method', 'preparation', 'preparation_note', 'substitution', 'is_required', 'is_optional', 'group_name', 'can_be_substituted', 'scaling_behavior', 'scaling_note', 'manual_override_reason', 'sort_order'];
 
     protected function casts(): array

@@ -61,3 +61,5 @@ Faz 2, tüm household kodları seed edilip görünür olduğunda değil; herhang
 # Household measurement implementation (Phase 2)
 
 Recipe ingredients retain legacy `quantity`, `unit` and `grams`, while `display_*` serves Turkish household presentation and `canonical_*` serves calculation. Conversion is ingredient-specific and provenance-aware.
+
+Recipe ingredient rows now have public ULIDs, a group, order, preparation note and scaling policy. Admin changes are transaction-bound; public detail uses `RecipeIngredientDisplayService` for the household pilot.

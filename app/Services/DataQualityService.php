@@ -12,6 +12,7 @@ use App\Models\IngredientUnitConversion;
 use App\Models\NutritionFact;
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
+use App\Models\Unit;
 
 final class DataQualityService
 {
@@ -81,6 +82,12 @@ final class DataQualityService
             if ($item->display_quantity !== null && (float) $item->display_quantity <= 0) {
                 $issues[] = $this->genericIssue('invalid_household_quantity', 'error', RecipeIngredient::class, $entity, 'Tarif malzemesindeki ev ölçüsü sıfır veya negatif.');
             }
+            if ($item->display_measure_code && ! Unit::query()->where('code', $item->display_measure_code)->where('is_active', true)->exists()) {
+                $issues[] = $this->genericIssue('invalid_measure_code', 'error', RecipeIngredient::class, $entity, 'Tarif malzemesinde geçersiz veya pasif ölçü kodu var.');
+            }
+            if ($item->conversion_method === 'generic_estimate') {
+                $issues[] = $this->genericIssue('generic_estimate_conversion', 'warning', RecipeIngredient::class, $entity, 'Tarif malzemesi genel tahmin dönüşümü kullanıyor.');
+            }
             if (in_array($item->conversion_confidence, ['low', 'unknown'], true)) {
                 $issues[] = $this->genericIssue('low_confidence_conversion', 'info', RecipeIngredient::class, $entity, 'Tarif malzemesi düşük güvenli veya doğrulanmamış dönüşüm kullanıyor.');
             }
@@ -137,7 +144,7 @@ final class DataQualityService
         return max(0, 100 - $loss);
     }
 
-    /** @return array{overall:int,recipe:int,ingredient:int,nutrition:int,media:int,provenance:int} */
+    /** @return array{overall:int,recipe:int,ingredient:int,nutrition:int,media:int,provenance:int,measurement:int} */
     public function categoryScores(): array
     {
         $issues = DataQualityIssue::query()->where('resolution_status', 'open')->get();
@@ -147,6 +154,7 @@ final class DataQualityService
             'nutrition' => fn (DataQualityIssue $issue): bool => $issue->entity_type === NutritionFact::class || str_contains($issue->issue_type, 'nutrition'),
             'media' => fn (DataQualityIssue $issue): bool => str_contains($issue->issue_type, 'media'),
             'provenance' => fn (DataQualityIssue $issue): bool => str_contains($issue->issue_type, 'provenance'),
+            'measurement' => fn (DataQualityIssue $issue): bool => str_contains($issue->issue_type, 'measurement') || str_contains($issue->issue_type, 'conversion'),
         ];
         $scores = ['overall' => $this->score()];
         foreach ($categories as $category => $belongsToCategory) {

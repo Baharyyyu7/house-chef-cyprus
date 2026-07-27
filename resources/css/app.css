@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Household pilot replaces the legacy grams-first ingredient panel only on updated recipe detail pages. */
+aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; }
+
 @layer base {
     [x-cloak] { display: none !important; }
     :root {

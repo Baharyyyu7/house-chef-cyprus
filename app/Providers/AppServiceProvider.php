@@ -6,9 +6,11 @@ use App\Contracts\AI\AiProviderInterface;
 use App\Contracts\Media\MediaStorageInterface;
 use App\Contracts\Observability\ErrorReporterInterface;
 use App\Contracts\Search\RecipeSearchInterface;
+use App\Models\IngredientUnitConversion;
 use App\Models\NutritionFact;
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
+use App\Observers\IngredientUnitConversionObserver;
 use App\Observers\NutritionFactObserver;
 use App\Observers\RecipeIngredientObserver;
 use App\Observers\RecipeObserver;
@@ -42,6 +44,7 @@ class AppServiceProvider extends ServiceProvider
     {
         RecipeIngredient::observe(RecipeIngredientObserver::class);
         NutritionFact::observe(NutritionFactObserver::class);
+        IngredientUnitConversion::observe(IngredientUnitConversionObserver::class);
         Recipe::observe(RecipeObserver::class);
         Gate::define('access-admin', fn ($user): bool => $user->isAdmin());
         RateLimiter::for('ai', fn (Request $request) => Limit::perMinute(10)->by($request->user()?->id ?: $request->ip()));
