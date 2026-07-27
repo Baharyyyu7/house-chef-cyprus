@@ -13,14 +13,18 @@ jobs:
     timeout-minutes: 20
     env:
       APP_KEY: base64:MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE=
+      APP_ENV: testing
+      APP_DEBUG: "false"
+      APP_URL: http://localhost
       DB_CONNECTION: sqlite
-      DB_DATABASE: ":memory:"
+      DB_DATABASE: database/ci.sqlite
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: shivammathur/setup-php@v2
         with: {php-version: '8.5', extensions: sqlite3, coverage: none}
       - run: composer install --no-interaction --prefer-dist
       - run: npm ci
+      - run: touch database/ci.sqlite
       - run: php artisan migrate:fresh --seed
       - run: php artisan db:seed
       - run: npm run build
