@@ -32,6 +32,10 @@ Mevcut Laravel/Blade/Livewire/Alpine/Tailwind mimarisi korunur. Ayrı SPA veya a
 
 ## Faz 1 — ayrıntılı uygulama planı
 
+### V3 foundation implementation note
+
+Faz 1, `visual-redesign-v2` üzerinde semantic tokenlar, shared Blade primitive'leri, reduced-motion sözleşmesi ve üç düşük-riskli pilotla uygulanır. Bu aşama, household/data içerik migration'ı veya sayfa bazlı geniş redesign başlatmaz.
+
 ### Amaç
 
 V3 için tek kaynaklı token, motion, form, table ve icon sözleşmesi kurmak; hiç bir ürün işlevini değiştirmeden sonraki sayfa teslimlerini güvenli ve tutarlı hâle getirmek.

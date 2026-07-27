@@ -33,3 +33,6 @@ Faz 1'de tokenlar `resources/css/app.css` içinde tek kaynaktan tanımlanır. Me
 ## Mevcut açıklar
 
 Motion V2 home/header ile sınırlı. Toast, modal, dropdown, tab, filters, loading/skeleton, form validation, favorite state, cooking timer, admin table/chart ve auth akışlarında merkezi sözleşme yoktur. Faz 1 bunları component seviyesinde tanımlar; sayfa uygulamaları ilgili fazlara bırakılır.
+# V3 Motion Addendum
+
+V3 tokenları ve gerçek sınıf uygulaması için [MOTION_IMPLEMENTATION.md](MOTION_IMPLEMENTATION.md) kaynak belgedir. Mevcut V2 reveal/hero motion'ı geriye uyumlu kalır; yeni yüzeyler V3 duration/easing tokenlarını kullanır.

@@ -77,4 +77,40 @@ final class VisualDesignPhaseTest extends TestCase
 
         $this->actingAs($member)->get(route('admin.dashboard'))->assertForbidden();
     }
+
+    public function test_v3_component_primitives_render_on_the_public_member_and_admin_pilots(): void
+    {
+        $member = User::factory()->create(['email_verified_at' => now()]);
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+
+        $this->actingAs($member)->get(route('favorites.index'))
+            ->assertOk()
+            ->assertSee('hc-v3-empty', false)
+            ->assertSee('Henüz favori tarifiniz yok.');
+
+        $this->actingAs($member)->get(route('profile'))
+            ->assertOk()
+            ->assertSee('hc-v3-card', false)
+            ->assertSee('Hesap bilgileri')
+            ->assertSee('Parolayı güncelle')
+            ->assertSee('Hesabı sil');
+
+        $this->actingAs($admin)->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('hc-v3-card', false)
+            ->assertSee('hc-display-lg', false);
+    }
+
+    public function test_profile_pilot_uses_turkish_labels_and_does_not_render_the_old_english_headings(): void
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+
+        $this->actingAs($user)->get(route('profile'))
+            ->assertOk()
+            ->assertSee('Ad soyad')
+            ->assertSee('Mevcut parola')
+            ->assertDontSee('Profile Information')
+            ->assertDontSee('Update Password')
+            ->assertDontSee('Delete Account');
+    }
 }
