@@ -31,7 +31,7 @@ new #[Layout('layouts.guest')] class extends Component
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form wire:submit="login" class="mt-7">
+    <form wire:submit="login" class="mt-7" x-data="{ passwordVisible: false }">
         <!-- Email Address -->
         <div>
             <x-input-label for="email" value="E-posta adresi" />
@@ -42,11 +42,13 @@ new #[Layout('layouts.guest')] class extends Component
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" value="Şifre" />
-
-            <x-text-input wire:model="form.password" id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+            <div class="relative mt-1">
+                <x-text-input wire:model="form.password" id="password" class="block w-full pr-20"
+                                x-bind:type="passwordVisible ? 'text' : 'password'"
+                                name="password"
+                                required autocomplete="current-password" />
+                <button type="button" class="absolute inset-y-0 right-2 my-1 rounded-md px-3 text-xs font-semibold text-gold-700 outline-none transition hover:bg-gold-50 focus-visible:ring-2 focus-visible:ring-gold-500 dark:hover:bg-forest-800" @click="passwordVisible = !passwordVisible" x-text="passwordVisible ? 'Gizle' : 'Göster'"></button>
+            </div>
 
             <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
         </div>

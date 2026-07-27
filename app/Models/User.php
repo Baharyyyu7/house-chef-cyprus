@@ -52,4 +52,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(PantryItem::class);
     }
+
+    /** @return HasMany<CookingSession, $this> */
+    public function cookingSessions(): HasMany
+    {
+        return $this->hasMany(CookingSession::class);
+    }
 }

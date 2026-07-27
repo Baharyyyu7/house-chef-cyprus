@@ -36,23 +36,23 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
+    <p class="hc-kicker">Son adım</p>
+    <h1 class="mt-2 font-display text-3xl font-semibold text-forest-950 dark:text-cream-50">E-posta adresinizi doğrulayın</h1>
+    <p class="mt-2 text-sm leading-6 text-muted">Başlamadan önce e-posta adresinize gönderilen doğrulama bağlantısına tıklayın. Mesajı göremiyorsanız yeni bir bağlantı gönderebiliriz.</p>
 
     @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
+        <div class="mb-4 mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-medium text-emerald-800 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-200">
+            Yeni doğrulama bağlantısı e-posta adresinize gönderildi.
         </div>
     @endif
 
-    <div class="mt-4 flex items-center justify-between">
+    <div class="mt-7 flex items-center justify-between gap-4">
         <x-primary-button wire:click="sendVerification">
-            {{ __('Resend Verification Email') }}
+            Bağlantıyı yeniden gönder
         </x-primary-button>
 
-        <button wire:click="logout" type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            {{ __('Log Out') }}
+        <button wire:click="logout" type="button" class="rounded-md text-sm font-semibold text-gold-700 underline outline-none hover:text-gold-600 focus-visible:ring-2 focus-visible:ring-gold-500">
+            Çıkış yap
         </button>
     </div>
 </div>

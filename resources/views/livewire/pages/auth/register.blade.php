@@ -40,7 +40,7 @@ new #[Layout('layouts.guest')] class extends Component
     <p class="hc-kicker">House Chef ailesi</p>
     <h1 class="mt-2 font-display text-3xl font-semibold text-forest-950">Üye olun</h1>
     <p class="mt-2 text-sm leading-6 text-muted">Malzeme dolabınızı, favorilerinizi ve pişirme akışınızı kişiselleştirin.</p>
-    <form wire:submit="register" class="mt-7">
+    <form wire:submit="register" class="mt-7" x-data="{ passwordVisible: false, confirmationVisible: false }">
         <!-- Name -->
         <div>
             <x-input-label for="name" value="Adınız" />
@@ -59,10 +59,13 @@ new #[Layout('layouts.guest')] class extends Component
         <div class="mt-4">
             <x-input-label for="password" value="Şifre" />
 
-            <x-text-input wire:model="password" id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+            <div class="relative mt-1">
+                <x-text-input wire:model="password" id="password" class="block w-full pr-20"
+                                x-bind:type="passwordVisible ? 'text' : 'password'"
+                                name="password"
+                                required autocomplete="new-password" />
+                <button type="button" class="absolute inset-y-0 right-2 my-1 rounded-md px-3 text-xs font-semibold text-gold-700 outline-none transition hover:bg-gold-50 focus-visible:ring-2 focus-visible:ring-gold-500 dark:hover:bg-forest-800" @click="passwordVisible = !passwordVisible" x-text="passwordVisible ? 'Gizle' : 'Göster'"></button>
+            </div>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -71,9 +74,12 @@ new #[Layout('layouts.guest')] class extends Component
         <div class="mt-4">
             <x-input-label for="password_confirmation" value="Şifre tekrarı" />
 
-            <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+            <div class="relative mt-1">
+                <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block w-full pr-20"
+                                x-bind:type="confirmationVisible ? 'text' : 'password'"
+                                name="password_confirmation" required autocomplete="new-password" />
+                <button type="button" class="absolute inset-y-0 right-2 my-1 rounded-md px-3 text-xs font-semibold text-gold-700 outline-none transition hover:bg-gold-50 focus-visible:ring-2 focus-visible:ring-gold-500 dark:hover:bg-forest-800" @click="confirmationVisible = !confirmationVisible" x-text="confirmationVisible ? 'Gizle' : 'Göster'"></button>
+            </div>
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>

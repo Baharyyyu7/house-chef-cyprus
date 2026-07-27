@@ -37,24 +37,25 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-    </div>
+    <p class="hc-kicker">Hesap erişimi</p>
+    <h1 class="mt-2 font-display text-3xl font-semibold text-forest-950 dark:text-cream-50">Şifrenizi yenileyin</h1>
+    <p class="mt-2 text-sm leading-6 text-muted">E-posta adresinizi girin. Hesabınız varsa parolanızı yenilemeniz için güvenli bir bağlantı gönderilecektir.</p>
 
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form wire:submit="sendPasswordResetLink">
+    <form wire:submit="sendPasswordResetLink" class="mt-7">
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('Email')" />
+            <x-input-label for="email" value="E-posta adresi" />
             <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
+        <div class="mt-6 flex items-center justify-between gap-4">
+            <a href="{{ route('login') }}" class="text-sm font-semibold text-gold-700 hover:text-gold-600">Girişe dön</a>
             <x-primary-button>
-                {{ __('Email Password Reset Link') }}
+                Sıfırlama bağlantısı gönder
             </x-primary-button>
         </div>
     </form>

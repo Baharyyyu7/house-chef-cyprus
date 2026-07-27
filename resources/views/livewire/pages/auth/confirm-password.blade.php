@@ -34,28 +34,22 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
-    </div>
+    <p class="hc-kicker">Güvenli işlem</p>
+    <h1 class="mt-2 font-display text-3xl font-semibold text-forest-950 dark:text-cream-50">Parolanızı doğrulayın</h1>
+    <p class="mt-2 text-sm leading-6 text-muted">Bu hassas alana devam etmek için mevcut parolanızı tekrar girin.</p>
 
-    <form wire:submit="confirmPassword">
+    <form wire:submit="confirmPassword" class="mt-7" x-data="{ passwordVisible: false }">
         <!-- Password -->
         <div>
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input wire:model="password"
-                          id="password"
-                          class="block mt-1 w-full"
-                          type="password"
-                          name="password"
-                          required autocomplete="current-password" />
+            <x-input-label for="password" value="Mevcut parola" />
+            <div class="relative mt-1"><x-text-input wire:model="password" id="password" class="block w-full pr-20" x-bind:type="passwordVisible ? 'text' : 'password'" name="password" required autocomplete="current-password" /><button type="button" class="absolute inset-y-0 right-2 my-1 rounded-md px-3 text-xs font-semibold text-gold-700 outline-none transition hover:bg-gold-50 focus-visible:ring-2 focus-visible:ring-gold-500 dark:hover:bg-forest-800" @click="passwordVisible = !passwordVisible" x-text="passwordVisible ? 'Gizle' : 'Göster'"></button></div>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <div class="flex justify-end mt-4">
+        <div class="mt-6 flex justify-end">
             <x-primary-button>
-                {{ __('Confirm') }}
+                Devam et
             </x-primary-button>
         </div>
     </form>
