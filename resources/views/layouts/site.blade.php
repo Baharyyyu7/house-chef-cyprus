@@ -4,15 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#153224">
+    <meta name="theme-color" content="#f97316">
     <meta name="description" content="Kıbrıs'tan ilham alan tarifler, malzeme dolabı ve dengeli beslenme rehberi.">
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&family=playfair-display:500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&family=inter:400,500,600,700&display=swap" rel="stylesheet" />
     <title>{{ $title ?? 'House Chef Cyprus' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false }" x-init="document.documentElement.classList.toggle('dark', dark); $watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light' })" class="min-h-screen antialiased">
+<body x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, scrolled: false }" x-init="document.documentElement.classList.toggle('dark', dark); $watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light' })" class="min-h-screen antialiased">
     @if (request()->routeIs('admin.*'))
         <div class="min-h-screen bg-paper dark:bg-stone-950 lg:grid lg:grid-cols-[17.5rem_minmax(0,1fr)]">
             <aside class="fixed inset-y-0 left-0 z-50 hidden w-[17.5rem] bg-forest-900 lg:block">
@@ -54,10 +54,10 @@
             </div>
         </div>
     @else
-        <header class="sticky top-0 z-40 border-b border-forest-900/15 bg-[#fbf7ee]/95 backdrop-blur dark:border-white/10 dark:bg-forest-950/95">
-            <nav class="hc-container flex h-19 items-center justify-between gap-4" aria-label="Ana menü">
-                <x-brand-logo />
-                <div class="hidden items-center gap-6 text-sm font-semibold text-forest-950 dark:text-cream lg:flex">
+        <header @scroll.window="scrolled = window.scrollY > 16" :class="scrolled ? 'border-line/80 bg-[#fff8f0]/92 shadow-[0_10px_35px_rgba(68,45,28,.08)] dark:border-[#2a2a2a] dark:bg-[#090909]/92' : 'border-transparent bg-[#fff8f0]/80 dark:bg-[#090909]/80'" class="sticky top-0 z-40 border-b backdrop-blur-xl transition-all duration-300">
+            <nav :class="scrolled ? 'h-[4.25rem]' : 'h-[5.25rem]'" class="hc-container flex items-center justify-between gap-4 transition-all duration-300" aria-label="Ana menü">
+                <x-brand-logo class="scale-105" />
+                <div class="hidden items-center gap-7 text-sm font-bold lg:flex">
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}">Ana Sayfa</a>
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}">Tarifler</a>
                     @auth
@@ -66,22 +66,22 @@
                     @endauth
                 </div>
                 <div class="hidden items-center gap-2 lg:flex">
-                    <button @click="dark = !dark" class="hc-btn hc-btn-outline px-3 py-2" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" x-text="dark ? '☀' : '☾'"></button>
+                    <button @click="dark = !dark" class="grid h-11 w-11 place-items-center rounded-2xl border border-line bg-surface text-lg text-charcoal-800 transition hover:border-orange-300 hover:text-orange-600 dark:border-[#383838] dark:bg-[#1c1c1c] dark:text-stone-100" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" x-text="dark ? '☀' : '☾'"></button>
                     @auth
-                        <a href="{{ route('favorites.index') }}" class="hc-btn hc-btn-outline">Favoriler</a>
-                        @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-gold">Yönetim</a>@endif
-                        <a href="{{ route('dashboard') }}" class="hc-btn hc-btn-primary">Hesabım</a>
+                        <a href="{{ route('favorites.index') }}" class="grid h-11 w-11 place-items-center rounded-2xl border border-line text-lg text-charcoal-800 transition hover:border-orange-300 hover:text-orange-600 dark:border-[#383838] dark:text-stone-100" aria-label="Favoriler">♡</a>
+                        @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline">Yönetim</a>@endif
+                        <a href="{{ route('dashboard') }}" class="inline-flex h-11 items-center gap-2 rounded-2xl bg-charcoal-900 py-2 pl-2 pr-4 text-sm font-extrabold text-white transition hover:bg-orange-600"><span class="grid h-7 w-7 place-items-center rounded-xl bg-orange-500 text-xs">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</span> Hesabım</a>
                     @else
                         <a href="{{ route('login') }}" class="hc-btn hc-btn-outline">Giriş Yap</a>
                         <a href="{{ route('register') }}" class="hc-btn hc-btn-gold">Üye Ol</a>
                     @endauth
                 </div>
                 <div class="flex items-center gap-2 lg:hidden">
-                    <button @click="dark = !dark" class="rounded-lg p-2 text-forest-900 dark:text-cream" aria-label="Tema değiştir" x-text="dark ? '☀' : '☾'"></button>
-                    <button @click="menuOpen = !menuOpen" class="rounded-lg p-2 text-forest-900 dark:text-cream" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="Menüyü aç">☰</button>
+                    <button @click="dark = !dark" class="grid h-10 w-10 place-items-center rounded-xl border border-line bg-surface text-charcoal-800 dark:border-[#383838] dark:bg-[#1c1c1c] dark:text-stone-100" aria-label="Tema değiştir" x-text="dark ? '☀' : '☾'"></button>
+                    <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="Menüyü aç">☰</button>
                 </div>
             </nav>
-            <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition class="border-t border-forest-900/10 bg-paper px-5 py-4 dark:border-white/10 dark:bg-forest-950 lg:hidden">
+            <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-y-2 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" class="border-t border-line bg-[#fff8f0] px-5 py-5 shadow-xl dark:border-[#2a2a2a] dark:bg-[#141414] lg:hidden">
                 <div class="mx-auto grid max-w-7xl gap-2 text-sm font-semibold">
                     <a class="mobile-nav-link" href="{{ route('home') }}">Ana Sayfa</a>
                     <a class="mobile-nav-link" href="{{ route('recipes.index') }}">Tarifler</a>
@@ -109,13 +109,14 @@
             {{ $slot }}
         </main>
 
-        <footer class="mt-20 border-t border-forest-900/10 bg-forest-950 text-[#e7efe7]">
-            <div class="hc-container grid gap-8 py-12 md:grid-cols-[1.3fr_1fr_1fr]">
-                <div><x-brand-logo variant="dark" /><p class="mt-4 max-w-sm text-sm leading-6 text-[#c8d7ca]">Kıbrıs'tan ilham alan tarifleri, malzemeleri ve dengeli beslenme bilgisini aynı mutfakta buluşturuyoruz.</p></div>
-                <div><p class="text-sm font-bold text-gold-300">Keşfet</p><div class="mt-3 grid gap-2 text-sm"><a href="{{ route('recipes.index') }}">Tarifler</a>@auth<a href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a><a href="{{ route('pantry.index') }}">Malzeme Dolabım</a>@endauth</div></div>
-                <div><p class="text-sm font-bold text-gold-300">House Chef Cyprus</p><p class="mt-3 text-sm leading-6 text-[#c8d7ca]">Özgün demo içerik. Sağlık ve alerjen bilgilerini kişisel durumunuza göre değerlendirin.</p></div>
+        <footer class="mt-20 bg-[#141414] text-stone-200">
+            <div class="hc-container grid gap-10 py-14 md:grid-cols-[1.35fr_.8fr_.8fr_1fr]">
+                <div><x-brand-logo variant="dark" /><p class="mt-5 max-w-sm text-sm leading-7 text-stone-400">Kıbrıs sıcaklığını modern mutfak deneyimiyle bir araya getiriyoruz. Her tarif, daha keyifli bir ev sofrası için.</p><div class="mt-6 flex gap-2"><span class="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-sm">in</span><span class="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-sm">ig</span></div></div>
+                <div><p class="text-sm font-extrabold text-orange-300">Keşfet</p><div class="mt-4 grid gap-3 text-sm text-stone-400"><a class="hover:text-orange-300" href="{{ route('recipes.index') }}">Tarifler</a>@auth<a class="hover:text-orange-300" href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a><a class="hover:text-orange-300" href="{{ route('pantry.index') }}">Malzeme Dolabım</a>@endauth</div></div>
+                <div><p class="text-sm font-extrabold text-orange-300">Platform</p><div class="mt-4 grid gap-3 text-sm text-stone-400"><a class="hover:text-orange-300" href="{{ route('recipes.index') }}">Beslenme bilgisi</a><a class="hover:text-orange-300" href="{{ route('recipes.index') }}">Alerjen farkındalığı</a><a class="hover:text-orange-300" href="{{ route('health') }}">Sistem durumu</a></div></div>
+                <div><p class="text-sm font-extrabold text-orange-300">Bülten</p><p class="mt-4 text-sm leading-6 text-stone-400">Yeni tarifler ve mutfak ilhamı için bizi takipte kalın.</p><a href="{{ route('register') }}" class="hc-btn hc-btn-primary mt-5">Ücretsiz üye ol</a></div>
             </div>
-            <div class="border-t border-white/10 py-4 text-center text-xs text-[#aebfac]">© {{ date('Y') }} House Chef Cyprus</div>
+            <div class="border-t border-white/10"><div class="hc-container flex flex-col gap-2 py-5 text-xs text-stone-500 sm:flex-row sm:items-center sm:justify-between"><span>© {{ date('Y') }} House Chef Cyprus</span><span>Özgün demo içerik · Gizlilik odaklı platform</span></div></div>
         </footer>
     @endif
     @livewireScripts
