@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\NutritionController as AdminNutritionController;
 use App\Http\Controllers\Admin\RecipeController as AdminRecipeController;
 use App\Http\Controllers\Admin\RecipeStepController as AdminRecipeStepController;
+use App\Http\Controllers\Admin\SystemEventController;
 use App\Http\Controllers\CookingSessionController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HealthController;
@@ -51,6 +52,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('sistem-durumu/scheduler-yenile', [AdminDashboardController::class, 'refreshScheduler'])->name('system-status.refresh-scheduler');
     Route::post('sistem-durumu/cache-yenile', [AdminDashboardController::class, 'refreshCache'])->name('system-status.refresh-cache');
     Route::get('basarisiz-isler', [FailedJobController::class, 'index'])->name('failed-jobs.index');
+    Route::get('sistem-olaylari', [SystemEventController::class, 'index'])->name('system-events.index');
     Route::get('basarisiz-isler/{uuid}', [FailedJobController::class, 'show'])->name('failed-jobs.show');
     Route::post('basarisiz-isler/{uuid}/retry', [FailedJobController::class, 'retry'])->name('failed-jobs.retry');
     Route::post('basarisiz-isler/toplu-yeniden-dene', [FailedJobController::class, 'retryMany'])->name('failed-jobs.retry-many');
