@@ -26,3 +26,6 @@ First 50 House Chef Cyprus editorial recipes now use a versioned, idempotent dat
 ## Master Redesign Phase 2 — closed
 
 Household measurement, conversion provenance, pantry canonical storage and recipe ingredient group management are complete on the visual redesign branch. Recipe enrichment and new public product modules remain separately planned; this closure does not begin Phase 3.
+# Tamamlandı: Public Pages V3 Part 2
+
+Explainable matching, household pantry ve senkron favorites deneyimi tamamlandı. Sıradaki public redesign kapsamı Cooking Mode ve profil/auth ekranlarıdır.

@@ -10,3 +10,6 @@ Global primitive QA genişlikleri 375, 768, 1024 ve 1440 px'tir. Butonlar minimu
 ## Public Recipe V3
 
 Tarif koleksiyonu 375 px'te tek, 768 px'te iki, 1024 px'te üç ve geniş ekranda dört kart sütununa geçer. Detay sayfasında metadata sarılır, bölüm navigasyonu yatay kayar, malzeme rail'i yalnız geniş ekranda sticky olur ve hero yüksekliği içerikten bağımsız aşırı büyümez.
+# Member collections
+
+Matching 1280px altında kontrollü filtre paneli, pantry ve favorites ise 375px'te tek kolon kart düzeni kullanır; geniş ekranlarda dengeli iki/üç kolon davranışı korunur.

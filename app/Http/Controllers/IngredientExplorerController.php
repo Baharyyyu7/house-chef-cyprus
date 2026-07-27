@@ -10,6 +10,7 @@ use App\Models\DietaryTag;
 use App\Models\Ingredient;
 use App\Services\IngredientMatchingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 final class IngredientExplorerController extends Controller
@@ -36,8 +37,10 @@ final class IngredientExplorerController extends Controller
         ]);
 
         $selected = array_values(array_unique(array_filter($validated['ingredients'] ?? [], 'is_string')));
+        $pantryItems = $request->user()->pantryItems()->where('is_available', true)->with('ingredient')->orderBy('expires_at')->get();
+        $availablePantryItems = $pantryItems->filter(fn ($item) => $item->expires_at === null || Carbon::parse($item->expires_at)->isToday() || Carbon::parse($item->expires_at)->isFuture());
         if ($request->boolean('use_pantry')) {
-            $selected = $request->user()->pantryItems()->where('is_available', true)->where(fn ($query) => $query->whereNull('expires_at')->orWhereDate('expires_at', '>=', today()))->with('ingredient')->get()->pluck('ingredient.public_id')->all();
+            $selected = $availablePantryItems->pluck('ingredient.public_id')->all();
         }
 
         $results = $selected === [] ? collect() : $matching->findRecipes(
@@ -64,6 +67,9 @@ final class IngredientExplorerController extends Controller
             'ingredients' => Ingredient::query()->where('is_active', true)->with('aliases')->orderBy('name')->get(),
             'allergens' => Allergen::query()->where('is_active', true)->orderBy('sort_order')->get(),
             'dietaryTags' => DietaryTag::query()->where('is_active', true)->orderBy('sort_order')->get(),
+            'pantryItems' => $pantryItems,
+            'availablePantryCount' => $availablePantryItems->count(),
+            'expiredPantryCount' => $pantryItems->count() - $availablePantryItems->count(),
             'selected' => $selected,
             'results' => $results,
         ]);

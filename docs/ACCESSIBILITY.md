@@ -13,3 +13,6 @@ V3 button, input, modal, drawer, badge ve empty-state primitive'leri semantic fo
 ## Public Recipe V3
 
 Tarif arşivindeki tüm filtre alanlarının görünür label'ı vardır; aktif chip'ler metinsel kaldırma açıklaması taşır. Kart görselleri anlamlı alt metin, interaktif kartlar ise ayrı güvenli link ve favori butonu kullanır. Detay bölüm navigasyonu anchor linklerinden oluşur; malzeme checklist'i her satırın metniyle etiketlenir. Alerjen ve dietary durumu yalnız renkle değil metin ve simgeyle de anlatılır.
+# Matching, Pantry ve Favorites
+
+V3 ekranları etiketli form alanları, açıklamalı durum metinleri, erişilebilir chip/aksiyon adları ve reduced-motion ile uyumlu Alpine geçişleri kullanır.

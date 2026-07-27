@@ -35,3 +35,6 @@ Her teslim light/dark, 375/768/1024/1440 px, keyboard focus ve reduced-motion du
 ## Public Pages V3 / Part 1 kaydı
 
 Tarif listesi ve detay için normal, boş sonuç, light/dark, keyboard focus, mobil drawer, filtre parametresi, porsiyon değişimi, gerçek placeholder/hero ve doğrulanmış içerik görünürlüğü kontrol edilir. Tarayıcı otomasyonu viewport değiştirmeyi desteklemediğinde bu genişlik matrisi responsive class ve HTTP feature testleriyle ayrıca kayıt altına alınır.
+# Public Pages V3 Part 2 QA
+
+Matching filtreleri, pantry'den geçerli ürün aktarımı, expiry durumları, favorites filtreleri, light/dark tokenları ve mobil tek kolon davranışı her yayın öncesi kontrol edilir.

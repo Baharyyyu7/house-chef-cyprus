@@ -52,3 +52,6 @@
 - Added Turkish household measurement taxonomy, ingredient-specific conversion records, canonical/display recipe ingredient fields and measurement administration routes.
 - Seeded the 12 demo recipes with household presentation values and explicitly low-confidence demo conversions.
 - Completed household integration gaps: admin recipe ingredient management, public household pilot, pantry canonical values, quantity sufficiency matching, recipe ingredient public identifiers and conversion-driven nutrition invalidation.
+# Public Pages V3 Part 2
+
+- Matching, pantry ve favorites için V3 public/member arayüzü; açıklanabilir eşleştirme, expiry bilgisi ve filtre sözleşmeleri eklendi.

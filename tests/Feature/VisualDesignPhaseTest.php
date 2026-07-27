@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\Allergen;
 use App\Models\Category;
 use App\Models\DietaryTag;
+use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -177,5 +178,49 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('House Chef Cyprus editoryal kontrolünden geçti')
             ->assertDontSee('editorial_reviewed_by_user_id')
             ->assertDontSee('seed_demo');
+    }
+
+    public function test_matching_v3_exposes_pantry_import_filter_controls_and_explainable_results(): void
+    {
+        $this->seed();
+        $member = User::factory()->create(['email_verified_at' => now()]);
+        $ingredient = Ingredient::query()->where('is_active', true)->firstOrFail();
+        $member->pantryItems()->create(['ingredient_id' => $ingredient->id, 'quantity' => '2', 'unit' => 'adet', 'is_available' => true]);
+
+        $this->actingAs($member)->get(route('ingredients.explore', ['use_pantry' => 1]))
+            ->assertOk()
+            ->assertSee('Dolabımdaki 1 kullanılabilir ürünü seç')
+            ->assertSee('Bu tercihlerle sonuç bulunamadı.')
+            ->assertSee('exclude_allergens[]', false)
+            ->assertDontSee('ingredient_id');
+    }
+
+    public function test_pantry_v3_exposes_expiry_and_canonical_measurement_language_without_internal_fields(): void
+    {
+        $member = User::factory()->create(['email_verified_at' => now()]);
+        $ingredient = Ingredient::create(['name' => 'Kabak', 'canonical_name' => 'Kabak', 'slug' => 'kabak', 'is_active' => true]);
+        $member->pantryItems()->create(['ingredient_id' => $ingredient->id, 'quantity' => '1', 'unit' => 'demet', 'expires_at' => today()->subDay(), 'is_available' => true]);
+
+        $this->actingAs($member)->get(route('pantry.index'))
+            ->assertOk()
+            ->assertSee('Süresi dolmuş')
+            ->assertSee('miktar doğrulanamadı')
+            ->assertSee('Dolabımla eşleştir')
+            ->assertDontSee('canonical_quantity');
+    }
+
+    public function test_favorites_v3_only_shows_verified_published_recipes_and_keeps_filter_contract(): void
+    {
+        $member = User::factory()->create(['email_verified_at' => now()]);
+        $visible = Recipe::create(['title' => 'Sevilen tarif', 'slug' => 'sevilen-tarif', 'servings' => 2, 'difficulty' => 'Kolay', 'status' => 'published', 'verification_status' => 'verified']);
+        $hidden = Recipe::create(['title' => 'Kontrol bekleyen tarif', 'slug' => 'kontrol-bekleyen-tarif', 'servings' => 2, 'difficulty' => 'Kolay', 'status' => 'published', 'verification_status' => 'pending']);
+        $member->favoriteRecipes()->attach([$visible->id, $hidden->id]);
+
+        $this->actingAs($member)->get(route('favorites.index', ['q' => 'Sevilen', 'sort' => 'time']))
+            ->assertOk()
+            ->assertSee('Sevilen tarif')
+            ->assertDontSee('Kontrol bekleyen tarif')
+            ->assertSee('Favorilerde ara')
+            ->assertSee('Tarifleri keşfet');
     }
 }
