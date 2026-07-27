@@ -55,4 +55,10 @@ class Ingredient extends Model
     {
         return $this->hasMany(IngredientAllergenDetail::class);
     }
+
+    /** @return MorphMany<Media, $this> */
+    public function media(): MorphMany
+    {
+        return $this->morphMany(Media::class, 'mediable')->orderBy('sort_order');
+    }
 }

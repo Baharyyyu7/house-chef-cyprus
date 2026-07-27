@@ -22,3 +22,6 @@ kimlik, queue/connection ve hata kodu özeti sunar.
 Bu temel, database queue ile doğrulanmıştır. Redis/Horizon, worker process
 yönetimi ve production alarm entegrasyonu sonraki production operasyon fazına
 aittir.
+# Media health
+
+The admin System Status page reports public/private storage writability, failed processing, pending thumbnails and the latest scheduler completion marker. Media management remains admin-only.

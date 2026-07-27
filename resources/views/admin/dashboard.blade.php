@@ -29,6 +29,10 @@
             <article class="rounded-2xl bg-white p-6 shadow">
                 <h2 class="text-xl font-black">Cache</h2><dl class="mt-4 grid grid-cols-2 gap-2 text-sm"><dt>Sürücü</dt><dd>{{ $cacheHealth['driver'] }}</dd><dt>Durum</dt><dd>{{ $cacheHealth['status'] }}</dd></dl><form class="mt-5" method="post" action="{{ route('admin.system-status.refresh-cache') }}">@csrf<button class="font-bold text-orange-700">Cache yenile</button></form>
             </article>
+            <article class="rounded-2xl bg-white p-6 shadow">
+                <div class="flex items-start justify-between gap-3"><h2 class="text-xl font-black">Medya sağlığı</h2><a class="text-sm font-bold text-orange-700" href="{{ route('admin.media.index') }}">Medya →</a></div>
+                <dl class="mt-4 grid grid-cols-2 gap-2 text-sm"><dt>Public yazılabilir</dt><dd>{{ $mediaHealth['public_writable'] ? 'Evet' : 'Hayır' }}</dd><dt>Private yazılabilir</dt><dd>{{ $mediaHealth['private_writable'] ? 'Evet' : 'Hayır' }}</dd><dt>Başarısız işleme</dt><dd>{{ $mediaHealth['failed_processing'] }}</dd><dt>Bekleyen thumbnail</dt><dd>{{ $mediaHealth['pending_thumbnails'] }}</dd><dt>Son cleanup</dt><dd>{{ $mediaHealth['last_cleanup'] ?? '—' }}</dd></dl>
+            </article>
         </section>
 
         <a class="mt-8 inline-block rounded-xl bg-orange-700 px-5 py-3 font-bold text-white" href="{{ route('admin.recipes.index') }}">Tarifleri yönet</a>

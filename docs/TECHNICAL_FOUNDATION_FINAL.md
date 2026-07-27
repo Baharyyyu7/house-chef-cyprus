@@ -39,3 +39,6 @@ pagination sınırları, N+1 azaltmaları, Data Quality chunk processing ve
 `performance:profile` baseline sözleşmesi doğrulandı.
 
 Sıradaki faz Technical Foundation C — Security ve Media'dır.
+# Foundation C media operations
+
+Foundation C adds secure real-image upload, public/private storage separation, queued thumbnail processing, admin media operations, safe cleanup commands and media health visibility. Media upload is local-disk based behind `MediaStorageInterface`; S3 implementation and video transcoding remain future production work.

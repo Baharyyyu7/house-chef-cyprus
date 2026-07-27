@@ -15,3 +15,6 @@ eklendiğinde redirect sonrası hedef de aynı doğrulamayla denetlenmelidir.
 
 Local seed yöneticisi yalnızca local/testing ortamında oluşturulur. Production
 admin hesabı deployment sırasında güvenli bir yönetim prosedürüyle atanmalıdır.
+# Media operations
+
+Media uploads use MIME plus magic-byte validation, strict format/extension allowlists, size/pixel limits, random storage names and decode/re-encode processing. Private media is served only through an authenticated authorization path. Maintenance commands are dry-run by default and record destructive cleanup actions in the audit log.

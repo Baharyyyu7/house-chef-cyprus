@@ -37,3 +37,6 @@ kullanılabilir.
 `queue:health` yalnızca gözlem yapar; worker heartbeat'i yapay olarak yenilemez.
 Bu nedenle worker yoksa dashboard doğru biçimde unavailable/stale durumunu
 gösterebilir.
+# Media operations
+
+Thumbnail generation runs as a unique `media` queue job after database commit with a 90-second timeout and controlled backoff. Daily scheduler entries report temporary-media cleanup and orphan scans through the existing scheduler heartbeat lifecycle.

@@ -43,3 +43,6 @@ listeleme/filtreleme, ingredient matching, pantry uygunluk, nutrition snapshot,
 Data Quality açık issue, database queue reservation, failed job geçmişi ve audit
 geçmişindeki gerçek sorgu kalıpları için bileşik veya hedefli indeksleri ekler.
 Mevcut unique constraint'ler tekrarlanmaz.
+# Media operations fields
+
+`media` includes a public ULID, visibility, alt text, dimensions, processing/thumbnail statuses, thumbnail path JSON, safe processing error fields and processing timestamp. `mediable` remains a polymorphic relation to Recipe and Ingredient (and future content types).

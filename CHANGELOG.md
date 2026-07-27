@@ -60,3 +60,7 @@
 - Ingredient alias, substitution ve pantry metadata altyapısı eklendi.
 - Açıklanabilir exact/effective recipe matching ve public API recipe-match sözleşmesi eklendi.
 - “Elimde bunlar var” ekranı ve ingredient yönetim ekranları eklendi.
+# Unreleased
+
+- Added secure admin image upload, re-encoding, EXIF stripping, public/private storage separation and queued thumbnail variants.
+- Added media management, safe orphan/temporary maintenance commands, scheduler entries and media health status.
