@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -19,11 +20,22 @@ final class BackupService
         $id = (string) Str::ulid();
         $dir = 'backups/'.$id;
         $disk = Storage::disk('local');
-        $source = database_path('database.sqlite');
-        if (! is_file($source)) {
-            throw new RuntimeException('BACKUP_DATABASE_MISSING');
+        $source = (string) config('database.connections.sqlite.database');
+        if ($source === ':memory:') {
+            $temporary = tempnam(sys_get_temp_dir(), 'housechef-snapshot-');
+            if ($temporary === false) {
+                throw new RuntimeException('BACKUP_COPY_FAILED');
+            }
+            @unlink($temporary);
+            DB::unprepared("VACUUM INTO '".str_replace("'", "''", $temporary)."'");
+            $database = file_get_contents($temporary);
+            @unlink($temporary);
+        } else {
+            if (! is_file($source)) {
+                throw new RuntimeException('BACKUP_DATABASE_MISSING');
+            }
+            $database = file_get_contents($source);
         }
-        $database = file_get_contents($source);
         if ($database === false) {
             throw new RuntimeException('BACKUP_COPY_FAILED');
         }
