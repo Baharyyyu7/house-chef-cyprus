@@ -1,5 +1,12 @@
 # Changelog
 
+## Technical Foundation C — Security ve Media Temeli
+
+- Merkezi güvenli HTTP başlıkları, CORS allowlist, registration throttle ve
+  güvenli local seed admin politikası eklendi.
+- SSRF'e karşı SafeUrlValidator ile provider-bağımsız local media storage
+  sözleşmesi eklendi.
+
 ## Technical Foundation B — Resmî Kapanış
 
 - Cache, queue, scheduler ve database performance kapsamı; baseline ve indeks

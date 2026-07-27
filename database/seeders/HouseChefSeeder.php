@@ -25,8 +25,10 @@ final class HouseChefSeeder extends Seeder
         foreach ([['g', 'Gram', 'g', 'weight', true, 1], ['kg', 'Kilogram', 'kg', 'weight', true, 1000], ['ml', 'Mililitre', 'ml', 'volume', true, 1], ['l', 'Litre', 'l', 'volume', true, 1000], ['adet', 'Adet', 'adet', 'count', false, null], ['yk', 'Yemek kaşığı', 'yk', 'household', false, null], ['ck', 'Çay kaşığı', 'çk', 'household', false, null]] as [$code, $name, $symbol, $type, $metric, $factor]) {
             Unit::query()->firstOrCreate(['code' => $code], ['public_id' => (string) Str::ulid(), 'name' => $name, 'symbol' => $symbol, 'unit_type' => $type, 'is_metric' => $metric, 'conversion_factor' => $factor]);
         }
-        $admin = User::query()->firstOrCreate(['email' => 'admin@housechef.local'], ['name' => 'House Chef Yöneticisi', 'password' => 'ChangeMe123!', 'email_verified_at' => now(), 'role' => 'admin']);
-        $admin->update(['role' => 'admin']);
+        if (app()->environment(['local', 'testing'])) {
+            $admin = User::query()->firstOrCreate(['email' => 'admin@housechef.local'], ['name' => 'House Chef Yöneticisi', 'password' => 'ChangeMe123!', 'email_verified_at' => now(), 'role' => 'admin']);
+            $admin->update(['role' => 'admin']);
+        }
         $category = Category::query()->firstOrCreate(['slug' => 'ana-yemek'], ['name' => 'Ana Yemek', 'description' => 'Doyurucu tarifler']);
         $cuisines = collect(['Kıbrıs Mutfağı' => 'Kıbrıs', 'Türk Mutfağı' => 'Türkiye', 'İtalyan Mutfağı' => 'İtalya', 'Japon Mutfağı' => 'Japonya', 'Meksika Mutfağı' => 'Meksika', 'Lübnan Mutfağı' => 'Lübnan'])->mapWithKeys(fn (string $country, string $name) => [$name => Cuisine::query()->firstOrCreate(['slug' => Str::slug($name)], ['name' => $name, 'country' => $country])]);
         $cuisines->each(fn (Cuisine $cuisine) => $cuisine->public_id ?? $cuisine->update(['public_id' => (string) Str::ulid()]));
