@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataQualityController;
 use App\Http\Controllers\Admin\FailedJobController;
@@ -53,6 +54,11 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('sistem-durumu/cache-yenile', [AdminDashboardController::class, 'refreshCache'])->name('system-status.refresh-cache');
     Route::get('basarisiz-isler', [FailedJobController::class, 'index'])->name('failed-jobs.index');
     Route::get('sistem-olaylari', [SystemEventController::class, 'index'])->name('system-events.index');
+    Route::get('yedekler', [BackupController::class, 'index'])->name('backups.index');
+    Route::post('yedekler', [BackupController::class, 'create'])->name('backups.create');
+    Route::post('yedekler/temizle', [BackupController::class, 'cleanup'])->name('backups.cleanup');
+    Route::post('yedekler/{id}/verify', [BackupController::class, 'verify'])->name('backups.verify');
+    Route::get('yedekler/{id}/indir', [BackupController::class, 'download'])->name('backups.download');
     Route::get('basarisiz-isler/{uuid}', [FailedJobController::class, 'show'])->name('failed-jobs.show');
     Route::post('basarisiz-isler/{uuid}/retry', [FailedJobController::class, 'retry'])->name('failed-jobs.retry');
     Route::post('basarisiz-isler/toplu-yeniden-dene', [FailedJobController::class, 'retryMany'])->name('failed-jobs.retry-many');
