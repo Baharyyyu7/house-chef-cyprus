@@ -44,6 +44,12 @@ class Recipe extends Model
         return $this->hasMany(RecipeIngredient::class);
     }
 
+    /** @return HasMany<RecipeIngredientGroup,$this> */
+    public function ingredientGroups(): HasMany
+    {
+        return $this->hasMany(RecipeIngredientGroup::class)->orderBy('sort_order');
+    }
+
     /** @return HasMany<RecipeStep, $this> */
     public function steps(): HasMany
     {
@@ -53,7 +59,7 @@ class Recipe extends Model
     /** @return BelongsToMany<Ingredient, $this> */
     public function ingredients(): BelongsToMany
     {
-        return $this->belongsToMany(Ingredient::class, 'recipe_ingredients')->withPivot(['quantity', 'display_quantity', 'unit', 'display_measure_code', 'display_note', 'grams', 'canonical_quantity', 'canonical_unit', 'ingredient_unit_conversion_id', 'conversion_confidence', 'conversion_method', 'preparation', 'preparation_note', 'substitution', 'is_optional', 'group_name', 'scaling_behavior', 'scaling_note', 'sort_order'])->withTimestamps();
+        return $this->belongsToMany(Ingredient::class, 'recipe_ingredients')->withPivot(['recipe_ingredient_group_id', 'quantity', 'display_quantity', 'unit', 'display_measure_code', 'display_note', 'grams', 'canonical_quantity', 'canonical_unit', 'ingredient_unit_conversion_id', 'conversion_confidence', 'conversion_method', 'preparation', 'preparation_note', 'substitution', 'is_optional', 'group_name', 'scaling_behavior', 'scaling_note', 'sort_order'])->withTimestamps();
     }
 
     /** @return MorphMany<Media, $this> */

@@ -14,6 +14,7 @@ use App\Models\IngredientSubstitution;
 use App\Models\IngredientUnitConversion;
 use App\Models\Nutrient;
 use App\Models\Recipe;
+use App\Models\RecipeIngredientGroup;
 use App\Models\Unit;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -95,7 +96,9 @@ final class HouseChefSeeder extends Seeder
                 $quantity = (string) ($position + 1);
                 $measure = $conversion?->household_measure_code ?? 'adet';
                 $canonical = $conversion ? bcmul((string) $conversion->canonical_quantity, $quantity, 4) : bcmul($quantity, '100', 4);
-                $recipe->ingredients()->syncWithoutDetaching([$ingredient->id => ['quantity' => $quantity, 'unit' => 'g', 'grams' => $canonical, 'display_quantity' => $quantity, 'display_measure_code' => $measure, 'canonical_quantity' => $canonical, 'canonical_unit' => $conversion?->canonical_unit ?? 'g', 'ingredient_unit_conversion_id' => $conversion?->id, 'conversion_confidence' => $conversion?->verification_status ?? 'unknown', 'conversion_method' => $conversion?->conversion_method ?? 'not_convertible', 'preparation_note' => $position === 0 ? 'hazırlanmış' : null, 'group_name' => $position < 2 ? 'Ana malzemeler' : 'Lezzet için', 'scaling_behavior' => $ingredient->slug === 'zeytinyagi' ? 'taste_adjusted' : 'scalable', 'scaling_note' => $ingredient->slug === 'zeytinyagi' ? 'Damak tadınıza göre ayarlayın.' : null, 'is_optional' => false, 'sort_order' => $position + 1]]);
+                $groupName = $position < 2 ? 'Ana malzemeler' : 'Lezzet için';
+                $group = RecipeIngredientGroup::query()->firstOrCreate(['recipe_id' => $recipe->id, 'name' => $groupName], ['public_id' => (string) Str::ulid(), 'sort_order' => $position < 2 ? 1 : 2]);
+                $recipe->ingredients()->syncWithoutDetaching([$ingredient->id => ['recipe_ingredient_group_id' => $group->id, 'quantity' => $quantity, 'unit' => 'g', 'grams' => $canonical, 'display_quantity' => $quantity, 'display_measure_code' => $measure, 'canonical_quantity' => $canonical, 'canonical_unit' => $conversion?->canonical_unit ?? 'g', 'ingredient_unit_conversion_id' => $conversion?->id, 'conversion_confidence' => $conversion?->verification_status ?? 'unknown', 'conversion_method' => $conversion?->conversion_method ?? 'not_convertible', 'preparation_note' => $position === 0 ? 'hazırlanmış' : null, 'group_name' => $groupName, 'scaling_behavior' => $ingredient->slug === 'zeytinyagi' ? 'taste_adjusted' : 'scalable', 'scaling_note' => $ingredient->slug === 'zeytinyagi' ? 'Damak tadınıza göre ayarlayın.' : null, 'is_optional' => false, 'sort_order' => $position + 1]]);
             }
             $recipe->dietaryTags()->syncWithoutDetaching([$tags[$index % 2 === 0 ? 'high_protein' : 'vegetarian']->id]);
             $steps = [

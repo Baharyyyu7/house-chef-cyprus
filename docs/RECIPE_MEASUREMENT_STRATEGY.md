@@ -60,6 +60,8 @@ Her ingredient-specific dönüşümün kaynak adı/URL'si, confidence, `verified
 Faz 2, tüm household kodları seed edilip görünür olduğunda değil; herhangi bir belirsiz household dönüşümü yanlış gram üretmeden, kaynak/confidence ile doğru yönetildiğinde kapanır.
 # Household measurement implementation (Phase 2)
 
+Recipe ingredient lines now belong to explicit, public-identifier-backed groups. Groups retain a stable order, while their ingredient lines retain their own order. Removing a group never drops recipe data: its lines move to the recipe's `Malzemeler` fallback group in the same transaction. Public recipe output hides empty groups and presents group and ingredient order through the shared display service.
+
 Recipe ingredients retain legacy `quantity`, `unit` and `grams`, while `display_*` serves Turkish household presentation and `canonical_*` serves calculation. Conversion is ingredient-specific and provenance-aware.
 
 Recipe ingredient rows now have public ULIDs, a group, order, preparation note and scaling policy. Admin changes are transaction-bound; public detail uses `RecipeIngredientDisplayService` for the household pilot.

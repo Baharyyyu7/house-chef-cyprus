@@ -27,3 +27,6 @@ Kaynağı/görsel lisansı/household canonical değeri olmayan kayıtlar, duplic
 
 Household conversion records require a source type and source name. Demo seed conversions are marked `seed_demo` with low confidence; they are estimates, not verified facts.
 
+## Phase 2 quality guardrails
+
+Data Quality reports recipe lines that are missing a managed ingredient group and preserves an explicit legacy fallback. Canonical conversion completeness, confidence and source remain independently reportable; expiry prevents pantry stock from being treated as available by matching.

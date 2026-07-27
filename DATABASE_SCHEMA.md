@@ -1,5 +1,9 @@
 # Database Schema
 
+## Recipe ingredient groups
+
+`recipe_ingredient_groups` stores a public ULID, recipe ownership, trimmed display name and stable sort order. `recipe_ingredients.recipe_ingredient_group_id` is nullable for backwards-compatible migration, references the group with `nullOnDelete`, and is indexed with ingredient sort order. Application deletion moves lines to the recipe-local `Malzemeler` fallback before deleting a non-default group.
+
 ## Nutrition and allergens
 
 - `nutrients`: Public ULID ile besin tanımı, birim, hassasiyet, makro/mikro türü ve sıralama.

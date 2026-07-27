@@ -12,6 +12,7 @@ use App\Models\IngredientUnitConversion;
 use App\Models\NutritionFact;
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
+use App\Models\RecipeIngredientGroup;
 use App\Models\Unit;
 
 final class DataQualityService
@@ -73,6 +74,9 @@ final class DataQualityService
         }
         foreach (RecipeIngredient::query()->with('recipe')->get() as $item) {
             $entity = $item->recipe?->public_id;
+            if ($item->recipe_ingredient_group_id === null) {
+                $issues[] = $this->genericIssue('missing_recipe_ingredient_group', 'warning', RecipeIngredient::class, $entity, 'Tarif malzemesi bir gruba bağlı değil.');
+            }
             if ($item->display_quantity === null || ! $item->display_measure_code) {
                 $issues[] = $this->genericIssue('missing_household_measurement', 'warning', RecipeIngredient::class, $entity, 'Tarif malzemesinde kullanıcıya gösterilecek ev ölçüsü eksik.');
             }
@@ -90,6 +94,11 @@ final class DataQualityService
             }
             if (in_array($item->conversion_confidence, ['low', 'unknown'], true)) {
                 $issues[] = $this->genericIssue('low_confidence_conversion', 'info', RecipeIngredient::class, $entity, 'Tarif malzemesi düşük güvenli veya doğrulanmamış dönüşüm kullanıyor.');
+            }
+        }
+        foreach (RecipeIngredientGroup::query()->withCount('ingredients')->get() as $group) {
+            if ($group->ingredients_count === 0) {
+                $issues[] = $this->genericIssue('empty_recipe_ingredient_group', 'info', RecipeIngredientGroup::class, $group->public_id, 'Tarif malzeme grubu boş.');
             }
         }
         foreach (IngredientUnitConversion::query()->get() as $conversion) {

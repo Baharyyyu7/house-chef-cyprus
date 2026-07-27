@@ -108,6 +108,11 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::put('tarifler/{recipe}/malzemeler/{line}', [RecipeIngredientController::class, 'update'])->name('recipes.ingredients.update');
     Route::delete('tarifler/{recipe}/malzemeler/{line}', [RecipeIngredientController::class, 'destroy'])->name('recipes.ingredients.destroy');
     Route::post('tarifler/{recipe}/malzemeler/sirala', [RecipeIngredientController::class, 'reorder'])->name('recipes.ingredients.reorder');
+    Route::post('tarifler/{recipe}/malzemeler/gruplar', [RecipeIngredientController::class, 'storeGroup'])->name('recipes.ingredients.groups.store');
+    Route::put('tarifler/{recipe}/malzemeler/gruplar/{group}', [RecipeIngredientController::class, 'updateGroup'])->name('recipes.ingredients.groups.update');
+    Route::delete('tarifler/{recipe}/malzemeler/gruplar/{group}', [RecipeIngredientController::class, 'destroyGroup'])->name('recipes.ingredients.groups.destroy');
+    Route::post('tarifler/{recipe}/malzemeler/gruplar/{group}/sirala', [RecipeIngredientController::class, 'reorderGroup'])->name('recipes.ingredients.groups.reorder');
+    Route::post('tarifler/{recipe}/malzemeler/{line}/tasima', [RecipeIngredientController::class, 'move'])->name('recipes.ingredients.move');
     Route::get('tarifler/public/{publicId}/duzenle', [AdminRecipeController::class, 'editPublic'])->name('recipes.edit-public');
     Route::get('malzemeler', [AdminIngredientController::class, 'index'])->name('ingredients.index');
     Route::get('olculer', [MeasurementController::class, 'units'])->name('measurements.units');

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Ingredient;
 use App\Models\PantryItem;
 use App\Models\Recipe;
+use App\Models\Unit;
 use App\Models\User;
 use App\Services\IngredientMatchingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -54,7 +55,35 @@ final class HouseholdMeasurementFinalizationTest extends TestCase
         $this->seed();
         $recipe = Recipe::query()->firstOrFail();
         $response = $this->getJson('/api/v1/recipes/'.$recipe->public_id)->assertOk();
-        $response->assertJsonStructure(['data' => ['ingredients', 'ingredient_lines' => [['ingredient' => ['public_id', 'name'], 'display' => ['quantity', 'measure_code'], 'canonical' => ['quantity', 'unit'], 'conversion' => ['confidence', 'verified']]]]]);
+        $response->assertJsonStructure(['data' => ['ingredients', 'ingredient_lines' => [['ingredient' => ['public_id', 'name'], 'display' => ['quantity', 'measure_code'], 'canonical' => ['quantity', 'unit'], 'conversion' => ['confidence', 'verified'], 'group']]]]);
         $this->assertStringNotContainsString('ingredient_id', json_encode($response->json('data.ingredient_lines')));
+    }
+
+    public function test_pantry_persists_a_canonical_household_measurement_and_rejects_an_inactive_unit(): void
+    {
+        $this->seed();
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $ingredient = Ingredient::query()->where('slug', 'pirinc')->firstOrFail();
+
+        $this->actingAs($user)->post(route('pantry.store'), [
+            'ingredient_id' => $ingredient->id,
+            'quantity' => 2,
+            'unit' => 'su_bardagi',
+        ])->assertRedirect(route('pantry.index'));
+
+        $this->assertDatabaseHas('pantry_items', [
+            'user_id' => $user->id,
+            'ingredient_id' => $ingredient->id,
+            'canonical_quantity' => 360,
+            'canonical_unit' => 'g',
+        ]);
+
+        Unit::query()->where('code', 'su_bardagi')->update(['is_active' => false]);
+
+        $this->actingAs($user)->from(route('pantry.index'))->post(route('pantry.store'), [
+            'ingredient_id' => $ingredient->id,
+            'quantity' => 1,
+            'unit' => 'su_bardagi',
+        ])->assertRedirect(route('pantry.index'))->assertSessionHasErrors('unit');
     }
 }

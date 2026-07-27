@@ -96,3 +96,5 @@ Her faz yalnız kendi test/QA/CI kapısından sonra kapanır. Ölçü dönüşü
 # Phase 2 status
 
 The V3 redesign now has a measurement-aware recipe data foundation. Household display and canonical nutrition-safe quantities are additive and do not redesign the remaining public screens.
+
+Phase 2 is closed on `visual-redesign-v2`: household display, canonical conversion provenance, pantry compatibility, ingredient group ordering, public recipe fallback and measurement quality checks are stable. The next visual/product scope is explicitly not started by this closure.

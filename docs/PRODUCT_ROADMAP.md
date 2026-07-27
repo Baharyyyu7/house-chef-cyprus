@@ -19,3 +19,7 @@ Production öncesi zorunlu işler Foundation kapanış belgesinde listelenir. Re
 # Master Redesign Phase 2
 
 Household measurement and ingredient-specific conversion infrastructure is active. Content expansion remains blocked until measurement QA is complete.
+
+## Master Redesign Phase 2 — closed
+
+Household measurement, conversion provenance, pantry canonical storage and recipe ingredient group management are complete on the visual redesign branch. Recipe enrichment and new public product modules remain separately planned; this closure does not begin Phase 3.

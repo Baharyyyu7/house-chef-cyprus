@@ -10,7 +10,7 @@ class RecipeIngredient extends Model
 {
     use HasPublicId;
 
-    protected $fillable = ['recipe_id', 'ingredient_id', 'quantity', 'display_quantity', 'unit', 'display_measure_code', 'display_note', 'unit_id', 'grams', 'canonical_quantity', 'canonical_unit', 'ingredient_unit_conversion_id', 'conversion_confidence', 'conversion_method', 'preparation', 'preparation_note', 'substitution', 'is_required', 'is_optional', 'group_name', 'can_be_substituted', 'scaling_behavior', 'scaling_note', 'manual_override_reason', 'sort_order'];
+    protected $fillable = ['recipe_id', 'recipe_ingredient_group_id', 'ingredient_id', 'quantity', 'display_quantity', 'unit', 'display_measure_code', 'display_note', 'unit_id', 'grams', 'canonical_quantity', 'canonical_unit', 'ingredient_unit_conversion_id', 'conversion_confidence', 'conversion_method', 'preparation', 'preparation_note', 'substitution', 'is_required', 'is_optional', 'group_name', 'can_be_substituted', 'scaling_behavior', 'scaling_note', 'manual_override_reason', 'sort_order'];
 
     protected function casts(): array
     {
@@ -33,5 +33,11 @@ class RecipeIngredient extends Model
     public function conversion(): BelongsTo
     {
         return $this->belongsTo(IngredientUnitConversion::class, 'ingredient_unit_conversion_id');
+    }
+
+    /** @return BelongsTo<RecipeIngredientGroup,$this> */
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(RecipeIngredientGroup::class, 'recipe_ingredient_group_id');
     }
 }

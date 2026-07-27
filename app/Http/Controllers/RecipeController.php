@@ -25,7 +25,7 @@ final class RecipeController extends Controller
     public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay)
     {
         abort_unless($recipe->status === 'published' || $request->user()?->isAdmin(), 404);
-        $recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient', 'steps', 'media']);
+        $recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient', 'recipeIngredients.group', 'steps', 'media']);
         $servings = max(1, (int) $request->integer('servings', $recipe->servings));
 
         $nutritionResult = $nutrition->snapshot($recipe, $servings);

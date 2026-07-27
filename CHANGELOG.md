@@ -41,6 +41,9 @@
 - Recipe/Nutrition/Data Quality, cache/queue/scheduler/performance, security/media ve observability/backup/restore altyapıları tamamlandı.
 # Unreleased
 
+- Added recipe ingredient group management with public identifiers, transactional move/reorder controls, fallback-safe deletion and audit entries.
+- Completed the pantry household measurement selector, legacy-unit handling and canonical conversion status presentation.
+
 - Added Turkish household measurement taxonomy, ingredient-specific conversion records, canonical/display recipe ingredient fields and measurement administration routes.
 - Seeded the 12 demo recipes with household presentation values and explicitly low-confidence demo conversions.
 - Completed household integration gaps: admin recipe ingredient management, public household pilot, pantry canonical values, quantity sufficiency matching, recipe ingredient public identifiers and conversion-driven nutrition invalidation.
