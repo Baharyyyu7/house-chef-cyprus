@@ -8,3 +8,5 @@ Kalite kapısı; çalışmayan yeni özelliği sırf planlanan bir otomasyon hen
 # Engineering Quality Gate
 
 Her push ve pull request; bağımlılık kurulumu, temiz migration/iki seed, PHPUnit, Pint, PHPStan, Vite build, Composer/npm audit, OpenAPI doğrulaması, environment validation, cache oluşturma, temel secret/yasak dosya ve belge bağlantısı taramalarından geçer. CI yalnızca okuma yetkisine sahiptir; fork PR’larda secret kullanılmaz.
+
+Bu kalite kapısı Foundation E ile doğrulanmıştır; production deployment denetimi yerine geçmez.

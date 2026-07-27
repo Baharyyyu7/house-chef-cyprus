@@ -49,3 +49,5 @@ Mevcut unique constraint'ler tekrarlanmaz.
 # Foundation E notu
 
 SQLite şeması Laravel migration’larıyla oluşturulur; temiz kurulum kalite kapısı migration/seed ve ikinci seed çalıştırır. Ayrıntılı taşınabilirlik denetimi için [database portability](docs/DATABASE_PORTABILITY.md) belgesine bakın.
+
+Foundation A–E kapatıldı; production hedef veritabanı seçildiğinde MySQL/PostgreSQL üzerinde ayrı staging migration denemesi zorunludur.

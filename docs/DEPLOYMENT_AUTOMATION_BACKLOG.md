@@ -1,6 +1,6 @@
 # Deployment Automation Backlog
 
-Bu backlog production fazına kadar uygulanmaz.
+Bu backlog production fazına kadar uygulanmaz. Technical Foundation’ın tamamlanması production deployment’ın tamamlandığı anlamına gelmez.
 
 - Staging deploy: gerçek barındırma, domain ve environment seçildiğinde.
 - Production deploy: staging sağlık kontrolü ve rollback prosedürü kanıtlandığında.
