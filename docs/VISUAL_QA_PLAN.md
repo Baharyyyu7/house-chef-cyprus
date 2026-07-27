@@ -9,3 +9,7 @@ Her görsel sürümde aşağıdaki akışlar 375, 768, 1024 ve 1440 px genişlik
 5. Yönetim masaüstü sidebar'ı ve mobil drawer; bütün bağlantılar ve yetki görünürlüğü.
 
 Klavye odağı, okunabilir kontrast, yatay tablo taşması, mobil filtre alanı ve açık/koyu tema da kontrol edilir. Gerçek veri bulunmayan görsel alanlarda içerik taklidi kullanılmaz.
+
+## Visual Redesign V2 preview
+
+Ana sayfa QA’sı gerçek `public/images/house-chef-hero-v2.png` varlığı, sticky/küçülen public header, theme switch, mobil drawer, arama, `Tarifleri keşfet` ve `Elindekilerle tarif bul` çağrılarını kapsar. V2 önizlemesi onaylanmadan diğer ürün ekranlarına görsel kapsam genişletilmez.

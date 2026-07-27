@@ -2,12 +2,13 @@
 
 House Chef Cyprus, Kıbrıs mutfağının sıcaklığını sade ve güven veren bir dijital deneyime dönüştürür.
 
-## Temel dil
+## Temel dil — Visual Redesign V2 preview
 
-- **Forest:** `#153224` ana marka rengi; navigasyon, güçlü eylemler ve koyu yüzeyler.
-- **Gold:** `#B98427` vurgu, ilerleme ve sıcak eylem rengi.
-- **Cream/Paper:** `#FBF7EE` ve `#FFFDF8` okunaklı, doğal yüzeyler.
-- Başlıklar **Playfair Display**, gövde metni **Inter** kullanır.
+- **Charcoal:** `#141414` koyu yüzey, metin ve güçlü kontrast için kullanılır.
+- **Orange/Terracotta:** `#F97316` ana vurgu ve eylem rengidir; erişilebilir koyu tonu `#C2410C` olarak tanımlıdır.
+- **Ivory/Surface:** `#FFF8F0` ve `#FFFDFC` okunaklı, sıcak nötr yüzeylerdir.
+- Başlıklar ve gövde metni **Manrope**; yardımcı metinler **Inter** kullanır.
+- Yeşil/forest marka dili V2’de kullanılmaz. Geçiş sürecindeki eski utility adları yalnızca nötr semantic alias olarak kalır; yeni ekranlarda kullanılmaz.
 
 ## Bileşen sözleşmesi
 
@@ -15,7 +16,11 @@ House Chef Cyprus, Kıbrıs mutfağının sıcaklığını sade ve güven veren 
 
 ## Logo
 
-Özgün SVG işaret; aşçı bulutu, ev çatısı ve yapraktan oluşur. `x-brand-logo` açık/koyu yatay sürümü, `public/favicon.svg` uygulama simgesi için kullanılır. Referans siteden logo, kod veya telifli görsel kopyalanmamıştır.
+Özgün SVG işaret; House Chef için soyut `H/C` monogramı, sıcak turuncu buhar eğrisi ve koyu yüzeyden oluşur. `x-brand-logo` açık/koyu yatay sürümü, `x-application-logo` ve `public/favicon.svg` aynı marka işaretini kullanır. Referans siteden logo, kod veya telifli görsel kopyalanmamıştır.
+
+## V2 kapsamı
+
+İlk V2 teslimi, yalnızca ana sayfa ile ortak public header/footer kapsamındadır. Tarif listesi, tarif detayı, eşleştirme, dolap, favoriler, cooking mode, kimlik doğrulama ve yönetim ekranlarının işlevsel/kavramsal akışları onaydan önce değiştirilmez.
 
 ## Durumlar
 

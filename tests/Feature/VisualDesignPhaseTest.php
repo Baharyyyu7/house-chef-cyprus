@@ -22,6 +22,18 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('House Chef');
     }
 
+    public function test_v2_homepage_uses_the_real_food_hero_and_keeps_search_and_primary_calls_to_action(): void
+    {
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('house-chef-hero-v2.png', false)
+            ->assertSee('Tarifleri keşfet')
+            ->assertSee('Elindekilerle tarif bul')
+            ->assertSee('Akıllı arama')
+            ->assertSee('hero-search', false)
+            ->assertDontSee('∞ ilham');
+    }
+
     public function test_verified_member_sees_combined_matching_form(): void
     {
         $member = User::factory()->create(['email_verified_at' => now()]);

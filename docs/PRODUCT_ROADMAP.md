@@ -2,7 +2,7 @@
 
 1. Technical Foundation A–E — tamamlandı.
 2. Final Product Core Audit — kontrollü olarak geçti; çekirdek regresyonlar kapatıldı.
-3. Visual Design Implementation — Phase 1 tamamlandı: merkezi tasarım sistemi, public/admin navigasyon ve ana ürün ekranları yenilendi. İleri görsel polish, gerçek medya varlıkları ve Premium UX aşamasında sürer.
+3. Visual Redesign V2 preview — Ana sayfa, public header/footer ve özgün marka sistemi warm ivory–terracotta–charcoal yönünde yenilenir. Ana sayfa onayı sonrasında tarif listesi/detayı ve diğer ürün ekranları ayrı kontrollü teslimlerde ele alınır.
 4. AI Chef.
 5. SEO Content Hub ve Blog.
 6. Community.
