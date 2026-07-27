@@ -16,4 +16,15 @@ final class MetricService
             SystemMetric::query()->updateOrCreate(['metric' => $metric, 'dimension' => $route], ['value' => $value, 'recorded_at' => now()]);
         }
     }
+
+    /** @return array<string, float|int> */
+    public function summary(int $days = 1): array
+    {
+        $since = now()->subDays(in_array($days, [1, 7, 30], true) ? $days : 1);
+        $rows = SystemMetric::query()->where('recorded_at', '>=', $since)->get()->groupBy('metric');
+        $requests = (float) ($rows->get('requests')?->sum('value') ?? 0);
+        $duration = (float) ($rows->get('duration_ms')?->sum('value') ?? 0);
+
+        return ['requests' => (int) $requests, 'errors' => (int) ($rows->get('errors')?->sum('value') ?? 0), 'average_duration_ms' => $requests > 0 ? round($duration / $requests, 2) : 0, 'period_days' => $days];
+    }
 }

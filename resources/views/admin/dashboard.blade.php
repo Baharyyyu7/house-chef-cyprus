@@ -15,6 +15,7 @@
 
         <p class="mt-6 text-sm text-stone-500">Son yenileme: {{ $lastRefreshAt ?? 'Henüz manuel yenileme yapılmadı' }}</p>
         <section class="mt-4 rounded-2xl bg-white p-6 shadow"><div class="flex justify-between"><h2 class="text-xl font-black">Health: {{ $health['status'] }}</h2><a class="font-bold text-orange-700" href="{{ route('admin.system-events.index') }}">Sistem olayları →</a></div><div class="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">@foreach($health['components'] as $component)<div class="rounded border p-3"><strong>{{ $component['name'] }}</strong><span class="block text-sm text-stone-600">{{ $component['status'] }} · {{ $component['safe_message'] }}</span></div>@endforeach</div></section>
+        <section class="mt-4 rounded-2xl bg-white p-6 shadow"><div class="flex gap-3"><h2 class="text-xl font-black">Metrikler · {{ $metrics['period_days'] }} gün</h2><a href="?period=1">24s</a><a href="?period=7">7g</a><a href="?period=30">30g</a></div><dl class="mt-3 grid grid-cols-3 gap-3"><dt>Request <b>{{ $metrics['requests'] }}</b></dt><dt>Hata <b>{{ $metrics['errors'] }}</b></dt><dt>Ort. süre <b>{{ $metrics['average_duration_ms'] }} ms</b></dt></dl></section>
 
         <section class="mt-4 grid gap-5 lg:grid-cols-3">
             <article class="rounded-2xl bg-white p-6 shadow">
