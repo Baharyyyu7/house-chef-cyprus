@@ -1,6 +1,6 @@
 # House Chef Cyprus
 
-Türkçe tarif, malzeme dolabı, beslenme ve veri kalitesi platformu. Technical Foundation A–E ve Final Product Core Audit tamamlanmıştır. `visual-redesign-v2` dalındaki V2 preview; ana sayfa, public header/footer ve tema sistemi için kontrollü incelemededir. Tüm sayfa, recipe data ve admin dönüşüm programı [Master Product Redesign Planı](docs/MASTER_PRODUCT_REDESIGN_PLAN.md) içinde fazlanmıştır; kullanıcı onayı olmadan geniş görsel değişiklik başlatılmaz.
+Türkçe tarif, malzeme dolabı, beslenme ve veri kalitesi platformu. Technical Foundation A–E ve Final Product Core Audit tamamlanmıştır. `visual-redesign-v2` dalında Faz 3 Data Trust programı da tamamlandı: 50 tarif `published` ve `verified` durumunda, provenance ve household/canonical ölçü kayıtlarıyla seed edilir. Faz 3A'nın 20 tariflik ara hedefi tamamlanmış Faz 3 tarafından aşılmıştır; 150 tariflik genişleme henüz başlatılmamıştır. Sıradaki aktif çalışma yalnız Public Pages V3 Redesign'dir; ayrıntılar [Master Product Redesign Planı](docs/MASTER_PRODUCT_REDESIGN_PLAN.md) içindedir.
 
 ## Yerelde başlatma
 

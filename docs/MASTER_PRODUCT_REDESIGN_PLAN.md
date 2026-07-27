@@ -13,13 +13,21 @@ Mevcut Laravel/Blade/Livewire/Alpine/Tailwind mimarisi korunur. Ayrı SPA veya a
 | 0 | Envanter, veri ve UX açıklarını doğrulamak | Bu plan ve alt strateji belgeleri | Yok | Doküman link denetimi | Düşük; mevcut route/model incelemesi | Kullanıcı planı onayı |
 | 1 | Global Design V3, motion, form, table, icon sözleşmesi | `resources/css/app.css`, layoutlar, yeniden kullanılabilir Blade bileşenleri | Yok | Light/dark, keyboard, 375–1440 QA | Orta; mevcut Alpine/Livewire ile uyum | Token, focus, reduced-motion ve bileşen testleri tamam |
 | 2 | Recipe domain ve household measurement modeli | Unit, ingredient conversion/density, recipe ingredient migrationları, `UnitConversionService` | Evet, geriye uyumlu | Dönüşüm/precision/uncertainty/nutrition/matching testleri | Yüksek; canonical hesap koruması | Household gösterim + canonical hesap güvenli |
-| 3 | Data Trust, provenance ve verification | Editorial review state, source/license/check history | Evet, geriye uyumlu | Trust/data-quality testleri | Yüksek; veri modelinin temeli | Tarif/ingredient/media güven sinyali izlenebilir |
-| 4 | İlk 50 doğrulanmış tarif | Editorial seed, kaynak notu, quality checklist | Yalnız gerekli editorial alanlar | Idempotent seed + quality scan | Orta; telif/lisans doğrulaması | 50 özgün, kaynaklı, tutarlı tarif |
-| 5 | Tarif görselleri ve ingredient icon sistemi | Media manifest, focal point, SVG icon planı | Gerekirse metadata | License/accessibility QA | Orta | İlk 20 tarifte kontrollü görsel kalite |
+| 3 | Data Trust, provenance ve verification | Editorial review state, source/license/check history | Evet, geriye uyumlu | Trust/data-quality testleri | Yüksek; veri modelinin temeli | Tamamlandı: 50 tarifte güven sinyali izlenebilir |
+| 4 | İlk 50 doğrulanmış tarif | Editorial seed, kaynak notu, quality checklist | Yalnız gerekli editorial alanlar | Idempotent seed + quality scan | Orta; telif/lisans doğrulaması | Tamamlandı: 50 özgün, kaynaklı, tutarlı tarif |
+| 5 | Tarif görselleri ve ingredient icon sistemi | Media manifest, focal point, SVG icon planı | Gerekirse metadata | License/accessibility QA | Orta | Tamamlandı: 8 güvenli placeholder varyasyonu ve 24 icon metadata pilotu |
 
 ### Faz 3 durumu
 
 Data Trust, provenance, completeness, publication guard, admin doğrulama kuyruğu, idempotent ilk 50 editoryal tarif kataloğu, sekiz placeholder varyasyonu ve 24 ingredient icon metadata pilotu `visual-redesign-v2` dalında tamamlandı. Gerçek üçüncü taraf kaynaklar, lisanslı medya ve daha geniş içerik importu ayrı, onaylı içerik programına bağlı kalır.
+
+**Faz 3A durumu: SUPERSEDED BY COMPLETED FAZ 3.** Faz 3A'nın 20 tariflik ara hedefi 50 verified/published tarifle aşılmıştır. 20'ye dönmek veri kaybı üreteceği için yapılmaz. Faz 3B ve Faz 3C'nin içerik büyüme ara hedefleri de tamamlanmış 50 tariflik katalog içinde karşılanmış kabul edilir.
+
+## Sıradaki aktif faz — Public Pages V3 Redesign
+
+Faz 4 henüz kodlanmamıştır. Uygulama sırası: (1) tarif listesi, (2) tarif detayı, (3) Ne Pişirebilirim, (4) Dolap, (5) Favoriler, (6) Cooking Mode, (7) profil ve auth, (8) header/footer bütünlüğü, (9) responsive/accessibility QA, (10) Visual QA Tur 1.
+
+Kapanış kriterleri: V3 component sözleşmesiyle uyum, light/dark görünüm, 375/768/1024/1440 genişlikleri, keyboard/focus/reduced-motion desteği, boş/yükleniyor/hata durumları, gerçek browser QA ve regresyon kalite kapısının geçmesidir. About/How It Works/FAQ için yalnız görsel altyapı bu fazda hazırlanabilir; içerik/SEO çalışması başlatılmaz.
 | 6 | Public sayfaları kontrollü teslimlerle yenilemek | Tarif listesi/detayı, pantry/favorites | Yok veya presentation metadata | Sayfa bazlı feature + browser QA | Orta; Faz 1–5'e bağlı | Light/dark/mobile/empty/error/loading QA |
 | 7 | Matching, Cooking ve Profile/Auth UX | Picker, cooking, profile/Volt görünümü | Gerekirse preference alanları | Matching/cooking/auth regresyonu | Orta | Türkçe, erişilebilir UX |
 | 8 | Admin shell, dashboard, grafikler ve CRUD redesign | Admin layout/dashboard/recipe/ingredient/nutrition/operations | Aggregate/trust alanları gerekirse | Policy/table/form/chart QA | Yüksek | Gerçek veri veya dürüst empty state |

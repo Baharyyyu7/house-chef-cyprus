@@ -6,6 +6,8 @@
 - Localized the profile form pilot and applied V3 pilot surfaces to favorites and the admin dashboard.
 - Added the Phase 3 editorial content trust model, completeness/publication guard, admin verification queue and idempotent first-50 recipe catalogue.
 - Added provenance-safe public recipe summaries, branded placeholder variants and initial ingredient icon metadata pilot.
+- Closed Master Redesign Faz 3 documentation at 50 published/verified editorial recipes; Faz 3A/3B/3C intermediate targets are superseded and the controlled 150-recipe expansion remains deferred.
+- Defined Public Pages V3 Redesign as the next active scope without starting its implementation.
 
 ## Master Product Redesign — Faz 0 Planı
 

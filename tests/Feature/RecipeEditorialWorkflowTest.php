@@ -56,4 +56,13 @@ final class RecipeEditorialWorkflowTest extends TestCase
         $member = User::factory()->create(['role' => 'member', 'email_verified_at' => now()]);
         $this->actingAs($member)->get(route('admin.recipe-verification.index'))->assertForbidden();
     }
+
+    public function test_completeness_score_is_never_above_one_hundred(): void
+    {
+        $this->seed();
+
+        $report = app(RecipeCompletenessService::class)->evaluate(Recipe::query()->where('title', 'Tabule')->firstOrFail());
+
+        $this->assertLessThanOrEqual(100, $report['score']);
+    }
 }

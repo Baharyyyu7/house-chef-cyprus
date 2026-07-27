@@ -34,3 +34,5 @@ Data Quality reports recipe lines that are missing a managed ingredient group an
 ## Master Redesign Faz 3
 
 `content_sources`, `recipe_provenances` ve media trust metadata'sı aktif kullanımdadır. Public tarifler `published` ve `verified` olmalıdır; aksi halde web, API ve ingredient matching sonuçlarına dahil edilmez. Data Quality'nin Content Trust kategorisi aktif kaynak, yayın doğrulaması ve provenance açıklarını görünür kılar.
+
+Faz 3 tamamlandı: 50 tarifin tamamı published/verified ve provenance kayıtlıdır. Faz 3A'nın 20 tariflik ara hedefi **SUPERSEDED BY COMPLETED FAZ 3** olarak işaretlenmiştir. Daha fazla bağımsız kaynak corroboration'ı ve 150 tariflik genişletme, açık lisans/kullanım koşulu denetiminden sonra ayrı onaylı bir içerik programında ele alınır.

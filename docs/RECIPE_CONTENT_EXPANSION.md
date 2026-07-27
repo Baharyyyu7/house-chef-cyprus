@@ -1,15 +1,10 @@
 # Recipe Content Expansion Strategy
 
-## Mevcut 12 demo tarif denetimi
+## Faz 3 tamamlanmış katalog
 
-Seed'de 12 published tarif ve 20 malzeme vardır. Temel başlık, cuisine, category, süre, porsiyon, zorluk, dört adım, ingredient pivot, nutrition JSON, storage JSON, source name ve featured flag bulunur. Ancak aşağıdaki içerik açıkları her demo tarif için kapatılmalıdır:
+Eski 12 demo tarif, Faz 3 kapsamında genişletilmiş 50 tariflik sürümlü editoryal katalogla değiştirilmiştir. Katalogdaki 50 kaydın tamamı `published` ve `verified` durumundadır; provenance, household/canonical ölçüler, ingredient grupları, adımlar, nutrition/dietary/allergen sinyalleri ve placeholder medya durumu kayıtlıdır.
 
-- Aynı kısa açıklama ve uzun açıklama tekrar edilir.
-- Tek `Ana Yemek` kategorisi, sınırlı cuisine dağılımı ve dar ingredient havuzu kullanılır.
-- Ingredientler yalnız `g` ile seed edilir; household gösterim yoktur.
-- Ekipman, ön hazırlık, püf noktası, güvenlik, alternatif, servis, saklama, tekrar ısıtma ve sık hata bilgileri genel/tekrarlı metindir.
-- Mevsim, dondurma uygunluğu, verification state, alan bazlı provenance ve gerçek editorial source notları eksiktir.
-- Recipe-level gerçek medya yoktur; aynı placeholder görseli tekrar kullanılmaktadır.
+Faz 3A'nın 20 tariflik ara hedefi **SUPERSEDED BY COMPLETED FAZ 3** kabul edilir. 20 tarife geri dönmek veri kaybı yaratacağı için yapılmaz. 150 tariflik bir sonraki büyüme hedefi kontrollü içerik genişletme backlog'unda tutulur ve bu dokümantasyon kapanışında başlatılmaz.
 
 ## Editorial kayıt standardı
 

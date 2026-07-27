@@ -29,7 +29,7 @@ final class RecipeCompletenessService
             'provenance' => $this->check($recipe->provenances->contains(fn ($source): bool => $source->is_active && in_array($source->verification_status, ['researched', 'partially_verified', 'verified'], true)), 5, 'Aktif ve incelenmiş kaynak'),
             'editorial_review' => $this->check(in_array($recipe->verification_status, ['partially_verified', 'verified'], true) && $recipe->editorial_reviewed_at !== null, 10, 'Editoryal kontrol'),
         ];
-        $score = (int) collect($checks)->filter(fn (array $check): bool => $check['complete'])->sum('weight');
+        $score = min(100, (int) collect($checks)->filter(fn (array $check): bool => $check['complete'])->sum('weight'));
         $status = $score >= 95 && $checks['provenance']['complete'] && $checks['editorial_review']['complete'] ? 'publishable' : ($score >= 75 ? 'ready_for_review' : ($score >= 45 ? 'needs_review' : 'incomplete'));
 
         return ['score' => $score, 'status' => $status, 'checks' => $checks];
