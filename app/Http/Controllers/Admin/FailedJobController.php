@@ -77,6 +77,9 @@ final class FailedJobController extends Controller
     {
         $payload = json_decode((string) $job->payload, true);
         $job->job_class = is_array($payload) && is_string($payload['displayName'] ?? null) ? class_basename($payload['displayName']) : 'Bilinmeyen iş';
+        $command = is_array($payload) && is_array($payload['data'] ?? null) ? (string) ($payload['data']['command'] ?? '') : '';
+        $job->entity_public_id = preg_match('/recipePublicId";s:\\d+:"([0-9A-HJKMNP-TV-Z]{26})"/', $command, $matches) === 1 ? $matches[1] : null;
+        $job->attempts = is_array($payload) && is_int($payload['maxTries'] ?? null) ? $payload['maxTries'] : null;
         $job->safe_error_code = 'QUEUE_JOB_FAILED';
         $job->safe_error_summary = 'İş güvenli olarak başarısız kaydedildi. Ayrıntılar yönetim ekranında gösterilmez.';
         $job->retryable = true;

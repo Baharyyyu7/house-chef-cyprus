@@ -119,7 +119,7 @@ final class QueueSchedulerFoundationTest extends TestCase
     private function failedJob(): string
     {
         $uuid = (string) Str::uuid();
-        $job = new RecalculateRecipeNutritionJob(999999);
+        $job = new RecalculateRecipeNutritionJob((string) Str::ulid());
         $payload = json_encode([
             'uuid' => (string) Str::uuid(),
             'displayName' => $job::class,

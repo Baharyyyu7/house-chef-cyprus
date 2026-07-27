@@ -160,7 +160,7 @@ final class NutritionController extends Controller
     {
         $this->authorizeAdmin();
         $run = NutritionRecalculationRun::query()->create(['recipe_id' => $recipe->id, 'triggered_by' => auth()->id(), 'status' => 'pending']);
-        RecalculateRecipeNutritionJob::dispatch($recipe->id, $run->id);
+        RecalculateRecipeNutritionJob::dispatch($recipe->public_id, $run->id);
         $this->audit('nutrition.recalculation.queued', $recipe);
 
         return back()->with('status', 'Yeniden hesaplama sıraya alındı.');

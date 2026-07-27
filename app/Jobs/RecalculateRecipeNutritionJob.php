@@ -24,19 +24,19 @@ final class RecalculateRecipeNutritionJob implements ShouldBeUnique, ShouldQueue
 
     public array $backoff = [30, 120];
 
-    public function __construct(public readonly int $recipeId, public readonly ?int $runId = null)
+    public function __construct(public readonly string $recipePublicId, public readonly ?int $runId = null)
     {
         $this->onQueue('nutrition');
     }
 
     public function uniqueId(): string
     {
-        return (string) $this->recipeId;
+        return $this->recipePublicId;
     }
 
     public function handle(NutritionService $nutrition): void
     {
-        $recipe = Recipe::query()->findOrFail($this->recipeId);
+        $recipe = Recipe::query()->where('public_id', $this->recipePublicId)->firstOrFail();
         $run = $this->runId ? NutritionRecalculationRun::query()->find($this->runId) : null;
         $previous = $recipe->nutritionSnapshots()->whereNull('invalidated_at')->latest('calculated_at')->first();
         $run?->update(['status' => 'running', 'started_at' => now(), 'previous_confidence' => $previous?->confidence_score, 'previous_completeness' => $previous?->completeness_percentage]);
