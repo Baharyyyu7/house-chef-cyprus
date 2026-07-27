@@ -28,8 +28,8 @@ final class FoundationEQualityGateTest extends TestCase
         $this->seed(HouseChefSeeder::class);
 
         $this->assertSame($before, [User::count(), Recipe::count(), Ingredient::count()]);
-        $this->assertDatabaseCount('recipes', 12);
-        $this->assertDatabaseCount('ingredients', 20);
+        $this->assertDatabaseCount('recipes', 50);
+        $this->assertGreaterThanOrEqual(24, Ingredient::count());
     }
 
     public function test_clean_install_supporting_scripts_pass_shell_syntax_checks(): void

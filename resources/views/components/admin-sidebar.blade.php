@@ -2,6 +2,7 @@
     $items = [
         ['route' => 'admin.dashboard', 'label' => 'Genel Bakış', 'icon' => 'sparkles'],
         ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => 'menu'],
+        ['route' => 'admin.recipe-verification.index', 'label' => 'İçerik Doğrulama', 'icon' => 'check'],
         ['route' => 'admin.ingredients.index', 'label' => 'Malzemeler', 'icon' => 'search'],
         ['route' => 'admin.measurements.units', 'label' => 'Ölçü Birimleri', 'icon' => 'info'],
         ['route' => 'admin.measurements.conversions', 'label' => 'Dönüşümler', 'icon' => 'arrow-right'],

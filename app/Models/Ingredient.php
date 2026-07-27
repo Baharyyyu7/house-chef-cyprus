@@ -13,7 +13,7 @@ class Ingredient extends Model
 {
     use HasPublicId;
 
-    protected $fillable = ['name', 'canonical_name', 'slug', 'category', 'aliases', 'allergens', 'default_unit', 'default_unit_id', 'is_active', 'is_allergen', 'is_perishable', 'typical_shelf_life_days', 'storage_type', 'notes'];
+    protected $fillable = ['name', 'canonical_name', 'slug', 'category', 'aliases', 'allergens', 'default_unit', 'default_unit_id', 'is_active', 'is_allergen', 'is_perishable', 'typical_shelf_life_days', 'storage_type', 'notes', 'icon_key', 'icon_label', 'icon_status'];
 
     protected function casts(): array
     {

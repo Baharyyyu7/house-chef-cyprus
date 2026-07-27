@@ -19,7 +19,7 @@ final class HouseholdMeasurementTest extends TestCase
     {
         $this->seed();
         $this->assertDatabaseHas('units', ['code' => 'su_bardagi', 'supports_fractions' => true]);
-        $this->assertDatabaseCount('recipes', 12);
+        $this->assertDatabaseCount('recipes', 50);
         $this->assertDatabaseMissing('recipe_ingredients', ['display_measure_code' => null]);
         $this->assertDatabaseMissing('recipe_ingredients', ['canonical_quantity' => null]);
     }

@@ -14,11 +14,11 @@ class Media extends Model
 {
     use HasPublicId;
 
-    protected $fillable = ['kind', 'disk', 'path', 'embed_url', 'mime_type', 'size', 'sort_order', 'visibility', 'alt_text', 'width', 'height', 'processing_status', 'thumbnail_status', 'thumbnail_paths', 'processing_error_code', 'processing_error_message', 'processed_at'];
+    protected $fillable = ['kind', 'disk', 'path', 'embed_url', 'mime_type', 'size', 'sort_order', 'visibility', 'alt_text', 'width', 'height', 'processing_status', 'thumbnail_status', 'thumbnail_paths', 'processing_error_code', 'processing_error_message', 'processed_at', 'source_name', 'source_url', 'license', 'attribution', 'verification_status', 'confidence', 'reviewed_at', 'is_placeholder'];
 
     protected function casts(): array
     {
-        return ['thumbnail_paths' => 'array', 'processed_at' => 'datetime'];
+        return ['thumbnail_paths' => 'array', 'processed_at' => 'datetime', 'reviewed_at' => 'datetime', 'is_placeholder' => 'boolean'];
     }
 
     /** @return MorphTo<Model, $this> */

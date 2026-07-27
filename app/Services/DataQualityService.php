@@ -21,7 +21,7 @@ final class DataQualityService
     public function report(): array
     {
         $issues = [];
-        foreach (Recipe::withCount(['recipeIngredients', 'steps'])->with('media')->lazyById((int) config('performance.quality_scan_chunk_size')) as $recipe) {
+        foreach (Recipe::withCount(['recipeIngredients', 'steps', 'provenances'])->with('media')->lazyById((int) config('performance.quality_scan_chunk_size')) as $recipe) {
             if (! $recipe->title) {
                 $issues[] = $this->issue('missing_recipe_title', 'critical', $recipe, 'Tarif adı eksik.');
             }
@@ -51,6 +51,21 @@ final class DataQualityService
             }
             if ($recipe->content_origin === 'imported' && (! $recipe->source_name || ! $recipe->source_url)) {
                 $issues[] = $this->issue('missing_provenance', 'warning', $recipe, 'İçe aktarılan tarifin kaynak bilgisi eksik.');
+            }
+            if ($recipe->provenances_count === 0) {
+                $issues[] = $this->issue('missing_content_source', 'error', $recipe, 'Tarif için aktif içerik kaynağı bulunmuyor.');
+            }
+            if ($recipe->verification_status === 'needs_review') {
+                $issues[] = $this->issue('recipe_needs_editorial_review', 'warning', $recipe, 'Tarif editoryal doğrulama bekliyor.');
+            }
+            if ($recipe->status === 'published' && $recipe->verification_status !== 'verified') {
+                $issues[] = $this->issue('published_unverified_recipe', 'critical', $recipe, 'Yayındaki tarif doğrulanmış değil.');
+            }
+            if ($recipe->image_status === 'missing') {
+                $issues[] = $this->issue('missing_recipe_image_status', 'info', $recipe, 'Tarifin görsel durumu eksik.');
+            }
+            if ($recipe->image_status !== 'missing' && ! $recipe->image_license) {
+                $issues[] = $this->issue('missing_recipe_image_license', 'warning', $recipe, 'Tarif görselinin lisansı belirtilmemiş.');
             }
         }
 

@@ -17,6 +17,7 @@ use App\Models\Recipe;
 use App\Models\RecipeIngredientGroup;
 use App\Models\Unit;
 use App\Models\User;
+use App\Services\EditorialRecipeImporter;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -112,5 +113,7 @@ final class HouseChefSeeder extends Seeder
                 $recipe->steps()->updateOrCreate(['position' => $step['position']], $step);
             }
         }
+
+        app(EditorialRecipeImporter::class)->import();
     }
 }

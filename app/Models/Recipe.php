@@ -19,11 +19,11 @@ class Recipe extends Model
     use HasPublicId;
     use SoftDeletes;
 
-    protected $fillable = ['cuisine_id', 'category_id', 'data_source_id', 'external_id', 'content_origin', 'original_hash', 'first_imported_at', 'last_verified_at', 'title', 'slug', 'excerpt', 'description', 'country', 'region', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'dietary_tags', 'allergens', 'nutrition', 'storage_notes', 'source_name', 'source_url', 'reliability_score', 'status', 'is_featured'];
+    protected $fillable = ['cuisine_id', 'category_id', 'data_source_id', 'external_id', 'content_origin', 'original_hash', 'first_imported_at', 'last_verified_at', 'title', 'slug', 'excerpt', 'description', 'country', 'region', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'dietary_tags', 'allergens', 'nutrition', 'storage_notes', 'source_name', 'source_url', 'reliability_score', 'status', 'is_featured', 'verification_status', 'editorial_status', 'completeness_score', 'completeness_status', 'editorial_reviewed_at', 'editorial_reviewed_by_user_id', 'published_at', 'equipment', 'tips', 'common_mistakes', 'serving_suggestions', 'reheating_notes', 'freezing_notes', 'cultural_notes', 'seasonality', 'image_status', 'image_license', 'image_attribution', 'image_reviewed_at'];
 
     protected function casts(): array
     {
-        return ['dietary_tags' => 'array', 'allergens' => 'array', 'nutrition' => 'array', 'storage_notes' => 'array', 'is_featured' => 'boolean'];
+        return ['dietary_tags' => 'array', 'allergens' => 'array', 'nutrition' => 'array', 'storage_notes' => 'array', 'equipment' => 'array', 'tips' => 'array', 'common_mistakes' => 'array', 'seasonality' => 'array', 'is_featured' => 'boolean', 'editorial_reviewed_at' => 'datetime', 'published_at' => 'datetime', 'image_reviewed_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Cuisine, $this> */
@@ -89,6 +89,12 @@ class Recipe extends Model
     public function nutritionSnapshots(): HasMany
     {
         return $this->hasMany(RecipeNutritionSnapshot::class);
+    }
+
+    /** @return HasMany<RecipeProvenance, $this> */
+    public function provenances(): HasMany
+    {
+        return $this->hasMany(RecipeProvenance::class);
     }
 
     public function totalMinutes(): int
