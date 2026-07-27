@@ -53,7 +53,7 @@ class Recipe extends Model
     /** @return BelongsToMany<Ingredient, $this> */
     public function ingredients(): BelongsToMany
     {
-        return $this->belongsToMany(Ingredient::class, 'recipe_ingredients')->withPivot(['quantity', 'unit', 'grams', 'preparation', 'substitution', 'is_optional', 'sort_order'])->withTimestamps();
+        return $this->belongsToMany(Ingredient::class, 'recipe_ingredients')->withPivot(['quantity', 'display_quantity', 'unit', 'display_measure_code', 'display_note', 'grams', 'canonical_quantity', 'canonical_unit', 'ingredient_unit_conversion_id', 'conversion_confidence', 'conversion_method', 'preparation', 'preparation_note', 'substitution', 'is_optional', 'group_name', 'scaling_behavior', 'scaling_note', 'sort_order'])->withTimestamps();
     }
 
     /** @return MorphMany<Media, $this> */

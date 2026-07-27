@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\NutritionFact;
 use App\Models\Recipe;
+use App\Models\RecipeIngredient;
 use App\Models\RecipeNutritionSnapshot;
 use App\Services\Cache\CacheInvalidationService;
 use App\Services\Cache\CacheKeyFactory;
@@ -87,7 +88,7 @@ final class NutritionService
             if (! $includeOptional && $line->is_optional) {
                 continue;
             }
-            $amount = $this->metricAmount($line->quantity, $line->unit, $line->grams);
+            $amount = $this->metricAmount($line);
             if ($amount === null) {
                 $missing[] = ['public_id' => $line->ingredient->public_id, 'name' => $line->ingredient->name, 'reason' => 'Kesin ölçü birimi yok'];
 
@@ -127,8 +128,19 @@ final class NutritionService
     }
 
     /** @return array{0:string,1:string}|null */
-    private function metricAmount(mixed $quantity, ?string $unit, mixed $grams): ?array
+    private function metricAmount(RecipeIngredient $line): ?array
     {
+        $canonical = $line->canonical_quantity;
+        if ($canonical !== null && bccomp((string) $canonical, '0', self::SCALE) >= 0) {
+            return match ($line->canonical_unit) {
+                'g', 'gram' => [(string) $canonical, 'per_100g'],
+                'ml', 'mililitre' => [(string) $canonical, 'per_100ml'],
+                default => null,
+            };
+        }
+        $quantity = $line->quantity;
+        $unit = $line->unit;
+        $grams = $line->grams;
         if ($grams !== null && bccomp((string) $grams, '0', self::SCALE) >= 0) {
             return [(string) $grams, 'per_100g'];
         }

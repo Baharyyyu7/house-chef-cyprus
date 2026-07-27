@@ -40,6 +40,6 @@ final class RecipeController extends Controller
     {
         abort_unless($recipe->status === 'published', 404);
 
-        return (new RecipeResource($recipe->load(['cuisine', 'category', 'ingredients'])))->additional(['request_id' => (string) request()->attributes->get('request_id')]);
+        return (new RecipeResource($recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient'])))->additional(['request_id' => (string) request()->attributes->get('request_id')]);
     }
 }

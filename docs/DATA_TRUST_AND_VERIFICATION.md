@@ -23,4 +23,7 @@ Kaynaklı alanlar için: `source`, `source_url`, `source_type`, `collected_at`, 
 ## Genişletilecek kalite kontrolleri
 
 Kaynağı/görsel lisansı/household canonical değeri olmayan kayıtlar, duplicate/tekrarlı açıklama, eksik adım-süre-porsiyon, stale verification, çelişkili besin-alerjen sonucu, broken source URL ve belirsiz mutfak/ikon eşlemesi taranacaktır. İlk uygulama, admin doğrulama kuyruğu ve bulk review ile birlikte gelir; bu belgede henüz migration veya ekran yoktur.
+# Household conversion provenance
+
+Household conversion records require a source type and source name. Demo seed conversions are marked `seed_demo` with low confidence; they are estimates, not verified facts.
 

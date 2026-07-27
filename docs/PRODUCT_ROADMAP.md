@@ -16,3 +16,6 @@
 10. Production ve mobil hazırlık.
 
 Production öncesi zorunlu işler Foundation kapanış belgesinde listelenir. Redis, S3/R2, Meilisearch/Typesense, OpenTelemetry, geo analytics, çoklu dil ve admin polish planlı teknik backlog’dadır; Final Product Core Audit için zorunlu değildir. Matching ekranında nutrition/dietary/allergen filtrelerinin seçili malzeme sonucu ile tek formda birleşmesi, Premium UX öncesi ürün polish backlog'undadır.
+# Master Redesign Phase 2
+
+Household measurement and ingredient-specific conversion infrastructure is active. Content expansion remains blocked until measurement QA is complete.

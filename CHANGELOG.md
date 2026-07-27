@@ -39,3 +39,7 @@
 ## Foundation A–D
 
 - Recipe/Nutrition/Data Quality, cache/queue/scheduler/performance, security/media ve observability/backup/restore altyapıları tamamlandı.
+# Unreleased
+
+- Added Turkish household measurement taxonomy, ingredient-specific conversion records, canonical/display recipe ingredient fields and measurement administration routes.
+- Seeded the 12 demo recipes with household presentation values and explicitly low-confidence demo conversions.

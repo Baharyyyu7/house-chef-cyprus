@@ -45,3 +45,6 @@ Tarif görseli `missing/placeholder/generated/licensed/original/verified/rejecte
 ## Başarı ölçütü
 
 Tarif sayısı tek başına kalite ölçütü değildir. Her tarifin completeness, confidence, source ve UI anlaşılabilirliği doğrulanır; eksik bilgi varsa güvenli biçimde görünür kılınır.
+# Measurement prerequisite
+
+New editorial recipes must carry household display quantities, canonical calculation values, conversion confidence and source/provenance before publication.

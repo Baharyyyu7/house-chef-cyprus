@@ -58,3 +58,6 @@ Her ingredient-specific dönüşümün kaynak adı/URL'si, confidence, `verified
 ## Kapanış kriteri
 
 Faz 2, tüm household kodları seed edilip görünür olduğunda değil; herhangi bir belirsiz household dönüşümü yanlış gram üretmeden, kaynak/confidence ile doğru yönetildiğinde kapanır.
+# Household measurement implementation (Phase 2)
+
+Recipe ingredients retain legacy `quantity`, `unit` and `grams`, while `display_*` serves Turkish household presentation and `canonical_*` serves calculation. Conversion is ingredient-specific and provenance-aware.

@@ -46,3 +46,6 @@ Her chart bileşeni: 24 saat/7 gün/30 gün/90 gün seçici, loading skeleton, a
 ## Kapanış kriteri
 
 Grafik yalnız metric kaynağı gerçek, aggregate/cached, erişilebilir ve empty durumda dürüst olduğunda yayına alınır.
+# Measurement operations
+
+Measurement administration provides an intentionally small units browser and sourced ingredient conversion management. Dashboard chart work remains out of scope.

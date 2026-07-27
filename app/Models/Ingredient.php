@@ -26,6 +26,12 @@ class Ingredient extends Model
         return $this->hasMany(RecipeIngredient::class);
     }
 
+    /** @return HasMany<IngredientUnitConversion, $this> */
+    public function unitConversions(): HasMany
+    {
+        return $this->hasMany(IngredientUnitConversion::class);
+    }
+
     /** @return HasMany<IngredientAlias, $this> */
     public function aliases(): HasMany
     {

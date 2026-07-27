@@ -8,6 +8,7 @@ use App\Models\DataQualityIssue;
 use App\Models\Ingredient;
 use App\Models\IngredientAlias;
 use App\Models\IngredientSubstitution;
+use App\Models\IngredientUnitConversion;
 use App\Models\NutritionFact;
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
@@ -68,6 +69,29 @@ final class DataQualityService
         }
         foreach (RecipeIngredient::query()->where(fn ($query) => $query->where('quantity', '<', 0)->orWhere('grams', '<', 0))->get() as $item) {
             $issues[] = $this->genericIssue('negative_recipe_ingredient_quantity', 'error', RecipeIngredient::class, (string) $item->id, 'Tarif malzemesinde negatif miktar var.');
+        }
+        foreach (RecipeIngredient::query()->with('recipe')->get() as $item) {
+            $entity = $item->recipe?->public_id;
+            if ($item->display_quantity === null || ! $item->display_measure_code) {
+                $issues[] = $this->genericIssue('missing_household_measurement', 'warning', RecipeIngredient::class, $entity, 'Tarif malzemesinde kullanıcıya gösterilecek ev ölçüsü eksik.');
+            }
+            if ($item->canonical_quantity === null || ! $item->canonical_unit) {
+                $issues[] = $this->genericIssue('missing_canonical_measurement', 'warning', RecipeIngredient::class, $entity, 'Tarif malzemesinde canonical miktar eksik.');
+            }
+            if ($item->display_quantity !== null && (float) $item->display_quantity <= 0) {
+                $issues[] = $this->genericIssue('invalid_household_quantity', 'error', RecipeIngredient::class, $entity, 'Tarif malzemesindeki ev ölçüsü sıfır veya negatif.');
+            }
+            if (in_array($item->conversion_confidence, ['low', 'unknown'], true)) {
+                $issues[] = $this->genericIssue('low_confidence_conversion', 'info', RecipeIngredient::class, $entity, 'Tarif malzemesi düşük güvenli veya doğrulanmamış dönüşüm kullanıyor.');
+            }
+        }
+        foreach (IngredientUnitConversion::query()->get() as $conversion) {
+            if (! $conversion->source_name) {
+                $issues[] = $this->genericIssue('missing_conversion_source', 'warning', IngredientUnitConversion::class, $conversion->public_id, 'Malzeme dönüşümünün kaynak bilgisi eksik.');
+            }
+            if ($conversion->canonical_quantity <= 0 || $conversion->household_quantity <= 0) {
+                $issues[] = $this->genericIssue('invalid_conversion_quantity', 'error', IngredientUnitConversion::class, $conversion->public_id, 'Malzeme dönüşümünde geçersiz miktar var.');
+            }
         }
         foreach (NutritionFact::query()->where('value', '<', 0)->get() as $fact) {
             $issues[] = $this->genericIssue('negative_nutrition_value', 'error', NutritionFact::class, (string) $fact->id, 'Besin değerinde negatif değer var.');

@@ -3,6 +3,8 @@
         ['route' => 'admin.dashboard', 'label' => 'Genel Bakış', 'icon' => 'sparkles'],
         ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => 'menu'],
         ['route' => 'admin.ingredients.index', 'label' => 'Malzemeler', 'icon' => 'search'],
+        ['route' => 'admin.measurements.units', 'label' => 'Ölçü Birimleri', 'icon' => 'info'],
+        ['route' => 'admin.measurements.conversions', 'label' => 'Dönüşümler', 'icon' => 'arrow-right'],
         ['route' => 'admin.nutrition.index', 'label' => 'Beslenme', 'icon' => 'info'],
         ['route' => 'admin.media.index', 'label' => 'Medya', 'icon' => 'image'],
         ['route' => 'admin.data-quality.index', 'label' => 'Veri Kalitesi', 'icon' => 'check'],

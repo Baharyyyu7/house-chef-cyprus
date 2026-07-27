@@ -11,6 +11,7 @@ use App\Models\Recipe;
 use App\Services\AllergenAnalysisService;
 use App\Services\DietaryCompatibilityService;
 use App\Services\IngredientMatchingService;
+use App\Services\Measurements\RecipeIngredientDisplayService;
 use App\Services\NutritionService;
 use Illuminate\Http\Request;
 
@@ -21,10 +22,10 @@ final class RecipeController extends Controller
         return view('recipes.index', ['recipes' => $search->search($request->only(['q', 'cuisine', 'diet', 'max_minutes'])), 'cuisines' => Cuisine::orderBy('name')->get()]);
     }
 
-    public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary)
+    public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay)
     {
         abort_unless($recipe->status === 'published' || $request->user()?->isAdmin(), 404);
-        $recipe->load(['cuisine', 'category', 'ingredients', 'steps', 'media']);
+        $recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient', 'steps', 'media']);
         $servings = max(1, (int) $request->integer('servings', $recipe->servings));
 
         $nutritionResult = $nutrition->snapshot($recipe, $servings);
@@ -37,6 +38,7 @@ final class RecipeController extends Controller
             'dietaryCompatibility' => $dietary->assess($recipe, $servings),
             'match' => $request->user() ? $matching->match($recipe, $request->user()) : null,
             'isFavorited' => $request->user()?->favoriteRecipes()->whereKey($recipe->id)->exists() ?? false,
+            'ingredientLines' => $ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings),
         ]);
     }
 

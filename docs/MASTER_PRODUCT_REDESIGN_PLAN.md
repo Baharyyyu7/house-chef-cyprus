@@ -93,3 +93,6 @@ V3 için tek kaynaklı token, motion, form, table ve icon sözleşmesi kurmak; h
 ## Çıkış kriterleri
 
 Her faz yalnız kendi test/QA/CI kapısından sonra kapanır. Ölçü dönüşümü, recipe content, görsel asset ve admin analytics işleri birbirinin yerine tamamlanmış sayılmaz. Production, mobil, AI ve SEO programın dış bağımlılıkları olarak tutulur.
+# Phase 2 status
+
+The V3 redesign now has a measurement-aware recipe data foundation. Household display and canonical nutrition-safe quantities are additive and do not redesign the remaining public screens.
