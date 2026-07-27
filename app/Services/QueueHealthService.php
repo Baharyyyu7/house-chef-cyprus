@@ -19,7 +19,7 @@ final class QueueHealthService
         $reserved = DB::table('jobs')->whereNotNull('reserved_at')->count();
         $stuck = DB::table('jobs')->where('reserved_at', '>', 0)->where('reserved_at', '<', $threshold)->count();
         $heartbeat = Cache::get('queue.worker_heartbeat');
-        $workerStatus = $heartbeat && now()->diffInSeconds(Carbon::parse($heartbeat)) <= (int) config('queue.health.heartbeat_stale_after_seconds', 120) ? 'healthy' : 'unavailable';
+        $workerStatus = $heartbeat && abs(now()->diffInSeconds(Carbon::parse($heartbeat))) <= (int) config('queue.health.heartbeat_stale_after_seconds', 120) ? 'healthy' : 'unavailable';
 
         return [
             'connection' => $connection,

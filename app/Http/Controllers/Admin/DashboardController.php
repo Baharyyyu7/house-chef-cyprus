@@ -8,12 +8,14 @@ use App\Http\Controllers\Controller;
 use App\Models\DataSource;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Services\QueueHealthService;
+use App\Services\SchedulerHealthService;
 use Illuminate\View\View;
 
 final class DashboardController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(QueueHealthService $queue, SchedulerHealthService $scheduler): View
     {
-        return view('admin.dashboard', ['recipeCount' => Recipe::count(), 'userCount' => User::count(), 'sourceCount' => DataSource::count()]);
+        return view('admin.dashboard', ['recipeCount' => Recipe::count(), 'userCount' => User::count(), 'sourceCount' => DataSource::count(), 'queueHealth' => $queue->snapshot(), 'schedulerHealth' => $scheduler->snapshot()]);
     }
 }

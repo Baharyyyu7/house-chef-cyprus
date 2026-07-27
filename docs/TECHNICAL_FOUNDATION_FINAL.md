@@ -19,6 +19,13 @@ Technical Foundation A kontrollü olarak kapatılmıştır.
 QA aşamasına taşınmıştır. Kapsam ve güvenlik koşulları
 `docs/ERROR_PAGE_QA_BACKLOG.md` içinde tanımlıdır.
 
-## Sonraki faz
+## Technical Foundation B — Queue/Scheduler alt fazı
 
-Sıradaki faz Technical Foundation B — Cache, Queue ve Scheduler'dır.
+- Merkezî queue health özeti, worker heartbeat, stuck iş eşiği ve JSON komutu
+  eklendi.
+- Nutrition recalculation işi timeout, controlled backoff ve unique lock ile
+  `nutrition` kuyruğuna bağlandı.
+- Günlük Data Quality ve lookup cache warmup görevleri isimli ve overlap
+  korumalı scheduler heartbeat yaşam döngüsüne bağlandı.
+- Yönetici Failed Jobs ekranı, güvenli detay, retry/toplu retry/forget ve audit
+  kaydı ile eklendi.

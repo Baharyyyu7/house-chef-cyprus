@@ -1,5 +1,14 @@
 # Changelog
 
+## Technical Foundation B — Queue/Scheduler
+
+- Queue health komutu, worker heartbeat, stuck/repeated failure görünürlüğü ve
+  makine okunabilir JSON çıktısı eklendi.
+- Scheduler görevleri heartbeat yaşam döngüsü ve overlap koruması ile kayda
+  alındı.
+- Yönetici Failed Jobs ekranı; güvenli detay, retry/toplu retry/forget ve audit
+  kaydıyla tamamlandı.
+
 ## Technical Foundation A — Kontrollü Kapanış
 
 - Nutrition 3B filtre sözleşmesi, Data Quality Engine ve yönetim akışları tamamlandı.

@@ -20,13 +20,14 @@ final class RecalculateRecipeNutritionJob implements ShouldBeUnique, ShouldQueue
 
     public int $timeout = 120;
 
-    public string $queue = 'nutrition';
-
     public int $uniqueFor = 300;
 
     public array $backoff = [30, 120];
 
-    public function __construct(public readonly int $recipeId, public readonly ?int $runId = null) {}
+    public function __construct(public readonly int $recipeId, public readonly ?int $runId = null)
+    {
+        $this->onQueue('nutrition');
+    }
 
     public function uniqueId(): string
     {

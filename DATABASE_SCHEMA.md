@@ -27,3 +27,11 @@ indexlerle kullanıcı/tarif oturumunu güvenli biçimde bağlar.
 - `ingredient_substitutions`: Yönlü alternatif, ratio, güven ve doğrulama bilgisi.
 - `recipe_ingredients`: Zorunluluk, grup, hazırlık notu ve substitution uygunluğu.
 - `pantry_items`: Birim, saklama yeri, açılma tarihi, not ve kullanılabilirlik.
+# Queue operasyon tabloları
+
+- `jobs`: database queue için bekleyen/reserved işler; queue adı, güvenli
+  framework payload'ı, deneme ve reservation zamanlarını taşır.
+- `failed_jobs`: Laravel'in başarısız iş kaydıdır. Yönetim arayüzü raw `payload`
+  ve `exception` alanlarını göstermez; yalnızca güvenli türetilmiş özet kullanır.
+- `audit_logs`: failed job retry ve forget aksiyonları dahil yönetim aksiyonlarının
+  iz kaydını tutar.
