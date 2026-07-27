@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -112,5 +113,32 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertDontSee('Profile Information')
             ->assertDontSee('Update Password')
             ->assertDontSee('Delete Account');
+    }
+
+    public function test_recipe_archive_uses_the_v3_verified_catalogue_card_and_filter_contract(): void
+    {
+        $this->seed();
+
+        $this->get(route('recipes.index'))
+            ->assertOk()
+            ->assertSee('Doğrulanmış tarif koleksiyonu')
+            ->assertSee('Tarifleri keşfedin.')
+            ->assertSee('hc-recipe-archive', false)
+            ->assertSee('hc-v3-card--interactive', false)
+            ->assertSee('Türkçe editoryal içerik');
+    }
+
+    public function test_recipe_detail_uses_recipe_media_household_measurements_and_visible_trust_information(): void
+    {
+        $this->seed();
+        $recipe = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->firstOrFail();
+
+        $this->get(route('recipes.show', $recipe))
+            ->assertOk()
+            ->assertSee('hc-recipe-detail-hero', false)
+            ->assertSee('Ev ölçüleri')
+            ->assertSee('Kaynak ve güncellik')
+            ->assertSee('AI Şef')
+            ->assertSee('fetchpriority="high"', false);
     }
 }

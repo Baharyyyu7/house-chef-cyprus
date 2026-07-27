@@ -36,24 +36,62 @@
 
     <section class="hc-container pb-8"><div class="overflow-hidden rounded-[2rem] bg-orange-500 px-7 py-10 text-white sm:px-10 sm:py-14"><p class="text-sm font-extrabold uppercase tracking-[.18em] text-orange-100">Mutfağınız için daha akıllı bir başlangıç</p><div class="mt-4 flex flex-col justify-between gap-6 md:flex-row md:items-end"><h2 class="max-w-2xl text-4xl font-extrabold tracking-[-.05em] sm:text-5xl">Tarifleri saklamak değil, gerçekten pişirmek için keşfedin.</h2><a class="hc-btn shrink-0 bg-white px-6 text-charcoal-900 hover:bg-orange-50" href="{{ route('recipes.index') }}">Tarifleri keşfet</a></div></div></section>
 @else
-    <section class="hc-container hc-page">
-        <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="hc-kicker">Tarif arşivi</p><h1 class="hc-title mt-2">Tarifleri keşfedin</h1><p class="hc-subtitle">İçeriğe, mutfağa ve pişirme süresine göre mutfağınıza uygun lezzetleri bulun.</p></div><a href="{{ route('ingredients.explore') }}" class="hc-btn hc-btn-outline">Malzemelerimle eşleştir</a></div>
+    <section class="hc-container hc-page hc-recipe-archive">
+        <div class="grid gap-6 border-b pb-8 sm:grid-cols-[1fr_auto] sm:items-end" style="border-color: var(--hc-line)">
+            <div class="max-w-3xl">
+                <p class="hc-kicker">Doğrulanmış tarif koleksiyonu</p>
+                <h1 class="hc-display-lg mt-3">Tarifleri keşfedin.</h1>
+                <p class="hc-body-lg mt-4" style="color: var(--hc-text-secondary)">Kıbrıs ve Akdeniz mutfağından, ölçüleri ve editoryal bilgileri görünür 50 özgün tarif.</p>
+            </div>
+            <a href="{{ route('ingredients.explore') }}" class="hc-v3-btn hc-v3-btn--outline">Malzemelerimle eşleştir <span aria-hidden="true">→</span></a>
+        </div>
 
-        <form class="hc-panel mt-8 grid gap-3 lg:grid-cols-[minmax(0,1fr)_12rem_12rem_auto]" action="{{ route('recipes.index') }}" aria-label="Tarif filtreleri">
-            <div><label class="sr-only" for="recipe-search">Tarif, malzeme veya mutfak ara</label><input id="recipe-search" class="w-full" name="q" value="{{ request('q') }}" placeholder="Tarif, malzeme veya mutfak ara"></div>
-            <div><label class="sr-only" for="cuisine">Mutfak seçin</label><select id="cuisine" class="w-full" name="cuisine"><option value="">Tüm mutfaklar</option>@foreach($cuisines as $cuisine)<option value="{{ $cuisine->slug }}" @selected(request('cuisine') === $cuisine->slug)>{{ $cuisine->name }}</option>@endforeach</select></div>
-            <div><label class="sr-only" for="max_minutes">Pişirme süresi</label><select id="max_minutes" class="w-full" name="max_minutes"><option value="">Her süre</option><option value="20" @selected(request('max_minutes') === '20')>20 dk altında</option><option value="40" @selected(request('max_minutes') === '40')>40 dk altında</option><option value="60" @selected(request('max_minutes') === '60')>60 dk altında</option></select></div>
-            <button class="hc-btn hc-btn-primary" type="submit">Uygula</button>
+        <form class="hc-v3-card mt-7 grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_12rem_12rem_auto]" action="{{ route('recipes.index') }}" aria-label="Tarif filtreleri">
+            <div>
+                <label class="hc-v3-field-label" for="recipe-search">Tarif ara</label>
+                <input id="recipe-search" class="hc-v3-input" name="q" value="{{ request('q') }}" placeholder="Tarif, malzeme veya mutfak ara">
+            </div>
+            <div>
+                <label class="hc-v3-field-label" for="cuisine">Mutfak</label>
+                <select id="cuisine" class="hc-v3-input" name="cuisine"><option value="">Tüm mutfaklar</option>@foreach($cuisines as $cuisine)<option value="{{ $cuisine->slug }}" @selected(request('cuisine') === $cuisine->slug)>{{ $cuisine->name }}</option>@endforeach</select>
+            </div>
+            <div>
+                <label class="hc-v3-field-label" for="max_minutes">En fazla süre</label>
+                <select id="max_minutes" class="hc-v3-input" name="max_minutes"><option value="">Her süre</option><option value="20" @selected(request('max_minutes') === '20')>20 dk altında</option><option value="40" @selected(request('max_minutes') === '40')>40 dk altında</option><option value="60" @selected(request('max_minutes') === '60')>60 dk altında</option></select>
+            </div>
+            <button class="hc-v3-btn hc-v3-btn--primary self-end" type="submit">Tarifleri göster</button>
         </form>
-        @if(request()->filled('q') || request()->filled('cuisine') || request()->filled('max_minutes'))<div class="mt-4 flex items-center gap-3"><span class="text-sm text-warm dark:text-stone-300">Etkin filtreler uygulandı.</span><a class="text-sm font-bold text-orange-700 hover:text-orange-600 dark:text-orange-300" href="{{ route('recipes.index') }}">Temizle</a></div>@endif
 
-        <div class="mt-9 flex items-baseline justify-between"><p class="text-sm text-warm dark:text-stone-300"><strong class="text-charcoal-900 dark:text-stone-50">{{ $recipes->total() }}</strong> tarif bulundu</p><span class="hc-badge">Türkçe içerik</span></div>
-        <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">@forelse($recipes as $recipe)
-            <article class="hc-card-hover group flex min-h-[22rem] flex-col overflow-hidden p-0"><div class="relative h-40 overflow-hidden bg-[linear-gradient(145deg,#171717,#62564f_54%,#f97316)]">@php($media = $recipe->media->first())<img class="h-full w-full object-cover" src="{{ asset($media?->path ?: 'images/house-chef-hero-v2.png') }}" alt="{{ $media?->alt_text ?: $recipe->title.' için temsili yemek görseli' }}"><div class="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent"></div><span class="absolute left-4 top-4 hc-badge border-white/20 bg-white/90">{{ $recipe->cuisine?->name ?? 'Ev mutfağı' }}</span><span class="absolute bottom-3 right-3 rounded-full bg-charcoal-950/80 px-2.5 py-1 text-xs font-bold text-white">{{ $recipe->totalMinutes() }} dk</span></div><div class="flex flex-1 flex-col p-5"><div class="flex items-center justify-between text-xs font-semibold text-warm dark:text-stone-300"><span>{{ $recipe->category?->name ?? 'Tarif' }}</span><span class="capitalize">{{ $recipe->difficulty }}</span></div><h2 class="mt-2 font-display text-2xl font-semibold leading-tight text-charcoal-900 dark:text-stone-50">{{ $recipe->title }}</h2><p class="mt-3 line-clamp-2 text-sm leading-6 text-warm dark:text-stone-300">{{ $recipe->excerpt }}</p><div class="mt-auto pt-5"><a class="inline-flex items-center gap-2 text-sm font-bold text-orange-700 hover:text-orange-600 dark:text-orange-300" href="{{ route('recipes.show', $recipe) }}">Tarifi incele <span aria-hidden="true">→</span></a></div></div></article>
-        @empty
-            <div class="hc-empty col-span-full"><p class="font-display text-2xl font-semibold text-charcoal-900 dark:text-stone-50">Bu ölçütlere uygun tarif yok.</p><p class="mt-2 dark:text-stone-300">Arama ifadenizi veya filtreleri değiştirip tekrar deneyin.</p><a class="hc-btn hc-btn-outline mt-5" href="{{ route('recipes.index') }}">Tüm tarifleri göster</a></div>
-        @endforelse</div>
-        <div class="mt-9">{{ $recipes->withQueryString()->links() }}</div>
+        @if(request()->filled('q') || request()->filled('cuisine') || request()->filled('max_minutes'))
+            <div class="mt-4 flex flex-wrap items-center gap-3" aria-live="polite"><span class="hc-v3-badge hc-v3-badge--accent">Filtreler uygulandı</span><a class="text-sm font-extrabold" style="color: var(--hc-text-accent)" href="{{ route('recipes.index') }}">Filtreleri temizle</a></div>
+        @endif
+
+        <div class="mt-10 flex flex-wrap items-center justify-between gap-3">
+            <p class="hc-body-sm" style="color: var(--hc-text-secondary)"><strong style="color: var(--hc-text-primary)">{{ $recipes->total() }}</strong> doğrulanmış tarif bulundu</p>
+            <span class="hc-v3-badge hc-v3-badge--success"><span aria-hidden="true">●</span> Türkçe editoryal içerik</span>
+        </div>
+        <div class="hc-v3-stagger mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            @forelse($recipes as $recipe)
+                @php($media = $recipe->media->first())
+                <article class="hc-v3-card hc-v3-card--interactive group flex min-h-[27rem] flex-col overflow-hidden">
+                    <a class="relative block aspect-[1.16] overflow-hidden bg-[linear-gradient(145deg,#1a3125,#644323_55%,#d4a24c)]" href="{{ route('recipes.show', $recipe) }}" aria-label="{{ $recipe->title }} tarifini incele">
+                        <img class="h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none" src="{{ asset($media?->path ?: 'placeholders/1/recipe.svg') }}" alt="{{ $media?->alt_text ?: $recipe->title.' için temsili tarif görseli' }}" loading="lazy">
+                        <span class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent"></span>
+                        <span class="absolute left-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">{{ $recipe->cuisine?->name ?? 'Ev mutfağı' }}</span>
+                        <span class="absolute bottom-3 left-3 text-xs font-extrabold text-white">{{ $recipe->totalMinutes() }} dk · {{ $recipe->servings }} porsiyon</span>
+                    </a>
+                    <div class="flex flex-1 flex-col p-5">
+                        <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color: var(--hc-text-muted)"><span>{{ $recipe->category?->name ?? 'Tarif' }}</span><span class="capitalize">{{ $recipe->difficulty }}</span></div>
+                        <h2 class="mt-3 hc-heading-3 line-clamp-2">{{ $recipe->title }}</h2>
+                        <p class="hc-body-sm mt-3 line-clamp-3" style="color: var(--hc-text-secondary)">{{ $recipe->excerpt }}</p>
+                        <div class="mt-auto flex items-center justify-between gap-3 pt-5"><span class="hc-v3-badge">Doğrulandı</span><a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" href="{{ route('recipes.show', $recipe) }}">İncele <span aria-hidden="true">→</span></a></div>
+                    </div>
+                </article>
+            @empty
+                <div class="hc-v3-empty col-span-full"><p class="hc-heading-3">Bu ölçütlere uygun tarif yok.</p><p class="hc-body-sm mt-2">Arama ifadenizi veya filtreleri değiştirip tekrar deneyin.</p><a class="hc-v3-btn hc-v3-btn--outline mt-5" href="{{ route('recipes.index') }}">Tüm tarifleri göster</a></div>
+            @endforelse
+        </div>
+        <div class="mt-10">{{ $recipes->withQueryString()->links() }}</div>
     </section>
 @endif
 </x-layouts.site>
