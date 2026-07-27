@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\NutritionController as AdminNutritionController;
 use App\Http\Controllers\Admin\RecipeController as AdminRecipeController;
 use App\Http\Controllers\Admin\RecipeStepController as AdminRecipeStepController;
+use App\Http\Controllers\Admin\RestoreHistoryController;
 use App\Http\Controllers\Admin\SystemEventController;
 use App\Http\Controllers\CookingSessionController;
 use App\Http\Controllers\FavoriteController;
@@ -59,6 +60,8 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('yedekler/temizle', [BackupController::class, 'cleanup'])->name('backups.cleanup');
     Route::post('yedekler/{id}/verify', [BackupController::class, 'verify'])->name('backups.verify');
     Route::get('yedekler/{id}/indir', [BackupController::class, 'download'])->name('backups.download');
+    Route::get('restore-gecmisi', [RestoreHistoryController::class, 'index'])->name('restore-history.index');
+    Route::get('restore-gecmisi/{restoreHistory}', [RestoreHistoryController::class, 'show'])->name('restore-history.show');
     Route::get('basarisiz-isler/{uuid}', [FailedJobController::class, 'show'])->name('failed-jobs.show');
     Route::post('basarisiz-isler/{uuid}/retry', [FailedJobController::class, 'retry'])->name('failed-jobs.retry');
     Route::post('basarisiz-isler/toplu-yeniden-dene', [FailedJobController::class, 'retryMany'])->name('failed-jobs.retry-many');
