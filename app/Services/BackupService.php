@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\AuditLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -79,5 +80,24 @@ final class BackupService
     public function list(): array
     {
         return collect(Storage::disk('local')->directories('backups'))->map(fn (string $path) => json_decode((string) Storage::disk('local')->get($path.'/manifest.json'), true))->filter(fn (mixed $manifest): bool => is_array($manifest))->sortByDesc('created_at')->values()->all();
+    }
+
+    /** @return array{dry_run:bool,candidates:int,deleted:int,ids:array<int,string>} */
+    public function cleanup(bool $delete = false): array
+    {
+        $backups = collect($this->list())->sortByDesc('created_at')->values();
+        $minimum = max(1, (int) config('observability.backup_minimum_keep'));
+        $threshold = now()->subDays((int) config('observability.backup_retention_days'))->toIso8601String();
+        $verified = $backups->firstWhere('status', 'verified');
+        $ids = $backups->filter(fn (array $item, int $index): bool => $index >= $minimum && ($item['created_at'] ?? '') < $threshold && ($item['backup_id'] ?? null) !== ($verified['backup_id'] ?? null))->pluck('backup_id')->filter(fn (mixed $id): bool => is_string($id) && preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/', $id) === 1)->values()->all();
+        $deleted = 0;
+        if ($delete) {
+            foreach ($ids as $id) {
+                Storage::disk('local')->deleteDirectory('backups/'.$id);
+                $deleted++;
+            } AuditLog::create(['action' => 'backup.cleanup', 'metadata' => ['deleted' => $deleted]]);
+        }
+
+        return ['dry_run' => ! $delete, 'candidates' => count($ids), 'deleted' => $deleted, 'ids' => $ids];
     }
 }
