@@ -18,7 +18,7 @@ final class DataQualityService
     public function report(): array
     {
         $issues = [];
-        foreach (Recipe::withCount(['recipeIngredients', 'steps'])->with('media')->get() as $recipe) {
+        foreach (Recipe::withCount(['recipeIngredients', 'steps'])->with('media')->lazyById((int) config('performance.quality_scan_chunk_size')) as $recipe) {
             if (! $recipe->title) {
                 $issues[] = $this->issue('missing_recipe_title', 'critical', $recipe, 'Tarif adı eksik.');
             }
@@ -51,7 +51,7 @@ final class DataQualityService
             }
         }
 
-        foreach (Ingredient::query()->get() as $ingredient) {
+        foreach (Ingredient::query()->lazyById((int) config('performance.quality_scan_chunk_size')) as $ingredient) {
             if (! $ingredient->public_id) {
                 $issues[] = $this->modelIssue('missing_ingredient_public_id', 'critical', $ingredient, 'Malzeme public ID eksik.');
             }

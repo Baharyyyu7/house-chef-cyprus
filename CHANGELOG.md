@@ -1,5 +1,13 @@
 # Changelog
 
+## Technical Foundation B — Database Performance
+
+- Sorgu kalıpları için hedefli, taşınabilir indeksler ve merkezî pagination
+  yapılandırması eklendi.
+- Arama/nutrition/allergen katmanlarında eager-loaded ilişkilerin tekrar
+  sorgulanması azaltıldı.
+- `performance:profile` komutu ile yerel sorgu/süre baseline ölçümü eklendi.
+
 ## Technical Foundation B — Queue/Scheduler
 
 - Queue health komutu, worker heartbeat, stuck/repeated failure görünürlüğü ve

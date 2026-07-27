@@ -18,7 +18,16 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
 
     public function search(array $filters): LengthAwarePaginator
     {
-        $query = Recipe::query()->with(['cuisine', 'category', 'media', 'recipeIngredients.ingredient.nutritionFacts.nutrient'])
+        $query = Recipe::query()
+            ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'is_featured', 'created_at'])
+            ->with([
+                'cuisine:id,public_id,name,slug',
+                'category:id,public_id,name,slug',
+                'dietaryTags:id,code',
+                'allergenOverrideRecords.allergen:id,public_id,name',
+                'recipeIngredients.ingredient.nutritionFacts.nutrient',
+                'recipeIngredients.ingredient.allergenDetails.allergen:id,public_id,name',
+            ])
             ->where('status', 'published')
             ->when($filters['q'] ?? null, fn ($query, string $term) => $query->where(fn ($nested) => $nested->where('title', 'like', "%{$term}%")->orWhereHas('ingredients', fn ($ingredients) => $ingredients->where('name', 'like', "%{$term}%"))))
             ->when($filters['cuisine'] ?? null, fn ($query, string $slug) => $query->whereHas('cuisine', fn ($cuisines) => $cuisines->where('slug', $slug)))
@@ -65,7 +74,7 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
 
             return true;
         })->values();
-        $perPage = min(50, max(1, (int) ($filters['per_page'] ?? 12)));
+        $perPage = min((int) config('performance.pagination.api_max'), max(1, (int) ($filters['per_page'] ?? config('performance.pagination.public'))));
         $page = max(1, (int) ($filters['page'] ?? 1));
 
         return new Paginator($recipes->forPage($page, $perPage)->values(), $recipes->count(), $perPage, $page, ['path' => request()->url(), 'query' => request()->query()]);

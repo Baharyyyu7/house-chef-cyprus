@@ -15,7 +15,7 @@ final class DietaryCompatibilityService
     {
         $nutrition = $this->nutrition->calculate($recipe, $servings);
         $allergens = $this->allergens->analyse($recipe);
-        $codes = $recipe->dietaryTags()->pluck('code')->all();
+        $codes = $recipe->relationLoaded('dietaryTags') ? $recipe->dietaryTags->pluck('code')->all() : $recipe->dietaryTags()->pluck('code')->all();
         $protein = (string) data_get($nutrition, 'nutrients.protein.per_serving', '0');
         $calories = (string) data_get($nutrition, 'nutrients.energy_kcal.per_serving', '0');
         $contains = collect($allergens['groups']['contains'])->pluck('name')->map(fn ($name) => mb_strtolower($name))->all();

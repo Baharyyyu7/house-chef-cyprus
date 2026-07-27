@@ -35,3 +35,11 @@ indexlerle kullanıcı/tarif oturumunu güvenli biçimde bağlar.
   ve `exception` alanlarını göstermez; yalnızca güvenli türetilmiş özet kullanır.
 - `audit_logs`: failed job retry ve forget aksiyonları dahil yönetim aksiyonlarının
   iz kaydını tutar.
+
+# Performans indeksleri
+
+`2026_07_27_080000_add_performance_indexes` migration'ı; published tarif
+listeleme/filtreleme, ingredient matching, pantry uygunluk, nutrition snapshot,
+Data Quality açık issue, database queue reservation, failed job geçmişi ve audit
+geçmişindeki gerçek sorgu kalıpları için bileşik veya hedefli indeksleri ekler.
+Mevcut unique constraint'ler tekrarlanmaz.

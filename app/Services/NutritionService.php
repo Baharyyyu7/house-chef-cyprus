@@ -45,6 +45,7 @@ final class NutritionService
 
     public function invalidate(Recipe $recipe): void
     {
+        $recipe->unsetRelation('recipeIngredients');
         app(CacheInvalidationService::class)->recipe($recipe);
         foreach (RecipeNutritionSnapshot::query()->where('recipe_id', $recipe->id)->get() as $snapshot) {
             Cache::forget("nutrition:recipe:{$recipe->public_id}:servings:{$snapshot->servings}:optional:1");
@@ -70,7 +71,9 @@ final class NutritionService
     /** @return array<string, mixed> */
     private function calculateFresh(Recipe $recipe, int $servings, bool $includeOptional): array
     {
-        $recipe->unsetRelation('recipeIngredients')->load('recipeIngredients.ingredient.nutritionFacts.nutrient');
+        if (! $recipe->relationLoaded('recipeIngredients')) {
+            $recipe->load('recipeIngredients.ingredient.nutritionFacts.nutrient');
+        }
         $totals = [];
         $missing = [];
         $coveredWeight = '0';

@@ -36,7 +36,9 @@ final class IngredientMatchingService
     /** @param list<int> $availableIds @param list<int> $excludedIds @param Collection<int, mixed> $pantryItems @return array<string, mixed> */
     private function evaluate(Recipe $recipe, array $availableIds, array $excludedIds, Collection $pantryItems): array
     {
-        $rows = $recipe->recipeIngredients()->with('ingredient')->orderBy('sort_order')->get();
+        $rows = $recipe->relationLoaded('recipeIngredients')
+            ? $recipe->recipeIngredients->sortBy('sort_order')->values()
+            : $recipe->recipeIngredients()->with('ingredient')->orderBy('sort_order')->get();
         $required = $rows->filter(fn ($row) => ! $row->is_optional && $row->is_required);
         $optional = $rows->filter(fn ($row) => $row->is_optional || ! $row->is_required);
         $missing = collect();
