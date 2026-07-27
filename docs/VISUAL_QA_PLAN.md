@@ -13,3 +13,5 @@ Klavye odağı, okunabilir kontrast, yatay tablo taşması, mobil filtre alanı 
 ## Visual Redesign V2 preview
 
 Ana sayfa QA’sı gerçek `public/images/house-chef-hero-v2.png` varlığı, sticky/küçülen public header, theme switch, mobil drawer, arama, `Tarifleri keşfet` ve `Elindekilerle tarif bul` çağrılarını kapsar. V2 önizlemesi onaylanmadan diğer ürün ekranlarına görsel kapsam genişletilmez.
+
+V2 QA correction turunda light ve dark mod ayrı doğrulanır. Özellikle tarif listesi empty state’i, filtre placeholder/select metni, sonuç sayısı, outline butonları, badge’ler ve footer bağlantıları koyu zeminde güvenli okunabilirlikte kalmalıdır. 375, 768, 1024 ve 1440 px kontrollerinde yatay taşma olmamalı; mobil drawer ve tema anahtarı çalışmalıdır.

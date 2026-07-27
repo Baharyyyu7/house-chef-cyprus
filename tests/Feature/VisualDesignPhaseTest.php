@@ -22,6 +22,16 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('House Chef');
     }
 
+    public function test_public_theme_controls_preserve_a_client_side_theme_preference_contract(): void
+    {
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('localStorage.theme', false)
+            ->assertSee('Açık temaya geç')
+            ->assertSee('Koyu temaya geç')
+            ->assertSee('mobile-nav', false);
+    }
+
     public function test_v2_homepage_uses_the_real_food_hero_and_keeps_search_and_primary_calls_to_action(): void
     {
         $this->get(route('home'))
@@ -32,6 +42,14 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('Akıllı arama')
             ->assertSee('hero-search', false)
             ->assertDontSee('∞ ilham');
+    }
+
+    public function test_homepage_renders_an_explicit_featured_recipe_empty_state_when_no_recipes_exist(): void
+    {
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('Seçilmiş tarifler hazırlanıyor.')
+            ->assertSee('Tarif arşivine git');
     }
 
     public function test_verified_member_sees_combined_matching_form(): void

@@ -5,6 +5,7 @@
 - Ana sayfa ile ortak public header/footer, warm ivory–terracotta–charcoal tasarım diliyle yeniden ele alındı.
 - Özgün H/C monogram logo ve favikon; AI ile proje için üretilmiş, telifsiz özgün yemek hero görseli eklendi.
 - V2 şu an yalnızca `visual-redesign-v2` preview branch’indedir; diğer ürün ekranlarının görsel kapsamı ana sayfa onayına kadar korunur.
+- QA correction: `html.dark` tabanlı semantic tema değişkenleri, koyu mod kontrastı, tarif listesi empty state’i, seçilmiş tarif fallback’i, kart etkileşimleri ve reduced-motion polish’i tamamlandı.
 
 ## Visual Design Phase 1
 

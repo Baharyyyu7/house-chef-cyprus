@@ -22,6 +22,13 @@ House Chef Cyprus, Kıbrıs mutfağının sıcaklığını sade ve güven veren 
 
 İlk V2 teslimi, yalnızca ana sayfa ile ortak public header/footer kapsamındadır. Tarif listesi, tarif detayı, eşleştirme, dolap, favoriler, cooking mode, kimlik doğrulama ve yönetim ekranlarının işlevsel/kavramsal akışları onaydan önce değiştirilmez.
 
+## QA & correction ilkeleri
+
+- Tema tercihi `html.dark` üzerinde, ilk boyamadan önce uygulanır; böylece light/dark geçişinde kısa süreli yanlış tema parlaması oluşmaz.
+- Public bileşenlerin zemin, yüzey, metin, sınır ve footer renkleri semantic CSS değişkenlerinden gelir. Koyu temada `--hc-text`, `--hc-muted` ve `--hc-line` ayrı kontrast değerleri kullanır.
+- Tarif sonuçları yoksa ana sayfadaki Seçilmiş Tarifler alanı boş kalmaz; markalı fallback sunar. Veri varsa en fazla altı gerçek tarif kaydı gösterilir.
+- `prefers-reduced-motion` kullanıcıları için reveal, hero ve hover hareketleri pratikte anlık hâle gelir.
+
 ## Durumlar
 
 Başarı, uyarı ve hata mesajları merkezi alert stilleriyle; boş ekranlar ise eyleme yönlendiren `hc-empty` ile sunulur. Hareketler kısa tutulur ve `prefers-reduced-motion` tercihini gözetir.
