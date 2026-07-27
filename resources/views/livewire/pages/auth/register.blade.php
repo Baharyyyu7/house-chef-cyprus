@@ -32,7 +32,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         Auth::login($user);
 
-        $this->redirect(route('dashboard', absolute: false), navigate: true);
+        $this->redirect(route('dashboard', absolute: false));
     }
 }; ?>
 
@@ -79,7 +79,7 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
 
         <div class="mt-6 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <a class="text-sm font-semibold text-gold-700 hover:text-gold-600" href="{{ route('login') }}" wire:navigate>
+            <a class="text-sm font-semibold text-gold-700 hover:text-gold-600" href="{{ route('login') }}">
                 Zaten üyeyim
             </a>
 

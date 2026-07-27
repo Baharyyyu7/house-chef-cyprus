@@ -20,7 +20,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        $this->redirectIntended(default: route('dashboard', absolute: false));
     }
 }; ?>
 
@@ -61,7 +61,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         <div class="mt-6 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
             @if (Route::has('password.request'))
-                <a class="text-sm font-semibold text-gold-700 hover:text-gold-600" href="{{ route('password.request') }}" wire:navigate>
+                <a class="text-sm font-semibold text-gold-700 hover:text-gold-600" href="{{ route('password.request') }}">
                     Şifremi unuttum
                 </a>
             @endif
@@ -70,6 +70,6 @@ new #[Layout('layouts.guest')] class extends Component
                 Giriş yap
             </x-primary-button>
         </div>
-        <p class="mt-6 text-center text-sm text-muted">Hesabınız yok mu? <a class="font-bold text-gold-700 hover:text-gold-600" href="{{ route('register') }}" wire:navigate>Üye olun</a></p>
+        <p class="mt-6 text-center text-sm text-muted">Hesabınız yok mu? <a class="font-bold text-gold-700 hover:text-gold-600" href="{{ route('register') }}">Üye olun</a></p>
     </form>
 </div>
