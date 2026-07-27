@@ -1,16 +1,16 @@
 <x-layouts.site title="Yönetim">
-    <section class="mx-auto max-w-6xl px-5 py-12">
+    <section class="mx-auto max-w-6xl px-5 py-12 hc-v3-section-reveal">
         <p class="font-bold text-orange-700">YÖNETİM PANELİ</p>
-        <h1 class="mt-2 text-4xl font-black">Sistem durumu</h1>
+        <h1 class="mt-2 hc-heading-1">Sistem durumu</h1>
 
         @if (session('status'))
             <p class="mt-4 rounded-xl bg-emerald-50 p-3 text-emerald-900">{{ session('status') }}</p>
         @endif
 
-        <div class="mt-8 grid gap-5 md:grid-cols-3">
-            <div class="rounded-2xl bg-white p-6 shadow-sm"><p class="text-stone-500">Toplam tarif</p><strong class="text-4xl">{{ $recipeCount }}</strong></div>
-            <div class="rounded-2xl bg-white p-6 shadow-sm"><p class="text-stone-500">Kullanıcılar</p><strong class="text-4xl">{{ $userCount }}</strong></div>
-            <div class="rounded-2xl bg-white p-6 shadow-sm"><p class="text-stone-500">Veri kaynakları</p><strong class="text-4xl">{{ $sourceCount }}</strong></div>
+        <div class="mt-8 grid gap-5 md:grid-cols-3 hc-v3-stagger">
+            <x-ui.card variant="interactive"><p class="hc-label-md" style="color:var(--hc-text-muted)">Toplam tarif</p><strong class="mt-2 block hc-display-lg">{{ $recipeCount }}</strong></x-ui.card>
+            <x-ui.card variant="interactive"><p class="hc-label-md" style="color:var(--hc-text-muted)">Kullanıcılar</p><strong class="mt-2 block hc-display-lg">{{ $userCount }}</strong></x-ui.card>
+            <x-ui.card variant="interactive"><p class="hc-label-md" style="color:var(--hc-text-muted)">Veri kaynakları</p><strong class="mt-2 block hc-display-lg">{{ $sourceCount }}</strong></x-ui.card>
         </div>
 
         <p class="mt-6 text-sm text-stone-500">Son yenileme: {{ $lastRefreshAt ?? 'Henüz manuel yenileme yapılmadı' }}</p>

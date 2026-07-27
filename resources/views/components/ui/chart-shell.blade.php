@@ -1,0 +1,2 @@
+@props(['title', 'description' => null])
+<section {{ $attributes->class('hc-v3-chart-shell p-5 sm:p-6') }}><div class="flex items-start justify-between gap-4"><div><h2 class="hc-heading-4">{{ $title }}</h2>@if($description)<p class="hc-caption mt-1" style="color:var(--hc-text-muted)">{{ $description }}</p>@endif</div><x-ui.badge>Yakında</x-ui.badge></div><div class="mt-8 text-center hc-body-sm" style="color:var(--hc-text-muted)">Grafik verisi oluştuğunda erişilebilir özetle gösterilecektir.</div></section>

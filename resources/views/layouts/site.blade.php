@@ -23,13 +23,13 @@
             <div class="lg:col-start-2">
                 <header class="sticky top-0 z-30 border-b border-stone-200/80 bg-paper/95 backdrop-blur dark:border-stone-800 dark:bg-stone-950/95">
                     <div class="flex h-17 items-center justify-between px-4 sm:px-7">
-                        <button @click="adminMenuOpen = true" class="hc-btn hc-btn-outline px-3 py-2 lg:hidden" aria-label="Yönetim menüsünü aç">☰</button>
+                        <button @click="adminMenuOpen = true" class="hc-v3-btn hc-v3-btn--outline px-3 py-2 lg:hidden" aria-label="Yönetim menüsünü aç"><x-ui.icon name="menu" size="20" /></button>
                         <div>
                             <p class="hc-kicker">House Chef Cyprus</p>
                             <p class="text-sm font-semibold text-forest-900 dark:text-cream">Yönetim merkezi</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button @click="dark = !dark" class="hc-btn hc-btn-outline px-3 py-2" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" x-text="dark ? '☀' : '☾'"></button>
+                            <button @click="dark = !dark" class="hc-v3-btn hc-v3-btn--outline px-3 py-2" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"><span x-show="dark"><x-ui.icon name="sun" size="18" /></span><span x-show="!dark"><x-ui.icon name="moon" size="18" /></span></button>
                             <a href="{{ route('profile') }}" class="hidden text-sm font-semibold text-forest-800 hover:text-gold-600 sm:inline">{{ auth()->user()->name }}</a>
                         </div>
                     </div>
@@ -38,7 +38,7 @@
                 <div x-cloak x-show="adminMenuOpen" class="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Yönetim menüsü">
                     <div @click="adminMenuOpen = false" class="absolute inset-0 bg-forest-950/60"></div>
                     <aside x-show="adminMenuOpen" x-transition class="relative h-full w-72 bg-forest-900 shadow-2xl">
-                        <button @click="adminMenuOpen = false" class="absolute right-3 top-3 rounded-lg p-2 text-white hover:bg-white/10" aria-label="Menüyü kapat">✕</button>
+                        <button @click="adminMenuOpen = false" class="absolute right-3 top-3 rounded-lg p-2 text-white hover:bg-white/10" aria-label="Menüyü kapat"><x-ui.icon name="close" size="20" /></button>
                         <x-admin-sidebar />
                     </aside>
                 </div>
@@ -67,9 +67,9 @@
                     @endauth
                 </div>
                 <div class="hidden items-center gap-2 lg:flex">
-                    <button @click="dark = !dark" class="hc-theme-button" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" x-text="dark ? '☀' : '☾'"></button>
+                    <button @click="dark = !dark" class="hc-theme-button" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"><span x-show="dark"><x-ui.icon name="sun" size="20" /></span><span x-show="!dark"><x-ui.icon name="moon" size="20" /></span></button>
                     @auth
-                        <a href="{{ route('favorites.index') }}" class="hc-icon-button" aria-label="Favoriler">♡</a>
+                        <a href="{{ route('favorites.index') }}" class="hc-icon-button" aria-label="Favoriler"><x-ui.icon name="heart" size="20" /></a>
                         @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline">Yönetim</a>@endif
                         <a href="{{ route('dashboard') }}" class="inline-flex h-11 items-center gap-2 rounded-2xl bg-charcoal-900 py-2 pl-2 pr-4 text-sm font-extrabold text-white transition hover:bg-orange-600"><span class="grid h-7 w-7 place-items-center rounded-xl bg-orange-500 text-xs">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</span> Hesabım</a>
                     @else
@@ -78,8 +78,8 @@
                     @endauth
                 </div>
                 <div class="flex items-center gap-2 lg:hidden">
-                    <button @click="dark = !dark" class="hc-theme-button !h-10 !w-10 !rounded-xl" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" x-text="dark ? '☀' : '☾'"></button>
-                    <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="Menüyü aç">☰</button>
+                    <button @click="dark = !dark" class="hc-theme-button !h-10 !w-10 !rounded-xl" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"><span x-show="dark"><x-ui.icon name="sun" size="18" /></span><span x-show="!dark"><x-ui.icon name="moon" size="18" /></span></button>
+                    <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="Menüyü aç"><x-ui.icon name="menu" size="20" /></button>
                 </div>
             </nav>
             <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-y-2 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" class="hc-mobile-drawer border-t px-5 py-5 shadow-xl lg:hidden">

@@ -1,15 +1,15 @@
 @php
     $items = [
-        ['route' => 'admin.dashboard', 'label' => 'Genel Bakış', 'icon' => '⌂'],
-        ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => '◫'],
-        ['route' => 'admin.ingredients.index', 'label' => 'Malzemeler', 'icon' => '⌘'],
-        ['route' => 'admin.nutrition.index', 'label' => 'Beslenme', 'icon' => '✦'],
-        ['route' => 'admin.media.index', 'label' => 'Medya', 'icon' => '▣'],
-        ['route' => 'admin.data-quality.index', 'label' => 'Veri Kalitesi', 'icon' => '◌'],
-        ['route' => 'admin.failed-jobs.index', 'label' => 'Başarısız İşler', 'icon' => '⚠'],
-        ['route' => 'admin.system-events.index', 'label' => 'Sistem Olayları', 'icon' => '◉'],
-        ['route' => 'admin.backups.index', 'label' => 'Yedekler', 'icon' => '▤'],
-        ['route' => 'admin.restore-history.index', 'label' => 'Restore Geçmişi', 'icon' => '↶'],
+        ['route' => 'admin.dashboard', 'label' => 'Genel Bakış', 'icon' => 'sparkles'],
+        ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => 'menu'],
+        ['route' => 'admin.ingredients.index', 'label' => 'Malzemeler', 'icon' => 'search'],
+        ['route' => 'admin.nutrition.index', 'label' => 'Beslenme', 'icon' => 'info'],
+        ['route' => 'admin.media.index', 'label' => 'Medya', 'icon' => 'image'],
+        ['route' => 'admin.data-quality.index', 'label' => 'Veri Kalitesi', 'icon' => 'check'],
+        ['route' => 'admin.failed-jobs.index', 'label' => 'Başarısız İşler', 'icon' => 'warning'],
+        ['route' => 'admin.system-events.index', 'label' => 'Sistem Olayları', 'icon' => 'info'],
+        ['route' => 'admin.backups.index', 'label' => 'Yedekler', 'icon' => 'archive'],
+        ['route' => 'admin.restore-history.index', 'label' => 'Restore Geçmişi', 'icon' => 'arrow-right'],
     ];
 @endphp
 
@@ -27,7 +27,7 @@
                 'bg-white/12 text-white shadow-sm' => $active,
                 'text-[#d9e5d9] hover:bg-white/8 hover:text-white' => ! $active,
             ])>
-                <span class="grid h-6 w-6 place-items-center text-base text-gold-300" aria-hidden="true">{{ $item['icon'] }}</span>
+                <span class="grid h-6 w-6 place-items-center text-gold-300"><x-ui.icon :name="$item['icon']" size="18" /></span>
                 {{ $item['label'] }}
             </a>
         @endforeach
