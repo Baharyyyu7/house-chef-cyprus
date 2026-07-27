@@ -55,6 +55,9 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('sistem-durumu/cache-yenile', [AdminDashboardController::class, 'refreshCache'])->name('system-status.refresh-cache');
     Route::get('basarisiz-isler', [FailedJobController::class, 'index'])->name('failed-jobs.index');
     Route::get('sistem-olaylari', [SystemEventController::class, 'index'])->name('system-events.index');
+    Route::get('sistem-olaylari/{systemEvent}', [SystemEventController::class, 'show'])->name('system-events.show');
+    Route::post('sistem-olaylari/{systemEvent}/coz', [SystemEventController::class, 'resolve'])->name('system-events.resolve');
+    Route::post('sistem-olaylari/{systemEvent}/yeniden-ac', [SystemEventController::class, 'reopen'])->name('system-events.reopen');
     Route::get('yedekler', [BackupController::class, 'index'])->name('backups.index');
     Route::post('yedekler', [BackupController::class, 'create'])->name('backups.create');
     Route::post('yedekler/temizle', [BackupController::class, 'cleanup'])->name('backups.cleanup');
