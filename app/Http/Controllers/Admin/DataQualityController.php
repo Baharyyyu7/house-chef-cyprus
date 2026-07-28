@@ -25,9 +25,11 @@ final class DataQualityController extends Controller
         $issues = DataQualityIssue::query()->when($request->severity, fn ($q, $v) => $q->where('severity', $v))->when($request->category, fn ($q, $v) => $q->where('category', $v))->when($request->issue_type, fn ($q, $v) => $q->where('issue_type', $v))->when($request->entity_type, fn ($q, $v) => $q->where('entity_type', $v))->when($request->status, fn ($q, $v) => $q->where('resolution_status', $v))->when($request->q, fn ($q, $v) => $q->where('message', 'like', "%$v%"))->latest('last_detected_at')->paginate(30)->withQueryString();
         $open = DataQualityIssue::where('resolution_status', 'open');
 
+        $lastScan = DataQualityIssue::max('last_detected_at');
+        $hasScan = $lastScan !== null;
         $breakdown = $quality->breakdown();
 
-        return view('admin.data-quality.index', ['issues' => $issues, 'score' => $breakdown['overall']['score'], 'breakdown' => $breakdown, 'counts' => ['critical' => (clone $open)->where('severity', 'critical')->count(), 'error' => (clone $open)->where('severity', 'error')->count(), 'warning' => (clone $open)->where('severity', 'warning')->count()], 'lastScan' => DataQualityIssue::max('last_detected_at'), 'schedulerStatus' => Cache::get('data_quality.last_scan')]);
+        return view('admin.data-quality.index', ['issues' => $issues, 'score' => $hasScan ? $breakdown['overall']['score'] : null, 'hasScan' => $hasScan, 'breakdown' => $breakdown, 'counts' => ['critical' => (clone $open)->where('severity', 'critical')->count(), 'error' => (clone $open)->where('severity', 'error')->count(), 'warning' => (clone $open)->where('severity', 'warning')->count()], 'lastScan' => $lastScan, 'schedulerStatus' => Cache::get('data_quality.last_scan')]);
     }
 
     public function show(DataQualityIssue $issue): View

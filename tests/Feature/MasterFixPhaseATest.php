@@ -98,6 +98,16 @@ final class MasterFixPhaseATest extends TestCase
         $this->actingAs($member)->post(route('admin.data-quality.reopen', $issue))->assertForbidden();
     }
 
+    public function test_unscanned_catalogue_does_not_claim_a_perfect_data_quality_score(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+
+        $this->actingAs($admin)->get(route('admin.data-quality.index'))
+            ->assertOk()
+            ->assertSee('Henüz veri kalite taraması çalışmadı')
+            ->assertSee('Son tarama: Henüz tarama yok');
+    }
+
     private function recipe(): Recipe
     {
         return Recipe::create(['title' => 'Master Fix Tarifi', 'slug' => 'master-fix-tarifi', 'description' => 'Açıklama', 'servings' => 2, 'prep_minutes' => 1, 'cook_minutes' => 1, 'rest_minutes' => 0, 'difficulty' => 'Kolay', 'status' => 'published', 'verification_status' => 'verified']);
