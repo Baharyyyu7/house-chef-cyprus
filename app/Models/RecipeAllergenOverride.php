@@ -18,4 +18,10 @@ final class RecipeAllergenOverride extends Model
     {
         return $this->belongsTo(Allergen::class);
     }
+
+    /** @return BelongsTo<Recipe, $this> */
+    public function recipe(): BelongsTo
+    {
+        return $this->belongsTo(Recipe::class);
+    }
 }

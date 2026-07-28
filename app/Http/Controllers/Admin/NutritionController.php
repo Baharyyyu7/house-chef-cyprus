@@ -12,6 +12,7 @@ use App\Models\DietaryTag;
 use App\Models\Ingredient;
 use App\Models\IngredientAllergenDetail;
 use App\Models\Nutrient;
+use App\Models\NutritionFact;
 use App\Models\NutritionRecalculationRun;
 use App\Models\NutritionSetting;
 use App\Models\Recipe;
@@ -30,9 +31,19 @@ final class NutritionController extends Controller
     {
         $this->authorizeAdmin();
 
-        $relations = IngredientAllergenDetail::query()->with(['ingredient', 'allergen'])->when($request->ingredient_id, fn ($q, $v) => $q->where('ingredient_id', $v))->when($request->allergen_id, fn ($q, $v) => $q->where('allergen_id', $v))->when($request->relation_type, fn ($q, $v) => $q->where('relation_type', $v))->when($request->has('verified'), fn ($q) => $q->where('is_verified', $request->boolean('verified')))->get();
+        $relations = IngredientAllergenDetail::query()->with(['ingredient', 'allergen'])->when($request->ingredient_id, fn ($q, $v) => $q->where('ingredient_id', $v))->when($request->allergen_id, fn ($q, $v) => $q->where('allergen_id', $v))->when($request->relation_type, fn ($q, $v) => $q->where('relation_type', $v))->when($request->filled('verified'), fn ($q) => $q->where('is_verified', $request->boolean('verified')))->latest()->get();
+        $facts = NutritionFact::query()->with(['nutrient', 'nutritionable'])->where('nutritionable_type', Ingredient::class)
+            ->when($request->integer('fact_ingredient_id'), fn ($q, $v) => $q->where('nutritionable_id', $v))
+            ->when($request->integer('nutrient_id'), fn ($q, $v) => $q->where('nutrient_id', $v))
+            ->when($request->filled('fact_verified'), fn ($q) => $q->whereNotNull('verified_at'))
+            ->when($request->filled('fact_confidence'), fn ($q) => $q->where('confidence_score', '<=', $request->integer('fact_confidence')))
+            ->latest()->paginate(20, ['*'], 'facts_page')->withQueryString();
+        $snapshots = RecipeNutritionSnapshot::query()->with('recipe')
+            ->when($request->integer('snapshot_recipe_id'), fn ($q, $v) => $q->where('recipe_id', $v))
+            ->when($request->boolean('outdated'), fn ($q) => $q->whereNotNull('invalidated_at'))
+            ->latest('calculated_at')->paginate(20, ['*'], 'snapshots_page')->withQueryString();
 
-        return view('admin.nutrition.index', ['nutrients' => Nutrient::query()->orderBy('sort_order')->get(), 'allergens' => Allergen::query()->orderBy('sort_order')->get(), 'tags' => DietaryTag::query()->orderBy('sort_order')->get(), 'ingredients' => Ingredient::query()->withCount('nutritionFacts')->orderBy('name')->get(), 'recipes' => Recipe::query()->withCount('nutritionSnapshots')->orderBy('title')->get(), 'relations' => $relations, 'overrides' => RecipeAllergenOverride::query()->with(['allergen'])->get(), 'settings' => NutritionSetting::query()->orderBy('key')->get(), 'runs' => NutritionRecalculationRun::query()->with('recipe')->latest()->limit(20)->get(), 'snapshots' => RecipeNutritionSnapshot::query()->with('recipe')->latest('calculated_at')->get()]);
+        return view('admin.nutrition.index', ['nutrients' => Nutrient::query()->withCount('facts')->orderBy('sort_order')->get(), 'allergens' => Allergen::query()->withCount('ingredientDetails')->orderBy('sort_order')->get(), 'tags' => DietaryTag::query()->orderBy('sort_order')->get(), 'ingredients' => Ingredient::query()->withCount('nutritionFacts')->orderBy('name')->get(), 'recipes' => Recipe::query()->withCount('nutritionSnapshots')->orderBy('title')->get(), 'relations' => $relations, 'overrides' => RecipeAllergenOverride::query()->with(['allergen', 'recipe'])->latest('updated_at')->get(), 'settings' => NutritionSetting::query()->orderBy('key')->get(), 'runs' => NutritionRecalculationRun::query()->with('recipe')->latest()->limit(20)->get(), 'snapshots' => $snapshots, 'facts' => $facts]);
     }
 
     public function snapshot(RecipeNutritionSnapshot $snapshot): View

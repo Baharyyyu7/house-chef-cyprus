@@ -124,6 +124,9 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::get('tarifler/public/{publicId}/duzenle', [AdminRecipeController::class, 'editPublic'])->name('recipes.edit-public');
     Route::get('malzemeler', [AdminIngredientController::class, 'index'])->name('ingredients.index');
     Route::get('olculer', [MeasurementController::class, 'units'])->name('measurements.units');
+    Route::post('olculer', [MeasurementController::class, 'storeUnit'])->name('measurements.units.store');
+    Route::put('olculer/{unit}', [MeasurementController::class, 'updateUnit'])->name('measurements.units.update');
+    Route::post('olculer/{unit}/toggle', [MeasurementController::class, 'toggleUnit'])->name('measurements.units.toggle');
     Route::get('malzeme-donusumleri', [MeasurementController::class, 'conversions'])->name('measurements.conversions');
     Route::post('malzeme-donusumleri', [MeasurementController::class, 'store'])->name('measurements.conversions.store');
     Route::put('malzeme-donusumleri/{conversion}', [MeasurementController::class, 'update'])->name('measurements.conversions.update');

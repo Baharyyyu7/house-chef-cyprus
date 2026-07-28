@@ -23,3 +23,6 @@ Admin drawer dialog semantiği, Escape kapama, dışarı tıklama ve scroll lock
 # Admin V3 Part 2
 
 CRUD ekranlarında filtre kontrollerinin görünür etiketleri veya ekran okuyucu etiketleri, tablist semantiği, hata alert’leri, durum metinleri ve kontrollü yatay tablo kaydırması uygulanır. Reduced-motion tercihi V3 geçişlerini devre dışı bırakır.
+# Admin V3 data surfaces
+
+Yoğun yönetim tablolarında bilgi gizlenmez: küçük ekranlarda kontrollü yatay kaydırma kullanılır. Filtre alanları etiketli/erişilebilir isimlidir; durumlar metin ve renk birlikte gösterilir. Light/dark modunda form, tablo ve alert kontrastı semantic tokenlardan gelir.

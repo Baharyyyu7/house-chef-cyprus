@@ -33,3 +33,6 @@ Explainable matching, household pantry ve senkron favorites deneyimi tamamlandı
 # Aktif çalışma: Admin Panel V3 Part 2
 
 Tarif, ingredient, ölçüm, nutrition ve Data Quality yüzeyleri için responsive, erişilebilir CRUD kabuğu hazırlanır. Sonraki aşama yalnız Part 2 kalite kapısından sonra belirlenir.
+# Admin Panel V3 Part 2
+
+Measurement/conversion, nutrition/nutrient, allergen/dietary threshold ve Data Quality yönetim yüzeyleri `visual-redesign-v2` üzerinde tamamlandı. Media ve sistem operasyonları kasıtlı olarak sonraki Admin V3 Part 3 kapsamındadır.

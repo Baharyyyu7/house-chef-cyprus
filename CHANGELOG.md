@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Admin Panel V3 Part 2: household ölçü birimleri, ingredient dönüşümleri, nutrition, nutrient, allergen, dietary threshold ve Data Quality yönetim yüzeyleri ortak V3 table/form primitives ile yenilendi.
+- Yönetim filtreleri, güvenli detail tabloları, mobile controlled-scroll davranışı ve admin-only Feature testleri genişletildi.
+
 ## Admin Panel V3 Part 2 — In progress
 
 - Tarif, doğrulama, adım ve malzeme yönetim ekranları ortak V3 table/form sözleşmesine taşındı.

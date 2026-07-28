@@ -45,3 +45,6 @@ Matching filtreleri, pantry'den geçerli ürün aktarımı, expiry durumları, f
 # Admin V3 Part 2 QA
 
 Tarif ve malzeme V3 listeleri 375px, 768px, 1024px ve 1440px genişliklerinde; açık/koyu temada, filtre, sekme, tablonun kontrollü kaydırması ve sticky save alanı ile kontrol edilir.
+# Admin Panel V3 Part 2 QA
+
+Household Measures, Ingredient Conversions, Nutrition, recalculation history ve Data Quality yüzeyleri admin oturumunda 375px ve 1440px görünümde kontrol edilir. Member erişim sınırı Feature testlerle doğrulanır.

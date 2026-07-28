@@ -20,3 +20,6 @@ Matching 1280px altında kontrollü filtre paneli, pantry ve favorites ise 375px
 # Admin V3 Part 2
 
 Admin tabloları küçük ekranlarda kapsayıcı içinde yatay kayar; filtre alanları tek kolona geçer. Form bölümleri ve sticky save alanı 375px’te dikey düzene dönüşür.
+# Admin Panel V3 Part 2
+
+Ölçü, dönüşüm, nutrition ve veri kalitesi tabloları 375px'te ana sayfa yatay taşması üretmeden kendi `hc-table-wrap` alanında kaydırılır. 1024px ve üzerindeyse aynı veri desktop tablo düzeninde kalır.
