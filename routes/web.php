@@ -75,6 +75,8 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::get('medya', [AdminMediaController::class, 'index'])->name('media.index');
     Route::get('ai-gorsel-studyosu', [AiImageStudioController::class, 'index'])->name('ai-image-studio.index');
     Route::get('ai-gorsel-studyosu/{generation}', [AiImageStudioController::class, 'show'])->name('ai-image-studio.show');
+    Route::get('ai-gorsel-studyosu/{generation}/onizleme', [AiImageStudioController::class, 'preview'])->name('ai-image-studio.preview');
+    Route::post('ai-gorsel-studyosu/{generation}/onayla', [AiImageStudioController::class, 'approve'])->name('ai-image-studio.approve');
     Route::post('ai-gorsel-studyosu/{generation}/reddet', [AiImageStudioController::class, 'reject'])->name('ai-image-studio.reject');
     Route::get('medya/yukle', [AdminMediaController::class, 'create'])->name('media.create');
     Route::post('medya', [AdminMediaController::class, 'store'])->name('media.store');

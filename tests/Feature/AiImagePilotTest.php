@@ -6,12 +6,19 @@ namespace Tests\Feature;
 
 use App\Models\AiImageGeneration;
 use App\Models\Ingredient;
+use App\Models\Media;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Services\Media\AiImagePilotService;
+use App\Services\Media\AiImageReviewService;
 use App\Services\Media\GeminiImageCapabilityHealth;
+use App\Services\Media\GeminiImageGenerationService;
+use App\Services\Media\PilotRecipeDataCorrectionService;
 use App\Services\Media\RecipeImagePromptBuilder;
+use Database\Seeders\HouseChefSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 final class AiImagePilotTest extends TestCase
@@ -91,10 +98,10 @@ final class AiImagePilotTest extends TestCase
         $this->actingAs($member)->post(route('admin.ai-image-studio.reject', $generation))->assertForbidden();
     }
 
-    public function test_admin_can_reject_a_planned_generation_using_a_public_route_key_and_audit_log(): void
+    public function test_admin_can_reject_a_generated_generation_using_a_public_route_key_and_audit_log(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
-        $generation = $this->generation($this->recipe(), 'planned');
+        $generation = $this->generation($this->recipe(), 'generated');
 
         $this->actingAs($admin)->post(route('admin.ai-image-studio.reject', $generation), ['review_notes' => 'Malzeme görünümü uyumsuz.'])
             ->assertRedirect(route('admin.ai-image-studio.show', $generation));
@@ -103,6 +110,80 @@ final class AiImagePilotTest extends TestCase
         $this->assertDatabaseHas('audit_logs', ['action' => 'ai_image_generation.reject']);
         $this->assertStringContainsString($generation->public_id, route('admin.ai-image-studio.show', $generation));
         $this->assertStringNotContainsString('/'.$generation->id, route('admin.ai-image-studio.show', $generation));
+    }
+
+    public function test_pilot_correction_replaces_generic_lines_and_preserves_an_editorial_before_after_record(): void
+    {
+        $this->seed(HouseChefSeeder::class);
+        $result = app(PilotRecipeDataCorrectionService::class)->apply();
+
+        $this->assertSame(8, $result['corrected']);
+        $this->assertSame(0, $result['needs_review']);
+        $this->assertSame(8, Recipe::query()->whereHas('provenances', fn ($query) => $query->where('field_name', 'ai_image_fidelity_correction'))->count());
+        $this->assertTrue(app(AiImagePilotService::class)->recipes()->every(fn (Recipe $recipe): bool => app(RecipeImagePromptBuilder::class)->build($recipe)['ready']));
+    }
+
+    public function test_generation_stays_private_and_is_limited_to_the_approved_twenty_variations(): void
+    {
+        Storage::fake('local');
+        $this->seed(HouseChefSeeder::class);
+        config()->set('ai_images.providers.gemini.key', 'test-key');
+        config()->set('ai_images.providers.gemini.enabled', true);
+        config()->set('ai_images.daily_budget_cents', 200);
+        config()->set('ai_images.pilot_cost_estimate_cents_per_image', 4);
+        $png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6h3IAAAAASUVORK5CYII=';
+        Http::fake(['https://generativelanguage.googleapis.com/*' => Http::response(['predictions' => [['bytesBase64Encoded' => $png, 'mimeType' => 'image/png'], ['bytesBase64Encoded' => $png, 'mimeType' => 'image/png']]])]);
+
+        $result = app(GeminiImageGenerationService::class)->execute();
+
+        $this->assertSame(20, $result['generated']);
+        $this->assertSame(0, $result['failed']);
+        $this->assertSame(20, AiImageGeneration::query()->where('status', 'generated')->count());
+        $this->assertSame(20, Media::query()->where('generated_by_ai', true)->where('visibility', 'private')->count());
+        Http::assertSentCount(10);
+    }
+
+    public function test_provider_failure_never_creates_media_or_retries_the_consumed_pilot_slots(): void
+    {
+        Storage::fake('local');
+        $this->seed(HouseChefSeeder::class);
+        config()->set('ai_images.providers.gemini.key', 'test-key');
+        config()->set('ai_images.providers.gemini.enabled', true);
+        config()->set('ai_images.daily_budget_cents', 200);
+        config()->set('ai_images.pilot_cost_estimate_cents_per_image', 4);
+        Http::fake(['https://generativelanguage.googleapis.com/*' => Http::response([], 403)]);
+
+        $first = app(GeminiImageGenerationService::class)->execute();
+        $second = app(GeminiImageGenerationService::class)->execute();
+
+        $this->assertSame(20, $first['failed']);
+        $this->assertSame(0, $first['generated']);
+        $this->assertSame(0, $second['generated']);
+        $this->assertSame(20, AiImageGeneration::query()->where('status', 'provider_failed')->count());
+        $this->assertSame(0, Media::query()->where('generated_by_ai', true)->count());
+        $this->assertFalse(app(AiImagePilotService::class)->generationAllowed());
+        $this->assertDatabaseMissing('ai_image_generations', ['actual_cost_cents' => 4]);
+        Http::assertSentCount(10);
+    }
+
+    public function test_manual_review_is_required_before_an_ai_media_record_becomes_public(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $recipe = $this->recipe();
+        $generation = $this->generation($recipe, 'generated');
+        $path = 'media/ai-pilot/'.$recipe->public_id.'/variation-1.png';
+        Storage::disk('local')->put($path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6h3IAAAAASUVORK5CYII='));
+        $media = $recipe->media()->create(['kind' => 'image', 'disk' => 'local', 'path' => $path, 'mime_type' => 'image/png', 'size' => 68, 'visibility' => 'private', 'processing_status' => 'ready', 'thumbnail_status' => 'not_requested', 'is_placeholder' => false, 'generated_by_ai' => true, 'ai_review_status' => 'pending_review']);
+        $generation->update(['media_id' => $media->id]);
+
+        app(AiImageReviewService::class)->approve($generation->fresh('media', 'recipe.media'), $admin, 'İçerik, sunum ve watermark kontrolü tamamlandı.');
+
+        $this->assertSame('approved', $generation->fresh()->status);
+        $this->assertSame('public', $media->fresh()->visibility);
+        $this->assertTrue(Storage::disk('public')->exists($media->fresh()->path));
+        $this->assertDatabaseHas('audit_logs', ['action' => 'ai_image_generation.approve']);
     }
 
     private function recipe(): Recipe

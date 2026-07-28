@@ -31,14 +31,15 @@ final class AiImagePilotService
     public function synchronize(string $provider = 'gemini'): array
     {
         $recipes = $this->recipes();
-        AiImageGeneration::query()->where('provider', $provider)->where('variation_number', 1)->whereIn('status', ['planned', 'blocked_recipe_fidelity'])->whereNotIn('recipe_id', $recipes->pluck('id'))->delete();
+        AiImageGeneration::query()->where('provider', $provider)->whereIn('status', ['planned', 'blocked_recipe_fidelity'])->whereNotIn('recipe_id', $recipes->pluck('id'))->delete();
 
-        return $recipes->map(function (Recipe $recipe) use ($provider): AiImageGeneration {
-            $prompt = $this->prompts->build($recipe, $this->variationFor($recipe));
+        $variations = min((int) config('ai_images.max_variations_per_recipe'), 2);
 
-            return AiImageGeneration::query()->updateOrCreate(
-                ['recipe_id' => $recipe->id, 'variation_number' => 1],
-                [
+        return $recipes->flatMap(function (Recipe $recipe) use ($provider, $variations): array {
+            return collect(range(1, $variations))->map(function (int $number) use ($recipe, $provider): AiImageGeneration {
+                $prompt = $this->prompts->build($recipe, $this->variationFor($recipe, $number));
+
+                $attributes = [
                     'provider' => $provider,
                     'model' => config("ai_images.providers.{$provider}.model"),
                     'prompt' => $prompt['prompt'],
@@ -49,8 +50,14 @@ final class AiImagePilotService
                     'estimated_cost_cents' => (int) config('ai_images.pilot_cost_estimate_cents_per_image'),
                     'error_code' => $prompt['ready'] ? null : 'RECIPE_FIDELITY_REQUIRED',
                     'error_message' => $prompt['ready'] ? null : implode(' ', $prompt['blocking_reasons']),
-                ],
-            );
+                ];
+                $generation = AiImageGeneration::query()->firstOrNew(['recipe_id' => $recipe->id, 'variation_number' => $number]);
+                if (! $generation->exists || in_array($generation->status, ['planned', 'blocked_recipe_fidelity'], true)) {
+                    $generation->fill($attributes)->save();
+                }
+
+                return $generation;
+            })->all();
         })->all();
     }
 
@@ -66,8 +73,32 @@ final class AiImagePilotService
         return ['recipe_count' => $recipeCount, 'variation_count' => $variationCount, 'estimated_cost_cents' => $cost, 'budget_cents' => $budget, 'within_budget' => $cost !== null && $budget > 0 && $cost <= $budget, 'cost_estimate_configured' => $cost !== null];
     }
 
-    private function variationFor(Recipe $recipe): string
+    public function generationAllowed(): bool
     {
+        $provider = (array) config('ai_images.providers.gemini', []);
+        $cost = $this->costPreview();
+
+        return (bool) ($provider['enabled'] ?? false)
+            && filled($provider['key'] ?? null)
+            && $cost['within_budget']
+            && $this->consumedVariationCount() < (int) config('ai_images.max_total_variations')
+            && $this->recipes()->every(fn (Recipe $recipe): bool => $this->prompts->build($recipe)['ready']);
+    }
+
+    public function consumedVariationCount(): int
+    {
+        return AiImageGeneration::query()
+            ->where('provider', 'gemini')
+            ->whereIn('status', ['requesting', 'provider_failed', 'generated', 'approved', 'rejected'])
+            ->count();
+    }
+
+    private function variationFor(Recipe $recipe, int $number): string
+    {
+        if ($number === 2) {
+            return $recipe->category?->slug === 'tatli' ? 'close_up_texture' : 'modern_overhead';
+        }
+
         return match ($recipe->category?->slug) {
             'corba' => 'close_up_texture',
             'tatli' => 'dark_premium_studio',

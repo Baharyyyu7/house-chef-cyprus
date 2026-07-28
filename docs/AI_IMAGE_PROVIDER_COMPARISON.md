@@ -4,7 +4,7 @@
 
 | Sağlayıcı | Yapılandırma | Image capability | Canlı üretim |
 |---|---|---|---|
-| Gemini | Anahtar yapılandırılmış; model listesi 200 döndü ve image modellerini ilan etti | Model listesi doğrulandı, üretim endpoint'i doğrulanmadı | Kapalı: maliyet onayı bekliyor |
+| Gemini | Anahtar yapılandırılmış; model listesi 200 döndü ve image modellerini ilan etti | 10 kontrollü istek hiçbir kullanılabilir image payload'ı döndürmedi; durum güvenli `provider_failed` olarak kaydedildi | 0 görsel; retry kapalı |
 | OpenAI | Yapılandırılmamış | Disabled | Yok |
 | Stability | Yapılandırılmamış | Disabled | Yok |
 | FLUX/BFL | Yapılandırılmamış | Disabled | Yok |
@@ -13,4 +13,4 @@
 
 Genel Gemini erişimi tek başına üretilmiş görsel yetkisi veya ticari kullanım kanıtı değildir. Bu nedenle iki sağlayıcı karşılaştırması ve gerçek kalite/maliyet ölçümü yapılmamıştır; sahte karşılaştırma yasaktır.
 
-Canlı pilot, maliyet onayı sonrasında aynı üç tarifte aynı prompt şablonu ve iki varyasyon sınırı ile ölçülecektir: tarif/malzeme doğruluğu, kültürel sunum, fotogerçekçilik, doku, renk, watermark, nesne bozulması, çözünürlük, süre, retry, maliyet ve ticari kullanım koşulu.
+İki sağlayıcıyla gerçek kalite/maliyet karşılaştırması yapılamadı; yalnız Gemini yapılandırılmıştır. Sahte sağlayıcı karşılaştırması yapılmaz. Yeni bir sağlayıcı yapılandırılır ve ayrıca bütçe onayı verilirse aynı prompt şablonu ile ölçülecek başlıklar: tarif/malzeme doğruluğu, kültürel sunum, fotogerçekçilik, doku, renk, watermark, nesne bozulması, çözünürlük, süre, retry, maliyet ve ticari kullanım koşulu.

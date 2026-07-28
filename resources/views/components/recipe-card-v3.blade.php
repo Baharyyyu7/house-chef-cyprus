@@ -3,13 +3,13 @@
 @php
     $media = $recipe->media->first(fn ($item) => $item->verification_status !== 'rejected');
     $placeholderIndex = (hexdec(substr(hash('sha256', (string) ($recipe->public_id ?: $recipe->slug)), 0, 6)) % 8) + 1;
-    $imagePath = $media?->path ?: "placeholders/{$placeholderIndex}/recipe.svg";
+    $imagePath = $media?->publicUrl() ?: asset("placeholders/{$placeholderIndex}/recipe.svg");
     $alt = $media?->alt_text ?: $recipe->title.' için temsili tarif görseli';
 @endphp
 
 <article {{ $attributes->merge(['class' => 'hc-v3-card hc-v3-card--interactive group flex min-h-[27rem] flex-col overflow-hidden']) }}>
     <a class="relative block aspect-[1.16] overflow-hidden bg-[linear-gradient(145deg,#1a3125,#644323_55%,#d4a24c)]" href="{{ route('recipes.show', $recipe) }}" aria-label="{{ $recipe->title }} tarifini incele">
-        <img class="h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none" src="{{ asset($imagePath) }}" alt="{{ $alt }}" width="1200" height="900" loading="lazy">
+        <img class="h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none" src="{{ $imagePath }}" alt="{{ $alt }}" width="1200" height="900" loading="lazy">
         <span class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent"></span>
         <span class="absolute left-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">{{ $recipe->cuisine?->name ?? 'Ev mutfağı' }}</span>
         <span class="absolute bottom-3 left-3 text-xs font-extrabold text-white">{{ $recipe->totalMinutes() }} dk · {{ $recipe->servings }} porsiyon</span>

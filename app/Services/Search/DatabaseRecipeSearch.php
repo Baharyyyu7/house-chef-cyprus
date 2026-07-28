@@ -23,7 +23,7 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
             ->with([
                 'cuisine:id,public_id,name,slug',
                 'category:id,public_id,name,slug',
-                'media:id,mediable_type,mediable_id,path,alt_text,is_placeholder,sort_order',
+                'media' => fn ($query) => $query->select(['id', 'mediable_type', 'mediable_id', 'disk', 'path', 'alt_text', 'is_placeholder', 'sort_order'])->where('visibility', 'public'),
                 'dietaryTags:id,code,name',
                 'allergenOverrideRecords.allergen:id,public_id,name',
                 'recipeIngredients.ingredient.nutritionFacts.nutrient',

@@ -19,7 +19,10 @@ final class AiImagePilotPlan extends Command
         if ($this->option('sync')) {
             $pilot->synchronize();
         }
-        $report = ['providers' => $providers->health(), 'cost_preview' => $pilot->costPreview(), 'recipes' => $pilot->recipes()->map(fn ($recipe): array => ['public_id' => (string) $recipe->public_id, 'title' => $recipe->title, 'cuisine' => $recipe->cuisine?->name, 'category' => $recipe->category?->name])->all(), 'generation_allowed' => false, 'safe_message' => 'Gerçek üretim, ayrı maliyet onayı ve canlı image-capability testi olmadan başlatılmaz.'];
+        $allowed = $pilot->generationAllowed();
+        $consumed = $pilot->consumedVariationCount();
+        $limit = (int) config('ai_images.max_total_variations');
+        $report = ['providers' => $providers->health(), 'cost_preview' => $pilot->costPreview(), 'consumed_variations' => $consumed, 'remaining_variations' => max(0, $limit - $consumed), 'recipes' => $pilot->recipes()->map(fn ($recipe): array => ['public_id' => (string) $recipe->public_id, 'title' => $recipe->title, 'cuisine' => $recipe->cuisine?->name, 'category' => $recipe->category?->name])->all(), 'generation_allowed' => $allowed, 'safe_message' => $allowed ? 'Pilot limitleri ve veri doğruluğu kontrolleri üretime izin veriyor; yalnızca açık --execute komutu çağrı yapar.' : ($consumed >= $limit ? 'Pilot varyasyon limiti daha önce kullanılan çağrılar nedeniyle doldu; otomatik retry kapalıdır.' : 'Gerçek üretim, maliyet limiti, sağlayıcı yapılandırması ve tarif doğruluğu kontrolleri tamamlanmadan başlatılmaz.')];
         if ($this->option('json')) {
             $this->line((string) json_encode($report, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 

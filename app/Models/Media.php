@@ -6,6 +6,7 @@ use App\Models\Concerns\HasPublicId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @property string $public_id
@@ -32,5 +33,14 @@ class Media extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by_user_id');
+    }
+
+    public function publicUrl(): ?string
+    {
+        if ($this->visibility !== 'public' || ! is_string($this->path) || $this->path === '') {
+            return null;
+        }
+
+        return $this->disk === 'public' ? Storage::disk('public')->url($this->path) : asset($this->path);
     }
 }

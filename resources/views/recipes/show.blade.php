@@ -2,11 +2,11 @@
     @php
         $heroMedia = $recipe->media->first(fn ($media) => $media->verification_status !== 'rejected');
         $heroPlaceholderIndex = (hexdec(substr(hash('sha256', (string) ($recipe->public_id ?: $recipe->slug)), 0, 6)) % 8) + 1;
-        $heroImagePath = $heroMedia?->path ?: "placeholders/{$heroPlaceholderIndex}/recipe.svg";
+        $heroImagePath = $heroMedia?->publicUrl() ?: asset("placeholders/{$heroPlaceholderIndex}/recipe.svg");
     @endphp
 
     <section class="hc-recipe-detail-hero relative isolate overflow-hidden bg-charcoal-950 text-white">
-        <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-70" src="{{ asset($heroImagePath) }}" alt="" aria-hidden="true" fetchpriority="high">
+        <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-70" src="{{ $heroImagePath }}" alt="" aria-hidden="true" fetchpriority="high">
         <div class="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(10,16,13,.97)_0%,rgba(10,16,13,.82)_48%,rgba(10,16,13,.25)_100%)]"></div>
         <div class="hc-container grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_19rem] lg:py-20">
             <div class="max-w-3xl">

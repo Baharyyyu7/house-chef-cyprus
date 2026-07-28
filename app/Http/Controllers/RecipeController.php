@@ -39,7 +39,7 @@ final class RecipeController extends Controller
     public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay)
     {
         abort_unless(($recipe->status === 'published' && $recipe->verification_status === 'verified') || $request->user()?->isAdmin(), 404);
-        $recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient', 'recipeIngredients.group', 'steps', 'media', 'provenances.contentSource']);
+        $recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient', 'recipeIngredients.group', 'steps', 'media' => fn ($query) => $query->where('visibility', 'public'), 'provenances.contentSource']);
         $servings = max(1, (int) $request->integer('servings', $recipe->servings));
 
         $nutritionResult = $nutrition->snapshot($recipe, $servings);
@@ -55,7 +55,7 @@ final class RecipeController extends Controller
             'ingredientLines' => $ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings),
             'relatedRecipes' => Recipe::query()
                 ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'verification_status'])
-                ->with(['cuisine:id,public_id,name,slug', 'category:id,public_id,name,slug', 'media:id,mediable_type,mediable_id,path,alt_text,is_placeholder,verification_status,sort_order', 'dietaryTags:id,code,name'])
+                ->with(['cuisine:id,public_id,name,slug', 'category:id,public_id,name,slug', 'media' => fn ($query) => $query->select(['id', 'mediable_type', 'mediable_id', 'disk', 'path', 'alt_text', 'is_placeholder', 'verification_status', 'sort_order'])->where('visibility', 'public'), 'dietaryTags:id,code,name'])
                 ->where('status', 'published')
                 ->where('verification_status', 'verified')
                 ->whereKeyNot($recipe->id)
