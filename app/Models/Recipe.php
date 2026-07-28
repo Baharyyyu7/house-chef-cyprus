@@ -68,6 +68,12 @@ class Recipe extends Model
         return $this->morphMany(Media::class, 'mediable')->orderBy('sort_order');
     }
 
+    /** @return HasMany<AiImageGeneration, $this> */
+    public function aiImageGenerations(): HasMany
+    {
+        return $this->hasMany(AiImageGeneration::class)->latest();
+    }
+
     /** @return BelongsToMany<Allergen, $this> */
     public function allergenOverrides(): BelongsToMany
     {

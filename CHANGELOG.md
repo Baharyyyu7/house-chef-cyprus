@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Master Fix Phase B hazırlığı: 10 tariflik AI görsel pilot seçimi, provider health envanteri, maliyet hard-stop, prompt fidelity gate ve admin AI Görsel Stüdyosu taslak inceleme akışı eklendi. Gerçek üretim, ücretli çağrı veya public yayın yapılmadı.
+
 - Admin Panel V3 Part 2: household ölçü birimleri, ingredient dönüşümleri, nutrition, nutrient, allergen, dietary threshold ve Data Quality yönetim yüzeyleri ortak V3 table/form primitives ile yenilendi.
 - Yönetim filtreleri, güvenli detail tabloları, mobile controlled-scroll davranışı ve admin-only Feature testleri genişletildi.
 

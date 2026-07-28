@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use App\Models\Concerns\HasPublicId;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+final class AiImageGeneration extends Model
+{
+    use HasPublicId;
+
+    protected $fillable = ['recipe_id', 'media_id', 'provider', 'model', 'prompt', 'negative_prompt', 'prompt_version', 'aspect_ratio', 'variation_number', 'status', 'estimated_cost_cents', 'actual_cost_cents', 'error_code', 'error_message', 'review_notes', 'requested_at', 'generated_at', 'reviewed_at', 'reviewed_by_user_id'];
+
+    protected function casts(): array
+    {
+        return ['requested_at' => 'datetime', 'generated_at' => 'datetime', 'reviewed_at' => 'datetime'];
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'public_id';
+    }
+
+    /** @return BelongsTo<Recipe, $this> */
+    public function recipe(): BelongsTo
+    {
+        return $this->belongsTo(Recipe::class);
+    }
+
+    /** @return BelongsTo<Media, $this> */
+    public function media(): BelongsTo
+    {
+        return $this->belongsTo(Media::class);
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by_user_id');
+    }
+}

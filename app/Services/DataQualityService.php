@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\AiImageGeneration;
 use App\Models\DataQualityIssue;
 use App\Models\Ingredient;
 use App\Models\IngredientAlias;
@@ -159,6 +160,11 @@ final class DataQualityService
         $placeholderPaths = Recipe::query()->with('media')->get()->flatMap(fn (Recipe $recipe) => $recipe->media->filter(fn ($media): bool => (bool) $media->is_placeholder)->pluck('path'));
         foreach ($placeholderPaths->filter()->countBy()->filter(fn (int $count): bool => $count >= (int) config('data_quality.thresholds.placeholder_repetition'))->all() as $path => $count) {
             $issues[] = $this->genericIssue('catalogue_placeholder_repetition', 'warning', 'CatalogueMedia', hash('sha256', (string) $path), 'Aynı yer tutucu görsel katalogda '.$count.' kez kullanılıyor.', 'media', 'Öncelikli tarifler için farklı, doğrulanmış görseller hazırlayın.', ['repetition_count' => $count]);
+        }
+        foreach (AiImageGeneration::query()->with('recipe')->where('status', 'blocked_recipe_fidelity')->get() as $generation) {
+            if ($generation->recipe) {
+                $issues[] = $this->issue('ai_image_recipe_fidelity_blocked', 'error', $generation->recipe, 'AI görsel promptu, tarif adıyla uyumlu temel malzeme doğrulaması eksik olduğu için bloklandı.', 'data_trust', 'Önce tarifin temel malzemelerini editoryal olarak doğrulayın.');
+            }
         }
         if (app()->environment(['local', 'testing'])) {
             $fixturesPresent = User::query()->whereIn('email', ['member-a@housechef.local', 'member-b@housechef.local'])->count() === 2;

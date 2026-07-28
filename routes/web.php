@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AiImageStudioController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataQualityController;
@@ -72,6 +73,9 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('basarisiz-isler/toplu-yeniden-dene', [FailedJobController::class, 'retryMany'])->name('failed-jobs.retry-many');
     Route::delete('basarisiz-isler/{uuid}', [FailedJobController::class, 'forget'])->name('failed-jobs.forget');
     Route::get('medya', [AdminMediaController::class, 'index'])->name('media.index');
+    Route::get('ai-gorsel-studyosu', [AiImageStudioController::class, 'index'])->name('ai-image-studio.index');
+    Route::get('ai-gorsel-studyosu/{generation}', [AiImageStudioController::class, 'show'])->name('ai-image-studio.show');
+    Route::post('ai-gorsel-studyosu/{generation}/reddet', [AiImageStudioController::class, 'reject'])->name('ai-image-studio.reject');
     Route::get('medya/yukle', [AdminMediaController::class, 'create'])->name('media.create');
     Route::post('medya', [AdminMediaController::class, 'store'])->name('media.store');
     Route::post('medya/orphan-tara', [AdminMediaController::class, 'scanOrphans'])->name('media.scan-orphans');

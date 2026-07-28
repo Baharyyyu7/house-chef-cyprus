@@ -10,7 +10,11 @@ Semantic dark-mode tokens, explainable category scoring, real media/conversion/n
 - Hedef: Admin dark AA contrast, gerçek/approved media planı, Data Quality kapsamı ve skor açıklaması.
 - Kapanış: dark visual regression, quality scan fixtures, admin browser QA.
 
-## Faz B — Public/member güven deneyimi
+## Faz B — AI görsel pilotu (hazırlık tamamlandı, üretim bloklu)
+
+10 tariflik AI image pilotu için provider envanteri, maliyet hard-stop, prompt fidelity gate, admin inceleme taslakları ve medya metadata sözleşmesi hazırlandı. Seçili tariflerin çoğunda başlık/malzeme uyumsuzluğu bulunduğundan gerçek üretim başlatılmaz. Editoryal veri düzeltmesi, güncel maliyet/ticari kullanım belgesi ve kullanıcı maliyet onayı sonrasında yeniden açılır.
+
+## Faz B1 — Public/member güven deneyimi
 
 - Media rollout, recipe trust labels, member QA fixture, nutrition snapshot freshness.
 - Kapanış: 375/768/1440 public/member screenshots, no-placeholder policy ölçümü.

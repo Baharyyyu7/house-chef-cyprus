@@ -2,6 +2,8 @@
 
 > **Master Fix Phase A (2026-07-28):** AUD-001, AUD-003, AUD-004 and AUD-005 now have a transparent, testable baseline: semantic admin dark tokens, weighted Data Quality scoring, media/conversion/nutrition issue detection and local-only browser fixtures. Replacing placeholders with licensed approved media remains an editorial operation, not a completed engineering claim.
 
+> **Master Fix Phase B (2026-07-28):** 10-recipe AI image pilot controls are implemented but actual generation is blocked. The selected catalogue records must first pass title/ingredient fidelity, then a cost and commercial-use approval is required. No external image was copied and no billable image call was made.
+
 ## P1 — Önce çözülmeli
 
 | ID | Alan | Bulgu / çözüm hedefi | Efor | Bağımlılık |

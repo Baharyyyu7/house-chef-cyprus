@@ -7,6 +7,7 @@
             ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => 'menu'],
             ['route' => 'admin.recipe-verification.index', 'label' => 'İçerik Doğrulama', 'icon' => 'check'],
             ['route' => 'admin.media.index', 'label' => 'Medya', 'icon' => 'image'],
+            ['route' => 'admin.ai-image-studio.index', 'label' => 'AI Görsel Stüdyosu', 'icon' => 'image'],
         ],
         'Malzeme verisi' => [
             ['route' => 'admin.ingredients.index', 'label' => 'Malzemeler', 'icon' => 'search'],
