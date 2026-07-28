@@ -1,5 +1,7 @@
 # Master Product Audit — Prioritized Backlog
 
+> **Master Fix Phase A (2026-07-28):** AUD-001, AUD-003, AUD-004 and AUD-005 now have a transparent, testable baseline: semantic admin dark tokens, weighted Data Quality scoring, media/conversion/nutrition issue detection and local-only browser fixtures. Replacing placeholders with licensed approved media remains an editorial operation, not a completed engineering claim.
+
 ## P1 — Önce çözülmeli
 
 | ID | Alan | Bulgu / çözüm hedefi | Efor | Bağımlılık |

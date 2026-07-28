@@ -14,6 +14,8 @@ use App\Models\Recipe;
 use App\Models\RecipeIngredient;
 use App\Models\RecipeIngredientGroup;
 use App\Models\Unit;
+use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 
 final class DataQualityService
 {
@@ -47,19 +49,25 @@ final class DataQualityService
                 $issues[] = $this->issue('invalid_slug', 'error', $recipe, 'Tarif slug biçimi geçersiz.');
             }
             if ($recipe->recipe_ingredients_count > 0 && $recipe->media->isEmpty()) {
-                $issues[] = $this->issue('missing_media', 'info', $recipe, 'Tarif görseli yok.');
+                $issues[] = $this->issue('missing_media', 'warning', $recipe, 'Tarif görseli yok.', 'media', 'Tarife lisanslı ve doğrulanmış bir görsel ekleyin.');
+            }
+            if ($recipe->media->isNotEmpty() && $recipe->media->every(fn ($media): bool => (bool) $media->is_placeholder)) {
+                $issues[] = $this->issue('recipe_uses_placeholder_image', 'warning', $recipe, 'Tarif yalnız yer tutucu görsel kullanıyor.', 'media', 'Yer tutucu yerine doğrulanmış tarif görseli ekleyin.');
+            }
+            if ($recipe->media->isNotEmpty() && $recipe->media->where('is_placeholder', false)->where('verification_status', 'verified')->isEmpty()) {
+                $issues[] = $this->issue('recipe_missing_verified_media', 'warning', $recipe, 'Tarif için doğrulanmış gerçek görsel bulunmuyor.', 'media', 'Lisans ve doğrulama bilgisi olan gerçek görsel ekleyin.');
             }
             if ($recipe->content_origin === 'imported' && (! $recipe->source_name || ! $recipe->source_url)) {
-                $issues[] = $this->issue('missing_provenance', 'warning', $recipe, 'İçe aktarılan tarifin kaynak bilgisi eksik.');
+                $issues[] = $this->issue('missing_provenance', 'warning', $recipe, 'İçe aktarılan tarifin kaynak bilgisi eksik.', 'provenance', 'Kaynak adı ve izinli kaynak bağlantısını ekleyin.');
             }
             if ($recipe->provenances_count === 0) {
-                $issues[] = $this->issue('missing_content_source', 'error', $recipe, 'Tarif için aktif içerik kaynağı bulunmuyor.');
+                $issues[] = $this->issue('missing_content_source', 'error', $recipe, 'Tarif için aktif içerik kaynağı bulunmuyor.', 'provenance', 'Tarif provenance kaydını tamamlayın.');
             }
             if ($recipe->verification_status === 'needs_review') {
-                $issues[] = $this->issue('recipe_needs_editorial_review', 'warning', $recipe, 'Tarif editoryal doğrulama bekliyor.');
+                $issues[] = $this->issue('recipe_needs_editorial_review', 'warning', $recipe, 'Tarif editoryal doğrulama bekliyor.', 'data_trust', 'Editoryal incelemeyi tamamlayın.');
             }
             if ($recipe->status === 'published' && $recipe->verification_status !== 'verified') {
-                $issues[] = $this->issue('published_unverified_recipe', 'critical', $recipe, 'Yayındaki tarif doğrulanmış değil.');
+                $issues[] = $this->issue('published_unverified_recipe', 'critical', $recipe, 'Yayındaki tarif doğrulanmış değil.', 'data_trust', 'Yayından önce editoryal doğrulamayı tamamlayın.');
             }
             if ($recipe->image_status === 'missing') {
                 $issues[] = $this->issue('missing_recipe_image_status', 'info', $recipe, 'Tarifin görsel durumu eksik.');
@@ -81,11 +89,11 @@ final class DataQualityService
         foreach (IngredientAlias::query()->select('normalized_alias')->groupBy('normalized_alias')->havingRaw('COUNT(*) > 1')->get() as $alias) {
             $issues[] = $this->genericIssue('duplicate_ingredient_alias', 'warning', IngredientAlias::class, (string) $alias->normalized_alias, 'Aynı normalize malzeme takma adı birden fazla kez kullanılmış.');
         }
-        foreach (IngredientSubstitution::query()->whereColumn('ingredient_id', 'substitute_ingredient_id')->get() as $substitution) {
-            $issues[] = $this->genericIssue('self_reference_substitution', 'error', IngredientSubstitution::class, (string) $substitution->id, 'Malzeme kendisine alternatif olarak tanımlanmış.');
+        foreach (IngredientSubstitution::query()->with('ingredient')->whereColumn('ingredient_id', 'substitute_ingredient_id')->get() as $substitution) {
+            $issues[] = $this->genericIssue('self_reference_substitution', 'error', IngredientSubstitution::class, $substitution->ingredient?->public_id, 'Malzeme kendisine alternatif olarak tanımlanmış.');
         }
-        foreach (RecipeIngredient::query()->where(fn ($query) => $query->where('quantity', '<', 0)->orWhere('grams', '<', 0))->get() as $item) {
-            $issues[] = $this->genericIssue('negative_recipe_ingredient_quantity', 'error', RecipeIngredient::class, (string) $item->id, 'Tarif malzemesinde negatif miktar var.');
+        foreach (RecipeIngredient::query()->with('recipe')->where(fn ($query) => $query->where('quantity', '<', 0)->orWhere('grams', '<', 0))->get() as $item) {
+            $issues[] = $this->genericIssue('negative_recipe_ingredient_quantity', 'error', RecipeIngredient::class, $item->recipe?->public_id, 'Tarif malzemesinde negatif miktar var.');
         }
         foreach (RecipeIngredient::query()->with('recipe')->get() as $item) {
             $entity = $item->recipe?->public_id;
@@ -118,14 +126,48 @@ final class DataQualityService
         }
         foreach (IngredientUnitConversion::query()->get() as $conversion) {
             if (! $conversion->source_name) {
-                $issues[] = $this->genericIssue('missing_conversion_source', 'warning', IngredientUnitConversion::class, $conversion->public_id, 'Malzeme dönüşümünün kaynak bilgisi eksik.');
+                $issues[] = $this->genericIssue('conversion_missing_source', 'warning', IngredientUnitConversion::class, $conversion->public_id, 'Malzeme dönüşümünün kaynak bilgisi eksik.', 'measurements', 'Dönüşüm kaynağını ve doğrulama tarihini ekleyin.');
             }
             if ($conversion->canonical_quantity <= 0 || $conversion->household_quantity <= 0) {
                 $issues[] = $this->genericIssue('invalid_conversion_quantity', 'error', IngredientUnitConversion::class, $conversion->public_id, 'Malzeme dönüşümünde geçersiz miktar var.');
             }
+            if ((int) $conversion->confidence_score < (int) config('data_quality.thresholds.conversion_low_confidence') || in_array($conversion->verification_status, ['low', 'unknown'], true)) {
+                $issues[] = $this->genericIssue('conversion_low_confidence', 'warning', IngredientUnitConversion::class, $conversion->public_id, 'Malzeme dönüşümünün güven skoru düşük.', 'measurements', 'Malzeme bazlı kaynağı inceleyip dönüşümü doğrulayın.');
+            }
+            if ($conversion->source_type === 'seed_demo') {
+                $issues[] = $this->genericIssue('conversion_seed_demo', 'warning', IngredientUnitConversion::class, $conversion->public_id, 'Malzeme dönüşümü demo kaynaklı.', 'measurements', 'Demo dönüşümünü güvenilir bir kaynakla değiştirin.');
+            }
         }
-        foreach (NutritionFact::query()->where('value', '<', 0)->get() as $fact) {
-            $issues[] = $this->genericIssue('negative_nutrition_value', 'error', NutritionFact::class, (string) $fact->id, 'Besin değerinde negatif değer var.');
+        foreach (NutritionFact::query()->with(['nutritionable', 'nutrient'])->get() as $fact) {
+            $owner = $fact->nutritionable;
+            $ownerId = is_object($owner) && isset($owner->public_id) ? (string) $owner->public_id : 'nutrition-'.$fact->nutrient_id;
+            $factKey = $ownerId.'-'.((string) optional($fact->nutrient)->code ?: 'nutrient');
+            if ($fact->value < 0) {
+                $issues[] = $this->genericIssue('negative_nutrition_value', 'error', NutritionFact::class, $factKey, 'Besin değerinde negatif değer var.');
+            }
+            if ((int) $fact->confidence_score < (int) config('data_quality.thresholds.nutrition_low_confidence') || in_array($fact->origin, ['ai_estimated', 'calculated'], true)) {
+                $issues[] = $this->genericIssue('nutrition_low_confidence', 'warning', NutritionFact::class, $factKey, 'Besin değeri düşük güvenli veya tahmine dayalı.', 'nutrition', 'Besin verisini güvenilir bir kaynakla doğrulayın.');
+            }
+            if ($fact->origin === 'editorial') {
+                $issues[] = $this->genericIssue('nutrition_editorial_estimate', 'warning', NutritionFact::class, $factKey, 'Besin değeri editoryal tahmin olarak işaretli.', 'nutrition', 'Editoryal tahmini doğrulanmış kaynakla güncelleyin.');
+            }
+            if (! $fact->source_name) {
+                $issues[] = $this->genericIssue('nutrition_missing_source', 'warning', NutritionFact::class, $factKey, 'Besin değerinin kaynak bilgisi eksik.', 'nutrition', 'Besin kaynağını ve doğrulama tarihini ekleyin.');
+            }
+        }
+
+        $placeholderPaths = Recipe::query()->with('media')->get()->flatMap(fn (Recipe $recipe) => $recipe->media->filter(fn ($media): bool => (bool) $media->is_placeholder)->pluck('path'));
+        foreach ($placeholderPaths->filter()->countBy()->filter(fn (int $count): bool => $count >= (int) config('data_quality.thresholds.placeholder_repetition'))->all() as $path => $count) {
+            $issues[] = $this->genericIssue('catalogue_placeholder_repetition', 'warning', 'CatalogueMedia', hash('sha256', (string) $path), 'Aynı yer tutucu görsel katalogda '.$count.' kez kullanılıyor.', 'media', 'Öncelikli tarifler için farklı, doğrulanmış görseller hazırlayın.', ['repetition_count' => $count]);
+        }
+        if (app()->environment(['local', 'testing'])) {
+            $fixturesPresent = User::query()->whereIn('email', ['member-a@housechef.local', 'member-b@housechef.local'])->count() === 2;
+            if (! $fixturesPresent) {
+                $issues[] = $this->genericIssue('member_browser_qa_fixture_missing', 'info', 'OperationalQa', 'member-fixtures', 'Member tarayıcı QA fixture hesapları henüz oluşturulmadı.', 'operational_confidence', 'Yerel ortamda qa:seed-fixtures komutunu çalıştırın.');
+            }
+            if (! Cache::get('qa_browser.last_success')) {
+                $issues[] = $this->genericIssue('critical_browser_flow_not_verified', 'info', 'OperationalQa', 'browser-smoke', 'Kritik üye tarayıcı akışları için güncel QA kanıtı yok.', 'operational_confidence', 'Yerel browser smoke kontrolünü çalıştırın.');
+            }
         }
 
         return $issues;
@@ -158,40 +200,53 @@ final class DataQualityService
             }
         }
 
-        return ['new' => $new, 'updated' => $updated, 'resolved' => $resolved, 'score' => $this->score()];
+        $previous = Cache::get('data_quality.last_score');
+        $score = $this->score();
+        Cache::forever('data_quality.last_score', $score);
+
+        return ['new' => $new, 'updated' => $updated, 'resolved' => $resolved, 'score' => $score, 'previous_score' => is_int($previous) ? $previous : null];
     }
 
     public function score(): int
     {
-        $loss = DataQualityIssue::query()->where('resolution_status', 'open')->get()->sum(fn (DataQualityIssue $issue) => config('data_quality.penalties.'.$issue->severity, 0));
-
-        return max(0, 100 - $loss);
+        return $this->breakdown()['overall']['score'];
     }
 
-    /** @return array{overall:int,recipe:int,ingredient:int,nutrition:int,media:int,provenance:int,measurement:int} */
+    /** @return array<string, int> */
     public function categoryScores(): array
     {
-        $issues = DataQualityIssue::query()->where('resolution_status', 'open')->get();
-        $categories = [
-            'recipe' => fn (DataQualityIssue $issue): bool => $issue->entity_type === Recipe::class,
-            'ingredient' => fn (DataQualityIssue $issue): bool => in_array($issue->entity_type, [Ingredient::class, IngredientAlias::class, IngredientSubstitution::class], true),
-            'nutrition' => fn (DataQualityIssue $issue): bool => $issue->entity_type === NutritionFact::class || str_contains($issue->issue_type, 'nutrition'),
-            'media' => fn (DataQualityIssue $issue): bool => str_contains($issue->issue_type, 'media'),
-            'provenance' => fn (DataQualityIssue $issue): bool => str_contains($issue->issue_type, 'provenance') || str_contains($issue->issue_type, 'content_source') || str_contains($issue->issue_type, 'verification') || str_contains($issue->issue_type, 'published_unverified'),
-            'measurement' => fn (DataQualityIssue $issue): bool => str_contains($issue->issue_type, 'measurement') || str_contains($issue->issue_type, 'conversion'),
-        ];
-        $scores = ['overall' => $this->score()];
-        foreach ($categories as $category => $belongsToCategory) {
-            $loss = $issues->filter($belongsToCategory)->sum(fn (DataQualityIssue $issue) => (int) config('data_quality.penalties.'.$issue->severity, 0));
-            $scores[$category] = max(0, 100 - $loss);
-        }
-
-        return $scores;
+        return collect($this->breakdown())->map(fn (array $item): int => $item['score'])->all();
     }
 
-    private function issue(string $type, string $severity, Recipe $recipe, string $message): array
+    /** @return array<string, array{label:string,weight:int,score:int,open:int,failed:int,warning:int,critical:int,reasons:list<string>}> */
+    public function breakdown(): array
     {
-        return $this->genericIssue($type, $severity, Recipe::class, $recipe->public_id, $message);
+        $issues = DataQualityIssue::query()->where('resolution_status', 'open')->get();
+        $rows = [];
+        $weightedScore = 0.0;
+        foreach (config('data_quality.categories') as $key => $definition) {
+            $categoryIssues = $issues->filter(fn (DataQualityIssue $issue): bool => ($issue->category ?: $this->categoryFor($issue->issue_type, $issue->entity_type)) === $key);
+            $loss = $categoryIssues->sum(fn (DataQualityIssue $issue): int => (int) config('data_quality.penalties.'.$issue->severity, 0));
+            $score = max(0, 100 - $loss);
+            $weight = (int) $definition['weight'];
+            $weightedScore += $score * ($weight / 100);
+            $rows[$key] = [
+                'label' => (string) $definition['label'], 'weight' => $weight, 'score' => $score,
+                'open' => $categoryIssues->count(),
+                'failed' => $categoryIssues->whereIn('severity', ['critical', 'error'])->count(),
+                'warning' => $categoryIssues->where('severity', 'warning')->count(),
+                'critical' => $categoryIssues->where('severity', 'critical')->count(),
+                'reasons' => $categoryIssues->sortByDesc(fn (DataQualityIssue $issue): int => (int) config('data_quality.penalties.'.$issue->severity, 0))->pluck('message')->unique()->take(3)->values()->all(),
+            ];
+        }
+        $rows['overall'] = ['label' => 'Genel skor', 'weight' => 100, 'score' => (int) round($weightedScore), 'open' => $issues->count(), 'failed' => $issues->whereIn('severity', ['critical', 'error'])->count(), 'warning' => $issues->where('severity', 'warning')->count(), 'critical' => $issues->where('severity', 'critical')->count(), 'reasons' => $issues->sortByDesc(fn (DataQualityIssue $issue): int => (int) config('data_quality.penalties.'.$issue->severity, 0))->pluck('message')->unique()->take(5)->values()->all()];
+
+        return $rows;
+    }
+
+    private function issue(string $type, string $severity, Recipe $recipe, string $message, ?string $category = null, ?string $suggestedAction = null): array
+    {
+        return $this->genericIssue($type, $severity, Recipe::class, $recipe->public_id, $message, $category, $suggestedAction);
     }
 
     private function modelIssue(string $type, string $severity, Ingredient $ingredient, string $message): array
@@ -200,8 +255,35 @@ final class DataQualityService
     }
 
     /** @return array<string, mixed> */
-    private function genericIssue(string $type, string $severity, string $entityType, ?string $entityPublicId, string $message): array
+    private function genericIssue(string $type, string $severity, string $entityType, ?string $entityPublicId, string $message, ?string $category = null, ?string $suggestedAction = null, array $metadata = []): array
     {
-        return ['issue_type' => $type, 'severity' => $severity, 'message' => $message, 'entity_type' => $entityType, 'entity_public_id' => $entityPublicId];
+        return ['issue_type' => $type, 'severity' => $severity, 'category' => $category ?? $this->categoryFor($type, $entityType), 'message' => $message, 'suggested_action' => $suggestedAction ?? 'Kayıt doğrulama kontrol listesini inceleyin.', 'entity_type' => $entityType, 'entity_public_id' => $entityPublicId, 'metadata' => $metadata];
+    }
+
+    private function categoryFor(string $type, string $entityType): string
+    {
+        if (str_contains($type, 'media') || str_contains($type, 'image')) {
+            return 'media';
+        }
+        if (str_contains($type, 'conversion') || str_contains($type, 'measurement') || $entityType === IngredientUnitConversion::class) {
+            return 'measurements';
+        }
+        if (str_contains($type, 'nutrition') || $entityType === NutritionFact::class) {
+            return 'nutrition';
+        }
+        if (str_contains($type, 'allergen')) {
+            return 'allergens';
+        }
+        if (str_contains($type, 'dietary')) {
+            return 'dietary';
+        }
+        if (str_contains($type, 'provenance') || str_contains($type, 'content_source') || str_contains($type, 'verification') || str_contains($type, 'unverified')) {
+            return 'provenance';
+        }
+        if ($entityType === Ingredient::class || $entityType === IngredientAlias::class || $entityType === IngredientSubstitution::class) {
+            return 'data_trust';
+        }
+
+        return 'content_completeness';
     }
 }

@@ -13,3 +13,7 @@
 ## Sonuç
 
 Katalog kimlik, yayın/verification ve provenance bütünlüğünde güçlüdür. Görsel gerçeklik, nutrition freshness ve household conversion güveninde hâlâ demo/ara aşama karakteri vardır. “100/100 kalite” etiketi bu farkı şu an yansıtmaz.
+
+## Master Fix Phase A follow-up
+
+Data Quality V2 now models these gaps explicitly. The score is weighted by category and is explainable through safe issue reasons; placeholder media, media repetition, conversion confidence/source gaps and estimated or unsourced nutrition lower the relevant category rather than being hidden by technical integrity checks.

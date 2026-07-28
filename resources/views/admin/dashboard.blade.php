@@ -100,8 +100,7 @@
                     <div class="flex flex-wrap items-start justify-between gap-4"><div><p class="hc-kicker">VERİ GÜVENİ</p><h2 class="hc-heading-3 mt-1">Kalite skorları</h2></div><a href="{{ route('admin.data-quality.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Veri kalitesine git</a></div>
                     <div class="hc-admin-quality-grid mt-6">
                         @foreach ($qualityScores as $key => $score)
-                            @continue($key === 'measurement')
-                            <div><div class="flex items-center justify-between gap-3"><span>{{ match($key) { 'overall' => 'Genel', 'recipe' => 'Tarif', 'ingredient' => 'Malzeme', 'nutrition' => 'Beslenme', 'media' => 'Medya', 'provenance' => 'Kaynak', default => ucfirst($key) } }}</span><strong>{{ $score }}%</strong></div><div class="hc-admin-progress mt-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $score }}"><span style="width: {{ max(0, min(100, (int) $score)) }}%"></span></div></div>
+                            <div><div class="flex items-center justify-between gap-3"><span>{{ config('data_quality.categories.'.$key.'.label', $key === 'overall' ? 'Genel' : ucfirst(str_replace('_', ' ', $key))) }}</span><strong>{{ $score }}%</strong></div><div class="hc-admin-progress mt-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $score }}"><span style="width: {{ max(0, min(100, (int) $score)) }}%"></span></div></div>
                         @endforeach
                     </div>
                 </article>
@@ -122,7 +121,7 @@
                     @if (count($attention))
                         <div class="mt-4 space-y-3">
                             @foreach ($attention as $item)
-                                <a href="{{ route($item['route']) }}" class="hc-admin-attention hc-admin-attention--{{ $item['severity'] }}"><strong>{{ $item['label'] }}</strong><span>{{ $item['detail'] }}</span></a>
+                                <a href="{{ $item['url'] ?? route($item['route']) }}" class="hc-admin-attention hc-admin-attention--{{ $item['severity'] }}"><strong>{{ $item['label'] }}</strong><span>{{ $item['detail'] }}</span></a>
                             @endforeach
                         </div>
                     @else

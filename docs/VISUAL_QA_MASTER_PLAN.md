@@ -22,6 +22,10 @@ Her teslim light/dark, 375/768/1024/1440 px, keyboard focus ve reduced-motion du
 2. Visual QA turu 1: gerçek browser walkthrough; critical/P1 bulguların listesi.
 3. Correction: yalnız bulgular ve regresyonlar.
 4. Visual QA turu 2: aynı matrix tekrar.
+
+## Local Phase A fixture path
+
+`php artisan qa:seed-fixtures --reset` creates only local/testing member fixtures for authenticated walkthroughs. `scripts/qa-browser-smoke.sh` validates guest routes and fixture readiness; visual review remains a deliberate human/browser step and is never inferred from the script.
 5. Full regression: PHPUnit, Pint, PHPStan, build, cache config/route/view, OpenAPI, environment, clean-install, CI.
 
 ## Kabul kriterleri

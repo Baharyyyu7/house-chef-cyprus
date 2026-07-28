@@ -69,3 +69,8 @@
 # Public Pages V3 Part 3
 
 - Mobile-first Cooking Mode ve ortak V3 auth surface uygulandı.
+# Master Fix Phase A (geliştirme)
+
+- Admin koyu tema kontrastı semantik V3 tokenlarıyla güçlendirildi.
+- Data Quality V2 medya, ölçüm, nutrition ve yerel QA güven sinyallerini açıklanabilir kategori skorlarına bağladı.
+- Yerel QA fixture ve tarif görsel denetim komutları eklendi.

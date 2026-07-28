@@ -56,8 +56,8 @@ final class DataQualityFoundationTest extends TestCase
         DataQualityIssue::create(['issue_type' => 'missing_recipe_title', 'severity' => 'critical', 'entity_type' => Recipe::class, 'entity_public_id' => (string) Str::ulid(), 'message' => 'Eksik', 'detected_at' => now(), 'first_detected_at' => now(), 'last_detected_at' => now(), 'resolution_status' => 'open']);
         $scores = app(DataQualityService::class)->categoryScores();
 
-        $this->assertSame(75, $scores['overall']);
-        $this->assertSame(75, $scores['recipe']);
+        $this->assertSame(96, $scores['overall']);
+        $this->assertSame(75, $scores['content_completeness']);
         $this->assertSame(100, $scores['nutrition']);
     }
 

@@ -1,5 +1,9 @@
 # Master Fix Phases
 
+## Faz A — completed engineering baseline
+
+Semantic dark-mode tokens, explainable category scoring, real media/conversion/nutrition signals, local QA fixtures and image audit tooling were delivered on `visual-redesign-v2`. Editorial replacement of placeholder media continues in the controlled content backlog.
+
 ## Faz A — P1 güven, kontrast ve skor doğruluğu
 
 - AUD-001..004.

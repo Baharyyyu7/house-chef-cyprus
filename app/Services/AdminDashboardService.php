@@ -187,6 +187,17 @@ final class AdminDashboardService
         if ($backup === null) {
             $alerts[] = ['severity' => 'info', 'label' => 'Yedek kaydı yok', 'detail' => 'Henüz listelenebilir bir yedek kaydı bulunmuyor.', 'route' => 'admin.backups.index'];
         }
+        foreach ([
+            ['recipe_uses_placeholder_image', 'warning', 'Yer tutucu tarif görselleri', 'Yer tutucu görsellerin doğrulanmış görsellerle değiştirilmesi gerekiyor.'],
+            ['conversion_low_confidence', 'warning', 'Düşük güvenli ölçü dönüşümleri', 'Ölçü dönüşümlerini kaynakla doğrulayın.'],
+            ['nutrition_low_confidence', 'warning', 'Tahmini nutrition verisi', 'Tahmine dayalı nutrition kayıtlarını doğrulayın.'],
+            ['member_browser_qa_fixture_missing', 'info', 'Member browser QA fixture eksik', 'Yerel QA fixture komutu henüz çalıştırılmamış.'],
+        ] as [$type, $severity, $label, $fallback]) {
+            $count = DataQualityIssue::query()->where('resolution_status', 'open')->where('issue_type', $type)->count();
+            if ($count > 0) {
+                $alerts[] = ['severity' => $severity, 'label' => $label, 'detail' => $count === 1 ? $fallback : $count.' açık kayıt var.', 'url' => route('admin.data-quality.index', ['issue_type' => $type, 'status' => 'open'])];
+            }
+        }
 
         return $alerts;
     }

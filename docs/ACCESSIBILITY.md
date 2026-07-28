@@ -20,6 +20,10 @@ V3 ekranları etiketli form alanları, açıklamalı durum metinleri, erişilebi
 # Admin Dashboard V3
 
 Admin drawer dialog semantiği, Escape kapama, dışarı tıklama ve scroll lock kullanır. Sidebar/topbar aksiyonları görünür focus alır. Period kontrolü erişilebilir grup olarak etiketlenir. Metric kartı yalnız renkle anlam taşımaz; trend metni ve yeterli veri olmadığı durumu yazılıdır. Grafikler `aria-label` ve aynı veriyi açıklayan metinsel özet taşır.
+
+## Master Fix Phase A — admin dark mode
+
+Admin dark mode uses semantic foreground, muted-text, border, surface and chart variables instead of fixed dark utility colors. This keeps text, input, table and chart contrast reviewable across the shared V3 shell; keyboard focus and reduced-motion behavior remain unchanged.
 # Admin V3 Part 2
 
 CRUD ekranlarında filtre kontrollerinin görünür etiketleri veya ekran okuyucu etiketleri, tablist semantiği, hata alert’leri, durum metinleri ve kontrollü yatay tablo kaydırması uygulanır. Reduced-motion tercihi V3 geçişlerini devre dışı bırakır.

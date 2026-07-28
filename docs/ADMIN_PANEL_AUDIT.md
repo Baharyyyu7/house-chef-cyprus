@@ -1,5 +1,9 @@
 # Admin Panel Audit
 
+## Master Fix Phase A follow-up
+
+The admin shell now uses semantic V3 tokens for surfaces, text, borders, forms and Chart.js palettes in dark mode. The Data Quality page exposes weighted category scores and safe, actionable issue reasons instead of presenting editorial gaps as a perfect score.
+
 ## Browser kanıtı
 
 Admin dashboard ve Data Quality 1024–1440 viewport’ta açıldı. Sidebar grupları, breadcrumb, metric cards, filtreler, empty state, bulk action surface ve responsive table shell görünür durumda.

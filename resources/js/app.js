@@ -9,19 +9,15 @@ const chartInstances = new WeakMap();
 const cssVariable = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 const palette = () => [
-    cssVariable('--hc-brand-primary'),
-    '#fb923c',
-    '#fbbf24',
-    '#60a5fa',
-    '#c084fc',
-    '#f472b6',
-    '#2dd4bf',
-    '#a3e635',
+    cssVariable('--hc-chart-1'),
+    cssVariable('--hc-chart-2'),
+    cssVariable('--hc-chart-3'),
+    cssVariable('--hc-chart-4'),
+    cssVariable('--hc-chart-5'),
 ];
 
 const chartConfig = (data) => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const dark = document.documentElement.classList.contains('dark');
     const text = cssVariable('--hc-text-secondary');
     const grid = cssVariable('--hc-border-subtle');
     const colors = palette();
@@ -35,7 +31,7 @@ const chartConfig = (data) => {
                 label: data.title,
                 data: data.values,
                 backgroundColor: isDonut ? colors : `${colors[0]}cc`,
-                borderColor: isDonut ? (dark ? '#171717' : '#fffdfc') : colors[0],
+                borderColor: isDonut ? cssVariable('--hc-chart-surface') : colors[0],
                 borderWidth: isDonut ? 3 : 2,
                 borderRadius: data.type === 'bar' ? 8 : 0,
                 tension: data.type === 'line' ? 0.34 : 0,
@@ -50,7 +46,7 @@ const chartConfig = (data) => {
             animation: reducedMotion ? false : { duration: 420, easing: 'easeOutQuart' },
             plugins: {
                 legend: { display: isDonut, position: 'bottom', labels: { color: text, boxWidth: 10, padding: 14, font: { family: 'Inter' } } },
-                tooltip: { backgroundColor: dark ? '#0b0b0c' : '#171717', titleColor: '#fffaf5', bodyColor: '#fffaf5', padding: 11, cornerRadius: 10 },
+                tooltip: { backgroundColor: cssVariable('--hc-surface-overlay'), titleColor: cssVariable('--hc-text-primary'), bodyColor: cssVariable('--hc-text-secondary'), borderColor: cssVariable('--hc-border-default'), borderWidth: 1, padding: 11, cornerRadius: 10 },
             },
             scales: isDonut ? {} : {
                 x: { grid: { display: false }, ticks: { color: text, maxRotation: 0, autoSkipPadding: 14, font: { family: 'Inter' } } },

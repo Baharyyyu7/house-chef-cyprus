@@ -1,5 +1,9 @@
 # Database Schema
 
+## Data quality explanations
+
+`data_quality_issues` stores a stable fingerprint, severity, entity public identifier, first/last detection times and resolution state. The Master Fix Phase A migration adds nullable `category` and `suggested_action` fields so the admin surface can explain score deductions without exposing raw technical payloads. Existing rows remain backward-compatible and are categorized by their issue type at read time.
+
 ## Recipe ingredient groups
 
 `recipe_ingredient_groups` stores a public ULID, recipe ownership, trimmed display name and stable sort order. `recipe_ingredients.recipe_ingredient_group_id` is nullable for backwards-compatible migration, references the group with `nullOnDelete`, and is indexed with ingredient sort order. Application deletion moves lines to the recipe-local `Malzemeler` fallback before deleting a non-default group.
