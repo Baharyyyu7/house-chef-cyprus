@@ -13,3 +13,7 @@ Tarif koleksiyonu 375 px'te tek, 768 px'te iki, 1024 px'te üç ve geniş ekrand
 # Member collections
 
 Matching 1280px altında kontrollü filtre paneli, pantry ve favorites ise 375px'te tek kolon kart düzeni kullanır; geniş ekranlarda dengeli iki/üç kolon davranışı korunur.
+
+# Admin V3 dashboard
+
+375 px'te dashboard tek kolon ve tam genişlik period seçici, 768 px'te iki/üç metrik kartı, 1024 px'te daraltılabilir sidebar, 1440 px'te içerik + secondary rail kullanır. Grafik canvasları minimum okunabilir yüksekliğini korur; uzun Türkçe etiketler sarılır ve tablo/menü overflow üretmez.

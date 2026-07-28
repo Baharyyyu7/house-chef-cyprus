@@ -5,12 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\DataSource;
-use App\Models\Media;
-use App\Models\Recipe;
-use App\Models\User;
-use App\Services\HealthService;
-use App\Services\Observability\MetricService;
+use App\Services\AdminDashboardService;
 use App\Services\QueueHealthService;
 use App\Services\SchedulerHealthService;
 use Illuminate\Http\RedirectResponse;
@@ -19,12 +14,9 @@ use Illuminate\View\View;
 
 final class DashboardController extends Controller
 {
-    public function __invoke(QueueHealthService $queue, SchedulerHealthService $scheduler, HealthService $health, MetricService $metrics): View
+    public function __invoke(AdminDashboardService $dashboard): View
     {
-        $schedulerCache = Cache::get('scheduler.health', []);
-        $schedulerCache = is_array($schedulerCache) ? $schedulerCache : [];
-
-        return view('admin.dashboard', ['recipeCount' => Recipe::count(), 'userCount' => User::count(), 'sourceCount' => DataSource::count(), 'queueHealth' => $queue->snapshot(), 'schedulerHealth' => $scheduler->snapshot(), 'health' => $health->snapshot(), 'metrics' => $metrics->summary((int) request('period', 1)), 'cacheHealth' => ['driver' => config('cache.default'), 'status' => 'healthy'], 'mediaHealth' => ['public_writable' => is_writable(storage_path('app/public')), 'private_writable' => is_writable(storage_path('app/private')), 'failed_processing' => Media::query()->where('processing_status', 'failed')->count(), 'pending_thumbnails' => Media::query()->whereIn('thumbnail_status', ['pending', 'processing'])->count(), 'last_cleanup' => $schedulerCache['last_completed_at'] ?? null], 'lastRefreshAt' => Cache::get('admin.system_health.last_refresh_at')]);
+        return view('admin.dashboard', $dashboard->dashboard((int) request('period', 7)));
     }
 
     public function refreshQueue(QueueHealthService $queue): RedirectResponse

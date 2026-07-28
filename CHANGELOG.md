@@ -9,6 +9,7 @@
 - Closed Master Redesign Faz 3 documentation at 50 published/verified editorial recipes; Faz 3A/3B/3C intermediate targets are superseded and the controlled 150-recipe expansion remains deferred.
 - Defined Public Pages V3 Redesign as the next active scope without starting its implementation.
 - Completed Public Pages V3 / Part 1: verified recipe catalogue filters, V3 reusable recipe cards, deterministic media placeholders, detail hero, household serving controls, trust/source summaries, conditional equipment/tips/storage panels and related recipes.
+- Added Admin Panel V3 / Part 1: responsive admin shell, grouped navigation, real cached dashboard analytics, Chart.js visualisations, system summary, safe activity/attention panels and reduced-motion support.
 
 ## Master Product Redesign — Faz 0 Planı
 

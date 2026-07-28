@@ -13,32 +13,38 @@
     <script>if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, scrolled: false }" x-init="document.documentElement.classList.toggle('dark', dark); $watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light' })" class="min-h-screen antialiased">
+<body x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, adminSidebarCollapsed: false, scrolled: false }"
+    x-init="document.documentElement.classList.toggle('dark', dark); $watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light'; window.dispatchEvent(new CustomEvent('hc-theme-changed')); }); $watch('adminMenuOpen', value => document.body.classList.toggle('overflow-hidden', value))"
+    @keydown.escape.window="adminMenuOpen = false"
+    class="min-h-screen antialiased">
     @if (request()->routeIs('admin.*'))
-        <div class="min-h-screen bg-paper dark:bg-stone-950 lg:grid lg:grid-cols-[17.5rem_minmax(0,1fr)]">
-            <aside class="fixed inset-y-0 left-0 z-50 hidden w-[17.5rem] bg-forest-900 lg:block">
+        <div class="admin-shell min-h-screen lg:grid" :class="adminSidebarCollapsed ? 'lg:grid-cols-[5.25rem_minmax(0,1fr)]' : 'lg:grid-cols-[17.5rem_minmax(0,1fr)]'">
+            <aside class="admin-shell__sidebar fixed inset-y-0 left-0 z-50 hidden lg:block" :class="adminSidebarCollapsed ? 'w-[5.25rem]' : 'w-[17.5rem]'">
                 <x-admin-sidebar />
             </aside>
 
             <div class="lg:col-start-2">
-                <header class="sticky top-0 z-30 border-b border-stone-200/80 bg-paper/95 backdrop-blur dark:border-stone-800 dark:bg-stone-950/95">
-                    <div class="flex h-17 items-center justify-between px-4 sm:px-7">
+                <header class="admin-topbar sticky top-0 z-30">
+                    <div class="flex min-h-[4.5rem] items-center justify-between gap-3 px-4 sm:px-7">
                         <button @click="adminMenuOpen = true" class="hc-v3-btn hc-v3-btn--outline px-3 py-2 lg:hidden" aria-label="Yönetim menüsünü aç"><x-ui.icon name="menu" size="20" /></button>
-                        <div>
-                            <p class="hc-kicker">House Chef Cyprus</p>
-                            <p class="text-sm font-semibold text-forest-900 dark:text-cream">Yönetim merkezi</p>
+                        <div class="min-w-0 flex-1">
+                            <nav aria-label="Breadcrumb" class="hc-admin-breadcrumb"><span>Yönetim</span><span aria-hidden="true">/</span><span aria-current="page">{{ $title ?? 'Genel Bakış' }}</span></nav>
+                            <p class="truncate text-sm font-extrabold" style="color:var(--hc-text-primary)">{{ $title ?? 'Genel Bakış' }}</p>
                         </div>
                         <div class="flex items-center gap-2">
+                            @if (Route::has('admin.recipes.create'))
+                                <a href="{{ route('admin.recipes.create') }}" class="hc-v3-btn hc-v3-btn--primary hidden sm:inline-flex"><x-ui.icon name="plus" size="16" />Yeni tarif</a>
+                            @endif
                             <button @click="dark = !dark" class="hc-v3-btn hc-v3-btn--outline px-3 py-2" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"><span x-show="dark"><x-ui.icon name="sun" size="18" /></span><span x-show="!dark"><x-ui.icon name="moon" size="18" /></span></button>
-                            <a href="{{ route('profile') }}" class="hidden text-sm font-semibold text-forest-800 hover:text-gold-600 sm:inline">{{ auth()->user()->name }}</a>
+                            <a href="{{ route('profile') }}" class="admin-topbar__user hidden sm:inline-flex" aria-label="Profil ayarları">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</a>
                         </div>
                     </div>
                 </header>
 
-                <div x-cloak x-show="adminMenuOpen" class="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Yönetim menüsü">
-                    <div @click="adminMenuOpen = false" class="absolute inset-0 bg-forest-950/60"></div>
-                    <aside x-show="adminMenuOpen" x-transition class="relative h-full w-72 bg-forest-900 shadow-2xl">
-                        <button @click="adminMenuOpen = false" class="absolute right-3 top-3 rounded-lg p-2 text-white hover:bg-white/10" aria-label="Menüyü kapat"><x-ui.icon name="close" size="20" /></button>
+                <div x-cloak x-show="adminMenuOpen" x-transition.opacity class="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Yönetim menüsü" @click.self="adminMenuOpen = false">
+                    <div class="absolute inset-0 bg-black/60" aria-hidden="true"></div>
+                    <aside x-ref="adminDrawer" x-show="adminMenuOpen" x-transition:enter="transition ease-out duration-220" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-160" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" x-init="$watch('adminMenuOpen', open => { if (open) { $nextTick(() => $refs.adminDrawer.querySelector('[data-drawer-close]')?.focus()) } })" @keydown.tab.prevent="const items = [...$el.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex=\'-1\'])')].filter(item => !item.hidden); const current = items.indexOf(document.activeElement); const next = $event.shiftKey ? (current <= 0 ? items.length - 1 : current - 1) : (current === items.length - 1 ? 0 : current + 1); items[next]?.focus()" class="admin-shell__sidebar relative h-full w-[18rem] max-w-[86vw] shadow-2xl">
+                        <button data-drawer-close @click="adminMenuOpen = false" class="absolute right-3 top-3 rounded-lg p-2 text-white hover:bg-white/10" aria-label="Menüyü kapat"><x-ui.icon name="close" size="20" /></button>
                         <x-admin-sidebar />
                     </aside>
                 </div>

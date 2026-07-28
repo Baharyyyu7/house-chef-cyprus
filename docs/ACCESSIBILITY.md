@@ -16,3 +16,7 @@ Tarif arşivindeki tüm filtre alanlarının görünür label'ı vardır; aktif 
 # Matching, Pantry ve Favorites
 
 V3 ekranları etiketli form alanları, açıklamalı durum metinleri, erişilebilir chip/aksiyon adları ve reduced-motion ile uyumlu Alpine geçişleri kullanır.
+
+# Admin Dashboard V3
+
+Admin drawer dialog semantiği, Escape kapama, dışarı tıklama ve scroll lock kullanır. Sidebar/topbar aksiyonları görünür focus alır. Period kontrolü erişilebilir grup olarak etiketlenir. Metric kartı yalnız renkle anlam taşımaz; trend metni ve yeterli veri olmadığı durumu yazılıdır. Grafikler `aria-label` ve aynı veriyi açıklayan metinsel özet taşır.

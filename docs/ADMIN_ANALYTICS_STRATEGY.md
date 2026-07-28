@@ -4,9 +4,9 @@
 
 Admin dashboard hiçbir zaman demo/sahte trend üretmez. Metrik yoksa zaman aralığı, veri eksikliği nedeni ve sonraki ölçüm adımı açıklanan empty state gösterilir. Aggregate sorgular service katmanından gelir, kısa TTL cache ile korunur ve public/admin yetki sınırlarını aşmaz.
 
-## Mevcut kapasite ve boşluk
+## Mevcut kapasite ve uygulama
 
-Mevcut modeller: `SystemMetric`, `SystemEvent`, `AuditLog`, `DataQualityIssue`, `RestoreHistory`, failed jobs, scheduler/queue/cache/health servisleri. Dashboard temel özet ve sistem health sağlayabiliyor; dönemsel chart data contract, metric aggregation endpoint/service, trend history ve responsive chart bileşeni yok. Recipe/favorite/matching/cooking görüntülenme trendi için event toplama kapsamı tanımlı değil; bu yüzden grafik gösterilmez.
+Mevcut modeller: `SystemMetric`, `SystemEvent`, `AuditLog`, `DataQualityIssue`, `RestoreHistory`, failed jobs, scheduler/queue/cache/health servisleri. `AdminDashboardService`, period doğrulama, üç dakikalık cache ve güvenli view sözleşmesini sağlar. Chart.js ile tarif trendi, mutfak dağılımı ve doğrulama dağılımı gerçek aggregate verisinden gösterilir. Recipe/favorite/matching/cooking görüntülenme trendi için event toplama kapsamı tanımlı değil; bu yüzden grafik gösterilmez.
 
 ## Dashboard metrik sözleşmesi
 
@@ -21,9 +21,9 @@ Mevcut modeller: `SystemMetric`, `SystemEvent`, `AuditLog`, `DataQualityIssue`, 
 | Favori/matching/cooking | Audit/system metrics yalnız event varsa | Chart veya empty | Yeni event üretmeden veri uydurma |
 | Request/error/media trendi | SystemMetric/SystemEvent aggregate | Chart veya empty | Kısa TTL cache |
 
-## Grafik altyapısı önerisi
+## Grafik altyapısı
 
-Faz 7'de Blade/Alpine uyumlu, lisansı uygun ve hafif bir SVG/canvas chart kütüphanesi seçilir. Seçimden önce bundle boyutu, keyboard tooltip, aria label, dark tokens, reduced-motion, print/export ve CSP uyumu ölçülür. Grafik veri endpointi yalnız admin policy'si arkasında aggregate JSON döndürür; raw audit metadata, IP, token ve kullanıcı içeriği döndürmez.
+Chart.js 4 seçildi; karar gerekçesi `CHART_LIBRARY_DECISION.md` içindedir. Grafik veri endpointi eklenmez: ilk sürüm server-rendered, admin-policy arkasındaki aggregate sözleşmesini kullanır; raw audit metadata, IP, token ve kullanıcı içeriği döndürmez.
 
 Her chart bileşeni: 24 saat/7 gün/30 gün/90 gün seçici, loading skeleton, accessible summary table, empty state, tooltip, legend ve reduced-motion statik başlangıç durumuna sahip olur.
 

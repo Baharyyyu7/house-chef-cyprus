@@ -1,42 +1,148 @@
-<x-layouts.site title="Yönetim">
-    <section class="mx-auto max-w-6xl px-5 py-12 hc-v3-section-reveal">
-        <p class="font-bold text-orange-700">YÖNETİM PANELİ</p>
-        <h1 class="mt-2 hc-heading-1">Sistem durumu</h1>
+<x-layouts.site title="Genel Bakış">
+    @php
+        $periods = [1 => '24 saat', 7 => '7 gün', 30 => '30 gün', 90 => '90 gün'];
+        $statusLabel = static fn (string $status): string => match ($status) {
+            'healthy', 'ok' => 'Sağlıklı',
+            'degraded', 'delayed' => 'Dikkat gerekli',
+            'unhealthy', 'failed' => 'Sorun var',
+            default => 'Henüz veri yok',
+        };
+    @endphp
 
-        @if (session('status'))
-            <p class="mt-4 rounded-xl bg-emerald-50 p-3 text-emerald-900">{{ session('status') }}</p>
-        @endif
-
-        <div class="mt-8 grid gap-5 md:grid-cols-3 hc-v3-stagger">
-            <x-ui.card variant="interactive"><p class="hc-label-md" style="color:var(--hc-text-muted)">Toplam tarif</p><strong class="mt-2 block hc-display-lg">{{ $recipeCount }}</strong></x-ui.card>
-            <x-ui.card variant="interactive"><p class="hc-label-md" style="color:var(--hc-text-muted)">Kullanıcılar</p><strong class="mt-2 block hc-display-lg">{{ $userCount }}</strong></x-ui.card>
-            <x-ui.card variant="interactive"><p class="hc-label-md" style="color:var(--hc-text-muted)">Veri kaynakları</p><strong class="mt-2 block hc-display-lg">{{ $sourceCount }}</strong></x-ui.card>
+    <section class="hc-admin-dashboard hc-v3-section-reveal">
+        <div class="hc-admin-page-header">
+            <div>
+                <p class="hc-kicker">YÖNETİM / GENEL BAKIŞ</p>
+                <h1 class="hc-heading-1 mt-2">İçerik ve operasyon özeti</h1>
+                <p class="hc-body-sm mt-3 max-w-2xl" style="color:var(--hc-text-secondary)">Tüm sayılar, seçilen dönem ve mevcut kayıtlar üzerinden hesaplanır. Veri oluşmamış alanlar açıkça belirtilir.</p>
+            </div>
+            <div class="hc-admin-periods" role="group" aria-label="Dashboard dönemi">
+                @foreach ($periods as $days => $label)
+                    <a href="{{ route('admin.dashboard', ['period' => $days]) }}" @class(['hc-admin-period', 'hc-admin-period--active' => $period === $days]) aria-current="{{ $period === $days ? 'true' : 'false' }}">{{ $label }}</a>
+                @endforeach
+            </div>
         </div>
 
-        <p class="mt-6 text-sm text-stone-500">Son yenileme: {{ $lastRefreshAt ?? 'Henüz manuel yenileme yapılmadı' }}</p>
-        <section class="mt-4 rounded-2xl bg-white p-6 shadow"><div class="flex justify-between"><h2 class="text-xl font-black">Health: {{ $health['status'] }}</h2><a class="font-bold text-orange-700" href="{{ route('admin.system-events.index') }}">Sistem olayları →</a></div><div class="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">@foreach($health['components'] as $component)<div class="rounded border p-3"><strong>{{ $component['name'] }}</strong><span class="block text-sm text-stone-600">{{ $component['status'] }} · {{ $component['safe_message'] }}</span></div>@endforeach</div></section>
-        <section class="mt-4 rounded-2xl bg-white p-6 shadow"><div class="flex gap-3"><h2 class="text-xl font-black">Metrikler · {{ $metrics['period_days'] }} gün</h2><a href="?period=1">24s</a><a href="?period=7">7g</a><a href="?period=30">30g</a></div><dl class="mt-3 grid grid-cols-3 gap-3"><dt>Request <b>{{ $metrics['requests'] }}</b></dt><dt>Hata <b>{{ $metrics['errors'] }}</b></dt><dt>Ort. süre <b>{{ $metrics['average_duration_ms'] }} ms</b></dt></dl></section>
+        <p class="hc-caption mt-4" style="color:var(--hc-text-muted)">Güncelleme: {{ \Illuminate\Support\Carbon::parse($updatedAt)->translatedFormat('d M Y, H:i') }} · {{ $periodLabel }}</p>
 
-        <section class="mt-4 grid gap-5 lg:grid-cols-3">
-            <article class="rounded-2xl bg-white p-6 shadow">
-                <div class="flex items-start justify-between gap-3"><h2 class="text-xl font-black">Queue</h2><span class="rounded-full bg-stone-100 px-2 py-1 text-xs">{{ $queueHealth['overall_status'] }}</span></div>
-                <dl class="mt-4 grid grid-cols-2 gap-2 text-sm"><dt>Pending</dt><dd>{{ $queueHealth['pending_jobs'] }}</dd><dt>Reserved</dt><dd>{{ $queueHealth['reserved_jobs'] }}</dd><dt>Failed</dt><dd>{{ $queueHealth['failed_jobs'] }}</dd><dt>Stuck</dt><dd>{{ $queueHealth['stuck_jobs'] }}</dd><dt>Tekrarlayan hata</dt><dd>{{ $queueHealth['repeated_failures'] }}</dd><dt>Worker</dt><dd>{{ $queueHealth['worker_count'] }}</dd><dt>Sağlıklı</dt><dd>{{ $queueHealth['healthy_workers'] }}</dd><dt>Ulaşılamayan</dt><dd>{{ $queueHealth['unavailable_workers'] }}</dd></dl>
-                <div class="mt-5 flex flex-wrap gap-3"><form method="post" action="{{ route('admin.system-status.refresh-queue') }}">@csrf<button class="font-bold text-orange-700">Queue yenile</button></form><a class="font-bold text-orange-700" href="{{ route('admin.failed-jobs.index') }}">Başarısız işler →</a></div>
-            </article>
-            <article class="rounded-2xl bg-white p-6 shadow">
-                <div class="flex items-start justify-between gap-3"><h2 class="text-xl font-black">Scheduler</h2><span class="rounded-full bg-stone-100 px-2 py-1 text-xs">{{ $schedulerHealth['status'] }}</span></div>
-                <dl class="mt-4 grid grid-cols-2 gap-2 text-sm"><dt>Kayıtlı görev</dt><dd>{{ $schedulerHealth['task_count'] }}</dd><dt>Son görev</dt><dd>{{ $schedulerHealth['last_task_name'] ?? 'Henüz yok' }}</dd><dt>Son süre</dt><dd>{{ isset($schedulerHealth['last_duration_ms']) ? $schedulerHealth['last_duration_ms'].' ms' : '—' }}</dd><dt>Son çalışma</dt><dd>{{ $schedulerHealth['last_completed_at'] ?? '—' }}</dd></dl>
-                <form class="mt-5" method="post" action="{{ route('admin.system-status.refresh-scheduler') }}">@csrf<button class="font-bold text-orange-700">Scheduler yenile</button></form>
-            </article>
-            <article class="rounded-2xl bg-white p-6 shadow">
-                <h2 class="text-xl font-black">Cache</h2><dl class="mt-4 grid grid-cols-2 gap-2 text-sm"><dt>Sürücü</dt><dd>{{ $cacheHealth['driver'] }}</dd><dt>Durum</dt><dd>{{ $cacheHealth['status'] }}</dd></dl><form class="mt-5" method="post" action="{{ route('admin.system-status.refresh-cache') }}">@csrf<button class="font-bold text-orange-700">Cache yenile</button></form>
-            </article>
-            <article class="rounded-2xl bg-white p-6 shadow">
-                <div class="flex items-start justify-between gap-3"><h2 class="text-xl font-black">Medya sağlığı</h2><a class="text-sm font-bold text-orange-700" href="{{ route('admin.media.index') }}">Medya →</a></div>
-                <dl class="mt-4 grid grid-cols-2 gap-2 text-sm"><dt>Public yazılabilir</dt><dd>{{ $mediaHealth['public_writable'] ? 'Evet' : 'Hayır' }}</dd><dt>Private yazılabilir</dt><dd>{{ $mediaHealth['private_writable'] ? 'Evet' : 'Hayır' }}</dd><dt>Başarısız işleme</dt><dd>{{ $mediaHealth['failed_processing'] }}</dd><dt>Bekleyen thumbnail</dt><dd>{{ $mediaHealth['pending_thumbnails'] }}</dd><dt>Son cleanup</dt><dd>{{ $mediaHealth['last_cleanup'] ?? '—' }}</dd></dl>
-            </article>
+        <section class="hc-admin-metrics hc-v3-stagger mt-7" aria-label="Temel metrikler">
+            @foreach ($cards as $card)
+                <article class="hc-admin-metric hc-v3-card hc-v3-card--interactive" aria-label="{{ $card['label'] }}: {{ $card['current_value'] ?? 'veri yok' }}{{ $card['suffix'] }}">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="hc-label-md" style="color:var(--hc-text-muted)">{{ $card['label'] }}</p>
+                            @if ($card['data_status'] === 'available')
+                                <strong class="hc-admin-metric__value hc-display-lg" data-hc-count="{{ $card['current_value'] }}">{{ number_format((float) $card['current_value'], 0, ',', '.') }}{{ $card['suffix'] }}</strong>
+                            @else
+                                <strong class="hc-admin-metric__empty">Veri henüz oluşmadı</strong>
+                            @endif
+                        </div>
+                        <span class="hc-admin-metric__dot {{ $card['data_status'] === 'available' ? 'hc-admin-metric__dot--available' : '' }}" aria-hidden="true"></span>
+                    </div>
+                    <div class="hc-admin-metric__footer mt-4">
+                        <p class="hc-caption" style="color:var(--hc-text-muted)">{{ $card['description'] }}</p>
+                        @if ($card['percentage_change'] !== null)
+                            <span @class(['hc-admin-trend', 'hc-admin-trend--inverse' => $card['inverse']])>{{ $card['trend_direction'] === 'up' ? '↑' : ($card['trend_direction'] === 'down' ? '↓' : '—') }} {{ number_format(abs($card['percentage_change']), 1, ',', '.') }}%</span>
+                        @else
+                            <span class="hc-caption hc-admin-metric__trend-label" style="color:var(--hc-text-muted)">Karşılaştırma için yeterli veri yok</span>
+                        @endif
+                    </div>
+                </article>
+            @endforeach
         </section>
 
-        <a class="mt-8 inline-block rounded-xl bg-orange-700 px-5 py-3 font-bold text-white" href="{{ route('admin.recipes.index') }}">Tarifleri yönet</a>
+        <section class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+            <div class="space-y-6">
+                <div class="grid gap-6 lg:grid-cols-2">
+                    @foreach ($charts as $chart)
+                        <article class="hc-admin-chart hc-v3-card p-5 sm:p-6">
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <h2 class="hc-heading-4">{{ $chart['title'] }}</h2>
+                                    <p class="hc-caption mt-1" style="color:var(--hc-text-muted)">{{ $chart['description'] }}</p>
+                                </div>
+                                <span class="hc-v3-badge hc-v3-badge--accent">{{ $periodLabel }}</span>
+                            </div>
+                            @if ($chart['data_status'] === 'available')
+                                <div class="hc-admin-chart__canvas mt-5">
+                                    <canvas data-admin-chart data-admin-chart-config='@json($chart)' role="img" aria-label="{{ $chart['title'] }} grafiği"></canvas>
+                                </div>
+                                <p class="sr-only">{{ $chart['summary'] }}</p>
+                                <p class="hc-caption mt-4" style="color:var(--hc-text-muted)">{{ $chart['summary'] }}</p>
+                            @else
+                                <div class="hc-v3-empty mt-5 py-9"><p class="font-bold">Veri henüz oluşmadı</p><p class="hc-caption mt-1">Bu grafik yalnız gerçek kayıtlar oluştuğunda gösterilir.</p></div>
+                            @endif
+                        </article>
+                    @endforeach
+                </div>
+
+                <article id="system-status" class="hc-v3-card p-5 sm:p-6">
+                    <div class="flex flex-wrap items-start justify-between gap-4">
+                        <div><p class="hc-kicker">OPERASYONEL SAĞLIK</p><h2 class="hc-heading-3 mt-1">Sistem durumu</h2></div>
+                        <a href="{{ route('admin.system-events.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Sistem olayları</a>
+                    </div>
+                    <div class="hc-admin-system-grid mt-6">
+                        <div class="hc-admin-system-card"><span>Uygulama</span><strong>{{ $statusLabel((string) ($system['health']['status'] ?? 'never_run')) }}</strong></div>
+                        <div class="hc-admin-system-card"><span>Queue</span><strong>{{ $statusLabel((string) ($system['queue']['overall_status'] ?? 'never_run')) }}</strong><small>{{ (int) ($system['queue']['pending_jobs'] ?? 0) }} bekleyen · {{ (int) ($system['queue']['failed_jobs'] ?? 0) }} başarısız</small></div>
+                        <div class="hc-admin-system-card"><span>Scheduler</span><strong>{{ $statusLabel((string) ($system['scheduler']['status'] ?? 'never_run')) }}</strong><small>{{ $system['scheduler']['last_task_name'] ?? 'Henüz görev kaydı yok' }}</small></div>
+                        <div class="hc-admin-system-card"><span>Yedek</span><strong>{{ $system['backup'] ? 'Kayıtlı' : 'Kayıt yok' }}</strong><small>{{ $system['backup']['created_at'] ?? 'Henüz doğrulanabilir yedek yok' }}</small></div>
+                        <div class="hc-admin-system-card"><span>Medya</span><strong>{{ (int) $system['media']['failed_processing'] === 0 ? 'Sağlıklı' : 'İnceleme gerekli' }}</strong><small>{{ (int) $system['media']['pending_thumbnails'] }} bekleyen küçük görsel</small></div>
+                        <div class="hc-admin-system-card"><span>İstek metrikleri</span><strong>{{ (int) ($system['requestMetrics']['requests'] ?? 0) }} istek</strong><small>{{ (int) ($system['requestMetrics']['errors'] ?? 0) }} hata · {{ $system['requestMetrics']['average_duration_ms'] ?? '—' }} ms</small></div>
+                    </div>
+                    <div class="mt-5 flex flex-wrap gap-2">
+                        <form method="post" action="{{ route('admin.system-status.refresh-queue') }}">@csrf<button class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Queue yenile</button></form>
+                        <form method="post" action="{{ route('admin.system-status.refresh-scheduler') }}">@csrf<button class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Scheduler yenile</button></form>
+                        <form method="post" action="{{ route('admin.system-status.refresh-cache') }}">@csrf<button class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Cache yenile</button></form>
+                    </div>
+                </article>
+
+                <article class="hc-v3-card p-5 sm:p-6">
+                    <div class="flex flex-wrap items-start justify-between gap-4"><div><p class="hc-kicker">VERİ GÜVENİ</p><h2 class="hc-heading-3 mt-1">Kalite skorları</h2></div><a href="{{ route('admin.data-quality.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Veri kalitesine git</a></div>
+                    <div class="hc-admin-quality-grid mt-6">
+                        @foreach ($qualityScores as $key => $score)
+                            @continue($key === 'measurement')
+                            <div><div class="flex items-center justify-between gap-3"><span>{{ match($key) { 'overall' => 'Genel', 'recipe' => 'Tarif', 'ingredient' => 'Malzeme', 'nutrition' => 'Beslenme', 'media' => 'Medya', 'provenance' => 'Kaynak', default => ucfirst($key) } }}</span><strong>{{ $score }}%</strong></div><div class="hc-admin-progress mt-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $score }}"><span style="width: {{ max(0, min(100, (int) $score)) }}%"></span></div></div>
+                        @endforeach
+                    </div>
+                </article>
+            </div>
+
+            <aside class="space-y-6">
+                <section class="hc-v3-card p-5">
+                    <div class="flex items-center justify-between gap-3"><h2 class="hc-heading-4">Hızlı işlemler</h2><span class="hc-v3-badge">Yetkili</span></div>
+                    <div class="mt-4 grid gap-2">
+                        @foreach ($quickActions as $action)
+                            <a href="{{ route($action['route']) }}" class="hc-admin-quick-action"><span><x-ui.icon :name="$action['icon']" size="17" /></span>{{ $action['label'] }}<span aria-hidden="true">→</span></a>
+                        @endforeach
+                    </div>
+                </section>
+
+                <section class="hc-v3-card p-5" aria-labelledby="attention-heading">
+                    <div class="flex items-center justify-between gap-3"><h2 id="attention-heading" class="hc-heading-4">Dikkat gerekenler</h2><span class="hc-v3-badge {{ count($attention) ? 'hc-v3-badge--warning' : 'hc-v3-badge--success' }}">{{ count($attention) }}</span></div>
+                    @if (count($attention))
+                        <div class="mt-4 space-y-3">
+                            @foreach ($attention as $item)
+                                <a href="{{ route($item['route']) }}" class="hc-admin-attention hc-admin-attention--{{ $item['severity'] }}"><strong>{{ $item['label'] }}</strong><span>{{ $item['detail'] }}</span></a>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="hc-v3-empty mt-4 py-7"><p class="font-bold">Açık dikkat kaydı yok</p><p class="hc-caption mt-1">Şu an listelenebilir kritik durum bulunmuyor.</p></div>
+                    @endif
+                </section>
+
+                <section class="hc-v3-card p-5">
+                    <div class="flex items-center justify-between gap-3"><h2 class="hc-heading-4">Son etkinlikler</h2><a href="{{ route('admin.system-events.index') }}" class="hc-caption font-bold" style="color:var(--hc-text-accent)">Tümü</a></div>
+                    @if (count($activity))
+                        <ol class="mt-4 space-y-4">
+                            @foreach ($activity as $item)
+                                <li class="hc-admin-activity"><span class="hc-admin-activity__marker" aria-hidden="true"></span><div><strong>{{ $item['action'] }}</strong><p>{{ $item['actor'] }} · {{ $item['at'] }}</p>@if($item['entity_public_id'])<code>{{ $item['entity_public_id'] }}</code>@endif</div></li>
+                            @endforeach
+                        </ol>
+                    @else
+                        <div class="hc-v3-empty mt-4 py-7"><p class="font-bold">Etkinlik kaydı yok</p><p class="hc-caption mt-1">Güvenli bir audit kaydı oluştuğunda burada görünür.</p></div>
+                    @endif
+                </section>
+            </aside>
+        </section>
     </section>
 </x-layouts.site>
