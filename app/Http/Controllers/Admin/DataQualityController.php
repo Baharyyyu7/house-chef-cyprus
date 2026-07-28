@@ -57,6 +57,22 @@ final class DataQualityController extends Controller
         return back()->with('status', 'Veri kalite taraması tamamlandı.');
     }
 
+    public function bulk(Request $request): RedirectResponse
+    {
+        $this->admin();
+        $data = $request->validate([
+            'action' => ['required', 'in:resolve,reopen'],
+            'issues' => ['required', 'array', 'min:1', 'max:100'],
+            'issues.*' => ['integer', 'exists:data_quality_issues,id'],
+        ]);
+
+        $changes = DataQualityIssue::query()->whereIn('id', $data['issues'])->update($data['action'] === 'resolve'
+            ? ['resolution_status' => 'resolved', 'resolved_at' => now()]
+            : ['resolution_status' => 'open', 'resolved_at' => null]);
+
+        return back()->with('status', $changes.' issue '.($data['action'] === 'resolve' ? 'çözüldü olarak işaretlendi.' : 'yeniden açıldı.'));
+    }
+
     private function admin(): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);

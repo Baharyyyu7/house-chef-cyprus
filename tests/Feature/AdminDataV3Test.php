@@ -52,6 +52,8 @@ final class AdminDataV3Test extends TestCase
 
         $this->actingAs($admin)->get(route('admin.data-quality.index', ['severity' => 'warning']))->assertOk()->assertSee('Veri kalitesi')->assertSee('Açıklama eksik.');
         $this->actingAs($admin)->get(route('admin.data-quality.show', $issue))->assertOk()->assertSee('Güvenli metadata')->assertSee('MASKED')->assertDontSee('>'.$issue->id.'<', false);
+        $this->actingAs($admin)->post(route('admin.data-quality.bulk'), ['action' => 'resolve', 'issues' => [$issue->id]])->assertRedirect();
+        $this->assertDatabaseHas('data_quality_issues', ['id' => $issue->id, 'resolution_status' => 'resolved']);
     }
 
     private function admin(): User

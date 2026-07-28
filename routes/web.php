@@ -83,6 +83,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::get('veri-kalitesi', [DataQualityController::class, 'index'])->name('data-quality.index');
     Route::get('veri-kalitesi/{issue}', [DataQualityController::class, 'show'])->name('data-quality.show');
     Route::post('veri-kalitesi/tara', [DataQualityController::class, 'scan'])->name('data-quality.scan');
+    Route::post('veri-kalitesi/toplu-islem', [DataQualityController::class, 'bulk'])->name('data-quality.bulk');
     Route::post('veri-kalitesi/{issue}/coz', [DataQualityController::class, 'resolve'])->name('data-quality.resolve');
     Route::post('veri-kalitesi/{issue}/yeniden-ac', [DataQualityController::class, 'reopen'])->name('data-quality.reopen');
     Route::get('beslenme', [AdminNutritionController::class, 'index'])->name('nutrition.index');
