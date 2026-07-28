@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Master Fix Phase B1: Gemini image response parser, güvenli provider telemetry, diagnostic recovery scope ve model/endpoint uyumsuzluğu için tek çağrılık kontrol eklendi. HTTP 404 recovery sonucu nedeniyle otomatik retry veya public AI medya yapılmadı.
+
 - Master Fix Phase B: 8 pilot tarifin özgün editoryal veri uyumsuzlukları provenance korunarak düzeltildi; nutrition, allergen, dietary, matching ve Data Quality sonuçları yeniden hesaplandı.
 - Master Fix Phase B: 10 tarif / 20 varyasyonluk Gemini Imagen pilotu bütçe ve varyasyon hard-stop ile denendi. Sağlayıcı kullanılabilir görsel payload'ı döndürmedi; otomatik retry, auto-approve ve public yayın yapılmadı. Private-before-public review hattı, güvenli hata kaydı ve public medya görünürlük koruması eklendi.
 

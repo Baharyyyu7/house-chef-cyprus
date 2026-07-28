@@ -10,9 +10,9 @@ Semantic dark-mode tokens, explainable category scoring, real media/conversion/n
 - Hedef: Admin dark AA contrast, gerçek/approved media planı, Data Quality kapsamı ve skor açıklaması.
 - Kapanış: dark visual regression, quality scan fixtures, admin browser QA.
 
-## Faz B — AI görsel pilotu (hazırlık tamamlandı, üretim bloklu)
+## Faz B — AI görsel pilotu (B1 tanı/recovery tamamlandı, üretim bloklu)
 
-10 tariflik AI image pilotu için provider envanteri, maliyet hard-stop, prompt fidelity gate, admin inceleme taslakları ve medya metadata sözleşmesi hazırlandı. Seçili tariflerin çoğunda başlık/malzeme uyumsuzluğu bulunduğundan gerçek üretim başlatılmaz. Editoryal veri düzeltmesi, güncel maliyet/ticari kullanım belgesi ve kullanıcı maliyet onayı sonrasında yeniden açılır.
+10 tariflik AI image pilotu için provider envanteri, maliyet hard-stop, prompt fidelity gate, admin inceleme taslakları ve medya metadata sözleşmesi hazırlandı. B1'de ilk 20 başarısız kayıt korunarak güvenli telemetry backfill'i yapıldı; Domates Çorbası için izinli tek tanı çağrısı HTTP 404 ile model/endpoint erişilemezliğini doğruladı. Kullanılabilir medya oluşmadı ve otomatik retry uygulanmadı. Yeni üretim ancak ayrı model/sağlayıcı erişim doğrulaması ve yeni bütçe onayı ile B2 olarak açılabilir.
 
 ## Faz B1 — Public/member güven deneyimi
 

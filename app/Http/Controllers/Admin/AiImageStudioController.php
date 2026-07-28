@@ -37,8 +37,10 @@ final class AiImageStudioController extends Controller
     {
         $this->admin();
         $data = $request->validate(['review_notes' => ['nullable', 'string', 'max:1000']]);
-        abort_unless($generation->status === 'generated', 422, 'Bu taslak reddedilemez.');
-        $generation->update(['status' => 'rejected', 'review_notes' => $data['review_notes'] ?? null, 'reviewed_at' => now(), 'reviewed_by_user_id' => auth()->id()]);
+        abort_unless($generation->status === 'ready_for_review', 422, 'Bu taslak reddedilemez.');
+        $history = (array) $generation->status_transitions;
+        $history[] = ['status' => 'rejected', 'at' => now()->toIso8601String()];
+        $generation->update(['status' => 'rejected', 'review_notes' => $data['review_notes'] ?? null, 'reviewed_at' => now(), 'reviewed_by_user_id' => auth()->id(), 'status_transitions' => $history]);
         AuditLog::create(['user_id' => auth()->id(), 'action' => 'ai_image_generation.reject', 'auditable_type' => $generation->getMorphClass(), 'auditable_id' => $generation->getKey(), 'metadata' => ['generation_public_id' => $generation->public_id]]);
 
         return to_route('admin.ai-image-studio.show', $generation)->with('status', 'Taslak reddedildi; public alana aktarılmadı.');

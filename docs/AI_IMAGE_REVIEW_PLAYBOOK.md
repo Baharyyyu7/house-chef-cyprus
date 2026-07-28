@@ -1,5 +1,9 @@
 # AI Görsel İnceleme Playbook'u
 
+## Ön koşul
+
+Yalnızca private depoda bulunan ve `ready_for_review` durumuna ulaşmış adaylar incelemeye alınır. `provider_completed_without_image`, `provider_blocked`, `provider_failed`, `parser_failed` veya `media_validation_failed` kayıtları görsel adayı değildir; güvenli tanı kaydı olarak kalır ve public alana taşınamaz.
+
 1. Tarif adı, ana malzemeler, pişmiş/çiğ durum ve porsiyon kaynak veriye uyuyor mu?
 2. Kültürel sunum, tabak/kâse ve garnitür güvenilir mi?
 3. Metin/logo/watermark, anatomik veya nesne bozulması var mı?

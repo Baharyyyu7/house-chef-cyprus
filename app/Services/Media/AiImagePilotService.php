@@ -89,7 +89,7 @@ final class AiImagePilotService
     {
         return AiImageGeneration::query()
             ->where('provider', 'gemini')
-            ->whereIn('status', ['requesting', 'provider_failed', 'generated', 'approved', 'rejected'])
+            ->whereIn('status', ['request_created', 'provider_completed_without_image', 'provider_blocked', 'provider_failed', 'parser_failed', 'image_received', 'ready_for_review', 'approved', 'rejected'])
             ->count();
     }
 

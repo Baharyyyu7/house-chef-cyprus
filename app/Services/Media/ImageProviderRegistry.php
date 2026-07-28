@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Media;
 
 use App\Contracts\Media\ImageGenerationProviderInterface;
+use App\Models\AiImageGeneration;
 
 final class ImageProviderRegistry
 {
@@ -27,6 +28,12 @@ final class ImageProviderRegistry
             ];
         })->values()->all();
 
+        $lastRecovery = AiImageGeneration::query()->where('provider', 'gemini')->where('generation_scope', 'diagnostic_recovery')->latest()->first();
+        if ($lastRecovery?->error_code === 'IMAGE_PROVIDER_MODEL_UNAVAILABLE') {
+            $providers = collect($providers)->map(fn (array $provider): array => $provider['name'] === 'gemini'
+                ? array_merge($provider, ['image_capability' => 'unavailable_model_or_endpoint', 'safe_message' => 'Tek diagnostic recovery çağrısı model veya endpointin bu kurulumda kullanılamadığını doğruladı.'])
+                : $provider)->values()->all();
+        }
         if ($live) {
             $gemini = app(ImageGenerationProviderInterface::class)->health(true);
             $providers = collect($providers)->map(fn (array $provider): array => $provider['name'] === 'gemini' ? $gemini : $provider)->values()->all();

@@ -16,6 +16,12 @@ return [
     'max_total_variations' => (int) env('AI_IMAGE_MAX_TOTAL_VARIATIONS', 20),
     'daily_budget_cents' => (int) env('AI_IMAGE_DAILY_BUDGET_CENTS', 0),
     'pilot_cost_estimate_cents_per_image' => (int) env('AI_IMAGE_ESTIMATE_CENTS_PER_IMAGE', 0),
+    'max_response_payload_bytes' => (int) env('AI_IMAGE_MAX_RESPONSE_PAYLOAD_BYTES', 12 * 1024 * 1024),
+    'diagnostic_recovery' => [
+        'max_calls' => (int) env('AI_IMAGE_DIAGNOSTIC_MAX_CALLS', 1),
+        'max_variations' => (int) env('AI_IMAGE_DIAGNOSTIC_MAX_VARIATIONS', 1),
+        'budget_cents' => (int) env('AI_IMAGE_DIAGNOSTIC_BUDGET_CENTS', 10),
+    ],
     'prompt_version' => 'house-chef-v1',
     'providers' => [
         'gemini' => [
