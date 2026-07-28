@@ -128,7 +128,7 @@ final class GeminiImageGenerationService
         $diagnostic = $outcome['diagnostic'];
         // A successful HTTP response and a usable image are deliberately separate
         // states: the provider can accept a request without returning media.
-        if (($diagnostic['response_status'] ?? 0) >= 200 && ($diagnostic['response_status'] ?? 0) < 300) {
+        if ((int) $diagnostic['response_status'] >= 200 && (int) $diagnostic['response_status'] < 300) {
             $this->appendTransition($record, 'provider_accepted');
         }
         $this->transition($record, $outcome['status'], [
