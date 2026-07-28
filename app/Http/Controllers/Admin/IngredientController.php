@@ -14,9 +14,23 @@ use Illuminate\View\View;
 
 final class IngredientController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        return view('admin.ingredients.index', ['ingredients' => Ingredient::query()->withCount(['aliases', 'substitutions'])->orderBy('name')->get()]);
+        $ingredients = Ingredient::query()
+            ->withCount(['aliases', 'substitutions', 'unitConversions', 'nutritionFacts', 'allergenDetails'])
+            ->when($request->filled('q'), fn ($query) => $query->where(fn ($inner) => $inner
+                ->where('name', 'like', '%'.$request->string('q')->toString().'%')
+                ->orWhere('canonical_name', 'like', '%'.$request->string('q')->toString().'%')))
+            ->when($request->filled('category'), fn ($query) => $query->where('category', $request->string('category')->toString()))
+            ->when($request->filled('status'), fn ($query) => $query->where('is_active', $request->string('status')->toString() === 'active'))
+            ->orderBy('name')
+            ->paginate(24)
+            ->withQueryString();
+
+        return view('admin.ingredients.index', [
+            'ingredients' => $ingredients,
+            'categories' => Ingredient::query()->whereNotNull('category')->distinct()->orderBy('category')->pluck('category'),
+        ]);
     }
 
     public function edit(Ingredient $ingredient): View

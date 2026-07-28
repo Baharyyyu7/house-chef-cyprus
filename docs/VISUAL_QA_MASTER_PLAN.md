@@ -42,3 +42,6 @@ Dashboard; 375/768/1024/1440 px, light/dark, sidebar collapse, mobile drawer Esc
 # Public Pages V3 Part 2 QA
 
 Matching filtreleri, pantry'den geçerli ürün aktarımı, expiry durumları, favorites filtreleri, light/dark tokenları ve mobil tek kolon davranışı her yayın öncesi kontrol edilir.
+# Admin V3 Part 2 QA
+
+Tarif ve malzeme V3 listeleri 375px, 768px, 1024px ve 1440px genişliklerinde; açık/koyu temada, filtre, sekme, tablonun kontrollü kaydırması ve sticky save alanı ile kontrol edilir.

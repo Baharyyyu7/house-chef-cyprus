@@ -17,3 +17,6 @@ Matching 1280px altında kontrollü filtre paneli, pantry ve favorites ise 375px
 # Admin V3 dashboard
 
 375 px'te dashboard tek kolon ve tam genişlik period seçici, 768 px'te iki/üç metrik kartı, 1024 px'te daraltılabilir sidebar, 1440 px'te içerik + secondary rail kullanır. Grafik canvasları minimum okunabilir yüksekliğini korur; uzun Türkçe etiketler sarılır ve tablo/menü overflow üretmez.
+# Admin V3 Part 2
+
+Admin tabloları küçük ekranlarda kapsayıcı içinde yatay kayar; filtre alanları tek kolona geçer. Form bölümleri ve sticky save alanı 375px’te dikey düzene dönüşür.

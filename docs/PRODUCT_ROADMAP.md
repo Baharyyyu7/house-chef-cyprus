@@ -30,3 +30,6 @@ Household measurement, conversion provenance, pantry canonical storage and recip
 # Tamamlandı: Public Pages V3 Part 2
 
 Explainable matching, household pantry ve senkron favorites deneyimi tamamlandı. Sıradaki public redesign kapsamı Cooking Mode ve profil/auth ekranlarıdır.
+# Aktif çalışma: Admin Panel V3 Part 2
+
+Tarif, ingredient, ölçüm, nutrition ve Data Quality yüzeyleri için responsive, erişilebilir CRUD kabuğu hazırlanır. Sonraki aşama yalnız Part 2 kalite kapısından sonra belirlenir.

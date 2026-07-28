@@ -117,3 +117,6 @@ Phase 2 is closed on `visual-redesign-v2`: household display, canonical conversi
 # Public Pages V3 Part 2
 
 Matching, Pantry ve Favorites ekranları V3 tasarım sistemiyle tamamlandı. Cooking Mode ile profil/auth ekranlarının tam redesign'i ayrı sonraki kapsam olarak kalır.
+# Admin Panel V3 Part 2
+
+İçerik ve veri yönetimi ekranları ortak V3 CRUD bileşenleriyle yenilenir. Bu turda yalnız mevcut route ve güvenlik sözleşmeleri kullanılır; media ve sistem operasyonları Part 3’e bırakılır.

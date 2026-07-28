@@ -1,5 +1,10 @@
 # Changelog
 
+## Admin Panel V3 Part 2 — In progress
+
+- Tarif, doğrulama, adım ve malzeme yönetim ekranları ortak V3 table/form sözleşmesine taşındı.
+- Filtreli recipe/ingredient listeleri, sekmeli düzenleme alanları ve responsive sticky save bar eklendi.
+
 ## Unreleased
 
 - Added the V3 semantic design token, shared primitive, motion and SVG icon foundation on `visual-redesign-v2`.
