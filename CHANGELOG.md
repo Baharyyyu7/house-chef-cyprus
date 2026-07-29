@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Master Fix Phase B2: BFL FLUX.2 async polling ve Stability Stable Image Core multipart provider adapterleri, iki çağrılık private comparison bütçesi, güvenli provider health ve response validation sözleşmeleri eklendi. BFL/Stability anahtarları yokken hiçbir canlı çağrı yapılmadı.
+
 - Master Fix Phase B1: Gemini image response parser, güvenli provider telemetry, diagnostic recovery scope ve model/endpoint uyumsuzluğu için tek çağrılık kontrol eklendi. HTTP 404 recovery sonucu nedeniyle otomatik retry veya public AI medya yapılmadı.
 
 - Master Fix Phase B: 8 pilot tarifin özgün editoryal veri uyumsuzlukları provenance korunarak düzeltildi; nutrition, allergen, dietary, matching ve Data Quality sonuçları yeniden hesaplandı.

@@ -9,6 +9,7 @@ use App\Models\AiImageGeneration;
 use App\Models\AuditLog;
 use App\Services\Media\AiImagePilotService;
 use App\Services\Media\AiImageReviewService;
+use App\Services\Media\FallbackImageComparisonService;
 use App\Services\Media\ImageProviderRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,12 +19,31 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class AiImageStudioController extends Controller
 {
-    public function index(AiImagePilotService $pilot, ImageProviderRegistry $providers): View
+    public function index(AiImagePilotService $pilot, ImageProviderRegistry $providers, FallbackImageComparisonService $comparison): View
     {
         $this->admin();
         $pilot->synchronize();
 
-        return view('admin.ai-image-studio.index', ['generations' => AiImageGeneration::query()->with(['recipe.cuisine', 'recipe.category'])->latest()->paginate(30), 'providers' => $providers->health(), 'cost' => $pilot->costPreview()]);
+        $comparisonGenerations = AiImageGeneration::query()
+            ->with(['recipe.cuisine', 'recipe.category', 'media'])
+            ->where('generation_scope', 'fallback_provider_comparison')
+            ->whereHas('recipe', fn ($query) => $query->where('slug', 'domates-corbasi'))
+            ->orderBy('provider')
+            ->get();
+
+        return view('admin.ai-image-studio.index', [
+            'generations' => AiImageGeneration::query()->with(['recipe.cuisine', 'recipe.category'])->latest()->paginate(30),
+            'providers' => $providers->health(),
+            'cost' => $pilot->costPreview(),
+            'comparison' => [
+                'primary' => (string) config('ai_images.primary_provider'),
+                'fallback' => (string) config('ai_images.fallback_provider'),
+                'request_limit' => (int) config('ai_images.fallback_provider_comparison.max_total_requests'),
+                'budget_cents' => (int) config('ai_images.fallback_provider_comparison.budget_cents'),
+                'records' => $comparisonGenerations,
+                'dry_run' => $comparison->dryRun(),
+            ],
+        ]);
     }
 
     public function show(AiImageGeneration $generation): View

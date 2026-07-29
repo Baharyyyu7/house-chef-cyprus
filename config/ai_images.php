@@ -22,6 +22,13 @@ return [
         'max_variations' => (int) env('AI_IMAGE_DIAGNOSTIC_MAX_VARIATIONS', 1),
         'budget_cents' => (int) env('AI_IMAGE_DIAGNOSTIC_BUDGET_CENTS', 10),
     ],
+    'fallback_provider_comparison' => [
+        'max_total_requests' => (int) env('AI_IMAGE_FALLBACK_MAX_TOTAL_REQUESTS', 2),
+        'max_requests_per_provider' => (int) env('AI_IMAGE_FALLBACK_MAX_REQUESTS_PER_PROVIDER', 1),
+        'budget_cents' => (int) env('AI_IMAGE_FALLBACK_BUDGET_CENTS', 20),
+        'bfl_estimate_cents' => (int) env('BFL_IMAGE_ESTIMATE_CENTS', 3),
+        'stability_estimate_cents' => (int) env('STABILITY_IMAGE_ESTIMATE_CENTS', 10),
+    ],
     'prompt_version' => 'house-chef-v1',
     'providers' => [
         'gemini' => [
@@ -29,6 +36,7 @@ return [
             'key' => env('GEMINI_API_KEY'),
             'model' => env('GEMINI_IMAGE_MODEL', 'imagen-4.0-generate-001'),
             'endpoint' => env('GEMINI_IMAGE_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta'),
+            'pilot_status' => env('GEMINI_IMAGE_PILOT_STATUS', 'unavailable_for_pilot'),
         ],
         'openai' => [
             'enabled' => (bool) env('OPENAI_IMAGE_ENABLED', false),
@@ -38,10 +46,16 @@ return [
         'stability' => [
             'enabled' => (bool) env('STABILITY_IMAGE_ENABLED', false),
             'key' => env('STABILITY_API_KEY'),
+            'model' => env('STABILITY_IMAGE_MODEL', 'stable-image-core'),
+            'endpoint' => env('STABILITY_IMAGE_BASE_URL', 'https://api.stability.ai'),
         ],
         'bfl' => [
             'enabled' => (bool) env('BFL_IMAGE_ENABLED', false),
             'key' => env('BFL_API_KEY'),
+            'model' => env('BFL_IMAGE_MODEL', 'flux-2-pro'),
+            'endpoint' => env('BFL_IMAGE_BASE_URL', 'https://api.bfl.ai'),
+            'poll_limit' => (int) env('BFL_IMAGE_POLL_LIMIT', 10),
+            'poll_interval_ms' => (int) env('BFL_IMAGE_POLL_INTERVAL_MS', 500),
         ],
         'comfyui' => [
             'enabled' => (bool) env('COMFYUI_IMAGE_ENABLED', false),
@@ -52,4 +66,6 @@ return [
             'endpoint' => env('DIFFUSERS_IMAGE_ENDPOINT'),
         ],
     ],
+    'primary_provider' => env('RECIPE_IMAGE_PRIMARY_PROVIDER', 'bfl'),
+    'fallback_provider' => env('RECIPE_IMAGE_FALLBACK_PROVIDER', 'stability'),
 ];

@@ -10,4 +10,6 @@ Kullanıcı onayıyla 10 çağrıda en fazla 20 varyasyon istenmiştir. Sağlay�
 
 B1 tekli recovery çağrısı Domates Çorbası için HTTP 404 ile sonuçlandı. Güvenli teşhis model/endpointin bu Gemini kurulumunda kullanılamadığını gösterir; ayrıca detay için `GEMINI_IMAGE_FAILURE_DIAGNOSIS.md` belgesine bakın.
 
+B2 fallback provider adapterleri BFL FLUX.2 Pro ve Stability Stable Image Core için hazırdır. Anahtarlar yapılandırılmadığı için B2'de canlı çağrı yapılmamış, görsel yayınlanmamış ve gerçek maliyet oluşmamıştır.
+
 Başlangıç medya skoru 0, veri düzeltmesinden sonraki genel Data Quality skoru 62'dir. 50 tarif placeholder kullanır, doğrulanmış gerçek medya 0'dır. Görsel üretilmediği için medya veya genel kalite skorunda yapay bir sıçrama yoktur.

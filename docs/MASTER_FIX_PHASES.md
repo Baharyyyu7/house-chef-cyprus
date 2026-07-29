@@ -14,6 +14,10 @@ Semantic dark-mode tokens, explainable category scoring, real media/conversion/n
 
 10 tariflik AI image pilotu için provider envanteri, maliyet hard-stop, prompt fidelity gate, admin inceleme taslakları ve medya metadata sözleşmesi hazırlandı. B1'de ilk 20 başarısız kayıt korunarak güvenli telemetry backfill'i yapıldı; Domates Çorbası için izinli tek tanı çağrısı HTTP 404 ile model/endpoint erişilemezliğini doğruladı. Kullanılabilir medya oluşmadı ve otomatik retry uygulanmadı. Yeni üretim ancak ayrı model/sağlayıcı erişim doğrulaması ve yeni bütçe onayı ile B2 olarak açılabilir.
 
+## Faz B2 — Fallback provider karşılaştırması
+
+BFL FLUX.2 Pro async polling ve Stability Stable Image Core multipart adapterleri, yalnız Domates Çorbası için provider başına tek çağrı sınırıyla hazırlandı. Anahtar yoksa çağrı yapılmaz. İki private sonuç oluşmadan kalite puanı, primary seçimi veya public medya kararı verilmeyecektir.
+
 ## Faz B1 — Public/member güven deneyimi
 
 - Media rollout, recipe trust labels, member QA fixture, nutrition snapshot freshness.

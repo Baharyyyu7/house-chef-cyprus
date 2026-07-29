@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Media;
 
 use App\Contracts\Media\ImageGenerationProviderInterface;
+use App\Contracts\Media\RecipeImageProviderInterface;
 use App\Models\AiImageGeneration;
 
 final class ImageProviderRegistry
@@ -13,7 +14,7 @@ final class ImageProviderRegistry
     public function health(bool $live = false): array
     {
         $providers = collect(config('ai_images.providers', []))->map(function (array $provider, string $name): array {
-            $configured = filled($provider['key'] ?? null) || filled($provider['endpoint'] ?? null);
+            $configured = filled($provider['key'] ?? null);
             $enabled = (bool) ($provider['enabled'] ?? false);
 
             return [
@@ -29,7 +30,7 @@ final class ImageProviderRegistry
         })->values()->all();
 
         $lastRecovery = AiImageGeneration::query()->where('provider', 'gemini')->where('generation_scope', 'diagnostic_recovery')->latest()->first();
-        if ($lastRecovery?->error_code === 'IMAGE_PROVIDER_MODEL_UNAVAILABLE') {
+        if ($lastRecovery?->error_code === 'IMAGE_PROVIDER_MODEL_UNAVAILABLE' || config('ai_images.providers.gemini.pilot_status') === 'unavailable_for_pilot') {
             $providers = collect($providers)->map(fn (array $provider): array => $provider['name'] === 'gemini'
                 ? array_merge($provider, ['image_capability' => 'unavailable_model_or_endpoint', 'safe_message' => 'Tek diagnostic recovery çağrısı model veya endpointin bu kurulumda kullanılamadığını doğruladı.'])
                 : $provider)->values()->all();
@@ -39,6 +40,33 @@ final class ImageProviderRegistry
             $providers = collect($providers)->map(fn (array $provider): array => $provider['name'] === 'gemini' ? $gemini : $provider)->values()->all();
         }
 
+        $providers = collect($providers)->map(function (array $provider): array {
+            if (! in_array($provider['name'], ['bfl', 'stability'], true)) {
+                return $provider;
+            }
+
+            return $this->fallback($provider['name'])->health();
+        })->values()->all();
+
         return $providers;
+    }
+
+    /** @return array{name:string,configured:bool,enabled:bool,image_capability:string,model:?string,safe_message:string} */
+    public function providerHealth(string $name): array
+    {
+        if ($name === 'gemini') {
+            return app(ImageGenerationProviderInterface::class)->health(false);
+        }
+
+        return $this->fallback($name)->health();
+    }
+
+    private function fallback(string $name): RecipeImageProviderInterface
+    {
+        return match ($name) {
+            'bfl' => app(BflRecipeImageProvider::class),
+            'stability' => app(StabilityRecipeImageProvider::class),
+            default => throw new \InvalidArgumentException('Unsupported image provider.'),
+        };
     }
 }
