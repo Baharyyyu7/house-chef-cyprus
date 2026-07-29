@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\ContentSource;
 use App\Models\Ingredient;
+use App\Models\Media;
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
 use App\Models\User;
@@ -84,5 +85,16 @@ final class RecipeContentTrustTest extends TestCase
             $this->assertTrue(File::exists(public_path("placeholders/{$variant}/recipe.svg")));
         }
         $this->assertSame(24, Ingredient::query()->whereNotNull('icon_key')->count());
+    }
+
+    public function test_seeded_catalogue_has_a_unique_branded_fallback_for_every_recipe(): void
+    {
+        $this->seed();
+
+        $media = Media::query()->where('mediable_type', Recipe::class)->where('sort_order', 0)->get();
+        $this->assertSame(50, $media->count());
+        $this->assertSame(50, $media->pluck('path')->unique()->count());
+        $this->assertTrue($media->every(fn (Media $item): bool => $item->provider_metadata['media_status'] === 'branded_fallback'));
+        $this->assertTrue($media->every(fn (Media $item): bool => filled($item->alt_text) && $item->thumbnail_status === 'ready'));
     }
 }

@@ -18,6 +18,7 @@ use App\Models\RecipeIngredientGroup;
 use App\Models\Unit;
 use App\Models\User;
 use App\Services\EditorialRecipeImporter;
+use App\Services\Media\BrandedRecipeFallbackService;
 use App\Services\Media\PilotRecipeDataCorrectionService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -117,5 +118,6 @@ final class HouseChefSeeder extends Seeder
 
         app(EditorialRecipeImporter::class)->import();
         app(PilotRecipeDataCorrectionService::class)->apply();
+        app(BrandedRecipeFallbackService::class)->synchronize();
     }
 }
