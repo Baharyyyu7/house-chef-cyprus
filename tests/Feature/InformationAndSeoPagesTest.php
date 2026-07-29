@@ -29,6 +29,17 @@ final class InformationAndSeoPagesTest extends TestCase
         $this->get('/sitemap.xml')
             ->assertOk()
             ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
-            ->assertSee($public->slug);
+            ->assertSee('/sitemaps/recipes.xml');
+        $this->get('/sitemaps/recipes.xml')->assertOk()->assertSee($public->slug);
+    }
+
+    public function test_auth_and_missing_pages_are_not_indexable_and_missing_page_has_safe_navigation(): void
+    {
+        $this->get('/login')->assertOk()->assertSee('name="robots" content="noindex,nofollow"', false);
+        $this->get('/profil-olmayan-v1-rc-sayfa')
+            ->assertNotFound()
+            ->assertSee('Aradığınız sayfa burada değil.')
+            ->assertSee('Ana sayfaya dön')
+            ->assertSee('name="robots" content="noindex,nofollow"', false);
     }
 }

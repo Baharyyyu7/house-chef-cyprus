@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- V1.0 RC iç kapanış: Pexels güvenli hata sözleşmesi, private review görünürlüğü, sitemap index/alt sitemap’ler, recipe/article/FAQ structured data ve production image/SEO release belgeleri eklendi. Geçersiz Pexels anahtarı nedeniyle toplu sorgu/indirme yapılmadı; branded fallback zinciri korundu.
+
 - Master Fix Phase B2: BFL FLUX.2 async polling ve Stability Stable Image Core multipart provider adapterleri, iki çağrılık private comparison bütçesi, güvenli provider health ve response validation sözleşmeleri eklendi. BFL/Stability anahtarları yokken hiçbir canlı çağrı yapılmadı.
 
 - Master Fix Phase B1: Gemini image response parser, güvenli provider telemetry, diagnostic recovery scope ve model/endpoint uyumsuzluğu için tek çağrılık kontrol eklendi. HTTP 404 recovery sonucu nedeniyle otomatik retry veya public AI medya yapılmadı.

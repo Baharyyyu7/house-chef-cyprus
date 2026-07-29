@@ -101,6 +101,11 @@ final class InformationPageController extends Controller
     {
         abort_unless(isset(self::PAGES[$page]), 404);
 
-        return view('information.show', ['page' => self::PAGES[$page]]);
+        $content = self::PAGES[$page];
+        $schema = $page === 'sss'
+            ? ['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => collect($content['sections'])->map(fn (array $section): array => ['@type' => 'Question', 'name' => $section['title'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $section['body']]])->all()]
+            : ['@context' => 'https://schema.org', '@type' => 'WebPage', 'name' => $content['title'], 'description' => $content['lead'], 'url' => route('information.show', $page)];
+
+        return view('information.show', ['page' => $content, 'schema' => $schema]);
     }
 }

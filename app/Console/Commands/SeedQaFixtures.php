@@ -12,6 +12,7 @@ use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 final class SeedQaFixtures extends Command
 {
@@ -81,8 +82,8 @@ final class SeedQaFixtures extends Command
 
     private function ensureUser(string $email, string $name, string $role): User
     {
-        $user = User::query()->firstOrCreate(['email' => $email], ['name' => $name, 'password' => 'ChangeMe123!', 'email_verified_at' => now(), 'role' => $role]);
-        $user->forceFill(['name' => $name, 'role' => $role, 'email_verified_at' => $user->email_verified_at ?? now()])->save();
+        $user = User::query()->firstOrCreate(['email' => $email], ['public_id' => (string) Str::ulid(), 'name' => $name, 'password' => 'ChangeMe123!', 'email_verified_at' => now(), 'role' => $role]);
+        $user->forceFill(['public_id' => $user->public_id ?: (string) Str::ulid(), 'name' => $name, 'role' => $role, 'email_verified_at' => $user->email_verified_at ?? now()])->save();
 
         return $user;
     }

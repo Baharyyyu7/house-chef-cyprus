@@ -1,4 +1,4 @@
-<x-layouts.site :title="$page['title'].' · House Chef Cyprus'">
+<x-layouts.site :title="$page['title'].' · House Chef Cyprus'" :meta-description="$page['lead']" :canonical-url="url()->current()" :structured-data="$schema">
     <section class="hc-container py-12 sm:py-16">
         <div class="max-w-3xl">
             <p class="hc-kicker">{{ $page['eyebrow'] }}</p>

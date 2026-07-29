@@ -9,7 +9,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property Carbon|null $published_at
+ * @property Carbon|null $scheduled_at
+ * @property Carbon|null $updated_at
+ */
 final class BlogPost extends Model
 {
     use HasPublicId;

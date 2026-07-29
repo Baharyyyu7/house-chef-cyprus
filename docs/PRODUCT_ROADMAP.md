@@ -6,7 +6,7 @@
 4. Public Pages V3 Redesign — Part 1, Part 2 ve Part 3 tamamlandı: tarif deneyimi, matching/pantry/favorites, cooking ve auth/profile V3 yüzeyleri kapandı.
 5. Admin Panel V3 — Part 1 tamamlandı: shell, navigation, gerçek dashboard analitiği, Chart.js altyapısı, system status özeti ve responsive/erişilebilir motion. Master Fix Phase A; admin dark semantic tokenları, şeffaf Data Quality skorlaması, local QA fixture ve image-audit başlangıcını ekledi. Master Fix Phase B1, 20 tarihî başarısız üretimi koruyarak güvenli tanı durumlarına taşıdı ve izinli tek Gemini recovery çağrısında HTTP 404 model/endpoint erişilemezliğini kanıtladı; hiçbir görsel public edilmedi. B2, BFL ve Stability adapterlerini iki çağrılık private karşılaştırma korumasıyla hazırladı; anahtar beklediği için canlı üretim başlatılmadı. CRUD ekranlarının geniş redesign'i sonraki kontrollü admin partlarına ayrıldı.
 5. Bilgi mimarisi — Hakkımızda, Nasıl Çalışır, SSS, Editoryal İlkeler ve gerçek gizlilik/kullanım sayfaları.
-6. Blog/SEO teknik temeli ve editoryal otomasyon — yalnız data trust, içerik onayı ve public UX temelinden sonra.
+6. V1.0 Release Candidate internal closure — 50 tarif kataloğu, provider güvenliği, private medya review, blog/SEO ve production handoff belgeleri tamamlanır. Production erişimi (hosting/DNS/TLS/mail) ayrı yetki gerektirir.
 7. Dünya mutfakları editorial genişlemesi.
 8. AI Chef — Master Product Redesign programından sonra.
 9. Community.

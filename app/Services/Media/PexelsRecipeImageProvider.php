@@ -35,8 +35,14 @@ final class PexelsRecipeImageProvider
     /** @return list<array{external_photo_id:string,photographer:string,photographer_url:?string,pexels_page_url:?string,source_url:string,width:int,height:int,alt_text:string,attribution_text:string,score:int}> */
     public function candidates(Recipe $recipe, int $page = 1): array
     {
+        return $this->search($recipe, $page)['candidates'];
+    }
+
+    /** @return array{status:string,error_code:?string,safe_message:string,candidates:list<array{external_photo_id:string,photographer:string,photographer_url:?string,pexels_page_url:?string,source_url:string,width:int,height:int,alt_text:string,attribution_text:string,score:int}>} */
+    public function search(Recipe $recipe, int $page = 1): array
+    {
         if (! $this->health()['configured'] || ! $this->health()['enabled']) {
-            return [];
+            return $this->result('disabled', 'PEXELS_PROVIDER_DISABLED', 'Pexels aday araması etkin değil.');
         }
         $settings = (array) config('ai_images.providers.pexels');
         $query = $this->queryFor($recipe);
@@ -52,13 +58,29 @@ final class PexelsRecipeImageProvider
                     'page' => max(1, min(10, $page)),
                 ]);
         } catch (ConnectionException) {
-            return [];
+            return $this->result('provider_unavailable', 'PEXELS_PROVIDER_UNAVAILABLE', 'Pexels aday araması güvenli zaman aşımı sınırını geçti.');
         }
-        if (! $response->successful() || ! is_array($response->json('photos'))) {
-            return [];
+        if (! $response->successful()) {
+            $code = match ($response->status()) {
+                401 => 'PEXELS_INVALID_KEY',
+                403 => 'PEXELS_PERMISSION_DENIED',
+                429 => 'PEXELS_RATE_LIMITED',
+                default => 'PEXELS_PROVIDER_UNAVAILABLE',
+            };
+            $message = match ($response->status()) {
+                401 => 'Pexels anahtarı doğrulanamadı.',
+                403 => 'Pexels erişim izni bu istek için yeterli değil.',
+                429 => 'Pexels hız sınırı uyguladı; daha sonra yeniden deneyin.',
+                default => 'Pexels aday araması şu anda kullanılamıyor.',
+            };
+
+            return $this->result('provider_error', $code, $message);
+        }
+        if (! is_array($response->json('photos'))) {
+            return $this->result('provider_error', 'PEXELS_INVALID_RESPONSE', 'Pexels aday yanıtı güvenli biçimde işlenemedi.');
         }
 
-        return collect($response->json('photos'))->filter(fn (mixed $photo): bool => is_array($photo))
+        $candidates = collect($response->json('photos'))->filter(fn (mixed $photo): bool => is_array($photo))
             ->map(function (array $photo) use ($recipe): ?array {
                 $source = data_get($photo, 'src.landscape') ?? data_get($photo, 'src.large');
                 $id = $photo['id'] ?? null;
@@ -83,6 +105,8 @@ final class PexelsRecipeImageProvider
                     'score' => $this->score($photo, $recipe),
                 ];
             })->filter()->sortByDesc('score')->values()->all();
+
+        return $this->result('ok', null, $candidates === [] ? 'Pexels bu tarif için güvenli aday döndürmedi.' : 'Pexels adayları private review için hazır.', $candidates);
     }
 
     public function queryFor(Recipe $recipe): string
@@ -113,5 +137,11 @@ final class PexelsRecipeImageProvider
             'nohutlu-akdeniz-kasesi' => 'chickpea Mediterranean bowl',
             default => Str::ascii($title),
         };
+    }
+
+    /** @param list<array{external_photo_id:string,photographer:string,photographer_url:?string,pexels_page_url:?string,source_url:string,width:int,height:int,alt_text:string,attribution_text:string,score:int}> $candidates @return array{status:string,error_code:?string,safe_message:string,candidates:list<array{external_photo_id:string,photographer:string,photographer_url:?string,pexels_page_url:?string,source_url:string,width:int,height:int,alt_text:string,attribution_text:string,score:int}>} */
+    private function result(string $status, ?string $errorCode, string $safeMessage, array $candidates = []): array
+    {
+        return ['status' => $status, 'error_code' => $errorCode, 'safe_message' => $safeMessage, 'candidates' => $candidates];
     }
 }

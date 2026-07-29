@@ -44,6 +44,22 @@ final class RecipeController extends Controller
 
         $nutritionResult = $nutrition->snapshot($recipe, $servings);
 
+        $heroMedia = $recipe->media->first(fn ($media) => $media->verification_status !== 'rejected');
+        $schema = [
+            '@context' => 'https://schema.org', '@type' => 'Recipe', 'name' => $recipe->title,
+            'description' => $recipe->excerpt ?: $recipe->description,
+            'url' => route('recipes.show', $recipe),
+            'recipeCuisine' => $recipe->cuisine?->name,
+            'recipeCategory' => $recipe->category?->name,
+            'prepTime' => 'PT'.$recipe->prep_minutes.'M', 'cookTime' => 'PT'.$recipe->cook_minutes.'M',
+            'totalTime' => 'PT'.$recipe->totalMinutes().'M', 'recipeYield' => $recipe->servings.' porsiyon',
+            'recipeIngredient' => collect($ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings))->pluck('formatted')->values()->all(),
+            'recipeInstructions' => $recipe->steps->map(fn ($step): array => ['@type' => 'HowToStep', 'name' => $step->title, 'text' => $step->instruction])->values()->all(),
+        ];
+        if ($heroMedia?->publicUrl()) {
+            $schema['image'] = [$heroMedia->publicUrl()];
+        }
+
         return view('recipes.show', [
             'recipe' => $recipe,
             'servings' => $servings,
@@ -66,6 +82,8 @@ final class RecipeController extends Controller
                 ->orderByRaw('case when category_id = ? then 0 else 1 end', [$recipe->category_id])
                 ->limit(4)
                 ->get(),
+            'seoSchema' => $schema,
+            'seoImage' => $heroMedia?->publicUrl(),
         ]);
     }
 

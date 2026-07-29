@@ -17,6 +17,7 @@
                 <button class="hc-v3-btn hc-v3-btn--ghost self-end" type="submit">Güvenli aday ara</button>
             </form>
             @if($selectedRecipe)
+                @if($pexelsSearch !== null)<p class="mt-4 text-sm text-muted">{{ $pexelsSearch['safe_message'] }}@if($pexelsSearch['error_code']) <code>{{ $pexelsSearch['error_code'] }}</code>@endif</p>@endif
                 <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     @forelse($pexelsCandidates as $candidate)
                         <article class="rounded-2xl border border-[color:var(--hc-line)] p-4"><div class="flex aspect-[4/3] items-center justify-center rounded-xl bg-[color:var(--hc-surface-muted)] p-3 text-center text-xs text-muted">Pexels görseli yalnız private indirme sonrası görünür.</div><div class="mt-3"><strong>{{ $candidate['photographer'] }}</strong><p class="mt-1 text-xs text-muted">{{ $candidate['width'] }}×{{ $candidate['height'] }} · Uyum puanı {{ $candidate['score'] }}</p></div><form class="mt-4" method="post" action="{{ route('admin.ai-image-studio.pexels.import') }}">@csrf<input type="hidden" name="recipe_public_id" value="{{ $selectedRecipe->public_id }}"><input type="hidden" name="external_photo_id" value="{{ $candidate['external_photo_id'] }}"><button class="hc-v3-btn hc-v3-btn--primary w-full" type="submit">Private review alanına al</button></form><p class="mt-3 text-xs text-muted">{{ $candidate['attribution_text'] }}</p></article>

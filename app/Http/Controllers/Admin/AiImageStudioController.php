@@ -39,6 +39,8 @@ final class AiImageStudioController extends Controller
             ? Recipe::query()->where('public_id', $request->string('recipe')->toString())->first()
             : null;
 
+        $pexelsSearch = $selectedRecipe === null ? null : $pexels->search($selectedRecipe);
+
         return view('admin.ai-image-studio.index', [
             'generations' => AiImageGeneration::query()->with(['recipe.cuisine', 'recipe.category'])->latest()->paginate(30),
             'providers' => $providers->health(),
@@ -53,7 +55,8 @@ final class AiImageStudioController extends Controller
             ],
             'recipes' => Recipe::query()->orderBy('title')->get(['id', 'public_id', 'title']),
             'selectedRecipe' => $selectedRecipe,
-            'pexelsCandidates' => $selectedRecipe === null ? [] : $pexels->candidates($selectedRecipe),
+            'pexelsCandidates' => $pexelsSearch['candidates'] ?? [],
+            'pexelsSearch' => $pexelsSearch,
             'pexelsReviewMedia' => Media::query()->with('mediable')->where('source_name', 'Pexels')->latest()->paginate(12, ['*'], 'pexels_page'),
         ]);
     }

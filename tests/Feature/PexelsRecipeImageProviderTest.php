@@ -48,6 +48,19 @@ final class PexelsRecipeImageProviderTest extends TestCase
         Http::assertSent(fn ($request): bool => $request->hasHeader('Authorization', 'Bearer test-key') && $request['orientation'] === 'landscape');
     }
 
+    public function test_it_maps_provider_authentication_errors_without_exposing_response_body(): void
+    {
+        $this->seed();
+        config()->set('ai_images.providers.pexels', ['enabled' => true, 'key' => 'test-key', 'endpoint' => 'https://api.pexels.com']);
+        Http::fake(['api.pexels.com/v1/search*' => Http::response(['error' => 'sensitive detail'], 401)]);
+
+        $result = app(PexelsRecipeImageProvider::class)->search(Recipe::query()->firstOrFail());
+
+        $this->assertSame('PEXELS_INVALID_KEY', $result['error_code']);
+        $this->assertStringNotContainsString('sensitive', $result['safe_message']);
+        $this->assertSame([], $result['candidates']);
+    }
+
     public function test_a_selected_pexels_candidate_is_imported_privately_and_requires_manual_approval(): void
     {
         $this->seed();

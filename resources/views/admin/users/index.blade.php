@@ -18,7 +18,7 @@
                     <td><span class="hc-admin-status hc-admin-status--{{ $user->account_status === 'active' ? 'success' : 'neutral' }}">{{ $user->account_status === 'active' ? 'Aktif' : 'Askıda' }}</span><div class="text-xs text-muted">{{ $user->role === 'admin' ? 'Yönetici' : 'Üye' }} · {{ $user->email_verified_at ? 'E-posta doğrulandı' : 'E-posta doğrulanmadı' }}</div></td>
                     <td><span class="text-sm">{{ $user->last_activity_at?->diffForHumans() ?? 'Henüz yok' }}</span><div class="text-xs text-muted">Son giriş: {{ $user->last_login_at?->diffForHumans() ?? 'Henüz yok' }}</div></td>
                     <td><span class="text-sm">{{ $user->favorite_recipes_count }} favori · {{ $user->pantry_items_count }} dolap</span><div class="text-xs text-muted">{{ $user->cooking_sessions_count }} pişirme oturumu · {{ $user->last_login_ip_masked ?: 'IP kaydı yok' }}</div></td>
-                    <td><a class="hc-v3-btn hc-v3-btn--secondary hc-v3-btn--sm" href="{{ route('admin.users.show', $user) }}">Güvenli detay</a></td>
+                    <td><a class="hc-v3-btn hc-v3-btn--secondary hc-v3-btn--sm" href="{{ route('admin.users.show', ['user' => $user->public_id]) }}">Güvenli detay</a></td>
                 </tr>@empty<tr><td colspan="5"><div class="hc-admin-empty"><strong>Kullanıcı bulunamadı</strong><p>Arama ve filtreleri kontrol edin.</p></div></td></tr>@endforelse
             </tbody></table></div>
             <div class="mt-5">{{ $users->links() }}</div>

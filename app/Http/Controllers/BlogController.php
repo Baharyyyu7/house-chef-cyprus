@@ -26,7 +26,12 @@ final class BlogController extends Controller
         abort_unless(BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists(), 404);
         $post->load(['category', 'tags', 'heroMedia', 'author', 'recipes.media']);
 
-        return view('blog.show', compact('post'));
+        $schema = ['@context' => 'https://schema.org', '@type' => 'Article', 'headline' => $post->title, 'description' => $post->excerpt, 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => ['@type' => 'Organization', 'name' => 'House Chef Cyprus']];
+        if ($post->heroMedia?->publicUrl()) {
+            $schema['image'] = [$post->heroMedia->publicUrl()];
+        }
+
+        return view('blog.show', compact('post', 'schema'));
     }
 
     public function category(BlogCategory $category): View

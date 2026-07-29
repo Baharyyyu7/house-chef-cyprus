@@ -12,10 +12,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property string|null $public_id
+ * @property Carbon|null $last_login_at
+ * @property Carbon|null $last_activity_at
+ */
 #[Fillable(['name', 'email', 'password', 'role', 'account_status'])]
 #[Hidden(['password', 'remember_token'])]
-/** @property string $public_id */
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */

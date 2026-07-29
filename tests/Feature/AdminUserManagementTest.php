@@ -31,11 +31,14 @@ final class AdminUserManagementTest extends TestCase
             ->assertDontSee('never-display');
 
         $this->actingAs($admin)
-            ->get(route('admin.users.show', $member))
+            ->get(route('admin.users.show', ['user' => $member->public_id]))
             ->assertOk()
             ->assertSee('auth.login')
             ->assertDontSee('never-display')
             ->assertDontSee($member->password);
+
+        $this->assertNotNull($admin->public_id);
+        $this->assertNotNull($member->public_id);
     }
 
     public function test_member_cannot_access_user_administration(): void
@@ -53,14 +56,14 @@ final class AdminUserManagementTest extends TestCase
         $member = User::factory()->create(['role' => 'member']);
 
         $this->actingAs($admin)
-            ->post(route('admin.users.suspend', $member))
+            ->post(route('admin.users.suspend', ['user' => $member->public_id]))
             ->assertRedirect();
 
         $this->assertDatabaseHas('users', ['id' => $member->id, 'account_status' => 'suspended']);
         $this->assertDatabaseHas('audit_logs', ['user_id' => $admin->id, 'action' => 'user.account_suspended']);
 
         $this->actingAs($admin)
-            ->post(route('admin.users.reactivate', $member))
+            ->post(route('admin.users.reactivate', ['user' => $member->public_id]))
             ->assertRedirect();
 
         $this->assertDatabaseHas('users', ['id' => $member->id, 'account_status' => 'active']);

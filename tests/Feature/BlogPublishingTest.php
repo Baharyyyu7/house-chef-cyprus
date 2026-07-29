@@ -23,7 +23,8 @@ final class BlogPublishingTest extends TestCase
         $this->get(route('blog.index'))->assertOk()->assertSee($published->title)->assertDontSee($draft->title);
         $this->get(route('blog.show', $published))->assertOk()->assertSee($published->title);
         $this->get(route('blog.show', $draft))->assertNotFound();
-        $this->get('/sitemap.xml')->assertOk()->assertSee($published->slug)->assertDontSee($draft->slug);
+        $this->get('/sitemap.xml')->assertOk()->assertSee('/sitemaps/blog.xml');
+        $this->get('/sitemaps/blog.xml')->assertOk()->assertSee($published->slug)->assertDontSee($draft->slug);
     }
 
     public function test_admin_can_create_and_publish_a_post_while_a_member_is_forbidden(): void

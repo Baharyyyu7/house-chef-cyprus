@@ -37,7 +37,11 @@ Route::get('/blog/kategori/{category}', [BlogController::class, 'category'])->na
 Route::get('/blog/etiket/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
 Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
 Route::post('/tarifler/{recipe:slug}/ai', [RecipeController::class, 'ai'])->middleware('throttle:ai')->name('recipes.ai');
-Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/sitemaps/pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
+Route::get('/sitemaps/recipes.xml', [SitemapController::class, 'recipes'])->name('sitemap.recipes');
+Route::get('/sitemaps/blog.xml', [SitemapController::class, 'blog'])->name('sitemap.blog');
+Route::get('/sitemaps/images.xml', [SitemapController::class, 'images'])->name('sitemap.images');
 Route::view('/robots.txt', 'robots')->name('robots');
 Route::get('/{page}', [InformationPageController::class, 'show'])
     ->whereIn('page', ['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'gorsel-ve-kaynak-politikasi', 'gizlilik', 'kullanim-kosullari', 'cerez-politikasi', 'iletisim'])
