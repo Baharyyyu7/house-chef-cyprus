@@ -44,4 +44,14 @@ final class BlogPublishingTest extends TestCase
         $this->actingAs($admin)->post(route('admin.blog.publish', $post))->assertRedirect();
         $this->get(route('blog.show', $post->fresh()))->assertOk();
     }
+
+    public function test_scheduled_posts_only_publish_when_their_time_has_arrived(): void
+    {
+        $due = BlogPost::create(['title' => 'Zamanı gelen yazı', 'slug' => 'zamani-gelen-yazi', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'scheduled', 'scheduled_at' => now()->subMinute()]);
+        $future = BlogPost::create(['title' => 'Gelecek yazı', 'slug' => 'gelecek-yazi', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'scheduled', 'scheduled_at' => now()->addHour()]);
+
+        $this->artisan('blog:publish-scheduled --json')->expectsOutputToContain('"published":1')->assertSuccessful();
+        $this->assertSame('published', $due->fresh()->status);
+        $this->assertSame('scheduled', $future->fresh()->status);
+    }
 }

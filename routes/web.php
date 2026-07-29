@@ -92,7 +92,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('basarisiz-isler/toplu-yeniden-dene', [FailedJobController::class, 'retryMany'])->name('failed-jobs.retry-many');
     Route::delete('basarisiz-isler/{uuid}', [FailedJobController::class, 'forget'])->name('failed-jobs.forget');
     Route::get('medya', [AdminMediaController::class, 'index'])->name('media.index');
-    Route::resource('blog', AdminBlogPostController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::resource('blog', AdminBlogPostController::class)->parameters(['blog' => 'post'])->only(['index', 'create', 'store', 'edit', 'update']);
     Route::post('blog/{post}/yayinla', [AdminBlogPostController::class, 'publish'])->name('blog.publish');
     Route::post('blog/{post}/arsivle', [AdminBlogPostController::class, 'archive'])->name('blog.archive');
     Route::get('ai-gorsel-studyosu', [AiImageStudioController::class, 'index'])->name('ai-image-studio.index');
