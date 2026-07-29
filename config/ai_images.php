@@ -58,8 +58,15 @@ return [
             'poll_interval_ms' => (int) env('BFL_IMAGE_POLL_INTERVAL_MS', 500),
         ],
         'comfyui' => [
-            'enabled' => (bool) env('COMFYUI_IMAGE_ENABLED', false),
-            'endpoint' => env('COMFYUI_IMAGE_ENDPOINT'),
+            'enabled' => (bool) env('COMFYUI_ENABLED', env('COMFYUI_IMAGE_ENABLED', false)),
+            'endpoint' => env('COMFYUI_BASE_URL') ?: (env('COMFYUI_IMAGE_ENDPOINT') ?: 'http://127.0.0.1:8188'),
+            'workflow_path' => env('COMFYUI_WORKFLOW_PATH') ?: resource_path('workflows/comfyui/flux1-schnell-api.json'),
+            'model' => env('COMFYUI_MODEL', 'flux1-schnell'),
+            'timeout' => (int) env('COMFYUI_TIMEOUT', 900),
+            'max_concurrent_jobs' => max(1, (int) env('COMFYUI_MAX_CONCURRENT_JOBS', 1)),
+            'auto_publish' => (bool) env('RECIPE_IMAGE_AUTO_PUBLISH', false),
+            'poll_interval_ms' => max(250, (int) env('COMFYUI_POLL_INTERVAL_MS', 2000)),
+            'max_output_bytes' => (int) env('COMFYUI_MAX_OUTPUT_BYTES', 12 * 1024 * 1024),
         ],
         'diffusers' => [
             'enabled' => (bool) env('DIFFUSERS_IMAGE_ENABLED', false),

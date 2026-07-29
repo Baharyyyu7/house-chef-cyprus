@@ -7,6 +7,7 @@ namespace App\Console\Commands;
 use App\Services\Media\FallbackImageComparisonService;
 use App\Services\Media\GeminiImageGenerationService;
 use App\Services\Media\ImageProviderRegistry;
+use App\Services\Media\LocalComfyUiImageGenerationService;
 use Illuminate\Console\Command;
 
 final class RecipeImagesProviderHealth extends Command
@@ -15,10 +16,10 @@ final class RecipeImagesProviderHealth extends Command
 
     protected $description = 'Görsel sağlayıcısı için güvenli capability ve tek çağrılık recovery health kontrolü';
 
-    public function handle(ImageProviderRegistry $providers, GeminiImageGenerationService $generator, FallbackImageComparisonService $comparison): int
+    public function handle(ImageProviderRegistry $providers, GeminiImageGenerationService $generator, FallbackImageComparisonService $comparison, LocalComfyUiImageGenerationService $comfy): int
     {
         $name = (string) $this->option('provider');
-        if (! in_array($name, ['gemini', 'bfl', 'stability'], true)) {
+        if (! in_array($name, ['gemini', 'bfl', 'stability', 'comfyui'], true)) {
             $this->error('Desteklenmeyen görsel sağlayıcısı.');
 
             return self::FAILURE;
@@ -26,6 +27,7 @@ final class RecipeImagesProviderHealth extends Command
         $report = ['provider' => $name, 'billable_call' => false, 'health' => $providers->providerHealth($name), 'adapter' => match ($name) {
             'bfl' => ['endpoint_class' => 'BFL FLUX.2 async polling', 'request_schema_ready' => true, 'response_parser_ready' => true],
             'stability' => ['endpoint_class' => 'Stability REST v2beta multipart', 'request_schema_ready' => true, 'response_parser_ready' => true],
+            'comfyui' => ['endpoint_class' => 'Local ComfyUI queue and history polling', 'request_schema_ready' => true, 'response_parser_ready' => true],
             default => ['endpoint_class' => 'Gemini API v1beta predict', 'request_schema_ready' => true, 'response_parser_ready' => true],
         }];
         if ($this->option('live-test') && $name === 'gemini') {
@@ -35,6 +37,10 @@ final class RecipeImagesProviderHealth extends Command
         if ($this->option('live-test') && in_array($name, ['bfl', 'stability'], true)) {
             $report['billable_call'] = true;
             $report['comparison'] = $comparison->run($name)['providers'][$name] ?? [];
+        }
+        if ($this->option('live-test') && $name === 'comfyui') {
+            $report['billable_call'] = false;
+            $report['comparison'] = $comfy->generateTomatoSoup();
         }
         if ($this->option('json')) {
             $this->line((string) json_encode($report, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));

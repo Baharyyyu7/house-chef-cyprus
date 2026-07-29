@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Services\UserActivityLogger;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -36,6 +37,26 @@ class LoginForm extends Form
             throw ValidationException::withMessages([
                 'form.email' => trans('auth.failed'),
             ]);
+        }
+
+        $user = Auth::user();
+        if ($user?->isSuspended()) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'form.email' => 'Bu hesap geçici olarak askıya alındı.',
+            ]);
+        }
+
+        if ($user !== null) {
+            $user->forceFill([
+                'last_login_at' => now(),
+                'last_activity_at' => now(),
+                'last_login_ip_masked' => app(UserActivityLogger::class)->maskForDisplay(request()->ip()),
+                'last_login_ip_hash' => request()->ip() === null ? null : hash_hmac('sha256', request()->ip(), (string) config('app.key')),
+            ])->saveQuietly();
+            app(UserActivityLogger::class)->record($user, 'login', request());
         }
 
         RateLimiter::clear($this->throttleKey());

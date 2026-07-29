@@ -15,12 +15,15 @@ use App\Http\Controllers\Admin\RecipeStepController as AdminRecipeStepController
 use App\Http\Controllers\Admin\RecipeVerificationController;
 use App\Http\Controllers\Admin\RestoreHistoryController;
 use App\Http\Controllers\Admin\SystemEventController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CookingSessionController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\InformationPageController;
 use App\Http\Controllers\IngredientExplorerController;
 use App\Http\Controllers\PantryController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [RecipeController::class, 'index'])->name('home');
@@ -28,6 +31,11 @@ Route::get('/health', HealthController::class)->name('health');
 Route::get('/tarifler', [RecipeController::class, 'index'])->name('recipes.index');
 Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])->name('recipes.show');
 Route::post('/tarifler/{recipe:slug}/ai', [RecipeController::class, 'ai'])->middleware('throttle:ai')->name('recipes.ai');
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::view('/robots.txt', 'robots')->name('robots');
+Route::get('/{page}', [InformationPageController::class, 'show'])
+    ->whereIn('page', ['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'gizlilik', 'kullanim-kosullari'])
+    ->name('information.show');
 
 Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
@@ -53,6 +61,11 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
     Route::get('/', AdminDashboardController::class)->name('dashboard');
+    Route::get('kullanicilar', [AdminUserController::class, 'index'])->name('users.index');
+    Route::get('kullanicilar/{user:public_id}', [AdminUserController::class, 'show'])->name('users.show');
+    Route::post('kullanicilar/{user:public_id}/askiya-al', [AdminUserController::class, 'suspend'])->name('users.suspend');
+    Route::post('kullanicilar/{user:public_id}/etkinlestir', [AdminUserController::class, 'reactivate'])->name('users.reactivate');
+    Route::post('kullanicilar/{user:public_id}/oturumlari-kapat', [AdminUserController::class, 'revokeSessions'])->name('users.revoke-sessions');
     Route::post('sistem-durumu/queue-yenile', [AdminDashboardController::class, 'refreshQueue'])->name('system-status.refresh-queue');
     Route::post('sistem-durumu/scheduler-yenile', [AdminDashboardController::class, 'refreshScheduler'])->name('system-status.refresh-scheduler');
     Route::post('sistem-durumu/cache-yenile', [AdminDashboardController::class, 'refreshCache'])->name('system-status.refresh-cache');

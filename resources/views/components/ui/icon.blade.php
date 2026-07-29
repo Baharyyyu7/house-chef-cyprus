@@ -14,6 +14,7 @@
         @case('info')<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>@break
         @case('search')<circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/>@break
         @case('image')<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.3"/><path d="m21 16-5-5L5 20"/>@break
+        @case('users')<path d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-4A4.5 4.5 0 0 0 3 18.5V20"/><circle cx="9.5" cy="7" r="3.5"/><path d="M17 10a3 3 0 1 0-1.2-5.75M21 20v-1.5a4.5 4.5 0 0 0-2.7-4.12"/>@break
         @case('archive')<path d="M4 8h16v12H4zM3 4h18v4H3zM10 12h4"/>@break
         @case('chevron-down')<path d="m6 9 6 6 6-6"/>@break
         @default <path d="m12 3 1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3Z"/>

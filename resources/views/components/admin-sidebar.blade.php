@@ -2,6 +2,7 @@
     $groups = [
         'Genel' => [
             ['route' => 'admin.dashboard', 'label' => 'Genel Bakış', 'icon' => 'sparkles'],
+            ['route' => 'admin.users.index', 'label' => 'Kullanıcılar', 'icon' => 'users'],
         ],
         'İçerik' => [
             ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => 'menu'],

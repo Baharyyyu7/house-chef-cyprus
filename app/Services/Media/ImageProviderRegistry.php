@@ -41,7 +41,7 @@ final class ImageProviderRegistry
         }
 
         $providers = collect($providers)->map(function (array $provider): array {
-            if (! in_array($provider['name'], ['bfl', 'stability'], true)) {
+            if (! in_array($provider['name'], ['bfl', 'stability', 'comfyui'], true)) {
                 return $provider;
             }
 
@@ -66,6 +66,7 @@ final class ImageProviderRegistry
         return match ($name) {
             'bfl' => app(BflRecipeImageProvider::class),
             'stability' => app(StabilityRecipeImageProvider::class),
+            'comfyui' => app(ComfyUiRecipeImageProvider::class),
             default => throw new \InvalidArgumentException('Unsupported image provider.'),
         };
     }

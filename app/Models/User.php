@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role'])]
+#[Fillable(['name', 'email', 'password', 'role', 'account_status'])]
 #[Hidden(['password', 'remember_token'])]
 /** @property string $public_id */
 class User extends Authenticatable implements MustVerifyEmail
@@ -32,6 +32,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
+            'last_activity_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -39,6 +41,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function isSuspended(): bool
+    {
+        return $this->account_status === 'suspended';
     }
 
     /** @return BelongsToMany<Recipe, $this> */
@@ -57,5 +64,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function cookingSessions(): HasMany
     {
         return $this->hasMany(CookingSession::class);
+    }
+
+    /** @return HasMany<UserActivity, $this> */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(UserActivity::class);
     }
 }
