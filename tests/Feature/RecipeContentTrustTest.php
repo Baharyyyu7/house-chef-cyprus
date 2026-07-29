@@ -49,6 +49,7 @@ final class RecipeContentTrustTest extends TestCase
 
         $response = $this->getJson('/api/v1/recipes')->assertOk();
         $response->assertJsonMissing(['public_id' => $hidden->public_id]);
+        $response->assertJsonPath('data.0.content_trust.verification_status', 'verified');
         $response->assertJsonMissingPath('data.0.source_name');
         $response->assertJsonMissingPath('data.0.reliability_score');
 

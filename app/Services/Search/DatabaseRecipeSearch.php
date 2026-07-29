@@ -19,7 +19,7 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
     public function search(array $filters): LengthAwarePaginator
     {
         $query = Recipe::query()
-            ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'is_featured', 'created_at'])
+            ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'verification_status', 'completeness_score', 'completeness_status', 'editorial_reviewed_at', 'is_featured', 'created_at'])
             ->with([
                 'cuisine:id,public_id,name,slug',
                 'category:id,public_id,name,slug',
