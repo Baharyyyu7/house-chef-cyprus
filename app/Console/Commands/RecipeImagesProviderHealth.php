@@ -19,7 +19,7 @@ final class RecipeImagesProviderHealth extends Command
     public function handle(ImageProviderRegistry $providers, GeminiImageGenerationService $generator, FallbackImageComparisonService $comparison, LocalComfyUiImageGenerationService $comfy): int
     {
         $name = (string) $this->option('provider');
-        if (! in_array($name, ['gemini', 'bfl', 'stability', 'comfyui'], true)) {
+        if (! in_array($name, ['gemini', 'edenai', 'pexels', 'bfl', 'stability', 'comfyui'], true)) {
             $this->error('Desteklenmeyen görsel sağlayıcısı.');
 
             return self::FAILURE;
@@ -28,6 +28,8 @@ final class RecipeImagesProviderHealth extends Command
             'bfl' => ['endpoint_class' => 'BFL FLUX.2 async polling', 'request_schema_ready' => true, 'response_parser_ready' => true],
             'stability' => ['endpoint_class' => 'Stability REST v2beta multipart', 'request_schema_ready' => true, 'response_parser_ready' => true],
             'comfyui' => ['endpoint_class' => 'Local ComfyUI queue and history polling', 'request_schema_ready' => true, 'response_parser_ready' => true],
+            'edenai' => ['endpoint_class' => 'Eden AI universal-ai', 'request_schema_ready' => true, 'response_parser_ready' => true],
+            'pexels' => ['endpoint_class' => 'Pexels v1 review candidate search', 'request_schema_ready' => true, 'response_parser_ready' => false],
             default => ['endpoint_class' => 'Gemini API v1beta predict', 'request_schema_ready' => true, 'response_parser_ready' => true],
         }];
         if ($this->option('live-test') && $name === 'gemini') {
