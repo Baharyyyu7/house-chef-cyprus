@@ -32,6 +32,11 @@ final class InformationPageController extends Controller
             'sections' => [
                 ['title' => 'Beslenme bilgileri tıbbi tavsiye midir?', 'body' => 'Hayır. Bilgiler tarif planlaması içindir; sağlık kararları için uzman desteği alın.'],
                 ['title' => 'Alerjen bilgisi nasıl kullanılmalı?', 'body' => 'Etiketler yardımcıdır. Ambalajı ve çapraz bulaşma riskini her zaman ayrıca kontrol edin.'],
+                ['title' => 'Ev ölçüleri nasıl çalışır?', 'body' => 'Tariflerde günlük kullanıma uygun ev ölçüleri bulunur. Gram ve mililitre karşılıkları, kaynak ve güven düzeyi elverdiğinde ayrıca gösterilir.'],
+                ['title' => 'Porsiyon ölçekleme ne yapar?', 'body' => 'Miktarları seçtiğiniz porsiyona göre hesaplar; bazı ev ölçülerinde sonuç temkinli yorumlanmalıdır.'],
+                ['title' => 'Dolabım ve Ne Pişirebilirim nasıl çalışır?', 'body' => 'Kaydettiğiniz malzemelerle tarifleri eşleştirir; eksik, alternatifle mümkün veya tam uygun durumlarını açıkça ayırır.'],
+                ['title' => 'Görseller nereden gelir?', 'body' => 'Onaylanmış sağlayıcı görselleri veya tarife özel markalı fallback kullanılır. Pexels ve AI görselleri yayınlanmadan önce insan incelemesinden geçer.'],
+                ['title' => 'Hesabımı nasıl silebilirim?', 'body' => 'Hesap ayarlarından silme talebi oluşturabilirsiniz. Bu işlem için desteklenen veri saklama ve güvenlik kuralları uygulanır.'],
             ],
         ],
         'editorial-ilkeler' => [
@@ -56,6 +61,38 @@ final class InformationPageController extends Controller
             'sections' => [
                 ['title' => 'İçerik kullanımı', 'body' => 'Platform içeriği izinsiz toplu kopyalama veya yeniden yayınlama için sunulmaz.'],
                 ['title' => 'Sorumluluk', 'body' => 'Alerjen, beslenme ve saklama bilgilerini kendi koşullarınıza göre doğrulayın.'],
+            ],
+        ],
+        'tarif-dogrulama-politikasi' => [
+            'title' => 'Tarif Doğrulama Politikası', 'eyebrow' => 'İçerik güveni',
+            'lead' => 'Tarif kimliği, malzeme mantığı, ölçüler ve kaynak bilgileri editoryal incelemeyle birlikte değerlendirilir.',
+            'sections' => [
+                ['title' => 'Yayın eşiği', 'body' => 'Yayınlanan tariflerde kaynak/provenance ve doğrulama durumu korunur. Belirsiz kayıtlar kesinmiş gibi sunulmaz.'],
+                ['title' => 'Düzeltmeler', 'body' => 'Hata bildirimi veya iç denetim sonrasında tarif incelemeye alınabilir; değişiklik geçmişi ve kaynak bağlamı silinmez.'],
+            ],
+        ],
+        'gorsel-ve-kaynak-politikasi' => [
+            'title' => 'Görsel ve Kaynak Politikası', 'eyebrow' => 'Şeffaf medya',
+            'lead' => 'Görsel kaynakları, lisans bilgileri ve editoryal inceleme durumu tarif verisinden ayrı olarak takip edilir.',
+            'sections' => [
+                ['title' => 'İnceleme zinciri', 'body' => 'Dış kaynaklı ve AI üretimi görseller önce private inceleme alanına alınır. İnsan onayı olmadan public alanda yayınlanmaz.'],
+                ['title' => 'Fallback görseller', 'body' => 'Uygun gerçek görsel yoksa tarife özel markalı fallback kullanılır; bu görsel gerçek yemek fotoğrafı olarak tanıtılmaz.'],
+            ],
+        ],
+        'cerez-politikasi' => [
+            'title' => 'Çerez Politikası', 'eyebrow' => 'Şeffaf tercih yönetimi',
+            'lead' => 'Oturum ve güvenlik için gerekli çerezleri, yalnız hizmetin çalışması için kullanırız.',
+            'sections' => [
+                ['title' => 'Zorunlu çerezler', 'body' => 'Oturum güvenliği, CSRF koruması ve tema tercihi gibi temel işlevler için kullanılır.'],
+                ['title' => 'Tercihler', 'body' => 'İsteğe bağlı analitik veya pazarlama araçları, ilgili açık tercih ve hesap yapılandırması olmadan etkinleştirilmez.'],
+            ],
+        ],
+        'iletisim' => [
+            'title' => 'İletişim', 'eyebrow' => 'Geri bildirim',
+            'lead' => 'Tarif hatası, kaynak düzeltmesi veya hesap desteği için iletişim kanalı yakında yapılandırma üzerinden duyurulacaktır.',
+            'sections' => [
+                ['title' => 'İçerik düzeltmesi', 'body' => 'Tarif, görsel, kaynak veya alerjen bilgisindeki olası hataları bildirirken tarif adını ve mümkünse public kimliğini paylaşın.'],
+                ['title' => 'Gizlilik ve hesap talepleri', 'body' => 'Veri erişimi, silme veya gizlilik talepleri için yayınlanacak resmi destek kanalını kullanın. Sahte adres veya telefon bilgisi yayınlamıyoruz.'],
             ],
         ],
     ];

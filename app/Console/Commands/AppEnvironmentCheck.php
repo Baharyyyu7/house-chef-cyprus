@@ -29,8 +29,13 @@ final class AppEnvironmentCheck extends Command
         ];
         if (app()->environment('production')) {
             $checks['debug_disabled'] = ! config('app.debug');
+            $checks['https_url'] = str_starts_with((string) config('app.url'), 'https://');
             $checks['secure_cookie'] = (bool) config('session.secure');
+            $checks['queue_not_sync'] = config('queue.default') !== 'sync';
+            $checks['cache_not_array'] = config('cache.default') !== 'array';
+            $checks['non_local_storage'] = config('filesystems.default') !== 'local';
             $checks['demo_admin_absent'] = ! Schema::hasTable('users') || ! User::query()->where('email', 'admin@housechef.local')->exists();
+            $checks['image_budget_guard'] = ! config('ai_images.generation_enabled') || filled(config('ai_images.production_budget.daily_usd'));
         }
         $result = ['valid' => ! in_array(false, $checks, true), 'environment' => app()->environment(), 'checks' => $checks];
         if ($this->option('json')) {

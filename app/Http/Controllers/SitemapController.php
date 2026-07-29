@@ -11,7 +11,7 @@ final class SitemapController extends Controller
 {
     public function __invoke(): Response
     {
-        $staticPaths = ['', 'tarifler', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'gizlilik', 'kullanim-kosullari'];
+        $staticPaths = ['', 'tarifler', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'gorsel-ve-kaynak-politikasi', 'gizlilik', 'kullanim-kosullari', 'cerez-politikasi', 'iletisim'];
         $urls = collect();
         foreach ($staticPaths as $path) {
             $urls->push(['loc' => url($path), 'lastmod' => null]);

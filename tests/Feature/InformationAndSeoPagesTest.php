@@ -15,7 +15,7 @@ final class InformationAndSeoPagesTest extends TestCase
 
     public function test_information_pages_render_in_turkish(): void
     {
-        foreach (['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'gizlilik', 'kullanim-kosullari'] as $path) {
+        foreach (['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'gorsel-ve-kaynak-politikasi', 'gizlilik', 'kullanim-kosullari', 'cerez-politikasi', 'iletisim'] as $path) {
             $this->get('/'.$path)->assertOk()->assertSee('House Chef Cyprus');
         }
     }

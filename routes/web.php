@@ -34,7 +34,7 @@ Route::post('/tarifler/{recipe:slug}/ai', [RecipeController::class, 'ai'])->midd
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::view('/robots.txt', 'robots')->name('robots');
 Route::get('/{page}', [InformationPageController::class, 'show'])
-    ->whereIn('page', ['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'gizlilik', 'kullanim-kosullari'])
+    ->whereIn('page', ['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'gorsel-ve-kaynak-politikasi', 'gizlilik', 'kullanim-kosullari', 'cerez-politikasi', 'iletisim'])
     ->name('information.show');
 
 Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
