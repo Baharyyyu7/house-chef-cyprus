@@ -17,6 +17,12 @@ return [
     'daily_budget_cents' => (int) env('AI_IMAGE_DAILY_BUDGET_CENTS', 0),
     'pilot_cost_estimate_cents_per_image' => (int) env('AI_IMAGE_ESTIMATE_CENTS_PER_IMAGE', 0),
     'max_response_payload_bytes' => (int) env('AI_IMAGE_MAX_RESPONSE_PAYLOAD_BYTES', 12 * 1024 * 1024),
+    'production_budget' => [
+        'daily_usd' => env('RECIPE_IMAGE_DAILY_BUDGET_USD'),
+        'monthly_usd' => env('RECIPE_IMAGE_MONTHLY_BUDGET_USD'),
+        'max_cost_per_image_usd' => env('RECIPE_IMAGE_MAX_COST_PER_IMAGE_USD'),
+        'batch_size' => max(1, min(5, (int) env('RECIPE_IMAGE_BATCH_SIZE', 5))),
+    ],
     'diagnostic_recovery' => [
         'max_calls' => (int) env('AI_IMAGE_DIAGNOSTIC_MAX_CALLS', 1),
         'max_variations' => (int) env('AI_IMAGE_DIAGNOSTIC_MAX_VARIATIONS', 1),
@@ -31,6 +37,17 @@ return [
     ],
     'prompt_version' => 'house-chef-v1',
     'providers' => [
+        'edenai' => [
+            'enabled' => (bool) env('EDEN_AI_ENABLED', false),
+            'key' => env('EDEN_AI_API_KEY'),
+            'endpoint' => env('EDEN_AI_BASE_URL', 'https://api.edenai.run/v3'),
+            'model' => env('EDEN_AI_IMAGE_MODEL'),
+        ],
+        'pexels' => [
+            'enabled' => (bool) env('PEXELS_ENABLED', false),
+            'key' => env('PEXELS_API_KEY'),
+            'endpoint' => env('PEXELS_BASE_URL', 'https://api.pexels.com'),
+        ],
         'gemini' => [
             'enabled' => (bool) env('GEMINI_IMAGE_ENABLED', false),
             'key' => env('GEMINI_API_KEY'),

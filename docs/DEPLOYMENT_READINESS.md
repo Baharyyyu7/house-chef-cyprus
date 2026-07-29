@@ -9,3 +9,9 @@ Bu belge production deployment talimatı değildir; domain bağlama öncesi kont
 - Domain canlıya alınmadan canonical URL, sitemap, robots, e-posta doğrulama ve güvenlik header’ları staging’de test edilmelidir.
 
 Yerel ComfyUI bir production dependency değildir. Kullanılacaksa ayrı worker/host, disk kotası, health check ve private output politikası gerekir.
+
+## Server-only media policy
+
+Production configuration uses `RECIPE_IMAGE_PRIMARY_PROVIDER=edenai` and `RECIPE_IMAGE_FALLBACK_PROVIDER=pexels`; both are disabled until production secrets and a non-zero explicit budget are supplied. `COMFYUI_ENABLED` stays false in production. No browser, Mac terminal, localhost worker or model file is required by the deployed application.
+
+Before enabling a billable provider, separately validate authentication, actual image-model capability, rate limits and credit availability. A configured provider is not evidence that its generation model can be used.
