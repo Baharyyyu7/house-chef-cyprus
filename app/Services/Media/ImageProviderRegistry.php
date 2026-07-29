@@ -41,11 +41,12 @@ final class ImageProviderRegistry
         }
 
         $providers = collect($providers)->map(function (array $provider): array {
-            if (! in_array($provider['name'], ['bfl', 'stability', 'comfyui'], true)) {
-                return $provider;
-            }
-
-            return $this->fallback($provider['name'])->health();
+            return match ($provider['name']) {
+                'edenai' => app(EdenAiRecipeImageProvider::class)->health(),
+                'pexels' => app(PexelsRecipeImageProvider::class)->health(),
+                'bfl', 'stability', 'comfyui' => $this->fallback($provider['name'])->health(),
+                default => $provider,
+            };
         })->values()->all();
 
         return $providers;
@@ -56,6 +57,12 @@ final class ImageProviderRegistry
     {
         if ($name === 'gemini') {
             return app(ImageGenerationProviderInterface::class)->health(false);
+        }
+        if ($name === 'edenai') {
+            return app(EdenAiRecipeImageProvider::class)->health();
+        }
+        if ($name === 'pexels') {
+            return app(PexelsRecipeImageProvider::class)->health();
         }
 
         return $this->fallback($name)->health();
