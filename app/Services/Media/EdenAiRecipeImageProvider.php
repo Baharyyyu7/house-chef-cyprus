@@ -36,7 +36,7 @@ final class EdenAiRecipeImageProvider implements RecipeImageProviderInterface
     public function generate(string $prompt, string $negativePrompt, string $aspectRatio): ProviderImageResult
     {
         $settings = (array) config('ai_images.providers.edenai');
-        if (! $this->health()['configured'] || ! $this->health()['enabled']) {
+        if (! $this->health()['configured'] || ! $this->health()['enabled'] || ! (bool) config('ai_images.generation_enabled')) {
             return new ProviderImageResult('provider_blocked', 'IMAGE_PROVIDER_NOT_CONFIGURED', 'Eden AI canlı üretim için yapılandırılmadı.');
         }
         $payload = [

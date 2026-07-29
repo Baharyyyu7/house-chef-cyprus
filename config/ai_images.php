@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 return [
+    // Production may enable a provider only after credentials and a budget are
+    // configured. This guard is intentionally separate from a provider key.
+    'generation_enabled' => (bool) env('RECIPE_IMAGE_GENERATION_ENABLED', false),
+    'auto_publish' => (bool) env('RECIPE_IMAGE_AUTO_PUBLISH', false),
     /*
     |--------------------------------------------------------------------------
     | Pilot safety controls
@@ -90,6 +94,6 @@ return [
             'endpoint' => env('DIFFUSERS_IMAGE_ENDPOINT'),
         ],
     ],
-    'primary_provider' => env('RECIPE_IMAGE_PRIMARY_PROVIDER', 'bfl'),
-    'fallback_provider' => env('RECIPE_IMAGE_FALLBACK_PROVIDER', 'stability'),
+    'primary_provider' => env('RECIPE_IMAGE_PRIMARY_PROVIDER', 'edenai'),
+    'fallback_provider' => env('RECIPE_IMAGE_FALLBACK_PROVIDER', 'pexels'),
 ];

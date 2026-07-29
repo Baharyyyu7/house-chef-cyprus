@@ -91,6 +91,9 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::get('ai-gorsel-studyosu/{generation}/onizleme', [AiImageStudioController::class, 'preview'])->name('ai-image-studio.preview');
     Route::post('ai-gorsel-studyosu/{generation}/onayla', [AiImageStudioController::class, 'approve'])->name('ai-image-studio.approve');
     Route::post('ai-gorsel-studyosu/{generation}/reddet', [AiImageStudioController::class, 'reject'])->name('ai-image-studio.reject');
+    Route::post('ai-gorsel-studyosu/pexels/ice-aktar', [AiImageStudioController::class, 'importPexels'])->name('ai-image-studio.pexels.import');
+    Route::post('ai-gorsel-studyosu/pexels/{media:public_id}/onayla', [AiImageStudioController::class, 'approvePexels'])->name('ai-image-studio.pexels.approve');
+    Route::post('ai-gorsel-studyosu/pexels/{media:public_id}/reddet', [AiImageStudioController::class, 'rejectPexels'])->name('ai-image-studio.pexels.reject');
     Route::get('medya/yukle', [AdminMediaController::class, 'create'])->name('media.create');
     Route::post('medya', [AdminMediaController::class, 'store'])->name('media.store');
     Route::post('medya/orphan-tara', [AdminMediaController::class, 'scanOrphans'])->name('media.scan-orphans');

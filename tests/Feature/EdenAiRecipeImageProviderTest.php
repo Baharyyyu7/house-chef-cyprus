@@ -22,6 +22,7 @@ final class EdenAiRecipeImageProviderTest extends TestCase
 
     public function test_it_maps_provider_authentication_errors_without_exposing_response_body(): void
     {
+        config()->set('ai_images.generation_enabled', true);
         config()->set('ai_images.providers.edenai', ['enabled' => true, 'key' => 'test-key', 'model' => 'provider-model', 'endpoint' => 'https://api.edenai.run/v3']);
         Http::fake(['api.edenai.run/v3/universal-ai' => Http::response(['detail' => 'sensitive provider detail'], 401)]);
 
