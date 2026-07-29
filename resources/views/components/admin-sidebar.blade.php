@@ -7,6 +7,7 @@
         'İçerik' => [
             ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => 'menu'],
             ['route' => 'admin.recipe-verification.index', 'label' => 'İçerik Doğrulama', 'icon' => 'check'],
+            ['route' => 'admin.blog.index', 'label' => 'Blog', 'icon' => 'menu'],
             ['route' => 'admin.media.index', 'label' => 'Medya', 'icon' => 'image'],
             ['route' => 'admin.ai-image-studio.index', 'label' => 'Görsel Stüdyosu', 'icon' => 'image'],
         ],

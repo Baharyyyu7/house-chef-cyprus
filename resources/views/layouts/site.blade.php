@@ -76,6 +76,7 @@
                 <div class="hidden items-center gap-7 text-sm font-bold lg:flex">
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}">Ana Sayfa</a>
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}">Tarifler</a>
+                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}">Blog</a>
                     @auth
                         <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a>
                         <a @class(['nav-link', 'nav-link-active' => request()->routeIs('pantry.*')]) href="{{ route('pantry.index') }}">Dolabım</a>
@@ -101,6 +102,7 @@
                 <div class="mx-auto grid max-w-7xl gap-2 text-sm font-semibold">
                     <a class="mobile-nav-link" href="{{ route('home') }}">Ana Sayfa</a>
                     <a class="mobile-nav-link" href="{{ route('recipes.index') }}">Tarifler</a>
+                    <a class="mobile-nav-link" href="{{ route('blog.index') }}">Blog</a>
                     @auth
                         <a class="mobile-nav-link" href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a>
                         <a class="mobile-nav-link" href="{{ route('pantry.index') }}">Dolabım</a>
@@ -128,7 +130,7 @@
         <footer class="hc-footer mt-20">
             <div class="hc-container grid gap-10 py-14 md:grid-cols-[1.35fr_.8fr_.8fr_1fr]">
                 <div><x-brand-logo variant="dark" /><p class="hc-footer-muted mt-5 max-w-sm text-sm leading-7">Kıbrıs sıcaklığını modern mutfak deneyimiyle bir araya getiriyoruz. Her tarif, daha keyifli bir ev sofrası için.</p><div class="mt-6 flex gap-2"><span class="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-sm">in</span><span class="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-sm">ig</span></div></div>
-                <div><p class="text-sm font-extrabold text-orange-300">Keşfet</p><div class="hc-footer-muted mt-4 grid gap-3 text-sm"><a class="hover:text-orange-300" href="{{ route('recipes.index') }}">Tarifler</a>@auth<a class="hover:text-orange-300" href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a><a class="hover:text-orange-300" href="{{ route('pantry.index') }}">Malzeme Dolabım</a>@endauth</div></div>
+                <div><p class="text-sm font-extrabold text-orange-300">Keşfet</p><div class="hc-footer-muted mt-4 grid gap-3 text-sm"><a class="hover:text-orange-300" href="{{ route('recipes.index') }}">Tarifler</a><a class="hover:text-orange-300" href="{{ route('blog.index') }}">Blog</a>@auth<a class="hover:text-orange-300" href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a><a class="hover:text-orange-300" href="{{ route('pantry.index') }}">Malzeme Dolabım</a>@endauth</div></div>
                 <div><p class="text-sm font-extrabold text-orange-300">Platform</p><div class="hc-footer-muted mt-4 grid gap-3 text-sm"><a class="hover:text-orange-300" href="{{ route('information.show', 'hakkimizda') }}">Hakkımızda</a><a class="hover:text-orange-300" href="{{ route('information.show', 'nasil-calisir') }}">Nasıl çalışır?</a><a class="hover:text-orange-300" href="{{ route('information.show', 'sss') }}">Sık sorulan sorular</a><a class="hover:text-orange-300" href="{{ route('information.show', 'tarif-dogrulama-politikasi') }}">Tarif doğrulama</a><a class="hover:text-orange-300" href="{{ route('information.show', 'gorsel-ve-kaynak-politikasi') }}">Görsel ve kaynak</a><a class="hover:text-orange-300" href="{{ route('information.show', 'gizlilik') }}">Gizlilik</a><a class="hover:text-orange-300" href="{{ route('information.show', 'kullanim-kosullari') }}">Koşullar</a><a class="hover:text-orange-300" href="{{ route('information.show', 'cerez-politikasi') }}">Çerezler</a><a class="hover:text-orange-300" href="{{ route('information.show', 'iletisim') }}">İletişim</a></div></div>
                 <div><p class="text-sm font-extrabold text-orange-300">Bülten</p><p class="hc-footer-muted mt-4 text-sm leading-6">Yeni tarifler ve mutfak ilhamı için bizi takipte kalın.</p><a href="{{ route('register') }}" class="hc-btn hc-btn-primary mt-5">Ücretsiz üye ol</a></div>
             </div>

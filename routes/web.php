@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AiImageStudioController;
 use App\Http\Controllers\Admin\BackupController;
+use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataQualityController;
 use App\Http\Controllers\Admin\FailedJobController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Admin\RecipeVerificationController;
 use App\Http\Controllers\Admin\RestoreHistoryController;
 use App\Http\Controllers\Admin\SystemEventController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CookingSessionController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HealthController;
@@ -30,6 +32,10 @@ Route::get('/', [RecipeController::class, 'index'])->name('home');
 Route::get('/health', HealthController::class)->name('health');
 Route::get('/tarifler', [RecipeController::class, 'index'])->name('recipes.index');
 Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])->name('recipes.show');
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/kategori/{category}', [BlogController::class, 'category'])->name('blog.category');
+Route::get('/blog/etiket/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
+Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
 Route::post('/tarifler/{recipe:slug}/ai', [RecipeController::class, 'ai'])->middleware('throttle:ai')->name('recipes.ai');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::view('/robots.txt', 'robots')->name('robots');
@@ -86,6 +92,9 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('basarisiz-isler/toplu-yeniden-dene', [FailedJobController::class, 'retryMany'])->name('failed-jobs.retry-many');
     Route::delete('basarisiz-isler/{uuid}', [FailedJobController::class, 'forget'])->name('failed-jobs.forget');
     Route::get('medya', [AdminMediaController::class, 'index'])->name('media.index');
+    Route::resource('blog', AdminBlogPostController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::post('blog/{post}/yayinla', [AdminBlogPostController::class, 'publish'])->name('blog.publish');
+    Route::post('blog/{post}/arsivle', [AdminBlogPostController::class, 'archive'])->name('blog.archive');
     Route::get('ai-gorsel-studyosu', [AiImageStudioController::class, 'index'])->name('ai-image-studio.index');
     Route::get('ai-gorsel-studyosu/{generation}', [AiImageStudioController::class, 'show'])->name('ai-image-studio.show');
     Route::get('ai-gorsel-studyosu/{generation}/onizleme', [AiImageStudioController::class, 'preview'])->name('ai-image-studio.preview');
