@@ -17,6 +17,9 @@ use App\Services\Media\ImageProviderRegistry;
 use App\Services\Media\PexelsCandidateMediaService;
 use App\Services\Media\PexelsEditorialReviewService;
 use App\Services\Media\PexelsRecipeImageProvider;
+use App\Services\Media\UnsplashCandidateMediaService;
+use App\Services\Media\UnsplashEditorialReviewService;
+use App\Services\Media\UnsplashRecipeImageProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -25,7 +28,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class AiImageStudioController extends Controller
 {
-    public function index(Request $request, AiImagePilotService $pilot, ImageProviderRegistry $providers, FallbackImageComparisonService $comparison, PexelsRecipeImageProvider $pexels): View
+    public function index(Request $request, AiImagePilotService $pilot, ImageProviderRegistry $providers, FallbackImageComparisonService $comparison, PexelsRecipeImageProvider $pexels, UnsplashRecipeImageProvider $unsplash): View
     {
         $this->admin();
         $pilot->synchronize();
@@ -76,6 +79,8 @@ final class AiImageStudioController extends Controller
             'selectedRecipe' => $selectedRecipe,
             'pexelsCandidates' => $pexelsSearch['candidates'] ?? [],
             'pexelsSearch' => $pexelsSearch,
+            'unsplashSearch' => $selectedRecipe === null ? null : $unsplash->health(),
+            'unsplashCandidates' => $selectedRecipe === null ? collect() : RecipeMediaCandidate::query()->where('provider', 'unsplash')->where('recipe_id', $selectedRecipe->id)->orderBy('rank')->get(),
             'pexelsReviewMedia' => Media::query()->with('mediable')->where('source_name', 'Pexels')->latest()->paginate(12, ['*'], 'pexels_page'),
             'candidateBatch' => $candidateBatch,
             'rankedCandidates' => $rankedCandidates,
@@ -191,6 +196,39 @@ final class AiImageStudioController extends Controller
         $review->keepFallback($recipe, $request->user());
 
         return back()->with('status', 'Bu tarif için branded fallback korunuyor; durum needs_real_media olarak işaretlendi.');
+    }
+
+    public function searchUnsplash(Request $request, Recipe $recipe, UnsplashEditorialReviewService $review): RedirectResponse
+    {
+        $this->admin();
+        $summary = $review->search($recipe->load(['cuisine', 'category', 'ingredients', 'dietaryTags', 'steps']));
+
+        return to_route('admin.ai-image-studio.index', ['recipe' => $recipe->public_id])->with('status', $summary['failed'] === 1 ? 'Unsplash aday araması güvenli biçimde tamamlanamadı; fallback korunuyor.' : 'Unsplash adayları yalnız insan incelemesi için kaydedildi: '.$summary['reviewable']);
+    }
+
+    public function selectUnsplashCandidate(Request $request, RecipeMediaCandidate $candidate, UnsplashEditorialReviewService $review): RedirectResponse
+    {
+        $this->admin();
+        $review->select($candidate->load('recipe'), $request->user());
+
+        return back()->with('status', 'Unsplash adayı seçildi; final onay olmadan public alana çıkmaz.');
+    }
+
+    public function rejectUnsplashCandidate(Request $request, RecipeMediaCandidate $candidate, UnsplashEditorialReviewService $review): RedirectResponse
+    {
+        $this->admin();
+        $review->reject($candidate->load('recipe'), $request->user());
+
+        return back()->with('status', 'Unsplash adayı reddedildi; fallback korunuyor.');
+    }
+
+    public function approveUnsplashCandidate(Request $request, RecipeMediaCandidate $candidate, UnsplashCandidateMediaService $unsplash): RedirectResponse
+    {
+        $this->admin();
+        $data = $request->validate(['alt_text' => ['required', 'string', 'min:8', 'max:255'], 'review_notes' => ['required', 'string', 'min:10', 'max:1000']]);
+        $unsplash->approve($candidate->load(['recipe', 'media']), $request->user(), $data['alt_text'], $data['review_notes']);
+
+        return back()->with('status', 'Unsplash görseli insan onayıyla hotlink medya hattına alındı; attribution görünür kalır.');
     }
 
     private function admin(): void

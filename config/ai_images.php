@@ -52,6 +52,14 @@ return [
             'key' => env('PEXELS_API_KEY'),
             'endpoint' => env('PEXELS_BASE_URL', 'https://api.pexels.com'),
         ],
+        'unsplash' => [
+            'enabled' => (bool) env('UNSPLASH_ENABLED', false),
+            'access_key' => env('UNSPLASH_ACCESS_KEY'),
+            'secret_key' => env('UNSPLASH_SECRET_KEY'),
+            'endpoint' => env('UNSPLASH_BASE_URL', 'https://api.unsplash.com'),
+            'app_name' => env('UNSPLASH_APP_NAME', 'house-chef-cyprus'),
+            'max_results' => max(1, min(5, (int) env('UNSPLASH_MAX_RESULTS_PER_RECIPE', 5))),
+        ],
         'gemini' => [
             'enabled' => (bool) env('GEMINI_IMAGE_ENABLED', false),
             'key' => env('GEMINI_API_KEY'),

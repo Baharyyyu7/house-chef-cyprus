@@ -3,10 +3,11 @@
         $heroMedia = $recipe->media->first(fn ($media) => $media->verification_status !== 'rejected');
         $heroPlaceholderIndex = (hexdec(substr(hash('sha256', (string) ($recipe->public_id ?: $recipe->slug)), 0, 6)) % 8) + 1;
         $heroImagePath = $heroMedia?->publicUrl() ?: asset("placeholders/{$heroPlaceholderIndex}/recipe.svg");
+        $heroImageSrc = $heroMedia?->responsiveUrl(1600) ?: $heroImagePath;
     @endphp
 
     <section class="hc-recipe-detail-hero relative isolate overflow-hidden bg-charcoal-950 text-white">
-        <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-70" src="{{ $heroImagePath }}" alt="" aria-hidden="true" fetchpriority="high">
+        <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-70" src="{{ $heroImageSrc }}" @if($heroMedia?->isApprovedUnsplash()) srcset="{{ $heroMedia->responsiveUrl(768) }} 768w, {{ $heroMedia->responsiveUrl(1280) }} 1280w, {{ $heroMedia->responsiveUrl(1600) }} 1600w" sizes="100vw" width="{{ $heroMedia->width }}" height="{{ $heroMedia->height }}" @endif alt="" aria-hidden="true" fetchpriority="high">
         <div class="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(10,16,13,.97)_0%,rgba(10,16,13,.82)_48%,rgba(10,16,13,.25)_100%)]"></div>
         <div class="hc-container grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_19rem] lg:py-20">
             <div class="max-w-3xl">
@@ -16,6 +17,7 @@
                 <p class="hc-body-lg mt-5 max-w-2xl text-stone-200">{{ $recipe->excerpt }}</p>
                 <div class="mt-7 flex flex-wrap gap-2">@foreach([['Hazırlık', $recipe->prep_minutes.' dk'], ['Pişirme', $recipe->cook_minutes.' dk'], ['Toplam', $recipe->totalMinutes().' dk'], ['Porsiyon', $recipe->servings], ['Zorluk', ucfirst($recipe->difficulty)]] as [$label, $value])<span class="hc-v3-badge border-white/20 bg-white/10 text-white backdrop-blur"><strong class="text-orange-200">{{ $label }}</strong> {{ $value }}</span>@endforeach</div>
                 <div class="mt-6 flex flex-wrap items-center gap-3"><span class="text-xs text-stone-300">Son editoryal kontrol: {{ $recipe->editorial_reviewed_at?->format('d.m.Y') ?: 'kayıtlı değil' }}</span>@auth<form method="post" action="{{ route('favorites.toggle', $recipe) }}">@csrf<button class="hc-v3-btn hc-v3-btn--outline border-white/20 bg-white/10 text-white hover:bg-white/20" type="submit" aria-label="{{ $recipe->title }} tarifini favorilere ekle">{{ $isFavorited ? '♥ Favoride' : '♡ Favoriye ekle' }}</button></form>@endauth</div>
+                @if($heroMedia?->unsplashAttribution())@php($unsplashCredit = $heroMedia->unsplashAttribution())<p class="mt-4 text-xs text-stone-300">Fotoğraf: @if($unsplashCredit['photographer_url'])<a class="underline" href="{{ $unsplashCredit['photographer_url'] }}" rel="noopener noreferrer" target="_blank">{{ $unsplashCredit['photographer'] }}</a>@else{{ $unsplashCredit['photographer'] }}@endif / @if($unsplashCredit['unsplash_url'])<a class="underline" href="{{ $unsplashCredit['unsplash_url'] }}" rel="noopener noreferrer" target="_blank">Unsplash</a>@else Unsplash@endif</p>@endif
             </div>
             <aside class="self-end rounded-[1.5rem] border border-white/15 bg-black/30 p-5 backdrop-blur-md">
                 <p class="hc-overline text-orange-300">Tarif güvencesi</p>

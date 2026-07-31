@@ -63,6 +63,21 @@
                 </div>
             @endif
         </section>
+        <section class="hc-admin-detail-card mt-7" aria-labelledby="unsplash-candidates-title">
+            <div class="flex flex-wrap items-start justify-between gap-3"><div><span>İkincil editoryal kaynak · hotlink</span><h2 id="unsplash-candidates-title" class="mt-1 text-xl font-semibold">Unsplash Adayları</h2><p class="mt-1 text-sm text-muted">Yalnız yönetici aramasıyla metadata alınır. Seçim ve final insan onayı olmadan public kullanım, indirme veya tracking yapılmaz.</p></div><span class="hc-badge">No auto-publish</span></div>
+            @if($selectedRecipe)
+                <div class="mt-5 flex flex-wrap items-center gap-3"><form method="post" action="{{ route('admin.ai-image-studio.unsplash.search', $selectedRecipe) }}">@csrf<button class="hc-v3-btn hc-v3-btn--ghost" type="submit">Unsplash'ta Ara</button></form><p class="text-sm text-muted">{{ $unsplashSearch['safe_message'] ?? 'Tarif seçildiğinde Unsplash durumu görünür.' }}</p></div>
+                <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    @forelse($unsplashCandidates as $candidate)
+                        <article class="rounded-2xl border border-[color:var(--hc-line)] p-4"><div class="aspect-[4/3] overflow-hidden rounded-xl bg-[color:var(--hc-surface-muted)]">@if($candidate->status !== 'auto_rejected' && $candidate->thumb_url)<img class="h-full w-full object-cover" src="{{ $candidate->thumb_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">@endif</div><div class="mt-3 flex items-center justify-between gap-2"><strong>{{ $candidate->rank }}. aday</strong><span class="hc-badge">{{ $candidate->review_score }}/100</span></div><p class="mt-2 text-xs text-muted">{{ $candidate->width }}×{{ $candidate->height }} · {{ $candidate->orientation ?: '—' }}</p><p class="mt-2 text-sm">{{ $candidate->alt_text }}</p><p class="mt-2 text-xs text-muted">{{ $candidate->attribution_text ?? ('Fotoğraf: '.$candidate->photographer.' / Unsplash') }}</p><div class="mt-3 flex flex-wrap gap-2">@if($candidate->external_page_url)<a class="hc-v3-btn hc-v3-btn--ghost" target="_blank" rel="noopener noreferrer" href="{{ $candidate->external_page_url }}">Kaynağa git</a>@endif@if($candidate->status === 'pending_review')<form method="post" action="{{ route('admin.ai-image-studio.unsplash-candidates.select', $candidate) }}">@csrf<button class="hc-v3-btn hc-v3-btn--primary" type="submit">Adayı seç</button></form><form method="post" action="{{ route('admin.ai-image-studio.unsplash-candidates.reject', $candidate) }}">@csrf<button class="hc-v3-btn hc-v3-btn--danger" type="submit">Reddet</button></form>@elseif($candidate->status === 'selected_for_review')<form class="grid w-full gap-2" method="post" action="{{ route('admin.ai-image-studio.unsplash-candidates.approve', $candidate) }}">@csrf<label class="text-xs font-bold">Alt metin<input class="hc-input mt-1 w-full" name="alt_text" value="{{ $candidate->alt_text }}" required></label><label class="text-xs font-bold">Onay notu<textarea class="hc-input mt-1 min-h-20 w-full" name="review_notes" required minlength="10"></textarea></label><button class="hc-v3-btn hc-v3-btn--primary" type="submit">Final onay ve hotlink bağla</button></form>@else<span class="text-xs font-semibold">{{ $candidate->status }}</span>@endif</div></article>
+                    @empty
+                        <div class="hc-admin-empty md:col-span-2 xl:col-span-3">Unsplash adayı yok. Sağlayıcı kapalıysa veya anahtar eksikse branded fallback korunur.</div>
+                    @endforelse
+                </div>
+            @else
+                <div class="hc-admin-empty mt-5">Unsplash adaylarını görmek için önce bir tarif seçin.</div>
+            @endif
+        </section>
         <section class="hc-admin-detail-card mt-7" aria-labelledby="pexels-review-title">
             <div><span>İnsan onayı zorunlu</span><h2 id="pexels-review-title" class="mt-1 text-xl font-semibold">Pexels Review Bekleyenler</h2></div>
             <div class="mt-5 grid gap-4 lg:grid-cols-2">

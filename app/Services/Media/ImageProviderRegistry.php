@@ -44,6 +44,7 @@ final class ImageProviderRegistry
             return match ($provider['name']) {
                 'edenai' => app(EdenAiRecipeImageProvider::class)->health(),
                 'pexels' => app(PexelsRecipeImageProvider::class)->health(),
+                'unsplash' => app(UnsplashRecipeImageProvider::class)->health(),
                 'bfl', 'stability', 'comfyui' => $this->fallback($provider['name'])->health(),
                 default => $provider,
             };
@@ -63,6 +64,9 @@ final class ImageProviderRegistry
         }
         if ($name === 'pexels') {
             return app(PexelsRecipeImageProvider::class)->health();
+        }
+        if ($name === 'unsplash') {
+            return app(UnsplashRecipeImageProvider::class)->health();
         }
 
         return $this->fallback($name)->health();

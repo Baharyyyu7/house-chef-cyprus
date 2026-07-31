@@ -4,6 +4,8 @@
 
 `missing`, `placeholder`, `generated`, `licensed`, `original`, `verified`, `rejected`. Yayın önceliği: özgün içerik; ardından lisanslı/doğrulanmış içerik; kontrollü ve açıkça işaretlenmiş AI görseli; son olarak marka placeholder'ı.
 
+Pexels ve Unsplash sonuçları yalnız adaydır. Unsplash ikincil sağlayıcıdır; yalnız insan onayından sonra, hotlink URL ve görünür attribution ile `verified` medya olabilir.
+
 ## Zorunlu metadata
 
 Her kullanılabilir görsel source/creator, license, license URL veya izin notu, uploaded/checked zamanı, alt text, focal point, crop türevleri, doğrulama durumu ve gerektiğinde content-origin bilgisini taşır. Lisansı belirsiz görsel yayınlanmaz.

@@ -78,7 +78,7 @@ final class RecipeController extends Controller
             'ingredientLines' => $ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings),
             'relatedRecipes' => Recipe::query()
                 ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'verification_status'])
-                ->with(['cuisine:id,public_id,name,slug', 'category:id,public_id,name,slug', 'media' => fn ($query) => $query->select(['id', 'mediable_type', 'mediable_id', 'disk', 'path', 'alt_text', 'is_placeholder', 'verification_status', 'sort_order'])->where('visibility', 'public'), 'dietaryTags:id,code,name'])
+                ->with(['cuisine:id,public_id,name,slug', 'category:id,public_id,name,slug', 'media' => fn ($query) => $query->select(['id', 'mediable_type', 'mediable_id', 'kind', 'disk', 'path', 'source_name', 'source_url', 'provider_metadata', 'alt_text', 'is_placeholder', 'verification_status', 'sort_order'])->where('visibility', 'public'), 'dietaryTags:id,code,name'])
                 ->where('status', 'published')
                 ->where('verification_status', 'verified')
                 ->whereKeyNot($recipe->id)

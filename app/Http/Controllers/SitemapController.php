@@ -50,7 +50,7 @@ final class SitemapController extends Controller
     public function images(): Response
     {
         $urls = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')
-            ->with(['media' => fn ($query) => $query->where('visibility', 'public')->whereNotNull('path')->orderBy('sort_order')])
+            ->with(['media' => fn ($query) => $query->where('visibility', 'public')->where('verification_status', 'verified')->orderBy('sort_order')])
             ->get(['id', 'slug', 'updated_at'])
             ->filter(fn (Recipe $recipe): bool => $recipe->media->isNotEmpty())
             ->map(fn (Recipe $recipe): array => ['loc' => route('recipes.show', $recipe->slug), 'lastmod' => $recipe->updated_at?->toDateString(), 'images' => $recipe->media->map(fn (Media $media): array => ['loc' => $media->publicUrl(), 'title' => $media->alt_text ?: $recipe->slug])->filter(fn (array $image): bool => is_string($image['loc']) && $image['loc'] !== '')->values()->all()]);

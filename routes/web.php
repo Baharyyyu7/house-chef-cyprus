@@ -120,6 +120,10 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('ai-gorsel-studyosu/pexels-adaylar/{recipe:public_id}/tumunu-reddet', [AiImageStudioController::class, 'rejectRecipeCandidates'])->name('ai-image-studio.pexels-candidates.reject-all');
     Route::post('ai-gorsel-studyosu/pexels-aday/{candidate:public_id}/ice-aktar', [AiImageStudioController::class, 'importSelectedCandidate'])->name('ai-image-studio.pexels-candidates.import');
     Route::post('ai-gorsel-studyosu/pexels-fallback/{recipe:public_id}', [AiImageStudioController::class, 'keepPexelsFallback'])->name('ai-image-studio.pexels-candidates.keep-fallback');
+    Route::post('ai-gorsel-studyosu/unsplash/{recipe:public_id}/ara', [AiImageStudioController::class, 'searchUnsplash'])->name('ai-image-studio.unsplash.search');
+    Route::post('ai-gorsel-studyosu/unsplash-aday/{candidate:public_id}/sec', [AiImageStudioController::class, 'selectUnsplashCandidate'])->name('ai-image-studio.unsplash-candidates.select');
+    Route::post('ai-gorsel-studyosu/unsplash-aday/{candidate:public_id}/reddet', [AiImageStudioController::class, 'rejectUnsplashCandidate'])->name('ai-image-studio.unsplash-candidates.reject');
+    Route::post('ai-gorsel-studyosu/unsplash-aday/{candidate:public_id}/onayla', [AiImageStudioController::class, 'approveUnsplashCandidate'])->name('ai-image-studio.unsplash-candidates.approve');
     Route::get('medya/yukle', [AdminMediaController::class, 'create'])->name('media.create');
     Route::post('medya', [AdminMediaController::class, 'store'])->name('media.store');
     Route::post('medya/orphan-tara', [AdminMediaController::class, 'scanOrphans'])->name('media.scan-orphans');

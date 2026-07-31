@@ -1,5 +1,10 @@
 # V1.0 Release Candidate iç kontrol listesi
 
+## Stok medya uyumluluğu
+
+- [ ] Unsplash medyası yalnız insan onayından sonra, izinli CDN hotlink’i ve görünür fotoğrafçı/Unsplash attribution ile kullanılmalıdır.
+- [ ] Download tracking yalnız final bağlama anında bir kez kaydedilmelidir; arama ve render bunu tetiklemez.
+
 Bu kontrol listesi yalnız `visual-redesign-v2` dalındaki kod hazırlığını tanımlar; production yayını, DNS veya ücretli görsel üretimi başlatmaz.
 
 ## Kod ve katalog
