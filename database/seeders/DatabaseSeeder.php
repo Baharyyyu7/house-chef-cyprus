@@ -14,6 +14,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(HouseChefSeeder::class);
+        $this->call([
+            HouseChefSeeder::class,
+            ProductionBlogCatalogueSeeder::class,
+        ]);
     }
 }

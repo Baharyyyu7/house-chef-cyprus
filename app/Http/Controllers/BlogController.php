@@ -26,6 +26,13 @@ final class BlogController extends Controller
     {
         abort_unless(BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists(), 404);
         $post->load(['category', 'tags', 'heroMedia', 'author', 'recipes.media']);
+        $relatedPosts = BlogPost::query()->publiclyVisible()
+            ->whereKeyNot($post->id)
+            ->when($post->blog_category_id !== null, fn ($query) => $query->where('blog_category_id', $post->blog_category_id))
+            ->with(['category', 'heroMedia'])
+            ->latest('published_at')
+            ->limit(3)
+            ->get();
 
         $schema = ['@context' => 'https://schema.org', '@type' => 'Article', 'headline' => $post->title, 'description' => $post->excerpt, 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => ['@type' => 'Organization', 'name' => 'House Chef Cyprus']];
         if ($post->heroMedia?->publicUrl()) {
@@ -34,7 +41,7 @@ final class BlogController extends Controller
 
         $metadata = $seo->for($post, $post->meta_title ?: $post->title.' · House Chef Cyprus', $post->meta_description ?: $post->excerpt, route('blog.show', $post));
 
-        return view('blog.show', compact('post', 'schema', 'metadata'));
+        return view('blog.show', compact('post', 'schema', 'metadata', 'relatedPosts'));
     }
 
     public function category(BlogCategory $category): View
