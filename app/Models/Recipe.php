@@ -69,6 +69,12 @@ class Recipe extends Model
         return $this->morphMany(Media::class, 'mediable')->orderBy('sort_order');
     }
 
+    /** @return HasMany<RecipeMediaCandidate, $this> */
+    public function mediaCandidates(): HasMany
+    {
+        return $this->hasMany(RecipeMediaCandidate::class);
+    }
+
     /** @return MorphOne<SeoMetadata, $this> */
     public function seoMetadata(): MorphOne
     {

@@ -9,11 +9,13 @@ use App\Models\AiImageGeneration;
 use App\Models\AuditLog;
 use App\Models\Media;
 use App\Models\Recipe;
+use App\Models\RecipeMediaCandidate;
 use App\Services\Media\AiImagePilotService;
 use App\Services\Media\AiImageReviewService;
 use App\Services\Media\FallbackImageComparisonService;
 use App\Services\Media\ImageProviderRegistry;
 use App\Services\Media\PexelsCandidateMediaService;
+use App\Services\Media\PexelsEditorialReviewService;
 use App\Services\Media\PexelsRecipeImageProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,6 +42,23 @@ final class AiImageStudioController extends Controller
             : null;
 
         $pexelsSearch = $selectedRecipe === null ? null : $pexels->search($selectedRecipe);
+        $candidateBatch = max(1, min(5, (int) $request->integer('review_batch', 1)));
+        $rankedCandidates = RecipeMediaCandidate::query()
+            ->with(['recipe.cuisine', 'recipe.category', 'recipe.ingredients'])
+            ->where('review_batch', $candidateBatch)
+            ->whereIn('status', ['pending_review', 'selected_for_review', 'auto_rejected', 'fallback_kept'])
+            ->orderBy('recipe_id')->orderBy('rank')->get()->groupBy('recipe_id');
+        $requestedRecipe = $request->string('review_recipe')->toString();
+        $quickCandidates = $requestedRecipe === ''
+            ? $rankedCandidates->first()
+            : $rankedCandidates->first(fn ($candidates) => $candidates->first()?->recipe?->public_id === $requestedRecipe);
+        $quickRecipe = $quickCandidates?->first()?->recipe;
+        $reviewCounts = RecipeMediaCandidate::query()
+            ->where('review_batch', $candidateBatch)
+            ->selectRaw("sum(case when status = 'selected_for_review' then 1 else 0 end) as selected")
+            ->selectRaw("sum(case when status = 'rejected' then 1 else 0 end) as rejected")
+            ->selectRaw("sum(case when status = 'pending_review' then 1 else 0 end) as remaining")
+            ->first();
 
         return view('admin.ai-image-studio.index', [
             'generations' => AiImageGeneration::query()->with(['recipe.cuisine', 'recipe.category'])->latest()->paginate(30),
@@ -58,6 +77,11 @@ final class AiImageStudioController extends Controller
             'pexelsCandidates' => $pexelsSearch['candidates'] ?? [],
             'pexelsSearch' => $pexelsSearch,
             'pexelsReviewMedia' => Media::query()->with('mediable')->where('source_name', 'Pexels')->latest()->paginate(12, ['*'], 'pexels_page'),
+            'candidateBatch' => $candidateBatch,
+            'rankedCandidates' => $rankedCandidates,
+            'quickCandidates' => $quickCandidates,
+            'quickRecipe' => $quickRecipe,
+            'reviewCounts' => $reviewCounts,
         ]);
     }
 
@@ -125,6 +149,48 @@ final class AiImageStudioController extends Controller
         $pexels->reject($media, $request->user(), $data['review_notes'] ?? null);
 
         return back()->with('status', 'Pexels adayı reddedildi; public alana aktarılmadı.');
+    }
+
+    public function selectCandidate(Request $request, RecipeMediaCandidate $candidate, PexelsEditorialReviewService $review): RedirectResponse
+    {
+        $this->admin();
+        $review->select($candidate, $request->user());
+
+        return back()->with('status', 'Aday seçildi. Private import yapılmadan public alana aktarılmaz.');
+    }
+
+    public function rejectCandidate(Request $request, RecipeMediaCandidate $candidate, PexelsEditorialReviewService $review): RedirectResponse
+    {
+        $this->admin();
+        $review->reject($candidate, $request->user());
+
+        return back()->with('status', 'Aday reddedildi; fallback korunuyor.');
+    }
+
+    public function rejectRecipeCandidates(Request $request, Recipe $recipe, PexelsEditorialReviewService $review): RedirectResponse
+    {
+        $this->admin();
+        $review->rejectAll($recipe, $request->user());
+
+        return back()->with('status', 'Tarifin bütün adayları reddedildi; branded fallback korunuyor.');
+    }
+
+    public function importSelectedCandidate(Request $request, RecipeMediaCandidate $candidate, PexelsCandidateMediaService $pexels): RedirectResponse
+    {
+        $this->admin();
+        abort_unless($candidate->status === 'selected_for_review' && $candidate->recipe !== null, 422, 'Bu aday private import için seçilmemiş.');
+        $media = $pexels->importStoredCandidate($candidate->load('recipe'));
+        $candidate->update(['status' => 'private_imported', 'media_id' => $media->id]);
+
+        return back()->with('status', 'Aday private review alanına indirildi. Bu işlem public yayın değildir.');
+    }
+
+    public function keepPexelsFallback(Request $request, Recipe $recipe, PexelsEditorialReviewService $review): RedirectResponse
+    {
+        $this->admin();
+        $review->keepFallback($recipe, $request->user());
+
+        return back()->with('status', 'Bu tarif için branded fallback korunuyor; durum needs_real_media olarak işaretlendi.');
     }
 
     private function admin(): void

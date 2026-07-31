@@ -8,6 +8,7 @@ use App\Jobs\GenerateMediaThumbnailsJob;
 use App\Models\AuditLog;
 use App\Models\Media;
 use App\Models\Recipe;
+use App\Models\RecipeMediaCandidate;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
@@ -35,6 +36,37 @@ final class PexelsCandidateMediaService
             throw ValidationException::withMessages(['candidate' => 'Seçilen Pexels adayı bulunamadı veya güvenlik politikasına uygun değil.']);
         }
 
+        return $this->importCandidate($recipe, $candidate);
+    }
+
+    /**
+     * Downloads the exact metadata record selected during editorial review.
+     * It deliberately does not issue a second search, so the reviewed photo
+     * cannot be substituted between selection and private import.
+     */
+    public function importStoredCandidate(RecipeMediaCandidate $candidate): Media
+    {
+        $recipe = $candidate->recipe;
+        if (! $recipe instanceof Recipe || $candidate->provider !== 'pexels' || $candidate->source_url === null) {
+            throw ValidationException::withMessages(['candidate' => 'Kaydedilmiş Pexels adayı private import için geçerli değil.']);
+        }
+
+        return $this->importCandidate($recipe, [
+            'external_photo_id' => $candidate->external_photo_id,
+            'source_url' => $candidate->source_url,
+            'alt_text' => $candidate->alt_text ?? '',
+            'photographer' => $candidate->photographer ?? 'Pexels',
+            'photographer_url' => $candidate->photographer_url,
+            'pexels_page_url' => $candidate->pexels_page_url,
+            'attribution_text' => $candidate->photographer !== null ? 'Fotoğraf: '.$candidate->photographer.' · Pexels' : 'Fotoğraf: Pexels',
+            'score' => $candidate->review_score,
+        ]);
+    }
+
+    /** @param array{external_photo_id:string,source_url:string,alt_text:string,photographer:string,photographer_url:?string,pexels_page_url:?string,attribution_text:string,score:int} $candidate */
+    private function importCandidate(Recipe $recipe, array $candidate): Media
+    {
+        $externalPhotoId = (string) $candidate['external_photo_id'];
         $alreadyUsed = Media::query()
             ->where('source_name', 'Pexels')
             ->where('provider_metadata->external_photo_id', $externalPhotoId)
@@ -145,6 +177,7 @@ final class PexelsCandidateMediaService
             'provider_metadata' => array_merge((array) $media->provider_metadata, ['source_status' => 'approved_public', 'review_notes' => $notes]),
         ]);
         GenerateMediaThumbnailsJob::dispatch($media->public_id);
+        RecipeMediaCandidate::query()->where('media_id', $media->id)->update(['status' => 'approved']);
         AuditLog::query()->create(['user_id' => $reviewer->id, 'action' => 'pexels_candidate.approve', 'auditable_type' => $media->getMorphClass(), 'auditable_id' => $media->id, 'metadata' => ['media_public_id' => $media->public_id, 'recipe_public_id' => $recipe->public_id]]);
     }
 
@@ -155,6 +188,7 @@ final class PexelsCandidateMediaService
             'verification_status' => 'rejected', 'ai_review_status' => 'rejected', 'reviewed_at' => now(),
             'provider_metadata' => array_merge((array) $media->provider_metadata, ['source_status' => 'rejected', 'review_notes' => $notes]),
         ]);
+        RecipeMediaCandidate::query()->where('media_id', $media->id)->update(['status' => 'rejected']);
         AuditLog::query()->create(['user_id' => $reviewer->id, 'action' => 'pexels_candidate.reject', 'auditable_type' => $media->getMorphClass(), 'auditable_id' => $media->id, 'metadata' => ['media_public_id' => $media->public_id]]);
     }
 

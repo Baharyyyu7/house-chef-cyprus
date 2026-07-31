@@ -115,6 +115,11 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('ai-gorsel-studyosu/pexels/ice-aktar', [AiImageStudioController::class, 'importPexels'])->name('ai-image-studio.pexels.import');
     Route::post('ai-gorsel-studyosu/pexels/{media:public_id}/onayla', [AiImageStudioController::class, 'approvePexels'])->name('ai-image-studio.pexels.approve');
     Route::post('ai-gorsel-studyosu/pexels/{media:public_id}/reddet', [AiImageStudioController::class, 'rejectPexels'])->name('ai-image-studio.pexels.reject');
+    Route::post('ai-gorsel-studyosu/pexels-aday/{candidate:public_id}/sec', [AiImageStudioController::class, 'selectCandidate'])->name('ai-image-studio.pexels-candidates.select');
+    Route::post('ai-gorsel-studyosu/pexels-aday/{candidate:public_id}/reddet', [AiImageStudioController::class, 'rejectCandidate'])->name('ai-image-studio.pexels-candidates.reject');
+    Route::post('ai-gorsel-studyosu/pexels-adaylar/{recipe:public_id}/tumunu-reddet', [AiImageStudioController::class, 'rejectRecipeCandidates'])->name('ai-image-studio.pexels-candidates.reject-all');
+    Route::post('ai-gorsel-studyosu/pexels-aday/{candidate:public_id}/ice-aktar', [AiImageStudioController::class, 'importSelectedCandidate'])->name('ai-image-studio.pexels-candidates.import');
+    Route::post('ai-gorsel-studyosu/pexels-fallback/{recipe:public_id}', [AiImageStudioController::class, 'keepPexelsFallback'])->name('ai-image-studio.pexels-candidates.keep-fallback');
     Route::get('medya/yukle', [AdminMediaController::class, 'create'])->name('media.create');
     Route::post('medya', [AdminMediaController::class, 'store'])->name('media.store');
     Route::post('medya/orphan-tara', [AdminMediaController::class, 'scanOrphans'])->name('media.scan-orphans');
