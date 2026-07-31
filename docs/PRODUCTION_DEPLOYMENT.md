@@ -9,6 +9,8 @@ House Chef Cyprus is deployed as a standard Laravel application. A production re
 - A persistent queue worker and one scheduler process
 - HTTPS, writable application storage, off-server backup storage, and an outbound mail provider
 
+Uygulanabilir Ubuntu/Nginx ve worker ayarları için [VPS deployment rehberi](VPS_DEPLOYMENT_GUIDE.md), [Nginx yapılandırması](NGINX_CONFIGURATION.md) ve [queue/scheduler production rehberi](QUEUE_AND_SCHEDULER_PRODUCTION.md) kullanılır.
+
 ## Safe release sequence
 
 1. Create a release from the approved branch; never edit source on the server.

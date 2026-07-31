@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- V1.0 Release Candidate operasyon paketi: VPS/Nginx, queue/scheduler, TLS/Cloudflare, mail, monitoring, post-deploy smoke, rollback, production security ve dürüst data/media/SEO/browser QA raporları eklendi. Kod otomatik deploy, DNS değişikliği, ücretli provider çağrısı veya onaysız medya yayını yapmaz.
+
 - Unsplash için insan onaylı, hotlink tabanlı ikincil editoryal aday sağlayıcısı; görünür attribution, UTM, güvenli host doğrulaması ve tekil download tracking eklendi.
 
 - Real Content & SEO catalogue foundation: production seed no longer creates public demo-labelled records; it now seeds the 50-recipe editorial catalogue plus 20 original, reviewed Turkish blog guides. Media truthfulness is explicit: current branded fallbacks are not counted as verified food photography and remain replacement-required until licensed editorial assets are approved.

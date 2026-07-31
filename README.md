@@ -12,4 +12,4 @@ Uygulama varsayılan olarak `http://127.0.0.1:8010` üzerinde açılır. Lokal d
 
 `./test.sh`, `php artisan app:environment-check --json`, `php artisan api:openapi-check --json` ve `./scripts/clean-install-test.sh` sırasıyla uygulama, ortam, API sözleşmesi ve sıfırdan kurulum denetimlerini çalıştırır.
 
-Production’da `.env` oluşturun; demo yöneticisini seed etmeyin, `APP_DEBUG=false` ve güvenli cookie ayarlarını kullanın. Ayrıntılar için [yerel geliştirme](docs/LOCAL_DEVELOPMENT.md) ve [güvenlik](SECURITY.md) belgelerine bakın.
+Production’da `.env` oluşturun; demo yöneticisini seed etmeyin, `APP_DEBUG=false` ve güvenli cookie ayarlarını kullanın. Ayrıntılar için [yerel geliştirme](docs/LOCAL_DEVELOPMENT.md), [güvenlik](SECURITY.md), [VPS deployment](docs/VPS_DEPLOYMENT_GUIDE.md) ve [post-deploy smoke testi](docs/POST_DEPLOY_SMOKE_TEST.md) belgelerine bakın.

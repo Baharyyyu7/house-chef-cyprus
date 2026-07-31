@@ -1,5 +1,12 @@
 # V1.0 Release Candidate iç kontrol listesi
 
+## RC kapanış karar çerçevesi
+
+- [x] Katalog, public/member/admin feature testleri, API/OpenAPI, güvenlik başlıkları, queue/scheduler, backup/restore komutları ve production build CI'da doğrulanır.
+- [x] Deployment, Nginx, queue/scheduler, TLS/Cloudflare, mail, monitoring, smoke ve rollback prosedürleri dokümante edilmiştir.
+- [ ] Gerçek production domain/DNS/TLS, VPS, database/Redis, mail sender, off-server backup hedefi ve monitoring secrets yetkili operatör tarafından sağlanacaktır.
+- [ ] İnsan editoryal review sonrası gerçek yemek fotoğrafları seçilecektir; branded fallback bu gerçeği gizlemez.
+
 ## Stok medya uyumluluğu
 
 - [ ] Unsplash medyası yalnız insan onayından sonra, izinli CDN hotlink’i ve görünür fotoğrafçı/Unsplash attribution ile kullanılmalıdır.
@@ -34,4 +41,4 @@ Bu kontrol listesi yalnız `visual-redesign-v2` dalındaki kod hazırlığını 
 - [ ] Production mail sağlayıcı credential ve doğrulanmış gönderici.
 - [ ] Production `.env`, off-server backup destination ve gözlemleme DSN’leri.
 
-Bu maddeler sağlanmadan production deploy yapılmaz. Main merge ve release tag bu RC kapanışında yapılmaz.
+Bu maddeler sağlanmadan production deploy yapılmaz. Ayrıntılı sıra [VPS deployment rehberinde](VPS_DEPLOYMENT_GUIDE.md), [Nginx örneğinde](NGINX_CONFIGURATION.md), [post-deploy smoke testinde](POST_DEPLOY_SMOKE_TEST.md) ve [rollback planında](ROLLBACK_PLAN.md) yer alır. Main merge ve release tag bu RC kapanışında yapılmaz.
