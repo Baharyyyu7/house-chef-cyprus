@@ -28,11 +28,11 @@ final class MasterFixPhaseATest extends TestCase
         app(DataQualityService::class)->scan();
         $breakdown = app(DataQualityService::class)->breakdown();
 
-        $this->assertDatabaseHas('data_quality_issues', ['issue_type' => 'recipe_uses_placeholder_image', 'entity_public_id' => $recipe->public_id, 'resolution_status' => 'open']);
-        $this->assertDatabaseHas('data_quality_issues', ['issue_type' => 'conversion_seed_demo', 'resolution_status' => 'open']);
+        $this->assertDatabaseHas('data_quality_issues', ['issue_type' => 'recipe_uses_branded_fallback_image', 'entity_public_id' => $recipe->public_id, 'resolution_status' => 'open']);
+        $this->assertDatabaseHas('data_quality_issues', ['issue_type' => 'conversion_low_confidence', 'resolution_status' => 'open']);
         $this->assertLessThan(100, $breakdown['media']['score']);
         $this->assertLessThan(100, $breakdown['measurements']['score']);
-        $this->assertContains('Tarif yalnız yer tutucu görsel kullanıyor.', $breakdown['media']['reasons']);
+        $this->assertContains('Tarif yalnız markalı fallback görsel kullanıyor; bu gerçek yemek fotoğrafı değildir.', $breakdown['media']['reasons']);
     }
 
     public function test_nutrition_estimate_is_reported_with_a_safe_public_identifier(): void

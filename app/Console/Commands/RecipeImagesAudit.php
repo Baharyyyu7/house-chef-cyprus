@@ -18,10 +18,10 @@ final class RecipeImagesAudit extends Command
         $recipes = Recipe::query()->with(['media', 'cuisine', 'category'])->where('status', 'published')->orderBy('is_featured', 'desc')->orderBy('title')->get();
         $rows = $recipes->map(function (Recipe $recipe): array {
             $media = $recipe->media;
-            $placeholder = $media->isNotEmpty() && $media->every(fn ($item): bool => (bool) $item->is_placeholder);
+            $fallback = $media->isNotEmpty() && $media->every(fn ($item): bool => (bool) $item->is_placeholder || $item->verification_status === 'branded_fallback');
             $missing = $media->isEmpty();
 
-            return ['public_id' => (string) $recipe->public_id, 'title' => $recipe->title, 'cuisine' => $recipe->cuisine?->name, 'category' => $recipe->category?->name, 'featured' => (bool) $recipe->is_featured, 'missing' => $missing, 'placeholder' => $placeholder, 'verified' => $media->contains(fn ($item): bool => ! $item->is_placeholder && $item->verification_status === 'verified'), 'alt_complete' => $media->isNotEmpty() && $media->every(fn ($item): bool => filled($item->alt_text)), 'thumbnail_complete' => $media->isNotEmpty() && $media->every(fn ($item): bool => $item->thumbnail_status === 'ready'), 'license_complete' => $media->isNotEmpty() && $media->every(fn ($item): bool => filled($item->license)), 'paths' => $media->pluck('path')->filter()->values()->all()];
+            return ['public_id' => (string) $recipe->public_id, 'title' => $recipe->title, 'cuisine' => $recipe->cuisine?->name, 'category' => $recipe->category?->name, 'featured' => (bool) $recipe->is_featured, 'missing' => $missing, 'placeholder' => $fallback, 'branded_fallback' => $fallback, 'verified' => $media->contains(fn ($item): bool => ! $item->is_placeholder && $item->verification_status === 'verified'), 'alt_complete' => $media->isNotEmpty() && $media->every(fn ($item): bool => filled($item->alt_text)), 'thumbnail_complete' => $media->isNotEmpty() && $media->every(fn ($item): bool => $item->thumbnail_status === 'ready'), 'license_complete' => $media->isNotEmpty() && $media->every(fn ($item): bool => filled($item->license)), 'paths' => $media->pluck('path')->filter()->values()->all()];
         });
         if ($this->option('missing-only')) {
             $rows = $rows->where('missing', true)->values();
@@ -29,7 +29,7 @@ final class RecipeImagesAudit extends Command
         if ($this->option('placeholder-only')) {
             $rows = $rows->where('placeholder', true)->values();
         }
-        $allPaths = $recipes->flatMap(fn (Recipe $recipe) => $recipe->media->filter(fn ($media): bool => (bool) $media->is_placeholder)->pluck('path')->filter());
+        $allPaths = $recipes->flatMap(fn (Recipe $recipe) => $recipe->media->filter(fn ($media): bool => (bool) $media->is_placeholder || $media->verification_status === 'branded_fallback')->pluck('path')->filter());
         $ranked = $rows->sortByDesc(fn (array $row): int => ($row['featured'] ? 20 : 0) + ($row['missing'] ? 10 : 0) + ($row['placeholder'] ? 5 : 0))->values();
         $priority = $ranked->unique('cuisine')->take(10);
         if ($priority->count() < 10) {

@@ -52,8 +52,8 @@ final class DataQualityService
             if ($recipe->recipe_ingredients_count > 0 && $recipe->media->isEmpty()) {
                 $issues[] = $this->issue('missing_media', 'warning', $recipe, 'Tarif görseli yok.', 'media', 'Tarife lisanslı ve doğrulanmış bir görsel ekleyin.');
             }
-            if ($recipe->media->isNotEmpty() && $recipe->media->every(fn ($media): bool => (bool) $media->is_placeholder)) {
-                $issues[] = $this->issue('recipe_uses_placeholder_image', 'warning', $recipe, 'Tarif yalnız yer tutucu görsel kullanıyor.', 'media', 'Yer tutucu yerine doğrulanmış tarif görseli ekleyin.');
+            if ($recipe->media->isNotEmpty() && $recipe->media->every(fn ($media): bool => (bool) $media->is_placeholder || $media->verification_status === 'branded_fallback')) {
+                $issues[] = $this->issue('recipe_uses_branded_fallback_image', 'warning', $recipe, 'Tarif yalnız markalı fallback görsel kullanıyor; bu gerçek yemek fotoğrafı değildir.', 'media', 'Lisansı ve editoryal onayı bulunan, tarifle uyumlu gerçek görsel ekleyin.');
             }
             if ($recipe->media->isNotEmpty() && $recipe->media->where('is_placeholder', false)->where('verification_status', 'verified')->isEmpty()) {
                 $issues[] = $this->issue('recipe_missing_verified_media', 'warning', $recipe, 'Tarif için doğrulanmış gerçek görsel bulunmuyor.', 'media', 'Lisans ve doğrulama bilgisi olan gerçek görsel ekleyin.');
@@ -135,9 +135,6 @@ final class DataQualityService
             if ((int) $conversion->confidence_score < (int) config('data_quality.thresholds.conversion_low_confidence') || in_array($conversion->verification_status, ['low', 'unknown'], true)) {
                 $issues[] = $this->genericIssue('conversion_low_confidence', 'warning', IngredientUnitConversion::class, $conversion->public_id, 'Malzeme dönüşümünün güven skoru düşük.', 'measurements', 'Malzeme bazlı kaynağı inceleyip dönüşümü doğrulayın.');
             }
-            if ($conversion->source_type === 'seed_demo') {
-                $issues[] = $this->genericIssue('conversion_seed_demo', 'warning', IngredientUnitConversion::class, $conversion->public_id, 'Malzeme dönüşümü demo kaynaklı.', 'measurements', 'Demo dönüşümünü güvenilir bir kaynakla değiştirin.');
-            }
         }
         foreach (NutritionFact::query()->with(['nutritionable', 'nutrient'])->get() as $fact) {
             $owner = $fact->nutritionable;
@@ -157,7 +154,7 @@ final class DataQualityService
             }
         }
 
-        $placeholderPaths = Recipe::query()->with('media')->get()->flatMap(fn (Recipe $recipe) => $recipe->media->filter(fn ($media): bool => (bool) $media->is_placeholder)->pluck('path'));
+        $placeholderPaths = Recipe::query()->with('media')->get()->flatMap(fn (Recipe $recipe) => $recipe->media->filter(fn ($media): bool => (bool) $media->is_placeholder || $media->verification_status === 'branded_fallback')->pluck('path'));
         foreach ($placeholderPaths->filter()->countBy()->filter(fn (int $count): bool => $count >= (int) config('data_quality.thresholds.placeholder_repetition'))->all() as $path => $count) {
             $issues[] = $this->genericIssue('catalogue_placeholder_repetition', 'warning', 'CatalogueMedia', hash('sha256', (string) $path), 'Aynı yer tutucu görsel katalogda '.$count.' kez kullanılıyor.', 'media', 'Öncelikli tarifler için farklı, doğrulanmış görseller hazırlayın.', ['repetition_count' => $count]);
         }

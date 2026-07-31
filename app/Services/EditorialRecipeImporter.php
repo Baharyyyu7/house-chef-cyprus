@@ -126,7 +126,7 @@ final class EditorialRecipeImporter
                 $pilot->update(['icon_key' => $this->iconKey($pilotName), 'icon_label' => Str::headline($pilotName).' ikonu', 'icon_status' => 'pilot']);
             }
         }
-        // The editorial dataset owns its ingredient lines. Clearing legacy demo
+        // The editorial dataset owns its ingredient lines. Clearing legacy seed
         // pivots keeps every published recipe on the same measurement contract.
         $recipe->recipeIngredients()->delete();
         $recipe->ingredientGroups()->delete();

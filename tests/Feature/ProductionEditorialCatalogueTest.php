@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\BlogPost;
+use App\Models\Media;
 use App\Models\Recipe;
 use Database\Seeders\HouseChefSeeder;
 use Database\Seeders\ProductionBlogCatalogueSeeder;
@@ -26,6 +27,8 @@ final class ProductionEditorialCatalogueTest extends TestCase
         $this->assertSame(0, BlogPost::query()->where('body', 'like', '%özgün demo%')->count());
         $this->assertSame(0, BlogPost::query()->doesntHave('recipes')->count());
         $this->assertSame(20, BlogPost::query()->where('fact_check_status', 'passed')->where('editorial_status', 'approved')->where('originality_status', 'passed')->count());
+        $this->assertSame(50, Media::query()->where('mediable_type', Recipe::class)->where('verification_status', 'branded_fallback')->count());
+        $this->assertSame(0, Media::query()->where('mediable_type', Recipe::class)->where('verification_status', 'verified')->count());
     }
 
     public function test_production_editorial_seed_is_idempotent_and_public_blog_pages_render(): void

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Allergen;
-use App\Models\Category;
 use App\Models\Cuisine;
 use App\Models\DietaryTag;
 use App\Models\Ingredient;
@@ -13,8 +12,6 @@ use App\Models\IngredientAlias;
 use App\Models\IngredientSubstitution;
 use App\Models\IngredientUnitConversion;
 use App\Models\Nutrient;
-use App\Models\Recipe;
-use App\Models\RecipeIngredientGroup;
 use App\Models\Unit;
 use App\Models\User;
 use App\Services\EditorialRecipeImporter;
@@ -39,15 +36,14 @@ final class HouseChefSeeder extends Seeder
             $admin = User::query()->firstOrCreate(['email' => 'admin@housechef.local'], ['public_id' => (string) Str::ulid(), 'name' => 'House Chef Yöneticisi', 'password' => 'ChangeMe123!', 'email_verified_at' => now(), 'role' => 'admin']);
             $admin->update(['role' => 'admin', 'public_id' => $admin->public_id ?: (string) Str::ulid()]);
         }
-        $category = Category::query()->firstOrCreate(['slug' => 'ana-yemek'], ['name' => 'Ana Yemek', 'description' => 'Doyurucu tarifler']);
         $cuisines = collect(['Kıbrıs Mutfağı' => 'Kıbrıs', 'Türk Mutfağı' => 'Türkiye', 'İtalyan Mutfağı' => 'İtalya', 'Japon Mutfağı' => 'Japonya', 'Meksika Mutfağı' => 'Meksika', 'Lübnan Mutfağı' => 'Lübnan'])->mapWithKeys(fn (string $country, string $name) => [$name => Cuisine::query()->firstOrCreate(['slug' => Str::slug($name)], ['name' => $name, 'country' => $country])]);
         $cuisines->each(fn (Cuisine $cuisine) => $cuisine->public_id ?? $cuisine->update(['public_id' => (string) Str::ulid()]));
         $ingredientNames = ['tavuk', 'soğan', 'sarımsak', 'domates', 'zeytinyağı', 'pirinç', 'limon', 'yoğurt', 'patates', 'maydanoz', 'nohut', 'makarna', 'mercimek', 'ıspanak', 'havuç', 'biber', 'mantar', 'fasulye', 'bulgur', 'salatalık'];
         $ingredients = collect($ingredientNames)->mapWithKeys(fn (string $name) => [$name => Ingredient::query()->firstOrCreate(['slug' => Str::slug($name)], ['name' => Str::headline($name), 'canonical_name' => Str::headline($name), 'default_unit' => 'adet'])]);
         $ingredients->each(fn (Ingredient $ingredient) => $ingredient->public_id ?? $ingredient->update(['public_id' => (string) Str::ulid()]));
-        $demoConversions = ['tavuk' => ['adet', 1, 180, 'g'], 'soğan' => ['adet', 1, 120, 'g'], 'sarımsak' => ['dis', 1, 3, 'g'], 'domates' => ['adet', 1, 120, 'g'], 'zeytinyağı' => ['yemek_kasigi', 1, 15, 'ml'], 'pirinç' => ['su_bardagi', 1, 180, 'g'], 'yoğurt' => ['yemek_kasigi', 1, 15, 'g'], 'maydanoz' => ['tutam', 1, 5, 'g'], 'nohut' => ['su_bardagi', 1, 160, 'g'], 'makarna' => ['su_bardagi', 1, 100, 'g'], 'mercimek' => ['su_bardagi', 1, 170, 'g'], 'fasulye' => ['su_bardagi', 1, 160, 'g'], 'bulgur' => ['su_bardagi', 1, 170, 'g'], 'limon' => ['adet', 1, 90, 'g']];
-        foreach ($demoConversions as $name => [$measure, $household, $canonical, $unit]) {
-            IngredientUnitConversion::query()->updateOrCreate(['ingredient_id' => $ingredients[$name]->id, 'household_measure_code' => $measure, 'household_quantity' => $household, 'canonical_unit' => $unit, 'is_active' => true], ['public_id' => (string) Str::ulid(), 'canonical_quantity' => $canonical, 'source_type' => 'seed_demo', 'source_name' => 'House Chef Cyprus demo ölçü seti', 'verification_status' => 'low', 'confidence_score' => 45, 'conversion_method' => 'editorial_estimate', 'notes' => 'Demo verisi; üretim doğrulaması gerektirir.']);
+        $initialConversions = ['tavuk' => ['adet', 1, 180, 'g'], 'soğan' => ['adet', 1, 120, 'g'], 'sarımsak' => ['dis', 1, 3, 'g'], 'domates' => ['adet', 1, 120, 'g'], 'zeytinyağı' => ['yemek_kasigi', 1, 15, 'ml'], 'pirinç' => ['su_bardagi', 1, 180, 'g'], 'yoğurt' => ['yemek_kasigi', 1, 15, 'g'], 'maydanoz' => ['tutam', 1, 5, 'g'], 'nohut' => ['su_bardagi', 1, 160, 'g'], 'makarna' => ['su_bardagi', 1, 100, 'g'], 'mercimek' => ['su_bardagi', 1, 170, 'g'], 'fasulye' => ['su_bardagi', 1, 160, 'g'], 'bulgur' => ['su_bardagi', 1, 170, 'g'], 'limon' => ['adet', 1, 90, 'g']];
+        foreach ($initialConversions as $name => [$measure, $household, $canonical, $unit]) {
+            IngredientUnitConversion::query()->updateOrCreate(['ingredient_id' => $ingredients[$name]->id, 'household_measure_code' => $measure, 'household_quantity' => $household, 'canonical_unit' => $unit, 'is_active' => true], ['public_id' => (string) Str::ulid(), 'canonical_quantity' => $canonical, 'source_type' => 'editorial_initial', 'source_name' => 'House Chef Cyprus başlangıç ölçü kaydı', 'verification_status' => 'low', 'confidence_score' => 45, 'conversion_method' => 'editorial_estimate', 'notes' => 'İlk editoryal ölçü kaydı; bağımsız kaynak doğrulaması gerektirir.']);
         }
         $nutrients = [
             ['energy_kcal', 'Enerji', 'energy', 'kcal', true, false, 1], ['protein', 'Protein', 'macro', 'g', true, false, 2], ['carbohydrate', 'Karbonhidrat', 'macro', 'g', true, false, 3], ['fat', 'Yağ', 'macro', 'g', true, false, 4], ['saturated_fat', 'Doymuş yağ', 'macro', 'g', true, false, 5], ['trans_fat', 'Trans yağ', 'macro', 'g', true, false, 6], ['fiber', 'Lif', 'macro', 'g', true, false, 7], ['sugar', 'Şeker', 'macro', 'g', true, false, 8], ['sodium', 'Sodyum', 'mineral', 'mg', false, true, 9], ['salt', 'Tuz', 'mineral', 'g', false, true, 10], ['cholesterol', 'Kolesterol', 'other', 'mg', false, true, 11], ['vitamin_a', 'A vitamini', 'vitamin', 'µg', false, true, 12], ['vitamin_c', 'C vitamini', 'vitamin', 'mg', false, true, 13], ['vitamin_d', 'D vitamini', 'vitamin', 'µg', false, true, 14], ['vitamin_b12', 'B12 vitamini', 'vitamin', 'µg', false, true, 15], ['calcium', 'Kalsiyum', 'mineral', 'mg', false, true, 16], ['iron', 'Demir', 'mineral', 'mg', false, true, 17], ['potassium', 'Potasyum', 'mineral', 'mg', false, true, 18], ['magnesium', 'Magnezyum', 'mineral', 'mg', false, true, 19],
@@ -59,7 +55,7 @@ final class HouseChefSeeder extends Seeder
         foreach ($ingredients->values() as $position => $ingredient) {
             $values = ['energy_kcal' => 80 + $position * 5, 'protein' => 2 + ($position % 8), 'carbohydrate' => 4 + ($position % 10), 'fat' => $ingredient->slug === 'zeytinyagi' ? 100 : 1 + ($position % 4), 'fiber' => 1 + ($position % 5), 'sugar' => $position % 6, 'sodium' => 5 + $position, 'potassium' => 120 + $position * 10];
             foreach ($values as $code => $value) {
-                $ingredient->nutritionFacts()->updateOrCreate(['nutrient_id' => $nutrientModels[$code]->id, 'basis_type' => 'per_100g', 'basis_amount' => 100, 'source_type' => 'editorial'], ['value' => $value, 'source_name' => 'House Chef Cyprus demo veri seti', 'confidence_score' => $ingredient->slug === 'mantar' ? 65 : 90, 'calculation_method' => 'editorial_reference', 'origin' => $ingredient->slug === 'mantar' ? 'ai_estimated' : 'verified', 'verified_at' => $ingredient->slug === 'mantar' ? null : now()]);
+                $ingredient->nutritionFacts()->updateOrCreate(['nutrient_id' => $nutrientModels[$code]->id, 'basis_type' => 'per_100g', 'basis_amount' => 100, 'source_type' => 'editorial'], ['value' => $value, 'source_name' => 'House Chef Cyprus başlangıç besin kaydı', 'confidence_score' => $ingredient->slug === 'mantar' ? 65 : 90, 'calculation_method' => 'editorial_reference', 'origin' => $ingredient->slug === 'mantar' ? 'ai_estimated' : 'verified', 'verified_at' => $ingredient->slug === 'mantar' ? null : now()]);
             }
         }
         $allergens = collect([['gluten', 'Gluten içeren tahıllar'], ['milk', 'Süt'], ['egg', 'Yumurta'], ['peanut', 'Yer fıstığı'], ['tree_nuts', 'Sert kabuklu yemişler'], ['soy', 'Soya'], ['fish', 'Balık'], ['crustaceans', 'Kabuklu deniz ürünleri'], ['sesame', 'Susam'], ['celery', 'Kereviz'], ['mustard', 'Hardal'], ['lupin', 'Acı bakla'], ['molluscs', 'Yumuşakçalar'], ['sulphites', 'Sülfit']])->mapWithKeys(function (array $data) {
@@ -70,7 +66,7 @@ final class HouseChefSeeder extends Seeder
         $tags = collect([['vegan', 'Vegan'], ['vegetarian', 'Vejetaryen'], ['gluten_free', 'Glutensiz'], ['lactose_free', 'Laktozsuz'], ['dairy_free', 'Sütsüz'], ['high_protein', 'Yüksek protein'], ['low_calorie', 'Düşük kalorili'], ['ketogenic', 'Ketojenik'], ['halal_suitable', 'Helal uygun']])->mapWithKeys(function (array $data) {
             [$code, $name] = $data;
 
-            return [$code => DietaryTag::query()->updateOrCreate(['code' => $code], ['public_id' => (string) Str::ulid(), 'name' => $name, 'description' => 'Demo diyet etiketi', 'is_active' => true])];
+            return [$code => DietaryTag::query()->updateOrCreate(['code' => $code], ['public_id' => (string) Str::ulid(), 'name' => $name, 'description' => 'Editoryal diyet etiketi', 'is_active' => true])];
         });
         foreach ([['yoğurt', 'milk', 'contains'], ['makarna', 'gluten', 'contains'], ['bulgur', 'gluten', 'contains'], ['nohut', 'sesame', 'may_contain']] as [$ingredientName, $allergenCode, $relation]) {
             $ingredients[$ingredientName]->allergenDetails()->updateOrCreate(['allergen_id' => $allergens[$allergenCode]->id], ['relation_type' => $relation, 'confidence_score' => 90, 'source_type' => 'editorial', 'is_verified' => true]);
@@ -86,36 +82,8 @@ final class HouseChefSeeder extends Seeder
         }
         $substitutions = [['yoğurt', 'limon'], ['limon', 'yoğurt'], ['tavuk', 'nohut'], ['nohut', 'tavuk'], ['makarna', 'pirinç'], ['pirinç', 'makarna'], ['patates', 'nohut'], ['nohut', 'patates'], ['domates', 'yoğurt'], ['sarımsak', 'soğan']];
         foreach ($substitutions as [$ingredientName, $substituteName]) {
-            IngredientSubstitution::query()->firstOrCreate(['ingredient_id' => $ingredients[$ingredientName]->id, 'substitute_ingredient_id' => $ingredients[$substituteName]->id, 'substitution_type' => 'emergency'], ['ratio' => 1, 'confidence_score' => 75, 'is_verified' => true, 'is_active' => true, 'notes' => 'Demo alternatifi']);
+            IngredientSubstitution::query()->firstOrCreate(['ingredient_id' => $ingredients[$ingredientName]->id, 'substitute_ingredient_id' => $ingredients[$substituteName]->id, 'substitution_type' => 'emergency'], ['ratio' => 1, 'confidence_score' => 75, 'is_verified' => true, 'is_active' => true, 'notes' => 'Editoryal alternatif notu']);
         }
-        $recipes = [['Kıbrıs Usulü Fırın Tavuk', 'Kıbrıs Mutfağı', 20, 45], ['Zeytinyağlı Nohutlu Pilav', 'Türk Mutfağı', 15, 30], ['Limonlu Akdeniz Makarnası', 'İtalyan Mutfağı', 10, 20], ['Sebzeli Teriyaki Tavuk', 'Japon Mutfağı', 20, 18], ['Fırın Sebzeli Taco Kasesi', 'Meksika Mutfağı', 20, 25], ['Yoğurtlu Nohut Salatası', 'Lübnan Mutfağı', 15, 0], ['Domatesli Tavuk Sote', 'Türk Mutfağı', 15, 25], ['Limonlu Otlu Patates', 'Kıbrıs Mutfağı', 15, 35], ['Sarımsaklı Zeytinyağlı Makarna', 'İtalyan Mutfağı', 10, 15], ['Pirinçli Tavuk Çorbası', 'Türk Mutfağı', 15, 35], ['Nohutlu Akdeniz Kasesi', 'Lübnan Mutfağı', 20, 10], ['Fırında Baharatlı Tavuk', 'Meksika Mutfağı', 15, 40]];
-        foreach ($recipes as $index => [$title, $cuisine, $prep, $cook]) {
-            $recipe = Recipe::query()->firstOrCreate(['slug' => Str::slug($title)], ['title' => $title, 'cuisine_id' => $cuisines[$cuisine]->id, 'category_id' => $category->id, 'excerpt' => 'Mevsim malzemeleriyle hazırlanan, ev mutfağına uygun özgün demo tarifi.', 'description' => 'Bu tarif House Chef Cyprus için hazırlanmış örnek içeriktir. Damak tadınıza göre baharat oranını ayarlayabilirsiniz.', 'prep_minutes' => $prep, 'cook_minutes' => $cook, 'servings' => 4, 'difficulty' => $index % 3 === 0 ? 'Orta' : 'Kolay', 'dietary_tags' => $index % 2 === 0 ? ['Yüksek protein'] : ['Akdeniz tipi'], 'allergens' => $index % 2 === 0 ? [] : ['Gluten'], 'nutrition' => ['kalori' => 420, 'protein' => 28, 'karbonhidrat' => 44, 'yağ' => 14], 'storage_notes' => ['buzdolabi_gun' => 2, 'uyari' => 'Soğuduktan sonra kapalı kapta saklayın.'], 'source_name' => 'House Chef Cyprus özgün demo', 'reliability_score' => 100, 'status' => 'published', 'is_featured' => $index < 4]);
-            if ($recipe->public_id === null) {
-                $recipe->update(['public_id' => (string) Str::ulid()]);
-            }
-            foreach (array_values(array_slice($ingredients->all(), $index % 4, 4, true)) as $position => $ingredient) {
-                $conversion = $ingredient->unitConversions()->where('is_active', true)->first();
-                $quantity = (string) ($position + 1);
-                $measure = $conversion?->household_measure_code ?? 'adet';
-                $canonical = $conversion ? bcmul((string) $conversion->canonical_quantity, $quantity, 4) : bcmul($quantity, '100', 4);
-                $groupName = $position < 2 ? 'Ana malzemeler' : 'Lezzet için';
-                $group = RecipeIngredientGroup::query()->firstOrCreate(['recipe_id' => $recipe->id, 'name' => $groupName], ['public_id' => (string) Str::ulid(), 'sort_order' => $position < 2 ? 1 : 2]);
-                $recipe->ingredients()->syncWithoutDetaching([$ingredient->id => ['recipe_ingredient_group_id' => $group->id, 'quantity' => $quantity, 'unit' => 'g', 'grams' => $canonical, 'display_quantity' => $quantity, 'display_measure_code' => $measure, 'canonical_quantity' => $canonical, 'canonical_unit' => $conversion?->canonical_unit ?? 'g', 'ingredient_unit_conversion_id' => $conversion?->id, 'conversion_confidence' => $conversion?->verification_status ?? 'unknown', 'conversion_method' => $conversion?->conversion_method ?? 'not_convertible', 'preparation_note' => $position === 0 ? 'hazırlanmış' : null, 'group_name' => $groupName, 'scaling_behavior' => $ingredient->slug === 'zeytinyagi' ? 'taste_adjusted' : 'scalable', 'scaling_note' => $ingredient->slug === 'zeytinyagi' ? 'Damak tadınıza göre ayarlayın.' : null, 'is_optional' => false, 'sort_order' => $position + 1]]);
-            }
-            $recipe->dietaryTags()->syncWithoutDetaching([$tags[$index % 2 === 0 ? 'high_protein' : 'vegetarian']->id]);
-            $steps = [
-                ['position' => 1, 'title' => 'Hazırlık', 'instruction' => 'Malzemeleri yıkayın, doğrayın ve ölçüleri hazırlayın.', 'duration_seconds' => $prep * 60, 'equipment' => 'Kesme tahtası ve bıçak'],
-                ['position' => 2, 'title' => 'Ön hazırlık', 'instruction' => 'Tencereyi veya tavayı orta ısıda hazırlayın, malzemeleri sıraya koyun.', 'duration_seconds' => 300, 'is_optional' => $index < 4, 'chef_tip' => 'Malzemeleri önceden hazırlamak pişirme sırasında kontrolü artırır.'],
-                ['position' => 3, 'title' => 'Pişirme', 'instruction' => 'Malzemeleri tarifin gerektirdiği sırayla pişirin ve kıvamını kontrol edin.', 'duration_seconds' => max(60, $cook * 60), 'timer_required' => true, 'temperature_value' => $index < 4 ? 180 : null, 'temperature_unit' => $index < 4 ? 'celsius' : null, 'equipment' => $index < 4 ? 'Fırın veya tava' : 'Tava', 'safety_note' => $index < 4 ? 'Sıcak ekipmana çıplak elle dokunmayın; fırın eldiveni kullanın.' : null],
-                ['position' => 4, 'title' => 'Servis', 'instruction' => 'Tarifi dinlendirin, son kontrolü yapın ve sıcak servis edin.', 'duration_seconds' => 300, 'chef_tip' => 'Taze yeşillikle servis edebilirsiniz.', 'completion_hint' => 'Sos parlak ve malzemeler eşit sıcaklıktaysa tarif hazırdır.'],
-            ];
-            foreach ($steps as $step) {
-                $step['public_id'] = (string) Str::ulid();
-                $recipe->steps()->updateOrCreate(['position' => $step['position']], $step);
-            }
-        }
-
         app(EditorialRecipeImporter::class)->import();
         app(PilotRecipeDataCorrectionService::class)->apply();
         app(BrandedRecipeFallbackService::class)->synchronize();

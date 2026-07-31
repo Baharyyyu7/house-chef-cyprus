@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Real Content & SEO catalogue foundation: production seed no longer creates public demo-labelled records; it now seeds the 50-recipe editorial catalogue plus 20 original, reviewed Turkish blog guides. Media truthfulness is explicit: current branded fallbacks are not counted as verified food photography and remain replacement-required until licensed editorial assets are approved.
+
 - SEO, Blog & Content Automation: merkezi metadata, keyword/brief/fırsat/issue/revision kayıtları; people-first yayın kalite kapısı; idempotent teknik audit; anonim zero-result fırsatları; admin SEO operasyon alanı ve güvenli provider/scheduler komutları eklendi. Search Console, IndexNow ve X dağıtımı varsayılan olarak kapalıdır; otomatik public yayın yapılmaz.
 
 - V1.0 RC iç kapanış: Pexels güvenli hata sözleşmesi, private review görünürlüğü, sitemap index/alt sitemap’ler, recipe/article/FAQ structured data ve production image/SEO release belgeleri eklendi. Geçersiz Pexels anahtarı nedeniyle toplu sorgu/indirme yapılmadı; branded fallback zinciri korundu.
