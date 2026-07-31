@@ -47,7 +47,8 @@ final class PexelsRecipeImageProvider
         $settings = (array) config('ai_images.providers.pexels');
         $query = $this->queryFor($recipe);
         try {
-            $response = Http::withToken((string) $settings['key'])
+            // Pexels expects the API key itself in Authorization, not a Bearer token.
+            $response = Http::withHeaders(['Authorization' => (string) $settings['key']])
                 ->acceptJson()
                 ->timeout(12)
                 ->get(rtrim((string) $settings['endpoint'], '/').'/v1/search', [

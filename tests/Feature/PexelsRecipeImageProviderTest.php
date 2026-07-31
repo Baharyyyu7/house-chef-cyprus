@@ -45,7 +45,7 @@ final class PexelsRecipeImageProviderTest extends TestCase
         $this->assertCount(1, $candidates);
         $this->assertSame('42', $candidates[0]['external_photo_id']);
         $this->assertStringContainsString('Pexels', $candidates[0]['attribution_text']);
-        Http::assertSent(fn ($request): bool => $request->hasHeader('Authorization', 'Bearer test-key') && $request['orientation'] === 'landscape');
+        Http::assertSent(fn ($request): bool => $request->hasHeader('Authorization', 'test-key') && $request['orientation'] === 'landscape');
     }
 
     public function test_it_maps_provider_authentication_errors_without_exposing_response_body(): void
