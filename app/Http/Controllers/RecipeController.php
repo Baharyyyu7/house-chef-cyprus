@@ -16,19 +16,26 @@ use App\Services\DietaryCompatibilityService;
 use App\Services\IngredientMatchingService;
 use App\Services\Measurements\RecipeIngredientDisplayService;
 use App\Services\NutritionService;
+use App\Services\Seo\SeoMetadataService;
+use App\Services\Seo\ZeroResultSearchService;
 use Illuminate\Http\Request;
 
 final class RecipeController extends Controller
 {
-    public function index(Request $request, RecipeSearchInterface $search)
+    public function index(Request $request, RecipeSearchInterface $search, ZeroResultSearchService $zeroResults)
     {
         $filters = $request->only([
             'q', 'cuisine', 'category', 'difficulty', 'dietary_tag', 'exclude_allergens',
             'max_minutes', 'min_protein', 'max_calories', 'sort', 'page',
         ]);
 
+        $recipes = $search->search($filters);
+        if ($request->filled('q')) {
+            $zeroResults->record($request->string('q')->toString(), $recipes->total());
+        }
+
         return view('recipes.index', [
-            'recipes' => $search->search($filters),
+            'recipes' => $recipes,
             'cuisines' => Cuisine::orderBy('name')->get(),
             'categories' => Category::orderBy('name')->get(),
             'dietaryTags' => DietaryTag::orderBy('name')->get(),
@@ -36,7 +43,7 @@ final class RecipeController extends Controller
         ]);
     }
 
-    public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay)
+    public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, SeoMetadataService $seo)
     {
         abort_unless(($recipe->status === 'published' && $recipe->verification_status === 'verified') || $request->user()?->isAdmin(), 404);
         $recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient', 'recipeIngredients.group', 'steps', 'media' => fn ($query) => $query->where('visibility', 'public'), 'provenances.contentSource']);
@@ -83,6 +90,7 @@ final class RecipeController extends Controller
                 ->limit(4)
                 ->get(),
             'seoSchema' => $schema,
+            'metadata' => $seo->for($recipe, $recipe->title.' · House Chef Cyprus', $recipe->excerpt ?: $recipe->description, route('recipes.show', $recipe)),
             'seoImage' => $heroMedia?->publicUrl(),
         ]);
     }

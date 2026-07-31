@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\BlogTag;
+use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -35,21 +36,25 @@ final class BlogPublishingTest extends TestCase
         $tag = BlogTag::create(['name' => 'Kıbrıs', 'slug' => 'kibris']);
 
         $this->actingAs($member)->get(route('admin.blog.index'))->assertForbidden();
-        $this->actingAs($admin)->post(route('admin.blog.store'), [
-            'title' => 'Kıbrıs mutfağına giriş', 'excerpt' => 'Özgün kısa özet.', 'body' => 'Özgün güvenli içerik.', 'status' => 'draft', 'blog_category_id' => $category->id, 'tag_ids' => [$tag->id],
+        $this->actingAs($admin)->withSession(['_token' => 'test-csrf'])->post(route('admin.blog.store'), [
+            '_token' => 'test-csrf', 'title' => 'Kıbrıs mutfağına giriş', 'excerpt' => 'Özgün kısa özet.', 'body' => 'Özgün güvenli içerik.', 'status' => 'draft', 'blog_category_id' => $category->id, 'tag_ids' => [$tag->id],
         ])->assertRedirect();
 
         $post = BlogPost::query()->firstOrFail();
         $this->assertSame('draft', $post->status);
         $this->assertTrue($post->tags()->whereKey($tag)->exists());
-        $this->actingAs($admin)->post(route('admin.blog.publish', $post))->assertRedirect();
+        $this->assertDatabaseHas('seo_metadata', ['seoable_type' => BlogPost::class, 'seoable_id' => $post->id]);
+        $recipe = Recipe::query()->create(['title' => 'İlgili doğrulanmış tarif', 'slug' => 'ilgili-dogrulanmis-tarif', 'status' => 'published', 'verification_status' => 'verified', 'published_at' => now()]);
+        $post->recipes()->sync([$recipe->id]);
+        $post->update(['content_purpose' => 'Özgün rehber', 'search_intent' => 'informational', 'primary_keyword' => 'kıbrıs mutfağı', 'source_notes' => ['editorial_note' => 'Kontrol edildi'], 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved', 'meta_title' => 'Kıbrıs mutfağına giriş', 'meta_description' => 'Kıbrıs mutfağına özgün ve güvenli giriş rehberi.']);
+        $this->actingAs($admin)->withSession(['_token' => 'test-csrf'])->post(route('admin.blog.publish', $post), ['_token' => 'test-csrf'])->assertRedirect();
         $this->get(route('blog.show', $post->fresh()))->assertOk();
     }
 
     public function test_scheduled_posts_only_publish_when_their_time_has_arrived(): void
     {
-        $due = BlogPost::create(['title' => 'Zamanı gelen yazı', 'slug' => 'zamani-gelen-yazi', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'scheduled', 'scheduled_at' => now()->subMinute()]);
-        $future = BlogPost::create(['title' => 'Gelecek yazı', 'slug' => 'gelecek-yazi', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'scheduled', 'scheduled_at' => now()->addHour()]);
+        $due = BlogPost::create(['title' => 'Zamanı gelen yazı', 'slug' => 'zamani-gelen-yazi', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'scheduled', 'scheduled_at' => now()->subMinute(), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved']);
+        $future = BlogPost::create(['title' => 'Gelecek yazı', 'slug' => 'gelecek-yazi', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'scheduled', 'scheduled_at' => now()->addHour(), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved']);
 
         $this->artisan('blog:publish-scheduled --json')->expectsOutputToContain('"published":1')->assertSuccessful();
         $this->assertSame('published', $due->fresh()->status);

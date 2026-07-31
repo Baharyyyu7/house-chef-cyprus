@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- SEO, Blog & Content Automation: merkezi metadata, keyword/brief/fırsat/issue/revision kayıtları; people-first yayın kalite kapısı; idempotent teknik audit; anonim zero-result fırsatları; admin SEO operasyon alanı ve güvenli provider/scheduler komutları eklendi. Search Console, IndexNow ve X dağıtımı varsayılan olarak kapalıdır; otomatik public yayın yapılmaz.
+
 - V1.0 RC iç kapanış: Pexels güvenli hata sözleşmesi, private review görünürlüğü, sitemap index/alt sitemap’ler, recipe/article/FAQ structured data ve production image/SEO release belgeleri eklendi. Geçersiz Pexels anahtarı nedeniyle toplu sorgu/indirme yapılmadı; branded fallback zinciri korundu.
 
 - Master Fix Phase B2: BFL FLUX.2 async polling ve Stability Stable Image Core multipart provider adapterleri, iki çağrılık private comparison bütçesi, güvenli provider health ve response validation sözleşmeleri eklendi. BFL/Stability anahtarları yokken hiçbir canlı çağrı yapılmadı.

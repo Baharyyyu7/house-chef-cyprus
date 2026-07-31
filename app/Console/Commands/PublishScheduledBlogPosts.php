@@ -15,7 +15,7 @@ final class PublishScheduledBlogPosts extends Command
 
     public function handle(): int
     {
-        $count = BlogPost::query()->where('status', 'scheduled')->whereNotNull('scheduled_at')->where('scheduled_at', '<=', now())
+        $count = BlogPost::query()->where('status', 'scheduled')->where('editorial_status', 'approved')->where('fact_check_status', 'passed')->where('originality_status', 'passed')->whereNotNull('scheduled_at')->where('scheduled_at', '<=', now())
             ->update(['status' => 'published', 'published_at' => now()]);
         $result = ['published' => $count, 'at' => now()->toIso8601String()];
         if ($this->option('json')) {

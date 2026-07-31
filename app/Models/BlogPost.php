@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -20,11 +22,11 @@ final class BlogPost extends Model
 {
     use HasPublicId;
 
-    protected $fillable = ['author_id', 'blog_category_id', 'hero_media_id', 'title', 'slug', 'excerpt', 'body', 'status', 'scheduled_at', 'published_at', 'meta_title', 'meta_description', 'canonical_url'];
+    protected $fillable = ['author_id', 'blog_category_id', 'hero_media_id', 'content_brief_id', 'title', 'slug', 'excerpt', 'body', 'content_purpose', 'search_intent', 'primary_keyword', 'secondary_keywords', 'source_notes', 'faq_blocks', 'status', 'fact_check_status', 'editorial_status', 'originality_status', 'freshness_class', 'scheduled_at', 'review_due_at', 'published_at', 'last_refreshed_at', 'meta_title', 'meta_description', 'canonical_url'];
 
     protected function casts(): array
     {
-        return ['scheduled_at' => 'datetime', 'published_at' => 'datetime'];
+        return ['scheduled_at' => 'datetime', 'review_due_at' => 'datetime', 'published_at' => 'datetime', 'last_refreshed_at' => 'datetime', 'secondary_keywords' => 'array', 'source_notes' => 'array', 'faq_blocks' => 'array'];
     }
 
     public function getRouteKeyName(): string
@@ -66,5 +68,29 @@ final class BlogPost extends Model
     public function recipes(): BelongsToMany
     {
         return $this->belongsToMany(Recipe::class);
+    }
+
+    /** @return BelongsTo<ContentBrief, $this> */
+    public function brief(): BelongsTo
+    {
+        return $this->belongsTo(ContentBrief::class, 'content_brief_id');
+    }
+
+    /** @return MorphOne<SeoMetadata, $this> */
+    public function seoMetadata(): MorphOne
+    {
+        return $this->morphOne(SeoMetadata::class, 'seoable');
+    }
+
+    /** @return HasMany<ContentRevision, $this> */
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(ContentRevision::class);
+    }
+
+    /** @return HasMany<SocialDistributionDraft, $this> */
+    public function socialDrafts(): HasMany
+    {
+        return $this->hasMany(SocialDistributionDraft::class);
     }
 }

@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\BlogTag;
+use App\Services\Seo\SeoMetadataService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -21,7 +22,7 @@ final class BlogController extends Controller
         return view('blog.index', ['posts' => $posts, 'title' => 'Blog · House Chef Cyprus']);
     }
 
-    public function show(BlogPost $post): View
+    public function show(BlogPost $post, SeoMetadataService $seo): View
     {
         abort_unless(BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists(), 404);
         $post->load(['category', 'tags', 'heroMedia', 'author', 'recipes.media']);
@@ -31,7 +32,9 @@ final class BlogController extends Controller
             $schema['image'] = [$post->heroMedia->publicUrl()];
         }
 
-        return view('blog.show', compact('post', 'schema'));
+        $metadata = $seo->for($post, $post->meta_title ?: $post->title.' · House Chef Cyprus', $post->meta_description ?: $post->excerpt, route('blog.show', $post));
+
+        return view('blog.show', compact('post', 'schema', 'metadata'));
     }
 
     public function category(BlogCategory $category): View

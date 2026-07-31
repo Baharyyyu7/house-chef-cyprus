@@ -1,4 +1,4 @@
-<x-layouts.site :title="$recipe->title.' · House Chef Cyprus'" :meta-description="$recipe->excerpt ?: $recipe->description" :canonical-url="route('recipes.show', $recipe)" :social-image="$seoImage" :structured-data="$seoSchema">
+<x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$seoImage" :structured-data="$seoSchema">
     @php
         $heroMedia = $recipe->media->first(fn ($media) => $media->verification_status !== 'rejected');
         $heroPlaceholderIndex = (hexdec(substr(hash('sha256', (string) ($recipe->public_id ?: $recipe->slug)), 0, 6)) % 8) + 1;

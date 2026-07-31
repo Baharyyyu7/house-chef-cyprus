@@ -1,0 +1,31 @@
+name: SEO Static Audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  seo-static-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_KEY: base64:MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE=
+      APP_ENV: testing
+      APP_DEBUG: "false"
+      APP_URL: http://localhost
+      DB_CONNECTION: sqlite
+      DB_DATABASE: database/seo-audit.sqlite
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: shivammathur/setup-php@v2
+        with: {php-version: '8.5', extensions: sqlite3, coverage: none}
+      - run: composer install --no-interaction --prefer-dist
+      - run: touch database/seo-audit.sqlite && php artisan migrate:fresh --seed
+      - run: php artisan seo:audit --json
+      - run: php artisan seo:content-opportunities --json
+      - run: php artisan seo:provider-health --json
+      - run: ./scripts/secret-scan.sh && ./scripts/forbidden-file-scan.sh

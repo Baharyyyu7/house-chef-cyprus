@@ -7,9 +7,12 @@
         'İçerik' => [
             ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => 'menu'],
             ['route' => 'admin.recipe-verification.index', 'label' => 'İçerik Doğrulama', 'icon' => 'check'],
-            ['route' => 'admin.blog.index', 'label' => 'Blog', 'icon' => 'menu'],
             ['route' => 'admin.media.index', 'label' => 'Medya', 'icon' => 'image'],
             ['route' => 'admin.ai-image-studio.index', 'label' => 'Görsel Stüdyosu', 'icon' => 'image'],
+        ],
+        'SEO & İçerik' => [
+            ['route' => 'admin.seo.index', 'label' => 'SEO Operasyonları', 'icon' => 'search'],
+            ['route' => 'admin.blog.index', 'label' => 'Blog Yazıları', 'icon' => 'menu'],
         ],
         'Malzeme verisi' => [
             ['route' => 'admin.ingredients.index', 'label' => 'Malzemeler', 'icon' => 'search'],
