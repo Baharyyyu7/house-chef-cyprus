@@ -1,5 +1,9 @@
 # House Chef Cyprus
 
+## Production hazırlığı
+
+Domain/VPS geldikten sonra uygulanacak güvenli operasyon sırası: [Go-live runbook](docs/GO_LIVE_RUNBOOK.md). Staging sözleşmesi, VPS şablonları, storage/Redis/PHP-FPM ve post-deploy smoke rehberleri `docs/` altında bulunur. Bu repository gerçek deploy veya DNS değişikliği yapmaz.
+
 Türkçe tarif, malzeme dolabı, beslenme ve veri kalitesi platformu. `visual-redesign-v2` dalındaki V1.0 RC; provenance ve household/canonical ölçülerle seed edilen 50 `published`/`verified` tarif, private medya review akışı, branded fallback zinciri, blog/politika sayfaları ve SEO sitemap/schema altyapısını içerir. SEO & Content Automation katmanı; people-first editoryal kalite kapısı, idempotent audit, içerik brief/fırsatları ve admin operasyon merkezini içerir. Search Console, IndexNow, X dağıtımı ve otomatik public yayın varsayılan olarak kapalıdır. Pexels ve Unsplash yalnız insan onaylı editoryal aday kaynaklarıdır; Unsplash hotlink, görünür attribution ve tekil download tracking sözleşmesiyle kullanılır. Production deploy, DNS/TLS ve mail yetkileri bu depoda yapılmaz; ayrıntılı durum [V1.0 RC kontrol listesinde](docs/FINAL_RELEASE_CHECKLIST.md) yer alır.
 
 ## Yerelde başlatma

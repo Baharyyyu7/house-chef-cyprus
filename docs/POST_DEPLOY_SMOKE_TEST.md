@@ -8,3 +8,6 @@
 6. E-posta doğrulama/reset yalnız güvenli test alıcısıyla yapılır.
 7. `queue:health`, `schedule:list`, backup verify, cache warmup ve browser console hata özeti kaydedilir.
 8. Onaylanmış gerçek görsel yoksa branded fallback'in görünür şekilde gerçek fotoğraf olmadığını doğrulayın; candidate hiçbir şekilde otomatik public edilmez.
+# Komut sözleşmesi
+
+`php artisan app:post-deploy-smoke --json` public health, sitemap, robots ve temel public/auth endpointlerini gerçek hedef `APP_URL` üzerinde doğrular. Sunucu olmadan `--dry-run --json` yalnız kontrol planını doğrular ve HTTP isteği göndermez.

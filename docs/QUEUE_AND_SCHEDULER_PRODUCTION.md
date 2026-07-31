@@ -29,3 +29,6 @@ Yayın sonrası `supervisorctl reread && supervisorctl update && php artisan que
 ```
 
 `schedule:list`, scheduler heartbeat ve `queue:health --json` ilk yayın ve her incident sonrası kontrol edilir. Overlap korumalı görevler manuel paralel çalıştırılmaz.
+# Sprint 1 operasyon notu
+
+Supervisor şablonu default/reports/mail ile media/SEO/content/backups kuyruklarını ayırır: `deploy/supervisor/house-chef-worker.conf`. Cron şablonu her dakika `schedule:run` çağırır. Queue ve scheduler yalnız VPS üzerinde çalıştırılır; Mac/local worker production runtime değildir.

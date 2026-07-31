@@ -91,3 +91,8 @@
 - Admin koyu tema kontrastı semantik V3 tokenlarıyla güçlendirildi.
 - Data Quality V2 medya, ölçüm, nutrition ve yerel QA güven sinyallerini açıklanabilir kategori skorlarına bağladı.
 - Yerel QA fixture ve tarif görsel denetim komutları eklendi.
+# Production Sprint 1
+
+- Staging/production environment örnekleri, strict environment profilleri ve post-deploy smoke komutu eklendi.
+- Nginx, Supervisor, Cron, logrotate, deploy, rollback, backup ve health operasyon şablonları eklendi.
+- Production runbook, Redis, storage, PHP-FPM ve logging operasyon belgeleri tamamlandı.

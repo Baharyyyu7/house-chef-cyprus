@@ -38,3 +38,6 @@ Guest, member ve admin smoke akışları; tarif listesi/detayı, login, private 
 - Redis, queue, scheduler heartbeat, failed job, backup verify ve `/health` metriklerini izleyin.
 - Media candidate araması yalnız insan review için private kayıt yaratır; otomatik public yayın kapalı kalır.
 - Log retention ve backup saklama süresini yasal/operasyonel gereksinime göre ortam değişkenleriyle yönetin.
+# Çalıştırılabilir şablonlar
+
+Repository içindeki `deploy/nginx/house-chef.conf`, `deploy/supervisor/house-chef-worker.conf`, `deploy/cron/house-chef` ve `deploy/scripts/` dosyaları placeholder içerir. Sunucuya yüklemeden önce `__DOMAIN__`, `__APP_ROOT__`, `__APP_USER__` ve `__APP_GROUP__` değerlerini orada değiştirin; bu değerler kaynak kodda hard-code edilmez.

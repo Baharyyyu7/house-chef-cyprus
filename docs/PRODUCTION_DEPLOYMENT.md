@@ -26,3 +26,6 @@ Generated images require an independently configured provider, explicit generati
 
 - `.env`, backup archives, local SQLite files, private review media, or user secrets
 - a `sync` queue, `array` cache, `APP_DEBUG=true`, or local-only image providers
+# Production Sprint 1 güncellemesi
+
+Tek adımlı sunucu operasyon akışı ve şablon dosyaları [Go-live runbook](GO_LIVE_RUNBOOK.md) içinde, staging ayrımı [Staging kurulumu](STAGING_SETUP.md) içinde tanımlıdır. Sunucu erişimi gelmeden gerçek deploy, DNS, SSL veya mail gönderimi yapılmaz.

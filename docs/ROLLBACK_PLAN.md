@@ -17,3 +17,6 @@ Every deployment keeps the previous application release, an immutable database b
 4. `php artisan optimize:clear`, cache rebuild ve `php artisan queue:restart` sonrası health/smoke kontrollerini çalıştırın.
 5. Geri alınamaz migration varsa schema down çalıştırmak yerine onaylı backup'ı güvenli restore hedefinde doğrulayın; production restore yalnız operasyon onayıyla yapılır.
 6. Health, API, queue, scheduler, mail ve guest/member smoke başarılıysa maintenance mode kapatılır.
+# Release rollback scripti
+
+`deploy/scripts/rollback.sh`, yalnız uyumlu migration'a sahip, doğrulanmış önceki release ile çalıştırılır. Geri alınamaz/destructive migration varsa önce maintenance mode, ardından backup restore kararı gerekir. Script `--dry-run` ile gerçek symlink değiştirmeden planı gösterir.

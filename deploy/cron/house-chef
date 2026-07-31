@@ -1,0 +1,2 @@
+# Replace __APP_ROOT__ and __APP_USER__. Install with the application user's crontab.
+* * * * * __APP_USER__ cd __APP_ROOT__ && php artisan schedule:run --no-interaction >> /dev/null 2>&1
