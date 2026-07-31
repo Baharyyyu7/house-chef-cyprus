@@ -11,6 +11,7 @@
             ['route' => 'admin.ai-image-studio.index', 'label' => 'Görsel Stüdyosu', 'icon' => 'image'],
         ],
         'SEO & İçerik' => [
+            ['route' => 'admin.content-factory.index', 'label' => 'İçerik Fabrikası', 'icon' => 'sparkles'],
             ['route' => 'admin.seo.index', 'label' => 'SEO Operasyonları', 'icon' => 'search'],
             ['route' => 'admin.blog.index', 'label' => 'Blog Yazıları', 'icon' => 'menu'],
         ],

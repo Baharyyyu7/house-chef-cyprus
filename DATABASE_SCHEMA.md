@@ -69,3 +69,7 @@ Foundation A–E kapatıldı; production hedef veritabanı seçildiğinde MySQL/
 # Household measurement additions
 
 `ingredient_unit_conversions` holds sourced ingredient-specific conversions. `recipe_ingredients` has additive display and canonical columns; legacy quantity, unit and grams remain supported.
+
+# Controlled Content Factory
+
+`content_factory_batches` tarif/blog batch ilerlemesini, `content_factory_reviews` teknik/fact-check/özgünlük ve gerçek insan review kaydını, `content_topic_clusters` planlanan pillar kümelerini saklar. `recipes` ve `blog_posts` üzerindeki `content_factory_batch_id`, `content_factory_state`, `fact_check_required`, `human_approved_*` alanları draft workflow içindir. Bunlar yayın veya doğrulama garantisi değildir.

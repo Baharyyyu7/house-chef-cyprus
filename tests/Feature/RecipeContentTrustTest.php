@@ -23,10 +23,10 @@ final class RecipeContentTrustTest extends TestCase
     {
         $this->seed();
 
-        $this->assertSame(50, Recipe::query()->count());
-        $this->assertSame(50, Recipe::query()->distinct('public_id')->count('public_id'));
-        $this->assertSame(50, Recipe::query()->distinct('slug')->count('slug'));
-        $this->assertSame(50, ContentSource::query()->where('is_active', true)->count());
+        $this->assertSame(500, Recipe::query()->count());
+        $this->assertSame(500, Recipe::query()->distinct('public_id')->count('public_id'));
+        $this->assertSame(500, Recipe::query()->distinct('slug')->count('slug'));
+        $this->assertSame(500, ContentSource::query()->where('is_active', true)->count());
         $this->assertSame(0, Recipe::query()->where('status', 'published')->where('verification_status', '!=', 'verified')->count());
         $this->assertSame(0, Recipe::query()->whereNull('completeness_score')->count());
     }

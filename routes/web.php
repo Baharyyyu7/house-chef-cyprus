@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AiImageStudioController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
+use App\Http\Controllers\Admin\ContentFactoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataQualityController;
 use App\Http\Controllers\Admin\FailedJobController;
@@ -100,6 +101,9 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::resource('blog', AdminBlogPostController::class)->parameters(['blog' => 'post'])->only(['index', 'create', 'store', 'edit', 'update']);
     Route::post('blog/{post}/yayinla', [AdminBlogPostController::class, 'publish'])->name('blog.publish');
     Route::post('blog/{post}/arsivle', [AdminBlogPostController::class, 'archive'])->name('blog.archive');
+    Route::get('icerik-fabrikasi', [ContentFactoryController::class, 'index'])->name('content-factory.index');
+    Route::post('icerik-fabrikasi/review/{review}/onayla', [ContentFactoryController::class, 'approve'])->name('content-factory.reviews.approve');
+    Route::post('icerik-fabrikasi/review/{review}/reddet', [ContentFactoryController::class, 'reject'])->name('content-factory.reviews.reject');
     Route::get('seo', [SeoOperationsController::class, 'index'])->name('seo.index');
     Route::get('seo/sorunlar', [SeoOperationsController::class, 'issues'])->name('seo.issues');
     Route::get('seo/firsatlar', [SeoOperationsController::class, 'opportunities'])->name('seo.opportunities');

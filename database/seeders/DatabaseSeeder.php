@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             HouseChefSeeder::class,
             ProductionBlogCatalogueSeeder::class,
+            ContentFactoryDraftSeeder::class,
         ]);
     }
 }

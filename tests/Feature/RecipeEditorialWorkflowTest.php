@@ -18,14 +18,14 @@ final class RecipeEditorialWorkflowTest extends TestCase
     public function test_editorial_import_is_idempotent_and_creates_the_first_fifty_catalogue_as_verified_published_records(): void
     {
         $this->seed();
-        $this->assertSame(50, Recipe::query()->count());
+        $this->assertSame(500, Recipe::query()->count());
         $this->assertSame(50, Recipe::query()->where('status', 'published')->count());
         $this->assertSame(50, Recipe::query()->where('verification_status', 'verified')->count());
-        $this->assertSame(50, ContentSource::query()->count());
+        $this->assertSame(500, ContentSource::query()->count());
 
         $this->artisan('recipes:import-editorial --json')->assertSuccessful();
-        $this->assertSame(50, Recipe::query()->count());
-        $this->assertSame(50, ContentSource::query()->count());
+        $this->assertSame(500, Recipe::query()->count());
+        $this->assertSame(500, ContentSource::query()->count());
         $this->assertSame(0, Recipe::query()->whereNull('public_id')->count());
     }
 

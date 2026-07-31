@@ -20,11 +20,11 @@ class Recipe extends Model
     use HasPublicId;
     use SoftDeletes;
 
-    protected $fillable = ['cuisine_id', 'category_id', 'data_source_id', 'external_id', 'content_origin', 'original_hash', 'first_imported_at', 'last_verified_at', 'title', 'slug', 'excerpt', 'description', 'country', 'region', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'dietary_tags', 'allergens', 'nutrition', 'storage_notes', 'source_name', 'source_url', 'reliability_score', 'status', 'is_featured', 'verification_status', 'editorial_status', 'completeness_score', 'completeness_status', 'editorial_reviewed_at', 'editorial_reviewed_by_user_id', 'published_at', 'equipment', 'tips', 'common_mistakes', 'serving_suggestions', 'reheating_notes', 'freezing_notes', 'cultural_notes', 'seasonality', 'image_status', 'image_license', 'image_attribution', 'image_reviewed_at'];
+    protected $fillable = ['cuisine_id', 'category_id', 'content_factory_batch_id', 'data_source_id', 'external_id', 'content_origin', 'original_hash', 'first_imported_at', 'last_verified_at', 'title', 'slug', 'excerpt', 'description', 'country', 'region', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'dietary_tags', 'allergens', 'nutrition', 'storage_notes', 'source_name', 'source_url', 'reliability_score', 'status', 'is_featured', 'verification_status', 'editorial_status', 'content_factory_state', 'fact_check_required', 'completeness_score', 'completeness_status', 'editorial_reviewed_at', 'editorial_reviewed_by_user_id', 'human_approved_by_user_id', 'human_approved_at', 'published_at', 'equipment', 'tips', 'common_mistakes', 'serving_suggestions', 'reheating_notes', 'freezing_notes', 'cultural_notes', 'seasonality', 'image_status', 'image_license', 'image_attribution', 'image_reviewed_at'];
 
     protected function casts(): array
     {
-        return ['dietary_tags' => 'array', 'allergens' => 'array', 'nutrition' => 'array', 'storage_notes' => 'array', 'equipment' => 'array', 'tips' => 'array', 'common_mistakes' => 'array', 'seasonality' => 'array', 'is_featured' => 'boolean', 'editorial_reviewed_at' => 'datetime', 'published_at' => 'datetime', 'image_reviewed_at' => 'datetime'];
+        return ['dietary_tags' => 'array', 'allergens' => 'array', 'nutrition' => 'array', 'storage_notes' => 'array', 'equipment' => 'array', 'tips' => 'array', 'common_mistakes' => 'array', 'seasonality' => 'array', 'is_featured' => 'boolean', 'fact_check_required' => 'boolean', 'editorial_reviewed_at' => 'datetime', 'human_approved_at' => 'datetime', 'published_at' => 'datetime', 'image_reviewed_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Cuisine, $this> */
@@ -37,6 +37,12 @@ class Recipe extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /** @return BelongsTo<ContentFactoryBatch, $this> */
+    public function contentFactoryBatch(): BelongsTo
+    {
+        return $this->belongsTo(ContentFactoryBatch::class);
     }
 
     /** @return HasMany<RecipeIngredient, $this> */

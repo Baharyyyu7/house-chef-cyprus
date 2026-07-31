@@ -74,6 +74,12 @@
 - Recipe/Nutrition/Data Quality, cache/queue/scheduler/performance, security/media ve observability/backup/restore altyapıları tamamlandı.
 # Unreleased
 
+## Controlled Content Factory
+
+- 450 idempotent recipe draft, 180 blog draft, 36 batch ve 25 topic cluster için draft-only içerik fabrikası eklendi.
+- Teknik/orijinallik/fact-check review kayıtları, admin insan onayı ekranı, sabah özeti ve shared-hosting uyumlu scheduler sözleşmesi eklendi.
+- Otomatik yayın, doğrulama ve sahte reviewer kesin olarak kapalı tutuldu; taslakların public/API/sitemap sızıntısı test edildi.
+
 - Added recipe ingredient group management with public identifiers, transactional move/reorder controls, fallback-safe deletion and audit entries.
 - Completed the pantry household measurement selector, legacy-unit handling and canonical conversion status presentation.
 

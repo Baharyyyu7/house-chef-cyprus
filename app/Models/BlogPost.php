@@ -22,11 +22,11 @@ final class BlogPost extends Model
 {
     use HasPublicId;
 
-    protected $fillable = ['author_id', 'blog_category_id', 'hero_media_id', 'content_brief_id', 'title', 'slug', 'excerpt', 'body', 'content_purpose', 'search_intent', 'primary_keyword', 'secondary_keywords', 'source_notes', 'faq_blocks', 'status', 'fact_check_status', 'editorial_status', 'originality_status', 'freshness_class', 'scheduled_at', 'review_due_at', 'published_at', 'last_refreshed_at', 'meta_title', 'meta_description', 'canonical_url'];
+    protected $fillable = ['author_id', 'human_approved_by_user_id', 'blog_category_id', 'hero_media_id', 'content_brief_id', 'content_factory_batch_id', 'title', 'slug', 'excerpt', 'body', 'content_purpose', 'search_intent', 'primary_keyword', 'secondary_keywords', 'source_notes', 'faq_blocks', 'status', 'fact_check_status', 'editorial_status', 'content_factory_state', 'fact_check_required', 'originality_status', 'freshness_class', 'scheduled_at', 'review_due_at', 'human_approved_at', 'published_at', 'last_refreshed_at', 'meta_title', 'meta_description', 'canonical_url'];
 
     protected function casts(): array
     {
-        return ['scheduled_at' => 'datetime', 'review_due_at' => 'datetime', 'published_at' => 'datetime', 'last_refreshed_at' => 'datetime', 'secondary_keywords' => 'array', 'source_notes' => 'array', 'faq_blocks' => 'array'];
+        return ['scheduled_at' => 'datetime', 'review_due_at' => 'datetime', 'human_approved_at' => 'datetime', 'published_at' => 'datetime', 'last_refreshed_at' => 'datetime', 'fact_check_required' => 'boolean', 'secondary_keywords' => 'array', 'source_notes' => 'array', 'faq_blocks' => 'array'];
     }
 
     public function getRouteKeyName(): string
@@ -50,6 +50,12 @@ final class BlogPost extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(BlogCategory::class, 'blog_category_id');
+    }
+
+    /** @return BelongsTo<ContentFactoryBatch, $this> */
+    public function contentFactoryBatch(): BelongsTo
+    {
+        return $this->belongsTo(ContentFactoryBatch::class);
     }
 
     /** @return BelongsTo<Media, $this> */
