@@ -17,7 +17,23 @@
                 <p class="hc-body-lg mt-5 max-w-2xl text-stone-200">{{ $recipe->excerpt }}</p>
                 <div class="mt-7 flex flex-wrap gap-2">@foreach([['Hazırlık', $recipe->prep_minutes.' dk'], ['Pişirme', $recipe->cook_minutes.' dk'], ['Toplam', $recipe->totalMinutes().' dk'], ['Porsiyon', $recipe->servings], ['Zorluk', ucfirst($recipe->difficulty)]] as [$label, $value])<span class="hc-v3-badge border-white/20 bg-white/10 text-white backdrop-blur"><strong class="text-orange-200">{{ $label }}</strong> {{ $value }}</span>@endforeach</div>
                 <div class="mt-6 flex flex-wrap items-center gap-3"><span class="text-xs text-stone-300">Son editoryal kontrol: {{ $recipe->editorial_reviewed_at?->format('d.m.Y') ?: 'kayıtlı değil' }}</span>@auth<form method="post" action="{{ route('favorites.toggle', $recipe) }}">@csrf<button class="hc-v3-btn hc-v3-btn--outline border-white/20 bg-white/10 text-white hover:bg-white/20" type="submit" aria-label="{{ $recipe->title }} tarifini favorilere ekle">{{ $isFavorited ? '♥ Favoride' : '♡ Favoriye ekle' }}</button></form>@endauth</div>
-                @if($heroMedia?->unsplashAttribution())@php($unsplashCredit = $heroMedia->unsplashAttribution())<p class="mt-4 text-xs text-stone-300">Fotoğraf: @if($unsplashCredit['photographer_url'])<a class="underline" href="{{ $unsplashCredit['photographer_url'] }}" rel="noopener noreferrer" target="_blank">{{ $unsplashCredit['photographer'] }}</a>@else{{ $unsplashCredit['photographer'] }}@endif / @if($unsplashCredit['unsplash_url'])<a class="underline" href="{{ $unsplashCredit['unsplash_url'] }}" rel="noopener noreferrer" target="_blank">Unsplash</a>@else Unsplash@endif</p>@endif
+                @if($heroMedia?->unsplashAttribution())
+                    @php($unsplashCredit = $heroMedia->unsplashAttribution())
+                    <p class="mt-4 text-xs text-stone-300">
+                        Fotoğraf:
+                        @if($unsplashCredit['photographer_url'])
+                            <a class="underline" href="{{ $unsplashCredit['photographer_url'] }}" rel="noopener noreferrer" target="_blank">{{ $unsplashCredit['photographer'] }}</a>
+                        @else
+                            {{ $unsplashCredit['photographer'] }}
+                        @endif
+                        /
+                        @if($unsplashCredit['unsplash_url'])
+                            <a class="underline" href="{{ $unsplashCredit['unsplash_url'] }}" rel="noopener noreferrer" target="_blank">Unsplash</a>
+                        @else
+                            Unsplash
+                        @endif
+                    </p>
+                @endif
             </div>
             <aside class="self-end rounded-[1.5rem] border border-white/15 bg-black/30 p-5 backdrop-blur-md">
                 <p class="hc-overline text-orange-300">Tarif güvencesi</p>
