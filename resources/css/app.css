@@ -140,12 +140,12 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .hc-admin-period:hover { background:var(--hc-surface-interactive); color:var(--hc-text-primary); }
     .hc-admin-period--active { background:var(--hc-brand-primary); color:var(--hc-brand-contrast); }
     .hc-admin-metrics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
-    .hc-admin-metric { min-height:10.5rem; padding:1.15rem; }
+    .hc-admin-metric { display:flex; min-width:0; min-height:12rem; flex-direction:column; padding:1.15rem; overflow:hidden; }
     .hc-admin-metric__value { display:block; margin-top:.55rem; font-family:Manrope, sans-serif; font-size:2rem; line-height:1; letter-spacing:-.055em; color:var(--hc-text-primary); }
     .hc-admin-metric__empty { display:block; margin-top:.75rem; color:var(--hc-text-muted); font-size:.875rem; }
     .hc-admin-metric__dot { height:.55rem; width:.55rem; border-radius:999px; background:var(--hc-border-strong); }
     .hc-admin-metric__dot--available { background:var(--hc-brand-primary); box-shadow:0 0 0 4px var(--hc-brand-soft); }
-    .hc-admin-metric__footer { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:.75rem; }.hc-admin-metric__trend-label { min-width:0; text-align:right; }
+    .hc-admin-metric__footer { display:grid; grid-template-columns:minmax(0,1fr); align-items:end; gap:.45rem; margin-top:auto; }.hc-admin-metric__footer p { overflow-wrap:anywhere; }.hc-admin-metric__trend-label { min-width:0; text-align:left; }
     .hc-admin-trend { font-size:.72rem; font-weight:800; color:var(--hc-status-success); white-space:nowrap; }
     .hc-admin-trend--inverse { color:var(--hc-status-danger); }
     .hc-admin-chart__canvas { position:relative; height:15rem; }
@@ -181,8 +181,8 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
 .hc-search-focus:focus-within { border-color: #fb923c; box-shadow: 0 0 0 4px rgba(249, 115, 22, .14); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
 @media (min-width: 640px) { .hc-admin-dashboard { padding-inline:1.75rem; }.hc-admin-metrics { grid-template-columns:repeat(3,minmax(0,1fr)); }.hc-admin-system-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
-@media (min-width: 1024px) { .hc-admin-dashboard { padding-inline:2.25rem; }.hc-admin-metrics { grid-template-columns:repeat(5,minmax(0,1fr)); }.hc-admin-system-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
-@media (min-width: 1280px) { .hc-admin-metrics { grid-template-columns:repeat(5,minmax(0,1fr)); } }
+@media (min-width: 1024px) { .hc-admin-dashboard { padding-inline:2.25rem; }.hc-admin-metrics { grid-template-columns:repeat(4,minmax(0,1fr)); }.hc-admin-system-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media (min-width: 1280px) { .hc-admin-metrics { grid-template-columns:repeat(5,minmax(0,1fr)); }.hc-admin-metric { min-height:13rem; } }
 @media (max-width: 639px) { .hc-admin-page-header { align-items:flex-start; flex-direction:column; }.hc-admin-periods { width:100%; }.hc-admin-period { flex:1; text-align:center; }.hc-admin-metrics { grid-template-columns:1fr; }.hc-admin-metric { min-height:9rem; }.hc-admin-system-grid { grid-template-columns:1fr; } }
 @media (max-width: 767px) { .hc-admin-crud-page { padding-inline:1rem; }.hc-admin-crud-header { align-items:flex-start; flex-direction:column; }.hc-admin-page-actions,.hc-admin-page-actions .hc-v3-btn { width:100%; }.hc-admin-filter-bar { align-items:stretch; flex-direction:column; }.hc-admin-filter-bar > .hc-v3-btn,.hc-admin-filter-bar > a { width:100%; }.hc-admin-form-section { grid-template-columns:1fr; gap:1rem; padding:1rem; }.hc-admin-detail-grid { grid-template-columns:1fr; padding:1rem; }.hc-admin-sticky-save { align-items:stretch; flex-direction:column; bottom:.5rem; }.hc-admin-sticky-save > div,.hc-admin-sticky-save > div > * { width:100%; }.hc-admin-data-table td { white-space:normal; }.hc-admin-table-shell { padding:.7rem; } }
 @media (max-width: 767px) { .hc-admin-step-card { grid-template-columns:2.3rem minmax(0,1fr); }.hc-admin-step-card > :last-child { grid-column:1 / -1; justify-content:flex-end; } }

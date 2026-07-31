@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Services\ContentFactoryEnrichmentService;
+use App\Services\ContentFactoryFactCheckService;
 use App\Services\ContentFactoryService;
 use Illuminate\Database\Seeder;
 
@@ -14,5 +15,6 @@ final class ContentFactoryDraftSeeder extends Seeder
     {
         app(ContentFactoryService::class)->seedAll();
         app(ContentFactoryEnrichmentService::class)->enrichAll();
+        app(ContentFactoryFactCheckService::class)->triage();
     }
 }

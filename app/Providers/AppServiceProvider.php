@@ -7,6 +7,7 @@ use App\Contracts\Media\ImageGenerationProviderInterface;
 use App\Contracts\Media\MediaStorageInterface;
 use App\Contracts\Observability\ErrorReporterInterface;
 use App\Contracts\Search\RecipeSearchInterface;
+use App\Models\ContentFactoryIssue;
 use App\Models\IngredientUnitConversion;
 use App\Models\NutritionFact;
 use App\Models\Recipe;
@@ -50,6 +51,32 @@ class AppServiceProvider extends ServiceProvider
         IngredientUnitConversion::observe(IngredientUnitConversionObserver::class);
         Recipe::observe(RecipeObserver::class);
         Gate::define('access-admin', fn ($user): bool => $user->isAdmin());
+        Gate::define('access-content-factory', fn ($user): bool => $user->isContentFactoryStaff());
+        Gate::define('review-fact-check', function ($user, ?ContentFactoryIssue $issue, string $action = 'view'): bool {
+            if (! $user->isContentFactoryStaff()) {
+                return false;
+            }
+            if ($issue !== null && in_array($action, ['approve', 'reject', 'defer'], true) && $issue->reviewed_by_user_id === $user->id) {
+                return false;
+            }
+            if ($user->isAdmin() || $user->role === 'fact_check_reviewer') {
+                return true;
+            }
+            $isHighRisk = $issue !== null && in_array($issue->risk_level, ['critical', 'high'], true);
+            if ($user->role === 'content_editor') {
+                return ! $isHighRisk && in_array($action, ['view', 'note', 'request_more_source', 'revision_request'], true);
+            }
+            if ($user->role === 'seo_reviewer') {
+                return ! $isHighRisk && in_array($issue?->risk_domain, ['SEO', 'editorial'], true) && in_array($action, ['view', 'note', 'request_more_source', 'revision_request'], true);
+            }
+
+            return false;
+        });
+        Gate::define('approve-content-revision', fn ($user): bool => $user->isAdmin() || $user->role === 'fact_check_reviewer');
+        Gate::define('apply-content-revision', fn ($user): bool => $user->isAdmin());
+        Gate::define('run-duplicate-dry-run', fn ($user): bool => $user->isAdmin() || $user->role === 'fact_check_reviewer');
+        Gate::define('run-duplicate-bulk', fn ($user): bool => $user->isAdmin());
+        Gate::define('rescan-content-readiness', fn ($user): bool => $user->isAdmin());
         RateLimiter::for('ai', fn (Request $request) => Limit::perMinute(10)->by($request->user()?->id ?: $request->ip()));
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
         RateLimiter::for('registration', fn (Request $request) => Limit::perHour(5)->by($request->ip()));

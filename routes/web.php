@@ -101,11 +101,6 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::resource('blog', AdminBlogPostController::class)->parameters(['blog' => 'post'])->only(['index', 'create', 'store', 'edit', 'update']);
     Route::post('blog/{post}/yayinla', [AdminBlogPostController::class, 'publish'])->name('blog.publish');
     Route::post('blog/{post}/arsivle', [AdminBlogPostController::class, 'archive'])->name('blog.archive');
-    Route::get('icerik-fabrikasi', [ContentFactoryController::class, 'index'])->name('content-factory.index');
-    Route::get('icerik-fabrikasi/review/{review}', [ContentFactoryController::class, 'show'])->name('content-factory.reviews.show');
-    Route::post('icerik-fabrikasi/review/{review}/onayla', [ContentFactoryController::class, 'approve'])->name('content-factory.reviews.approve');
-    Route::post('icerik-fabrikasi/review/{review}/reddet', [ContentFactoryController::class, 'reject'])->name('content-factory.reviews.reject');
-    Route::post('icerik-fabrikasi/review/{review}/duzeltme-iste', [ContentFactoryController::class, 'requestRevision'])->name('content-factory.reviews.request-revision');
     Route::get('seo', [SeoOperationsController::class, 'index'])->name('seo.index');
     Route::get('seo/sorunlar', [SeoOperationsController::class, 'issues'])->name('seo.issues');
     Route::get('seo/firsatlar', [SeoOperationsController::class, 'opportunities'])->name('seo.opportunities');
@@ -202,6 +197,25 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::put('tarifler/{recipe}/adimlar/{step}', [AdminRecipeStepController::class, 'update'])->name('recipes.steps.update');
     Route::delete('tarifler/{recipe}/adimlar/{step}', [AdminRecipeStepController::class, 'destroy'])->name('recipes.steps.destroy');
     Route::post('tarifler/{recipe}/adimlar/sirala', [AdminRecipeStepController::class, 'reorder'])->name('recipes.steps.reorder');
+});
+
+Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-content-factory'])->group(function (): void {
+    Route::get('icerik-fabrikasi', [ContentFactoryController::class, 'index'])->name('content-factory.index');
+    Route::get('icerik-fabrikasi/review/{review}', [ContentFactoryController::class, 'show'])->name('content-factory.reviews.show');
+    Route::post('icerik-fabrikasi/review/{review}/onayla', [ContentFactoryController::class, 'approve'])->name('content-factory.reviews.approve');
+    Route::post('icerik-fabrikasi/review/{review}/reddet', [ContentFactoryController::class, 'reject'])->name('content-factory.reviews.reject');
+    Route::post('icerik-fabrikasi/review/{review}/duzeltme-iste', [ContentFactoryController::class, 'requestRevision'])->name('content-factory.reviews.request-revision');
+    Route::get('icerik-fabrikasi/fact-check', [ContentFactoryController::class, 'factChecks'])->name('content-factory.fact-checks.index');
+    Route::get('icerik-fabrikasi/fact-check/{issue}', [ContentFactoryController::class, 'factCheckShow'])->name('content-factory.fact-checks.show');
+    Route::post('icerik-fabrikasi/fact-check/{issue}/karar', [ContentFactoryController::class, 'factCheckAction'])->name('content-factory.fact-checks.action');
+    Route::post('icerik-fabrikasi/revision/{revision}/islem', [ContentFactoryController::class, 'revisionAction'])->name('content-factory.revisions.action');
+    Route::get('icerik-fabrikasi/duplicate-groups', [ContentFactoryController::class, 'duplicateGroups'])->name('content-factory.duplicate-groups.index');
+    Route::get('icerik-fabrikasi/duplicate-groups/{groupKey}', [ContentFactoryController::class, 'duplicateGroup'])->name('content-factory.duplicate-groups.show');
+    Route::post('icerik-fabrikasi/duplicate-groups/{groupKey}/dry-run', [ContentFactoryController::class, 'duplicateDryRun'])->name('content-factory.duplicate-groups.dry-run');
+    Route::post('icerik-fabrikasi/duplicate-runs/{run}/propose', [ContentFactoryController::class, 'duplicatePropose'])->name('content-factory.duplicate-groups.propose');
+    Route::get('icerik-fabrikasi/readiness', [ContentFactoryController::class, 'readiness'])->name('content-factory.readiness.index');
+    Route::get('icerik-fabrikasi/readiness/{batch}', [ContentFactoryController::class, 'readinessShow'])->name('content-factory.readiness.show');
+    Route::post('icerik-fabrikasi/readiness/rescan', [ContentFactoryController::class, 'readinessRescan'])->name('content-factory.readiness.rescan');
 });
 
 require __DIR__.'/auth.php';

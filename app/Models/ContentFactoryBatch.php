@@ -19,6 +19,11 @@ final class ContentFactoryBatch extends Model
         return ['distribution' => 'array', 'started_at' => 'datetime', 'finished_at' => 'datetime'];
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'public_id';
+    }
+
     /** @return HasMany<ContentFactoryReview, $this> */
     public function reviews(): HasMany
     {
