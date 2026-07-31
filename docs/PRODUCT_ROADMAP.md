@@ -9,6 +9,7 @@
 6. V1.0 Release Candidate internal closure — 50 tarif kataloğu, provider güvenliği, private medya review, blog/SEO ve production handoff belgeleri tamamlanır. Production erişimi (hosting/DNS/TLS/mail) ayrı yetki gerektirir.
 7. SEO, Blog & Content Automation — güvenli teknik SEO, editoryal workflow, içerik brief/fırsatları, refresh taslakları ve admin operasyon merkezi başlatıldı. Gerçek Search Console/IndexNow/X dağıtımı domain, yetki ve production onayı bekler.
    - Controlled Content Factory: 450 tarif ve 180 blog taslağı, insan onayı olmadan yayınlanmayacak şekilde planlandı. Bir sonraki içerik işi batch bazlı insan review, fact-check ve seçili yayın takvimidir.
+   - Content Factory Phase 2 tamamlandı: taslakların teknik/özgünlük/SEO hazırlığı ve fact-check kuyrukları oluşturuldu; seçili yayın takvimi ve gerçek insan review sıradaki kontrollü operasyondur.
 8. Dünya mutfakları editorial genişlemesi.
 9. AI Chef — Master Product Redesign programından sonra.
 9. Community.

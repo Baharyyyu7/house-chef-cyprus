@@ -49,3 +49,5 @@ Bu maddeler sağlanmadan production deploy yapılmaz. Ayrıntılı sıra [VPS de
 - [x] Drafts are excluded from public listings, API and sitemaps.
 - [x] Human approval records a real admin actor and does not publish automatically.
 - [x] `content:factory-audit --json` reports publication/verification leakage.
+- [x] Phase 2 draft enrichment writes readiness, technical/SEO/originality signals and fact-check issues without publishing or simulating an editor.
+- [ ] Fact-check çözümü, gerçek admin editoryal kararı ve seçili yayın takvimi production öncesi kontrollü içerik operasyonudur.

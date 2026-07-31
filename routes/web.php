@@ -102,8 +102,10 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('blog/{post}/yayinla', [AdminBlogPostController::class, 'publish'])->name('blog.publish');
     Route::post('blog/{post}/arsivle', [AdminBlogPostController::class, 'archive'])->name('blog.archive');
     Route::get('icerik-fabrikasi', [ContentFactoryController::class, 'index'])->name('content-factory.index');
+    Route::get('icerik-fabrikasi/review/{review}', [ContentFactoryController::class, 'show'])->name('content-factory.reviews.show');
     Route::post('icerik-fabrikasi/review/{review}/onayla', [ContentFactoryController::class, 'approve'])->name('content-factory.reviews.approve');
     Route::post('icerik-fabrikasi/review/{review}/reddet', [ContentFactoryController::class, 'reject'])->name('content-factory.reviews.reject');
+    Route::post('icerik-fabrikasi/review/{review}/duzeltme-iste', [ContentFactoryController::class, 'requestRevision'])->name('content-factory.reviews.request-revision');
     Route::get('seo', [SeoOperationsController::class, 'index'])->name('seo.index');
     Route::get('seo/sorunlar', [SeoOperationsController::class, 'issues'])->name('seo.issues');
     Route::get('seo/firsatlar', [SeoOperationsController::class, 'opportunities'])->name('seo.opportunities');

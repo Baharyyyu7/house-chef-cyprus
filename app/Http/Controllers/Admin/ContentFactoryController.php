@@ -8,16 +8,18 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\BlogPost;
 use App\Models\ContentFactoryBatch;
+use App\Models\ContentFactoryIssue;
 use App\Models\ContentFactoryReview;
 use App\Models\ContentTopicCluster;
 use App\Models\Recipe;
+use App\Services\ContentFactoryEnrichmentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 final class ContentFactoryController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, ContentFactoryEnrichmentService $enrichment): View
     {
         $this->admin();
         $reviews = ContentFactoryReview::query()->with('batch')->when($request->filled('type'), fn ($query) => $query->where('content_type', $request->string('type')->toString()))->when($request->filled('stage'), fn ($query) => $query->where('stage', $request->string('stage')->toString()))->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))->latest()->paginate(25)->withQueryString();
@@ -32,7 +34,23 @@ final class ContentFactoryController extends Controller
             'clusters' => ContentTopicCluster::query()->count(),
             'waiting' => ContentFactoryReview::query()->where('status', 'pending')->count(),
             'failed' => ContentFactoryReview::query()->whereIn('status', ['failed', 'rejected'])->count(),
+            'metrics' => $enrichment->audit(),
+            'factCheckIssues' => ContentFactoryIssue::query()->where('status', 'pending')->count(),
             'reviews' => $reviews,
+        ]);
+    }
+
+    public function show(ContentFactoryReview $review): View
+    {
+        $this->admin();
+        $entity = $this->entity($review);
+        abort_if($entity === null, 404);
+
+        return view('admin.content-factory.show', [
+            'review' => $review->load('batch', 'reviewer'),
+            'entity' => $entity,
+            'reviews' => ContentFactoryReview::query()->where('entity_type', $review->entity_type)->where('entity_public_id', $review->entity_public_id)->get(),
+            'issues' => ContentFactoryIssue::query()->where('entity_type', $review->entity_type)->where('entity_public_id', $review->entity_public_id)->orderByDesc('risk_level')->get(),
         ]);
     }
 
@@ -57,13 +75,27 @@ final class ContentFactoryController extends Controller
     {
         $this->admin();
         abort_unless($review->stage === 'human_review', 422, 'Bu aşama insan reddi için uygun değildir.');
-        $review->update(['status' => 'rejected', 'reviewed_by_user_id' => auth()->id(), 'reviewed_at' => now()]);
+        $review->update(['status' => 'rejected', 'editorial_comment' => request()->string('comment')->trim()->toString() ?: null, 'reviewed_by_user_id' => auth()->id(), 'reviewed_at' => now()]);
         if ($entity = $this->entity($review)) {
             $entity->forceFill(['content_factory_state' => 'rejected', 'editorial_status' => 'editorial_failed'])->save();
             AuditLog::query()->create(['user_id' => auth()->id(), 'action' => 'content_factory.rejected', 'auditable_type' => $review->entity_type, 'auditable_id' => $entity->id, 'metadata' => ['review_public_id' => $review->public_id, 'entity_public_id' => $review->entity_public_id]]);
         }
 
         return back()->with('status', 'Taslak reddedildi; otomatik yayın yapılmadı.');
+    }
+
+    public function requestRevision(Request $request, ContentFactoryReview $review): RedirectResponse
+    {
+        $this->admin();
+        abort_unless($review->stage === 'human_review', 422, 'Bu aşama düzeltme istemi için uygun değildir.');
+        $data = $request->validate(['comment' => ['required', 'string', 'min:10', 'max:3000']]);
+        $review->update(['status' => 'revision_requested', 'editorial_comment' => $data['comment'], 'reviewed_by_user_id' => auth()->id(), 'reviewed_at' => now()]);
+        if ($entity = $this->entity($review)) {
+            $entity->forceFill(['content_factory_state' => 'revision_requested', 'editorial_status' => 'revision_requested'])->save();
+            $this->audit('content_factory.revision_requested', $review, $entity);
+        }
+
+        return back()->with('status', 'Düzeltme istemi kaydedildi. İçerik taslak olarak kaldı.');
     }
 
     private function entity(ContentFactoryReview $review): Recipe|BlogPost|null
@@ -78,5 +110,10 @@ final class ContentFactoryController extends Controller
     private function admin(): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
+    }
+
+    private function audit(string $action, ContentFactoryReview $review, Recipe|BlogPost $entity): void
+    {
+        AuditLog::query()->create(['user_id' => auth()->id(), 'action' => $action, 'auditable_type' => $review->entity_type, 'auditable_id' => $entity->id, 'metadata' => ['review_public_id' => $review->public_id, 'entity_public_id' => $review->entity_public_id, 'auto_publish' => false]]);
     }
 }

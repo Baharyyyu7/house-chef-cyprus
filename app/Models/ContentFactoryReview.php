@@ -12,7 +12,7 @@ final class ContentFactoryReview extends Model
 {
     use HasPublicId;
 
-    protected $fillable = ['content_factory_batch_id', 'content_type', 'entity_type', 'entity_public_id', 'stage', 'status', 'fact_check_required', 'findings', 'reviewed_by_user_id', 'reviewed_at'];
+    protected $fillable = ['content_factory_batch_id', 'content_type', 'entity_type', 'entity_public_id', 'stage', 'status', 'fact_check_required', 'findings', 'editorial_comment', 'reviewed_by_user_id', 'reviewed_at'];
 
     protected function casts(): array
     {
