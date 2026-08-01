@@ -4,6 +4,10 @@
 
 Domain/VPS geldikten sonra uygulanacak güvenli operasyon sırası: [Go-live runbook](docs/GO_LIVE_RUNBOOK.md). Staging sözleşmesi, VPS şablonları, storage/Redis/PHP-FPM ve post-deploy smoke rehberleri `docs/` altında bulunur. Bu repository gerçek deploy veya DNS değişikliği yapmaz.
 
+## Real Media Excellence
+
+Medya adayları private review zincirinden geçer; yalnız lisans, attribution ve bağımsız insan onayı tamamlanmış `approved_real_media` kayıtları public recipe/blog yüzeyleri, schema ve image sitemap için uygundur. Branded fallback gerçek fotoğraf değildir. Operasyon komutları ve kuralları için [Milestone D](docs/MILESTONE_D_MEDIA_EXCELLENCE.md) belgesine bakın.
+
 Türkçe tarif, malzeme dolabı, beslenme ve veri kalitesi platformu. `visual-redesign-v2` dalındaki katalog; 50 `published`/`verified` tarif ve 20 yayımlı blogun yanında, insan onayı bekleyen 450 tarif ve 180 blog taslağını içerir. Controlled Content Factory taslakları public API, sitemap ve listelere sızdırmaz; otomatik yayın kapalıdır. Phase 4 [editoryal operasyonlar](docs/EDITORIAL_OPERATIONS_ARCHITECTURE.md), review batch’leri ve kanıt hazırlık kuyruklarını insan kararının yerine geçmeden yönetir.
 
 ## Yerelde başlatma

@@ -13,7 +13,7 @@ final class RecipeMediaCandidate extends Model
     use HasPublicId;
 
     protected $fillable = [
-        'recipe_id', 'provider', 'external_photo_id', 'review_batch', 'rank', 'review_score',
+        'recipe_id', 'provider', 'external_photo_id', 'review_batch', 'rank', 'review_score', 'fidelity_status', 'fidelity_confidence', 'fidelity_reasons', 'license_status', 'attribution_status', 'fidelity_scanned_at',
         'score_breakdown', 'review_warnings', 'status', 'rejection_code', 'rejection_reason',
         'photographer', 'photographer_url', 'pexels_page_url', 'source_url', 'alt_text', 'width',
         'height', 'provider_metadata', 'description', 'alt_description', 'external_page_url', 'download_location',
@@ -25,7 +25,7 @@ final class RecipeMediaCandidate extends Model
     {
         return [
             'score_breakdown' => 'array', 'review_warnings' => 'array', 'provider_metadata' => 'array',
-            'scanned_at' => 'datetime', 'selected_at' => 'datetime', 'download_tracked_at' => 'datetime',
+            'scanned_at' => 'datetime', 'selected_at' => 'datetime', 'download_tracked_at' => 'datetime', 'fidelity_scanned_at' => 'datetime', 'fidelity_reasons' => 'array',
         ];
     }
 

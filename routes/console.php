@@ -14,6 +14,11 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('data_quality_sc
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('cache_warm_lookups', fn () => Artisan::call('cache:warm', ['--section' => 'lookups'])))->name('cache_warm_lookups')->daily()->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_cleanup_temporary', fn () => Artisan::call('media:cleanup-temporary', ['--delete' => true])))->name('media_cleanup_temporary')->daily()->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_scan_orphans', fn () => Artisan::call('media:scan-orphans')))->name('media_scan_orphans')->daily()->withoutOverlapping();
+// These are bounded review-preparation tasks. They never select, approve or publish media.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_fidelity_scan', fn () => Artisan::call('media:fidelity-scan', ['--limit' => 25])))->name('media_fidelity_scan')->dailyAt('06:35')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_license_audit', fn () => Artisan::call('media:license-audit', ['--limit' => 100])))->name('media_license_audit')->dailyAt('06:40')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_attribution_audit', fn () => Artisan::call('media:attribution-audit', ['--limit' => 100])))->name('media_attribution_audit')->dailyAt('06:45')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_morning_brief', fn () => Artisan::call('media:morning-brief')))->name('media_morning_brief')->dailyAt('07:00')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('health_snapshot', fn () => app(HealthService::class)->snapshot()))->name('health_snapshot')->hourly()->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('backup_cleanup', fn () => Artisan::call('backup:cleanup')))->name('backup_cleanup')->daily()->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('logs_cleanup', fn () => Artisan::call('logs:cleanup')))->name('logs_cleanup')->daily()->withoutOverlapping();

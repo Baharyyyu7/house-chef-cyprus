@@ -54,6 +54,8 @@ Mevcut unique constraint'ler tekrarlanmaz.
 # Media operations fields
 
 `media` includes a public ULID, visibility, alt text, dimensions, processing/thumbnail statuses, thumbnail path JSON, safe processing error fields and processing timestamp. `mediable` remains a polymorphic relation to Recipe and Ingredient (and future content types).
+
+Milestone D adds explicit media state, fidelity/confidence/reasons, licence and attribution review state, responsive derivative metadata, reviewer relation and health scan version fields. `recipe_media_candidates` retains provider-separated private candidate metadata plus fidelity/review state. These fields do not imply publication: only approved public real media is SEO eligible.
 # Foundation E notu
 
 SQLite şeması Laravel migration’larıyla oluşturulur; temiz kurulum kalite kapısı migration/seed ve ikinci seed çalıştırır. Ayrıntılı taşınabilirlik denetimi için [database portability](docs/DATABASE_PORTABILITY.md) belgesine bakın.

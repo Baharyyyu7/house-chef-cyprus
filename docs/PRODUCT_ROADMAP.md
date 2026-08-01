@@ -1,6 +1,10 @@
 # Ürün Yol Haritası
 
-## Aktif Production Programı — Milestone C SEO Authority
+## Aktif Production Programı — Milestone D Real Media Excellence
+
+Milestone D, mevcut Pexels/Unsplash private review zincirini genişleterek gerçek medya envanteri, fidelity/lisans/attribution denetimleri, responsive varyasyonlar ve yalnız onaylı gerçek medya için schema/OG/image-sitemap kapısını kapsar. Gerçek katalog kapsaması insan editoryal review ile ilerler; sistem otomatik public etme, sahte medya veya sahte onay üretmez.
+
+## Completed Production Programı — Milestone C SEO Authority
 
 Milestone C, production SEO Authority mimarisini kapsar: gerçek semantic entity ilişkileri, insan-kürasyonlu topic clusters, yayın güvenli internal link önerileri, canonical/meta/schema korumaları, image sitemap, idempotent SEO audit ve gerçek katalog sayımlarına dayalı sağlık görünürlüğü. Sistem; arama sıralaması, trafik, backlink, rating veya uzmanlık iddiası üretmez. Search Console ve diğer sağlayıcılar açık onay, domain doğrulaması, gizlilik ve kaynak sözleşmeleri olmadan etkinleştirilmez.
 

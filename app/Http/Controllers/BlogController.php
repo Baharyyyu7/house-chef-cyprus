@@ -35,7 +35,7 @@ final class BlogController extends Controller
             ->limit(3)
             ->get();
 
-        $schema = $schemaService->article($post, $post->heroMedia?->publicUrl() ?: '');
+        $schema = $schemaService->article($post, $post->heroMedia?->isApprovedRealMedia() ? ($post->heroMedia->publicUrl() ?: '') : '');
 
         $metadata = $seo->for($post, $post->meta_title ?: $post->title.' · House Chef Cyprus', $post->meta_description ?: $post->excerpt, route('blog.show', $post));
 

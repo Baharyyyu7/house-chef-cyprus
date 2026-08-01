@@ -76,21 +76,23 @@ final class PexelsCandidateMediaService
         }
 
         $sourceUrl = (string) $candidate['source_url'];
-        $host = parse_url($sourceUrl, PHP_URL_HOST);
-        if (! is_string($host) || ! Str::endsWith(Str::lower($host), '.pexels.com') || ! Str::startsWith($sourceUrl, 'https://')) {
+        $host = strtolower((string) parse_url($sourceUrl, PHP_URL_HOST));
+        $allowedHosts = (array) config('media_excellence.allowed_remote_hosts', []);
+        if (! Str::startsWith($sourceUrl, 'https://') || ! in_array($host, $allowedHosts, true)) {
             throw ValidationException::withMessages(['candidate' => 'Görsel kaynağı izin verilen Pexels hostuna ait değil.']);
         }
 
         try {
             $response = Http::accept('image/avif,image/webp,image/jpeg,image/png,image/*')
                 ->timeout(15)
+                ->withoutRedirecting()
                 ->get($sourceUrl);
         } catch (\Throwable) {
             throw ValidationException::withMessages(['candidate' => 'Pexels görseli güvenli süre içinde indirilemedi.']);
         }
 
         $bytes = $response->body();
-        $maxBytes = max(1, (int) config('security.max_upload_bytes'));
+        $maxBytes = max(1, min((int) config('security.max_upload_bytes'), (int) config('media_excellence.max_download_bytes')));
         if (! $response->successful() || $bytes === '' || strlen($bytes) > $maxBytes || ! Str::startsWith((string) $response->header('Content-Type'), 'image/')) {
             throw ValidationException::withMessages(['candidate' => 'Pexels görseli dosya türü veya boyut politikasına uymuyor.']);
         }
@@ -102,11 +104,17 @@ final class PexelsCandidateMediaService
 
         try {
             file_put_contents($temp, $bytes);
-            $mime = (string) $response->header('Content-Type');
-            $extension = match ($mime) {
-                'image/png' => 'png',
-                'image/webp' => 'webp',
-                default => 'jpg',
+            $imageData = @getimagesize($temp);
+            if (! is_array($imageData)) {
+                throw ValidationException::withMessages(['candidate' => 'Pexels görselinin içerik imzası doğrulanamadı.']);
+            }
+            $mime = $imageData['mime'];
+            $imageType = $imageData[2];
+            $extension = match ($imageType) {
+                IMAGETYPE_PNG => 'png',
+                IMAGETYPE_WEBP => 'webp',
+                IMAGETYPE_JPEG => 'jpg',
+                default => throw ValidationException::withMessages(['candidate' => 'Pexels görselinin içerik imzası desteklenmiyor.']),
             };
             $upload = new UploadedFile($temp, 'pexels-'.$externalPhotoId.'.'.$extension, $mime, null, true);
             $stored = $this->storage->storeImage($upload, 'media/pexels-review', 'private');
@@ -128,6 +136,11 @@ final class PexelsCandidateMediaService
             'size' => $stored['size'],
             'sort_order' => 99,
             'visibility' => 'private',
+            'media_status' => 'candidate_private',
+            'fidelity_status' => 'pending',
+            'license_review_status' => 'pending_human_review',
+            'attribution_review_status' => 'pending_human_review',
+            'optimization_status' => 'not_requested',
             'alt_text' => $this->safeAltText($recipe, (string) $candidate['alt_text']),
             'width' => $stored['width'],
             'height' => $stored['height'],
@@ -160,6 +173,9 @@ final class PexelsCandidateMediaService
 
     public function approve(Media $media, User $reviewer, string $altText, ?string $notes = null): void
     {
+        abort_if($reviewer->isSystemReviewer(), 403, 'Sistem hesabı medya onayı veremez.');
+        $selectedBy = RecipeMediaCandidate::query()->where('media_id', $media->id)->value('selected_by_user_id');
+        abort_if($selectedBy !== null && (int) $selectedBy === (int) $reviewer->id, 403, 'Aynı editör seçtiği adayı final olarak onaylayamaz.');
         abort_unless($media->source_name === 'Pexels' && $media->visibility === 'private' && $media->verification_status === 'pending_review', 422, 'Bu Pexels adayı onay için uygun değil.');
         abort_unless(is_string($media->path) && Storage::disk($media->disk)->exists($media->path), 422, 'Private Pexels dosyası bulunamadı.');
         $recipe = $media->mediable;
@@ -173,6 +189,10 @@ final class PexelsCandidateMediaService
             'disk' => 'public', 'path' => $publicPath, 'visibility' => 'public', 'sort_order' => 0,
             'alt_text' => $altText, 'processing_status' => 'pending', 'thumbnail_status' => 'pending',
             'verification_status' => 'verified', 'confidence' => 90, 'reviewed_at' => now(),
+            'media_status' => 'approved_real_media', 'fidelity_status' => 'strong_match', 'fidelity_confidence' => 90,
+            'license_review_status' => 'approved', 'attribution_review_status' => 'approved', 'optimization_status' => 'pending',
+            'media_reviewer_user_id' => $reviewer->id, 'media_reviewed_at' => now(), 'license_reviewed_at' => now(), 'attribution_reviewed_at' => now(),
+            'health_scanned_at' => now(), 'health_rule_version' => config('media_excellence.health_rule_version'),
             'approved_by_user_id' => $reviewer->id, 'approved_at' => now(),
             'provider_metadata' => array_merge((array) $media->provider_metadata, ['source_status' => 'approved_public', 'review_notes' => $notes]),
         ]);

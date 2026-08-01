@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## Milestone D — Real Media Excellence
+
+- Added a production media inventory, health score and safe morning brief based only on persisted recipe/blog media records.
+- Added private candidate fidelity, license, attribution and duplicate operational checks without automatic selection, approval or publication.
+- Restricted recipe/article public media, schema and image sitemap eligibility to human-approved, licensed and attributed real media; AI output remains explicitly distinct.
+- Added idempotent responsive media optimization for approved local assets and an admin Media Operations inventory surface.
+
 - Milestone C SEO Authority: kanıta dayalı SEO health özeti, genişletilmiş idempotent audit kuralları, güvenli canonical davranışı, Recipe/Article + Breadcrumb JSON-LD graphları ve production SEO mimari dokümantasyonu eklendi. Bu değişiklik sıralama, trafik, backlink, yorum veya editoryal onay iddiası üretmez.
 
 - Milestone B Production Transition: kullanıcıya görünen beta/demo dili denetimi, production bilgi sayfaları, 500 tarif/200 blog için ayrı kalite profilleri, audit’li graduation kapıları, production içerik merkezi ve release-state sözleşmesi eklendi. Bu katman otomatik onay veya yayın yapmaz; açık fact-check backlog’u insan incelemesi olarak korunur.
@@ -83,6 +90,12 @@
 
 - Recipe/Nutrition/Data Quality, cache/queue/scheduler/performance, security/media ve observability/backup/restore altyapıları tamamlandı.
 # Unreleased
+
+## Milestone D — Real Media Excellence
+
+- Production media inventory, health and morning-brief commands now report actual recipe/blog coverage without treating branded fallbacks or AI output as real photography.
+- Added private-review fidelity, licence, attribution, duplicate and responsive-derivative operational controls; public schema, OG and image sitemaps accept only human-approved licensed real media.
+- Added bounded shared-hosting media audit/optimisation scheduling, media-operations dashboard, provider-safe health summaries and independent final-approval protections.
 
 ## Controlled Content Factory
 

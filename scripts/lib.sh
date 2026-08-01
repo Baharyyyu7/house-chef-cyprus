@@ -11,6 +11,7 @@ LOG_DIR="$PROJECT_ROOT/storage/logs"
 APP_PORT="${HOUSE_CHEF_PORT:-8010}"
 
 php_bin() { command -v php >/dev/null 2>&1 && command -v php || printf '%s\n' "$HOME/.config/herd-lite/bin/php"; }
+composer_bin() { command -v composer >/dev/null 2>&1 && command -v composer || printf '%s\n' "$HOME/.config/herd-lite/bin/composer"; }
 ensure_runtime() { mkdir -p "$RUNTIME_DIR" "$LOG_DIR"; }
 pid_running() { [[ -f "$1" ]] && kill -0 "$(cat "$1")" 2>/dev/null; }
 remove_stale_pid() { [[ -f "$1" ]] && ! pid_running "$1" && rm -f "$1"; }

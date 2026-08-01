@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\FailedJobController;
 use App\Http\Controllers\Admin\IngredientController as AdminIngredientController;
 use App\Http\Controllers\Admin\MeasurementController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
+use App\Http\Controllers\Admin\MediaOperationsController;
 use App\Http\Controllers\Admin\NutritionController as AdminNutritionController;
 use App\Http\Controllers\Admin\ProductionContentController;
 use App\Http\Controllers\Admin\RecipeController as AdminRecipeController;
@@ -70,6 +71,12 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::post('/pisir/{cookingSession}/adimlar/{step}/zamanlayici', [CookingSessionController::class, 'createTimer'])->name('cooking-sessions.timers.create');
     Route::post('/pisir/{cookingSession}/zamanlayicilar/{timer}/duraklat', [CookingSessionController::class, 'pauseTimer'])->name('cooking-sessions.timers.pause');
     Route::post('/pisir/{cookingSession}/zamanlayicilar/{timer}/devam', [CookingSessionController::class, 'resumeTimer'])->name('cooking-sessions.timers.resume');
+});
+
+Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-media-operations'])->group(function (): void {
+    Route::get('medya-operasyonlari', [MediaOperationsController::class, 'index'])->name('media-operations.index');
+    Route::post('medya-operasyonlari/adaylar/{candidate:public_id}/sec', [MediaOperationsController::class, 'selectCandidate'])->name('media-operations.candidates.select');
+    Route::post('medya-operasyonlari/adaylar/{candidate:public_id}/reddet', [MediaOperationsController::class, 'rejectCandidate'])->name('media-operations.candidates.reject');
 });
 
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {

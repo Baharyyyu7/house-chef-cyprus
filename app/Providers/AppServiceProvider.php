@@ -9,9 +9,11 @@ use App\Contracts\Search\RecipeSearchInterface;
 use App\Models\ContentFactoryIssue;
 use App\Models\EditorialReviewPack;
 use App\Models\IngredientUnitConversion;
+use App\Models\Media;
 use App\Models\NutritionFact;
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
+use App\Models\RecipeMediaCandidate;
 use App\Observers\IngredientUnitConversionObserver;
 use App\Observers\NutritionFactObserver;
 use App\Observers\RecipeIngredientObserver;
@@ -49,6 +51,21 @@ class AppServiceProvider extends ServiceProvider
         IngredientUnitConversion::observe(IngredientUnitConversionObserver::class);
         Recipe::observe(RecipeObserver::class);
         Gate::define('access-admin', fn ($user): bool => $user->isAdmin());
+        Gate::define('access-media-operations', fn ($user): bool => in_array($user->role, ['admin', 'media_reviewer'], true) && ! $user->isSystemReviewer());
+        Gate::define('review-media-candidate', fn ($user): bool => in_array($user->role, ['admin', 'media_reviewer'], true) && ! $user->isSystemReviewer());
+        Gate::define('approve-media-final', function ($user, Media|RecipeMediaCandidate|null $subject = null): bool {
+            if ($user->isSystemReviewer() || (! $user->isAdmin() && ! ($user->role === 'media_reviewer' && (bool) config('media_excellence.approval.media_reviewer_can_final_approve')))) {
+                return false;
+            }
+            $selectedBy = $subject instanceof RecipeMediaCandidate
+                ? $subject->selected_by_user_id
+                : ($subject instanceof Media ? RecipeMediaCandidate::query()->where('media_id', $subject->id)->value('selected_by_user_id') : null);
+
+            return $selectedBy === null || (int) $selectedBy !== (int) $user->id;
+        });
+        Gate::define('select-media-candidate', fn ($user, RecipeMediaCandidate $candidate): bool => in_array($user->role, ['admin', 'media_reviewer'], true) && ! $user->isSystemReviewer() && $candidate->status === 'pending_review');
+        Gate::define('manage-media-license', fn ($user): bool => in_array($user->role, ['admin', 'media_reviewer'], true) && ! $user->isSystemReviewer());
+        Gate::define('review-media-seo', fn ($user): bool => in_array($user->role, ['admin', 'media_reviewer', 'seo_reviewer'], true) && ! $user->isSystemReviewer());
         Gate::define('access-content-factory', fn ($user): bool => $user->isContentFactoryStaff());
         Gate::define('review-fact-check', function ($user, ?ContentFactoryIssue $issue, string $action = 'view'): bool {
             if (! $user->isContentFactoryStaff()) {

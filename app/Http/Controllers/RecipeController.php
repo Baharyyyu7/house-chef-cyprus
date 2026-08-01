@@ -51,7 +51,7 @@ final class RecipeController extends Controller
 
         $nutritionResult = $nutrition->snapshot($recipe, $servings);
 
-        $heroMedia = $recipe->media->first(fn ($media) => $media->verification_status !== 'rejected');
+        $heroMedia = $recipe->media->first(fn ($media) => $media->isApprovedRealMedia());
         $schema = $schemaService->recipe($recipe, collect($ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings))->pluck('formatted')->values()->all(), $heroMedia?->publicUrl() ?: '');
 
         return view('recipes.show', [

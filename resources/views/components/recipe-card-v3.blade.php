@@ -1,7 +1,7 @@
 @props(['recipe', 'showFavorite' => true])
 
 @php
-    $media = $recipe->media->first(fn ($item) => $item->verification_status !== 'rejected');
+    $media = $recipe->media->first(fn ($item) => $item->isApprovedRealMedia());
     $placeholderIndex = (hexdec(substr(hash('sha256', (string) ($recipe->public_id ?: $recipe->slug)), 0, 6)) % 8) + 1;
     $imagePath = $media?->publicUrl() ?: asset("placeholders/{$placeholderIndex}/recipe.svg");
     $alt = $media?->alt_text ?: $recipe->title.' için temsili tarif görseli';

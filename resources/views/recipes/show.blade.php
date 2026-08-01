@@ -1,13 +1,13 @@
 <x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$seoImage" :structured-data="$seoSchema">
     @php
-        $heroMedia = $recipe->media->first(fn ($media) => $media->verification_status !== 'rejected');
+        $heroMedia = $recipe->media->first(fn ($media) => $media->isApprovedRealMedia());
         $heroPlaceholderIndex = (hexdec(substr(hash('sha256', (string) ($recipe->public_id ?: $recipe->slug)), 0, 6)) % 8) + 1;
         $heroImagePath = $heroMedia?->publicUrl() ?: asset("placeholders/{$heroPlaceholderIndex}/recipe.svg");
         $heroImageSrc = $heroMedia?->responsiveUrl(1600) ?: $heroImagePath;
     @endphp
 
     <section class="hc-recipe-detail-hero relative isolate overflow-hidden bg-charcoal-950 text-white">
-        <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-70" src="{{ $heroImageSrc }}" @if($heroMedia?->isApprovedUnsplash()) srcset="{{ $heroMedia->responsiveUrl(768) }} 768w, {{ $heroMedia->responsiveUrl(1280) }} 1280w, {{ $heroMedia->responsiveUrl(1600) }} 1600w" sizes="100vw" width="{{ $heroMedia->width }}" height="{{ $heroMedia->height }}" @endif alt="" aria-hidden="true" fetchpriority="high">
+        <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-70" src="{{ $heroImageSrc }}" @if($heroMedia?->isApprovedRealMedia() && $heroMedia->responsiveSrcset([768, 1280, 1600])) srcset="{{ $heroMedia->responsiveSrcset([768, 1280, 1600]) }}" sizes="100vw" width="{{ $heroMedia->width }}" height="{{ $heroMedia->height }}" @endif alt="" aria-hidden="true" fetchpriority="high">
         <div class="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(10,16,13,.97)_0%,rgba(10,16,13,.82)_48%,rgba(10,16,13,.25)_100%)]"></div>
         <div class="hc-container grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_19rem] lg:py-20">
             <div class="max-w-3xl">
@@ -33,6 +33,8 @@
                             Unsplash
                         @endif
                     </p>
+                @elseif($heroMedia?->attribution)
+                    <p class="mt-4 text-xs text-stone-300">{{ $heroMedia->attribution }}</p>
                 @endif
             </div>
             <aside class="self-end rounded-[1.5rem] border border-white/15 bg-black/30 p-5 backdrop-blur-md">

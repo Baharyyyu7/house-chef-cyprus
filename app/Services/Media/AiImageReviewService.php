@@ -24,6 +24,11 @@ final class AiImageReviewService
         $media->update([
             'disk' => 'public', 'path' => $publicPath, 'visibility' => 'public', 'sort_order' => 0,
             'verification_status' => 'verified', 'confidence' => 90, 'reviewed_at' => now(),
+            // AI output can be reviewed and published, but must never be represented as a licensed real photograph.
+            'media_status' => 'approved_ai_media', 'fidelity_status' => 'strong_match', 'fidelity_confidence' => 90,
+            'license_review_status' => 'approved', 'attribution_review_status' => 'approved', 'optimization_status' => 'pending',
+            'media_reviewer_user_id' => $reviewer->id, 'media_reviewed_at' => now(), 'license_reviewed_at' => now(), 'attribution_reviewed_at' => now(),
+            'health_scanned_at' => now(), 'health_rule_version' => config('media_excellence.health_rule_version'),
             'ai_review_status' => 'approved', 'approved_by_user_id' => $reviewer->id, 'approved_at' => now(),
             'provider_metadata' => array_merge((array) $media->provider_metadata, ['storage' => 'public_after_manual_review']),
         ]);

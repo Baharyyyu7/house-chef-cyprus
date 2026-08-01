@@ -19,6 +19,8 @@
 
 - [ ] Unsplash medyası yalnız insan onayından sonra, izinli CDN hotlink’i ve görünür fotoğrafçı/Unsplash attribution ile kullanılmalıdır.
 - [ ] Download tracking yalnız final bağlama anında bir kez kaydedilmelidir; arama ve render bunu tetiklemez.
+- [x] Milestone D envanter, private import sınırı, fidelity/lisans/attribution review durumları, duplicate kuyrukları ve responsive derivative sözleşmesini uygular.
+- [ ] Gerçek fotoğraf coverage’i insan editoryal seçim kuyruğunda kalır; branded fallback gerçek medya olarak sayılmaz.
 
 Bu kontrol listesi yalnız `visual-redesign-v2` dalındaki kod hazırlığını tanımlar; production yayını, DNS veya ücretli görsel üretimi başlatmaz.
 
