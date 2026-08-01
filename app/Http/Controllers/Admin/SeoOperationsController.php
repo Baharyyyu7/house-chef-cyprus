@@ -11,6 +11,7 @@ use App\Models\ContentOpportunity;
 use App\Models\SeoIssue;
 use App\Services\Seo\ContentGapService;
 use App\Services\Seo\SeoAuditService;
+use App\Services\Seo\SeoAuthorityService;
 use App\Services\Seo\SeoProviderHealthService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ use Illuminate\View\View;
 
 final class SeoOperationsController extends Controller
 {
-    public function index(): View
+    public function index(SeoAuthorityService $authority): View
     {
         $this->admin();
 
@@ -28,7 +29,8 @@ final class SeoOperationsController extends Controller
             'briefs' => ContentBrief::query()->latest()->limit(5)->get(),
             'postsAwaitingReview' => BlogPost::query()->whereIn('editorial_status', ['draft', 'in_review', 'pending'])->count(),
             'providerHealth' => app(SeoProviderHealthService::class)->snapshot(),
-            'score' => $this->score(),
+            'score' => $authority->snapshot()['score'],
+            'authority' => $authority->snapshot(),
         ]);
     }
 
@@ -77,15 +79,6 @@ final class SeoOperationsController extends Controller
         $issue->update(['resolved_at' => null, 'reopened_at' => now()]);
 
         return back()->with('status', 'SEO sorunu yeniden açıldı.');
-    }
-
-    private function score(): int
-    {
-        $penalty = SeoIssue::query()->whereNull('resolved_at')->get()->sum(fn (SeoIssue $issue): int => match ($issue->severity) {
-            'critical' => 20, 'error' => 10, 'warning' => 4, default => 1
-        });
-
-        return max(0, 100 - min(100, $penalty));
     }
 
     private function admin(): void

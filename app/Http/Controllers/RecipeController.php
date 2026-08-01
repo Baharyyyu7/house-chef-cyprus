@@ -16,6 +16,7 @@ use App\Services\IngredientMatchingService;
 use App\Services\Measurements\RecipeIngredientDisplayService;
 use App\Services\NutritionService;
 use App\Services\Seo\SeoMetadataService;
+use App\Services\Seo\SeoSchemaService;
 use App\Services\Seo\ZeroResultSearchService;
 use Illuminate\Http\Request;
 
@@ -42,7 +43,7 @@ final class RecipeController extends Controller
         ]);
     }
 
-    public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, SeoMetadataService $seo)
+    public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, SeoMetadataService $seo, SeoSchemaService $schemaService)
     {
         abort_unless(($recipe->status === 'published' && $recipe->verification_status === 'verified') || $request->user()?->isAdmin(), 404);
         $recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient', 'recipeIngredients.group', 'steps', 'media' => fn ($query) => $query->where('visibility', 'public'), 'provenances.contentSource']);
@@ -51,20 +52,7 @@ final class RecipeController extends Controller
         $nutritionResult = $nutrition->snapshot($recipe, $servings);
 
         $heroMedia = $recipe->media->first(fn ($media) => $media->verification_status !== 'rejected');
-        $schema = [
-            '@context' => 'https://schema.org', '@type' => 'Recipe', 'name' => $recipe->title,
-            'description' => $recipe->excerpt ?: $recipe->description,
-            'url' => route('recipes.show', $recipe),
-            'recipeCuisine' => $recipe->cuisine?->name,
-            'recipeCategory' => $recipe->category?->name,
-            'prepTime' => 'PT'.$recipe->prep_minutes.'M', 'cookTime' => 'PT'.$recipe->cook_minutes.'M',
-            'totalTime' => 'PT'.$recipe->totalMinutes().'M', 'recipeYield' => $recipe->servings.' porsiyon',
-            'recipeIngredient' => collect($ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings))->pluck('formatted')->values()->all(),
-            'recipeInstructions' => $recipe->steps->map(fn ($step): array => ['@type' => 'HowToStep', 'name' => $step->title, 'text' => $step->instruction])->values()->all(),
-        ];
-        if ($heroMedia?->publicUrl()) {
-            $schema['image'] = [$heroMedia->publicUrl()];
-        }
+        $schema = $schemaService->recipe($recipe, collect($ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings))->pluck('formatted')->values()->all(), $heroMedia?->publicUrl() ?: '');
 
         return view('recipes.show', [
             'recipe' => $recipe,

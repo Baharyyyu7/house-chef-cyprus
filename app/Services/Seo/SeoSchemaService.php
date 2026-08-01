@@ -1,0 +1,67 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services\Seo;
+
+use App\Models\BlogPost;
+use App\Models\Recipe;
+
+/** Builds schemas from already-public, visible editorial data only. */
+final class SeoSchemaService
+{
+    /** @return array<string,mixed> */
+    public function recipe(Recipe $recipe, array $ingredients, string $imageUrl = ''): array
+    {
+        $recipeNode = [
+            '@type' => 'Recipe', 'name' => $recipe->title,
+            'description' => $recipe->excerpt ?: $recipe->description,
+            'url' => route('recipes.show', $recipe),
+            'recipeCuisine' => $recipe->cuisine?->name,
+            'recipeCategory' => $recipe->category?->name,
+            'prepTime' => 'PT'.$recipe->prep_minutes.'M', 'cookTime' => 'PT'.$recipe->cook_minutes.'M',
+            'totalTime' => 'PT'.$recipe->totalMinutes().'M', 'recipeYield' => $recipe->servings.' porsiyon',
+            'recipeIngredient' => $ingredients,
+            'recipeInstructions' => $recipe->steps->map(fn ($step): array => ['@type' => 'HowToStep', 'name' => $step->title, 'text' => $step->instruction])->values()->all(),
+        ];
+        if ($imageUrl !== '') {
+            $recipeNode['image'] = [$imageUrl];
+        }
+
+        return $this->graph($recipeNode, [
+            ['name' => 'Ana Sayfa', 'url' => route('home')],
+            ['name' => 'Tarifler', 'url' => route('recipes.index')],
+            ['name' => $recipe->title, 'url' => route('recipes.show', $recipe)],
+        ]);
+    }
+
+    /** @return array<string,mixed> */
+    public function article(BlogPost $post, string $imageUrl = ''): array
+    {
+        $article = ['@type' => 'Article', 'headline' => $post->title, 'description' => $post->excerpt, 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => ['@type' => 'Organization', 'name' => 'House Chef Cyprus']];
+        if ($imageUrl !== '') {
+            $article['image'] = [$imageUrl];
+        }
+        $graph = $this->graph($article, [
+            ['name' => 'Ana Sayfa', 'url' => route('home')],
+            ['name' => 'Blog', 'url' => route('blog.index')],
+            ['name' => $post->title, 'url' => route('blog.show', $post)],
+        ]);
+        $faqBlocks = $post->getAttribute('faq_blocks');
+        $questions = collect(is_array($faqBlocks) ? $faqBlocks : [])->filter(fn (mixed $faq): bool => is_array($faq) && filled($faq['question'] ?? null) && filled($faq['answer'] ?? null))->map(fn (array $faq): array => ['@type' => 'Question', 'name' => $faq['question'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq['answer']]])->values()->all();
+        if ($questions !== []) {
+            $graph['@graph'][] = ['@type' => 'FAQPage', 'mainEntity' => $questions];
+        }
+
+        return $graph;
+    }
+
+    /** @param array<string,mixed> $node @param list<array{name:string,url:string}> $crumbs @return array<string,mixed> */
+    private function graph(array $node, array $crumbs): array
+    {
+        return ['@context' => 'https://schema.org', '@graph' => [$node, [
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => collect($crumbs)->values()->map(fn (array $crumb, int $index): array => ['@type' => 'ListItem', 'position' => $index + 1, 'name' => $crumb['name'], 'item' => $crumb['url']])->all(),
+        ]]];
+    }
+}

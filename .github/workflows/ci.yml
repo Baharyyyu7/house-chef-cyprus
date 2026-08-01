@@ -28,7 +28,7 @@ jobs:
       - run: php artisan migrate:fresh --seed
       - run: php artisan db:seed
       - run: npm run build
-      - run: php artisan test
+      - run: php -d memory_limit=512M artisan test
       - run: ./vendor/bin/pint --test
       - run: ./vendor/bin/phpstan analyse --memory-limit=1G
       - run: php artisan api:openapi-check

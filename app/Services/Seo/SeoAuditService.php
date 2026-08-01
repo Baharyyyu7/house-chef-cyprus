@@ -7,6 +7,7 @@ namespace App\Services\Seo;
 use App\Models\BlogPost;
 use App\Models\Recipe;
 use App\Models\SeoIssue;
+use App\Models\SeoMetadata;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -21,6 +22,9 @@ final class SeoAuditService
         }
         if (in_array($scope, ['all', 'technical', 'schema'], true)) {
             $this->inspectRecipes($detected);
+        }
+        if (in_array($scope, ['all', 'technical'], true)) {
+            $this->inspectMetadata($detected);
         }
 
         $created = 0;
@@ -51,6 +55,12 @@ final class SeoAuditService
             if ($post->status === 'published' && ($post->editorial_status !== 'approved' || $post->fact_check_status !== 'passed' || $post->originality_status !== 'passed')) {
                 $this->add($detected, 'content', 'error', $post, route('blog.show', $post), 'Yayınlanan blog yazısı editoryal kalite kapısından geçmemiş.', 'blog_publish_guard');
             }
+            if ($post->status === 'published' && $post->editorial_status === 'approved' && $post->fact_check_status === 'passed' && $post->originality_status === 'passed' && mb_strlen(trim((string) $post->body)) < (int) config('seo.audit.minimum_article_characters', 300)) {
+                $this->add($detected, 'content', 'warning', $post, route('blog.show', $post), 'Yayınlanan blog yazısı, ince içerik incelemesi için yeterli metin uzunluğuna ulaşmıyor.', 'blog_thin_content');
+            }
+            if ($post->status === 'published' && $post->editorial_status === 'approved' && $post->fact_check_status === 'passed' && $post->originality_status === 'passed' && $post->recipes()->count() === 0) {
+                $this->add($detected, 'content', 'info', $post, route('blog.show', $post), 'Blog yazısında ilgili doğrulanmış tarif bağlantısı bulunmuyor.', 'blog_missing_internal_recipe_link');
+            }
         });
         BlogPost::query()->selectRaw('meta_title, COUNT(*) as aggregate')->whereNotNull('meta_title')->groupBy('meta_title')->having('aggregate', '>', 1)->each(function (BlogPost $post) use (&$detected): void {
             $detected[] = $this->issue('technical', 'warning', null, null, null, 'Aynı SEO başlığı birden fazla blog yazısında kullanılıyor.', 'duplicate_blog_title:'.$post->meta_title, ['field' => 'meta_title']);
@@ -64,6 +74,34 @@ final class SeoAuditService
             if ($recipe->media()->where('visibility', 'public')->count() === 0) {
                 $this->add($detected, 'schema', 'warning', $recipe, route('recipes.show', $recipe), 'Tarif için doğrulanmış public görsel bulunmuyor; image schema gönderilmemeli.', 'recipe_missing_public_image');
             }
+            if (mb_strlen(trim((string) ($recipe->description ?: $recipe->excerpt))) < (int) config('seo.audit.minimum_recipe_description_characters', 120)) {
+                $this->add($detected, 'content', 'warning', $recipe, route('recipes.show', $recipe), 'Tarif açıklaması, kullanıcıya yeterli bağlam sağlamak için ince içerik incelemesine ihtiyaç duyuyor.', 'recipe_thin_description');
+            }
+            $recipe->media()->where('visibility', 'public')->where('verification_status', 'verified')->where(fn ($query) => $query->whereNull('alt_text')->orWhere('alt_text', ''))->each(function ($media) use (&$detected, $recipe): void {
+                $this->add($detected, 'schema', 'warning', $recipe, route('recipes.show', $recipe), 'Public tarif görseli açıklayıcı alternatif metin içermiyor.', 'recipe_media_missing_alt:'.$media->getKey());
+            });
+        });
+    }
+
+    /** @param list<array<string,mixed>> $detected */
+    private function inspectMetadata(array &$detected): void
+    {
+        SeoMetadata::query()->whereNotNull('canonical_override')->where('canonical_override', '!=', '')->each(function (SeoMetadata $metadata) use (&$detected): void {
+            $entity = $metadata->seoable;
+            if (! $entity instanceof Recipe && ! $entity instanceof BlogPost) {
+                return;
+            }
+            $expected = $entity instanceof Recipe ? route('recipes.show', $entity) : route('blog.show', $entity);
+            if (rtrim((string) $metadata->canonical_override, '/') !== rtrim($expected, '/')) {
+                $this->add($detected, 'technical', 'warning', $entity, $expected, 'Canonical override, public URL ile eşleşmiyor; editoryal doğrulama gerekli.', 'canonical_conflict');
+            }
+        });
+
+        SeoMetadata::query()->selectRaw('meta_title, COUNT(*) as aggregate')->whereNotNull('meta_title')->where('meta_title', '!=', '')->groupBy('meta_title')->having('aggregate', '>', 1)->each(function (SeoMetadata $metadata) use (&$detected): void {
+            $detected[] = $this->issue('technical', 'warning', null, null, null, 'Aynı SEO başlığı birden fazla içerikte kullanılıyor.', 'duplicate_metadata_title:'.$metadata->meta_title, ['field' => 'meta_title']);
+        });
+        SeoMetadata::query()->selectRaw('meta_description, COUNT(*) as aggregate')->whereNotNull('meta_description')->where('meta_description', '!=', '')->groupBy('meta_description')->having('aggregate', '>', 1)->each(function (SeoMetadata $metadata) use (&$detected): void {
+            $detected[] = $this->issue('technical', 'warning', null, null, null, 'Aynı SEO açıklaması birden fazla içerikte kullanılıyor.', 'duplicate_metadata_description:'.$metadata->meta_description, ['field' => 'meta_description']);
         });
     }
 

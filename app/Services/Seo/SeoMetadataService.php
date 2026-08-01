@@ -17,11 +17,13 @@ final class SeoMetadataService
         /** @var SeoMetadata|null $metadata */
         $metadata = $entity->relationLoaded('seoMetadata') ? $entity->getRelation('seoMetadata') : $entity->seoMetadata()->first();
 
+        $candidateCanonical = is_string($metadata?->canonical_override) ? $metadata->canonical_override : null;
+
         return [
             'title' => Str::limit((string) ($metadata?->meta_title ?: $fallbackTitle), 70, ''),
             'description' => Str::limit((string) ($metadata?->meta_description ?: $fallbackDescription ?: ''), 160, ''),
-            'canonical' => $metadata?->canonical_override ?: $canonical,
-            'robots' => $metadata?->robots ?: $defaultRobots,
+            'canonical' => $this->safeCanonical($candidateCanonical, $canonical),
+            'robots' => config('seo.indexing_enabled') ? ($metadata?->robots ?: $defaultRobots) : 'noindex,nofollow',
         ];
     }
 
@@ -32,5 +34,16 @@ final class SeoMetadataService
         $metadata = $entity->seoMetadata()->updateOrCreate([], $attributes);
 
         return $metadata;
+    }
+
+    private function safeCanonical(?string $candidate, string $fallback): string
+    {
+        if ($candidate === null || $candidate === '') {
+            return $fallback;
+        }
+        $candidateHost = parse_url($candidate, PHP_URL_HOST);
+        $applicationHost = parse_url(url('/'), PHP_URL_HOST);
+
+        return is_string($candidateHost) && is_string($applicationHost) && hash_equals($applicationHost, $candidateHost) ? $candidate : $fallback;
     }
 }

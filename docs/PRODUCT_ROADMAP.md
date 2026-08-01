@@ -1,6 +1,10 @@
 # Ürün Yol Haritası
 
-## Aktif Production Programı — Milestone B
+## Aktif Production Programı — Milestone C SEO Authority
+
+Milestone C, production SEO Authority mimarisini kapsar: gerçek semantic entity ilişkileri, insan-kürasyonlu topic clusters, yayın güvenli internal link önerileri, canonical/meta/schema korumaları, image sitemap, idempotent SEO audit ve gerçek katalog sayımlarına dayalı sağlık görünürlüğü. Sistem; arama sıralaması, trafik, backlink, rating veya uzmanlık iddiası üretmez. Search Console ve diğer sağlayıcılar açık onay, domain doğrulaması, gizlilik ve kaynak sözleşmeleri olmadan etkinleştirilmez.
+
+## Completed Production Programı — Milestone B
 
 Production Transition; beta/demo dili denetimini, production bilgi mimarisini, gerçek kalite profillerini, audit’li recipe/blog graduation geçişlerini, insan onayı kapılarını ve dürüst media/SEO/release-state kurallarını kapsar. Açık fact-check konuları insan inceleme operasyon backlog’udur; otomatik olarak kapanmaz veya yayın kapısını açmaz.
 

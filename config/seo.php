@@ -17,6 +17,8 @@ return [
         'max_internal_links_per_document' => 8,
         'duplicate_title_limit' => 70,
         'duplicate_description_limit' => 160,
+        'minimum_article_characters' => (int) env('SEO_MINIMUM_ARTICLE_CHARACTERS', 300),
+        'minimum_recipe_description_characters' => (int) env('SEO_MINIMUM_RECIPE_DESCRIPTION_CHARACTERS', 120),
     ],
     'search_console' => [
         'enabled' => (bool) env('GOOGLE_SEARCH_CONSOLE_ENABLED', env('SEARCH_CONSOLE_ENABLED', false)),

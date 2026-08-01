@@ -10,7 +10,6 @@ use App\Models\User;
 use App\Services\Media\PexelsCandidateMediaService;
 use App\Services\Media\PexelsEditorialReviewService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -43,8 +42,8 @@ final class PexelsEditorialReviewTest extends TestCase
         $member = User::factory()->create(['role' => 'member']);
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $this->actingAs($member)->post(route('admin.ai-image-studio.pexels-candidates.select', $candidate))->assertForbidden();
-        $this->actingAs($admin)->post(route('admin.ai-image-studio.pexels-candidates.select', $candidate))->assertRedirect();
+        $this->actingAs($member)->withSession(['_token' => 'test-csrf'])->post(route('admin.ai-image-studio.pexels-candidates.select', $candidate), ['_token' => 'test-csrf'])->assertForbidden();
+        $this->actingAs($admin)->withSession(['_token' => 'test-csrf'])->post(route('admin.ai-image-studio.pexels-candidates.select', $candidate), ['_token' => 'test-csrf'])->assertRedirect();
 
         $candidate->refresh();
         $this->assertSame('selected_for_review', $candidate->status);
@@ -59,7 +58,7 @@ final class PexelsEditorialReviewTest extends TestCase
         $this->candidate($recipe, 'review-99', 25);
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $this->actingAs($admin)->post(route('admin.ai-image-studio.pexels-candidates.keep-fallback', $recipe))->assertRedirect();
+        $this->actingAs($admin)->withSession(['_token' => 'test-csrf'])->post(route('admin.ai-image-studio.pexels-candidates.keep-fallback', $recipe), ['_token' => 'test-csrf'])->assertRedirect();
 
         $this->assertDatabaseHas('recipe_media_candidates', ['recipe_id' => $recipe->id, 'status' => 'fallback_kept']);
         $this->assertSame('needs_real_media', $recipe->fresh()->image_status);
@@ -134,8 +133,9 @@ final class PexelsEditorialReviewTest extends TestCase
             'photographer' => 'Editoryal test',
             'pexels_page_url' => 'https://www.pexels.com/photo/stored-photo',
         ]);
-        $image = UploadedFile::fake()->image('candidate.jpg', 1600, 900);
-        $bytes = (string) file_get_contents((string) $image->getRealPath());
+        // A valid 1×1 JPEG avoids allocating a GD bitmap in an already large
+        // integration suite; import semantics do not depend on dimensions.
+        $bytes = (string) base64_decode('/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2NjIpLCBxdWFsaXR5ID0gOTAK/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgAAQABAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A/KqiiigD/9k=');
         Http::fake(['images.pexels.com/*' => Http::response($bytes, 200, ['Content-Type' => 'image/jpeg'])]);
 
         $media = app(PexelsCandidateMediaService::class)->importStoredCandidate($candidate->load('recipe'));
@@ -154,7 +154,7 @@ final class PexelsEditorialReviewTest extends TestCase
         $this->candidate($recipe, 'two', 70, ['rank' => 2]);
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $this->actingAs($admin)->post(route('admin.ai-image-studio.pexels-candidates.reject-all', $recipe))->assertRedirect();
+        $this->actingAs($admin)->withSession(['_token' => 'test-csrf'])->post(route('admin.ai-image-studio.pexels-candidates.reject-all', $recipe), ['_token' => 'test-csrf'])->assertRedirect();
 
         $this->assertSame(2, RecipeMediaCandidate::query()->where('recipe_id', $recipe->id)->where('status', 'rejected')->count());
         $this->assertDatabaseHas('audit_logs', ['action' => 'pexels_editorial_candidate.all_rejected']);

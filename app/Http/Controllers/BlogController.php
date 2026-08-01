@@ -8,6 +8,7 @@ use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\BlogTag;
 use App\Services\Seo\SeoMetadataService;
+use App\Services\Seo\SeoSchemaService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -22,7 +23,7 @@ final class BlogController extends Controller
         return view('blog.index', ['posts' => $posts, 'title' => 'Blog · House Chef Cyprus']);
     }
 
-    public function show(BlogPost $post, SeoMetadataService $seo): View
+    public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService): View
     {
         abort_unless(BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists(), 404);
         $post->load(['category', 'tags', 'heroMedia', 'author', 'recipes.media']);
@@ -34,10 +35,7 @@ final class BlogController extends Controller
             ->limit(3)
             ->get();
 
-        $schema = ['@context' => 'https://schema.org', '@type' => 'Article', 'headline' => $post->title, 'description' => $post->excerpt, 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => ['@type' => 'Organization', 'name' => 'House Chef Cyprus']];
-        if ($post->heroMedia?->publicUrl()) {
-            $schema['image'] = [$post->heroMedia->publicUrl()];
-        }
+        $schema = $schemaService->article($post, $post->heroMedia?->publicUrl() ?: '');
 
         $metadata = $seo->for($post, $post->meta_title ?: $post->title.' · House Chef Cyprus', $post->meta_description ?: $post->excerpt, route('blog.show', $post));
 
