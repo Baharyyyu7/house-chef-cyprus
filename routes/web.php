@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
 use App\Http\Controllers\Admin\ContentFactoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataQualityController;
+use App\Http\Controllers\Admin\EditorialOperationsController;
 use App\Http\Controllers\Admin\FailedJobController;
 use App\Http\Controllers\Admin\IngredientController as AdminIngredientController;
 use App\Http\Controllers\Admin\MeasurementController;
@@ -216,6 +217,23 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::get('icerik-fabrikasi/readiness', [ContentFactoryController::class, 'readiness'])->name('content-factory.readiness.index');
     Route::get('icerik-fabrikasi/readiness/{batch}', [ContentFactoryController::class, 'readinessShow'])->name('content-factory.readiness.show');
     Route::post('icerik-fabrikasi/readiness/rescan', [ContentFactoryController::class, 'readinessRescan'])->name('content-factory.readiness.rescan');
+
+    Route::get('editorial-operasyonlar', [EditorialOperationsController::class, 'index'])->name('editorial-operations.index');
+    Route::post('editorial-operasyonlar/yenile', [EditorialOperationsController::class, 'refresh'])->name('editorial-operations.refresh');
+    Route::get('editorial-operasyonlar/batchler', [EditorialOperationsController::class, 'batches'])->name('editorial-operations.batches.index');
+    Route::get('editorial-operasyonlar/batchler/{batch}', [EditorialOperationsController::class, 'batch'])->name('editorial-operations.batches.show');
+    Route::post('editorial-operasyonlar/batchler/{batch}/ata', [EditorialOperationsController::class, 'assignBatch'])->name('editorial-operations.batches.assign');
+    Route::get('editorial-operasyonlar/kaynak-kuyrugu', [EditorialOperationsController::class, 'sources'])->name('editorial-operations.sources.index');
+    Route::get('editorial-operasyonlar/kaynak-kuyrugu/{item}', [EditorialOperationsController::class, 'source'])->name('editorial-operations.sources.show');
+    Route::put('editorial-operasyonlar/kaynak-kuyrugu/{item}', [EditorialOperationsController::class, 'saveSource'])->name('editorial-operations.sources.update');
+    Route::post('editorial-operasyonlar/kaynak-kuyrugu/{item}/ata', [EditorialOperationsController::class, 'assignSource'])->name('editorial-operations.sources.assign');
+    Route::get('editorial-operasyonlar/review-paketleri', [EditorialOperationsController::class, 'packs'])->name('editorial-operations.packs.index');
+    Route::get('editorial-operasyonlar/review-paketleri/{pack}', [EditorialOperationsController::class, 'pack'])->name('editorial-operations.packs.show');
+    Route::post('editorial-operasyonlar/review-paketleri/{pack}/bolum', [EditorialOperationsController::class, 'section'])->name('editorial-operations.packs.section');
+    Route::post('editorial-operasyonlar/review-paketleri/{pack}/ata', [EditorialOperationsController::class, 'assignPack'])->name('editorial-operations.packs.assign');
+    Route::get('editorial-operasyonlar/final-onay', [EditorialOperationsController::class, 'finalApprovals'])->name('editorial-operations.final-approvals');
+    Route::get('editorial-operasyonlar/medya', [EditorialOperationsController::class, 'media'])->name('editorial-operations.media');
+    Route::get('editorial-operasyonlar/reviewer-is-yuku', [EditorialOperationsController::class, 'workload'])->name('editorial-operations.workload');
 });
 
 require __DIR__.'/auth.php';

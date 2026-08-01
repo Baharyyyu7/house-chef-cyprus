@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Content Factory Phase 4: fact-check review batch’leri, kaynak araştırma kuyruğu, 450 tarif/180 blog editoryal review paketi, final insan onayı görünürlüğü, gerçek medya hazırlığı ve reviewer iş yükü operasyonları eklendi. Bu katman otomatik approve, verify, schedule veya publish yapmaz.
+
+## Unreleased
+
 - Content Factory Phase 2: 450 tarif ve 180 blog taslağı, yayın korumaları değiştirilmeden özgün editoryal içerik, teknik/SEO kontrolleri, readiness skoru ve 2.340 insan fact-check konusu ile zenginleştirildi. Otomatik yayın, doğrulama ve sahte insan incelemesi yapılmaz.
 
 - V1.0 Release Candidate operasyon paketi: VPS/Nginx, queue/scheduler, TLS/Cloudflare, mail, monitoring, post-deploy smoke, rollback, production security ve dürüst data/media/SEO/browser QA raporları eklendi. Kod otomatik deploy, DNS değişikliği, ücretli provider çağrısı veya onaysız medya yayını yapmaz.

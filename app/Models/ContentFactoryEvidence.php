@@ -12,6 +12,8 @@ final class ContentFactoryEvidence extends Model
 {
     use HasPublicId;
 
+    protected $table = 'content_factory_evidences';
+
     protected $fillable = ['content_factory_issue_id', 'title', 'publisher', 'url', 'published_at', 'accessed_at', 'source_type', 'trust_level', 'supported_claim', 'confidence_score', 'conflicting_evidence', 'freshness_requirement', 'review_status', 'summary', 'usage_note'];
 
     protected function casts(): array

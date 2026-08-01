@@ -55,7 +55,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function isContentFactoryStaff(): bool
     {
-        return in_array($this->role, ['admin', 'fact_check_reviewer', 'content_editor', 'seo_reviewer'], true) && ! $this->isSystemReviewer();
+        return in_array($this->role, ['admin', 'fact_check_reviewer', 'content_editor', 'seo_reviewer', 'media_reviewer'], true) && ! $this->isSystemReviewer();
     }
 
     public function isSystemReviewer(): bool

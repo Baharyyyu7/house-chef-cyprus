@@ -12,6 +12,7 @@
         ],
         'SEO & İçerik' => [
             ['route' => 'admin.content-factory.index', 'label' => 'İçerik Fabrikası', 'icon' => 'sparkles'],
+            ['route' => 'admin.editorial-operations.index', 'label' => 'Editoryal Operasyonlar', 'icon' => 'check'],
             ['route' => 'admin.seo.index', 'label' => 'SEO Operasyonları', 'icon' => 'search'],
             ['route' => 'admin.blog.index', 'label' => 'Blog Yazıları', 'icon' => 'menu'],
         ],

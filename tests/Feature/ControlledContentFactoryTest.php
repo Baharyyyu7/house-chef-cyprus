@@ -8,6 +8,7 @@ use App\Models\BlogPost;
 use App\Models\ContentFactoryBatch;
 use App\Models\ContentFactoryReview;
 use App\Models\ContentTopicCluster;
+use App\Models\EditorialReviewPack;
 use App\Models\Recipe;
 use App\Models\User;
 use App\Services\ContentFactoryService;
@@ -67,6 +68,9 @@ final class ControlledContentFactoryTest extends TestCase
         $member = User::factory()->create(['role' => 'member', 'email_verified_at' => now()]);
 
         $this->actingAs($member)->post(route('admin.content-factory.reviews.approve', $review))->assertForbidden();
+        $this->actingAs($admin)->post(route('admin.content-factory.reviews.approve', $review))->assertStatus(422);
+        $this->assertSame('pending', $review->fresh()->status);
+        EditorialReviewPack::query()->where('entity_type', Recipe::class)->where('entity_public_id', $review->entity_public_id)->update(['status' => 'ready_for_final_human_approval', 'blocking_reasons' => []]);
         $this->actingAs($admin)->post(route('admin.content-factory.reviews.approve', $review))->assertRedirect();
         $review->refresh();
         $recipe = Recipe::query()->where('public_id', $review->entity_public_id)->firstOrFail();

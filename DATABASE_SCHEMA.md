@@ -72,4 +72,12 @@ Foundation A–E kapatıldı; production hedef veritabanı seçildiğinde MySQL/
 
 # Controlled Content Factory
 
+## Editorial operations (Phase 4)
+
+- `editorial_review_batches`: en fazla 50 konuluk insan fact-check çalışma paketleri.
+- `editorial_review_batch_issue`: her issue’nin tek operasyon batch’iyle idempotent eşlemesi.
+- `source_research_queue_items`: telif güvenli source/evidence hazırlık iş kayıtları.
+- `editorial_review_packs`: tarif/blog taslaklarının read-only editoryal hazırlık snapshot’ları.
+- `editorial_review_sections`: bölüm bazlı insan kararları; audit ile birlikte yayın durumundan ayrıdır.
+
 `content_factory_batches` tarif/blog batch ilerlemesini, `content_factory_reviews` teknik/fact-check/özgünlük ve gerçek insan review kaydını, `content_topic_clusters` planlanan pillar kümelerini saklar. `recipes` ve `blog_posts` üzerindeki `content_factory_batch_id`, `content_factory_state`, `fact_check_required`, `human_approved_*` alanları draft workflow içindir. Bunlar yayın veya doğrulama garantisi değildir.

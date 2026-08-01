@@ -13,6 +13,7 @@ use App\Models\ContentFactoryIssue;
 use App\Models\ContentFactoryReview;
 use App\Models\ContentFactoryRevision;
 use App\Models\ContentTopicCluster;
+use App\Models\EditorialReviewPack;
 use App\Models\Recipe;
 use App\Services\ContentFactoryBatchReadinessService;
 use App\Services\ContentFactoryDuplicateGroupService;
@@ -179,12 +180,14 @@ final class ContentFactoryController extends Controller
 
     public function approve(ContentFactoryReview $review): RedirectResponse
     {
-        $this->admin();
+        abort_unless(auth()->user()?->can('final-content-approval'), 403);
         abort_unless($review->stage === 'human_review', 422, 'Bu aşama insan onayı için uygun değildir.');
         $entity = $this->entity($review);
         if ($entity === null) {
             return back()->with('error', 'İlgili taslak bulunamadı; güvenli olarak onaylanmadı.');
         }
+        $pack = EditorialReviewPack::query()->where('entity_type', $review->entity_type)->where('entity_public_id', $review->entity_public_id)->first();
+        abort_unless($pack?->status === 'ready_for_final_human_approval', 422, 'Final insan onayı için tüm zorunlu editoryal kapılar tamamlanmalıdır.');
         if ($review->status !== 'human_approved') {
             $review->update(['status' => 'human_approved', 'reviewed_by_user_id' => auth()->id(), 'reviewed_at' => now()]);
             $entity->forceFill(['content_factory_state' => 'human_approved', 'human_approved_by_user_id' => auth()->id(), 'human_approved_at' => now()])->save();

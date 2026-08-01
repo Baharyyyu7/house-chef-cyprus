@@ -57,6 +57,9 @@ final class ContentFactoryFactCheckService
             'current_text' => $issue->claim,
             'recommended_change' => 'Kaynak doğrulaması tamamlanana kadar kesin iddiayı taslak/koşullu ifade olarak koruyun.',
             'confidence' => $issue->confidence_score,
+            // This is a triage aid, not a cited source. Only an explicitly
+            // saved source reference may mark an item evidence-ready.
+            'source_reference_ready' => false,
             'human_decision_required' => true,
             'publication_impact' => 'Bu konu çözülmeden içerik verified, scheduled veya published olmaz.',
             'bulk_applicable' => $issue->group_key !== null,

@@ -44,6 +44,14 @@ Bu kontrol listesi yalnız `visual-redesign-v2` dalındaki kod hazırlığını 
 Bu maddeler sağlanmadan production deploy yapılmaz. Ayrıntılı sıra [VPS deployment rehberinde](VPS_DEPLOYMENT_GUIDE.md), [Nginx örneğinde](NGINX_CONFIGURATION.md), [post-deploy smoke testinde](POST_DEPLOY_SMOKE_TEST.md) ve [rollback planında](ROLLBACK_PLAN.md) yer alır. Main merge ve release tag bu RC kapanışında yapılmaz.
 # Controlled Content Factory release guard
 
+## Phase 4 editorial operations guard
+
+- Review batch, evidence ve review pack kayıtları yayın kararı değildir.
+- Seed/system reviewer atanamaz; member editorial operasyon route’larına erişemez.
+- Critical/high konular insan kararı olmadan kapanmaz.
+- Final human approval, ayrı publish işleminden bağımsızdır.
+- Onaysız gerçek medya public schema, sitemap veya OG içinde gerçek medya olarak gösterilmez.
+
 - [x] 50 verified/published recipes and 20 published blog posts remain the public baseline.
 - [x] 450 recipe and 180 blog records are draft-only, with 18 batches each and 25 topic clusters.
 - [x] Drafts are excluded from public listings, API and sitemaps.

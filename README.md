@@ -4,7 +4,7 @@
 
 Domain/VPS geldikten sonra uygulanacak güvenli operasyon sırası: [Go-live runbook](docs/GO_LIVE_RUNBOOK.md). Staging sözleşmesi, VPS şablonları, storage/Redis/PHP-FPM ve post-deploy smoke rehberleri `docs/` altında bulunur. Bu repository gerçek deploy veya DNS değişikliği yapmaz.
 
-Türkçe tarif, malzeme dolabı, beslenme ve veri kalitesi platformu. `visual-redesign-v2` dalındaki katalog; 50 `published`/`verified` tarif ve 20 yayımlı blogun yanında, insan onayı bekleyen 450 tarif ve 180 blog taslağını içerir. Controlled Content Factory taslakları public API, sitemap ve listelere sızdırmaz; otomatik yayın kapalıdır. [İçerik Fabrikası mimarisi](docs/CONTENT_FACTORY_ARCHITECTURE.md) ve [insan onayı](docs/HUMAN_EDITORIAL_APPROVAL.md) operasyon sözleşmesini açıklar.
+Türkçe tarif, malzeme dolabı, beslenme ve veri kalitesi platformu. `visual-redesign-v2` dalındaki katalog; 50 `published`/`verified` tarif ve 20 yayımlı blogun yanında, insan onayı bekleyen 450 tarif ve 180 blog taslağını içerir. Controlled Content Factory taslakları public API, sitemap ve listelere sızdırmaz; otomatik yayın kapalıdır. Phase 4 [editoryal operasyonlar](docs/EDITORIAL_OPERATIONS_ARCHITECTURE.md), review batch’leri ve kanıt hazırlık kuyruklarını insan kararının yerine geçmeden yönetir.
 
 ## Yerelde başlatma
 
