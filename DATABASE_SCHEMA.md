@@ -81,3 +81,8 @@ Foundation A–E kapatıldı; production hedef veritabanı seçildiğinde MySQL/
 - `editorial_review_sections`: bölüm bazlı insan kararları; audit ile birlikte yayın durumundan ayrıdır.
 
 `content_factory_batches` tarif/blog batch ilerlemesini, `content_factory_reviews` teknik/fact-check/özgünlük ve gerçek insan review kaydını, `content_topic_clusters` planlanan pillar kümelerini saklar. `recipes` ve `blog_posts` üzerindeki `content_factory_batch_id`, `content_factory_state`, `fact_check_required`, `human_approved_*` alanları draft workflow içindir. Bunlar yayın veya doğrulama garantisi değildir.
+
+## Production content operations
+
+- `content_quality_profiles`: Recipe veya BlogPost public kimliği için teknik, editoryal, fact-check, kaynak, ölçü/nutrition/allergen/dietary, medya, SEO, erişilebilirlik, final approval ve publication durumlarını; readiness score/cap, rule version, son tarama, blocker ve güvenli metadata’yı tutar. Entity kimliği internal ID değil public ID ile eşlenir.
+- `production_release_states`: Ortamın beta olmayan release state’ini, mevcut olduğu ölçüde son CI/smoke/backup/migration/content-health zamanlarını ve production blocker özetini tutar. Monitoring sağlayıcısı olmayan alanlar sentetik metrikle doldurulmaz.

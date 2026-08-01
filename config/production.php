@@ -3,9 +3,15 @@
 declare(strict_types=1);
 
 return [
-    // Explicitly false in real production. It exists only for isolated test
-    // harnesses that exercise the strict contract without a MySQL/PostgreSQL server.
-    'allow_sqlite' => (bool) env('ALLOW_SQLITE_PRODUCTION', false),
-    'backup_disk' => env('BACKUP_DISK'),
-    'trusted_proxies' => env('TRUSTED_PROXIES'),
+    'release_states' => ['development', 'local_qa', 'staging_ready', 'staging', 'production_ready', 'production', 'maintenance'],
+    'readiness_rule_version' => 'production-readiness-v1',
+    'monitoring' => [
+        'provider_status' => env('MONITORING_PROVIDER_ENABLED', false) ? 'configured' : 'connection_pending',
+        'fake_metrics_allowed' => false,
+    ],
+    'editorial' => [
+        'auto_publish' => false,
+        'human_approval_required' => true,
+        'branded_fallback_is_real_media' => false,
+    ],
 ];

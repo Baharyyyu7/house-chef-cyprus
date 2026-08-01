@@ -2,6 +2,14 @@
 
 ## RC kapanış karar çerçevesi
 
+## Milestone B production içerik kapıları
+
+- [x] Public/admin kullanıcı dili `app:production-language-audit` ile denetlenir.
+- [x] Tarif ve blog quality profile’ları readiness rule version ve son tarama zamanı ile tutulur.
+- [x] Human approval ayrı audit’li aksiyondur; otomatik publish kapalıdır.
+- [x] Branded fallback gerçek medya sayılmaz ve readiness üst sınırı uygulanır.
+- [ ] 2.340 fact-check konusu gerçek insan kaynak/inceleme operasyonuyla tamamlanacaktır.
+
 - [x] Katalog, public/member/admin feature testleri, API/OpenAPI, güvenlik başlıkları, queue/scheduler, backup/restore komutları ve production build CI'da doğrulanır.
 - [x] Deployment, Nginx, queue/scheduler, TLS/Cloudflare, mail, monitoring, smoke ve rollback prosedürleri dokümante edilmiştir.
 - [ ] Gerçek production domain/DNS/TLS, VPS, database/Redis, mail sender, off-server backup hedefi ve monitoring secrets yetkili operatör tarafından sağlanacaktır.

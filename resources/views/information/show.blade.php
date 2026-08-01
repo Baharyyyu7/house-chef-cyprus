@@ -1,6 +1,7 @@
 <x-layouts.site :title="$page['title'].' · House Chef Cyprus'" :meta-description="$page['lead']" :canonical-url="url()->current()" :structured-data="$schema">
     <section class="hc-container py-12 sm:py-16">
         <div class="max-w-3xl">
+            <nav aria-label="Sayfa yolu" class="text-sm text-muted"><a class="hover:text-orange-600" href="{{ route('home') }}">Ana sayfa</a><span class="mx-2" aria-hidden="true">/</span><span aria-current="page">{{ $page['title'] }}</span></nav>
             <p class="hc-kicker">{{ $page['eyebrow'] }}</p>
             <h1 class="hc-title mt-3">{{ $page['title'] }}</h1>
             <p class="hc-subtitle mt-5">{{ $page['lead'] }}</p>

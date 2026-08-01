@@ -71,12 +71,52 @@ final class InformationPageController extends Controller
                 ['title' => 'Düzeltmeler', 'body' => 'Hata bildirimi veya iç denetim sonrasında tarif incelemeye alınabilir; değişiklik geçmişi ve kaynak bağlamı silinmez.'],
             ],
         ],
-        'gorsel-ve-kaynak-politikasi' => [
-            'title' => 'Görsel ve Kaynak Politikası', 'eyebrow' => 'Şeffaf medya',
+        'kaynak-ve-veri-guven-politikasi' => [
+            'title' => 'Kaynak ve Veri Güven Politikası', 'eyebrow' => 'İzlenebilir bilgi',
+            'lead' => 'Kaynak gerektiren bilgi, kaynağı ve inceleme bağlamıyla birlikte ele alınır; belirsiz bilgi kesin olarak sunulmaz.',
+            'sections' => [
+                ['title' => 'Kaynak kapsamı', 'body' => 'Beslenme, alerjen, saklama, kültürel bağlam ve sağlıkla ilişkili iddialar kaynak ihtiyacına göre insan incelemesine yönlendirilir.'],
+                ['title' => 'Düzeltme ve izlenebilirlik', 'body' => 'İçerik güncellemelerinde editoryal karar, destekleyici referans ve değişiklik bağlamı ayrı kayıtlarda tutulur.'],
+            ],
+        ],
+        'besin-degeri-aciklamasi' => [
+            'title' => 'Besin Değeri Açıklaması', 'eyebrow' => 'Temkinli hesaplama',
+            'lead' => 'Besin değerleri tarif planlamasına yardımcı olur; tıbbi tanı, tedavi veya kişisel beslenme önerisi değildir.',
+            'sections' => [
+                ['title' => 'Güven düzeyi', 'body' => 'Hesaplama kapsamı, kaynak durumu ve eksik malzemeler sonucun güvenini etkiler. Belirsiz sonuçlar kesin değer gibi sunulmaz.'],
+                ['title' => 'Kişisel ihtiyaçlar', 'body' => 'Alerji, hastalık, ilaç kullanımı veya özel beslenme gereksinimlerinde sağlık uzmanına danışın.'],
+            ],
+        ],
+        'alerjen-uyarisi' => [
+            'title' => 'Alerjen Uyarısı', 'eyebrow' => 'Güvenli kullanım',
+            'lead' => 'Alerjen etiketleri yardımcı bilgidir; ürün ambalajı, çapraz bulaşma ve kişisel koşullar ayrıca kontrol edilmelidir.',
+            'sections' => [
+                ['title' => 'Kesinlik sınırı', 'body' => 'Tarif ilişkilerinde içerir, içerebilir ve çapraz bulaşma riski aynı anlamda değerlendirilmez.'],
+                ['title' => 'Mutfak güvenliği', 'body' => 'Ev ekipmanı, marka farklılıkları ve çapraz temas kişisel riskleri değiştirebilir. Kritik kararları yalnız bu etikete dayandırmayın.'],
+            ],
+        ],
+        'gorsel-ve-medya-politikasi' => [
+            'title' => 'Görsel ve Medya Politikası', 'eyebrow' => 'Şeffaf medya',
             'lead' => 'Görsel kaynakları, lisans bilgileri ve editoryal inceleme durumu tarif verisinden ayrı olarak takip edilir.',
             'sections' => [
                 ['title' => 'İnceleme zinciri', 'body' => 'Dış kaynaklı ve AI üretimi görseller önce private inceleme alanına alınır. İnsan onayı olmadan public alanda yayınlanmaz.'],
                 ['title' => 'Fallback görseller', 'body' => 'Uygun gerçek görsel yoksa tarife özel markalı fallback kullanılır; bu görsel gerçek yemek fotoğrafı olarak tanıtılmaz.'],
+            ],
+        ],
+        'icerik-duzeltme-politikasi' => [
+            'title' => 'İçerik Düzeltme Politikası', 'eyebrow' => 'Düzeltme süreci',
+            'lead' => 'Tarif, blog, kaynak veya medya bilgisindeki olası hatalar insan editoryal incelemesine alınır.',
+            'sections' => [
+                ['title' => 'İnceleme', 'body' => 'Bildirimler kaynak, veri bağlamı ve olası kullanıcı etkisi üzerinden değerlendirilir; kritik güncellemelerde yayınlanan içerik inceleme kilidine alınabilir.'],
+                ['title' => 'Sonuç', 'body' => 'Düzeltme, ek kaynak isteği, yayın dışına alma veya değişiklik gerekmediği kararı audit kaydıyla ilişkilendirilir.'],
+            ],
+        ],
+        'hata-bildir' => [
+            'title' => 'Hata Bildir', 'eyebrow' => 'İçerik ve teknik hata bildirimi',
+            'lead' => 'Tarif, kaynak, alerjen, medya veya teknik davranışla ilgili bir sorun fark ettiğinizde bunu değerlendirmemiz için bildirebilirsiniz.',
+            'sections' => [
+                ['title' => 'Neleri eklemeli?', 'body' => 'İlgili sayfanın bağlantısını, sorunun kısa açıklamasını ve varsa güvenli bir kaynak referansını paylaşın. Parola, ödeme veya kişisel sağlık bilgisi göndermeyin.'],
+                ['title' => 'Kanal durumu', 'body' => 'Resmî destek kanalı yayına alınana kadar hesap ve içerik talepleri için doğrulanmış iletişim bilgisi yayınlamıyoruz. Bu durum, inceleme kayıtlarının otomatik kapatıldığı anlamına gelmez.'],
             ],
         ],
         'cerez-politikasi' => [
@@ -89,16 +129,17 @@ final class InformationPageController extends Controller
         ],
         'iletisim' => [
             'title' => 'İletişim', 'eyebrow' => 'Geri bildirim',
-            'lead' => 'Tarif hatası, kaynak düzeltmesi veya hesap desteği için iletişim kanalı yakında yapılandırma üzerinden duyurulacaktır.',
+            'lead' => 'İçerik doğruluğu, hesap güvenliği ve gizlilik talepleri için yalnız doğrulanmış iletişim kanalları kullanılır.',
             'sections' => [
                 ['title' => 'İçerik düzeltmesi', 'body' => 'Tarif, görsel, kaynak veya alerjen bilgisindeki olası hataları bildirirken tarif adını ve mümkünse public kimliğini paylaşın.'],
-                ['title' => 'Gizlilik ve hesap talepleri', 'body' => 'Veri erişimi, silme veya gizlilik talepleri için yayınlanacak resmi destek kanalını kullanın. Sahte adres veya telefon bilgisi yayınlamıyoruz.'],
+                ['title' => 'Gizlilik ve hesap talepleri', 'body' => 'Veri erişimi, silme veya gizlilik talepleri için resmî destek kanalı yayımlandığında bu sayfadan duyurulur. Sahte adres veya telefon bilgisi yayınlamıyoruz.'],
             ],
         ],
     ];
 
     public function show(string $page): View
     {
+        $page = $page === 'gorsel-ve-kaynak-politikasi' ? 'gorsel-ve-medya-politikasi' : $page;
         abort_unless(isset(self::PAGES[$page]), 404);
 
         $content = self::PAGES[$page];

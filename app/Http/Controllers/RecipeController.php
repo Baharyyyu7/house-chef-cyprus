@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Contracts\AI\AiProviderInterface;
 use App\Contracts\Search\RecipeSearchInterface;
 use App\Models\Allergen;
 use App\Models\Category;
@@ -93,12 +92,5 @@ final class RecipeController extends Controller
             'metadata' => $seo->for($recipe, $recipe->title.' · House Chef Cyprus', $recipe->excerpt ?: $recipe->description, route('recipes.show', $recipe)),
             'seoImage' => $heroMedia?->publicUrl(),
         ]);
-    }
-
-    public function ai(Request $request, Recipe $recipe, AiProviderInterface $provider)
-    {
-        $validated = $request->validate(['question' => ['required', 'string', 'max:1000']]);
-
-        return response()->json(['answer' => $provider->answer($validated['question'], $recipe)]);
     }
 }

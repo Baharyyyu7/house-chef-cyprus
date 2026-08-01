@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Milestone B Production Transition: kullanıcıya görünen beta/demo dili denetimi, production bilgi sayfaları, 500 tarif/200 blog için ayrı kalite profilleri, audit’li graduation kapıları, production içerik merkezi ve release-state sözleşmesi eklendi. Bu katman otomatik onay veya yayın yapmaz; açık fact-check backlog’u insan incelemesi olarak korunur.
+
 - Content Factory Phase 4: fact-check review batch’leri, kaynak araştırma kuyruğu, 450 tarif/180 blog editoryal review paketi, final insan onayı görünürlüğü, gerçek medya hazırlığı ve reviewer iş yükü operasyonları eklendi. Bu katman otomatik approve, verify, schedule veya publish yapmaz.
 
 ## Unreleased

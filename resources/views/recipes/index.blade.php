@@ -7,7 +7,7 @@
             <div class="max-w-2xl"><p class="v2-reveal hc-kicker text-orange-300">Modern Akdeniz mutfağı</p><h1 class="v2-reveal v2-delay-1 mt-5 text-5xl font-extrabold leading-[.98] sm:text-6xl lg:text-7xl">Bugün sofranıza<br><span class="text-orange-400">iyi bir fikir</span> bırakın.</h1><p class="hc-hero-muted v2-reveal v2-delay-2 mt-6 max-w-xl text-base leading-7 sm:text-lg">Kıbrıs'ın sıcaklığından ilham alan tarifler, malzemeleriniz ve mutfak ritminiz için tek bir yerde.</p>
                 <div class="v2-reveal v2-delay-3 mt-8 flex flex-col gap-3 sm:flex-row"><a class="hc-btn hc-btn-primary px-6" href="{{ route('recipes.index') }}">Tarifleri keşfet <span class="ml-1">→</span></a><a class="hc-hero-secondary hc-btn px-6" href="{{ auth()->check() ? route('ingredients.explore') : route('register') }}">Elindekilerle tarif bul</a></div>
             </div>
-            <div class="absolute bottom-5 right-5 hidden max-w-48 rounded-2xl border border-white/15 bg-black/25 p-4 backdrop-blur-md sm:block"><p class="text-xs font-extrabold uppercase tracking-[.16em] text-orange-300">Kıbrıs'tan ilham</p><p class="mt-2 text-sm leading-5 text-stone-200">Ev mutfağına uyarlanmış özgün demo tarifler.</p></div>
+            <div class="absolute bottom-5 right-5 hidden max-w-48 rounded-2xl border border-white/15 bg-black/25 p-4 backdrop-blur-md sm:block"><p class="text-xs font-extrabold uppercase tracking-[.16em] text-orange-300">Kıbrıs'tan ilham</p><p class="mt-2 text-sm leading-5 text-stone-200">Ev mutfağına uyarlanmış, editoryal olarak takip edilen tarifler.</p></div>
         </div>
     </section>
 

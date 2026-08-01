@@ -142,7 +142,7 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('hc-recipe-detail-hero', false)
             ->assertSee('Ev ölçüleri')
             ->assertSee('Kaynak ve güncellik')
-            ->assertSee('AI Şef')
+            ->assertSee('Pişirme rehberi')
             ->assertSee('fetchpriority="high"', false);
     }
 

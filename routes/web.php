@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\IngredientController as AdminIngredientController
 use App\Http\Controllers\Admin\MeasurementController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\NutritionController as AdminNutritionController;
+use App\Http\Controllers\Admin\ProductionContentController;
 use App\Http\Controllers\Admin\RecipeController as AdminRecipeController;
 use App\Http\Controllers\Admin\RecipeIngredientController;
 use App\Http\Controllers\Admin\RecipeStepController as AdminRecipeStepController;
@@ -39,7 +40,6 @@ Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/kategori/{category}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/blog/etiket/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
 Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
-Route::post('/tarifler/{recipe:slug}/ai', [RecipeController::class, 'ai'])->middleware('throttle:ai')->name('recipes.ai');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemaps/pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
 Route::get('/sitemaps/recipes.xml', [SitemapController::class, 'recipes'])->name('sitemap.recipes');
@@ -47,7 +47,7 @@ Route::get('/sitemaps/blog.xml', [SitemapController::class, 'blog'])->name('site
 Route::get('/sitemaps/images.xml', [SitemapController::class, 'images'])->name('sitemap.images');
 Route::view('/robots.txt', 'robots')->name('robots');
 Route::get('/{page}', [InformationPageController::class, 'show'])
-    ->whereIn('page', ['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'gorsel-ve-kaynak-politikasi', 'gizlilik', 'kullanim-kosullari', 'cerez-politikasi', 'iletisim'])
+    ->whereIn('page', ['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'kaynak-ve-veri-guven-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'gorsel-ve-kaynak-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'gizlilik', 'kullanim-kosullari', 'cerez-politikasi', 'iletisim'])
     ->name('information.show');
 
 Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
@@ -201,6 +201,11 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
 });
 
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-content-factory'])->group(function (): void {
+    Route::get('production-icerik', [ProductionContentController::class, 'index'])->name('production-content.index');
+    Route::post('production-icerik/tara', [ProductionContentController::class, 'rescan'])->name('production-content.rescan');
+    Route::post('production-icerik/{profile}/asama', [ProductionContentController::class, 'advance'])->name('production-content.advance');
+    Route::post('production-icerik/{profile}/insan-onayi', [ProductionContentController::class, 'approve'])->name('production-content.approve');
+    Route::post('production-icerik/{profile}/yayinla', [ProductionContentController::class, 'publish'])->name('production-content.publish');
     Route::get('icerik-fabrikasi', [ContentFactoryController::class, 'index'])->name('content-factory.index');
     Route::get('icerik-fabrikasi/review/{review}', [ContentFactoryController::class, 'show'])->name('content-factory.reviews.show');
     Route::post('icerik-fabrikasi/review/{review}/onayla', [ContentFactoryController::class, 'approve'])->name('content-factory.reviews.approve');

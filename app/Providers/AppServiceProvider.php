@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Contracts\AI\AiProviderInterface;
 use App\Contracts\Media\ImageGenerationProviderInterface;
 use App\Contracts\Media\MediaStorageInterface;
 use App\Contracts\Observability\ErrorReporterInterface;
@@ -17,7 +16,6 @@ use App\Observers\IngredientUnitConversionObserver;
 use App\Observers\NutritionFactObserver;
 use App\Observers\RecipeIngredientObserver;
 use App\Observers\RecipeObserver;
-use App\Services\AI\DemoAiProvider;
 use App\Services\Media\GeminiImageCapabilityHealth;
 use App\Services\Media\LocalMediaStorage;
 use App\Services\Observability\LocalLogErrorReporter;
@@ -36,7 +34,6 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(RecipeSearchInterface::class, DatabaseRecipeSearch::class);
-        $this->app->bind(AiProviderInterface::class, DemoAiProvider::class);
         $this->app->bind(MediaStorageInterface::class, LocalMediaStorage::class);
         $this->app->bind(ImageGenerationProviderInterface::class, GeminiImageCapabilityHealth::class);
         $this->app->bind(ErrorReporterInterface::class, LocalLogErrorReporter::class);
@@ -102,7 +99,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-source-research', fn ($user): bool => ($user->isAdmin() || $user->role === 'fact_check_reviewer') && ! $user->isSystemReviewer());
         Gate::define('final-content-approval', fn ($user): bool => $user->isAdmin());
         Gate::define('view-editorial-media', fn ($user): bool => $user->isAdmin() || $user->role === 'media_reviewer');
-        RateLimiter::for('ai', fn (Request $request) => Limit::perMinute(10)->by($request->user()?->id ?: $request->ip()));
+        Gate::define('access-production-content-operations', fn ($user): bool => $user->isAdmin() || $user->role === 'fact_check_reviewer' || $user->role === 'content_editor' || $user->role === 'seo_reviewer');
+        Gate::define('rescan-production-content', fn ($user): bool => $user->isAdmin());
+        Gate::define('advance-production-graduation', fn ($user): bool => $user->isAdmin() || $user->role === 'content_editor' || $user->role === 'seo_reviewer' || $user->role === 'fact_check_reviewer');
+        Gate::define('final-production-content-approval', fn ($user): bool => $user->isAdmin());
+        Gate::define('publish-production-content', fn ($user): bool => $user->isAdmin());
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
         RateLimiter::for('registration', fn (Request $request) => Limit::perHour(5)->by($request->ip()));
     }

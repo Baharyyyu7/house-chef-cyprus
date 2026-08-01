@@ -1,5 +1,9 @@
 # Ürün Yol Haritası
 
+## Aktif Production Programı — Milestone B
+
+Production Transition; beta/demo dili denetimini, production bilgi mimarisini, gerçek kalite profillerini, audit’li recipe/blog graduation geçişlerini, insan onayı kapılarını ve dürüst media/SEO/release-state kurallarını kapsar. Açık fact-check konuları insan inceleme operasyon backlog’udur; otomatik olarak kapanmaz veya yayın kapısını açmaz.
+
 1. Technical Foundation A–E — tamamlandı.
 2. Final Product Core Audit — kontrollü olarak geçti; çekirdek regresyonlar kapatıldı.
 3. Master Product Redesign, Recipe Data & Admin Program — household measurement ve Faz 3 Data Trust/50 verified recipe/image-icon pilotu tamamlandı. Faz 3A'nın 20 tariflik ara hedefi **SUPERSEDED BY COMPLETED FAZ 3** kabul edilir; 150 tariflik genişleme backlog'dadır ve başlatılmayacaktır.
