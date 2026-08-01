@@ -4,6 +4,10 @@
 
 Domain/VPS geldikten sonra uygulanacak güvenli operasyon sırası: [Go-live runbook](docs/GO_LIVE_RUNBOOK.md). Staging sözleşmesi, VPS şablonları, storage/Redis/PHP-FPM ve post-deploy smoke rehberleri `docs/` altında bulunur. Bu repository gerçek deploy veya DNS değişikliği yapmaz.
 
+## Milestone G — Product Experience
+
+Public, member ve admin yüzeyleri ortak tasarım tokenları, erişilebilir primitive’ler, light/dark sözleşmesi ve mobil davranışla birleşir. [Ürün deneyimi sağlık denetimi](docs/PRODUCT_EXPERIENCE_HEALTH.md) güvenli statik ön kontroller sağlar; gerçek tarayıcı, ekran okuyucu ve saha Core Web Vitals doğrulaması ayrı kabul kapısıdır.
+
 ## Milestone F — Launch readiness
 
 Production environment, artifact/shared-hosting/SSH deployment, database, backup/restore-test, queue, scheduler, mail, security, health, manifest, rollback and incident contracts are prepared. Start with [environment contract](docs/PRODUCTION_ENVIRONMENT_CONTRACT.md), [go-live checklist](docs/GO_LIVE_CHECKLIST.md) and [Milestone F infrastructure](docs/MILESTONE_F_INFRASTRUCTURE.md). A real hosting/domain/TLS/SMTP/monitoring setup is still an external human-approved launch gate.

@@ -77,3 +77,9 @@ Bu maddeler sağlanmadan production deploy yapılmaz. Ayrıntılı sıra [VPS de
 - [x] Backup checksum and testing-only restore-test contracts exist.
 - [ ] Human owner has provisioned and verified production hosting, domain/DNS/TLS, production database/storage, SMTP/SPF/DKIM/DMARC, cron/queue, monitoring and analytics/Search Console.
 - [ ] Approved staging/production browser smoke and launch sign-off are recorded.
+
+## Milestone G product experience
+
+- [x] Shared semantic design tokens, light/dark parity, focus/reduced-motion and responsive primitive contracts exist.
+- [x] `ux:*` commands provide an honest static guardrail report and admin UX health summary.
+- [ ] Real browser QA at target viewports, 200% zoom, keyboard/screen reader checks, contrast measurement and field Core Web Vitals require a human-approved environment and evidence.

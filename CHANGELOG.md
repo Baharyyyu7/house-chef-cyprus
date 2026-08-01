@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## Milestone G — Product Experience & UX Excellence
+
+- Added a shared product-experience audit contract, safe JSON commands and an admin UX health surface without fabricating browser or Core Web Vitals data.
+- Added skip navigation, keyboard-focused public mobile drawer behavior, autofill theme parity and print-friendly recipe presentation guardrails.
+- Documented the shared design token, typography, public/member/admin UX, motion, theme, responsive and WCAG QA standards.
+
 - Milestone E AI Kitchen: authenticated pantry/leftover suggestions, draft meal and shopping plans, provider abstraction, user-scoped cache, rate limits, safety events and auditable operations were added. Remote providers remain disabled by default and AI cannot publish or verify content.
 
 ## Milestone D — Real Media Excellence

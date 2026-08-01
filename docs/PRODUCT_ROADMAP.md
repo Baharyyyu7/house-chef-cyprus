@@ -1,6 +1,10 @@
 # Ürün Yol Haritası
 
-## Aktif Production Programı — Milestone D Real Media Excellence
+## Aktif Production Programı — Milestone G Product Experience & UX Excellence
+
+Milestone G, mevcut feature setini genişletmeden public/member/admin yüzeylerini ortak production tasarım sistemi, erişilebilirlik, responsive davranış ve gerçekçi UX health denetimi ile birleştirir. UX skorları yalnız statik ön kontroldür; gerçek browser, screen-reader, Core Web Vitals ve kullanıcı kabul testi olmadan 100 veya tamamlanmış olarak sunulmaz.
+
+## Completed Production Programı — Milestone D Real Media Excellence
 
 Milestone D, mevcut Pexels/Unsplash private review zincirini genişleterek gerçek medya envanteri, fidelity/lisans/attribution denetimleri, responsive varyasyonlar ve yalnız onaylı gerçek medya için schema/OG/image-sitemap kapısını kapsar. Gerçek katalog kapsaması insan editoryal review ile ilerler; sistem otomatik public etme, sahte medya veya sahte onay üretmez.
 

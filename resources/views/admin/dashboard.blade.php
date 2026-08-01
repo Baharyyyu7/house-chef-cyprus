@@ -79,7 +79,7 @@
                 <article id="system-status" class="hc-v3-card p-5 sm:p-6">
                     <div class="flex flex-wrap items-start justify-between gap-4">
                         <div><p class="hc-kicker">OPERASYONEL SAĞLIK</p><h2 class="hc-heading-3 mt-1">Sistem durumu</h2></div>
-                        <a href="{{ route('admin.system-events.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Sistem olayları</a>
+                        <div class="flex flex-wrap gap-2"><a href="{{ route('admin.product-experience.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Ürün deneyimi</a><a href="{{ route('admin.system-events.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Sistem olayları</a></div>
                     </div>
                     <div class="hc-admin-system-grid mt-6">
                         <div class="hc-admin-system-card"><span>Uygulama</span><strong>{{ $statusLabel((string) ($system['health']['status'] ?? 'never_run')) }}</strong></div>

@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\MeasurementController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\MediaOperationsController;
 use App\Http\Controllers\Admin\NutritionController as AdminNutritionController;
+use App\Http\Controllers\Admin\ProductExperienceController;
 use App\Http\Controllers\Admin\ProductionContentController;
 use App\Http\Controllers\Admin\RecipeController as AdminRecipeController;
 use App\Http\Controllers\Admin\RecipeIngredientController;
@@ -92,6 +93,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
     Route::get('ai-operasyonlari', [AdminAiKitchenController::class, 'index'])->middleware('can:access-ai-operations')->name('ai-kitchen.index');
     Route::get('/', AdminDashboardController::class)->name('dashboard');
+    Route::get('urun-deneyimi', ProductExperienceController::class)->name('product-experience.index');
     Route::get('kullanicilar', [AdminUserController::class, 'index'])->name('users.index');
     Route::get('kullanicilar/{user:public_id}', [AdminUserController::class, 'show'])->name('users.show');
     Route::post('kullanicilar/{user:public_id}/askiya-al', [AdminUserController::class, 'suspend'])->name('users.suspend');

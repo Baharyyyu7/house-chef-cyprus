@@ -31,17 +31,21 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     }
     html { @apply scroll-smooth; background: var(--hc-bg); }
     body { @apply min-w-0 font-sans antialiased; background: var(--hc-bg); color: var(--hc-text); }
+    main:focus { outline: none; }
     html, body, .hc-public-header, .hc-mobile-drawer, .hc-footer, .hc-card, .hc-panel, .hc-empty, input, select, textarea { transition: background-color .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease; }
     h1, h2, h3 { @apply font-display tracking-[-0.035em]; }
     a, button, input, select, textarea { @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-ivory dark:focus-visible:ring-offset-[#090909]; }
     input, select, textarea { @apply rounded-2xl px-3 py-2.5; border-color: var(--hc-line); background: var(--hc-surface); color: var(--hc-text); }
     input::placeholder, textarea::placeholder { color: var(--hc-muted); opacity: .86; }
+    input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus { -webkit-text-fill-color:var(--hc-text-primary); -webkit-box-shadow:0 0 0 1000px var(--hc-surface-default) inset; transition:background-color 9999s ease-out 0s; }
     input[type='checkbox'] { @apply rounded border-stone-300 text-orange-600; }
     ::selection { @apply bg-orange-100 text-charcoal-900; }
 }
 
 @layer components {
     .hc-container { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+    .hc-skip-link { position:fixed; z-index:100; left:1rem; top:-5rem; border-radius:var(--hc-radius-sm); background:var(--hc-brand-primary); color:var(--hc-brand-contrast); padding:.75rem 1rem; font-weight:800; transition:top var(--hc-duration-fast) var(--hc-ease-standard); }
+    .hc-skip-link:focus { top:1rem; }
     .hc-page { @apply py-8 sm:py-12 lg:py-16; }
     .hc-kicker { @apply text-xs font-extrabold uppercase tracking-[.18em] text-orange-600; }
     .hc-title { @apply font-display text-4xl font-bold leading-[1.05] sm:text-5xl; color: var(--hc-text); }
@@ -125,6 +129,9 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .hc-v3-badge { @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-extrabold; border:1px solid var(--hc-border-default); border-radius:var(--hc-radius-pill); background:var(--hc-background-subtle); color:var(--hc-text-secondary); } .hc-v3-badge--accent { background:var(--hc-brand-soft); color:var(--hc-text-accent); border-color:var(--hc-brand-soft); } .hc-v3-badge--success { color:var(--hc-status-success); } .hc-v3-badge--warning { color:var(--hc-status-warning); } .hc-v3-badge--danger { color:var(--hc-status-danger); } .hc-v3-badge--info { color:var(--hc-status-info); }
     .hc-v3-alert { @apply flex items-start gap-3 px-4 py-3 text-sm leading-6; border:1px solid var(--hc-border-default); border-radius:var(--hc-radius-md); background:var(--hc-surface-default); color:var(--hc-text-primary); } .hc-v3-alert--success { border-color:#75e0a7; color:var(--hc-text-success); } .hc-v3-alert--warning { border-color:var(--hc-border-warning); color:var(--hc-text-warning); } .hc-v3-alert--danger { border-color:var(--hc-border-danger); color:var(--hc-text-danger); }
     .hc-v3-empty { @apply px-6 py-12 text-center; border:1px dashed var(--hc-border-strong); border-radius:var(--hc-radius-lg); background:var(--hc-surface-default); color:var(--hc-text-secondary); }
+    .hc-v3-empty > * + * { margin-top:.5rem; }
+    .hc-v3-filter-drawer { border:1px solid var(--hc-border-default); border-radius:var(--hc-radius-lg); background:var(--hc-surface-raised); box-shadow:var(--hc-shadow-md); }
+    .hc-v3-filter-summary { display:flex; min-height:2.75rem; align-items:center; justify-content:space-between; gap:1rem; cursor:pointer; font-size:.875rem; font-weight:800; color:var(--hc-text-primary); }
     .hc-v3-table-shell { overflow-x:auto; border:1px solid var(--hc-border-default); border-radius:var(--hc-radius-lg); background:var(--hc-surface-raised); box-shadow:var(--hc-shadow-sm); } .hc-v3-table { @apply min-w-full text-left text-sm; } .hc-v3-table thead { background:var(--hc-background-subtle); color:var(--hc-text-secondary); } .hc-v3-table th { @apply whitespace-nowrap px-4 py-3 text-xs font-extrabold uppercase tracking-[.08em]; } .hc-v3-table td { @apply whitespace-nowrap px-4 py-3; color:var(--hc-text-primary); } .hc-v3-table tbody tr { border-top:1px solid var(--hc-border-subtle); }
     .hc-v3-chart-shell { min-height:14rem; border:1px dashed var(--hc-border-default); border-radius:var(--hc-radius-lg); background:linear-gradient(135deg,var(--hc-surface-raised),var(--hc-background-subtle)); }
     /* Admin V3 shell and dashboard primitives. */
@@ -188,3 +195,4 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
 @media (max-width: 767px) { .hc-admin-step-card { grid-template-columns:2.3rem minmax(0,1fr); }.hc-admin-step-card > :last-child { grid-column:1 / -1; justify-content:flex-end; } }
 @media (max-width: 767px) { html, body, .admin-shell { overflow-x:clip; } }
 @media (prefers-reduced-motion: reduce) { .hc-v3-reveal { animation:none; } }
+@media print { .hc-public-header, .hc-footer, .hc-recipe-detail-hero nav, .hc-theme-button, .hc-icon-button, form, button, .hc-skip-link { display:none !important; } body { background:#fff; color:#111; } .hc-v3-card, .hc-panel { break-inside:avoid; box-shadow:none; } }

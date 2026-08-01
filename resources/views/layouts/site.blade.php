@@ -35,7 +35,7 @@
 </head>
 <body x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, adminSidebarCollapsed: false, scrolled: false }"
     x-init="document.documentElement.classList.toggle('dark', dark); $watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light'; window.dispatchEvent(new CustomEvent('hc-theme-changed')); }); $watch('adminMenuOpen', value => document.body.classList.toggle('overflow-hidden', value))"
-    @keydown.escape.window="adminMenuOpen = false"
+    @keydown.escape.window="adminMenuOpen = false; menuOpen = false"
     class="min-h-screen antialiased">
     @if (request()->routeIs('admin.*'))
         <div class="admin-shell min-h-screen lg:grid" :class="adminSidebarCollapsed ? 'lg:grid-cols-[5.25rem_minmax(0,1fr)]' : 'lg:grid-cols-[17.5rem_minmax(0,1fr)]'">
@@ -81,10 +81,11 @@
             </div>
         </div>
     @else
+        <a href="#main-content" class="hc-skip-link">İçeriğe geç</a>
         <header @scroll.window="scrolled = window.scrollY > 16" :class="{ 'is-scrolled': scrolled }" class="hc-public-header sticky top-0 z-40 border-b backdrop-blur-xl transition-all duration-300">
             <nav :class="scrolled ? 'h-[4.25rem]' : 'h-[5.25rem]'" class="hc-container flex items-center justify-between gap-4 transition-all duration-300" aria-label="Ana menü">
                 <x-brand-logo class="scale-105" />
-                <div class="hidden items-center gap-7 text-sm font-bold lg:flex">
+                <div class="hidden items-center gap-6 text-sm font-bold xl:flex">
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}">Ana Sayfa</a>
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}">Tarifler</a>
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}">Blog</a>
@@ -94,7 +95,7 @@
                         <a @class(['nav-link', 'nav-link-active' => request()->routeIs('pantry.*')]) href="{{ route('pantry.index') }}">Dolabım</a>
                     @endauth
                 </div>
-                <div class="hidden items-center gap-2 lg:flex">
+                <div class="hidden items-center gap-2 xl:flex">
                     <button @click="dark = !dark" class="hc-theme-button" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"><span x-show="dark"><x-ui.icon name="sun" size="20" /></span><span x-show="!dark"><x-ui.icon name="moon" size="20" /></span></button>
                     @auth
                         <a href="{{ route('favorites.index') }}" class="hc-icon-button" aria-label="Favoriler"><x-ui.icon name="heart" size="20" /></a>
@@ -105,13 +106,15 @@
                         <a href="{{ route('register') }}" class="hc-btn hc-btn-gold">Üye Ol</a>
                     @endauth
                 </div>
-                <div class="flex items-center gap-2 lg:hidden">
+                <div class="flex items-center gap-2 xl:hidden">
                     <button @click="dark = !dark" class="hc-theme-button !h-10 !w-10 !rounded-xl" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"><span x-show="dark"><x-ui.icon name="sun" size="18" /></span><span x-show="!dark"><x-ui.icon name="moon" size="18" /></span></button>
                     <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="Menüyü aç"><x-ui.icon name="menu" size="20" /></button>
                 </div>
             </nav>
-            <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-y-2 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" class="hc-mobile-drawer border-t px-5 py-5 shadow-xl lg:hidden">
-                <div class="mx-auto grid max-w-7xl gap-2 text-sm font-semibold">
+            <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-y-2 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" x-init="$watch('menuOpen', open => { if (open) { $nextTick(() => $refs.publicDrawer.querySelector('[data-public-drawer-close]')?.focus()) } })" @keydown.tab.prevent="const items = [...$el.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex=\'-1\'])')].filter(item => !item.hidden); const current = items.indexOf(document.activeElement); const next = $event.shiftKey ? (current <= 0 ? items.length - 1 : current - 1) : (current === items.length - 1 ? 0 : current + 1); items[next]?.focus()" class="hc-mobile-drawer border-t px-5 py-5 shadow-xl xl:hidden" role="dialog" aria-modal="true" aria-label="Ana menü">
+                <div x-ref="publicDrawer" class="mx-auto max-w-7xl">
+                    <div class="mb-3 flex justify-end"><button data-public-drawer-close @click="menuOpen = false" class="hc-icon-button !h-10 !w-10 !rounded-xl" aria-label="Menüyü kapat"><x-ui.icon name="close" size="18" /></button></div>
+                <div class="grid gap-2 text-sm font-semibold">
                     <a class="mobile-nav-link" href="{{ route('home') }}">Ana Sayfa</a>
                     <a class="mobile-nav-link" href="{{ route('recipes.index') }}">Tarifler</a>
                     <a class="mobile-nav-link" href="{{ route('blog.index') }}">Blog</a>
@@ -128,10 +131,11 @@
                         <a class="mobile-nav-link text-gold-700" href="{{ route('register') }}">Üye Ol</a>
                     @endauth
                 </div>
+                </div>
             </div>
         </header>
 
-        <main>
+        <main id="main-content" tabindex="-1">
             @if (session('status'))
                 <div class="hc-container pt-5"><div class="hc-alert hc-alert-success" role="status">{{ session('status') }}</div></div>
             @endif
@@ -143,7 +147,7 @@
 
         <footer class="hc-footer mt-20">
             <div class="hc-container grid gap-10 py-14 md:grid-cols-[1.35fr_.8fr_.8fr_1fr]">
-                <div><x-brand-logo variant="dark" /><p class="hc-footer-muted mt-5 max-w-sm text-sm leading-7">Kıbrıs sıcaklığını modern mutfak deneyimiyle bir araya getiriyoruz. Her tarif, daha keyifli bir ev sofrası için.</p><div class="mt-6 flex gap-2"><span class="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-sm">in</span><span class="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-sm">ig</span></div></div>
+                <div><x-brand-logo variant="dark" /><p class="hc-footer-muted mt-5 max-w-sm text-sm leading-7">Kıbrıs sıcaklığını modern mutfak deneyimiyle bir araya getiriyoruz. Her tarif, daha keyifli bir ev sofrası için.</p><p class="hc-footer-muted mt-6 text-xs leading-5">Sosyal kanallar yalnız doğrulanmış kurumsal hesaplar yayına alındığında burada yer alır.</p></div>
                 <div><p class="text-sm font-extrabold text-orange-300">Keşfet</p><div class="hc-footer-muted mt-4 grid gap-3 text-sm"><a class="hover:text-orange-300" href="{{ route('recipes.index') }}">Tarifler</a><a class="hover:text-orange-300" href="{{ route('blog.index') }}">Blog</a>@auth<a class="hover:text-orange-300" href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a><a class="hover:text-orange-300" href="{{ route('pantry.index') }}">Malzeme Dolabım</a>@endauth</div></div>
                 <div><p class="text-sm font-extrabold text-orange-300">Platform</p><div class="hc-footer-muted mt-4 grid gap-3 text-sm"><a class="hover:text-orange-300" href="{{ route('information.show', 'hakkimizda') }}">Hakkımızda</a><a class="hover:text-orange-300" href="{{ route('information.show', 'nasil-calisir') }}">Nasıl çalışır?</a><a class="hover:text-orange-300" href="{{ route('information.show', 'sss') }}">Sık sorulan sorular</a><a class="hover:text-orange-300" href="{{ route('information.show', 'tarif-dogrulama-politikasi') }}">Tarif doğrulama</a><a class="hover:text-orange-300" href="{{ route('information.show', 'gorsel-ve-medya-politikasi') }}">Görsel ve medya</a><a class="hover:text-orange-300" href="{{ route('information.show', 'kaynak-ve-veri-guven-politikasi') }}">Kaynak politikası</a><a class="hover:text-orange-300" href="{{ route('information.show', 'gizlilik') }}">Gizlilik</a><a class="hover:text-orange-300" href="{{ route('information.show', 'kullanim-kosullari') }}">Koşullar</a><a class="hover:text-orange-300" href="{{ route('information.show', 'cerez-politikasi') }}">Çerezler</a><a class="hover:text-orange-300" href="{{ route('information.show', 'iletisim') }}">İletişim</a></div></div>
                 <div><p class="text-sm font-extrabold text-orange-300">Bülten</p><p class="hc-footer-muted mt-4 text-sm leading-6">Yeni tarifler ve mutfak ilhamı için bizi takipte kalın.</p><a href="{{ route('register') }}" class="hc-btn hc-btn-primary mt-5">Ücretsiz üye ol</a></div>
