@@ -93,6 +93,12 @@
 - Recipe/Nutrition/Data Quality, cache/queue/scheduler/performance, security/media ve observability/backup/restore altyapıları tamamlandı.
 # Unreleased
 
+## Milestone F — Production Infrastructure & Launch Readiness
+
+- Added strict production/staging environment contracts and safe database, queue, scheduler, mail, security, health and release-manifest operational commands.
+- Added checksum-oriented artifact, shared-hosting, smoke, maintenance and rollback script templates plus Apache/Nginx configuration examples.
+- Added production deployment, backup/restore, monitoring, security, incident and go-live runbooks. External hosting, DNS, TLS, SMTP and monitoring remain explicit launch blockers until human-verified.
+
 ## Milestone D — Real Media Excellence
 
 - Production media inventory, health and morning-brief commands now report actual recipe/blog coverage without treating branded fallbacks or AI output as real photography.

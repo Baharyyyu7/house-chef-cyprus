@@ -1,0 +1,18 @@
+Options -Indexes
+RewriteEngine On
+
+# Deployment must point the virtual host to Laravel's public/ directory.
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteCond %{HTTP_HOST} !^__DOMAIN__$ [NC]
+RewriteRule ^ https://__DOMAIN__%{REQUEST_URI} [L,R=301]
+
+<FilesMatch "^(\.env|composer\.(json|lock)|package\.json|phpunit\.xml)$">
+  Require all denied
+</FilesMatch>
+RewriteRule ^(vendor|database|config|storage/app/private)/ - [F,L,NC]
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+</IfModule>

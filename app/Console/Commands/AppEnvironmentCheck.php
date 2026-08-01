@@ -21,9 +21,11 @@ final class AppEnvironmentCheck extends Command
     {
         $target = (string) ($this->option('environment') ?: app()->environment());
         $isProductionLike = in_array($target, ['staging', 'production'], true);
+        $appUrl = (string) config('app.url');
+        $host = (string) parse_url($appUrl, PHP_URL_HOST);
         $checks = [
             'app_key' => filled(config('app.key')),
-            'app_url' => filter_var(config('app.url'), FILTER_VALIDATE_URL) !== false,
+            'app_url' => filter_var($appUrl, FILTER_VALIDATE_URL) !== false,
             'database' => filled(config('database.default')),
             'cache' => filled(config('cache.default')),
             'queue' => filled(config('queue.default')),
@@ -34,7 +36,10 @@ final class AppEnvironmentCheck extends Command
         ];
         if ($isProductionLike) {
             $checks['debug_disabled'] = ! config('app.debug');
-            $checks['https_url'] = str_starts_with((string) config('app.url'), 'https://');
+            $checks['https_url'] = str_starts_with($appUrl, 'https://');
+            $checks['public_host'] = $host !== '' && ! in_array($host, ['localhost', '127.0.0.1', '::1'], true);
+            $releaseState = (string) (config('production.release_state') ?: 'development');
+            $checks['release_state_valid'] = in_array($releaseState, config('production.release_states'), true);
             $checks['secure_cookie'] = (bool) config('session.secure');
             $checks['queue_not_sync'] = config('queue.default') !== 'sync';
             $checks['cache_not_array'] = config('cache.default') !== 'array';
@@ -47,6 +52,8 @@ final class AppEnvironmentCheck extends Command
             $checks['backup_configured'] = filled(config('production.backup_disk'));
             $checks['trusted_proxies_configured'] = filled(config('production.trusted_proxies'));
             $checks['public_storage_configured'] = in_array(config('filesystems.default'), ['public', 's3'], true);
+            $checks['canonical_configured'] = filled(config('production.canonical_host')) && config('production.canonical_scheme') === 'https';
+            $checks['private_storage_distinct'] = config('filesystems.default') !== 'local' || filled(config('filesystems.disks.local.root'));
             $checks['demo_admin_absent'] = ! Schema::hasTable('users') || ! User::query()->where('email', 'admin@housechef.local')->exists();
             $checks['image_budget_guard'] = ! config('ai_images.generation_enabled') || filled(config('ai_images.production_budget.daily_usd'));
         }

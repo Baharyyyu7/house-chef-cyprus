@@ -14,7 +14,7 @@ final class BackupRestore extends Command
     {
         $history = RestoreHistory::create(['backup_id' => (string) $this->argument('backup_id'), 'target' => (string) $this->option('target'), 'triggered_by_type' => 'system', 'started_at' => now(), 'status' => 'running']);
         try {
-            $manifest = $backup->verify((string) $this->argument('backup_id'));
+            $manifest = $backup->markRestoreTest((string) $this->argument('backup_id'));
             if ($this->option('verify-only')) {
                 $this->info('Backup restore öncesi doğrulama başarılı.');
 

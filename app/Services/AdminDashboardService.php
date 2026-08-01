@@ -27,6 +27,7 @@ final class AdminDashboardService
         private readonly QueueHealthService $queue,
         private readonly SchedulerHealthService $scheduler,
         private readonly BackupService $backups,
+        private readonly ProductionOperationsService $productionOperations,
     ) {}
 
     /** @return array<string, mixed> */
@@ -83,6 +84,15 @@ final class AdminDashboardService
                         'pending_thumbnails' => Media::query()->whereIn('thumbnail_status', ['pending', 'processing'])->count(),
                     ],
                     'requestMetrics' => $this->metrics->summary($period),
+                    'production' => [
+                        'release_state' => (string) (config('production.release_state') ?: 'development'),
+                        'environment' => app()->environment(),
+                        'environment_readiness' => app()->environment('production') ? 'configured' : 'not_production',
+                        'mail' => $this->productionOperations->mailHealth()['status'],
+                        'security' => $this->productionOperations->securityReadiness()['status'],
+                        'analytics' => filled(config('production.analytics.ga_measurement_id')) ? 'configured' : 'not_configured',
+                        'search_console' => filled(config('production.analytics.search_console_verification')) ? 'configured' : 'not_configured',
+                    ],
                 ],
                 'activity' => $this->activity(),
                 'attention' => $this->attention($queue, $backup),

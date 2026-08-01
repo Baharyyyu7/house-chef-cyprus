@@ -88,3 +88,7 @@ Foundation A–E kapatıldı; production hedef veritabanı seçildiğinde MySQL/
 
 - `content_quality_profiles`: Recipe veya BlogPost public kimliği için teknik, editoryal, fact-check, kaynak, ölçü/nutrition/allergen/dietary, medya, SEO, erişilebilirlik, final approval ve publication durumlarını; readiness score/cap, rule version, son tarama, blocker ve güvenli metadata’yı tutar. Entity kimliği internal ID değil public ID ile eşlenir.
 - `production_release_states`: Ortamın beta olmayan release state’ini, mevcut olduğu ölçüde son CI/smoke/backup/migration/content-health zamanlarını ve production blocker özetini tutar. Monitoring sağlayıcısı olmayan alanlar sentetik metrikle doldurulmaz.
+
+## Milestone F operations
+
+Production database operations use migration portability/readiness reports rather than destructive resets. Backup manifests remain in private storage and carry a public backup ID, type, checksum, release metadata, verification state, restore-test state and retention date. `migrate:fresh` is local/testing-only and prohibited in production runbooks.

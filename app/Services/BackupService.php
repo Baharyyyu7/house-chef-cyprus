@@ -13,7 +13,7 @@ use RuntimeException;
 final class BackupService
 {
     /** @return array<string,mixed> */
-    public function create(): array
+    public function create(string $type = 'manual'): array
     {
         if (config('database.default') !== 'sqlite') {
             throw new RuntimeException('BACKUP_DRIVER_UNSUPPORTED');
@@ -42,7 +42,8 @@ final class BackupService
         }
         $disk->put($dir.'/database.sqlite', $database);
         $checksum = hash('sha256', $database);
-        $manifest = ['backup_id' => $id, 'created_at' => now()->toIso8601String(), 'app_version' => trim((string) @shell_exec('git describe --tags --always 2>/dev/null')) ?: 'local', 'database_driver' => 'sqlite', 'database_size' => strlen($database), 'media_count' => 0, 'checksum' => $checksum, 'status' => 'created', 'verified_at' => null, 'source_environment' => app()->environment()];
+        $safeType = in_array($type, ['manual', 'scheduled', 'pre-deploy', 'pre-migration', 'daily', 'weekly'], true) ? $type : 'manual';
+        $manifest = ['backup_id' => $id, 'type' => $safeType, 'created_at' => now()->toIso8601String(), 'app_version' => trim((string) @shell_exec('git describe --tags --always 2>/dev/null')) ?: 'local', 'commit_sha' => trim((string) @shell_exec('git rev-parse HEAD 2>/dev/null')) ?: null, 'database_driver' => 'sqlite', 'database_size' => strlen($database), 'media_count' => 0, 'checksum' => $checksum, 'encryption_status' => 'storage-policy-dependent', 'storage_location_type' => 'private_local', 'status' => 'created', 'verified_at' => null, 'restore_test_status' => 'not_tested', 'retention_date' => now()->addDays((int) config('observability.backup_retention_days'))->toDateString(), 'source_environment' => app()->environment()];
         $disk->put($dir.'/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
         return $manifest;
@@ -72,6 +73,17 @@ final class BackupService
         $manifest['verified_at'] = now()->toIso8601String();
         $manifest['status'] = 'verified';
         $disk->put($base.'/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+        return $manifest;
+    }
+
+    /** @return array<string, mixed> */
+    public function markRestoreTest(string $id): array
+    {
+        $manifest = $this->verify($id);
+        $manifest['restore_test_status'] = 'verified_only';
+        $manifest['restore_tested_at'] = now()->toIso8601String();
+        Storage::disk('local')->put('backups/'.$id.'/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
         return $manifest;
     }

@@ -5,6 +5,22 @@ declare(strict_types=1);
 return [
     'release_states' => ['development', 'local_qa', 'staging_ready', 'staging', 'production_ready', 'production', 'maintenance'],
     'readiness_rule_version' => 'production-readiness-v1',
+    'release_state' => env('APP_RELEASE_STATE', 'development'),
+    'canonical_host' => env('CANONICAL_HOST'),
+    'canonical_scheme' => env('CANONICAL_SCHEME', 'https'),
+    'www_redirect_policy' => env('WWW_REDIRECT_POLICY', 'to_apex'),
+    'backup_disk' => env('BACKUP_DISK'),
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
+    'allow_sqlite' => (bool) env('PRODUCTION_ALLOW_SQLITE', false),
+    'artifact_version' => 'production-artifact-v1',
+    'mail_health_requires_smtp' => (bool) env('PRODUCTION_MAIL_REQUIRED', true),
+    'scheduler_max_age_minutes' => (int) env('SCHEDULER_MAX_AGE_MINUTES', 30),
+    'queue_worker_mode' => env('QUEUE_WORKER_MODE', 'cron_stop_when_empty'),
+    'analytics' => [
+        'ga_measurement_id' => env('GA_MEASUREMENT_ID'),
+        'search_console_verification' => env('SEARCH_CONSOLE_VERIFICATION'),
+        'bing_verification' => env('BING_VERIFICATION'),
+    ],
     'monitoring' => [
         'provider_status' => env('MONITORING_PROVIDER_ENABLED', false) ? 'configured' : 'connection_pending',
         'fake_metrics_allowed' => false,

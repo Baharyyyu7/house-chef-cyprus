@@ -69,3 +69,11 @@ Bu maddeler sağlanmadan production deploy yapılmaz. Ayrıntılı sıra [VPS de
 - [x] `content:factory-audit --json` reports publication/verification leakage.
 - [x] Phase 2 draft enrichment writes readiness, technical/SEO/originality signals and fact-check issues without publishing or simulating an editor.
 - [ ] Fact-check çözümü, gerçek admin editoryal kararı ve seçili yayın takvimi production öncesi kontrollü içerik operasyonudur.
+
+## Milestone F launch operations
+
+- [x] Strict environment, database, queue, scheduler, mail, security and release-manifest command contracts exist.
+- [x] Artifact, SSH and shared-hosting deployment/rollback/maintenance templates exist and have dry-run safeguards.
+- [x] Backup checksum and testing-only restore-test contracts exist.
+- [ ] Human owner has provisioned and verified production hosting, domain/DNS/TLS, production database/storage, SMTP/SPF/DKIM/DMARC, cron/queue, monitoring and analytics/Search Console.
+- [ ] Approved staging/production browser smoke and launch sign-off are recorded.

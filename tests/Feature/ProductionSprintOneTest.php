@@ -34,6 +34,8 @@ final class ProductionSprintOneTest extends TestCase
             'production.allow_sqlite' => true,
             'production.backup_disk' => 's3',
             'production.trusted_proxies' => '10.0.0.0/8',
+            'production.canonical_host' => 'example.test',
+            'production.canonical_scheme' => 'https',
         ]);
 
         $this->artisan('app:environment-check --environment=production --strict --json')->assertSuccessful();
@@ -56,6 +58,8 @@ final class ProductionSprintOneTest extends TestCase
             'production.allow_sqlite' => true,
             'production.backup_disk' => 'local',
             'production.trusted_proxies' => '10.0.0.0/8',
+            'production.canonical_host' => 'staging.example.test',
+            'production.canonical_scheme' => 'https',
         ]);
 
         $this->artisan('app:environment-check --environment=staging --strict --json')->assertSuccessful();

@@ -1,0 +1,25 @@
+# Copy to your target server, replace placeholders, and set root to release/public only.
+server {
+    listen 80;
+    server_name __DOMAIN__ www.__DOMAIN__;
+    return 301 https://__DOMAIN__$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name __DOMAIN__;
+    root __RELEASE_PATH__/public;
+    index index.php;
+    client_max_body_size 10m;
+    autoindex off;
+    location ~ /(?:\.env|vendor|database|config|storage/app/private)/ { deny all; }
+    location ~ /\. { deny all; }
+    location / { try_files $uri $uri/ /index.php?$query_string; }
+    location ~ \.php$ {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+    }
+    location ~* \.(?:css|js|mjs|png|jpg|jpeg|webp|svg|ico|woff2)$ { expires 7d; add_header Cache-Control "public, max-age=604800, immutable"; }
+}

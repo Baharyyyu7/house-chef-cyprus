@@ -4,6 +4,10 @@
 
 Domain/VPS geldikten sonra uygulanacak güvenli operasyon sırası: [Go-live runbook](docs/GO_LIVE_RUNBOOK.md). Staging sözleşmesi, VPS şablonları, storage/Redis/PHP-FPM ve post-deploy smoke rehberleri `docs/` altında bulunur. Bu repository gerçek deploy veya DNS değişikliği yapmaz.
 
+## Milestone F — Launch readiness
+
+Production environment, artifact/shared-hosting/SSH deployment, database, backup/restore-test, queue, scheduler, mail, security, health, manifest, rollback and incident contracts are prepared. Start with [environment contract](docs/PRODUCTION_ENVIRONMENT_CONTRACT.md), [go-live checklist](docs/GO_LIVE_CHECKLIST.md) and [Milestone F infrastructure](docs/MILESTONE_F_INFRASTRUCTURE.md). A real hosting/domain/TLS/SMTP/monitoring setup is still an external human-approved launch gate.
+
 ## Real Media Excellence
 
 Medya adayları private review zincirinden geçer; yalnız lisans, attribution ve bağımsız insan onayı tamamlanmış `approved_real_media` kayıtları public recipe/blog yüzeyleri, schema ve image sitemap için uygundur. Branded fallback gerçek fotoğraf değildir. Operasyon komutları ve kuralları için [Milestone D](docs/MILESTONE_D_MEDIA_EXCELLENCE.md) belgesine bakın.

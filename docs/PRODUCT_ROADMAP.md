@@ -36,6 +36,10 @@ Production Transition; beta/demo dili denetimini, production bilgi mimarisini, g
 13. Production ve mobil hazırlık.
 
 Production öncesi zorunlu işler Foundation kapanış belgesinde listelenir. Redis, S3/R2, Meilisearch/Typesense, OpenTelemetry, geo analytics, çoklu dil ve admin polish planlı teknik backlog’dadır; Final Product Core Audit için zorunlu değildir. Matching ekranında nutrition/dietary/allergen filtrelerinin seçili malzeme sonucu ile tek formda birleşmesi, Premium UX öncesi ürün polish backlog'undadır.
+
+## Milestone F — Production infrastructure readiness
+
+Environment contracts, deployment artifacts, shared-hosting/SSH runbooks, database readiness, private backups, queue/scheduler/mail operations, health/security checks, release manifests, rollback and incident procedures are ready on `visual-redesign-v2`. Actual production launch remains blocked until a human-approved hosting, domain/DNS/TLS, production database/storage, SMTP/DNS, monitoring and analytics/search-console setup exists.
 # Master Redesign Phase 2
 
 Household measurement and ingredient-specific conversion infrastructure is active. Content expansion remains blocked until measurement QA is complete.
