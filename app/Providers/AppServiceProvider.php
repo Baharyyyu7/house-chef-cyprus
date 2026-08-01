@@ -51,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
         IngredientUnitConversion::observe(IngredientUnitConversionObserver::class);
         Recipe::observe(RecipeObserver::class);
         Gate::define('access-admin', fn ($user): bool => $user->isAdmin());
+        Gate::define('access-ai-operations', fn ($user): bool => $user->isAdmin() && ! $user->isSystemReviewer());
         Gate::define('access-media-operations', fn ($user): bool => in_array($user->role, ['admin', 'media_reviewer'], true) && ! $user->isSystemReviewer());
         Gate::define('review-media-candidate', fn ($user): bool => in_array($user->role, ['admin', 'media_reviewer'], true) && ! $user->isSystemReviewer());
         Gate::define('approve-media-final', function ($user, Media|RecipeMediaCandidate|null $subject = null): bool {

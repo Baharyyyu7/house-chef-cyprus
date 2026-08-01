@@ -3,6 +3,7 @@
         'Genel' => [
             ['route' => 'admin.dashboard', 'label' => 'Genel Bakış', 'icon' => 'sparkles'],
             ['route' => 'admin.users.index', 'label' => 'Kullanıcılar', 'icon' => 'users'],
+            ['route' => 'admin.ai-kitchen.index', 'label' => 'AI Operasyonları', 'icon' => 'sparkles'],
         ],
         'İçerik' => [
             ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => 'menu'],

@@ -90,6 +90,7 @@
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}">Blog</a>
                     @auth
                         <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a>
+                        <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ route('ai-kitchen.index') }}">AI Mutfak</a>
                         <a @class(['nav-link', 'nav-link-active' => request()->routeIs('pantry.*')]) href="{{ route('pantry.index') }}">Dolabım</a>
                     @endauth
                 </div>
@@ -116,6 +117,7 @@
                     <a class="mobile-nav-link" href="{{ route('blog.index') }}">Blog</a>
                     @auth
                         <a class="mobile-nav-link" href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a>
+                        <a class="mobile-nav-link" href="{{ route('ai-kitchen.index') }}">AI Mutfak</a>
                         <a class="mobile-nav-link" href="{{ route('pantry.index') }}">Dolabım</a>
                         <a class="mobile-nav-link" href="{{ route('favorites.index') }}">Favoriler</a>
                         <a class="mobile-nav-link" href="{{ route('dashboard') }}">Hesabım</a>

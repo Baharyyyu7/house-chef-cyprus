@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Milestone E AI Kitchen: authenticated pantry/leftover suggestions, draft meal and shopping plans, provider abstraction, user-scoped cache, rate limits, safety events and auditable operations were added. Remote providers remain disabled by default and AI cannot publish or verify content.
+
 ## Milestone D — Real Media Excellence
 
 - Added a production media inventory, health score and safe morning brief based only on persisted recipe/blog media records.

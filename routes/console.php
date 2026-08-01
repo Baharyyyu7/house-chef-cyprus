@@ -19,6 +19,8 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_fidelity_
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_license_audit', fn () => Artisan::call('media:license-audit', ['--limit' => 100])))->name('media_license_audit')->dailyAt('06:40')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_attribution_audit', fn () => Artisan::call('media:attribution-audit', ['--limit' => 100])))->name('media_attribution_audit')->dailyAt('06:45')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_morning_brief', fn () => Artisan::call('media:morning-brief')))->name('media_morning_brief')->dailyAt('07:00')->withoutOverlapping();
+// AI Kitchen brief is operational-only: it never sends provider requests or changes content state.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('ai_kitchen_morning_brief', fn () => Artisan::call('ai-kitchen:morning-brief')))->name('ai_kitchen_morning_brief')->dailyAt('07:10')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('health_snapshot', fn () => app(HealthService::class)->snapshot()))->name('health_snapshot')->hourly()->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('backup_cleanup', fn () => Artisan::call('backup:cleanup')))->name('backup_cleanup')->daily()->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('logs_cleanup', fn () => Artisan::call('logs:cleanup')))->name('logs_cleanup')->daily()->withoutOverlapping();

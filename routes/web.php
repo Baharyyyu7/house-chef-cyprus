@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AiImageStudioController;
+use App\Http\Controllers\Admin\AiKitchenController as AdminAiKitchenController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
 use App\Http\Controllers\Admin\ContentFactoryController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Admin\RestoreHistoryController;
 use App\Http\Controllers\Admin\SeoOperationsController;
 use App\Http\Controllers\Admin\SystemEventController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\AiKitchenController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CookingSessionController;
 use App\Http\Controllers\FavoriteController;
@@ -55,6 +57,14 @@ Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('d
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
+    Route::get('/ai-mutfak', [AiKitchenController::class, 'index'])->name('ai-kitchen.index');
+    Route::post('/ai-mutfak/asistan', [AiKitchenController::class, 'assistant'])->name('ai-kitchen.assistant');
+    Route::post('/ai-mutfak/dolap', [AiKitchenController::class, 'pantry'])->name('ai-kitchen.pantry');
+    Route::post('/ai-mutfak/artanlar', [AiKitchenController::class, 'leftovers'])->name('ai-kitchen.leftovers');
+    Route::post('/ai-mutfak/menu', [AiKitchenController::class, 'mealPlan'])->name('ai-kitchen.meal-plan');
+    Route::post('/ai-mutfak/menu/{plan:public_id}/alisveris', [AiKitchenController::class, 'shopping'])->name('ai-kitchen.shopping');
+    Route::post('/ai-mutfak/tarifler/{recipe:public_id}/porsiyon', [AiKitchenController::class, 'portion'])->name('ai-kitchen.portion');
+    Route::post('/ai-mutfak/tarifler/{recipe:public_id}/beslenme', [AiKitchenController::class, 'nutrition'])->name('ai-kitchen.nutrition');
     Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])->name('ingredients.explore');
     Route::get('/favoriler', [FavoriteController::class, 'index'])->name('favorites.index');
     Route::post('/tarifler/{recipe:slug}/favori', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
@@ -80,6 +90,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
 });
 
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
+    Route::get('ai-operasyonlari', [AdminAiKitchenController::class, 'index'])->middleware('can:access-ai-operations')->name('ai-kitchen.index');
     Route::get('/', AdminDashboardController::class)->name('dashboard');
     Route::get('kullanicilar', [AdminUserController::class, 'index'])->name('users.index');
     Route::get('kullanicilar/{user:public_id}', [AdminUserController::class, 'show'])->name('users.show');
