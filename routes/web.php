@@ -33,6 +33,7 @@ use App\Http\Controllers\HealthController;
 use App\Http\Controllers\InformationPageController;
 use App\Http\Controllers\IngredientExplorerController;
 use App\Http\Controllers\PantryController;
+use App\Http\Controllers\PersonalizationController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
@@ -59,6 +60,11 @@ Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('d
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
+    Route::get('/sizin-icin', [PersonalizationController::class, 'index'])->name('personalization.index');
+    Route::patch('/sizin-icin', [PersonalizationController::class, 'update'])->name('personalization.update');
+    Route::post('/sizin-icin/kapat', [PersonalizationController::class, 'disable'])->name('personalization.disable');
+    Route::post('/sizin-icin/ogrenilenleri-sil', [PersonalizationController::class, 'clear'])->name('personalization.clear');
+    Route::post('/sizin-icin/tarifler/{recipe:public_id}/geri-bildirim', [PersonalizationController::class, 'feedback'])->name('personalization.feedback');
     Route::get('/ai-mutfak', [AiKitchenController::class, 'index'])->name('ai-kitchen.index');
     Route::post('/ai-mutfak/asistan', [AiKitchenController::class, 'assistant'])->name('ai-kitchen.assistant');
     Route::post('/ai-mutfak/dolap', [AiKitchenController::class, 'pantry'])->name('ai-kitchen.pantry');

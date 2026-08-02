@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -108,5 +109,23 @@ class User extends Authenticatable implements MustVerifyEmail
     public function aiMealPlans(): HasMany
     {
         return $this->hasMany(AiMealPlan::class);
+    }
+
+    /** @return HasOne<PersonalizationProfile, $this> */
+    public function personalizationProfile(): HasOne
+    {
+        return $this->hasOne(PersonalizationProfile::class);
+    }
+
+    /** @return HasMany<PersonalizedRecommendation, $this> */
+    public function personalizedRecommendations(): HasMany
+    {
+        return $this->hasMany(PersonalizedRecommendation::class);
+    }
+
+    /** @return HasMany<PersonalizationFeedback, $this> */
+    public function personalizationFeedback(): HasMany
+    {
+        return $this->hasMany(PersonalizationFeedback::class);
     }
 }
