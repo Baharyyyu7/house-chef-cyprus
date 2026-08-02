@@ -37,17 +37,30 @@ return new class extends Migration
             'diagnostic_snapshot' => json_encode(['historical_record' => true, 'response_telemetry' => 'unavailable', 'raw_payload_retained' => false]),
             'status_transitions' => json_encode([['status' => 'provider_failed', 'at' => now()->toIso8601String(), 'note' => 'historical response telemetry unavailable']]),
         ]);
-        Schema::table('ai_image_generations', function (Blueprint $table): void {
-            $table->dropUnique('ai_image_generation_recipe_variation_unique');
-            $table->unique(['recipe_id', 'variation_number', 'generation_scope'], 'ai_image_generation_recipe_variation_scope_unique');
-        });
+        if (! Schema::hasIndex('ai_image_generations', 'aig_recipe_fk_ix')) {
+            Schema::table('ai_image_generations', fn (Blueprint $table) => $table->index('recipe_id', 'aig_recipe_fk_ix'));
+        }
+
+        if (Schema::hasIndex('ai_image_generations', 'ai_image_generation_recipe_variation_unique')) {
+            Schema::table('ai_image_generations', fn (Blueprint $table) => $table->dropUnique('ai_image_generation_recipe_variation_unique'));
+        }
+
+        if (! Schema::hasIndex('ai_image_generations', 'ai_image_generation_recipe_variation_scope_unique')) {
+            Schema::table('ai_image_generations', fn (Blueprint $table) => $table->unique(['recipe_id', 'variation_number', 'generation_scope'], 'ai_image_generation_recipe_variation_scope_unique'));
+        }
     }
 
     public function down(): void
     {
+        if (Schema::hasIndex('ai_image_generations', 'ai_image_generation_recipe_variation_scope_unique')) {
+            Schema::table('ai_image_generations', fn (Blueprint $table) => $table->dropUnique('ai_image_generation_recipe_variation_scope_unique'));
+        }
+
+        if (! Schema::hasIndex('ai_image_generations', 'ai_image_generation_recipe_variation_unique')) {
+            Schema::table('ai_image_generations', fn (Blueprint $table) => $table->unique(['recipe_id', 'variation_number'], 'ai_image_generation_recipe_variation_unique'));
+        }
+
         Schema::table('ai_image_generations', function (Blueprint $table): void {
-            $table->dropUnique('ai_image_generation_recipe_variation_scope_unique');
-            $table->unique(['recipe_id', 'variation_number'], 'ai_image_generation_recipe_variation_unique');
             $table->dropColumn(['generation_scope', 'response_status', 'provider_request_id', 'response_content_type', 'response_body_present', 'candidate_count', 'part_count', 'image_part_count', 'text_part_count', 'finish_reason', 'moderation_status', 'request_bytes', 'response_bytes', 'provider_latency_ms', 'billing_status', 'parser_result', 'diagnostic_snapshot', 'status_transitions']);
         });
     }

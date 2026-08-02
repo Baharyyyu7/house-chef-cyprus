@@ -105,6 +105,14 @@ return new class extends Migration
             }
         });
 
+        // InnoDB can use the original composite unique key to enforce the
+        // recipe_id foreign key. Create a dedicated support index before the
+        // unique key is replaced so partially applied production migrations
+        // never need a manual foreign-key intervention.
+        if (! Schema::hasIndex('recipe_ingredients', 'recipe_ing_recipe_fk_ix')) {
+            Schema::table('recipe_ingredients', fn (Blueprint $table) => $table->index('recipe_id', 'recipe_ing_recipe_fk_ix'));
+        }
+
         foreach (['recipe_ingredients_recipe_id_ingredient_id_unique', 'recipe_ing_pair_uq'] as $index) {
             if (Schema::hasIndex('recipe_ingredients', $index)) {
                 Schema::table('recipe_ingredients', fn (Blueprint $table) => $table->dropUnique($index));
@@ -149,6 +157,10 @@ return new class extends Migration
 
         if (! Schema::hasIndex('recipe_ingredients', 'recipe_ing_pair_uq')) {
             Schema::table('recipe_ingredients', fn (Blueprint $table) => $table->unique(['recipe_id', 'ingredient_id'], 'recipe_ing_pair_uq'));
+        }
+
+        if (Schema::hasIndex('recipe_ingredients', 'recipe_ing_recipe_fk_ix')) {
+            Schema::table('recipe_ingredients', fn (Blueprint $table) => $table->dropIndex('recipe_ing_recipe_fk_ix'));
         }
 
         Schema::dropIfExists('ingredient_substitutions');

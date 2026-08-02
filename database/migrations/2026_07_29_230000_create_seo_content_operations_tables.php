@@ -103,7 +103,7 @@ return new class extends Migration
             $table->string('normalized_query', 180)->unique();
             $table->string('locale', 10)->default('tr');
             $table->unsignedInteger('search_count')->default(0);
-            $table->timestamp('last_searched_at');
+            $table->timestamp('last_searched_at')->useCurrent();
             $table->string('suggested_action', 40)->nullable();
             $table->timestamps();
         });
@@ -118,8 +118,8 @@ return new class extends Migration
             $table->string('severity', 20);
             $table->string('message', 255);
             $table->json('safe_metadata')->nullable();
-            $table->timestamp('first_detected_at');
-            $table->timestamp('last_detected_at');
+            $table->timestamp('first_detected_at')->useCurrent();
+            $table->timestamp('last_detected_at')->useCurrent();
             $table->timestamp('resolved_at')->nullable();
             $table->timestamp('reopened_at')->nullable();
             $table->timestamps();

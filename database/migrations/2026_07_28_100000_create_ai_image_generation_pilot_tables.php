@@ -34,6 +34,9 @@ return new class extends Migration
             $table->foreignId('reviewed_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->unique(['recipe_id', 'variation_number'], 'ai_image_generation_recipe_variation_unique');
+            // Keep the recipe foreign key independent from later unique-key
+            // revisions in follow-up migrations.
+            $table->index('recipe_id', 'aig_recipe_fk_ix');
             $table->index(['provider', 'status']);
         });
 

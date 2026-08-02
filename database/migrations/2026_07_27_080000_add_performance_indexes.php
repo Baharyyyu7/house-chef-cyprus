@@ -21,7 +21,10 @@ return new class extends Migration
         Schema::table('nutrition_facts', fn (Blueprint $table) => $table->index(['nutritionable_type', 'nutritionable_id', 'nutrient_id', 'basis_type'], 'nutrition_facts_lookup_index'));
         Schema::table('recipe_nutrition_snapshots', fn (Blueprint $table) => $table->index(['recipe_id', 'invalidated_at'], 'nutrition_snapshots_active_index'));
         Schema::table('ingredient_allergen_details', fn (Blueprint $table) => $table->index(['ingredient_id', 'is_active'], 'ingredient_allergens_active_index'));
-        Schema::table('data_quality_issues', fn (Blueprint $table) => $table->index(['resolution_status', 'issue_type', 'entity_type', 'entity_public_id'], 'quality_issue_open_lookup_index'));
+        // Three 255-character utf8mb4 columns remain within MySQL/InnoDB's
+        // 3072-byte key limit. The issue_type/entity lookup is covered by the
+        // dedicated index added by the lifecycle migration.
+        Schema::table('data_quality_issues', fn (Blueprint $table) => $table->index(['resolution_status', 'entity_type', 'entity_public_id'], 'quality_issue_open_lookup_index'));
         Schema::table('jobs', fn (Blueprint $table) => $table->index(['queue', 'reserved_at'], 'jobs_queue_reserved_index'));
         Schema::table('failed_jobs', fn (Blueprint $table) => $table->index('failed_at', 'failed_jobs_failed_at_index'));
         Schema::table('audit_logs', fn (Blueprint $table) => $table->index(['user_id', 'created_at'], 'audit_user_created_index'));
