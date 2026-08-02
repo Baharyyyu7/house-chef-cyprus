@@ -40,7 +40,7 @@ return new class extends Migration
             $table->timestamp('valid_until')->nullable();
             $table->timestamps();
             $table->unique(['ingredient_id', 'household_measure_code', 'household_quantity', 'canonical_unit', 'is_active'], 'ingredient_unit_conversion_unique');
-            $table->index(['ingredient_id', 'household_measure_code', 'is_active']);
+            $table->index(['ingredient_id', 'household_measure_code', 'is_active'], 'iuc_ing_measure_active_ix');
         });
 
         Schema::table('recipe_ingredients', function (Blueprint $table): void {
@@ -55,7 +55,7 @@ return new class extends Migration
             $table->string('scaling_behavior', 30)->default('scalable')->after('can_be_substituted');
             $table->string('scaling_note')->nullable()->after('scaling_behavior');
             $table->string('manual_override_reason')->nullable()->after('scaling_note');
-            $table->index(['recipe_id', 'display_measure_code']);
+            $table->index(['recipe_id', 'display_measure_code'], 'recipe_ing_display_measure_ix');
         });
 
         Schema::table('pantry_items', function (Blueprint $table): void {
@@ -72,7 +72,7 @@ return new class extends Migration
         });
         Schema::table('recipe_ingredients', function (Blueprint $table): void {
             $table->dropForeign(['ingredient_unit_conversion_id']);
-            $table->dropIndex(['recipe_id', 'display_measure_code']);
+            $table->dropIndex('recipe_ing_display_measure_ix');
             $table->dropColumn(['display_quantity', 'display_measure_code', 'display_note', 'canonical_quantity', 'canonical_unit', 'ingredient_unit_conversion_id', 'conversion_confidence', 'conversion_method', 'scaling_behavior', 'scaling_note', 'manual_override_reason']);
         });
         Schema::dropIfExists('ingredient_unit_conversions');

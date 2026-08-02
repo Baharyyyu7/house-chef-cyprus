@@ -40,7 +40,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->unique(['personalization_profile_id', 'type', 'value'], 'personalization_preference_unique');
-            $table->index(['personalization_profile_id', 'type', 'is_active']);
+            $table->index(['personalization_profile_id', 'type', 'is_active'], 'pp_profile_type_active_ix');
         });
 
         Schema::create('personalized_recommendations', function (Blueprint $table): void {

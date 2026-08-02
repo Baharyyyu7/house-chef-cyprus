@@ -45,7 +45,7 @@ return new class extends Migration
             $table->timestamp('calculated_at');
             $table->timestamp('invalidated_at')->nullable();
             $table->timestamps();
-            $table->unique(['recipe_id', 'servings', 'source_version']);
+            $table->unique(['recipe_id', 'servings', 'source_version'], 'rns_recipe_servings_source_uq');
         });
     }
 

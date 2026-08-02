@@ -37,7 +37,7 @@ return new class extends Migration
             $table->foreignId('selected_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('media_id')->nullable()->constrained('media')->nullOnDelete();
             $table->timestamps();
-            $table->unique(['recipe_id', 'provider', 'external_photo_id']);
+            $table->unique(['recipe_id', 'provider', 'external_photo_id'], 'rmc_recipe_provider_photo_uq');
             $table->index(['review_batch', 'status']);
             $table->index(['provider', 'external_photo_id']);
         });

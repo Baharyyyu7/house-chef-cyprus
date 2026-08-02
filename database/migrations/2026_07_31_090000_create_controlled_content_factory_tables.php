@@ -41,7 +41,7 @@ return new class extends Migration
             $table->foreignId('reviewed_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();
-            $table->unique(['entity_type', 'entity_public_id', 'stage']);
+            $table->unique(['entity_type', 'entity_public_id', 'stage'], 'cfr_entity_stage_uq');
         });
 
         Schema::create('content_topic_clusters', function (Blueprint $table): void {

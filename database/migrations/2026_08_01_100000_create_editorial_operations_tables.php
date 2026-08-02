@@ -96,7 +96,7 @@ return new class extends Migration
             $table->foreignId('decided_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('decided_at')->nullable();
             $table->timestamps();
-            $table->unique(['editorial_review_pack_id', 'section_key']);
+            $table->unique(['editorial_review_pack_id', 'section_key'], 'ers_pack_section_uq');
         });
     }
 
