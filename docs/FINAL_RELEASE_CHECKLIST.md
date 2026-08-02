@@ -1,5 +1,11 @@
 # V1.0 Release Candidate iç kontrol listesi
 
+## RC1 kanıt kapısı
+
+- [x] Route/auth, katalog görünürlüğü, SEO/media/AI güvenliği ve operasyon sinyalleri için `release-candidate:rc1-audit --json` sözleşmesi vardır.
+- [ ] Yetkili operatör gerçek production environment ve browser/assistive-tech kabul kanıtını kaydetmiştir.
+- [ ] Domain/DNS/TLS, SMTP, off-server backup ve monitoring launch onayıyla doğrulanmıştır.
+
 ## RC kapanış karar çerçevesi
 
 ## Milestone B production içerik kapıları

@@ -4,6 +4,10 @@
 
 Milestone G, mevcut feature setini genişletmeden public/member/admin yüzeylerini ortak production tasarım sistemi, erişilebilirlik, responsive davranış ve gerçekçi UX health denetimi ile birleştirir. UX skorları yalnız statik ön kontroldür; gerçek browser, screen-reader, Core Web Vitals ve kullanıcı kabul testi olmadan 100 veya tamamlanmış olarak sunulmaz.
 
+## Release Candidate 1 — final product validation
+
+RC1, yeni ürün kapsamı açmadan public/member/admin, katalog, SEO, medya, AI, güvenlik, erişilebilirlik ve operasyonların gerçek kanıtlarını bir araya getirir. Teknik sonucu [RC1 kontrol merkezinde](RC1_MASTER_VALIDATION.md) izlenir. Production domain/DNS/TLS/SMTP, monitoring, gerçek cihaz/assistive-tech QA ve insan editoryal onayı dış launch bağımlılıklarıdır.
+
 ## Completed Production Programı — Milestone D Real Media Excellence
 
 Milestone D, mevcut Pexels/Unsplash private review zincirini genişleterek gerçek medya envanteri, fidelity/lisans/attribution denetimleri, responsive varyasyonlar ve yalnız onaylı gerçek medya için schema/OG/image-sitemap kapısını kapsar. Gerçek katalog kapsaması insan editoryal review ile ilerler; sistem otomatik public etme, sahte medya veya sahte onay üretmez.

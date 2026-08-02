@@ -4,6 +4,10 @@
 
 Domain/VPS geldikten sonra uygulanacak güvenli operasyon sırası: [Go-live runbook](docs/GO_LIVE_RUNBOOK.md). Staging sözleşmesi, VPS şablonları, storage/Redis/PHP-FPM ve post-deploy smoke rehberleri `docs/` altında bulunur. Bu repository gerçek deploy veya DNS değişikliği yapmaz.
 
+## Release Candidate 1
+
+RC1, mevcut ürünü yeni kapsam açmadan doğrular. [RC1 kontrol merkezi](docs/RC1_MASTER_VALIDATION.md), gerçek katalog/route/servis sinyallerini toplar; gerçek cihaz QA, ekran okuyucu, saha Core Web Vitals, hosting/DNS/TLS/SMTP ve insan editoryal onayı yerine geçmez.
+
 ## Milestone G — Product Experience
 
 Public, member ve admin yüzeyleri ortak tasarım tokenları, erişilebilir primitive’ler, light/dark sözleşmesi ve mobil davranışla birleşir. [Ürün deneyimi sağlık denetimi](docs/PRODUCT_EXPERIENCE_HEALTH.md) güvenli statik ön kontroller sağlar; gerçek tarayıcı, ekran okuyucu ve saha Core Web Vitals doğrulaması ayrı kabul kapısıdır.

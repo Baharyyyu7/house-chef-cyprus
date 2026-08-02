@@ -99,6 +99,11 @@
 - Recipe/Nutrition/Data Quality, cache/queue/scheduler/performance, security/media ve observability/backup/restore altyapıları tamamlandı.
 # Unreleased
 
+## Release Candidate 1 validation
+
+- Added a truthful RC1 command centre and `release-candidate:rc1-audit` machine-readable evidence contract for catalogue, route, SEO, media, AI, operations and UX signals.
+- Added RC1 regression, blocker, operations, performance/CWV readiness and go-live documentation. Production-hosting and human acceptance evidence remain explicit external gates.
+
 ## Milestone F — Production Infrastructure & Launch Readiness
 
 - Added strict production/staging environment contracts and safe database, queue, scheduler, mail, security, health and release-manifest operational commands.
