@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\MeasurementController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\MediaOperationsController;
 use App\Http\Controllers\Admin\NutritionController as AdminNutritionController;
+use App\Http\Controllers\Admin\PersonalizationOperationsController;
 use App\Http\Controllers\Admin\ProductExperienceController;
 use App\Http\Controllers\Admin\ProductionContentController;
 use App\Http\Controllers\Admin\RecipeController as AdminRecipeController;
@@ -61,7 +62,13 @@ Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/sizin-icin', [PersonalizationController::class, 'index'])->name('personalization.index');
+    Route::get('/sizin-icin/baslangic', [PersonalizationController::class, 'onboarding'])->name('personalization.onboarding');
+    Route::post('/sizin-icin/baslangic', [PersonalizationController::class, 'completeOnboarding'])->name('personalization.onboarding.complete');
     Route::patch('/sizin-icin', [PersonalizationController::class, 'update'])->name('personalization.update');
+    Route::post('/sizin-icin/ac', [PersonalizationController::class, 'enable'])->name('personalization.enable');
+    Route::patch('/sizin-icin/gizlilik', [PersonalizationController::class, 'settings'])->name('personalization.settings');
+    Route::post('/sizin-icin/export-talebi', [PersonalizationController::class, 'export'])->name('personalization.export');
+    Route::post('/sizin-icin/menu', [PersonalizationController::class, 'mealPlan'])->name('personalization.meal-plan');
     Route::post('/sizin-icin/kapat', [PersonalizationController::class, 'disable'])->name('personalization.disable');
     Route::post('/sizin-icin/ogrenilenleri-sil', [PersonalizationController::class, 'clear'])->name('personalization.clear');
     Route::post('/sizin-icin/tarifler/{recipe:public_id}/geri-bildirim', [PersonalizationController::class, 'feedback'])->name('personalization.feedback');
@@ -99,6 +106,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
 
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
     Route::get('ai-operasyonlari', [AdminAiKitchenController::class, 'index'])->middleware('can:access-ai-operations')->name('ai-kitchen.index');
+    Route::get('kisisellestirme-operasyonlari', [PersonalizationOperationsController::class, 'index'])->name('personalization.index');
     Route::get('/', AdminDashboardController::class)->name('dashboard');
     Route::get('urun-deneyimi', ProductExperienceController::class)->name('product-experience.index');
     Route::get('release-candidate', ReleaseCandidateController::class)->name('release-candidate.index');

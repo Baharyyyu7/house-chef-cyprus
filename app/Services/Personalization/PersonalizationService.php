@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Personalization;
 
 use App\Models\AuditLog;
+use App\Models\PersonalizationExportRequest;
 use App\Models\PersonalizationFeedback;
 use App\Models\PersonalizationProfile;
 use App\Models\PersonalizedRecommendation;
@@ -35,7 +36,7 @@ final class PersonalizationService
             $profile = $this->profile($user);
             $profile->fill($attributes);
             $profile->profile_version++;
-            $profile->last_recalculated_at = now();
+            $profile->last_recalculated_at = now()->toDateTimeString();
             $profile->save();
 
             foreach ($preferences as $type => $values) {
@@ -56,6 +57,25 @@ final class PersonalizationService
         });
     }
 
+    /** @param array<string, mixed> $attributes @param array<string, list<string>> $preferences */
+    public function completeOnboarding(User $user, array $attributes, array $preferences = []): PersonalizationProfile
+    {
+        $attributes['onboarding_completed'] = true;
+
+        return $this->updateProfile($user, $attributes, $preferences);
+    }
+
+    /** @param array<string, bool> $settings */
+    public function updateSettings(User $user, array $settings): PersonalizationProfile
+    {
+        $profile = $this->profile($user);
+        $profile->update(['settings' => array_replace($this->defaultSettings(), $profile->settings ?? [], $settings)]);
+        $this->forget($user);
+        $this->audit($user, 'personalization.privacy_settings_updated', $profile, ['profile_public_id' => $profile->public_id]);
+
+        return $profile->fresh();
+    }
+
     /** @return Collection<int, PersonalizedRecommendation> */
     public function recommendations(User $user, int $limit = 12): Collection
     {
@@ -66,7 +86,7 @@ final class PersonalizationService
 
         $key = 'personalization:recommendations:'.$user->public_id.':'.self::SCORE_VERSION;
 
-        return Cache::remember($key, now()->addMinutes(15), function () use ($user, $profile, $limit): Collection {
+        return Cache::remember($key, now()->addMinutes(15), function () use ($profile, $limit, $user): Collection {
             $hidden = $user->personalizationFeedback()->where('type', 'hide_recipe')->whereNull('withdrawn_at')->pluck('recipe_id');
             $excludedIngredients = $profile->preferences()->whereIn('type', ['excluded_ingredient', 'allergen'])->where('is_active', true)->pluck('value')->all();
             $pantry = $user->pantryItems()->where('is_available', true)->where(fn (Builder $query) => $query->whereNull('expires_at')->orWhereDate('expires_at', '>=', today()))->pluck('ingredient_id');
@@ -92,7 +112,7 @@ final class PersonalizationService
                     return $recipe->ingredients->contains(fn ($ingredient): bool => in_array($ingredient->public_id, $excludedIngredients, true));
                 });
 
-            $recommendations = $recipes->map(function (Recipe $recipe) use ($user, $pantry, $favorites, $favoriteCuisines): array {
+            $recommendations = $recipes->map(function (Recipe $recipe) use ($pantry, $favorites, $favoriteCuisines): array {
                 $reasons = [];
                 $factors = [];
                 $score = 10;
@@ -166,6 +186,16 @@ final class PersonalizationService
         return $profile->fresh();
     }
 
+    public function enable(User $user): PersonalizationProfile
+    {
+        $profile = $this->profile($user);
+        $profile->update(['personalization_enabled' => true]);
+        $this->forget($user);
+        $this->audit($user, 'personalization.enabled', $profile, ['profile_public_id' => $profile->public_id]);
+
+        return $profile->fresh();
+    }
+
     public function clearLearnedData(User $user): void
     {
         DB::transaction(function () use ($user): void {
@@ -175,6 +205,49 @@ final class PersonalizationService
             $this->audit($user, 'personalization.learned_data_cleared', $profile, ['profile_public_id' => $profile->public_id]);
         });
         $this->forget($user);
+    }
+
+    public function clearRecommendationHistory(User $user): void
+    {
+        $user->personalizedRecommendations()->delete();
+        $this->forget($user);
+        $this->audit($user, 'personalization.recommendation_history_cleared', $this->profile($user), []);
+    }
+
+    public function requestExport(User $user): PersonalizationExportRequest
+    {
+        $request = $user->personalizationExportRequests()->firstOrCreate(
+            ['status' => 'requested'],
+            ['requested_at' => now()],
+        );
+        $this->audit($user, 'personalization.export_requested', $request, ['export_public_id' => $request->public_id]);
+
+        return $request;
+    }
+
+    /** @return array<string, mixed> */
+    public function export(User $user): array
+    {
+        $profile = $this->profile($user)->load('preferences');
+
+        return [
+            'profile' => ['public_id' => $profile->public_id, 'enabled' => $profile->personalization_enabled, 'onboarding_completed' => $profile->onboarding_completed, 'settings' => $profile->settings],
+            'preferences' => $profile->preferences->map(fn ($item): array => ['public_id' => $item->public_id, 'type' => $item->type, 'value' => $item->value, 'source' => $item->source, 'active' => $item->is_active])->all(),
+            'feedback' => $user->personalizationFeedback()->latest()->get()->map(fn ($item): array => ['public_id' => $item->public_id, 'recipe_public_id' => $item->recipe?->public_id, 'type' => $item->type, 'created_at' => $item->created_at?->toIso8601String()])->all(),
+        ];
+    }
+
+    /** @return array<string, int> */
+    public function health(): array
+    {
+        return [
+            'enabled_users' => PersonalizationProfile::query()->where('personalization_enabled', true)->count(),
+            'complete_profiles' => PersonalizationProfile::query()->where('onboarding_completed', true)->count(),
+            'recommendations' => PersonalizedRecommendation::query()->where('status', 'active')->count(),
+            'missing_explanations' => PersonalizedRecommendation::query()->whereNull('reason_codes')->count(),
+            'opt_outs' => PersonalizationProfile::query()->where('personalization_enabled', false)->count(),
+            'feedback' => PersonalizationFeedback::query()->whereNull('withdrawn_at')->count(),
+        ];
     }
 
     private function forget(User $user): void

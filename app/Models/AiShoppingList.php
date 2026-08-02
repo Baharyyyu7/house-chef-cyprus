@@ -8,6 +8,7 @@ use App\Models\Concerns\HasPublicId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/** @property list<array<string, mixed>> $items */
 final class AiShoppingList extends Model
 {
     use HasPublicId;

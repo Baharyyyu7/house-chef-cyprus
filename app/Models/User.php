@@ -111,6 +111,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(AiMealPlan::class);
     }
 
+    /** @return HasMany<AiShoppingList, $this> */
+    public function aiShoppingLists(): HasMany
+    {
+        return $this->hasMany(AiShoppingList::class);
+    }
+
     /** @return HasOne<PersonalizationProfile, $this> */
     public function personalizationProfile(): HasOne
     {
@@ -127,5 +133,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function personalizationFeedback(): HasMany
     {
         return $this->hasMany(PersonalizationFeedback::class);
+    }
+
+    /** @return HasMany<PersonalizationExportRequest, $this> */
+    public function personalizationExportRequests(): HasMany
+    {
+        return $this->hasMany(PersonalizationExportRequest::class);
     }
 }

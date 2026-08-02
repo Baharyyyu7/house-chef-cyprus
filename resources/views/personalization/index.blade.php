@@ -22,12 +22,15 @@
                         <button class="hc-button-secondary" type="submit">Kişiselleştirmeyi kapat</button>
                     </form>
                 @else
-                    <p class="rounded-full bg-stone-100 px-3 py-1 text-sm font-medium dark:bg-stone-800">Kişiselleştirme kapalı</p>
+                    <div class="flex items-center gap-3"><p class="rounded-full bg-stone-100 px-3 py-1 text-sm font-medium dark:bg-stone-800">Kişiselleştirme kapalı</p><form method="POST" action="{{ route('personalization.enable') }}">@csrf<button class="hc-button-primary" type="submit">Yeniden aç</button></form></div>
                 @endif
             </div>
         </section>
 
         @if ($profile->personalization_enabled)
+            @if (! $profile->onboarding_completed)
+                <section class="rounded-2xl border border-orange-200 bg-orange-50 p-6 dark:border-orange-900 dark:bg-orange-950"><h2 class="text-xl font-bold">Tercihlerinizi 2 dakikada tamamlayın</h2><p class="mt-1 text-sm">Bu adım isteğe bağlıdır. Sadece sizin seçtiğiniz tercihleri kullanırız.</p><a class="hc-button-primary mt-4 inline-flex" href="{{ route('personalization.onboarding') }}">Onboarding'i başlat</a></section>
+            @endif
             <section aria-labelledby="personalized-recipes">
                 <div class="mb-4 flex items-end justify-between gap-4">
                     <div>
@@ -73,5 +76,9 @@
             </form>
             <form class="mt-5" method="POST" action="{{ route('personalization.clear') }}">@csrf<button class="text-sm font-semibold underline" type="submit">Öğrenilmiş tercihleri ve öneri geçmişini sil</button></form>
         </section>
+
+        <section class="hc-panel p-6" aria-labelledby="plan-heading"><h2 id="plan-heading" class="text-xl font-bold">Akıllı menü planı</h2><p class="mt-1 text-sm text-stone-600 dark:text-stone-300">Yalnız yayındaki, doğrulanmış tariflerden; alerjen ve hariç malzeme filtresi korunarak taslak oluşturur.</p><form class="mt-4 flex flex-wrap items-end gap-3" method="POST" action="{{ route('personalization.meal-plan') }}">@csrf<label>Gün<select class="hc-input mt-1" name="days"><option value="7">7 gün</option><option value="14">14 gün</option><option value="30">30 gün</option></select></label><label>En uzun süre (dk)<input class="hc-input mt-1 w-32" name="max_minutes" min="10" max="360" type="number"></label><label class="flex items-center gap-2"><input name="pantry_priority" type="checkbox" value="1">Dolabı öncele</label><button class="hc-button-primary" type="submit">Taslak plan oluştur</button></form></section>
+
+        <section class="hc-panel p-6" aria-labelledby="privacy-heading"><h2 id="privacy-heading" class="text-xl font-bold">Gizlilik kontrolleri</h2><p class="mt-1 text-sm text-stone-600 dark:text-stone-300">Açık tercihler ve sistemin öğrendiği sinyaller birbirinden ayrıdır. Bu ayarlar yeni çıkarımları durdurabilir.</p><form class="mt-4 grid gap-3 sm:grid-cols-2" method="POST" action="{{ route('personalization.settings') }}">@csrf @method('PATCH') @foreach(['history_usage'=>'Pişirme geçmişini kullan','pantry_usage'=>'Dolabımı kullan','favorites_usage'=>'Favorilerimi kullan','cooking_history_usage'=>'Oturum geçmişini kullan','ai_memory_usage'=>'AI hafızasını kullan','inferred_preferences'=>'Öğrenilmiş tercihleri kullan'] as $key=>$label)<label class="flex items-center gap-2 text-sm"><input name="{{ $key }}" type="checkbox" value="1" @checked(($profile->settings[$key] ?? false))>{{ $label }}</label>@endforeach<div class="sm:col-span-2"><button class="hc-button-secondary" type="submit">Gizlilik ayarlarını kaydet</button></div></form><form class="mt-4" method="POST" action="{{ route('personalization.export') }}">@csrf<button class="text-sm font-semibold underline" type="submit">Verilerim için dışa aktarma talebi oluştur</button></form></section>
     </div>
 </x-app-layout>
