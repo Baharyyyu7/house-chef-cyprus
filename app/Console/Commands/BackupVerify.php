@@ -20,10 +20,19 @@ final class BackupVerify extends Command
             $this->line($this->option('json') ? json_encode($result, JSON_UNESCAPED_SLASHES) : 'Backup doğrulandı: '.$result['backup_id']);
 
             return self::SUCCESS;
-        } catch (\Throwable) {
-            $this->error('Backup doğrulanamadı.');
+        } catch (\Throwable $exception) {
+            $code = $this->safeCode($exception);
+            $result = ['status' => 'failed', 'error' => ['code' => $code, 'message' => 'Backup doğrulanamadı.']];
+            $this->line($this->option('json') ? (string) json_encode($result, JSON_UNESCAPED_SLASHES) : 'Backup doğrulanamadı. ['.$code.']');
 
             return self::FAILURE;
         }
+    }
+
+    private function safeCode(\Throwable $exception): string
+    {
+        $code = $exception instanceof \RuntimeException ? $exception->getMessage() : 'BACKUP_UNEXPECTED_FAILURE';
+
+        return preg_match('/^BACKUP_[A-Z_]+$/', $code) === 1 ? $code : 'BACKUP_UNEXPECTED_FAILURE';
     }
 }

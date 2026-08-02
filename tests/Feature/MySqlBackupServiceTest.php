@@ -38,6 +38,7 @@ final class MySqlBackupServiceTest extends TestCase
             'observability.backup_disk' => 'local',
             'observability.backup_path' => 'backups',
             'observability.mysqldump_binary' => $this->dumpBinary,
+            'production.commit_sha' => 'c32602d098097e16c5be1609f36e01ba6dc55331',
         ]);
     }
 
@@ -56,6 +57,7 @@ final class MySqlBackupServiceTest extends TestCase
 
         $this->assertSame('mysql', $manifest['database_driver']);
         $this->assertSame('database.sql.gz', $manifest['database_file']);
+        $this->assertSame('c32602d098097e16c5be1609f36e01ba6dc55331', $manifest['commit_sha']);
         $this->assertNotEmpty($manifest['checksum']);
         Storage::disk('local')->assertExists('backups/'.$manifest['backup_id'].'/database.sql.gz');
 
@@ -107,5 +109,25 @@ final class MySqlBackupServiceTest extends TestCase
         } catch (RuntimeException $exception) {
             $this->assertSame('BACKUP_MYSQLDUMP_MISSING', $exception->getMessage());
         }
+    }
+
+    public function test_backup_commands_report_safe_json_codes_without_exception_details(): void
+    {
+        config(['observability.mysqldump_binary' => '/not/a/real/mysqldump']);
+
+        $this->artisan('backup:create --json')
+            ->expectsOutputToContain('BACKUP_MYSQLDUMP_MISSING')
+            ->doesntExpectOutputToContain('not-a-real-password')
+            ->assertFailed();
+    }
+
+    public function test_mysql_verify_reports_checksum_failure_after_tampering(): void
+    {
+        $manifest = app(BackupService::class)->create();
+        Storage::disk('local')->put('backups/'.$manifest['backup_id'].'/database.sql.gz', 'tampered');
+
+        $this->artisan('backup:verify', ['backup_id' => $manifest['backup_id'], '--json' => true])
+            ->expectsOutputToContain('BACKUP_CHECKSUM_INVALID')
+            ->assertFailed();
     }
 }

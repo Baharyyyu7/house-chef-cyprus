@@ -13,6 +13,7 @@ return [
     'trusted_proxies' => env('TRUSTED_PROXIES'),
     'allow_sqlite' => (bool) env('PRODUCTION_ALLOW_SQLITE', false),
     'artifact_version' => 'production-artifact-v1',
+    'commit_sha' => env('APP_COMMIT_SHA'),
     'mail_health_requires_smtp' => (bool) env('PRODUCTION_MAIL_REQUIRED', true),
     'scheduler_max_age_minutes' => (int) env('SCHEDULER_MAX_AGE_MINUTES', 30),
     'queue_worker_mode' => env('QUEUE_WORKER_MODE', 'cron_stop_when_empty'),

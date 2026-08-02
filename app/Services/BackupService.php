@@ -46,7 +46,11 @@ final class BackupService
 
         $temporary = $this->copyFromDisk($base.'/'.$file);
         try {
-            if (! hash_equals((string) ($manifest['checksum'] ?? ''), (string) hash_file('sha256', $temporary))) {
+            $checksum = hash_file('sha256', $temporary);
+            if ($checksum === false) {
+                throw new RuntimeException('BACKUP_CHECKSUM_FAILED');
+            }
+            if (! hash_equals((string) ($manifest['checksum'] ?? ''), $checksum)) {
                 throw new RuntimeException('BACKUP_CHECKSUM_INVALID');
             }
 
@@ -61,7 +65,7 @@ final class BackupService
 
         $manifest['verified_at'] = now()->toIso8601String();
         $manifest['status'] = 'verified';
-        $disk->put($base.'/manifest.json', $this->json($manifest));
+        $this->putManifest($base.'/manifest.json', $manifest);
 
         return $manifest;
     }
@@ -72,7 +76,7 @@ final class BackupService
         $manifest = $this->verify($id);
         $manifest['restore_test_status'] = 'verified_only';
         $manifest['restore_tested_at'] = now()->toIso8601String();
-        $this->disk()->put($this->basePath().'/'.$id.'/manifest.json', $this->json($manifest));
+        $this->putManifest($this->basePath().'/'.$id.'/manifest.json', $manifest);
 
         return $manifest;
     }
@@ -112,7 +116,7 @@ final class BackupService
 
         $manifest['restore_test_status'] = 'restored_testing_database';
         $manifest['restore_tested_at'] = now()->toIso8601String();
-        $this->disk()->put($this->basePath().'/'.$id.'/manifest.json', $this->json($manifest));
+        $this->putManifest($this->basePath().'/'.$id.'/manifest.json', $manifest);
 
         return $manifest;
     }
@@ -187,20 +191,25 @@ final class BackupService
         }
 
         $defaults = $this->writeMysqlDefaults($connection);
-        $compressed = tempnam(sys_get_temp_dir(), 'housechef-mysql-backup-');
-        if ($compressed === false) {
+        $compressed = $this->temporaryFile('housechef-mysql-backup-', '.sql.gz');
+        if ($compressed === null) {
             $this->secureDelete($defaults);
-            throw new RuntimeException('BACKUP_GZIP_FAILED');
+            throw new RuntimeException('BACKUP_GZIP_STREAM_FAILED');
         }
 
         try {
             $databaseSize = $this->dumpMysql($this->mysqlDumpBinary(), $defaults, (string) $connection['database'], $compressed);
             $contents = fopen($compressed, 'rb');
             if ($contents === false) {
-                throw new RuntimeException('BACKUP_GZIP_FAILED');
+                throw new RuntimeException('BACKUP_GZIP_STREAM_FAILED');
             }
             try {
-                return $this->storeBackupStream($type, 'mysql', 'database.sql.gz', $contents, (string) hash_file('sha256', $compressed), $databaseSize);
+                $checksum = hash_file('sha256', $compressed);
+                if ($checksum === false) {
+                    throw new RuntimeException('BACKUP_CHECKSUM_FAILED');
+                }
+
+                return $this->storeBackupStream($type, 'mysql', 'database.sql.gz', $contents, $checksum, $databaseSize);
             } finally {
                 fclose($contents);
             }
@@ -215,7 +224,14 @@ final class BackupService
     {
         $id = (string) Str::ulid();
         $base = $this->basePath().'/'.$id;
-        $this->disk()->put($base.'/'.$file, $contents);
+        try {
+            $written = $this->disk()->put($base.'/'.$file, $contents);
+        } catch (\Throwable) {
+            throw new RuntimeException('BACKUP_STORAGE_WRITE_FAILED');
+        }
+        if (! $written) {
+            throw new RuntimeException('BACKUP_STORAGE_WRITE_FAILED');
+        }
 
         return $this->writeManifest($id, $type, $driver, $file, hash('sha256', $contents), $databaseSize);
     }
@@ -225,8 +241,13 @@ final class BackupService
     {
         $id = (string) Str::ulid();
         $base = $this->basePath().'/'.$id;
-        if (! $this->disk()->put($base.'/'.$file, $stream)) {
-            throw new RuntimeException('BACKUP_DUMP_FAILED');
+        try {
+            $written = $this->disk()->put($base.'/'.$file, $stream);
+        } catch (\Throwable) {
+            throw new RuntimeException('BACKUP_STORAGE_WRITE_FAILED');
+        }
+        if (! $written) {
+            throw new RuntimeException('BACKUP_STORAGE_WRITE_FAILED');
         }
 
         return $this->writeManifest($id, $type, $driver, $file, $checksum, $databaseSize);
@@ -239,8 +260,8 @@ final class BackupService
             'backup_id' => $id,
             'type' => $this->safeType($type),
             'created_at' => now()->toIso8601String(),
-            'app_version' => trim((string) @shell_exec('git describe --tags --always 2>/dev/null')) ?: 'local',
-            'commit_sha' => trim((string) @shell_exec('git rev-parse HEAD 2>/dev/null')) ?: null,
+            'app_version' => $this->releaseCommitSha() ? substr((string) $this->releaseCommitSha(), 0, 12) : 'unknown',
+            'commit_sha' => $this->releaseCommitSha(),
             'database_driver' => $driver,
             'database_file' => $file,
             'database_size' => $databaseSize,
@@ -254,7 +275,7 @@ final class BackupService
             'retention_date' => now()->addDays((int) config('observability.backup_retention_days'))->toDateString(),
             'source_environment' => app()->environment(),
         ];
-        $this->disk()->put($this->basePath().'/'.$id.'/manifest.json', $this->json($manifest));
+        $this->putManifest($this->basePath().'/'.$id.'/manifest.json', $manifest);
 
         return $manifest;
     }
@@ -272,7 +293,7 @@ final class BackupService
     {
         $gzip = @gzopen($compressed, 'rb');
         if ($gzip === false) {
-            throw new RuntimeException('BACKUP_GZIP_FAILED');
+            throw new RuntimeException('BACKUP_GZIP_STREAM_FAILED');
         }
 
         $limit = max(1048576, (int) config('observability.backup_verify_max_sql_bytes', 33554432));
@@ -282,7 +303,7 @@ final class BackupService
             while (! gzeof($gzip) && $read < $limit) {
                 $chunk = gzread($gzip, min(8192, $limit - $read));
                 if ($chunk === false) {
-                    throw new RuntimeException('BACKUP_GZIP_FAILED');
+                    throw new RuntimeException('BACKUP_GZIP_STREAM_FAILED');
                 }
                 $read += strlen($chunk);
                 $sample = substr($sample.$chunk, -32768);
@@ -301,26 +322,32 @@ final class BackupService
     {
         $gzip = @gzopen($compressed, 'wb9');
         if ($gzip === false) {
-            throw new RuntimeException('BACKUP_GZIP_FAILED');
+            throw new RuntimeException('BACKUP_GZIP_STREAM_FAILED');
         }
 
         $bytes = 0;
         try {
-            $process = new Process([$binary, '--defaults-extra-file='.$defaults, '--single-transaction', '--quick', '--skip-comments', '--routines', '--events', '--databases', $database]);
-            $process->setTimeout(900);
-            $process->run(function (string $type, string $buffer) use ($gzip, &$bytes): void {
-                if ($type === Process::OUT) {
-                    $bytes += strlen($buffer);
-                    if (gzwrite($gzip, $buffer) === false) {
-                        throw new RuntimeException('BACKUP_GZIP_FAILED');
+            try {
+                $process = new Process([$binary, '--defaults-extra-file='.$defaults, '--single-transaction', '--quick', '--skip-comments', '--routines', '--events', '--databases', $database]);
+                $process->setTimeout(900);
+                $process->run(function (string $type, string $buffer) use ($gzip, &$bytes): void {
+                    if ($type === Process::OUT) {
+                        $bytes += strlen($buffer);
+                        $this->writeGzip($gzip, $buffer);
                     }
-                }
-            });
-            if (! $process->isSuccessful()) {
-                throw new RuntimeException('BACKUP_DUMP_FAILED');
+                });
+            } catch (RuntimeException $exception) {
+                throw $exception;
+            } catch (\Throwable) {
+                throw new RuntimeException('BACKUP_DUMP_STREAM_FAILED');
+            }
+            if (! $process->isSuccessful() || $bytes === 0) {
+                throw new RuntimeException('BACKUP_DUMP_STREAM_FAILED');
             }
         } finally {
-            gzclose($gzip);
+            if (gzclose($gzip) === false) {
+                throw new RuntimeException('BACKUP_GZIP_STREAM_FAILED');
+            }
         }
 
         return $bytes;
@@ -329,9 +356,9 @@ final class BackupService
     /** @param array<string, mixed> $connection */
     private function writeMysqlDefaults(array $connection): string
     {
-        $path = tempnam(sys_get_temp_dir(), 'housechef-mysql-client-');
-        if ($path === false) {
-            throw new RuntimeException('BACKUP_DUMP_FAILED');
+        $path = $this->temporaryFile('housechef-mysql-client-', '.cnf');
+        if ($path === null) {
+            throw new RuntimeException('BACKUP_DUMP_STREAM_FAILED');
         }
 
         $values = [
@@ -343,13 +370,13 @@ final class BackupService
         foreach ($values as $value) {
             if (str_contains($value, "\n") || str_contains($value, "\r") || str_contains($value, "\0")) {
                 $this->secureDelete($path);
-                throw new RuntimeException('BACKUP_DUMP_FAILED');
+                throw new RuntimeException('BACKUP_DUMP_STREAM_FAILED');
             }
         }
         $contents = "[client]\n".collect($values)->map(fn (string $value, string $key): string => $key.'=\"'.$this->mysqlOptionValue($value).'\"')->implode("\n")."\n";
         if (file_put_contents($path, $contents) === false || ! @chmod($path, 0600)) {
             $this->secureDelete($path);
-            throw new RuntimeException('BACKUP_DUMP_FAILED');
+            throw new RuntimeException('BACKUP_DUMP_STREAM_FAILED');
         }
 
         return $path;
@@ -470,7 +497,71 @@ final class BackupService
     /** @param array<string, mixed> $value */
     private function json(array $value): string
     {
-        return (string) json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $json = json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        if ($json === false) {
+            throw new RuntimeException('BACKUP_MANIFEST_WRITE_FAILED');
+        }
+
+        return $json;
+    }
+
+    /** @param array<string, mixed> $manifest */
+    private function putManifest(string $path, array $manifest): void
+    {
+        try {
+            $written = $this->disk()->put($path, $this->json($manifest));
+        } catch (\Throwable) {
+            throw new RuntimeException('BACKUP_MANIFEST_WRITE_FAILED');
+        }
+        if (! $written) {
+            throw new RuntimeException('BACKUP_MANIFEST_WRITE_FAILED');
+        }
+    }
+
+    private function releaseCommitSha(): ?string
+    {
+        $metadata = base_path('.house-chef-build-commit');
+        $candidates = [
+            is_readable($metadata) ? trim((string) file_get_contents($metadata)) : null,
+            config('production.commit_sha'),
+        ];
+        foreach ($candidates as $candidate) {
+            if (is_string($candidate) && preg_match('/^[0-9a-f]{7,64}$/', $candidate) === 1) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private function temporaryFile(string $prefix, string $suffix): ?string
+    {
+        $temporary = tempnam(sys_get_temp_dir(), $prefix);
+        if ($temporary === false) {
+            return null;
+        }
+        $target = $temporary.$suffix;
+        if (! @rename($temporary, $target)) {
+            $this->secureDelete($temporary);
+
+            return null;
+        }
+
+        return $target;
+    }
+
+    /** @param resource $gzip */
+    private function writeGzip($gzip, string $buffer): void
+    {
+        $offset = 0;
+        $length = strlen($buffer);
+        while ($offset < $length) {
+            $written = gzwrite($gzip, substr($buffer, $offset));
+            if ($written === false || $written === 0) {
+                throw new RuntimeException('BACKUP_GZIP_STREAM_FAILED');
+            }
+            $offset += $written;
+        }
     }
 
     private function secureDelete(string $path): void
