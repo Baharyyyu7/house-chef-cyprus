@@ -7,5 +7,5 @@ while IFS= read -r match; do
   [[ "$target" =~ ^https?:// || "$target" == \#* || -z "$target" ]] && continue
   target="${target%%#*}"
   [[ -e "$(dirname "$file")/$target" ]] || { echo "Kırık yerel belge bağlantısı: $file -> $target" >&2; missing=1; }
-done < <(grep -RHEo '\]\(([^ )]+)' README.md SECURITY.md CONTRIBUTING.md docs 2>/dev/null)
+done < <(grep -RHEIo '\]\(([^ )]+)' README.md SECURITY.md CONTRIBUTING.md docs 2>/dev/null)
 [[ "$missing" -eq 0 ]] && echo 'Documentation link check passed.'
