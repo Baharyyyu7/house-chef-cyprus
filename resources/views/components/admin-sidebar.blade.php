@@ -1,26 +1,31 @@
 @php
     $groups = [
-        'Genel' => [
+        'Genel Bakış' => [
             ['route' => 'admin.dashboard', 'label' => 'Genel Bakış', 'icon' => 'sparkles'],
             ['route' => 'admin.product-experience.index', 'label' => 'Ürün Deneyimi', 'icon' => 'sparkles'],
             ['route' => 'admin.release-candidate.index', 'label' => 'RC1 Kontrol Merkezi', 'icon' => 'check'],
+        ],
+        'Kullanıcı ve akıllı sistemler' => [
             ['route' => 'admin.users.index', 'label' => 'Kullanıcılar', 'icon' => 'users'],
             ['route' => 'admin.ai-kitchen.index', 'label' => 'AI Operasyonları', 'icon' => 'sparkles'],
             ['route' => 'admin.personalization.index', 'label' => 'Kişiselleştirme', 'icon' => 'users'],
         ],
-        'İçerik' => [
+        'İçerik yönetimi' => [
             ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => 'menu'],
+            ['route' => 'admin.blog.index', 'label' => 'Blog Yazıları', 'icon' => 'menu'],
+            ['route' => 'admin.content-factory.index', 'label' => 'İçerik Fabrikası', 'icon' => 'sparkles'],
+            ['route' => 'admin.production-content.index', 'label' => 'Production İçerik Merkezi', 'icon' => 'check'],
+            ['route' => 'admin.editorial-operations.index', 'label' => 'Editoryal Operasyonlar', 'icon' => 'check'],
             ['route' => 'admin.recipe-verification.index', 'label' => 'İçerik Doğrulama', 'icon' => 'check'],
+        ],
+        'Medya' => [
             ['route' => 'admin.media.index', 'label' => 'Medya', 'icon' => 'image'],
             ['route' => 'admin.media-operations.index', 'label' => 'Medya Operasyonları', 'icon' => 'image'],
             ['route' => 'admin.ai-image-studio.index', 'label' => 'Görsel Stüdyosu', 'icon' => 'image'],
         ],
-        'SEO & İçerik' => [
-            ['route' => 'admin.content-factory.index', 'label' => 'İçerik Fabrikası', 'icon' => 'sparkles'],
-            ['route' => 'admin.production-content.index', 'label' => 'Production İçerik Merkezi', 'icon' => 'check'],
-            ['route' => 'admin.editorial-operations.index', 'label' => 'Editoryal Operasyonlar', 'icon' => 'check'],
+        'SEO' => [
             ['route' => 'admin.seo.index', 'label' => 'SEO Operasyonları', 'icon' => 'search'],
-            ['route' => 'admin.blog.index', 'label' => 'Blog Yazıları', 'icon' => 'menu'],
+            ['route' => 'admin.seo.issues', 'label' => 'SEO Sağlığı', 'icon' => 'check'],
         ],
         'Malzeme verisi' => [
             ['route' => 'admin.ingredients.index', 'label' => 'Malzemeler', 'icon' => 'search'],
@@ -32,6 +37,7 @@
             ['route' => 'admin.data-quality.index', 'label' => 'Veri Kalitesi', 'icon' => 'check'],
         ],
         'Sistem' => [
+            ['route' => 'admin.dashboard', 'label' => 'Sistem Özeti', 'icon' => 'info'],
             ['route' => 'admin.failed-jobs.index', 'label' => 'Başarısız İşler', 'icon' => 'warning'],
             ['route' => 'admin.backups.index', 'label' => 'Yedekler', 'icon' => 'archive'],
             ['route' => 'admin.restore-history.index', 'label' => 'Geri Yükleme Geçmişi', 'icon' => 'arrow-right'],
@@ -49,20 +55,30 @@
         <p x-show="!adminSidebarCollapsed" class="mt-4 text-[10px] font-bold uppercase tracking-[.18em] text-orange-300">Yönetim alanı</p>
     </div>
 
-    <div class="flex-1 space-y-5 overflow-y-auto px-3 py-5">
+    <div class="border-b border-white/10 px-3 py-3" x-show="!adminSidebarCollapsed">
+        <label class="sr-only" for="admin-sidebar-search">Yönetim menüsünde ara</label>
+        <div class="relative"><x-ui.icon name="search" size="16" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" /><input id="admin-sidebar-search" x-model="adminSidebarQuery" type="search" class="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-xs font-semibold text-white placeholder:text-stone-400 focus:border-orange-300 focus:ring-orange-200" placeholder="Menüde ara" /></div>
+    </div>
+
+    <div class="flex-1 space-y-4 overflow-y-auto px-3 py-5">
         @foreach ($groups as $group => $items)
-            <section aria-label="{{ $group }}">
-                <p x-show="!adminSidebarCollapsed" class="mb-2 px-2 text-[10px] font-extrabold uppercase tracking-[.16em] text-white/45">{{ $group }}</p>
-                <div class="space-y-1">
+            @php($groupActive = collect($items)->contains(fn ($item) => request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route'])))
+            @php($groupSearch = mb_strtolower($group.' '.collect($items)->pluck('label')->join(' '), 'UTF-8'))
+            <section aria-label="{{ $group }}" x-data="{ open: {{ $groupActive ? 'true' : 'false' }} }" x-show="!adminSidebarQuery || '{{ $groupSearch }}'.includes(adminSidebarQuery.toLocaleLowerCase('tr-TR'))">
+                <button type="button" @click="open = !open" x-show="!adminSidebarCollapsed" class="mb-2 flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1 text-left text-[10px] font-extrabold uppercase tracking-[.16em] text-white/55 hover:bg-white/5 hover:text-white" :aria-expanded="open">
+                    <span>{{ $group }}</span><span class="text-sm leading-none" x-text="open ? '−' : '+'"></span>
+                </button>
+                <div class="space-y-1" x-show="open || adminSidebarCollapsed || adminSidebarQuery" x-transition.opacity>
                     @foreach ($items as $item)
                         @php($active = request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route']))
-                        <a href="{{ route($item['route']) }}" :title="adminSidebarCollapsed ? '{{ $item['label'] }}' : null" @class([
+                        @php($itemSearch = mb_strtolower($item['label'], 'UTF-8'))
+                        <a href="{{ route($item['route']) }}" :title="adminSidebarCollapsed ? '{{ $item['label'] }}' : null" x-show="!adminSidebarQuery || '{{ $itemSearch }}'.includes(adminSidebarQuery.toLocaleLowerCase('tr-TR'))" @class([
                             'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition focus-visible:ring-orange-200',
                             'bg-orange-400/18 text-white shadow-sm ring-1 ring-orange-300/20' => $active,
                             'text-stone-300 hover:bg-white/8 hover:text-white' => ! $active,
                         ])>
                             <span class="grid h-6 w-6 shrink-0 place-items-center text-orange-300"><x-ui.icon :name="$item['icon']" size="18" /></span>
-                            <span x-show="!adminSidebarCollapsed" x-transition.opacity>{{ $item['label'] }}</span>
+                            <span data-admin-menu-label="{{ $itemSearch }}" x-show="!adminSidebarCollapsed" x-transition.opacity>{{ $item['label'] }}</span>
                         </a>
                     @endforeach
                 </div>

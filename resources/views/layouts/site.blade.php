@@ -33,7 +33,7 @@
     <script>if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, adminSidebarCollapsed: false, scrolled: false }"
+<body x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, adminSidebarCollapsed: false, adminSidebarQuery: '', scrolled: false }"
     x-init="document.documentElement.classList.toggle('dark', dark); $watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light'; window.dispatchEvent(new CustomEvent('hc-theme-changed')); }); $watch('adminMenuOpen', value => document.body.classList.toggle('overflow-hidden', value))"
     @keydown.escape.window="adminMenuOpen = false; menuOpen = false"
     class="min-h-screen antialiased">
@@ -43,7 +43,7 @@
                 <x-admin-sidebar />
             </aside>
 
-            <div class="lg:col-start-2">
+            <div class="admin-shell__content min-w-0 lg:col-start-2">
                 <header class="admin-topbar sticky top-0 z-30">
                     <div class="flex min-h-[4.5rem] items-center justify-between gap-3 px-4 sm:px-7">
                         <button @click="adminMenuOpen = true" class="hc-v3-btn hc-v3-btn--outline px-3 py-2 lg:hidden" aria-label="Yönetim menüsünü aç"><x-ui.icon name="menu" size="20" /></button>
