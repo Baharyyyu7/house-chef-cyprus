@@ -62,6 +62,14 @@ SQLite şeması Laravel migration’larıyla oluşturulur; temiz kurulum kalite 
 
 Foundation A–E kapatıldı; production hedef veritabanı seçildiğinde MySQL/PostgreSQL üzerinde ayrı staging migration denemesi zorunludur.
 
+## Milestone H personalization
+
+- `personalization_profiles`: kullanıcı başına açık rıza, onboarding, hane ve gizlilik ayarları; public ULID kullanır.
+- `personalization_preferences`: açık veya inferred tercihlerin kaynak ve active durumu.
+- `personalized_recommendations`: yalnız ranking/açıklama için kullanıcı-tarif kayıtları; iç skor API/public yüzeyde yer almaz.
+- `personalization_feedback`: kullanıcı sahipliğinde feedback/hide kayıtları.
+- `personalization_export_requests`: privacy-safe export talebi lifecycle kaydı; ham PII veya otomatik e-posta içermez.
+
 ## Editorial content trust
 
 - `content_sources`: public ULID, entity public identity, source/lisans/dil/ülke, erişim-inceleme zamanı, confidence ve lifecycle metadata'sı.

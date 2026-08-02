@@ -99,6 +99,12 @@
 - Recipe/Nutrition/Data Quality, cache/queue/scheduler/performance, security/media ve observability/backup/restore altyapıları tamamlandı.
 # Unreleased
 
+## Milestone H — Smart Personalization
+
+- Açık rıza, opt-out, onboarding, explicit/inferred tercih ayrımı ve privacy-safe export request kayıtları eklendi.
+- Published/verified-only, hard allergen/excluded ingredient filtreli, açıklanabilir deterministic öneri motoru; kullanıcıya özel feedback, meal plan ve shopping list akışlarına bağlandı.
+- Ownership korumalı personalization API, anonim admin operasyon özeti, güvenli audit komutları ve OpenAPI kapsamı eklendi.
+
 ## Release Candidate 1 validation
 
 - Added a truthful RC1 command centre and `release-candidate:rc1-audit` machine-readable evidence contract for catalogue, route, SEO, media, AI, operations and UX signals.

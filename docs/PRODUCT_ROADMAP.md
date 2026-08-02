@@ -24,6 +24,10 @@ Milestone C, production SEO Authority mimarisini kapsar: gerçek semantic entity
 
 Production Transition; beta/demo dili denetimini, production bilgi mimarisini, gerçek kalite profillerini, audit’li recipe/blog graduation geçişlerini, insan onayı kapılarını ve dürüst media/SEO/release-state kurallarını kapsar. Açık fact-check konuları insan inceleme operasyon backlog’udur; otomatik olarak kapanmaz veya yayın kapısını açmaz.
 
+## Milestone H — Smart Personalization
+
+Opt-in, privacy-first personalization is implemented on the visual redesign branch: deterministic explainable recommendations, hard dietary/exclusion safety constraints, user-owned plans/lists/feedback, API and aggregate-only operations. Production acceptance still requires real user consent wording review, accessibility/browser evidence and an approved retention/export delivery process.
+
 1. Technical Foundation A–E — tamamlandı.
 2. Final Product Core Audit — kontrollü olarak geçti; çekirdek regresyonlar kapatıldı.
 3. Master Product Redesign, Recipe Data & Admin Program — household measurement ve Faz 3 Data Trust/50 verified recipe/image-icon pilotu tamamlandı. Faz 3A'nın 20 tariflik ara hedefi **SUPERSEDED BY COMPLETED FAZ 3** kabul edilir; 150 tariflik genişleme backlog'dadır ve başlatılmayacaktır.

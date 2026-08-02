@@ -1,5 +1,9 @@
 # House Chef Cyprus
 
+## Milestone H — Smart Personalization
+
+Kişiselleştirme açık rıza, kullanıcı sahipliği ve açıklanabilir deterministic kurallarla çalışır. Sadece `published` + `verified` tarifler adaydır; alerjen ve hariç tutulan malzemeler hard constraint'tir. [Mimari](docs/PERSONALIZATION_ARCHITECTURE.md), [gizlilik](docs/PERSONALIZATION_PRIVACY.md) ve [operasyon](docs/PERSONALIZATION_OPERATIONS.md) belgeleri kullanıcı verisinin sınırlarını açıklar.
+
 ## Production programı
 
 Domain/VPS geldikten sonra uygulanacak güvenli operasyon sırası: [Go-live runbook](docs/GO_LIVE_RUNBOOK.md). Staging sözleşmesi, VPS şablonları, storage/Redis/PHP-FPM ve post-deploy smoke rehberleri `docs/` altında bulunur. Bu repository gerçek deploy veya DNS değişikliği yapmaz.

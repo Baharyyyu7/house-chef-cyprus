@@ -60,6 +60,13 @@ Bu kontrol listesi yalnız `visual-redesign-v2` dalındaki kod hazırlığını 
 Bu maddeler sağlanmadan production deploy yapılmaz. Ayrıntılı sıra [VPS deployment rehberinde](VPS_DEPLOYMENT_GUIDE.md), [Nginx örneğinde](NGINX_CONFIGURATION.md), [post-deploy smoke testinde](POST_DEPLOY_SMOKE_TEST.md) ve [rollback planında](ROLLBACK_PLAN.md) yer alır. Main merge ve release tag bu RC kapanışında yapılmaz.
 # Controlled Content Factory release guard
 
+## Milestone H smart personalization
+
+- [x] Opt-in profile, disable, learned-data clear, cache invalidation and aggregate-only operations exist.
+- [x] Recommendations are limited to verified/published content and enforce explicit exclusion hard constraints.
+- [x] User ownership protects feedback, plan and shopping list operations; API does not expose internal ranking score.
+- [ ] Production privacy notice, consent wording, export delivery workflow and real-user browser accessibility acceptance require human legal/editorial approval.
+
 ## Phase 4 editorial operations guard
 
 - Review batch, evidence ve review pack kayıtları yayın kararı değildir.
