@@ -1,0 +1,3 @@
+# Replace __APP_HOME__ with the absolute domain directory. Configure these via hPanel/SSH; do not commit secrets.
+* * * * * /usr/bin/php __APP_HOME__/current/artisan schedule:run --no-interaction >> __APP_HOME__/shared/logs/scheduler.log 2>&1
+*/5 * * * * /usr/bin/php __APP_HOME__/current/artisan queue:work database --stop-when-empty --tries=3 --timeout=90 --memory=128 --no-interaction >> __APP_HOME__/shared/logs/queue.log 2>&1

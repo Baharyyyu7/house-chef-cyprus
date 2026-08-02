@@ -1,3 +1,3 @@
 # Rollback Runbook
 
-Use `scripts/rollback-release.sh --dry-run` before a real rollback. Confirm a prior release is verified, announce maintenance, repoint only the current release link, clear caches and run smoke tests. Database rollback is not automatic; use forward fix or separately approved restore as a last resort.
+Use `scripts/rollback-hostinger-release.sh --dry-run` for the Hostinger release layout. Confirm the target is a verified directory under `releases/`, announce maintenance, repoint `current` and `public_html`, clear caches and run smoke tests. Database rollback is not automatic; use a forward fix or separately approved restore as a last resort.
