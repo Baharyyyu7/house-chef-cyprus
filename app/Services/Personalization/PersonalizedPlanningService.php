@@ -9,6 +9,7 @@ use App\Models\AiShoppingList;
 use App\Models\AuditLog;
 use App\Models\Recipe;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 /**
@@ -59,7 +60,9 @@ final class PersonalizedPlanningService
         $recipeIds = collect($plan->plan)->pluck('recipe.public_id')->filter()->all();
         $pantry = $user->pantryItems()->where('is_available', true)->where(fn ($query) => $query->whereNull('expires_at')->orWhereDate('expires_at', '>=', today()))->get()->keyBy('ingredient_id');
         $items = Recipe::query()->whereIn('public_id', $recipeIds)->with('recipeIngredients.ingredient')->get()
-            ->flatMap(fn (Recipe $recipe) => $recipe->recipeIngredients)
+            ->flatMap(function (Recipe $recipe): Collection {
+                return $recipe->recipeIngredients->each(fn ($line) => $line->setAttribute('source_recipe_public_id', $recipe->public_id));
+            })
             ->groupBy('ingredient_id')
             ->map(function (Collection $lines) use ($pantry): array {
                 $line = $lines->first();
@@ -76,7 +79,7 @@ final class PersonalizedPlanningService
                     'quantity_known' => $remaining > 0,
                     'optional' => $lines->every(fn ($item): bool => (bool) $item->is_optional),
                     'purchased_at' => null,
-                    'sources' => [],
+                    'sources' => $lines->pluck('source_recipe_public_id')->filter()->unique()->values()->all(),
                 ];
             })->values()->all();
         $list = AiShoppingList::create(['user_id' => $user->id, 'ai_meal_plan_id' => $plan->id, 'items' => $items, 'status' => 'draft']);
@@ -97,6 +100,51 @@ final class PersonalizedPlanningService
         $this->audit($user, 'personalization.shopping_item_toggled', $list, ['shopping_list_public_id' => $list->public_id]);
 
         return $list->fresh();
+    }
+
+    public function addManualItem(User $user, AiShoppingList $list, string $name, ?float $quantity = null, ?string $unit = null): AiShoppingList
+    {
+        abort_unless($list->user_id === $user->id, 403);
+        $items = $list->items;
+        $items[] = [
+            'ingredient_public_id' => null,
+            'ingredient' => trim($name),
+            'quantity' => $quantity,
+            'unit' => $unit,
+            'quantity_known' => $quantity !== null,
+            'optional' => false,
+            'purchased_at' => null,
+            'sources' => [],
+            'manual' => true,
+        ];
+        $list->update(['items' => $items]);
+        $this->audit($user, 'personalization.shopping_manual_item_added', $list, ['shopping_list_public_id' => $list->public_id]);
+
+        return $list->fresh();
+    }
+
+    /** @return list<array<string, mixed>> */
+    public function expiryInsights(User $user): array
+    {
+        $pantryItems = $user->pantryItems()
+            ->with('ingredient:id,public_id,name')
+            ->where('is_available', true)
+            ->whereNotNull('expires_at')
+            ->whereDate('expires_at', '>=', today())
+            ->whereDate('expires_at', '<=', today()->addDays(3))
+            ->orderBy('expires_at')
+            ->get();
+        $insights = [];
+        foreach ($pantryItems as $item) {
+            $insights[] = [
+                'ingredient_public_id' => $item->ingredient->public_id,
+                'ingredient' => $item->ingredient->name,
+                'expires_at' => Carbon::parse((string) $item->expires_at)->toDateString(),
+                'reason' => 'Yakın zamanda son kullanma tarihi yaklaşabilir; kullanmadan önce ürünü kontrol edin.',
+            ];
+        }
+
+        return $insights;
     }
 
     /** @param array<string, mixed> $constraints */

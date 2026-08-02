@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\DB;
  */
 final class PersonalizationService
 {
-    public const SCORE_VERSION = 'personalization-v1';
+    public const SCORE_VERSION = 'personalization-v3';
 
     public function profile(User $user): PersonalizationProfile
     {
@@ -86,7 +86,8 @@ final class PersonalizationService
 
         $key = 'personalization:recommendations:'.$user->public_id.':'.self::SCORE_VERSION;
 
-        return Cache::remember($key, now()->addMinutes(15), function () use ($profile, $limit, $user): Collection {
+        /** @var list<string> $recommendationIds */
+        $recommendationIds = Cache::remember($key, now()->addMinutes(15), function () use ($profile, $limit, $user): array {
             $hidden = $user->personalizationFeedback()->where('type', 'hide_recipe')->whereNull('withdrawn_at')->pluck('recipe_id');
             $excludedIngredients = $profile->preferences()->whereIn('type', ['excluded_ingredient', 'allergen'])->where('is_active', true)->pluck('value')->all();
             $pantry = $user->pantryItems()->where('is_available', true)->where(fn (Builder $query) => $query->whereNull('expires_at')->orWhereDate('expires_at', '>=', today()))->pluck('ingredient_id');
@@ -148,10 +149,16 @@ final class PersonalizationService
 
             $this->audit($user, 'personalization.recommendations_generated', $this->profile($user), ['count' => $records->count(), 'score_version' => self::SCORE_VERSION]);
 
-            return $records->map(
-                fn (PersonalizedRecommendation $recommendation): PersonalizedRecommendation => $recommendation->load('recipe.cuisine', 'recipe.category')
-            );
+            return $records->pluck('public_id')->values()->all();
         });
+
+        return PersonalizedRecommendation::query()
+            ->where('user_id', $user->id)
+            ->whereIn('public_id', $recommendationIds)
+            ->with('recipe.cuisine', 'recipe.category')
+            ->get()
+            ->sortBy(fn (PersonalizedRecommendation $recommendation): int => (int) array_search($recommendation->public_id, $recommendationIds, true))
+            ->values();
     }
 
     /** @param array<string, mixed> $input */

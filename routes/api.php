@@ -34,11 +34,15 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
     Route::middleware('auth')->prefix('personalization')->group(function (): void {
         Route::get('profile', [PersonalizationController::class, 'profile']);
         Route::patch('profile', [PersonalizationController::class, 'updateProfile']);
+        Route::get('taste-profile', [PersonalizationController::class, 'tasteProfile']);
         Route::get('recommendations', [PersonalizationController::class, 'recommendations']);
         Route::post('recipes/{recipe:public_id}/feedback', [PersonalizationController::class, 'feedback']);
+        Route::post('recipes/{recipe:public_id}/unhide', [PersonalizationController::class, 'unhide']);
         Route::post('meal-plans', [PersonalizationController::class, 'mealPlan']);
         Route::post('meal-plans/{plan:public_id}/shopping-lists', [PersonalizationController::class, 'shopping']);
         Route::patch('shopping-lists/{list:public_id}', [PersonalizationController::class, 'toggleShopping']);
+        Route::post('shopping-lists/{list:public_id}/items', [PersonalizationController::class, 'addShoppingItem']);
+        Route::get('expiry-insights', [PersonalizationController::class, 'expiryInsights']);
         Route::get('status', [PersonalizationController::class, 'status']);
         Route::post('disable', [PersonalizationController::class, 'disable']);
         Route::post('clear-learned-data', [PersonalizationController::class, 'clear']);

@@ -40,16 +40,24 @@ paths:
   /api/v1/personalization/profile:
     get: { security: [{ sessionAuth: [] }], responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '401': { $ref: '#/components/responses/ErrorResponse' } } }
     patch: { security: [{ sessionAuth: [] }], requestBody: { required: true, content: { application/json: { schema: { type: object } } } }, responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } } }
+  /api/v1/personalization/taste-profile:
+    get: { security: [{ sessionAuth: [] }], responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '401': { $ref: '#/components/responses/ErrorResponse' } } }
   /api/v1/personalization/recommendations:
     get: { security: [{ sessionAuth: [] }], parameters: [{ $ref: '#/components/parameters/PerPage' }], responses: { '200': { $ref: '#/components/responses/CollectionResponse' }, '401': { $ref: '#/components/responses/ErrorResponse' } } }
   /api/v1/personalization/recipes/{public_id}/feedback:
     post: { security: [{ sessionAuth: [] }], parameters: [{ $ref: '#/components/parameters/PublicId' }], requestBody: { required: true, content: { application/json: { schema: { type: object, required: [type] } } } }, responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '404': { $ref: '#/components/responses/ErrorResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } } }
+  /api/v1/personalization/recipes/{public_id}/unhide:
+    post: { security: [{ sessionAuth: [] }], parameters: [{ $ref: '#/components/parameters/PublicId' }], responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '401': { $ref: '#/components/responses/ErrorResponse' } } }
   /api/v1/personalization/meal-plans:
     post: { security: [{ sessionAuth: [] }], requestBody: { required: true, content: { application/json: { schema: { type: object, required: [days] } } } }, responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } } }
   /api/v1/personalization/meal-plans/{public_id}/shopping-lists:
     post: { security: [{ sessionAuth: [] }], parameters: [{ $ref: '#/components/parameters/PublicId' }], responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '403': { $ref: '#/components/responses/ErrorResponse' }, '404': { $ref: '#/components/responses/ErrorResponse' } } }
   /api/v1/personalization/shopping-lists/{public_id}:
     patch: { security: [{ sessionAuth: [] }], parameters: [{ $ref: '#/components/parameters/PublicId' }], requestBody: { required: true, content: { application/json: { schema: { type: object, required: [index] } } } }, responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '403': { $ref: '#/components/responses/ErrorResponse' }, '404': { $ref: '#/components/responses/ErrorResponse' } } }
+  /api/v1/personalization/shopping-lists/{public_id}/items:
+    post: { security: [{ sessionAuth: [] }], parameters: [{ $ref: '#/components/parameters/PublicId' }], requestBody: { required: true, content: { application/json: { schema: { type: object, required: [name] } } } }, responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '403': { $ref: '#/components/responses/ErrorResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } } }
+  /api/v1/personalization/expiry-insights:
+    get: { security: [{ sessionAuth: [] }], responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '401': { $ref: '#/components/responses/ErrorResponse' } } }
   /api/v1/personalization/status:
     get: { security: [{ sessionAuth: [] }], responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '401': { $ref: '#/components/responses/ErrorResponse' } } }
   /api/v1/personalization/disable:

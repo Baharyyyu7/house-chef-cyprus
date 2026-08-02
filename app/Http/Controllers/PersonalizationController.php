@@ -97,7 +97,7 @@ final class PersonalizationController extends Controller
     public function mealPlan(Request $request, PersonalizedPlanningService $planning): RedirectResponse
     {
         $data = $request->validate(['days' => ['required', 'integer', 'in:7,14,30'], 'max_minutes' => ['nullable', 'integer', 'min:10', 'max:360'], 'pantry_priority' => ['nullable', 'boolean'], 'leftovers' => ['nullable', 'boolean']]);
-        $plan = $planning->mealPlan($request->user(), $data['days'], $data);
+        $plan = $planning->mealPlan($request->user(), (int) $data['days'], $data);
 
         return back()->with('status', "{$plan->days} günlük kişisel taslak plan oluşturuldu.");
     }

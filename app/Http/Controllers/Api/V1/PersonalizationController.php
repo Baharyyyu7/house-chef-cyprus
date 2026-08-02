@@ -28,6 +28,17 @@ final class PersonalizationController extends Controller
         return $this->single($request, $this->profileData($profile));
     }
 
+    public function tasteProfile(Request $request, PersonalizationService $service): JsonResponse
+    {
+        $profile = $service->profile($request->user())->load('preferences');
+
+        return $this->single($request, [
+            'public_id' => $profile->public_id,
+            'explicit_preferences' => $profile->preferences->where('source', 'explicitly_selected')->values()->map(fn ($item): array => $this->preferenceData($item))->all(),
+            'inferred_preferences' => $profile->preferences->where('source', '!=', 'explicitly_selected')->values()->map(fn ($item): array => $this->preferenceData($item))->all(),
+        ]);
+    }
+
     public function recommendations(Request $request, PersonalizationService $service): JsonResponse
     {
         $limit = $request->integer('per_page', 12);
@@ -50,10 +61,22 @@ final class PersonalizationController extends Controller
         return $this->single($request, ['public_id' => $feedback->public_id, 'type' => $feedback->type]);
     }
 
+    public function unhide(Request $request, Recipe $recipe, PersonalizationService $service): JsonResponse
+    {
+        $updated = $request->user()->personalizationFeedback()
+            ->where('recipe_id', $recipe->id)
+            ->where('type', 'hide_recipe')
+            ->whereNull('withdrawn_at')
+            ->update(['withdrawn_at' => now()]);
+        $service->clearRecommendationHistory($request->user());
+
+        return $this->single($request, ['recipe_public_id' => $recipe->public_id, 'restored' => $updated > 0]);
+    }
+
     public function mealPlan(Request $request, PersonalizedPlanningService $planning): JsonResponse
     {
         $data = $request->validate(['days' => ['required', 'integer', 'in:7,14,30'], 'max_minutes' => ['nullable', 'integer', 'min:10', 'max:360'], 'pantry_priority' => ['nullable', 'boolean'], 'leftovers' => ['nullable', 'boolean']]);
-        $plan = $planning->mealPlan($request->user(), $data['days'], $data);
+        $plan = $planning->mealPlan($request->user(), (int) $data['days'], $data);
 
         return $this->single($request, ['public_id' => $plan->public_id, 'days' => $plan->days, 'plan' => $plan->plan, 'status' => $plan->status]);
     }
@@ -63,6 +86,19 @@ final class PersonalizationController extends Controller
         $list = $planning->shopping($request->user(), $plan);
 
         return $this->single($request, ['public_id' => $list->public_id, 'items' => $list->items, 'status' => $list->status]);
+    }
+
+    public function addShoppingItem(Request $request, AiShoppingList $list, PersonalizedPlanningService $planning): JsonResponse
+    {
+        $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'quantity' => ['nullable', 'numeric', 'min:0'], 'unit' => ['nullable', 'string', 'max:32']]);
+        $list = $planning->addManualItem($request->user(), $list, $data['name'], isset($data['quantity']) ? (float) $data['quantity'] : null, $data['unit'] ?? null);
+
+        return $this->single($request, ['public_id' => $list->public_id, 'items' => $list->items]);
+    }
+
+    public function expiryInsights(Request $request, PersonalizedPlanningService $planning): JsonResponse
+    {
+        return $this->single($request, ['items' => $planning->expiryInsights($request->user())]);
     }
 
     public function toggleShopping(Request $request, AiShoppingList $list, PersonalizedPlanningService $planning): JsonResponse
@@ -115,7 +151,13 @@ final class PersonalizationController extends Controller
     /** @return array<string,mixed> */
     private function profileData(object $profile): array
     {
-        return ['public_id' => $profile->public_id, 'enabled' => $profile->personalization_enabled, 'onboarding_completed' => $profile->onboarding_completed, 'household_size' => $profile->household_size, 'default_portions' => $profile->default_portions, 'settings' => $profile->settings, 'preferences' => $profile->preferences->map(fn ($item): array => ['public_id' => $item->public_id, 'type' => $item->type, 'value' => $item->value, 'source' => $item->source])->values()];
+        return ['public_id' => $profile->public_id, 'enabled' => $profile->personalization_enabled, 'onboarding_completed' => $profile->onboarding_completed, 'household_size' => $profile->household_size, 'default_portions' => $profile->default_portions, 'settings' => $profile->settings, 'preferences' => $profile->preferences->map(fn ($item): array => $this->preferenceData($item))->values()];
+    }
+
+    /** @return array{public_id:string,type:string,value:string,source:string} */
+    private function preferenceData(object $item): array
+    {
+        return ['public_id' => $item->public_id, 'type' => $item->type, 'value' => $item->value, 'source' => $item->source];
     }
 
     /** @param array<int, string> $codes @return list<array{code:string,label:string}> */
