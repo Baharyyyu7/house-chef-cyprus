@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\RecipeController as AdminRecipeController;
 use App\Http\Controllers\Admin\RecipeIngredientController;
 use App\Http\Controllers\Admin\RecipeStepController as AdminRecipeStepController;
 use App\Http\Controllers\Admin\RecipeVerificationController;
+use App\Http\Controllers\Admin\ReleaseCandidateController;
 use App\Http\Controllers\Admin\RestoreHistoryController;
 use App\Http\Controllers\Admin\SeoOperationsController;
 use App\Http\Controllers\Admin\SystemEventController;
@@ -94,6 +95,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::get('ai-operasyonlari', [AdminAiKitchenController::class, 'index'])->middleware('can:access-ai-operations')->name('ai-kitchen.index');
     Route::get('/', AdminDashboardController::class)->name('dashboard');
     Route::get('urun-deneyimi', ProductExperienceController::class)->name('product-experience.index');
+    Route::get('release-candidate', ReleaseCandidateController::class)->name('release-candidate.index');
     Route::get('kullanicilar', [AdminUserController::class, 'index'])->name('users.index');
     Route::get('kullanicilar/{user:public_id}', [AdminUserController::class, 'show'])->name('users.show');
     Route::post('kullanicilar/{user:public_id}/askiya-al', [AdminUserController::class, 'suspend'])->name('users.suspend');
