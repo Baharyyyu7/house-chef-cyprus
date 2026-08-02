@@ -38,7 +38,13 @@ final class SeoSchemaService
     /** @return array<string,mixed> */
     public function article(BlogPost $post, string $imageUrl = ''): array
     {
-        $article = ['@type' => 'Article', 'headline' => $post->title, 'description' => $post->excerpt, 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => ['@type' => 'Organization', 'name' => 'House Chef Cyprus']];
+        $publisher = [
+            '@type' => 'Organization',
+            'name' => config('brand.name'),
+            'logo' => url(config('brand.assets.mark_light')),
+        ];
+
+        $article = ['@type' => 'Article', 'headline' => $post->title, 'description' => $post->excerpt, 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => $publisher, 'publisher' => $publisher];
         if ($imageUrl !== '') {
             $article['image'] = [$imageUrl];
         }

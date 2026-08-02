@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#f97316">
+        <meta name="theme-color" content="#ff6b00">
     <meta name="description" content="{{ $metaDescription }}">
     <link rel="canonical" href="{{ $canonicalUrl ?: url()->current() }}">
     @if ($robots || request()->routeIs('admin.*') || request()->routeIs('login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
@@ -16,17 +16,20 @@
         <meta property="og:title" content="{{ $title }}">
         <meta property="og:description" content="{{ $metaDescription }}">
         <meta property="og:url" content="{{ $canonicalUrl ?: url()->current() }}">
-        @if($socialImage)<meta property="og:image" content="{{ $socialImage }}">@endif
-        <meta name="twitter:card" content="{{ $socialImage ? 'summary_large_image' : 'summary' }}">
+        <meta property="og:image" content="{{ $socialImage ?: url(config('brand.assets.og_default')) }}">
+        <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="{{ $title }}">
         <meta name="twitter:description" content="{{ $metaDescription }}">
-        @if($socialImage)<meta name="twitter:image" content="{{ $socialImage }}">@endif
+        <meta name="twitter:image" content="{{ $socialImage ?: url(config('brand.assets.og_default')) }}">
     @endif
     @if($structuredData)<script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>@endif
     @if(!request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
-        <script type="application/ld+json">{"\u0040context":"https://schema.org","\u0040graph":[{"\u0040type":"Organization","name":"House Chef Cyprus","url":"{{ url('/') }}"},{"\u0040type":"WebSite","name":"House Chef Cyprus","url":"{{ url('/') }}","inLanguage":"tr","potentialAction":{"\u0040type":"SearchAction","target":"{{ route('recipes.index') }}?q={search_term_string}","query-input":"required name=search_term_string"}}]}</script>
+        <script type="application/ld+json">{"\u0040context":"https://schema.org","\u0040graph":[{"\u0040type":"Organization","name":"House Chef Cyprus","url":"{{ url('/') }}","logo":"{{ url(config('brand.assets.mark_light')) }}"},{"\u0040type":"WebSite","name":"House Chef Cyprus","url":"{{ url('/') }}","inLanguage":"tr","publisher":{"\u0040type":"Organization","name":"House Chef Cyprus","logo":"{{ url(config('brand.assets.mark_light')) }}"},"potentialAction":{"\u0040type":"SearchAction","target":"{{ route('recipes.index') }}?q={search_term_string}","query-input":"required name=search_term_string"}}]}</script>
     @endif
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset(config('brand.assets.favicon')) }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset(config('brand.assets.favicon_32')) }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset(config('brand.assets.apple_touch_icon')) }}">
+    <link rel="manifest" href="{{ asset('brand/site.webmanifest') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&family=inter:400,500,600,700&display=swap" rel="stylesheet" />
     <title>{{ $title }}</title>

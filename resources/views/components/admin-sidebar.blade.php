@@ -49,7 +49,8 @@
 <nav aria-label="Yönetim menüsü" class="admin-sidebar flex h-full flex-col">
     <div class="border-b border-white/10 px-4 py-5">
         <div class="flex items-center justify-between gap-2">
-            <x-brand-logo variant="dark" />
+            <x-brand-logo variant="dark" context="admin" size="sm" x-show="!adminSidebarCollapsed" />
+            <x-brand-logo variant="dark" context="admin" size="xs" compact x-show="adminSidebarCollapsed" />
             <button type="button" @click="adminSidebarCollapsed = !adminSidebarCollapsed" class="hidden rounded-xl p-2 text-orange-200 transition hover:bg-white/10 focus-visible:ring-white lg:inline-flex" :aria-label="adminSidebarCollapsed ? 'Menüyü genişlet' : 'Menüyü daralt'"><x-ui.icon name="menu" size="18" /></button>
         </div>
         <p x-show="!adminSidebarCollapsed" class="mt-4 text-[10px] font-bold uppercase tracking-[.18em] text-orange-300">Yönetim alanı</p>

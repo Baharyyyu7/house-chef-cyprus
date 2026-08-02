@@ -12,7 +12,7 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
         --hc-surface-default:#fffdfc; --hc-surface-raised:#fff; --hc-surface-overlay:rgba(255,253,252,.96); --hc-surface-interactive:#fff4ed; --hc-surface-selected:#ffead9;
         --hc-text-primary:#171717; --hc-text-secondary:#62564f; --hc-text-muted:#7b6e65; --hc-text-inverse:#fff8f0; --hc-text-accent:#c2410c; --hc-text-danger:#b42318; --hc-text-warning:#9a6700; --hc-text-success:#087443; --hc-text-info:#175cd3;
         --hc-border-subtle:#f1e8e0; --hc-border-default:#e8d8ca; --hc-border-strong:#c7b5a5; --hc-border-focus:#f97316; --hc-border-danger:#fda29b; --hc-border-warning:#fec84b;
-        --hc-brand-primary:#f97316; --hc-brand-hover:#ea580c; --hc-brand-active:#c2410c; --hc-brand-soft:#ffead9; --hc-brand-contrast:#fff8f0;
+        --hc-brand-primary:#ff6b00; --hc-brand-hover:#e85e00; --hc-brand-active:#c74c00; --hc-brand-soft:#ffead9; --hc-brand-contrast:#fff8f0;
         --hc-status-success:#087443; --hc-status-warning:#b54708; --hc-status-danger:#b42318; --hc-status-info:#175cd3; --hc-status-neutral:#62564f; --hc-chart-1:#f97316; --hc-chart-2:#b54708; --hc-chart-3:#175cd3; --hc-chart-4:#7f56d9; --hc-chart-5:#087443; --hc-chart-surface:#fffdfc;
         --hc-shadow-xs:0 1px 2px rgba(68,45,28,.06); --hc-shadow-sm:0 6px 18px rgba(68,45,28,.08); --hc-shadow-md:0 12px 34px rgba(68,45,28,.09); --hc-shadow-lg:0 22px 44px rgba(68,45,28,.16); --hc-shadow-xl:0 30px 70px rgba(68,45,28,.22); --hc-shadow-focus:0 0 0 4px rgba(249,115,22,.18);
         --hc-radius-xs:.5rem; --hc-radius-sm:.75rem; --hc-radius-md:1rem; --hc-radius-lg:1.5rem; --hc-radius-xl:2rem; --hc-radius-pill:9999px;
@@ -25,7 +25,7 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
         --hc-surface-default:#171717; --hc-surface-raised:#1d1d1e; --hc-surface-overlay:rgba(23,23,23,.96); --hc-surface-interactive:#2a211c; --hc-surface-selected:#3a261b;
         --hc-text-primary:#fffaf5; --hc-text-secondary:#ded6cf; --hc-text-muted:#b7aca4; --hc-text-inverse:#171717; --hc-text-accent:#fdba74; --hc-text-danger:#fda29b; --hc-text-warning:#fec84b; --hc-text-success:#75e0a7; --hc-text-info:#84adff;
         --hc-border-subtle:#2b2928; --hc-border-default:#403a36; --hc-border-strong:#665c56; --hc-border-focus:#fb923c; --hc-border-danger:#b42318; --hc-border-warning:#b54708;
-        --hc-brand-primary:#fb923c; --hc-brand-hover:#fdba74; --hc-brand-active:#f97316; --hc-brand-soft:#402719; --hc-brand-contrast:#171717;
+        --hc-brand-primary:#ff6b00; --hc-brand-hover:#ff8b40; --hc-brand-active:#e85e00; --hc-brand-soft:#402719; --hc-brand-contrast:#171717;
         --hc-status-success:#75e0a7; --hc-status-warning:#fec84b; --hc-status-danger:#fda29b; --hc-status-info:#84adff; --hc-status-neutral:#ded6cf; --hc-chart-1:#fdba74; --hc-chart-2:#fec84b; --hc-chart-3:#84adff; --hc-chart-4:#d0bfff; --hc-chart-5:#75e0a7; --hc-chart-surface:#1d2026;
         --hc-bg:var(--hc-background-page); --hc-surface:var(--hc-surface-default); --hc-surface-soft:var(--hc-background-subtle); --hc-text:var(--hc-text-primary); --hc-muted:var(--hc-text-secondary); --hc-muted-strong:#f5f5f4; --hc-line:var(--hc-border-default); --hc-header:rgba(11,11,12,.82); --hc-header-scrolled:rgba(11,11,12,.96); --hc-footer:#090909; --hc-footer-text:#e7e5e4; --hc-footer-muted:#b6b0ab; --hc-overlay:rgba(0,0,0,.9); --hc-shadow:rgba(0,0,0,.3); color-scheme:dark;
     }
@@ -92,9 +92,8 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .hc-hero-muted { color: #e7e5e4; }
     .hc-hero-secondary { border: 1px solid rgba(255, 255, 255, .26); background: rgba(255, 255, 255, .1); color: #fff; backdrop-filter: blur(10px); }
     .hc-hero-secondary:hover { background: rgba(255, 255, 255, .18); }
-    .hc-brand-logo { --hc-logo-surface: #171717; --hc-logo-mark: #fff8f0; color: var(--hc-text); }
-    .hc-brand-logo--inverse { --hc-logo-surface: #fff8f0; --hc-logo-mark: #171717; color: #fff8f0; }
-    .hc-brand-logo__wordmark { color: inherit; }
+    .hc-brand-logo { line-height:0; }
+    .hc-brand-logo__image { display:block; }
     .hc-featured-empty { background: linear-gradient(135deg, var(--hc-surface-soft), var(--hc-surface)); }
     .hc-featured-card { isolation: isolate; }
     .hc-featured-card__image { transition: transform .55s cubic-bezier(.2,.8,.2,1), filter .25s ease; }

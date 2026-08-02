@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex,nofollow">
-    <meta name="theme-color" content="#153224"><link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <meta name="theme-color" content="#ff6b00"><link rel="icon" type="image/svg+xml" href="{{ asset(config('brand.assets.favicon')) }}"><link rel="apple-touch-icon" sizes="180x180" href="{{ asset(config('brand.assets.apple_touch_icon')) }}"><link rel="manifest" href="{{ asset('brand/site.webmanifest') }}">
     <link rel="preconnect" href="https://fonts.bunny.net"><link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&family=playfair-display:500,600,700&display=swap" rel="stylesheet" />
     <title>{{ config('app.name', 'House Chef Cyprus') }}</title>@vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
