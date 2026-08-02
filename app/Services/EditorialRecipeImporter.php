@@ -157,6 +157,10 @@ final class EditorialRecipeImporter
         RecipeProvenance::query()->updateOrCreate(['recipe_id' => $recipe->id, 'field_name' => 'recipe_content'], ['public_id' => (string) Str::ulid(), 'content_source_id' => $source->id, 'source_type' => 'original_content', 'license' => $source->license, 'source_url' => null, 'content_hash' => hash('sha256', $recipe->title.'|'.$recipe->description), 'retrieved_at' => now(), 'verification_status' => 'verified', 'confidence' => 90, 'reviewed_at' => now(), 'last_checked_at' => now(), 'is_active' => true]);
         app(NutritionService::class)->calculate($recipe->fresh());
         Media::query()->updateOrCreate(['mediable_type' => Recipe::class, 'mediable_id' => $recipe->id, 'sort_order' => 0], ['public_id' => (string) Str::ulid(), 'kind' => 'image', 'disk' => 'public', 'path' => 'placeholders/'.($index % 8 + 1).'/recipe.svg', 'visibility' => 'public', 'alt_text' => $recipe->title.' için temsili görsel', 'processing_status' => 'ready', 'thumbnail_status' => 'ready', 'source_name' => 'House Chef Cyprus', 'license' => 'House Chef Cyprus branded placeholder', 'attribution' => 'House Chef Cyprus', 'verification_status' => 'researched', 'confidence' => 100, 'reviewed_at' => now(), 'is_placeholder' => true]);
+        // Completeness is derived from the final relation set. Refreshing only
+        // after ingredients, steps, provenance, nutrition and media exist keeps
+        // the public trust contract accurate and makes repeated seeds idempotent.
+        app(RecipeCompletenessService::class)->refresh($recipe->fresh());
     }
 
     private function descriptionFor(string $title, string $cuisine): string
