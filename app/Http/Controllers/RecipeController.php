@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\Search\RecipeSearchInterface;
 use App\Models\Allergen;
+use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\Cuisine;
 use App\Models\DietaryTag;
@@ -34,13 +35,41 @@ final class RecipeController extends Controller
             $zeroResults->record($request->string('q')->toString(), $recipes->total());
         }
 
-        return view('recipes.index', [
+        $viewData = [
             'recipes' => $recipes,
             'cuisines' => Cuisine::orderBy('name')->get(),
             'categories' => Category::orderBy('name')->get(),
             'dietaryTags' => DietaryTag::orderBy('name')->get(),
             'allergens' => Allergen::orderBy('name')->get(),
-        ]);
+        ];
+
+        if ($request->routeIs('home')) {
+            $catalogue = Recipe::query()
+                ->where('status', 'published')
+                ->where('verification_status', 'verified')
+                ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'verification_status'])
+                ->with(['cuisine:id,public_id,name,slug', 'category:id,public_id,name,slug', 'media' => fn ($query) => $query->where('visibility', 'public'), 'dietaryTags:id,code,name'])
+                ->orderByDesc('published_at')
+                ->get();
+
+            $usedRecipeIds = [];
+            $select = function ($matches) use (&$usedRecipeIds) {
+                $selection = $matches->reject(fn (Recipe $recipe): bool => in_array($recipe->id, $usedRecipeIds, true))->take(4)->values();
+                $usedRecipeIds = [...$usedRecipeIds, ...$selection->pluck('id')->all()];
+
+                return $selection;
+            };
+            $viewData['homeSections'] = [
+                'quick' => $select($catalogue->filter(fn (Recipe $recipe): bool => $recipe->totalMinutes() <= 30)),
+                'cyprus' => $select($catalogue->filter(fn (Recipe $recipe): bool => str_contains(mb_strtolower((string) $recipe->cuisine?->name), 'kıbrıs') || str_contains(mb_strtolower((string) $recipe->cuisine?->name), 'akdeniz'))),
+                'breakfast' => $select($catalogue->filter(fn (Recipe $recipe): bool => str_contains(mb_strtolower((string) $recipe->category?->name), 'kahvaltı'))),
+                'mains' => $select($catalogue->filter(fn (Recipe $recipe): bool => str_contains(mb_strtolower((string) $recipe->category?->name), 'ana'))),
+                'desserts' => $select($catalogue->filter(fn (Recipe $recipe): bool => str_contains(mb_strtolower((string) $recipe->category?->name), 'tatlı'))),
+            ];
+            $viewData['latestPosts'] = BlogPost::query()->publiclyVisible()->with(['category', 'heroMedia'])->latest('published_at')->take(3)->get();
+        }
+
+        return view('recipes.index', $viewData);
     }
 
     public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, SeoMetadataService $seo, SeoSchemaService $schemaService)
