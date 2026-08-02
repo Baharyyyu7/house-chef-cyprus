@@ -1,0 +1,73 @@
+version: 1
+scope: private_editorial_preparation_only
+publication_effect: none
+records:
+  - public_id: 01KZ0HN8TYQAKJFF78ZVFT8GPZ
+    current_title: Alerjen etiketleri nasıl okunur?
+    risk: high
+    revised_title: "Alerjen Etiketlerini Okurken Neye Bakılır?"
+    stronger_introduction: "Paketli gıdalarda alerjen bilgisi, ürünün etiketi ve güncel üretici bilgisinden değerlendirilmelidir. Bu rehber tanı koymaz ve kişisel tıbbi önerinin yerine geçmez."
+    h2_sections: ["İçindekiler listesini önce okuyun", "Alerjen bildiriminin kapsamı ve sınırları", "Belirsizlikte üreticiye danışma ve uzman desteği"]
+    examples: ["Buğday unu içeren ürünlerde buğday/gluten bilgisini ürün etiketi üzerinden kontrol etme", "Susam ve kuruyemişlerde çapraz temas uyarısını ürün özelinde değerlendirme"]
+    source_requirements: ["FDA Food Allergies / current labeling guidance", "Türkiye/AB hedef pazarı için yetkili etiketleme kaynağı"]
+    fact_check_checklist: ["Yargı alanı belirtildi", "Dokuz ana alerjen ifadesi yalnız FDA kapsamı için kullanıldı", "Tıbbi garanti yok", "Çapraz temas kesin risk olarak sunulmadı"]
+    internal_links: ["/tarifler", "/blog/besin-degerlerinin-tahmini-olmasi"]
+    seo: { title: "Alerjen Etiketleri Nasıl Okunur? | House Chef Cyprus", description: "Paketli gıdalarda içerik ve alerjen bilgilerini temkinli yorumlamak için kaynaklı kontrol listesi." }
+    hero_media: "Text-first design acceptable; if used, approved neutral packaged-food label composition without legible third-party branding."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN8V1MCRXBMFP575HTZPZ
+    current_title: Besin değerlerinin tahmini olması ne anlama gelir?
+    risk: high
+    revised_title: "Tariflerde Tahmini Besin Değeri Ne Anlatır?"
+    stronger_introduction: "Tariflerdeki besin özeti, seçilen malzeme verisi ve porsiyon varsayımlarına dayalı bir hesaplamadır; kişisel beslenme veya tıbbi karar için tek başına kullanılmamalıdır."
+    h2_sections: ["Hesaplamayı değiştiren girdiler", "Porsiyon ve ürün farklılıkları", "Ne zaman uzman görüşü gerekir?"]
+    examples: ["Aynı malzemenin marka/yağ oranı farkı", "Tarifin dört porsiyon yerine iki porsiyon tüketilmesi"]
+    source_requirements: ["FDA Nutrition Facts Label education", "Uygulamanın hesaplama yöntemi ve veri kaynağı"]
+    fact_check_checklist: ["Tahmini olduğu görünür", "Tedavi/sağlık sonucu iddiası yok", "Porsiyon varsayımı açık", "Eksik veri için sayısal sonuç yayınlanmadı"]
+    internal_links: ["/tarifler", "/blog/tariflerde-porsiyon-olcekleme-nasil-yapilir"]
+    seo: { title: "Tariflerde Tahmini Besin Değeri | House Chef Cyprus", description: "Tarif besin hesaplarının porsiyon, malzeme ve veri kaynağına göre neden değişebileceğini öğrenin." }
+    hero_media: "Text-first design acceptable; optional approved abstract kitchen-measurement still life."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN8TQ8GN8R70ZA2PB9K3V
+    current_title: Artan yemekleri güvenli biçimde saklama ve yeniden ısıtma
+    risk: high
+    revised_title: "Artan Yemekleri Saklama ve Yeniden Isıtma: Temkinli Kontrol Listesi"
+    stronger_introduction: "Artan yemeklerin güvenliği, yemeğin türüne, soğutma süresine, saklama sıcaklığına ve yeniden ısıtma yöntemine bağlıdır. Bu içerik, yetkili gıda güvenliği rehberleriyle kontrol edilmeden kesin güvenlik garantisi sunmaz."
+    h2_sections: ["Hızlı soğutma ve kap seçimi", "Saklama süresini kaynakla kontrol etme", "Yeniden ısıtmada termometre ve eşit ısınma"]
+    examples: ["Büyük bir tencere yemeğini sığ kaplara bölme", "Mikrodalgada eşit ısınmayı kontrol etme"]
+    source_requirements: ["USDA FSIS Leftovers and Food Safety", "FoodSafety.gov temperature and cold-storage charts", "Cyprus/Türkiye hedef pazarı için yerel yetkili kaynak"]
+    fact_check_checklist: ["Zaman/sıcaklık eşikleri kaynak ve yargı alanıyla verildi", "Koku/tat ile güvenlik belirlenir denmedi", "Yüksek-riskli gruplar için sağlık tavsiyesi verilmedi"]
+    internal_links: ["/blog/firin-yemeklerinde-sicaklik-ve-sure", "/tarifler"]
+    seo: { title: "Artan Yemekleri Güvenle Saklama ve Isıtma | House Chef Cyprus", description: "Artan yemeklerde soğutma, saklama ve yeniden ısıtma için kaynak kontrolü gerektiren temkinli rehber." }
+    hero_media: "Text-first preferred; optional approved neutral sealed-container still life."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN8TD3904H29Y2A7TDAZJ
+    current_title: Fırın yemeklerinde sıcaklık ve süreyi doğru ayarlama
+    risk: high
+    revised_title: "Fırın Yemeklerinde Süre ve Sıcaklığı Değerlendirme"
+    stronger_introduction: "Fırın sıcaklığı ve süre tek başına evrensel bir güvenlik göstergesi değildir. Tepsi derinliği, porsiyon, fırın kalibrasyonu ve yemeğin iç sıcaklığı sonucu değiştirir."
+    h2_sections: ["Fırın ayarı neden değişkenlik gösterir?", "Süreyi kontrol işaretleriyle birlikte kullanma", "Et ve tavukta iç sıcaklık ölçümü"]
+    examples: ["Fanlı/fansız ayar farkının test notuna yazılması", "Etli tarifte yalnız süre yerine termometre kullanımı"]
+    source_requirements: ["FoodSafety.gov Safe Minimum Internal Temperatures", "Recipe-specific editorial test log"]
+    fact_check_checklist: ["Sıcaklık iddiası kaynaklı", "Yalnız renk/dokuya dayalı güvenlik iddiası yok", "Tavuk/et önerileri tür ve ölçüm bağlamında"]
+    internal_links: ["/tarifler/kibris-usulu-firin-tavuk", "/tarifler/firinda-patatesli-kofte"]
+    seo: { title: "Fırın Yemeklerinde Sıcaklık ve Süre | House Chef Cyprus", description: "Fırın ayarını yemeğin türü, kap, kalınlık ve güvenli iç sıcaklık kontrolüyle birlikte değerlendirin." }
+    hero_media: "Text-first acceptable; optional approved unbranded oven/tray still life."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN8SA1TAQTK4Q31X5QQEY
+    current_title: Kıbrıs mutfağına başlangıç rehberi
+    risk: medium
+    revised_title: "Kıbrıs Mutfağına Başlangıç: Ev Sofrasında Malzeme ve Mevsim"
+    stronger_introduction: "Kıbrıs mutfağı farklı toplulukların, mevsimlerin ve ev geleneklerinin etkisini taşır. Bu rehber tek bir 'otantik' reçete iddiası yerine malzeme, mevsim ve paylaşım bağlamına odaklanır."
+    h2_sections: ["Malzeme ekseni: limon, otlar ve peynir", "Mevsim ve sofra bağlamı", "House Chef Cyprus tariflerine temkinli başlangıç"]
+    examples: ["Hellim ve domatesli kahvaltı tavasında tuzluluğu dengeleme", "Fırın tavukta mevsim sebzelerini ayrı değerlendirme"]
+    source_requirements: ["Kıbrıs kültür kurumları veya akademik/yerel mutfak kaynakları", "Her tarihsel/kültürel iddia için açık kaynak notu"]
+    fact_check_checklist: ["Kültürel genelleme yok", "Tartışmalı köken iddiası kaynaklı", "Tariflere otomatik otantiklik etiketi verilmedi"]
+    internal_links: ["/tarifler/kibris-usulu-firin-tavuk", "/tarifler/hellim-ve-domatesli-kahvalti-tavasi"]
+    seo: { title: "Kıbrıs Mutfağına Başlangıç Rehberi | House Chef Cyprus", description: "Kıbrıs esintili ev yemeklerini malzeme, mevsim ve sofra bağlamıyla tanımaya başlayın." }
+    hero_media: "Approved Cyprus/Mediterranean table scene; no landmark or third-party branding unless licensed and accurate."
+    approval_status: READY_FOR_EDITOR_REVIEW

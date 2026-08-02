@@ -1,0 +1,42 @@
+version: 1
+scope: private_media_briefs_only
+generation_or_import_effect: none
+human_approval_required: true
+records:
+  - recipe_public_id: 01KZ0HN84WZ5GB34EK8QDNDWNY
+    dish_identity: "Kıbrıs usulü fırın tavuk — only after recipe identity review"
+    brief: { plating: "single ceramic roasting dish, chicken and verified vegetables", camera_angle: "45-degree landscape", background: "matte warm stone", lighting: "soft natural side light", props: "linen only", must_show: ["final verified chicken cut", "verified vegetables"], must_not_show: ["unverified garnishes", "text", "logos", "raw poultry"] }
+  - recipe_public_id: 01KZ0HN8CFC5QPJ74KVX7Y3Z76
+    dish_identity: "Blocked: recipe identity not reconciled"
+    brief: { status: "DO_NOT_SOURCE", reason: "No media search or generation until title and ingredients are reconciled." }
+  - recipe_public_id: 01KZ0HN88YZX1BMY2X2WBWCDBT
+    dish_identity: "Blocked: hellim/domates formulation not established"
+    brief: { status: "DO_NOT_SOURCE", reason: "Prevent a visually plausible but factually wrong dish image." }
+  - recipe_public_id: 01KZ0HN8JQ3CVSN86Q8RKN8W19
+    dish_identity: "Blocked: hummus formulation not established"
+    brief: { status: "DO_NOT_SOURCE", reason: "No chickpea/tahini imagery until the actual recipe is reviewed." }
+  - recipe_public_id: 01KZ0HN8DXPZHMSHMZZNDQH47D
+    dish_identity: "Blocked: zucchini mücver formulation not established"
+    brief: { status: "DO_NOT_SOURCE", reason: "Recipe/media identity mismatch." }
+  - recipe_public_id: 01KZ0HN88NZAHDJMEGQZ1RQ9N4
+    dish_identity: "Blocked: chicken formulation not established"
+    brief: { status: "DO_NOT_SOURCE", reason: "Recipe/media identity mismatch." }
+  - recipe_public_id: 01KZ0HN8BXWM0D63N97QH7ZR4K
+    dish_identity: "Blocked: köfte/patates formulation not established"
+    brief: { status: "DO_NOT_SOURCE", reason: "Recipe/media identity mismatch." }
+  - recipe_public_id: 01KZ0HN873ASBPGE19RSR891G5
+    dish_identity: "Blocked: chicken/tomato formulation not established"
+    brief: { status: "DO_NOT_SOURCE", reason: "Recipe/media identity mismatch." }
+  - recipe_public_id: 01KZ0HN8ARQ9XKKSARAPF4F2WK
+    dish_identity: "Domates çorbası — only after final formulation"
+    brief: { plating: "plain bowl of verified tomato soup", camera_angle: "45-degree landscape", background: "matte neutral table", lighting: "soft daylight", props: "one simple napkin", must_show: ["soup consistency from final test"], must_not_show: ["cream, cheese, herbs or bread not in approved recipe", "text", "logos"] }
+  - recipe_public_id: 01KZ0HN8GW41K0R0DGJM74SXQH
+    dish_identity: "Cevizli baklava dilimi — after ingredient and portion review"
+    brief: { plating: "two to three small diamond baklava portions", camera_angle: "45-degree landscape", background: "dark matte tray or light ceramic, selected for contrast", lighting: "soft side light", props: "minimal visible walnut only if final recipe confirms", must_show: ["flaky layers", "syrup sheen"], must_not_show: ["pistachio if not in final recipe", "text", "logos"] }
+standard_deliverables:
+  landscape_hero_crop: "16:9, room-safe crop"
+  card_crop: "4:3, dish remains legible"
+  mobile_crop: "4:5, no essential detail at edges"
+  alt_text: "Write after the approved image is selected; describe dish, not marketing claims."
+  provenance: ["provider", "license URL", "creator/attribution where required", "candidate URL", "reviewer", "review timestamp"]
+  synthetic_disclosure: "Required if an approved image is generated; no generated image is authorized by this packet."

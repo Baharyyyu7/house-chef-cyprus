@@ -1,0 +1,204 @@
+version: 1
+scope: private_editorial_preparation_only
+publication_effect: none
+selection_basis: editorial priority hypothesis; not a traffic claim
+records:
+  - public_id: 01KZ0HN84WZ5GB34EK8QDNDWNY
+    current_title: Kıbrıs Usulü Fırın Tavuk
+    current_status: published_verified
+    priority: high
+    issue_summary: "Ingredient identity is broadly coherent, but the current method has three steps, household measures are absent, and food-safety/nutrition/allergen review is outstanding."
+    revised_title: "Kıbrıs Usulü Fırın Tavuk"
+    proposed_final_ingredient_list: EDITORIAL_FACT_CHECK_REQUIRED
+    measurement_normalization: "Verify grams/ml against four servings; add household equivalents only after weighing review."
+    servings: 4
+    current_times: { prep_minutes: 20, cook_minutes: 45, total_minutes: 65 }
+    difficulty: Orta
+    method_requirement: "Expand to at least five dish-specific steps; verify poultry-safe endpoint with a thermometer source."
+    critical_notes: ["Do not infer doneness from colour alone.", "Confirm tray size, chicken cut, and oven mode before final timing."]
+    serving_storage_substitution: "Write only after editorial test; storage/reheating claims require food-safety review."
+    allergen_nutrition: "Allergen mapping and per-serving nutrition snapshot required; no health claims."
+    seo: { title: "Kıbrıs Usulü Fırın Tavuk Tarifi | House Chef Cyprus", description: "Ölçüleri, fırın adımları ve editoryal doğrulama notları tamamlanmak üzere hazırlanan Kıbrıs usulü tavuk tarifi." }
+    schema_readiness: blocked_until_recipe_and_media_review
+    fact_check_notes: "Poultry endpoint, storage and reheating require authoritative source review."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN8CFC5QPJ74KVX7Y3Z76
+    current_title: Kıbrıs Usulü Şeftali Kebabı
+    current_status: published_verified
+    priority: critical
+    issue_summary: "Current ingredients and three generic steps do not establish the stated dish identity; no final recipe data may be inferred."
+    revised_title: EDITORIAL_IDENTITY_RECONCILIATION_REQUIRED
+    proposed_final_ingredient_list: NOT_SET
+    measurement_normalization: NOT_SET
+    servings: 4
+    current_times: { prep_minutes: 25, cook_minutes: 35, total_minutes: 60 }
+    difficulty: Zor
+    method_requirement: "Replace generic method only after a human editor confirms the dish identity and lawful source notes."
+    critical_notes: ["Do not retain the title with unrelated ingredients.", "Do not use cultural-authenticity claims without reviewed provenance."]
+    serving_storage_substitution: NOT_SET
+    allergen_nutrition: "Requires full ingredient reconciliation before analysis."
+    seo: { title: NOT_SET, description: NOT_SET }
+    schema_readiness: blocked_until_identity_reconciled
+    fact_check_notes: "Cultural naming, meat handling, allergens and nutrition are all blocked."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN88YZX1BMY2X2WBWCDBT
+    current_title: Hellim ve Domatesli Kahvaltı Tavası
+    current_status: published_verified
+    priority: critical
+    issue_summary: "Current record does not evidence hellim or domates quantities, has generic steps, and lacks allergen mapping."
+    revised_title: "Hellim ve Domatesli Kahvaltı Tavası"
+    proposed_final_ingredient_list: NOT_SET
+    measurement_normalization: NOT_SET
+    servings: 4
+    current_times: { prep_minutes: 10, cook_minutes: 12, total_minutes: 22 }
+    difficulty: Kolay
+    method_requirement: "Establish final ingredient identity, heat sequence, and five meaningful steps in a test kitchen review."
+    critical_notes: ["Milk allergen must be explicit if hellim is retained.", "Avoid untested claims about texture or origin."]
+    serving_storage_substitution: NOT_SET
+    allergen_nutrition: "Milk and any egg use must be verified from final ingredients."
+    seo: { title: NOT_SET, description: NOT_SET }
+    schema_readiness: blocked_until_identity_reconciled
+    fact_check_notes: "Recipe identity, allergen analysis, nutrition and media accuracy are blocked."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN8JQ3CVSN86Q8RKN8W19
+    current_title: Humus
+    current_status: published_verified
+    priority: critical
+    issue_summary: "Current ingredient set does not establish a chickpea/tahini-based hummus and method is generic."
+    revised_title: "Humus"
+    proposed_final_ingredient_list: NOT_SET
+    measurement_normalization: NOT_SET
+    servings: 4
+    current_times: { prep_minutes: 15, cook_minutes: 0, total_minutes: 15 }
+    difficulty: Kolay
+    method_requirement: "Confirm recipe identity and final ingredient list before writing a five-step method."
+    critical_notes: ["Sesame/tahini cannot be assumed or omitted; final ingredients control allergen output."]
+    serving_storage_substitution: NOT_SET
+    allergen_nutrition: "Requires final ingredient review, especially sesame."
+    seo: { title: NOT_SET, description: NOT_SET }
+    schema_readiness: blocked_until_identity_reconciled
+    fact_check_notes: "Do not make nutrition, dietary, or allergen claims until the final formulation is reviewed."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN8DXPZHMSHMZZNDQH47D
+    current_title: Fırın Kabak Mücveri
+    current_status: published_verified
+    priority: critical
+    issue_summary: "Current ingredient record lacks evidenced kabak and current method is generic."
+    revised_title: "Fırın Kabak Mücveri"
+    proposed_final_ingredient_list: NOT_SET
+    measurement_normalization: NOT_SET
+    servings: 4
+    current_times: { prep_minutes: 20, cook_minutes: 30, total_minutes: 50 }
+    difficulty: Kolay
+    method_requirement: "Confirm moisture management, pan size, and final ingredients through editorial test; then write five steps."
+    critical_notes: ["Egg, milk, wheat/gluten warnings depend on the verified final list."]
+    serving_storage_substitution: NOT_SET
+    allergen_nutrition: "Blocked until identity reconciliation."
+    seo: { title: NOT_SET, description: NOT_SET }
+    schema_readiness: blocked_until_identity_reconciled
+    fact_check_notes: "No final culinary, dietary, nutrition, or allergen conclusion is safe yet."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN88NZAHDJMEGQZ1RQ9N4
+    current_title: Fırında Baharatlı Tavuk
+    current_status: published_verified
+    priority: critical
+    issue_summary: "Current ingredients do not evidence chicken or the stated dish; generic method cannot support cooking guidance."
+    revised_title: "Fırında Baharatlı Tavuk"
+    proposed_final_ingredient_list: NOT_SET
+    measurement_normalization: NOT_SET
+    servings: 4
+    current_times: { prep_minutes: 15, cook_minutes: 40, total_minutes: 55 }
+    difficulty: Orta
+    method_requirement: "Rebuild from a reviewed formulation and add a thermometer-based endpoint after source review."
+    critical_notes: ["Poultry safety language is mandatory but must be source-backed."]
+    serving_storage_substitution: NOT_SET
+    allergen_nutrition: "Blocked until final recipe is confirmed."
+    seo: { title: NOT_SET, description: NOT_SET }
+    schema_readiness: blocked_until_identity_reconciled
+    fact_check_notes: "Do not publish a cooking-time-only safety instruction."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN8BXWM0D63N97QH7ZR4K
+    current_title: Fırında Patatesli Köfte
+    current_status: published_verified
+    priority: critical
+    issue_summary: "Current ingredients do not evidence köfte or patates; method and measurements are not usable as final recipe data."
+    revised_title: "Fırında Patatesli Köfte"
+    proposed_final_ingredient_list: NOT_SET
+    measurement_normalization: NOT_SET
+    servings: 4
+    current_times: { prep_minutes: 25, cook_minutes: 45, total_minutes: 70 }
+    difficulty: Orta
+    method_requirement: "Human recipe test and identity reconciliation required before a five-step method."
+    critical_notes: ["Ground-meat endpoint needs a source-backed thermometer instruction if meat is retained."]
+    serving_storage_substitution: NOT_SET
+    allergen_nutrition: "Blocked until actual ingredient list is established."
+    seo: { title: NOT_SET, description: NOT_SET }
+    schema_readiness: blocked_until_identity_reconciled
+    fact_check_notes: "No automatic verification or nutrition snapshot."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN873ASBPGE19RSR891G5
+    current_title: Domatesli Tavuk Sote
+    current_status: published_verified
+    priority: critical
+    issue_summary: "Current ingredients do not evidence chicken or tomato; content requires full reconciliation."
+    revised_title: "Domatesli Tavuk Sote"
+    proposed_final_ingredient_list: NOT_SET
+    measurement_normalization: NOT_SET
+    servings: 4
+    current_times: { prep_minutes: 15, cook_minutes: 25, total_minutes: 40 }
+    difficulty: Kolay
+    method_requirement: "Establish dish identity and safety endpoint before preparing at least five recipe-specific steps."
+    critical_notes: ["Poultry-handling language requires authoritative review."]
+    serving_storage_substitution: NOT_SET
+    allergen_nutrition: "Blocked pending final formula."
+    seo: { title: NOT_SET, description: NOT_SET }
+    schema_readiness: blocked_until_identity_reconciled
+    fact_check_notes: "No final SEO/content update before editor review."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN8ARQ9XKKSARAPF4F2WK
+    current_title: Domates Çorbası
+    current_status: published_verified
+    priority: high
+    issue_summary: "Title/ingredients are only partially coherent; quantities are household-only and method has three generic steps."
+    revised_title: "Domates Çorbası"
+    proposed_final_ingredient_list: EDITORIAL_FACT_CHECK_REQUIRED
+    measurement_normalization: "Weigh final ingredients and map grams/ml plus household equivalents in recipe test."
+    servings: 4
+    current_times: { prep_minutes: 10, cook_minutes: 30, total_minutes: 40 }
+    difficulty: Kolay
+    method_requirement: "Confirm potato use, liquid quantity, blending path and yield; then write at least five specific steps."
+    critical_notes: ["Allergen result depends on final dairy/flour garnish choices."]
+    serving_storage_substitution: "Not approved until recipe and safety review."
+    allergen_nutrition: "Calculate from final ingredients only."
+    seo: { title: "Domates Çorbası Tarifi | House Chef Cyprus", description: "Ölçüleri ve adımları editoryal inceleme ile tamamlanmak üzere hazırlanan ev usulü domates çorbası tarifi." }
+    schema_readiness: blocked_until_recipe_review
+    fact_check_notes: "Do not state nutrition values until a final snapshot exists."
+    approval_status: NEEDS_FACT_CHECK
+
+  - public_id: 01KZ0HN8GW41K0R0DGJM74SXQH
+    current_title: Baklava Dilimi
+    current_status: published_verified
+    priority: high
+    issue_summary: "Core ingredient identity is coherent, but household measures, source-backed allergen display, nutrition snapshot and one additional method step are needed."
+    revised_title: "Cevizli Baklava Dilimi"
+    proposed_final_ingredient_list: EDITORIAL_FACT_CHECK_REQUIRED
+    measurement_normalization: "Validate gram weights and syrup yield for four servings; add household equivalents after test."
+    servings: 4
+    current_times: { prep_minutes: 35, cook_minutes: 35, total_minutes: 70 }
+    difficulty: Zor
+    method_requirement: "Retain only tested oven setting and add a fifth, dish-specific finishing step."
+    critical_notes: ["Wheat/gluten, tree nut and milk allergens require final review."]
+    serving_storage_substitution: "Storage wording requires review; no reheating recommendation is approved yet."
+    allergen_nutrition: "Per-serving snapshot and allergen mapping required."
+    seo: { title: "Cevizli Baklava Dilimi Tarifi | House Chef Cyprus", description: "Katlama, şerbet ve servis adımları editoryal doğrulama ile tamamlanmak üzere hazırlanan cevizli baklava dilimi." }
+    schema_readiness: blocked_until_recipe_and_media_review
+    fact_check_notes: "No health claim; disclose estimated nutrition once calculated."
+    approval_status: NEEDS_MEDIA_APPROVAL
