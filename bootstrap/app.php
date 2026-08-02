@@ -3,6 +3,7 @@
 use App\Contracts\Observability\ErrorReporterInterface;
 use App\Http\Middleware\RequestContext;
 use App\Http\Middleware\SecureHeaders;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -32,6 +33,9 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*'),
         );
         $exceptions->render(function (Throwable $exception, Request $request) {
+            if ($request->is('api/*') && $exception instanceof AuthenticationException) {
+                return response()->json(['error' => ['code' => 'UNAUTHENTICATED', 'message' => 'Kimlik doğrulaması gerekli.', 'details' => []], 'request_id' => (string) $request->attributes->get('request_id')], 401)->header('X-Request-ID', (string) $request->attributes->get('request_id'));
+            }
             if ($request->is('api/*') && $exception instanceof ValidationException) {
                 return response()->json(['error' => ['code' => 'VALIDATION_ERROR', 'message' => 'İstek tamamlanamadı.', 'details' => $exception->errors()], 'request_id' => (string) $request->attributes->get('request_id')], 422)->header('X-Request-ID', (string) $request->attributes->get('request_id'));
             }

@@ -8,6 +8,7 @@ use App\Models\Concerns\HasPublicId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/** @property list<string> $reason_codes */
 final class PersonalizedRecommendation extends Model
 {
     use HasPublicId;

@@ -6,6 +6,7 @@
             ['route' => 'admin.release-candidate.index', 'label' => 'RC1 Kontrol Merkezi', 'icon' => 'check'],
             ['route' => 'admin.users.index', 'label' => 'Kullanıcılar', 'icon' => 'users'],
             ['route' => 'admin.ai-kitchen.index', 'label' => 'AI Operasyonları', 'icon' => 'sparkles'],
+            ['route' => 'admin.personalization.index', 'label' => 'Kişiselleştirme', 'icon' => 'users'],
         ],
         'İçerik' => [
             ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => 'menu'],
