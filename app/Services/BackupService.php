@@ -5,74 +5,63 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\AuditLog;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Symfony\Component\Process\Process;
 
 final class BackupService
 {
-    /** @return array<string,mixed> */
+    /** @return array<string, mixed> */
     public function create(string $type = 'manual'): array
     {
-        if (config('database.default') !== 'sqlite') {
-            throw new RuntimeException('BACKUP_DRIVER_UNSUPPORTED');
-        }
-        $id = (string) Str::ulid();
-        $dir = 'backups/'.$id;
-        $disk = Storage::disk('local');
-        $source = (string) config('database.connections.sqlite.database');
-        if ($source === ':memory:') {
-            $temporary = tempnam(sys_get_temp_dir(), 'housechef-snapshot-');
-            if ($temporary === false) {
-                throw new RuntimeException('BACKUP_COPY_FAILED');
-            }
-            @unlink($temporary);
-            DB::unprepared("VACUUM INTO '".str_replace("'", "''", $temporary)."'");
-            $database = file_get_contents($temporary);
-            @unlink($temporary);
-        } else {
-            if (! is_file($source)) {
-                throw new RuntimeException('BACKUP_DATABASE_MISSING');
-            }
-            $database = file_get_contents($source);
-        }
-        if ($database === false) {
-            throw new RuntimeException('BACKUP_COPY_FAILED');
-        }
-        $disk->put($dir.'/database.sqlite', $database);
-        $checksum = hash('sha256', $database);
-        $safeType = in_array($type, ['manual', 'scheduled', 'pre-deploy', 'pre-migration', 'daily', 'weekly'], true) ? $type : 'manual';
-        $manifest = ['backup_id' => $id, 'type' => $safeType, 'created_at' => now()->toIso8601String(), 'app_version' => trim((string) @shell_exec('git describe --tags --always 2>/dev/null')) ?: 'local', 'commit_sha' => trim((string) @shell_exec('git rev-parse HEAD 2>/dev/null')) ?: null, 'database_driver' => 'sqlite', 'database_size' => strlen($database), 'media_count' => 0, 'checksum' => $checksum, 'encryption_status' => 'storage-policy-dependent', 'storage_location_type' => 'private_local', 'status' => 'created', 'verified_at' => null, 'restore_test_status' => 'not_tested', 'retention_date' => now()->addDays((int) config('observability.backup_retention_days'))->toDateString(), 'source_environment' => app()->environment()];
-        $disk->put($dir.'/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-
-        return $manifest;
+        return match (config('database.default')) {
+            'sqlite' => $this->createSqlite($type),
+            'mysql' => $this->createMysql($type),
+            default => throw new RuntimeException('BACKUP_DRIVER_UNSUPPORTED'),
+        };
     }
 
-    /** @return array<string,mixed> */
+    /** @return array<string, mixed> */
     public function verify(string $id): array
     {
-        $disk = Storage::disk('local');
-        $base = 'backups/'.$id;
-        if (! preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/', $id) || ! $disk->exists($base.'/manifest.json') || ! $disk->exists($base.'/database.sqlite')) {
+        $disk = $this->disk();
+        $base = $this->basePath().'/'.$id;
+        if (! $this->validId($id) || ! $disk->exists($base.'/manifest.json')) {
             throw new RuntimeException('BACKUP_NOT_FOUND');
         }
+
         $manifest = json_decode((string) $disk->get($base.'/manifest.json'), true);
-        $database = $disk->get($base.'/database.sqlite');
-        if (! is_array($manifest) || ! hash_equals((string) ($manifest['checksum'] ?? ''), hash('sha256', $database))) {
+        if (! is_array($manifest)) {
             throw new RuntimeException('BACKUP_CHECKSUM_INVALID');
         }
-        $tmp = tempnam(sys_get_temp_dir(), 'housechef-backup-');
-        file_put_contents($tmp, $database);
-        $pdo = new \PDO('sqlite:'.$tmp);
-        $tables = $pdo->query("select name from sqlite_master where type='table'")->fetchAll(\PDO::FETCH_COLUMN);
-        @unlink($tmp);
-        if (! in_array('migrations', $tables, true) || ! in_array('recipes', $tables, true)) {
-            throw new RuntimeException('BACKUP_DATABASE_INVALID');
+
+        $driver = (string) ($manifest['database_driver'] ?? '');
+        $file = $this->databaseFile($driver);
+        if ($file === null || ! $disk->exists($base.'/'.$file)) {
+            throw new RuntimeException('BACKUP_FILE_MISSING');
         }
+
+        $temporary = $this->copyFromDisk($base.'/'.$file);
+        try {
+            if (! hash_equals((string) ($manifest['checksum'] ?? ''), (string) hash_file('sha256', $temporary))) {
+                throw new RuntimeException('BACKUP_CHECKSUM_INVALID');
+            }
+
+            match ($driver) {
+                'sqlite' => $this->verifySqlite($temporary),
+                'mysql' => $this->verifyMysqlDump($temporary),
+                default => throw new RuntimeException('BACKUP_DATABASE_INVALID'),
+            };
+        } finally {
+            $this->secureDelete($temporary);
+        }
+
         $manifest['verified_at'] = now()->toIso8601String();
         $manifest['status'] = 'verified';
-        $disk->put($base.'/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        $disk->put($base.'/manifest.json', $this->json($manifest));
 
         return $manifest;
     }
@@ -83,15 +72,60 @@ final class BackupService
         $manifest = $this->verify($id);
         $manifest['restore_test_status'] = 'verified_only';
         $manifest['restore_tested_at'] = now()->toIso8601String();
-        Storage::disk('local')->put('backups/'.$id.'/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        $this->disk()->put($this->basePath().'/'.$id.'/manifest.json', $this->json($manifest));
 
         return $manifest;
     }
 
-    /** @return array<int,array<string,mixed>> */
+    /**
+     * Restores a MySQL backup only into the separately configured testing connection.
+     * This is intentionally unavailable in production and never targets the default connection.
+     *
+     * @return array<string, mixed>
+     */
+    public function restoreTest(string $id, string $target = 'testing'): array
+    {
+        if (app()->environment('production') || $target !== 'testing') {
+            throw new RuntimeException('RESTORE_TARGET_FORBIDDEN');
+        }
+
+        $manifest = $this->verify($id);
+        if (($manifest['database_driver'] ?? null) !== 'mysql') {
+            return $this->markRestoreTest($id);
+        }
+
+        $connection = config('database.connections.testing');
+        $default = config('database.connections.'.config('database.default'));
+        if (! is_array($connection) || ! array_key_exists('database', $connection) || ($connection['driver'] ?? null) !== 'mysql' || ! filled($connection['database'])
+            || $connection['database'] === ($default['database'] ?? null)) {
+            throw new RuntimeException('RESTORE_TEST_DATABASE_REQUIRED');
+        }
+
+        $backup = $this->copyFromDisk($this->basePath().'/'.$id.'/database.sql.gz');
+        $defaults = $this->writeMysqlDefaults($connection);
+        try {
+            $this->restoreMysqlDump($backup, $this->mysqlBinary(), $defaults, (string) $connection['database']);
+        } finally {
+            $this->secureDelete($backup);
+            $this->secureDelete($defaults);
+        }
+
+        $manifest['restore_test_status'] = 'restored_testing_database';
+        $manifest['restore_tested_at'] = now()->toIso8601String();
+        $this->disk()->put($this->basePath().'/'.$id.'/manifest.json', $this->json($manifest));
+
+        return $manifest;
+    }
+
+    /** @return array<int, array<string, mixed>> */
     public function list(): array
     {
-        return collect(Storage::disk('local')->directories('backups'))->map(fn (string $path) => json_decode((string) Storage::disk('local')->get($path.'/manifest.json'), true))->filter(fn (mixed $manifest): bool => is_array($manifest))->sortByDesc('created_at')->values()->all();
+        return collect($this->disk()->directories($this->basePath()))
+            ->map(fn (string $path) => $this->disk()->exists($path.'/manifest.json') ? json_decode((string) $this->disk()->get($path.'/manifest.json'), true) : null)
+            ->filter(fn (mixed $manifest): bool => is_array($manifest))
+            ->sortByDesc('created_at')
+            ->values()
+            ->all();
     }
 
     /** @return array{dry_run:bool,candidates:int,deleted:int,ids:array<int,string>} */
@@ -101,15 +135,363 @@ final class BackupService
         $minimum = max(1, (int) config('observability.backup_minimum_keep'));
         $threshold = now()->subDays((int) config('observability.backup_retention_days'))->toIso8601String();
         $verified = $backups->firstWhere('status', 'verified');
-        $ids = $backups->filter(fn (array $item, int $index): bool => $index >= $minimum && ($item['created_at'] ?? '') < $threshold && ($item['backup_id'] ?? null) !== ($verified['backup_id'] ?? null))->pluck('backup_id')->filter(fn (mixed $id): bool => is_string($id) && preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/', $id) === 1)->values()->all();
+        $ids = $backups->filter(fn (array $item, int $index): bool => $index >= $minimum && ($item['created_at'] ?? '') < $threshold && ($item['backup_id'] ?? null) !== ($verified['backup_id'] ?? null))
+            ->pluck('backup_id')
+            ->filter(fn (mixed $id): bool => is_string($id) && $this->validId($id))
+            ->values()
+            ->all();
         $deleted = 0;
         if ($delete) {
             foreach ($ids as $id) {
-                Storage::disk('local')->deleteDirectory('backups/'.$id);
+                $this->disk()->deleteDirectory($this->basePath().'/'.$id);
                 $deleted++;
-            } AuditLog::create(['action' => 'backup.cleanup', 'metadata' => ['deleted' => $deleted]]);
+            }
+            AuditLog::create(['action' => 'backup.cleanup', 'metadata' => ['deleted' => $deleted]]);
         }
 
         return ['dry_run' => ! $delete, 'candidates' => count($ids), 'deleted' => $deleted, 'ids' => $ids];
+    }
+
+    /** @return array<string, mixed> */
+    private function createSqlite(string $type): array
+    {
+        $source = (string) config('database.connections.sqlite.database');
+        if ($source === ':memory:') {
+            $temporary = tempnam(sys_get_temp_dir(), 'housechef-snapshot-');
+            if ($temporary === false) {
+                throw new RuntimeException('BACKUP_COPY_FAILED');
+            }
+            $this->secureDelete($temporary);
+            DB::unprepared("VACUUM INTO '".str_replace("'", "''", $temporary)."'");
+            $database = file_get_contents($temporary);
+            $this->secureDelete($temporary);
+        } else {
+            if (! is_file($source)) {
+                throw new RuntimeException('BACKUP_DATABASE_MISSING');
+            }
+            $database = file_get_contents($source);
+        }
+        if ($database === false) {
+            throw new RuntimeException('BACKUP_COPY_FAILED');
+        }
+
+        return $this->storeBackup($type, 'sqlite', 'database.sqlite', $database, strlen($database));
+    }
+
+    /** @return array<string, mixed> */
+    private function createMysql(string $type): array
+    {
+        $connection = config('database.connections.'.config('database.default'));
+        if (! is_array($connection) || ! filled($connection['database'] ?? null)) {
+            throw new RuntimeException('BACKUP_DUMP_FAILED');
+        }
+
+        $defaults = $this->writeMysqlDefaults($connection);
+        $compressed = tempnam(sys_get_temp_dir(), 'housechef-mysql-backup-');
+        if ($compressed === false) {
+            $this->secureDelete($defaults);
+            throw new RuntimeException('BACKUP_GZIP_FAILED');
+        }
+
+        try {
+            $databaseSize = $this->dumpMysql($this->mysqlDumpBinary(), $defaults, (string) $connection['database'], $compressed);
+            $contents = fopen($compressed, 'rb');
+            if ($contents === false) {
+                throw new RuntimeException('BACKUP_GZIP_FAILED');
+            }
+            try {
+                return $this->storeBackupStream($type, 'mysql', 'database.sql.gz', $contents, (string) hash_file('sha256', $compressed), $databaseSize);
+            } finally {
+                fclose($contents);
+            }
+        } finally {
+            $this->secureDelete($compressed);
+            $this->secureDelete($defaults);
+        }
+    }
+
+    /** @return array<string, mixed> */
+    private function storeBackup(string $type, string $driver, string $file, string $contents, int $databaseSize): array
+    {
+        $id = (string) Str::ulid();
+        $base = $this->basePath().'/'.$id;
+        $this->disk()->put($base.'/'.$file, $contents);
+
+        return $this->writeManifest($id, $type, $driver, $file, hash('sha256', $contents), $databaseSize);
+    }
+
+    /** @param resource $stream @return array<string, mixed> */
+    private function storeBackupStream(string $type, string $driver, string $file, $stream, string $checksum, int $databaseSize): array
+    {
+        $id = (string) Str::ulid();
+        $base = $this->basePath().'/'.$id;
+        if (! $this->disk()->put($base.'/'.$file, $stream)) {
+            throw new RuntimeException('BACKUP_DUMP_FAILED');
+        }
+
+        return $this->writeManifest($id, $type, $driver, $file, $checksum, $databaseSize);
+    }
+
+    /** @return array<string, mixed> */
+    private function writeManifest(string $id, string $type, string $driver, string $file, string $checksum, int $databaseSize): array
+    {
+        $manifest = [
+            'backup_id' => $id,
+            'type' => $this->safeType($type),
+            'created_at' => now()->toIso8601String(),
+            'app_version' => trim((string) @shell_exec('git describe --tags --always 2>/dev/null')) ?: 'local',
+            'commit_sha' => trim((string) @shell_exec('git rev-parse HEAD 2>/dev/null')) ?: null,
+            'database_driver' => $driver,
+            'database_file' => $file,
+            'database_size' => $databaseSize,
+            'media_count' => 0,
+            'checksum' => $checksum,
+            'encryption_status' => 'storage-policy-dependent',
+            'storage_location_type' => 'private_'.config('observability.backup_disk', 'local'),
+            'status' => 'created',
+            'verified_at' => null,
+            'restore_test_status' => 'not_tested',
+            'retention_date' => now()->addDays((int) config('observability.backup_retention_days'))->toDateString(),
+            'source_environment' => app()->environment(),
+        ];
+        $this->disk()->put($this->basePath().'/'.$id.'/manifest.json', $this->json($manifest));
+
+        return $manifest;
+    }
+
+    private function verifySqlite(string $database): void
+    {
+        $pdo = new \PDO('sqlite:'.$database);
+        $tables = $pdo->query("select name from sqlite_master where type='table'")->fetchAll(\PDO::FETCH_COLUMN);
+        if (! in_array('migrations', $tables, true) || ! in_array('recipes', $tables, true)) {
+            throw new RuntimeException('BACKUP_DATABASE_INVALID');
+        }
+    }
+
+    private function verifyMysqlDump(string $compressed): void
+    {
+        $gzip = @gzopen($compressed, 'rb');
+        if ($gzip === false) {
+            throw new RuntimeException('BACKUP_GZIP_FAILED');
+        }
+
+        $limit = max(1048576, (int) config('observability.backup_verify_max_sql_bytes', 33554432));
+        $read = 0;
+        $sample = '';
+        try {
+            while (! gzeof($gzip) && $read < $limit) {
+                $chunk = gzread($gzip, min(8192, $limit - $read));
+                if ($chunk === false) {
+                    throw new RuntimeException('BACKUP_GZIP_FAILED');
+                }
+                $read += strlen($chunk);
+                $sample = substr($sample.$chunk, -32768);
+                if (str_contains($sample, '`migrations`') && (str_contains($sample, 'CREATE TABLE') || str_contains($sample, '-- MySQL dump'))) {
+                    return;
+                }
+            }
+        } finally {
+            gzclose($gzip);
+        }
+
+        throw new RuntimeException('BACKUP_DATABASE_INVALID');
+    }
+
+    private function dumpMysql(string $binary, string $defaults, string $database, string $compressed): int
+    {
+        $gzip = @gzopen($compressed, 'wb9');
+        if ($gzip === false) {
+            throw new RuntimeException('BACKUP_GZIP_FAILED');
+        }
+
+        $bytes = 0;
+        try {
+            $process = new Process([$binary, '--defaults-extra-file='.$defaults, '--single-transaction', '--quick', '--skip-comments', '--routines', '--events', '--databases', $database]);
+            $process->setTimeout(900);
+            $process->run(function (string $type, string $buffer) use ($gzip, &$bytes): void {
+                if ($type === Process::OUT) {
+                    $bytes += strlen($buffer);
+                    if (gzwrite($gzip, $buffer) === false) {
+                        throw new RuntimeException('BACKUP_GZIP_FAILED');
+                    }
+                }
+            });
+            if (! $process->isSuccessful()) {
+                throw new RuntimeException('BACKUP_DUMP_FAILED');
+            }
+        } finally {
+            gzclose($gzip);
+        }
+
+        return $bytes;
+    }
+
+    /** @param array<string, mixed> $connection */
+    private function writeMysqlDefaults(array $connection): string
+    {
+        $path = tempnam(sys_get_temp_dir(), 'housechef-mysql-client-');
+        if ($path === false) {
+            throw new RuntimeException('BACKUP_DUMP_FAILED');
+        }
+
+        $values = [
+            'host' => (string) ($connection['host'] ?? '127.0.0.1'),
+            'port' => (string) ($connection['port'] ?? 3306),
+            'user' => (string) ($connection['username'] ?? ''),
+            'password' => (string) ($connection['password'] ?? ''),
+        ];
+        foreach ($values as $value) {
+            if (str_contains($value, "\n") || str_contains($value, "\r") || str_contains($value, "\0")) {
+                $this->secureDelete($path);
+                throw new RuntimeException('BACKUP_DUMP_FAILED');
+            }
+        }
+        $contents = "[client]\n".collect($values)->map(fn (string $value, string $key): string => $key.'=\"'.$this->mysqlOptionValue($value).'\"')->implode("\n")."\n";
+        if (file_put_contents($path, $contents) === false || ! @chmod($path, 0600)) {
+            $this->secureDelete($path);
+            throw new RuntimeException('BACKUP_DUMP_FAILED');
+        }
+
+        return $path;
+    }
+
+    private function restoreMysqlDump(string $compressed, string $binary, string $defaults, string $database): void
+    {
+        $gzip = @gzopen($compressed, 'rb');
+        if ($gzip === false) {
+            throw new RuntimeException('BACKUP_GZIP_FAILED');
+        }
+        $pipes = [];
+        $process = proc_open([$binary, '--defaults-extra-file='.$defaults, '--database='.$database], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, null, ['bypass_shell' => true]);
+        if (! is_resource($process)) {
+            gzclose($gzip);
+            throw new RuntimeException('RESTORE_TEST_FAILED');
+        }
+        try {
+            while (! gzeof($gzip)) {
+                $chunk = gzread($gzip, 8192);
+                if ($chunk === false || fwrite($pipes[0], $chunk) === false) {
+                    throw new RuntimeException('RESTORE_TEST_FAILED');
+                }
+            }
+            fclose($pipes[0]);
+            stream_get_contents($pipes[1]);
+            stream_get_contents($pipes[2]);
+            if (proc_close($process) !== 0) {
+                throw new RuntimeException('RESTORE_TEST_FAILED');
+            }
+        } finally {
+            gzclose($gzip);
+            foreach ([0, 1, 2] as $index) {
+                if (isset($pipes[$index]) && is_resource($pipes[$index])) {
+                    fclose($pipes[$index]);
+                }
+            }
+        }
+    }
+
+    private function mysqlDumpBinary(): string
+    {
+        return $this->binary((string) config('observability.mysqldump_binary'), 'mysqldump', 'BACKUP_MYSQLDUMP_MISSING');
+    }
+
+    private function mysqlBinary(): string
+    {
+        return $this->binary((string) config('observability.mysql_binary'), 'mysql', 'BACKUP_MYSQLDUMP_MISSING');
+    }
+
+    private function binary(string $configured, string $name, string $error): string
+    {
+        if ($configured !== '') {
+            if (is_file($configured) && is_executable($configured)) {
+                return $configured;
+            }
+            throw new RuntimeException($error);
+        }
+        foreach (explode(PATH_SEPARATOR, (string) getenv('PATH')) as $directory) {
+            $candidate = rtrim($directory, '/').'/'.$name;
+            if (is_file($candidate) && is_executable($candidate)) {
+                return $candidate;
+            }
+        }
+
+        throw new RuntimeException($error);
+    }
+
+    private function copyFromDisk(string $path): string
+    {
+        $stream = $this->disk()->readStream($path);
+        $temporary = tempnam(sys_get_temp_dir(), 'housechef-backup-');
+        if (! is_resource($stream) || $temporary === false) {
+            throw new RuntimeException('BACKUP_FILE_MISSING');
+        }
+        $destination = fopen($temporary, 'wb');
+        if ($destination === false) {
+            fclose($stream);
+            $this->secureDelete($temporary);
+            throw new RuntimeException('BACKUP_FILE_MISSING');
+        }
+        stream_copy_to_stream($stream, $destination);
+        fclose($stream);
+        fclose($destination);
+
+        return $temporary;
+    }
+
+    private function disk(): FilesystemAdapter
+    {
+        return Storage::disk((string) config('observability.backup_disk', 'local'));
+    }
+
+    private function basePath(): string
+    {
+        return trim((string) config('observability.backup_path', 'backups'), '/');
+    }
+
+    private function databaseFile(string $driver): ?string
+    {
+        return match ($driver) {
+            'sqlite' => 'database.sqlite',
+            'mysql' => 'database.sql.gz',
+            default => null,
+        };
+    }
+
+    private function validId(string $id): bool
+    {
+        return preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/', $id) === 1;
+    }
+
+    private function safeType(string $type): string
+    {
+        return in_array($type, ['manual', 'scheduled', 'pre-deploy', 'pre-migration', 'daily', 'weekly'], true) ? $type : 'manual';
+    }
+
+    /** @param array<string, mixed> $value */
+    private function json(array $value): string
+    {
+        return (string) json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+
+    private function secureDelete(string $path): void
+    {
+        if (! is_file($path)) {
+            return;
+        }
+        $handle = @fopen($path, 'r+b');
+        if ($handle !== false) {
+            $size = filesize($path) ?: 0;
+            if ($size > 0) {
+                fwrite($handle, str_repeat("\0", min($size, 1048576)));
+                fflush($handle);
+            }
+            fclose($handle);
+        }
+        @unlink($path);
+    }
+
+    private function mysqlOptionValue(string $value): string
+    {
+        return str_replace(['\\', '"'], ['\\\\', '\\"'], $value);
     }
 }

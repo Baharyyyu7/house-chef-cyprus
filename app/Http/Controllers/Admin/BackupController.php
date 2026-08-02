@@ -46,9 +46,15 @@ final class BackupController extends Controller
     public function download(string $id)
     {
         $this->admin();
-        abort_unless(preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/', $id) === 1 && Storage::disk('local')->exists('backups/'.$id.'/database.sqlite'), 404);
+        $disk = Storage::disk((string) config('observability.backup_disk', 'local'));
+        $base = trim((string) config('observability.backup_path', 'backups'), '/').'/'.$id;
+        $manifest = preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/', $id) === 1 && $disk->exists($base.'/manifest.json')
+            ? json_decode((string) $disk->get($base.'/manifest.json'), true)
+            : null;
+        $file = is_array($manifest) ? ($manifest['database_file'] ?? null) : null;
+        abort_unless(is_string($file) && in_array($file, ['database.sqlite', 'database.sql.gz'], true) && $disk->exists($base.'/'.$file), 404);
 
-        return Storage::disk('local')->download('backups/'.$id.'/database.sqlite', 'backup-'.$id.'.sqlite');
+        return $disk->download($base.'/'.$file, 'backup-'.$id.'.'.($file === 'database.sql.gz' ? 'sql.gz' : 'sqlite'));
     }
 
     private function admin(): void

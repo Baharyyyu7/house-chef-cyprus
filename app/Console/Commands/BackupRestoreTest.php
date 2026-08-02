@@ -21,8 +21,8 @@ final class BackupRestoreTest extends Command
             return self::FAILURE;
         }
         try {
-            $manifest = $backup->markRestoreTest($id);
-            $report = ['status' => 'healthy', 'backup_id' => $id, 'target' => 'testing', 'restore_test_status' => 'verified_only', 'checked_at' => now()->toIso8601String(), 'safe_message' => 'Backup checksum ve SQLite şeması testing hedefi için doğrulandı.'];
+            $manifest = $backup->restoreTest($id, 'testing');
+            $report = ['status' => 'healthy', 'backup_id' => $id, 'target' => 'testing', 'restore_test_status' => $manifest['restore_test_status'], 'checked_at' => now()->toIso8601String(), 'safe_message' => 'Backup yalnız ayrı testing hedefi için güvenli biçimde doğrulandı.'];
             $this->line($this->option('json') ? (string) json_encode($report, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : 'Güvenli restore testi doğrulandı: '.$manifest['backup_id']);
 
             return self::SUCCESS;
