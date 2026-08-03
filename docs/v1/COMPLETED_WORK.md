@@ -12,5 +12,6 @@
 - 291 route ve 77 test dosyasından oluşan mevcut uygulama yüzeyi.
 - Gerçek Chromium/Playwright ile ana sayfa, tarif liste/detay, blog liste/detay, Legal Center, login ve register 375/1440 smoke; tek H1, Türkçe dil, yatay taşma olmaması ve console error=0 doğrulandı.
 - Yerel QA member ile gerçek login, remember-me seçimi ve dashboard redirect doğrulandı; member sayfa başlığındaki `Laravel` marka sızıntısı giderildi.
+- Kullanıcıya ait private tarif koleksiyonları; public ID, owner policy, duplicate koruması ve yalnız published+verified tarif görünürlüğüyle eklendi.
 
 Bu liste production'a yayın, insan onayı, gerçek medya kapsaması veya gerçek tarayıcı kabulü iddiası değildir.

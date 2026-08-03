@@ -122,6 +122,12 @@ class Recipe extends Model
         return $this->hasMany(RecipeProvenance::class);
     }
 
+    /** @return BelongsToMany<RecipeCollection, $this> */
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(RecipeCollection::class, 'recipe_collection_items')->withTimestamps();
+    }
+
     public function totalMinutes(): int
     {
         return $this->prep_minutes + $this->cook_minutes + $this->rest_minutes;

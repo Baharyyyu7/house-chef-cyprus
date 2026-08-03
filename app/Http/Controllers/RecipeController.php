@@ -93,6 +93,7 @@ final class RecipeController extends Controller
             'dietaryCompatibility' => $dietary->assess($recipe, $servings),
             'match' => $request->user() ? $matching->match($recipe, $request->user()) : null,
             'isFavorited' => $request->user()?->favoriteRecipes()->whereKey($recipe->id)->exists() ?? false,
+            'recipeCollections' => $request->user()?->recipeCollections()->latest()->limit(5)->get() ?? collect(),
             'ingredientLines' => $ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings),
             'relatedRecipes' => Recipe::query()
                 ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'verification_status'])
