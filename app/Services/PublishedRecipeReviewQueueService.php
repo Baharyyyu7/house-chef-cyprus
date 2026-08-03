@@ -40,7 +40,7 @@ final class PublishedRecipeReviewQueueService
     /**
      * @return array{selected:int,queued:int,identity_states:array<string,int>,media_waiting:int,recipes:list<array<string,mixed>>}
      */
-    public function queue(int $limit = 10, bool $write = false): array
+    public function queue(int $limit = 10, int $page = 1, bool $write = false): array
     {
         $recipes = Recipe::query()
             ->with(['cuisine', 'category', 'recipeIngredients.ingredient', 'steps', 'media', 'nutritionSnapshots', 'provenances', 'seoMetadata'])
@@ -49,6 +49,7 @@ final class PublishedRecipeReviewQueueService
             ->orderByDesc('is_featured')
             ->orderBy('published_at')
             ->orderBy('id')
+            ->offset(($page - 1) * $limit)
             ->limit($limit)
             ->get();
 

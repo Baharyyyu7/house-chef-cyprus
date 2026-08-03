@@ -79,6 +79,19 @@ final class PublishedRecipeReviewQueueTest extends TestCase
         }
     }
 
+    public function test_pages_create_non_overlapping_private_review_batches_for_all_published_recipes(): void
+    {
+        for ($page = 1; $page <= 5; $page++) {
+            $this->artisan('content:published-recipe-review-batch', ['--limit' => 10, '--page' => $page, '--write' => true, '--json' => true])
+                ->assertSuccessful();
+        }
+
+        $this->assertSame(50, ContentFactoryReview::query()->where('stage', 'identity_review')->count());
+        $this->assertSame(50, ContentFactoryReview::query()->where('stage', 'media_brief')->count());
+        $this->assertSame(50, ContentFactoryIssue::query()->where('issue_type', 'recipe_step_completeness')->count());
+        $this->assertSame(50, Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->count());
+    }
+
     /** @param list<string> $columns @return array<string, mixed> */
     private function rawState(Recipe $recipe, array $columns): array
     {
