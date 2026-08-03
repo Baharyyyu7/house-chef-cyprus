@@ -306,6 +306,10 @@ fi
 
 log 'Running forward-only production migration, caches and candidate-only checks.'
 artisan migrate --force --no-interaction
+if [[ -d "$RELEASE_DIR/resources/editorial/blog-synthetic" ]]; then
+    log 'Importing the versioned, production-approved synthetic blog illustrations.'
+    artisan content:import-approved-synthetic-blog-media --source-directory="$RELEASE_DIR/resources/editorial/blog-synthetic" --json
+fi
 artisan config:cache
 artisan route:cache
 artisan view:cache
