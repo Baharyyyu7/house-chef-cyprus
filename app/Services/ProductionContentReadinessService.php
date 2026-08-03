@@ -115,8 +115,15 @@ final class ProductionContentReadinessService
         $hasHigh = $issues->contains('risk_level', 'high');
         $technicalComplete = filled($post->title) && filled($post->slug) && filled($post->excerpt) && filled($post->body);
         $sourceComplete = filled($post->source_notes);
-        $approvedMedia = $post->heroMedia?->verification_status === 'approved_real_media';
-        $fallbackMedia = $post->heroMedia?->verification_status === 'branded_fallback';
+        // Verification is deliberately separate from editorial media approval.
+        // A public blog hero is real media only when it satisfies the shared
+        // Media approval contract, not merely when one status field matches.
+        $approvedMedia = $post->heroMedia?->isApprovedRealMedia() ?? false;
+        $fallbackMedia = $post->heroMedia !== null && (
+            $post->heroMedia->is_placeholder
+            || $post->heroMedia->verification_status === 'branded_fallback'
+            || in_array($post->heroMedia->media_status, ['branded_fallback', 'placeholder'], true)
+        );
         $humanApproved = $post->human_approved_at !== null;
         $reasons = $this->reasons($hasCritical, $hasHigh, ! $sourceComplete, ! $approvedMedia, ! $humanApproved, $pack);
 

@@ -73,6 +73,40 @@ final class ProductionTransitionTest extends TestCase
             ->assertSuccessful();
     }
 
+    public function test_blog_profile_accepts_only_the_shared_approved_real_media_contract(): void
+    {
+        $post = BlogPost::query()->create([
+            'title' => 'Medya sözleşmesi denetimi',
+            'slug' => 'medya-sozlesmesi-denetimi',
+            'excerpt' => 'Onaylı hero medya sözleşmesini denetleyen özgün yazı.',
+            'body' => str_repeat('Özgün editoryal içerik. ', 20),
+            'source_notes' => 'Editoryal kaynak notu.',
+            'status' => 'draft',
+        ]);
+        $media = $post->media()->create([
+            'kind' => 'editorial_synthetic_illustration',
+            'disk' => 'public',
+            'path' => 'media/blog/approved-contract.jpg',
+            'visibility' => 'public',
+            'is_placeholder' => false,
+            'verification_status' => 'verified',
+            'media_status' => 'approved_real_media',
+            'license_review_status' => 'approved',
+            'attribution_review_status' => 'approved',
+        ]);
+        $post->update(['hero_media_id' => $media->id]);
+
+        app(ProductionContentReadinessService::class)->scan();
+
+        $profile = ContentQualityProfile::query()
+            ->where('entity_type', BlogPost::class)
+            ->where('entity_public_id', $post->public_id)
+            ->firstOrFail();
+
+        $this->assertSame('approved_real_media', $profile->media_status);
+        $this->assertSame('passed_automated_checks', $profile->accessibility_status);
+    }
+
     public function test_public_and_admin_interface_language_audit_rejects_no_production_terms(): void
     {
         $this->artisan('app:production-language-audit --json')

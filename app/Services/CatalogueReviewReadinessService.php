@@ -8,7 +8,6 @@ use App\Models\ContentFactoryIssue;
 use App\Models\ContentFactoryReview;
 use App\Models\Media;
 use App\Models\Recipe;
-use Illuminate\Support\Collection;
 
 /**
  * Read-only readiness summary. It deliberately does not infer an approval
@@ -55,12 +54,26 @@ final class CatalogueReviewReadinessService
     /** @return array<string,int> */
     private function media(): array
     {
-        /** @var Collection<int, Media> $media */
-        $media = Media::query()->where('mediable_type', Recipe::class)->get();
+        $media = Media::query()->where('mediable_type', Recipe::class);
 
         return [
-            'approved_recipe_media' => $media->filter(fn (Media $item): bool => $item->isApprovedRealMedia())->count(),
-            'placeholder_recipe_media' => $media->filter(fn (Media $item): bool => (bool) $item->is_placeholder || $item->verification_status === 'branded_fallback')->count(),
+            // Keep this summary database-aggregated: loading the entire catalogue's
+            // media collection does not scale to the planned review backlog.
+            'approved_recipe_media' => (clone $media)
+                ->where('visibility', 'public')
+                ->where('is_placeholder', false)
+                ->where('verification_status', 'verified')
+                ->where('media_status', 'approved_real_media')
+                ->where('license_review_status', 'approved')
+                ->where('attribution_review_status', 'approved')
+                ->count(),
+            'placeholder_recipe_media' => (clone $media)
+                ->where(function ($query): void {
+                    $query->where('is_placeholder', true)
+                        ->orWhere('verification_status', 'branded_fallback')
+                        ->orWhere('media_status', 'branded_fallback');
+                })
+                ->count(),
         ];
     }
 }
