@@ -10,6 +10,7 @@ return [
     'canonical_scheme' => env('CANONICAL_SCHEME', 'https'),
     'www_redirect_policy' => env('WWW_REDIRECT_POLICY', 'to_apex'),
     'backup_disk' => env('BACKUP_DISK'),
+    'public_storage_url' => env('PUBLIC_STORAGE_URL'),
     'trusted_proxies' => env('TRUSTED_PROXIES'),
     'allow_sqlite' => (bool) env('PRODUCTION_ALLOW_SQLITE', false),
     'artifact_version' => 'production-artifact-v1',

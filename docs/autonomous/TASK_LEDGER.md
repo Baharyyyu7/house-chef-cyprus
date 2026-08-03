@@ -2,7 +2,7 @@
 
 | Priority | Work item | State | Evidence / next action |
 | --- | --- | --- | --- |
-| P0 | MySQL backup manifest workflow | validating | `3de77ca` removes backup commit metadata dependence on `shell_exec`; run focused tests and static checks. |
+| P0 | MySQL backup manifest workflow | locally validated | `3de77ca` removes backup commit metadata dependence on `shell_exec`; MySQL-focused tests, local create/verify/health, Pint, and PHPStan passed on 2026-08-03. |
 | P0 | Production backup create/verify/health | blocked externally | Requires authorized production SSH and a functioning production release; do not run against live data from this workspace. |
 | P0 | Production release safety | planned | Existing Hostinger release scripts and artifacts must be validated before any deploy. |
 | P0 | Contact/SMTP production delivery | configuration-dependent | CRM is implemented; live delivery requires a configured controlled mailbox and SMTP credentials. |

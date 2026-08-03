@@ -51,7 +51,7 @@ final class AppEnvironmentCheck extends Command
                     && filled(config('mail.mailers.'.config('mail.default').'.host'));
             $checks['backup_configured'] = filled(config('production.backup_disk'));
             $checks['trusted_proxies_configured'] = filled(config('production.trusted_proxies'));
-            $checks['public_storage_configured'] = in_array(config('filesystems.default'), ['public', 's3'], true);
+            $checks['public_storage_configured'] = $this->publicStorageIsConfigured($appUrl);
             $checks['canonical_configured'] = filled(config('production.canonical_host')) && config('production.canonical_scheme') === 'https';
             $checks['private_storage_distinct'] = config('filesystems.default') !== 'local' || filled(config('filesystems.disks.local.root'));
             $checks['demo_admin_absent'] = ! Schema::hasTable('users') || ! User::query()->where('email', 'admin@housechef.local')->exists();
@@ -81,5 +81,30 @@ final class AppEnvironmentCheck extends Command
         }
 
         return $result['valid'] || ! $this->option('strict') ? self::SUCCESS : self::FAILURE;
+    }
+
+    private function publicStorageIsConfigured(string $appUrl): bool
+    {
+        $defaultDisk = (string) config('filesystems.default');
+        if (in_array($defaultDisk, ['public', 's3'], true)) {
+            return true;
+        }
+
+        // Shared hosting keeps the application's default local disk private.
+        // Public media may still be served safely through a shell-created
+        // public/storage -> shared/storage/app/public link.
+        if ($defaultDisk !== 'local') {
+            return false;
+        }
+
+        $publicDisk = config('filesystems.disks.public');
+        $root = is_array($publicDisk) ? (string) ($publicDisk['root'] ?? '') : '';
+        $url = (string) (config('production.public_storage_url') ?: (is_array($publicDisk) ? ($publicDisk['url'] ?? '') : ''));
+
+        return $root !== ''
+            && is_dir($root)
+            && is_link(public_path('storage'))
+            && filter_var($url, FILTER_VALIDATE_URL) !== false
+            && str_starts_with($url, rtrim($appUrl, '/').'/storage');
     }
 }

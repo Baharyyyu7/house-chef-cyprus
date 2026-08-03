@@ -41,6 +41,32 @@ final class ProductionSprintOneTest extends TestCase
         $this->artisan('app:environment-check --environment=production --strict --json')->assertSuccessful();
     }
 
+    public function test_production_strict_profile_accepts_private_default_storage_with_a_public_symlink(): void
+    {
+        config([
+            'app.debug' => false,
+            'app.url' => 'https://example.test',
+            'cache.default' => 'redis',
+            'queue.default' => 'redis',
+            'session.driver' => 'redis',
+            'session.secure' => true,
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.host' => 'smtp.example.test',
+            'filesystems.default' => 'local',
+            'production.public_storage_url' => 'https://example.test/storage',
+            'ai_images.generation_enabled' => false,
+            'production.allow_sqlite' => true,
+            'production.backup_disk' => 'local',
+            'production.trusted_proxies' => '10.0.0.0/8',
+            'production.canonical_host' => 'example.test',
+            'production.canonical_scheme' => 'https',
+        ]);
+
+        $this->artisan('app:environment-check --environment=production --strict --json')
+            ->expectsOutputToContain('"public_storage_configured":true')
+            ->assertSuccessful();
+    }
+
     public function test_staging_profile_requires_noindex_and_social_disablement(): void
     {
         config([
