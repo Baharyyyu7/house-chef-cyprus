@@ -7,6 +7,7 @@
         ],
         'Kullanıcı ve akıllı sistemler' => [
             ['route' => 'admin.users.index', 'label' => 'Kullanıcılar', 'icon' => 'users'],
+            ['route' => 'admin.contact-requests.index', 'label' => 'İletişim Talepleri', 'icon' => 'info'],
             ['route' => 'admin.ai-kitchen.index', 'label' => 'AI Operasyonları', 'icon' => 'sparkles'],
             ['route' => 'admin.personalization.index', 'label' => 'Kişiselleştirme', 'icon' => 'users'],
         ],

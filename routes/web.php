@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AiImageStudioController;
 use App\Http\Controllers\Admin\AiKitchenController as AdminAiKitchenController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
+use App\Http\Controllers\Admin\ContactRequestController as AdminContactRequestController;
 use App\Http\Controllers\Admin\ContentFactoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataQualityController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\Admin\SystemEventController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AiKitchenController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\ContactRequestController;
 use App\Http\Controllers\CookingSessionController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HealthController;
@@ -55,6 +57,7 @@ Route::get('/sitemaps/blog.xml', [SitemapController::class, 'blog'])->name('site
 Route::get('/sitemaps/images.xml', [SitemapController::class, 'images'])->name('sitemap.images');
 Route::view('/robots.txt', 'robots')->name('robots');
 Route::get('/yasal-bilgilendirme', [LegalInformationCenterController::class, 'index'])->name('legal.center');
+Route::post('/yasal-bilgilendirme/iletisim', [ContactRequestController::class, 'store'])->middleware('throttle:contact-request')->name('legal.center.contact.store');
 Route::redirect('/kullanim-kosullari', '/yasal-bilgilendirme#kullanim-kosullari', 301);
 Route::redirect('/gizlilik', '/yasal-bilgilendirme#gizlilik-ve-kisisel-veriler', 301);
 Route::redirect('/cerezler', '/yasal-bilgilendirme#cerez-politikasi', 301);
@@ -113,6 +116,12 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
 });
 
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
+    Route::get('iletisim-talepleri', [AdminContactRequestController::class, 'index'])->name('contact-requests.index');
+    Route::get('iletisim-talepleri/{contactRequest:public_id}', [AdminContactRequestController::class, 'show'])->name('contact-requests.show');
+    Route::put('iletisim-talepleri/{contactRequest:public_id}', [AdminContactRequestController::class, 'update'])->name('contact-requests.update');
+    Route::post('iletisim-talepleri/{contactRequest:public_id}/notlar', [AdminContactRequestController::class, 'note'])->name('contact-requests.notes.store');
+    Route::post('iletisim-talepleri/{contactRequest:public_id}/yanitla', [AdminContactRequestController::class, 'reply'])->name('contact-requests.reply');
+    Route::post('iletisim-talepleri/{contactRequest:public_id}/anonimlestir', [AdminContactRequestController::class, 'anonymize'])->name('contact-requests.anonymize');
     Route::get('ai-operasyonlari', [AdminAiKitchenController::class, 'index'])->middleware('can:access-ai-operations')->name('ai-kitchen.index');
     Route::get('kisisellestirme-operasyonlari', [PersonalizationOperationsController::class, 'index'])->name('personalization.index');
     Route::get('/', AdminDashboardController::class)->name('dashboard');

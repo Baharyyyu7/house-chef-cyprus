@@ -124,5 +124,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('publish-production-content', fn ($user): bool => $user->isAdmin());
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
         RateLimiter::for('registration', fn (Request $request) => Limit::perHour(5)->by($request->ip()));
+        RateLimiter::for('contact-request', fn (Request $request) => Limit::perHour(5)->by(hash('sha256', (string) $request->ip().'|'.mb_strtolower((string) $request->input('email')))));
     }
 }
