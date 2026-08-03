@@ -89,7 +89,9 @@ class AuthenticationTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSeeVolt('layout.navigation');
+            ->assertSeeVolt('layout.navigation')
+            ->assertSee('<title>Hesabım · House Chef Cyprus</title>', false)
+            ->assertDontSee('<title>Laravel</title>', false);
     }
 
     public function test_users_can_logout(): void

@@ -5,7 +5,7 @@
     <meta name="robots" content="noindex,nofollow">
     <meta name="theme-color" content="#ff6b00"><link rel="icon" type="image/svg+xml" href="{{ asset(config('brand.assets.favicon')) }}"><link rel="apple-touch-icon" sizes="180x180" href="{{ asset(config('brand.assets.apple_touch_icon')) }}"><link rel="manifest" href="{{ asset('brand/site.webmanifest') }}">
     <link rel="preconnect" href="https://fonts.bunny.net"><link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&family=playfair-display:500,600,700&display=swap" rel="stylesheet" />
-    <title>{{ config('app.name', 'House Chef Cyprus') }}</title>@vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>Hesabım · House Chef Cyprus</title>@vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body x-data="{dark: localStorage.theme === 'dark', menuOpen: false}" x-init="document.documentElement.classList.toggle('dark', dark); $watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light' })" class="min-h-screen antialiased">
     <livewire:layout.navigation />
