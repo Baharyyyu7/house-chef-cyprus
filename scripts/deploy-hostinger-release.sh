@@ -50,17 +50,121 @@ active_artisan() {
         printf '%s\n' "$RELEASE_DIR/artisan"
     fi
 }
+web_root_index() { printf '%s/index.php\n' "$WEB_ROOT"; }
+web_root_storage() { printf '%s/storage\n' "$WEB_ROOT"; }
+
+# Hostinger's HTTP layer does not reliably follow a public_html symlink that
+# crosses the domain root. Keep public_html physical and stable; only current
+# is switched atomically between immutable releases.
+ensure_physical_web_root() {
+    if "$DRY_RUN"; then
+        log "Would ensure physical Hostinger web root at $WEB_ROOT."
+        return 0
+    fi
+
+    if [[ -L "$WEB_ROOT" ]]; then
+        log 'Replacing public_html release symlink with the Hostinger physical web-root fallback.'
+        rm -f "$WEB_ROOT"
+    fi
+    [[ ! -e "$WEB_ROOT" || -d "$WEB_ROOT" ]] || fail 'public_html exists but is not a directory or symlink.'
+    mkdir -p "$WEB_ROOT"
+}
+
+sync_hostinger_web_root() {
+    ensure_physical_web_root
+    if "$DRY_RUN"; then
+        log "Would sync $CURRENT_LINK/public into physical $WEB_ROOT while preserving host-only hidden files."
+        return 0
+    fi
+
+    # tar copies dotfiles too, does not delete Hostinger-owned hidden files,
+    # and excludes the release storage link so it can be recreated below.
+    (
+        cd "$CURRENT_LINK/public"
+        tar --exclude='./storage' -cf - .
+    ) | (
+        cd "$WEB_ROOT"
+        tar -xf -
+    )
+}
+
+write_hostinger_web_root_index() {
+    if "$DRY_RUN"; then
+        log "Would write stable Hostinger bootstrap index at $(web_root_index)."
+        return 0
+    fi
+
+    cat > "$(web_root_index)" <<'PHP'
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Http\Request;
+
+require __DIR__.'/../current/vendor/autoload.php';
+
+$app = require_once __DIR__.'/../current/bootstrap/app.php';
+
+$app->handleRequest(Request::capture());
+PHP
+}
+
+recreate_web_root_storage_link() {
+    local storage_link
+    storage_link="$(web_root_storage)"
+    if "$DRY_RUN"; then
+        log "Would recreate $storage_link -> $SHARED_DIR/storage/app/public."
+        return 0
+    fi
+
+    if [[ -e "$storage_link" && ! -L "$storage_link" ]]; then
+        WEB_ROOT_BACKUP="$SHARED_DIR/webroot-backups/storage.$(date -u +%Y%m%d%H%M%S)"
+        log "Preserving existing public_html/storage at $WEB_ROOT_BACKUP before replacing it with the shared storage link."
+        mv "$storage_link" "$WEB_ROOT_BACKUP"
+    else
+        rm -f "$storage_link"
+    fi
+    ln -s "$SHARED_DIR/storage/app/public" "$storage_link"
+}
+
+verify_hostinger_web_root() {
+    if "$DRY_RUN"; then
+        log 'Would validate physical public_html, stable bootstrap paths, .htaccess, Vite assets, and storage link.'
+        return 0
+    fi
+
+    test -f "$(web_root_index)" || fail 'HOSTINGER_WEB_ROOT_INDEX_MISSING'
+    test -f "$CURRENT_LINK/public/index.php" || fail 'HOSTINGER_RELEASE_PUBLIC_INDEX_MISSING'
+    grep -Fq "__DIR__.'/../current/vendor/autoload.php'" "$(web_root_index)" || fail 'HOSTINGER_WEB_ROOT_AUTOLOAD_PATH_INVALID'
+    grep -Fq "__DIR__.'/../current/bootstrap/app.php'" "$(web_root_index)" || fail 'HOSTINGER_WEB_ROOT_BOOTSTRAP_PATH_INVALID'
+    test -f "$WEB_ROOT/.htaccess" || fail 'HOSTINGER_WEB_ROOT_HTACCESS_MISSING'
+    test -f "$WEB_ROOT/build/manifest.json" || fail 'HOSTINGER_WEB_ROOT_BUILD_MANIFEST_MISSING'
+    test -L "$(web_root_storage)" || fail 'HOSTINGER_WEB_ROOT_STORAGE_LINK_MISSING'
+    [[ "$(readlink -f "$(web_root_storage)")" == "$(readlink -f "$SHARED_DIR/storage/app/public")" ]] || fail 'HOSTINGER_WEB_ROOT_STORAGE_LINK_INVALID'
+}
+
+prepare_hostinger_web_root() {
+    sync_hostinger_web_root
+    write_hostinger_web_root_index
+    recreate_web_root_storage_link
+    verify_hostinger_web_root
+}
+
+hostinger_404_diagnostic() {
+    "$DRY_RUN" && return 0
+    log "HOSTINGER_WEB_ROOT_DIAGNOSTIC public_html=$WEB_ROOT current_target=$(readlink -f "$CURRENT_LINK" 2>/dev/null || printf unavailable)"
+    log "HOSTINGER_WEB_ROOT_DIAGNOSTIC index_exists=$([[ -f "$(web_root_index)" ]] && printf yes || printf no) htaccess_exists=$([[ -f "$WEB_ROOT/.htaccess" ]] && printf yes || printf no) build_manifest_exists=$([[ -f "$WEB_ROOT/build/manifest.json" ]] && printf yes || printf no) storage_link=$([[ -L "$(web_root_storage)" ]] && printf yes || printf no)"
+    if [[ -f "$(web_root_index)" ]]; then
+        log "HOSTINGER_WEB_ROOT_DIAGNOSTIC autoload_path=$([[ $(grep -Fc "__DIR__.'/../current/vendor/autoload.php'" "$(web_root_index)") -gt 0 ]] && printf current || printf invalid) bootstrap_path=$([[ $(grep -Fc "__DIR__.'/../current/bootstrap/app.php'" "$(web_root_index)") -gt 0 ]] && printf current || printf invalid)"
+    fi
+}
 rollback_post_switch_failure() {
     [[ "$SWITCHED" == true && -n "$PREVIOUS_RELEASE" && -f "$PREVIOUS_RELEASE/artisan" ]] || return 0
 
     log "Post-switch validation failed; restoring release symlinks to $PREVIOUS_RELEASE."
     run ln -sfn "$PREVIOUS_RELEASE" "$CURRENT_LINK" || true
-    if [[ "$WEB_ROOT_ADOPTED" == true && -n "$WEB_ROOT_BACKUP" && -d "$WEB_ROOT_BACKUP" ]]; then
-        run rm -f "$WEB_ROOT" || true
-        run mv "$WEB_ROOT_BACKUP" "$WEB_ROOT" || true
-    else
-        run ln -sfn "$CURRENT_LINK/public" "$WEB_ROOT" || true
-    fi
+    prepare_hostinger_web_root || true
+    hostinger_404_diagnostic
     run "$PHP_BIN" "$(active_artisan)" up --no-interaction || true
     SWITCHED=false
 }
@@ -156,20 +260,17 @@ if ! "$DRY_RUN" && [[ -e "$CURRENT_LINK" && ! -L "$CURRENT_LINK" ]]; then
 fi
 run ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"
 SWITCHED=true
-if [[ -d "$WEB_ROOT" && ! -L "$WEB_ROOT" ]]; then
-    "$ADOPT_WEB_ROOT" || fail 'public_html is a directory. Re-run with --adopt-hostinger-default-web-root after reviewing its backup.'
-    WEB_ROOT_BACKUP="$SHARED_DIR/webroot-backups/public_html.$(date -u +%Y%m%d%H%M%S)"
-    run mv "$WEB_ROOT" "$WEB_ROOT_BACKUP"
-    WEB_ROOT_ADOPTED=true
-fi
-run ln -sfn "$CURRENT_LINK/public" "$WEB_ROOT"
+prepare_hostinger_web_root
 
 log 'Disabling maintenance mode on the newly active release.'
 run "$PHP_BIN" "$CURRENT_LINK/artisan" up --no-interaction
 MAINTENANCE_ENABLED=false
 
 log 'Running live HTTP smoke only after maintenance mode is disabled.'
-run "$PHP_BIN" "$CURRENT_LINK/artisan" app:post-deploy-smoke --json
+if ! run "$PHP_BIN" "$CURRENT_LINK/artisan" app:post-deploy-smoke --json; then
+    hostinger_404_diagnostic
+    fail 'HOSTINGER_POST_SWITCH_SMOKE_FAILED'
+fi
 run "$PHP_BIN" "$CURRENT_LINK/artisan" app:database-readiness --json
 run "$PHP_BIN" "$CURRENT_LINK/artisan" backup:health --json
 

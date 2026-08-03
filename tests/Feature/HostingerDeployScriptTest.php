@@ -30,10 +30,11 @@ final class HostingerDeployScriptTest extends TestCase
         $this->assertStringContainsString('rollback_post_switch_failure()', $script);
         $this->assertStringContainsString('[[ "$SWITCHED" == true && -n "$PREVIOUS_RELEASE"', $script);
         $this->assertStringContainsString('run ln -sfn "$PREVIOUS_RELEASE" "$CURRENT_LINK"', $script);
+        $this->assertStringContainsString('prepare_hostinger_web_root || true', $script);
         $this->assertStringContainsString('run "$PHP_BIN" "$(active_artisan)" up --no-interaction', $script);
     }
 
-    public function test_pre_switch_failures_do_not_change_current_and_public_html_adoption_is_reversible(): void
+    public function test_pre_switch_failures_do_not_change_current_and_hostinger_uses_a_physical_web_root(): void
     {
         $script = $this->script();
         $switch = strpos($script, 'run ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"');
@@ -42,10 +43,34 @@ final class HostingerDeployScriptTest extends TestCase
         $this->assertIsInt($switch);
         $this->assertIsInt($migration);
         $this->assertLessThan($switch, $migration);
-        $this->assertStringContainsString('WEB_ROOT_BACKUP=', $script);
-        $this->assertStringContainsString('run mv "$WEB_ROOT" "$WEB_ROOT_BACKUP"', $script);
-        $this->assertStringContainsString('run rm -f "$WEB_ROOT"', $script);
-        $this->assertStringContainsString('run mv "$WEB_ROOT_BACKUP" "$WEB_ROOT"', $script);
+        $this->assertStringContainsString('ensure_physical_web_root()', $script);
+        $this->assertStringContainsString('tar --exclude=\'./storage\' -cf - .', $script);
+        $this->assertStringContainsString("__DIR__.'/../current/vendor/autoload.php'", $script);
+        $this->assertStringContainsString("__DIR__.'/../current/bootstrap/app.php'", $script);
+        $this->assertStringContainsString('HOSTINGER_WEB_ROOT_DIAGNOSTIC', $script);
+    }
+
+    public function test_public_html_sync_recreates_storage_without_deleting_hostinger_hidden_files(): void
+    {
+        $script = $this->script();
+
+        $this->assertStringContainsString('tar copies dotfiles too, does not delete Hostinger-owned hidden files', $script);
+        $this->assertStringContainsString('Preserving existing public_html/storage', $script);
+        $this->assertStringContainsString('ln -s "$SHARED_DIR/storage/app/public" "$storage_link"', $script);
+        $this->assertStringContainsString('test -f "$WEB_ROOT/.htaccess"', $script);
+        $this->assertStringContainsString('test -f "$WEB_ROOT/build/manifest.json"', $script);
+    }
+
+    public function test_failed_public_smoke_emits_hostinger_diagnostics_before_rollback(): void
+    {
+        $script = $this->script();
+        $smoke = strpos($script, 'app:post-deploy-smoke --json');
+        $diagnostic = strpos($script, 'hostinger_404_diagnostic');
+
+        $this->assertIsInt($smoke);
+        $this->assertIsInt($diagnostic);
+        $this->assertStringContainsString("fail 'HOSTINGER_POST_SWITCH_SMOKE_FAILED'", $script);
+        $this->assertGreaterThan($smoke, strrpos($script, 'hostinger_404_diagnostic'));
     }
 
     private function script(): string

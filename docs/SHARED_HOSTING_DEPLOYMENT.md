@@ -11,10 +11,20 @@ This runbook uses immutable releases and never runs Node/npm on Hostinger. Build
   shared/storage/
   shared/logs/
   current -> releases/<commit-sha>
-  public_html -> current/public
+  public_html/                 # physical Hostinger web root
+    index.php                  # stable bootstrap into ../current
+    .htaccess
+    build/
+    storage -> shared/storage/app/public
 ```
 
-`public_html` begins as a Hostinger directory. The first deploy requires the explicit `--adopt-hostinger-default-web-root` option, which moves that directory to `shared/webroot-backups/`; it never deletes it. Later deploys switch symlinks atomically.
+Hostinger may not follow a `public_html -> current/public` symlink across the
+domain root. Therefore `public_html` is kept as a physical, stable directory.
+Each deploy synchronizes the active release's `public/` files without deleting
+Hostinger-owned hidden files, then writes a stable `index.php` that loads
+`../current/vendor/autoload.php` and `../current/bootstrap/app.php`. The
+`current` release link remains the only atomic release switch. `public_html/storage`
+is recreated as a shell-created link to `shared/storage/app/public`.
 
 ## First release
 
@@ -22,7 +32,7 @@ This runbook uses immutable releases and never runs Node/npm on Hostinger. Build
 2. Upload the generated `house-chef-cyprus-assets-<sha>.tar.gz` and its checksum through an authenticated private channel. Verify the checksum over SSH.
 3. Create `shared/.env` from `.env.production.example` outside Git. Supply real secrets only in that server file.
 4. Add a read-only Git deploy key to the repository and verify it can clone the selected branch.
-5. Run the deployer once with `--dry-run`, then run it with `--adopt-hostinger-default-web-root` only after reviewing `public_html`.
+5. Run the deployer once with `--dry-run`, then run the live command after reviewing the existing `public_html` directory. The deployer preserves host-only hidden files and replaces only the application web-root files it manages.
 6. Add the entries from `deploy/cron/housechef-hostinger-production.cron.example` with the actual absolute app path.
 
 ### Read-only deploy key
