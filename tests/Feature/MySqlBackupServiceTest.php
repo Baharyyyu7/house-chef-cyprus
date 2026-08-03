@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Console\Commands\BackupCreate;
 use App\Exceptions\BackupException;
 use App\Services\BackupService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Tests\TestCase;
 
 final class MySqlBackupServiceTest extends TestCase
@@ -118,7 +122,7 @@ final class MySqlBackupServiceTest extends TestCase
     {
         config(['observability.mysqldump_binary' => '/not/a/real/mysqldump']);
 
-        $this->artisan('backup:create --json')
+        $this->artisan('backup:create', ['--json' => true])
             ->expectsOutputToContain('BACKUP_MYSQLDUMP_MISSING')
             ->doesntExpectOutputToContain('not-a-real-password')
             ->assertFailed();
@@ -155,12 +159,23 @@ final class MySqlBackupServiceTest extends TestCase
             $this->assertSame('BACKUP_DUMP_EXIT_FAILED', $exception->getMessage());
             $this->assertInstanceOf(BackupException::class, $exception);
             $this->assertSame('mysql_access_denied', $exception->safeDiagnostic);
+            $this->assertSame('Access denied user=[redacted] using password=[redacted]', $exception->safeStderrSummary);
         }
 
-        $this->artisan('backup:create --json')
-            ->expectsOutputToContain('BACKUP_DUMP_EXIT_FAILED')
-            ->doesntExpectOutputToContain('not-a-real-password')
-            ->assertFailed();
+        Log::spy();
+        $output = new BufferedOutput;
+        $command = app(BackupCreate::class);
+        $command->setLaravel($this->app);
+        $status = $command->run(new ArrayInput(['--json' => true]), $output);
+        $json = $output->fetch();
+        $this->assertSame(1, $status);
+        $this->assertStringContainsString('BACKUP_DUMP_EXIT_FAILED', $json);
+        $this->assertStringContainsString('mysql_access_denied', $json);
+        $this->assertStringContainsString('stderr_summary', $json);
+        $this->assertStringNotContainsString('not-a-real-password', $json);
+        Log::shouldHaveReceived('error')
+            ->once()
+            ->with('Backup creation failed.', \Mockery::on(fn (array $context): bool => ($context['stderr_summary'] ?? null) === 'Access denied user=[redacted] using password=[redacted]'));
     }
 
     public function test_mysql_backup_times_out_and_does_not_store_a_partial_gzip_file(): void

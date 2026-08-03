@@ -348,7 +348,11 @@ final class BackupService
             $stderr = '';
             $exitCode = $this->streamMysqlProcess($process, $pipes, $gzip, $bytes, $stderr);
             if ($exitCode !== 0 || $bytes === 0) {
-                throw new BackupException('BACKUP_DUMP_EXIT_FAILED', $this->safeMysqlDiagnostic($stderr));
+                throw new BackupException(
+                    'BACKUP_DUMP_EXIT_FAILED',
+                    $this->safeMysqlDiagnostic($stderr),
+                    $this->safeMysqlStderrSummary($stderr),
+                );
             }
             if (gzclose($gzip) === false) {
                 throw new RuntimeException('BACKUP_GZIP_STREAM_FAILED');
@@ -473,6 +477,34 @@ final class BackupService
             str_contains($message, 'no such file') || str_contains($message, 'not found') => 'mysqldump_execution_unavailable',
             default => 'mysqldump_reported_error',
         };
+    }
+
+    private function safeMysqlStderrSummary(string $stderr): ?string
+    {
+        $summary = trim((string) preg_replace('/\s+/', ' ', $stderr));
+        if ($summary === '') {
+            return null;
+        }
+
+        $summary = preg_replace([
+            '/--defaults-extra-file(?:=|\s+)\S+/i',
+            '/(?:password|pwd)\s*(?:=|:|\s)\s*[^\s,;]+/i',
+            '/(?:user(?:name)?|for user)\s*[=:]?\s*[\'\"]?[^\s\'\"@,;]+[\'\"]?/i',
+            '/@[\'\"][^\'\"]+[\'\"]/',
+            '/\b(?:mysql|mariadb):\/\/[^\s]+/i',
+            '/(?:\/[^\s]+)+/',
+            '/[A-Za-z]:\\\\[^\s]+/',
+        ], [
+            '--defaults-extra-file=[redacted]',
+            'password=[redacted]',
+            'user=[redacted]',
+            '@[redacted]',
+            '[redacted-connection]',
+            '[path]',
+            '[path]',
+        ], $summary);
+
+        return str($summary ?? 'mysqldump reported an unclassified error')->limit(240, '…')->toString();
     }
 
     /** @param array<string, mixed> $connection */

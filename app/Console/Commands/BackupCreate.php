@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Exceptions\BackupException;
 use App\Services\BackupService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 final class BackupCreate extends Command
 {
@@ -23,9 +24,22 @@ final class BackupCreate extends Command
             if ($exception instanceof BackupException && $exception->safeDiagnostic !== null) {
                 $result['error']['diagnostic'] = $exception->safeDiagnostic;
             }
+            if ($exception instanceof BackupException && $exception->safeStderrSummary !== null) {
+                $result['error']['stderr_summary'] = $exception->safeStderrSummary;
+            }
+            if ($exception instanceof BackupException) {
+                Log::error('Backup creation failed.', array_filter([
+                    'code' => $code,
+                    'diagnostic' => $exception->safeDiagnostic,
+                    'stderr_summary' => $exception->safeStderrSummary,
+                ]));
+            }
             $this->line($this->option('json') ? (string) json_encode($result, JSON_UNESCAPED_SLASHES) : 'Backup güvenli biçimde oluşturulamadı. ['.$code.']');
             if (! $this->option('json') && $exception instanceof BackupException && $exception->safeDiagnostic !== null && $this->output->isVerbose()) {
                 $this->line('Tanı: '.$exception->safeDiagnostic);
+            }
+            if (! $this->option('json') && $exception instanceof BackupException && $exception->safeStderrSummary !== null && $this->output->isVerbose()) {
+                $this->line('Stderr özeti: '.$exception->safeStderrSummary);
             }
 
             return self::FAILURE;
