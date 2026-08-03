@@ -11,5 +11,6 @@ return [
     'backup_path' => env('BACKUP_PATH', 'backups'),
     'mysqldump_binary' => env('MYSQLDUMP_BINARY'),
     'mysql_binary' => env('MYSQL_BINARY'),
+    'backup_dump_timeout_seconds' => (int) env('BACKUP_DUMP_TIMEOUT_SECONDS', 900),
     'backup_verify_max_sql_bytes' => (int) env('BACKUP_VERIFY_MAX_SQL_BYTES', 33554432),
 ];

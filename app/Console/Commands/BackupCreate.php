@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Exceptions\BackupException;
 use App\Services\BackupService;
 use Illuminate\Console\Command;
 
@@ -19,7 +20,13 @@ final class BackupCreate extends Command
         } catch (\Throwable $exception) {
             $code = $this->safeCode($exception);
             $result = ['status' => 'failed', 'error' => ['code' => $code, 'message' => 'Backup güvenli biçimde oluşturulamadı.']];
+            if ($exception instanceof BackupException && $exception->safeDiagnostic !== null) {
+                $result['error']['diagnostic'] = $exception->safeDiagnostic;
+            }
             $this->line($this->option('json') ? (string) json_encode($result, JSON_UNESCAPED_SLASHES) : 'Backup güvenli biçimde oluşturulamadı. ['.$code.']');
+            if (! $this->option('json') && $exception instanceof BackupException && $exception->safeDiagnostic !== null && $this->output->isVerbose()) {
+                $this->line('Tanı: '.$exception->safeDiagnostic);
+            }
 
             return self::FAILURE;
         }

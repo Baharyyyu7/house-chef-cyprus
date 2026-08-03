@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Exceptions\BackupException;
 use App\Models\AuditLog;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
-use Symfony\Component\Process\Process;
 
 final class BackupService
 {
@@ -326,31 +326,153 @@ final class BackupService
         }
 
         $bytes = 0;
+        $pipes = [];
+        $process = null;
+        $gzipClosed = false;
         try {
-            try {
-                $process = new Process([$binary, '--defaults-extra-file='.$defaults, '--single-transaction', '--quick', '--skip-comments', '--routines', '--events', '--databases', $database]);
-                $process->setTimeout(900);
-                $process->run(function (string $type, string $buffer) use ($gzip, &$bytes): void {
-                    if ($type === Process::OUT) {
-                        $bytes += strlen($buffer);
-                        $this->writeGzip($gzip, $buffer);
-                    }
-                });
-            } catch (RuntimeException $exception) {
-                throw $exception;
-            } catch (\Throwable) {
-                throw new RuntimeException('BACKUP_DUMP_STREAM_FAILED');
+            $process = @proc_open(
+                [$binary, '--defaults-extra-file='.$defaults, '--single-transaction', '--quick', '--skip-comments', '--routines', '--events', '--databases', $database],
+                [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+                $pipes,
+                null,
+                null,
+                ['bypass_shell' => true],
+            );
+            if (! is_resource($process)) {
+                throw new RuntimeException('BACKUP_DUMP_PROCESS_OPEN_FAILED');
             }
-            if (! $process->isSuccessful() || $bytes === 0) {
-                throw new RuntimeException('BACKUP_DUMP_STREAM_FAILED');
+
+            fclose($pipes[0]);
+            stream_set_blocking($pipes[1], false);
+            stream_set_blocking($pipes[2], false);
+            $stderr = '';
+            $exitCode = $this->streamMysqlProcess($process, $pipes, $gzip, $bytes, $stderr);
+            if ($exitCode !== 0 || $bytes === 0) {
+                throw new BackupException('BACKUP_DUMP_EXIT_FAILED', $this->safeMysqlDiagnostic($stderr));
             }
-        } finally {
             if (gzclose($gzip) === false) {
                 throw new RuntimeException('BACKUP_GZIP_STREAM_FAILED');
             }
+            $gzipClosed = true;
+
+            return $bytes;
+        } catch (RuntimeException $exception) {
+            $this->secureDelete($compressed);
+
+            throw $exception;
+        } finally {
+            foreach ([0, 1, 2] as $index) {
+                if (isset($pipes[$index]) && is_resource($pipes[$index])) {
+                    fclose($pipes[$index]);
+                }
+            }
+            if (is_resource($process)) {
+                @proc_terminate($process);
+                @proc_close($process);
+            }
+            if (! $gzipClosed && gzclose($gzip) === false) {
+                $this->secureDelete($compressed);
+            }
+        }
+    }
+
+    /**
+     * @param  resource  $process
+     * @param  array<int, resource>  $pipes
+     * @param  resource  $gzip
+     */
+    private function streamMysqlProcess($process, array $pipes, $gzip, int &$bytes, string &$stderr): int
+    {
+        $timeout = max(1, (int) config('observability.backup_dump_timeout_seconds', 900));
+        $deadline = microtime(true) + $timeout;
+        $exitCode = -1;
+
+        while (true) {
+            if (microtime(true) >= $deadline) {
+                @proc_terminate($process);
+                throw new RuntimeException('BACKUP_DUMP_TIMEOUT');
+            }
+
+            $status = proc_get_status($process);
+            $read = [];
+            foreach ([1, 2] as $index) {
+                if (isset($pipes[$index]) && is_resource($pipes[$index]) && ! feof($pipes[$index])) {
+                    $read[] = $pipes[$index];
+                }
+            }
+
+            if ($read !== []) {
+                $write = null;
+                $except = null;
+                $ready = @stream_select($read, $write, $except, 0, 200000);
+                if ($ready === false) {
+                    throw new RuntimeException('BACKUP_DUMP_READ_FAILED');
+                }
+                foreach ($read as $stream) {
+                    $chunk = fread($stream, 8192);
+                    if ($chunk === false) {
+                        throw new RuntimeException('BACKUP_DUMP_READ_FAILED');
+                    }
+                    if ($stream === $pipes[1] && $chunk !== '') {
+                        $bytes += strlen($chunk);
+                        try {
+                            $this->writeGzip($gzip, $chunk);
+                        } catch (RuntimeException) {
+                            throw new RuntimeException('BACKUP_DUMP_WRITE_FAILED');
+                        }
+                    }
+                    if ($stream === $pipes[2] && $chunk !== '') {
+                        $stderr = substr($stderr.$chunk, -8192);
+                    }
+                }
+            } elseif ($status['running']) {
+                usleep(10000);
+            }
+
+            if (! $status['running']) {
+                $exitCode = $status['exitcode'];
+                break;
+            }
         }
 
-        return $bytes;
+        foreach ([1, 2] as $index) {
+            $remaining = stream_get_contents($pipes[$index]);
+            if ($remaining === false) {
+                throw new RuntimeException('BACKUP_DUMP_READ_FAILED');
+            }
+            if ($index === 1 && $remaining !== '') {
+                $bytes += strlen($remaining);
+                try {
+                    $this->writeGzip($gzip, $remaining);
+                } catch (RuntimeException) {
+                    throw new RuntimeException('BACKUP_DUMP_WRITE_FAILED');
+                }
+            }
+            if ($index === 2 && $remaining !== '') {
+                $stderr = substr($stderr.$remaining, -8192);
+            }
+            fclose($pipes[$index]);
+        }
+
+        $closeCode = proc_close($process);
+        if ($closeCode >= 0) {
+            $exitCode = $closeCode;
+        }
+
+        return $exitCode;
+    }
+
+    private function safeMysqlDiagnostic(string $stderr): ?string
+    {
+        $message = strtolower($stderr);
+
+        return match (true) {
+            $message === '' => null,
+            str_contains($message, 'access denied') => 'mysql_access_denied',
+            str_contains($message, 'unknown database') => 'mysql_database_unavailable',
+            str_contains($message, 'no such file') || str_contains($message, 'not found') => 'mysqldump_execution_unavailable',
+            default => 'mysqldump_reported_error',
+        };
     }
 
     /** @param array<string, mixed> $connection */

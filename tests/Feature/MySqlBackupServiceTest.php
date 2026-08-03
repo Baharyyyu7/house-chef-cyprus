@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Exceptions\BackupException;
 use App\Services\BackupService;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
@@ -19,10 +20,11 @@ final class MySqlBackupServiceTest extends TestCase
     {
         parent::setUp();
 
+        putenv('HOUSECHEF_DUMP_MODE=success');
         Storage::fake('local');
         $this->argumentsLog = tempnam(sys_get_temp_dir(), 'housechef-mysqldump-log-');
         $this->dumpBinary = tempnam(sys_get_temp_dir(), 'housechef-mysqldump-');
-        file_put_contents($this->dumpBinary, "#!/usr/bin/env php\n<?php\n\$defaults = '';\nforeach (\$argv as \$argument) { if (str_starts_with(\$argument, '--defaults-extra-file=')) { \$defaults = \$argument; break; } }\n\$path = substr(\$defaults, strlen('--defaults-extra-file='));\n\$isDump = in_array('--single-transaction', \$argv, true);\nfile_put_contents(".var_export($this->argumentsLog, true).", json_encode(['arguments' => \$argv, 'mode' => \$isDump ? 'dump' : 'restore', 'defaults_exists' => is_file(\$path), 'defaults_mode' => is_file(\$path) ? (fileperms(\$path) & 0777) : null, 'defaults_has_password' => is_file(\$path) && str_contains((string) file_get_contents(\$path), 'not-a-real-password')]));\nif (\$isDump) { echo \"-- MySQL dump\\nCREATE TABLE `migrations` (`id` bigint);\\nCREATE TABLE `recipes` (`id` bigint);\\n\"; } else { stream_get_contents(STDIN); }");
+        file_put_contents($this->dumpBinary, "#!/usr/bin/env php\n<?php\n\$defaults = '';\nforeach (\$argv as \$argument) { if (str_starts_with(\$argument, '--defaults-extra-file=')) { \$defaults = \$argument; break; } }\n\$path = substr(\$defaults, strlen('--defaults-extra-file='));\n\$isDump = in_array('--single-transaction', \$argv, true);\n\$mode = getenv('HOUSECHEF_DUMP_MODE') ?: 'success';\nfile_put_contents(".var_export($this->argumentsLog, true).", json_encode(['arguments' => \$argv, 'mode' => \$isDump ? 'dump' : 'restore', 'defaults_exists' => is_file(\$path), 'defaults_mode' => is_file(\$path) ? (fileperms(\$path) & 0777) : null, 'defaults_has_password' => is_file(\$path) && str_contains((string) file_get_contents(\$path), 'not-a-real-password')]));\nif (! \$isDump) { stream_get_contents(STDIN); exit(0); }\nif (\$mode === 'stderr') { fwrite(STDERR, str_repeat('diagnostic line ', 12000)); }\nif (\$mode === 'failure') { fwrite(STDERR, 'Access denied for user backup_user using password not-a-real-password'); exit(7); }\nif (\$mode === 'timeout') { sleep(3); exit(0); }\necho \"-- MySQL dump\\nCREATE TABLE `migrations` (`id` bigint);\\nCREATE TABLE `recipes` (`id` bigint);\\n\";");
         chmod($this->dumpBinary, 0700);
 
         config([
@@ -44,6 +46,7 @@ final class MySqlBackupServiceTest extends TestCase
 
     protected function tearDown(): void
     {
+        putenv('HOUSECHEF_DUMP_MODE');
         @unlink($this->dumpBinary);
         @unlink($this->argumentsLog);
 
@@ -129,5 +132,49 @@ final class MySqlBackupServiceTest extends TestCase
         $this->artisan('backup:verify', ['backup_id' => $manifest['backup_id'], '--json' => true])
             ->expectsOutputToContain('BACKUP_CHECKSUM_INVALID')
             ->assertFailed();
+    }
+
+    public function test_mysql_backup_drains_stderr_while_streaming_a_gzip_dump(): void
+    {
+        putenv('HOUSECHEF_DUMP_MODE=stderr');
+
+        $manifest = app(BackupService::class)->create();
+
+        Storage::disk('local')->assertExists('backups/'.$manifest['backup_id'].'/database.sql.gz');
+        $this->assertSame('verified', app(BackupService::class)->verify($manifest['backup_id'])['status']);
+    }
+
+    public function test_mysql_backup_classifies_a_non_zero_dump_exit_without_leaking_credentials(): void
+    {
+        putenv('HOUSECHEF_DUMP_MODE=failure');
+
+        try {
+            app(BackupService::class)->create();
+            $this->fail('Expected a classified dump failure.');
+        } catch (RuntimeException $exception) {
+            $this->assertSame('BACKUP_DUMP_EXIT_FAILED', $exception->getMessage());
+            $this->assertInstanceOf(BackupException::class, $exception);
+            $this->assertSame('mysql_access_denied', $exception->safeDiagnostic);
+        }
+
+        $this->artisan('backup:create --json')
+            ->expectsOutputToContain('BACKUP_DUMP_EXIT_FAILED')
+            ->doesntExpectOutputToContain('not-a-real-password')
+            ->assertFailed();
+    }
+
+    public function test_mysql_backup_times_out_and_does_not_store_a_partial_gzip_file(): void
+    {
+        putenv('HOUSECHEF_DUMP_MODE=timeout');
+        config(['observability.backup_dump_timeout_seconds' => 1]);
+
+        try {
+            app(BackupService::class)->create();
+            $this->fail('Expected the dump to time out.');
+        } catch (RuntimeException $exception) {
+            $this->assertSame('BACKUP_DUMP_TIMEOUT', $exception->getMessage());
+        }
+
+        $this->assertSame([], Storage::disk('local')->allFiles('backups'));
     }
 }
