@@ -30,6 +30,8 @@ return [
         'open_graph' => [1200, 630],
         'card' => [800, 600],
         'square' => [1080, 1080],
+        'portrait' => [1080, 1350],
+        'thumbnail' => [400, 300],
     ],
     'cdn_base_url' => rtrim((string) env('MEDIA_CDN_BASE_URL', ''), '/'),
     'approval' => [

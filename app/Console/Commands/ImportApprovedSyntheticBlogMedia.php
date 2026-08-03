@@ -39,7 +39,7 @@ final class ImportApprovedSyntheticBlogMedia extends Command
     private function hasRequiredVariants(BlogPost $post): bool
     {
         $variants = (array) $post->heroMedia?->responsive_variants;
-        foreach (['hero', 'open_graph', 'card', 'square'] as $profile) {
+        foreach (['hero', 'open_graph', 'card', 'square', 'portrait', 'thumbnail'] as $profile) {
             $variant = $variants[$profile] ?? null;
             if (! is_array($variant) || ! is_string($variant['jpeg'] ?? null) || ! is_string($variant['webp'] ?? null) || ! is_string($variant['avif'] ?? null)) {
                 return false;
