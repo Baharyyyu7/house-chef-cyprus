@@ -29,7 +29,7 @@ is recreated as a shell-created link to `shared/storage/app/public`.
 ## First release
 
 1. In CI/local, check out the exact release SHA and run `ARTIFACT_COMMIT_SHA=<sha> scripts/build-production-artifact.sh`.
-2. Upload the generated `house-chef-cyprus-assets-<sha>.tar.gz` and its checksum through an authenticated private channel. Verify the checksum over SSH.
+2. Upload the generated `house-chef-cyprus-full-<short-sha>.tar.gz` and its checksum through an authenticated private channel. Verify the checksum over SSH.
 3. Create `shared/.env` from `.env.production.example` outside Git. Supply real secrets only in that server file.
 4. Add a read-only Git deploy key to the repository and verify it can clone the selected branch.
 5. Run the deployer once with `--dry-run`, then run the live command after reviewing the existing `public_html` directory. The deployer preserves host-only hidden files and replaces only the application web-root files it manages.
@@ -45,7 +45,7 @@ Example validation invocation (does not change the server):
 APP_HOME="$HOME/domains/housechefcyprus.com" \
 REPOSITORY_URL='git@github.com:Baharyyyu7/house-chef-cyprus.git' \
 RELEASE_COMMIT='<full-sha>' \
-ASSET_ARTIFACT="$HOME/private-artifacts/house-chef-cyprus-assets-<sha>.tar.gz" \
+ASSET_ARTIFACT="$HOME/private-artifacts/house-chef-cyprus-full-<short-sha>.tar.gz" \
 scripts/deploy-hostinger-release.sh --dry-run
 ```
 

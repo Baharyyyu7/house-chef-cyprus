@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Hostinger shared-hosting release deployer. It never invokes npm or storage:link.
-# Build the asset artifact locally/CI and upload it privately before invoking this script.
+# Build the complete release artifact locally/CI and upload it privately before invoking this script.
 
 DRY_RUN=false
 ADOPT_WEB_ROOT=false
@@ -18,7 +18,7 @@ done
 APP_HOME="${APP_HOME:?APP_HOME must be the absolute domain directory}"
 REPOSITORY_URL="${REPOSITORY_URL:?REPOSITORY_URL must be a read-only repository URL}"
 RELEASE_COMMIT="${RELEASE_COMMIT:?RELEASE_COMMIT must be the immutable commit SHA}"
-ASSET_ARTIFACT="${ASSET_ARTIFACT:?ASSET_ARTIFACT must point to a prebuilt asset artifact}"
+ASSET_ARTIFACT="${ASSET_ARTIFACT:?ASSET_ARTIFACT must point to a prebuilt release artifact}"
 ASSET_CHECKSUM_FILE="${ASSET_CHECKSUM_FILE:-$ASSET_ARTIFACT.sha256}"
 BRANCH="${BRANCH:-visual-redesign-v2}"
 PHP_BIN="${PHP_BIN:-/usr/bin/php}"
@@ -271,9 +271,13 @@ if ! "$DRY_RUN"; then
     test "$(git -C "$RELEASE_DIR" rev-parse HEAD)" = "$RELEASE_COMMIT" || fail 'Checked-out release does not match RELEASE_COMMIT.'
 fi
 
-log 'Extracting and validating locally/CI-built frontend assets.'
+log 'Extracting and validating the locally/CI-built complete release artifact.'
 run tar -xzf "$ASSET_ARTIFACT" -C "$RELEASE_DIR"
 run test -f "$RELEASE_DIR/public/build/manifest.json"
+run test -f "$RELEASE_DIR/composer.json"
+run test -f "$RELEASE_DIR/artisan"
+run test -d "$RELEASE_DIR/app"
+run test -d "$RELEASE_DIR/routes"
 if ! "$DRY_RUN"; then
     [[ "$(tr -d '[:space:]' < "$RELEASE_DIR/.house-chef-build-commit")" == "$RELEASE_COMMIT" ]] || fail 'Build artifact commit does not match RELEASE_COMMIT.'
 fi
