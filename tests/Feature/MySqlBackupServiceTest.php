@@ -9,6 +9,7 @@ use App\Exceptions\BackupException;
 use App\Services\BackupService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use ReflectionMethod;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -106,6 +107,42 @@ final class MySqlBackupServiceTest extends TestCase
         $this->assertStringNotContainsString('not-a-real-password', implode(' ', $execution['arguments']));
     }
 
+    public function test_mysql_defaults_use_an_unquoted_mariadb_numeric_port(): void
+    {
+        $path = $this->mysqlDefaults(['port' => '3306']);
+        try {
+            $contents = (string) file_get_contents($path);
+            $this->assertStringContainsString("port=3306\n", $contents);
+            $this->assertStringNotContainsString('port="3306"', $contents);
+            $this->assertStringContainsString('user="backup_user"', $contents);
+            $this->assertStringContainsString('password="not-a-real-password"', $contents);
+        } finally {
+            @unlink($path);
+        }
+    }
+
+    public function test_mysql_defaults_support_a_custom_numeric_port(): void
+    {
+        $path = $this->mysqlDefaults(['port' => 3310]);
+        try {
+            $this->assertStringContainsString("port=3310\n", (string) file_get_contents($path));
+        } finally {
+            @unlink($path);
+        }
+    }
+
+    public function test_mysql_defaults_fall_back_to_the_standard_port_for_invalid_values(): void
+    {
+        $path = $this->mysqlDefaults(['port' => '3306"']);
+        try {
+            $contents = (string) file_get_contents($path);
+            $this->assertStringContainsString("port=3306\n", $contents);
+            $this->assertStringNotContainsString('3306"', $contents);
+        } finally {
+            @unlink($path);
+        }
+    }
+
     public function test_mysql_backup_fails_safely_when_mysqldump_is_unavailable(): void
     {
         config(['observability.mysqldump_binary' => '/not/a/real/mysqldump']);
@@ -191,5 +228,18 @@ final class MySqlBackupServiceTest extends TestCase
         }
 
         $this->assertSame([], Storage::disk('local')->allFiles('backups'));
+    }
+
+    /** @param array<string, mixed> $overrides */
+    private function mysqlDefaults(array $overrides): string
+    {
+        $connection = array_replace((array) config('database.connections.mysql'), $overrides);
+        $method = new ReflectionMethod(BackupService::class, 'writeMysqlDefaults');
+        $path = $method->invoke(app(BackupService::class), $connection);
+        if (! is_string($path)) {
+            throw new RuntimeException('Defaults file path was not returned.');
+        }
+
+        return $path;
     }
 }

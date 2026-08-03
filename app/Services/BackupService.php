@@ -517,7 +517,6 @@ final class BackupService
 
         $values = [
             'host' => (string) ($connection['host'] ?? '127.0.0.1'),
-            'port' => (string) ($connection['port'] ?? 3306),
             'user' => (string) ($connection['username'] ?? ''),
             'password' => (string) ($connection['password'] ?? ''),
         ];
@@ -527,7 +526,11 @@ final class BackupService
                 throw new RuntimeException('BACKUP_DUMP_STREAM_FAILED');
             }
         }
-        $contents = "[client]\n".collect($values)->map(fn (string $value, string $key): string => $key.'=\"'.$this->mysqlOptionValue($value).'\"')->implode("\n")."\n";
+        $contents = "[client]\n"
+            .'host="'.$this->mysqlOptionValue($values['host'])."\"\n"
+            .'port='.$this->mysqlPort($connection['port'] ?? null)."\n"
+            .'user="'.$this->mysqlOptionValue($values['user'])."\"\n"
+            .'password="'.$this->mysqlOptionValue($values['password'])."\"\n";
         if (file_put_contents($path, $contents) === false || ! @chmod($path, 0600)) {
             $this->secureDelete($path);
             throw new RuntimeException('BACKUP_DUMP_STREAM_FAILED');
@@ -738,5 +741,18 @@ final class BackupService
     private function mysqlOptionValue(string $value): string
     {
         return str_replace(['\\', '"'], ['\\\\', '\\"'], $value);
+    }
+
+    private function mysqlPort(mixed $value): int
+    {
+        if (is_int($value)) {
+            $port = $value;
+        } elseif (is_string($value) && preg_match('/^\d+$/', trim($value)) === 1) {
+            $port = (int) trim($value);
+        } else {
+            return 3306;
+        }
+
+        return $port >= 1 && $port <= 65535 ? $port : 3306;
     }
 }
