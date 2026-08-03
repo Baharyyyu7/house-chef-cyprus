@@ -22,14 +22,23 @@ final class InformationAndSeoPagesTest extends TestCase
 
     public function test_legal_information_center_is_canonical_and_legacy_pages_redirect_to_their_sections(): void
     {
-        $this->get(route('legal.center'))
+        $response = $this->get(route('legal.center'))
             ->assertOk()
             ->assertSee('House Chef Cyprus Kullanım Koşulları, Gizlilik, Çerez ve İçerik Politikası')
             ->assertSee('Son güncelleme: 3 Ağustos 2026')
             ->assertSee('Tarif ve Sağlık Uyarıları')
             ->assertSee('Görsel ve Yapay Zekâ Politikası')
-            ->assertSee('data-legal-copy-status', false)
+            ->assertSee('data-legal-document', false)
+            ->assertSee('data-copy-page', false)
+            ->assertDontSee('data-legal-search', false)
+            ->assertDontSee('data-legal-nav-link', false)
+            ->assertDontSee('data-copy-section', false)
+            ->assertDontSee('Bölümü kopyala')
             ->assertSee('brand/house-chef-cyprus-logo-on-light.svg', false);
+
+        $this->assertSame(1, substr_count($response->getContent(), '<h1'));
+        $this->assertStringNotContainsString('Nefis Yemek Tarifleri', $response->getContent());
+        $this->assertStringNotContainsString('Vergi numarası', $response->getContent());
 
         $this->get('/kullanim-kosullari')->assertRedirect('/yasal-bilgilendirme#kullanim-kosullari');
         $this->get('/gizlilik')->assertRedirect('/yasal-bilgilendirme#gizlilik-ve-kisisel-veriler');

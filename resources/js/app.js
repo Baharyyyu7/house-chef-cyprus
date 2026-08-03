@@ -101,52 +101,18 @@ const mountLegalInformationCenter = () => {
     if (!center || center.dataset.initialized === 'true') return;
 
     center.dataset.initialized = 'true';
-    const sections = [...center.querySelectorAll('[data-legal-section]')];
-    const links = [...center.querySelectorAll('[data-legal-nav-link]')];
-    const search = center.querySelector('[data-legal-search]');
-    const searchStatus = center.querySelector('[data-legal-search-status]');
-    const select = center.querySelector('[data-legal-section-select]');
     const copyStatus = center.querySelector('[data-legal-copy-status]');
-
-    const activate = (id) => {
-        links.forEach((link) => link.classList.toggle('bg-orange-100', link.dataset.sectionId === id));
-        links.forEach((link) => link.classList.toggle('text-orange-800', link.dataset.sectionId === id));
-        links.forEach((link) => link.classList.toggle('dark:bg-orange-500/20', link.dataset.sectionId === id));
-        links.forEach((link) => link.classList.toggle('dark:text-orange-100', link.dataset.sectionId === id));
-        if (select && select.value !== id) select.value = id;
-    };
-
-    search?.addEventListener('input', () => {
-        const query = search.value.trim().toLocaleLowerCase('tr-TR');
-        let visible = 0;
-        sections.forEach((section) => {
-            const matches = query === '' || section.textContent.toLocaleLowerCase('tr-TR').includes(query);
-            section.hidden = !matches;
-            if (matches) visible += 1;
-        });
-        if (searchStatus) searchStatus.textContent = query === '' ? '' : `${visible} bölüm bulundu.`;
-    });
-
-    select?.addEventListener('change', () => document.getElementById(select.value)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
     center.querySelector('[data-legal-print]')?.addEventListener('click', () => window.print());
-
-    center.querySelectorAll('[data-copy-section]').forEach((button) => button.addEventListener('click', async () => {
+    center.querySelector('[data-copy-page]')?.addEventListener('click', async () => {
         const url = new URL(window.location.href);
-        url.hash = button.dataset.sectionId || '';
+        url.hash = '';
         try {
             await navigator.clipboard.writeText(url.toString());
-            if (copyStatus) copyStatus.textContent = 'Bölüm bağlantısı kopyalandı.';
+            if (copyStatus) copyStatus.textContent = 'Sayfa bağlantısı kopyalandı.';
         } catch {
-            window.prompt('Bölüm bağlantısını kopyalayın:', url.toString());
+            window.prompt('Sayfa bağlantısını kopyalayın:', url.toString());
         }
-    }));
-
-    const observer = new IntersectionObserver((entries) => {
-        const active = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (active) activate(active.target.id);
-    }, { rootMargin: '-18% 0px -68% 0px', threshold: [0.05, 0.3] });
-    sections.forEach((section) => observer.observe(section));
-    activate(window.location.hash.slice(1) || sections[0]?.id);
+    });
 };
 
 const mountPageFeatures = () => {
