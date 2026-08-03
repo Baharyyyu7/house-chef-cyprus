@@ -42,7 +42,9 @@ if ! "$DRY_RUN"; then
         --exclude='storage/framework/cache/*' \
         --exclude='storage/framework/sessions/*' \
         --exclude='storage/framework/views/*' \
+        --exclude='storage/app/public/*' \
         --exclude='storage/app/private/backups/*' \
+        --exclude='public/storage' \
         --exclude='.DS_Store' \
         --exclude='._*' \
         -cf - artisan composer.json composer.lock app bootstrap config database public resources routes scripts storage lang \
