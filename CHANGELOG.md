@@ -1,5 +1,7 @@
 # Changelog
 
+- Added a complete published-recipe media failure-mode audit, concurrency-safe production apply manifest, exact recipe image crop profiles, modern responsive sources, and a strict three-candidate Pexels review limit without enabling automatic approval or publication.
+
 - Added an idempotent, private-only completion audit and revision workflow for all 20 published blog articles, including topic-specific media briefs, official-source requirements for high-risk topics, an admin current/proposed comparison screen, and `BlogPosting` schema without automatic publication or approval.
 
 ## Unreleased

@@ -47,11 +47,14 @@ final class MediaOptimizationService
         $width = imagesx($source);
         $height = imagesy($source);
         $variants = [];
-        foreach ((array) config('media_excellence.responsive_widths') as $target) {
-            $targetWidth = min($width, (int) $target);
-            $targetHeight = max(1, (int) round($height * ($targetWidth / max(1, $width))));
+        foreach ((array) config('media_excellence.recipe_profiles') as $name => $dimensions) {
+            [$targetWidth, $targetHeight] = array_map('intval', (array) $dimensions);
+            if ($targetWidth < 1 || $targetHeight < 1) {
+                continue;
+            }
             $canvas = imagecreatetruecolor($targetWidth, $targetHeight);
-            imagecopyresampled($canvas, $source, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
+            [$sourceX, $sourceY, $cropWidth, $cropHeight] = $this->crop($media, $width, $height, $targetWidth, $targetHeight);
+            imagecopyresampled($canvas, $source, 0, 0, $sourceX, $sourceY, $targetWidth, $targetHeight, $cropWidth, $cropHeight);
             $base = 'media/optimized/'.$media->public_id.'/'.$targetWidth;
             $jpeg = $base.'.jpg';
             ob_start();
@@ -64,7 +67,7 @@ final class MediaOptimizationService
                 throw new \RuntimeException('MEDIA_JPEG_FAILED');
             }
             Storage::disk('public')->put($jpeg, $jpegBytes, ['visibility' => 'public']);
-            $variants[(string) $targetWidth] = ['jpeg' => $jpeg, 'width' => $targetWidth, 'height' => $targetHeight];
+            $variants[(string) $name] = ['name' => (string) $name, 'jpeg' => $jpeg, 'width' => $targetWidth, 'height' => $targetHeight];
             if (function_exists('imagewebp')) {
                 $webp = $base.'.webp';
                 ob_start();
@@ -72,7 +75,7 @@ final class MediaOptimizationService
                 $webpBytes = ob_get_clean();
                 if (is_string($webpBytes) && $webpBytes !== '') {
                     Storage::disk('public')->put($webp, $webpBytes, ['visibility' => 'public']);
-                    $variants[(string) $targetWidth]['webp'] = $webp;
+                    $variants[(string) $name]['webp'] = $webp;
                 }
             }
             if (function_exists('imageavif')) {
@@ -82,12 +85,32 @@ final class MediaOptimizationService
                 $avifBytes = ob_get_clean();
                 if (is_string($avifBytes) && $avifBytes !== '') {
                     Storage::disk('public')->put($avif, $avifBytes, ['visibility' => 'public']);
-                    $variants[(string) $targetWidth]['avif'] = $avif;
+                    $variants[(string) $name]['avif'] = $avif;
                 }
             }
             imagedestroy($canvas);
         }
         imagedestroy($source);
         $media->update(['responsive_variants' => $variants, 'optimization_status' => 'ready', 'processing_status' => 'ready', 'health_scanned_at' => now(), 'health_rule_version' => config('media_excellence.health_rule_version')]);
+    }
+
+    /** @return array{int,int,int,int} */
+    private function crop(Media $media, int $width, int $height, int $targetWidth, int $targetHeight): array
+    {
+        $sourceRatio = $width / max(1, $height);
+        $targetRatio = $targetWidth / max(1, $targetHeight);
+        if ($sourceRatio > $targetRatio) {
+            $cropHeight = $height;
+            $cropWidth = max(1, (int) round($height * $targetRatio));
+        } else {
+            $cropWidth = $width;
+            $cropHeight = max(1, (int) round($width / $targetRatio));
+        }
+        $focalX = max(0.0, min(1.0, (float) ($media->focal_point_x ?? 0.5)));
+        $focalY = max(0.0, min(1.0, (float) ($media->focal_point_y ?? 0.5)));
+        $sourceX = max(0, min($width - $cropWidth, (int) round(($width * $focalX) - ($cropWidth / 2))));
+        $sourceY = max(0, min($height - $cropHeight, (int) round(($height * $focalY) - ($cropHeight / 2))));
+
+        return [$sourceX, $sourceY, $cropWidth, $cropHeight];
     }
 }

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\File;
 
 final class ScanPexelsEditorialCandidates extends Command
 {
-    protected $signature = 'media:pexels-scan {--batch=all : 1-5 ya da all} {--contact-sheets : İnceleme HTML dosyalarını üret} {--json : Makine okunabilir çıktı}';
+    protected $signature = 'media:pexels-scan {--batch=all : 1-5 ya da all} {--limit=3 : Tarif başına en fazla private aday} {--contact-sheets : İnceleme HTML dosyalarını üret} {--json : Makine okunabilir çıktı}';
 
     protected $description = 'Pexels adaylarını yalnız private review metadata olarak tarar; dosya indirmez veya yayınlamaz';
 
@@ -24,7 +24,8 @@ final class ScanPexelsEditorialCandidates extends Command
 
             return self::FAILURE;
         }
-        $report = $review->scan($batch ?: null);
+        $limit = max(1, min(3, (int) $this->option('limit')));
+        $report = $review->scan($batch ?: null, $limit);
         if ($this->option('contact-sheets')) {
             $this->writeContactSheets();
         }

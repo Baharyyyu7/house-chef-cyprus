@@ -82,7 +82,7 @@ class Media extends Model
             && $this->attribution_review_status === 'approved';
     }
 
-    public function responsiveUrl(int $width): ?string
+    public function responsiveUrl(int $width, string $format = 'jpeg'): ?string
     {
         $url = $this->publicUrl();
         if ($url === null) {
@@ -93,7 +93,7 @@ class Media extends Model
             $selectedPath = null;
             $selectedWidth = PHP_INT_MAX;
             foreach ($this->responsiveVariants() as $variant) {
-                $path = $variant['jpeg'] ?? null;
+                $path = $variant[$format] ?? null;
                 $variantWidth = $variant['width'] ?? null;
                 if (! is_string($path) || ! is_int($variantWidth) || $variantWidth < $width || $variantWidth >= $selectedWidth) {
                     continue;
@@ -117,14 +117,14 @@ class Media extends Model
     }
 
     /** @param list<int> $widths */
-    public function responsiveSrcset(array $widths): ?string
+    public function responsiveSrcset(array $widths, string $format = 'jpeg'): ?string
     {
         if (! $this->isApprovedRealMedia()) {
             return null;
         }
 
-        $items = collect($widths)->map(function (int $width): ?string {
-            $url = $this->responsiveUrl($width);
+        $items = collect($widths)->map(function (int $width) use ($format): ?string {
+            $url = $this->responsiveUrl($width, $format);
 
             return $url === null ? null : $url.' '.$width.'w';
         })->filter()->unique()->values();

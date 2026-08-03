@@ -9,7 +9,11 @@
 <article {{ $attributes->merge(['class' => 'hc-v3-card hc-v3-card--interactive group flex min-h-[27rem] flex-col overflow-hidden']) }}>
     <a class="relative block aspect-[1.16] overflow-hidden bg-stone-100 dark:bg-stone-900" href="{{ route('recipes.show', $recipe) }}" aria-label="{{ $recipe->title }} tarifini incele">
         @if($hasApprovedMedia)
-            <img class="h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none" src="{{ $media->publicUrl() }}" alt="{{ $alt }}" width="1200" height="900" loading="lazy">
+            <picture>
+                @if($media->responsiveSrcset([400, 800], 'avif'))<source type="image/avif" srcset="{{ $media->responsiveSrcset([400, 800], 'avif') }}" sizes="(min-width: 640px) 400px, 100vw">@endif
+                @if($media->responsiveSrcset([400, 800], 'webp'))<source type="image/webp" srcset="{{ $media->responsiveSrcset([400, 800], 'webp') }}" sizes="(min-width: 640px) 400px, 100vw">@endif
+                <img class="h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none" src="{{ $media->responsiveUrl(800) }}" srcset="{{ $media->responsiveSrcset([400, 800]) }}" sizes="(min-width: 640px) 400px, 100vw" alt="{{ $alt }}" width="800" height="600" loading="lazy">
+            </picture>
         @else
             <div class="flex h-full w-full flex-col items-center justify-center gap-3 border-b border-dashed p-6 text-center" style="border-color:var(--hc-border-subtle)" aria-hidden="true">
                 <span class="grid h-12 w-12 place-items-center rounded-full bg-orange-100 text-2xl text-orange-800 dark:bg-orange-500/15 dark:text-orange-200">⌁</span>

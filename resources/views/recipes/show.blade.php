@@ -6,7 +6,11 @@
 
     <section class="hc-recipe-detail-hero relative isolate overflow-hidden bg-charcoal-950 text-white">
         @if($hasApprovedMedia)
-            <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-70" src="{{ $heroMedia->responsiveUrl(1600) }}" @if($heroMedia->responsiveSrcset([768, 1280, 1600])) srcset="{{ $heroMedia->responsiveSrcset([768, 1280, 1600]) }}" sizes="100vw" width="{{ $heroMedia->width }}" height="{{ $heroMedia->height }}" @endif alt="" aria-hidden="true" fetchpriority="high">
+            <picture>
+                @if($heroMedia->responsiveSrcset([800, 1200, 1600], 'avif'))<source type="image/avif" srcset="{{ $heroMedia->responsiveSrcset([800, 1200, 1600], 'avif') }}" sizes="100vw">@endif
+                @if($heroMedia->responsiveSrcset([800, 1200, 1600], 'webp'))<source type="image/webp" srcset="{{ $heroMedia->responsiveSrcset([800, 1200, 1600], 'webp') }}" sizes="100vw">@endif
+                <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-70" src="{{ $heroMedia->responsiveUrl(1600) }}" srcset="{{ $heroMedia->responsiveSrcset([800, 1200, 1600]) }}" sizes="100vw" width="1600" height="1000" alt="" aria-hidden="true" fetchpriority="high">
+            </picture>
         @else
             <div class="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_75%_20%,rgba(255,102,0,.32),transparent_28%),linear-gradient(135deg,#111913,#17251d_48%,#20160e)]" aria-hidden="true"></div>
         @endif

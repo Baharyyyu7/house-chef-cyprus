@@ -17,7 +17,14 @@ return [
         'jpeg' => (int) env('MEDIA_JPEG_QUALITY', 86),
         'avif' => (int) env('MEDIA_AVIF_QUALITY', 55),
     ],
-    'responsive_widths' => [320, 480, 768, 1024, 1440, 1920],
+    'responsive_widths' => [400, 640, 800, 1200, 1600],
+    'recipe_profiles' => [
+        'thumbnail' => [400, 300],
+        'square' => [640, 640],
+        'card' => [800, 600],
+        'open_graph' => [1200, 630],
+        'hero' => [1600, 1000],
+    ],
     'cdn_base_url' => rtrim((string) env('MEDIA_CDN_BASE_URL', ''), '/'),
     'approval' => [
         'media_reviewer_can_final_approve' => (bool) env('MEDIA_REVIEWER_CAN_FINAL_APPROVE', false),
