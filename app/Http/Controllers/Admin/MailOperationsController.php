@@ -10,8 +10,16 @@ use Illuminate\View\View;
 
 final class MailOperationsController extends Controller
 {
-    public function __invoke(MailOperationsService $service): View
+    public function index(MailOperationsService $service): View
     {
         return view('admin.mail-operations.index', ['mail' => $service->snapshot()]);
+    }
+
+    public function preview(string $template, MailOperationsService $service): View
+    {
+        $preview = $service->preview($template);
+        abort_if($preview === null, 404);
+
+        return view('admin.mail-operations.preview', ['preview' => $preview]);
     }
 }

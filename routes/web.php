@@ -127,7 +127,8 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
 
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
     Route::get('entegrasyonlar', IntegrationCenterController::class)->name('integrations.index');
-    Route::get('e-posta-operasyonlari', MailOperationsController::class)->name('mail-operations.index');
+    Route::get('e-posta-operasyonlari', [MailOperationsController::class, 'index'])->name('mail-operations.index');
+    Route::get('e-posta-operasyonlari/onizleme/{template}', [MailOperationsController::class, 'preview'])->name('mail-operations.preview');
     Route::get('iletisim-talepleri', [AdminContactRequestController::class, 'index'])->name('contact-requests.index');
     Route::get('iletisim-talepleri/{contactRequest:public_id}', [AdminContactRequestController::class, 'show'])->name('contact-requests.show');
     Route::put('iletisim-talepleri/{contactRequest:public_id}', [AdminContactRequestController::class, 'update'])->name('contact-requests.update');

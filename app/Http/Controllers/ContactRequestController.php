@@ -56,7 +56,7 @@ final class ContactRequestController extends Controller
         ]);
         ContactRequestStatusHistory::create(['contact_request_id' => $contact->id, 'to_status' => 'new', 'note' => 'Public form submission']);
 
-        Mail::to((string) config('contact-requests.recipient'))->send(new ContactRequestNotification($contact));
+        Mail::to((string) config('contact-requests.recipient'))->queue(new ContactRequestNotification($contact));
 
         return redirect(route('legal.center').'#iletisim-ve-geri-bildirim')
             ->with('contact_reference', $contact->public_id)

@@ -24,7 +24,7 @@ final class ContactRequestTest extends TestCase
         $response->assertRedirect(route('legal.center').'#iletisim-ve-geri-bildirim');
         $this->assertDatabaseCount('contact_requests', 1);
         $this->assertDatabaseHas('contact_requests', ['email' => 'contact@housechefcyprus.com', 'status' => 'new', 'priority' => 'normal']);
-        Mail::assertSent(ContactRequestNotification::class, 1);
+        Mail::assertQueued(ContactRequestNotification::class, 1);
     }
 
     public function test_contact_request_validates_required_fields_privacy_and_honeypot(): void

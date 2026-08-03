@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Added a secret-safe Hostinger Mail operations center, cached SPF/DKIM/DMARC readiness flags, delivery-count visibility and branded HTML/plain-text fallbacks for application-owned transactional mail.
+- Added a secret-safe Hostinger Mail operations center, cached SPF/DKIM/DMARC readiness flags, delivery-count visibility, synthetic template previews and branded HTML/plain-text fallbacks for application-owned transactional mail.
+- Hardened Hostinger PHP by disabling version exposure and enabling server error logging; added immutable browser-cache headers for versioned public assets.
 
 ## Milestone G — Product Experience & UX Excellence
 

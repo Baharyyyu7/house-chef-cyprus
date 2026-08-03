@@ -31,4 +31,4 @@ Son doğrulama: 2026-08-03. Bu belge yalnız Hostinger MCP read-only sonuçları
 
 Mail DNS: Hostinger MX, üç DKIM selector, SPF ve DMARC (`p=none`) doğrulandı. DMARC enforcement değişikliği teslimat gözlemi ve owner onayı olmadan yapılmaz.
 
-Canlı HTTP yanıtı `x-powered-by: PHP/8.4.19` başlığını hâlâ yayınlıyor. Hostinger PHP `expose_php` ayarının kapatılması önerilir; production ayarı bu inceleme sırasında değiştirilmedi. Uygulama güvenlik başlıkları, HSTS, gzip ve CDN katmanı aktif doğrulandı.
+Hostinger PHP `expose_php` ayarı güvenli ve geri alınabilir biçimde kapatıldı, `log_errors` açıldı; MCP tekrar okuması ve canlı yanıtta `x-powered-by` başlığının kaybolmasıyla doğrulandı. Uygulama güvenlik başlıkları, HSTS, gzip ve CDN katmanı aktif doğrulandı.

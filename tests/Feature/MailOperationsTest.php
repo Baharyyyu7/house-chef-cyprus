@@ -10,6 +10,7 @@ use App\Mail\NewMemberRegisteredMail;
 use App\Models\ContactRequest;
 use App\Models\MemberRegistrationNotification;
 use App\Models\User;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -30,6 +31,20 @@ final class MailOperationsTest extends TestCase
         $this->actingAs($admin)->get(route('admin.mail-operations.index'))
             ->assertOk()->assertSee('E-posta operasyon merkezi')->assertDontSee('must-not-leak');
         $this->actingAs($member)->get(route('admin.mail-operations.index'))->assertForbidden();
+        $this->actingAs($member)->get(route('admin.mail-operations.preview', 'verification'))->assertForbidden();
+    }
+
+    public function test_admin_can_preview_templates_with_synthetic_content_only(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)->get(route('admin.mail-operations.preview', 'verification'))
+            ->assertOk()
+            ->assertSee('E-posta adresinizi doğrulayın')
+            ->assertSee('Sentetik önizleme')
+            ->assertDontSee('password')
+            ->assertDontSee('token=');
+        $this->actingAs($admin)->get(route('admin.mail-operations.preview', 'unknown'))->assertNotFound();
     }
 
     public function test_mail_operations_reports_registration_delivery_counts(): void
@@ -59,6 +74,7 @@ final class MailOperationsTest extends TestCase
 
         $this->assertSame('mail.internal.new-member-registered-text', (new NewMemberRegisteredMail($member))->content()->text);
         $this->assertSame('mail.contact-request-notification-text', (new ContactRequestNotification($contact))->content()->text);
+        $this->assertInstanceOf(ShouldQueue::class, new ContactRequestNotification($contact));
         $this->assertSame('mail.contact-request-reply-text', (new ContactRequestReplyMail($contact, 'Yanıt'))->content()->text);
     }
 
