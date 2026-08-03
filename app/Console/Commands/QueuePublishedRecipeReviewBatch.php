@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 
 final class QueuePublishedRecipeReviewBatch extends Command
 {
-    protected $signature = 'content:published-recipe-review-batch {--limit=10 : Bir batch içindeki tarif sayısı} {--page=1 : Sabit sıralamadaki batch sayfası} {--remaining : Tamamlanan ilk sayfayı atlayıp kalan published kataloğu işle} {--scope=published : published veya draft} {--write : Yalnız private inceleme kayıtlarını oluştur} {--json : Makine okunabilir çıktı}';
+    protected $signature = 'content:published-recipe-review-batch {--limit=10 : Bir batch içindeki tarif sayısı} {--page=1 : Sabit sıralamadaki batch sayfası} {--remaining : Tamamlanan ilk sayfayı atlayıp kalan published kataloğu işle} {--all : Seçilen scope içindeki tüm sayfaları ayrı batchler halinde işle} {--scope=published : published veya draft} {--write : Yalnız private inceleme kayıtlarını oluştur} {--json : Makine okunabilir çıktı}';
 
     protected $description = 'Yayınlanan tarifler için private kimlik, içerik ve medya inceleme kuyruğu hazırlar; yayınlama veya doğrulama yapmaz.';
 
@@ -39,10 +39,19 @@ final class QueuePublishedRecipeReviewBatch extends Command
 
             return self::INVALID;
         }
+        if ($this->option('remaining') && $this->option('all')) {
+            $this->error('remaining ve all birlikte kullanılamaz.');
 
-        $result = $this->option('remaining')
-            ? $this->queueRemaining($queue, $limit, (bool) $this->option('write'))
-            : $queue->queue($limit, $page, (bool) $this->option('write'), $scope);
+            return self::INVALID;
+        }
+
+        if ($this->option('remaining')) {
+            $result = $this->queuePages($queue, $limit, 2, (bool) $this->option('write'), 'published') + ['completed_batch_one_excluded' => true];
+        } elseif ($this->option('all')) {
+            $result = $this->queuePages($queue, $limit, 1, (bool) $this->option('write'), $scope);
+        } else {
+            $result = $queue->queue($limit, $page, (bool) $this->option('write'), $scope);
+        }
         $result += [
             'page' => $page,
             'scope' => $scope,
@@ -64,14 +73,16 @@ final class QueuePublishedRecipeReviewBatch extends Command
     }
 
     /** @return array<string,mixed> */
-    private function queueRemaining(PublishedRecipeReviewQueueService $queue, int $limit, bool $write): array
+    private function queuePages(PublishedRecipeReviewQueueService $queue, int $limit, int $startPage, bool $write, string $scope): array
     {
         $result = ['selected' => 0, 'queued' => 0, 'identity_states' => [], 'media_waiting' => 0, 'recipes' => []];
-        for ($page = 2; ; $page++) {
-            $batch = $queue->queue($limit, $page, $write, 'published');
+        $processedBatches = 0;
+        for ($page = $startPage; ; $page++) {
+            $batch = $queue->queue($limit, $page, $write, $scope);
             if ($batch['selected'] === 0) {
                 break;
             }
+            $processedBatches++;
             $result['selected'] += $batch['selected'];
             $result['queued'] += $batch['queued'];
             $result['media_waiting'] += $batch['media_waiting'];
@@ -80,8 +91,8 @@ final class QueuePublishedRecipeReviewBatch extends Command
                 $result['identity_states'][$state] = ($result['identity_states'][$state] ?? 0) + $count;
             }
         }
-        $result['start_page'] = 2;
-        $result['completed_batch_one_excluded'] = true;
+        $result['start_page'] = $startPage;
+        $result['processed_batches'] = $processedBatches;
 
         return $result;
     }

@@ -146,7 +146,7 @@ final class PublishedRecipeReviewQueueService
 
         $this->issue($recipe, $prefix.'recipe_identity', 'title', $assessment['identity_state'], 'high', 'Tarif kimliği, malzeme listesi ve adımlar için insan editör incelemesi');
         if ($assessment['programmatic_title_pattern']) {
-            $this->issue($recipe, $prefix.'recipe_programmatic_identity', 'title', 'Programatik başlık kalıbı kaynaklı tarif kimliği belirsiz.', 'high', 'Tarifin özgün mutfak testi, kaynak/provenance incelemesi ve insan editör kararı');
+            $this->issue($recipe, $prefix.'recipe_programmatic_identity', 'title', 'Programatik başlık kalıbı kaynaklı tarif kimliği belirsiz.', 'high', 'Tarifin özgün mutfak testi, kaynak/provenance incelemesi ve insan editör kararı', $this->duplicateGroupKey($recipe));
         }
         if ($assessment['step_count'] < 5) {
             $this->issue($recipe, $prefix.'recipe_step_completeness', 'steps', 'Tarif anlamlı en az beş hazırlık adımı içermiyor.', 'medium', 'Özgün editoryal tarif metni ve mutfak testi');
@@ -195,12 +195,19 @@ final class PublishedRecipeReviewQueueService
         );
     }
 
-    private function issue(Recipe $recipe, string $type, string $field, string $claim, string $risk, string $sourceRequirement): void
+    private function issue(Recipe $recipe, string $type, string $field, string $claim, string $risk, string $sourceRequirement, ?string $groupKey = null): void
     {
         $fingerprint = hash('sha256', Recipe::class.'|'.$recipe->public_id.'|catalogue-review|'.$type.'|'.$field);
         ContentFactoryIssue::query()->updateOrCreate(
             ['fingerprint' => $fingerprint],
-            ['public_id' => (string) Str::ulid(), 'entity_type' => Recipe::class, 'entity_public_id' => $recipe->public_id, 'issue_type' => $type, 'field_name' => $field, 'claim' => $claim, 'risk_level' => $risk, 'source_requirement' => $sourceRequirement, 'confidence_score' => 0, 'status' => 'pending', 'reviewed_by_user_id' => null, 'resolution_note' => null, 'resolved_at' => null],
+            ['public_id' => (string) Str::ulid(), 'entity_type' => Recipe::class, 'entity_public_id' => $recipe->public_id, 'group_key' => $groupKey, 'issue_type' => $type, 'category' => $groupKey === null ? null : 'duplicate_identity', 'field_name' => $field, 'claim' => $claim, 'risk_level' => $risk, 'risk_domain' => $groupKey === null ? null : 'editorial_identity', 'source_requirement' => $sourceRequirement, 'confidence_score' => 0, 'priority_score' => $risk === 'high' ? 85 : 60, 'resolution_mode' => 'human_required', 'status' => 'pending', 'reviewed_by_user_id' => null, 'resolution_note' => null, 'resolved_at' => null],
         );
+    }
+
+    private function duplicateGroupKey(Recipe $recipe): string
+    {
+        $identity = preg_replace('/^(?:.+? Mutfağı Usulü |Uluslararası Pratik Tarifler Usulü )/u', '', $recipe->title) ?: $recipe->title;
+
+        return Str::limit('draft-near-duplicate-'.Str::slug($identity), 80, '');
     }
 }

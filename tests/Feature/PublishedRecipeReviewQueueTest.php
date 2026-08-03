@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\ContentFactoryIssue;
 use App\Models\ContentFactoryReview;
 use App\Models\Recipe;
+use Database\Seeders\ContentFactoryDraftSeeder;
 use Database\Seeders\HouseChefSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -122,6 +123,23 @@ final class PublishedRecipeReviewQueueTest extends TestCase
         $this->assertDatabaseHas('content_factory_issues', ['issue_type' => 'draft_recipe_programmatic_identity', 'risk_level' => 'high']);
         $this->assertSame($draftsBefore, Recipe::query()->where('status', 'draft')->count());
         $this->assertSame($publishedWithDraftStateBefore, Recipe::query()->where('status', 'published')->where('content_factory_state', 'draft_identity_review')->count());
+    }
+
+    public function test_all_draft_batches_are_isolated_grouped_and_never_published(): void
+    {
+        $this->seed(ContentFactoryDraftSeeder::class);
+        $publishedBefore = Recipe::query()->where('status', 'published')->count();
+
+        $this->artisan('content:published-recipe-review-batch', ['--limit' => 25, '--all' => true, '--scope' => 'draft', '--write' => true, '--json' => true])
+            ->assertSuccessful();
+
+        $this->assertSame(450, ContentFactoryReview::query()->where('stage', 'draft_identity_review')->count());
+        $this->assertSame(450, ContentFactoryReview::query()->where('stage', 'draft_media_brief')->count());
+        $this->assertSame(450, ContentFactoryIssue::query()->where('issue_type', 'draft_recipe_programmatic_identity')->count());
+        $this->assertSame(41, ContentFactoryIssue::query()->where('issue_type', 'draft_recipe_programmatic_identity')->distinct('group_key')->count('group_key'));
+        $this->assertSame(450, Recipe::query()->where('status', 'draft')->count());
+        $this->assertSame($publishedBefore, Recipe::query()->where('status', 'published')->count());
+        $this->assertSame(0, Recipe::query()->where('status', 'published')->where('content_factory_state', 'draft_identity_review')->count());
     }
 
     /** @param list<string> $columns @return array<string, mixed> */
