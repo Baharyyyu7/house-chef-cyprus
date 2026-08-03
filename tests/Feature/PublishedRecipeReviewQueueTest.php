@@ -92,6 +92,23 @@ final class PublishedRecipeReviewQueueTest extends TestCase
         $this->assertSame(50, Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->count());
     }
 
+    public function test_remaining_mode_skips_completed_batch_one_and_queues_all_other_published_recipes(): void
+    {
+        $batchOneIds = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')
+            ->orderByDesc('is_featured')->orderBy('published_at')->orderBy('id')->limit(10)->pluck('public_id');
+        $before = Recipe::query()->where('status', 'published')->get(['id', 'status', 'verification_status', 'updated_at'])->toArray();
+
+        $this->artisan('content:published-recipe-review-batch', ['--remaining' => true, '--write' => true, '--json' => true])
+            ->expectsOutputToContain('"selected":40')
+            ->assertSuccessful();
+
+        $this->assertSame(40, ContentFactoryReview::query()->where('stage', 'identity_review')->count());
+        $this->assertSame(16, ContentFactoryReview::query()->where('stage', 'identity_review')->get()->filter(fn (ContentFactoryReview $review): bool => data_get($review->findings, 'identity_state') === 'TITLE_INGREDIENT_MISMATCH')->count());
+        $this->assertSame(0, ContentFactoryReview::query()->where('stage', 'identity_review')->whereIn('entity_public_id', $batchOneIds)->count());
+        $this->assertSame(40, ContentFactoryReview::query()->where('stage', 'media_brief')->count());
+        $this->assertSame($before, Recipe::query()->where('status', 'published')->get(['id', 'status', 'verification_status', 'updated_at'])->toArray());
+    }
+
     public function test_draft_scope_queues_private_draft_reviews_without_making_drafts_public(): void
     {
         Recipe::query()->firstOrFail()->update(['status' => 'draft', 'title' => 'Kıbrıs Mutfağı Usulü Limonlu Nohut tava']);
