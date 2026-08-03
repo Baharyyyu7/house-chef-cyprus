@@ -8,9 +8,11 @@
         <meta name="theme-color" content="#ff6b00">
     <meta name="description" content="{{ $metaDescription }}">
     <link rel="canonical" href="{{ $canonicalUrl ?: url()->current() }}">
-    @if ($robots || request()->routeIs('admin.*') || request()->routeIs('login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
+    @php($isPrivateSurface = request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
+    @if ($robots || $isPrivateSurface)
         <meta name="robots" content="{{ $robots ?: 'noindex,nofollow' }}">
-    @else
+    @endif
+    @unless ($isPrivateSurface || str_contains((string) $robots, 'noindex'))
         <meta property="og:type" content="{{ request()->routeIs('blog.show') ? 'article' : 'website' }}">
         <meta property="og:locale" content="tr_TR">
         <meta property="og:title" content="{{ $title }}">
@@ -21,7 +23,7 @@
         <meta name="twitter:title" content="{{ $title }}">
         <meta name="twitter:description" content="{{ $metaDescription }}">
         <meta name="twitter:image" content="{{ $socialImage ?: url(config('brand.assets.og_default')) }}">
-    @endif
+    @endunless
     @if($structuredData)<script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>@endif
     @if(!request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
         <script type="application/ld+json">{"\u0040context":"https://schema.org","\u0040graph":[{"\u0040type":"Organization","name":"House Chef Cyprus","url":"{{ url('/') }}","logo":"{{ url(config('brand.assets.mark_light')) }}"},{"\u0040type":"WebSite","name":"House Chef Cyprus","url":"{{ url('/') }}","inLanguage":"tr","publisher":{"\u0040type":"Organization","name":"House Chef Cyprus","logo":"{{ url(config('brand.assets.mark_light')) }}"},"potentialAction":{"\u0040type":"SearchAction","target":"{{ route('recipes.index') }}?q={search_term_string}","query-input":"required name=search_term_string"}}]}</script>

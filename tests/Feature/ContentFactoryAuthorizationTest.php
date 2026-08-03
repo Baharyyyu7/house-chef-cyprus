@@ -16,8 +16,7 @@ final class ContentFactoryAuthorizationTest extends TestCase
 
     public function test_fact_check_role_matrix_protects_high_risk_actions(): void
     {
-        $this->seed();
-        $issue = ContentFactoryIssue::query()->where('risk_level', 'critical')->firstOrFail();
+        $issue = $this->criticalIssue();
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
         $reviewer = User::factory()->create(['role' => 'fact_check_reviewer', 'email_verified_at' => now()]);
         $editor = User::factory()->create(['role' => 'content_editor', 'email_verified_at' => now()]);
@@ -33,8 +32,7 @@ final class ContentFactoryAuthorizationTest extends TestCase
 
     public function test_system_and_self_reviewers_are_rejected_without_mutating_issue(): void
     {
-        $this->seed();
-        $issue = ContentFactoryIssue::query()->where('risk_level', 'critical')->firstOrFail();
+        $issue = $this->criticalIssue();
         $system = User::factory()->create(['role' => 'fact_check_reviewer', 'email' => 'system@housechef.local', 'email_verified_at' => now()]);
         $issue->update(['reviewed_by_user_id' => $system->id]);
 
@@ -52,5 +50,19 @@ final class ContentFactoryAuthorizationTest extends TestCase
         $this->assertTrue(Gate::forUser($admin)->allows('run-duplicate-bulk'));
         $this->assertFalse(Gate::forUser($reviewer)->allows('apply-content-revision'));
         $this->assertFalse(Gate::forUser($editor)->allows('run-duplicate-bulk'));
+    }
+
+    private function criticalIssue(): ContentFactoryIssue
+    {
+        return ContentFactoryIssue::query()->create([
+            'entity_type' => 'recipe',
+            'entity_public_id' => '01J00000000000000000000000',
+            'fingerprint' => hash('sha256', self::class.'|'.microtime(true)),
+            'issue_type' => 'food_safety_claim',
+            'category' => 'food_safety',
+            'risk_level' => 'critical',
+            'risk_domain' => 'food_safety',
+            'status' => 'pending',
+        ]);
     }
 }

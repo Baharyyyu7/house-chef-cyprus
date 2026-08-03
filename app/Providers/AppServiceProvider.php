@@ -27,6 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,6 +47,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Password::defaults(fn (): Password => Password::min(12)
+            ->letters()
+            ->mixedCase()
+            ->numbers()
+            ->symbols());
+
         RecipeIngredient::observe(RecipeIngredientObserver::class);
         NutritionFact::observe(NutritionFactObserver::class);
         IngredientUnitConversion::observe(IngredientUnitConversionObserver::class);

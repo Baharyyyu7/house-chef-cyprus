@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Recipe;
+use Database\Seeders\HouseChefSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,7 +15,7 @@ final class ApiContractFoundationETest extends TestCase
 
     public function test_all_public_lookup_and_recipe_endpoints_return_a_request_id(): void
     {
-        $this->seed();
+        $this->seed(HouseChefSeeder::class);
         $recipe = Recipe::query()->where('status', 'published')->firstOrFail();
         $ingredient = $recipe->ingredients()->firstOrFail();
         $paths = [
@@ -57,7 +58,7 @@ final class ApiContractFoundationETest extends TestCase
 
     public function test_recipe_match_uses_the_collection_envelope_for_each_supported_mode(): void
     {
-        $this->seed();
+        $this->seed(HouseChefSeeder::class);
         $ingredient = Recipe::query()->where('status', 'published')->firstOrFail()->ingredients()->firstOrFail();
 
         $this->postJson('/api/v1/recipe-match', ['filters' => ['per_page' => 10]])

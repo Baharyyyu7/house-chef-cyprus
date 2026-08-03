@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Volt\Volt;
 use Tests\TestCase;
 
@@ -24,13 +27,50 @@ class RegistrationTest extends TestCase
         $component = Volt::test('pages.auth.register')
             ->set('name', 'Test User')
             ->set('email', 'test@example.com')
-            ->set('password', 'password')
-            ->set('password_confirmation', 'password');
+            ->set('password', 'StrongPass123!')
+            ->set('password_confirmation', 'StrongPass123!');
 
         $component->call('register');
 
         $component->assertRedirect(route('dashboard', absolute: false));
 
         $this->assertAuthenticated();
+        $this->assertTrue(Hash::check('StrongPass123!', User::query()->where('email', 'test@example.com')->value('password')));
+    }
+
+    public function test_registration_rejects_weak_passwords_and_duplicate_emails(): void
+    {
+        User::factory()->create(['email' => 'used@example.com']);
+
+        Volt::test('pages.auth.register')
+            ->set('name', 'Test User')
+            ->set('email', 'used@example.com')
+            ->set('password', 'password')
+            ->set('password_confirmation', 'password')
+            ->call('register')
+            ->assertHasErrors(['email', 'password']);
+
+        $this->assertSame(1, User::query()->where('email', 'used@example.com')->count());
+    }
+
+    public function test_registration_submission_is_rate_limited(): void
+    {
+        $key = 'registration|127.0.0.1';
+        RateLimiter::clear($key);
+        RateLimiter::hit($key, 3600);
+        RateLimiter::hit($key, 3600);
+        RateLimiter::hit($key, 3600);
+        RateLimiter::hit($key, 3600);
+        RateLimiter::hit($key, 3600);
+
+        Volt::test('pages.auth.register')
+            ->set('name', 'Rate Limited')
+            ->set('email', 'limited@example.com')
+            ->set('password', 'StrongPass123!')
+            ->set('password_confirmation', 'StrongPass123!')
+            ->call('register')
+            ->assertHasErrors('email');
+
+        $this->assertDatabaseMissing('users', ['email' => 'limited@example.com']);
     }
 }

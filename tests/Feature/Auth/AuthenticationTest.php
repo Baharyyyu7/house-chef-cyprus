@@ -37,6 +37,31 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticated();
     }
 
+    public function test_remember_me_creates_a_persistent_login_token(): void
+    {
+        $user = User::factory()->create(['remember_token' => null]);
+
+        Volt::test('pages.auth.login')
+            ->set('form.email', $user->email)
+            ->set('form.password', 'password')
+            ->set('form.remember', true)
+            ->call('login')
+            ->assertHasNoErrors();
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertNotNull($user->refresh()->remember_token);
+    }
+
+    public function test_guests_are_redirected_from_member_pages_and_authenticated_users_are_redirected_from_guest_pages(): void
+    {
+        $this->get('/profile')->assertRedirect('/login');
+        $this->get('/favoriler')->assertRedirect('/login');
+
+        $user = User::factory()->create();
+        $this->actingAs($user)->get('/login')->assertRedirect('/dashboard');
+        $this->actingAs($user)->get('/register')->assertRedirect('/dashboard');
+    }
+
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
         $user = User::factory()->create();
