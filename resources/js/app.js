@@ -118,6 +118,16 @@ const mountLegalInformationCenter = () => {
 const mountPageFeatures = () => {
     mountAdminDashboard();
     mountLegalInformationCenter();
+    document.querySelectorAll('[data-consent-choice]').forEach((button) => {
+        if (button.dataset.consentBound === 'true') return;
+        button.dataset.consentBound = 'true';
+        button.addEventListener('click', () => {
+            const choice = button.dataset.consentChoice === 'granted' ? 'granted' : 'denied';
+            const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+            document.cookie = `hc_analytics_consent=${choice}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
+            window.location.reload();
+        });
+    });
 };
 
 document.addEventListener('DOMContentLoaded', mountPageFeatures);

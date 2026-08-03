@@ -16,8 +16,13 @@ final class SecureHeaders
         $response = $next($request);
         // Livewire and Alpine compile their declarative expressions at runtime. Blocking
         // unsafe-eval here prevents authentication, profile, and cooking interactions.
-        $scriptPolicy = "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
-        $response->headers->set('Content-Security-Policy', "default-src 'self'; {$scriptPolicy}; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; img-src 'self' data: https:; font-src 'self' data: https://fonts.bunny.net; connect-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'");
+        $googleTagEnabled = ((bool) config('integrations.google.tag_manager.enabled') && preg_match('/^GTM-[A-Z0-9]+$/', (string) config('integrations.google.tag_manager.container_id')) === 1)
+            || ((bool) config('integrations.google.analytics.enabled') && preg_match('/^G-[A-Z0-9]+$/', (string) config('integrations.google.analytics.measurement_id')) === 1);
+        $googleScript = $googleTagEnabled ? ' https://www.googletagmanager.com' : '';
+        $googleConnect = $googleTagEnabled ? ' https://www.google-analytics.com https://region1.google-analytics.com' : '';
+        $googleFrame = $googleTagEnabled ? ' https://www.googletagmanager.com' : '';
+        $scriptPolicy = "script-src 'self' 'unsafe-inline' 'unsafe-eval'{$googleScript}";
+        $response->headers->set('Content-Security-Policy', "default-src 'self'; {$scriptPolicy}; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; img-src 'self' data: https:; font-src 'self' data: https://fonts.bunny.net; connect-src 'self'{$googleConnect}; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com{$googleFrame}; frame-ancestors 'self'; base-uri 'self'; form-action 'self'");
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');

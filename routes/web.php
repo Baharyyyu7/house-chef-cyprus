@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\DataQualityController;
 use App\Http\Controllers\Admin\EditorialOperationsController;
 use App\Http\Controllers\Admin\FailedJobController;
 use App\Http\Controllers\Admin\IngredientController as AdminIngredientController;
+use App\Http\Controllers\Admin\IntegrationCenterController;
 use App\Http\Controllers\Admin\MeasurementController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\MediaOperationsController;
@@ -124,6 +125,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
 });
 
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
+    Route::get('entegrasyonlar', IntegrationCenterController::class)->name('integrations.index');
     Route::get('iletisim-talepleri', [AdminContactRequestController::class, 'index'])->name('contact-requests.index');
     Route::get('iletisim-talepleri/{contactRequest:public_id}', [AdminContactRequestController::class, 'show'])->name('contact-requests.show');
     Route::put('iletisim-talepleri/{contactRequest:public_id}', [AdminContactRequestController::class, 'update'])->name('contact-requests.update');

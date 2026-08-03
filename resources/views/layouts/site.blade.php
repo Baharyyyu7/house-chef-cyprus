@@ -7,6 +7,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="theme-color" content="#ff6b00">
     <meta name="description" content="{{ $metaDescription }}">
+    @if(app()->environment('production') && filled(config('integrations.google.site_verification')))
+        <meta name="google-site-verification" content="{{ config('integrations.google.site_verification') }}">
+    @endif
     <link rel="canonical" href="{{ $canonicalUrl ?: url()->current() }}">
     @php($isPrivateSurface = request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
     @if ($robots || $isPrivateSurface)
@@ -37,11 +40,15 @@
     <title>{{ $title }}</title>
     <script>if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @unless($isPrivateSurface)<x-google-integrations />@endunless
 </head>
 <body x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, adminSidebarCollapsed: false, adminSidebarQuery: '', scrolled: false }"
     x-init="document.documentElement.classList.toggle('dark', dark); $watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light'; window.dispatchEvent(new CustomEvent('hc-theme-changed')); }); $watch('adminMenuOpen', value => document.body.classList.toggle('overflow-hidden', value))"
     @keydown.escape.window="adminMenuOpen = false; menuOpen = false"
     class="min-h-screen antialiased">
+    @if(!$isPrivateSurface && request()->cookie('hc_analytics_consent') === 'granted' && config('integrations.google.tag_manager.enabled') && preg_match('/^GTM-[A-Z0-9]+$/', (string) config('integrations.google.tag_manager.container_id')))
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ urlencode((string) config('integrations.google.tag_manager.container_id')) }}" height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe></noscript>
+    @endif
     @if (request()->routeIs('admin.*'))
         <div class="admin-shell min-h-screen lg:grid" :class="adminSidebarCollapsed ? 'lg:grid-cols-[5.25rem_minmax(0,1fr)]' : 'lg:grid-cols-[17.5rem_minmax(0,1fr)]'">
             <aside class="admin-shell__sidebar fixed inset-y-0 left-0 z-50 hidden lg:block" :class="adminSidebarCollapsed ? 'w-[5.25rem]' : 'w-[17.5rem]'">
@@ -159,6 +166,7 @@
             </div>
             <div class="border-t border-white/10"><div class="hc-container hc-footer-muted flex flex-col gap-2 py-5 text-xs sm:flex-row sm:items-center sm:justify-between"><span>© {{ date('Y') }} House Chef Cyprus</span><span>Özgün editoryal içerik · Gizlilik odaklı platform</span></div></div>
         </footer>
+        <x-analytics-consent />
     @endif
     @livewireScripts
 </body>
