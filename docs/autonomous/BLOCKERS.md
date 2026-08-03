@@ -16,6 +16,16 @@
   local HTTP smoke check is intentionally recorded separately and does not
   substitute for responsive, keyboard, or visual validation.
 
+## Content and media audit (2026-08-03 local scan)
+
+- The idempotent content scan found 500 recipe and 200 blog profiles, with 630
+  profiles blocked for human source/fact-check or real-media approval.
+- Media health reported zero approved-real-media items, 70 branded fallbacks,
+  and 630 items without media. A fallback is not a dish image and is not
+  eligible for a claim of complete visual coverage.
+- These are human-review and licensed-media gates, not an authorization to
+  change publication or verification state automatically.
+
 ## Not blockers to local work
 
 - 2,340 human review records remain operational backlog; they are not silently

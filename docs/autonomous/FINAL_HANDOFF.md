@@ -11,3 +11,11 @@
 
 This is not a live-production release record and it is not browser-visual QA.
 See the blockers register for the remaining external requirements.
+
+## Content audit snapshot
+
+The local production-readiness scan is idempotent and made no publication
+changes. It found 500 recipe and 200 blog profiles; 630 are blocked by genuine
+human fact-check/source or media approval gates. Media health reports zero
+approved-real-media items. This is intentionally a blocker to claims of a
+fully completed public catalogue, not a reason to fabricate approval.
