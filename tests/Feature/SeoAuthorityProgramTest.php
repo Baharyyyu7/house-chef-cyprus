@@ -28,7 +28,7 @@ final class SeoAuthorityProgramTest extends TestCase
             ->assertDontSee('reviewRating', false);
     }
 
-    public function test_public_article_emits_article_and_breadcrumb_schema_from_real_post_data(): void
+    public function test_public_article_emits_blog_posting_and_breadcrumb_schema_from_real_post_data(): void
     {
         $post = BlogPost::query()->create([
             'title' => 'Kıbrıs mutfağı rehberi', 'slug' => 'kibris-mutfagi-rehberi', 'excerpt' => 'Gerçek editoryal kaynaklara dayalı kısa rehber.',
@@ -37,7 +37,7 @@ final class SeoAuthorityProgramTest extends TestCase
 
         $this->get(route('blog.show', $post))
             ->assertOk()
-            ->assertSee('"@type":"Article"', false)
+            ->assertSee('"@type":"BlogPosting"', false)
             ->assertSee('"@type":"BreadcrumbList"', false)
             ->assertDontSee('aggregateRating', false);
     }

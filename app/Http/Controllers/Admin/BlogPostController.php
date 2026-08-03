@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\BlogTag;
+use App\Models\ContentRevision;
 use App\Models\Recipe;
 use App\Services\Seo\ContentQualityService;
 use App\Services\Seo\ContentSimilarityService;
@@ -24,6 +25,7 @@ final class BlogPostController extends Controller
     {
         $this->admin();
         $posts = BlogPost::query()->with('category')
+            ->withExists(['revisions as completion_revision_exists' => fn ($query) => $query->where('reason', 'published-blog-completion-v1')])
             ->when($request->filled('q'), fn ($query) => $query->where('title', 'like', '%'.$request->string('q')->toString().'%'))
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
             ->latest()->paginate(20)->withQueryString();
@@ -53,6 +55,15 @@ final class BlogPostController extends Controller
         $this->admin();
 
         return view('admin.blog.form', $this->formData($post->load(['tags', 'recipes'])));
+    }
+
+    public function review(BlogPost $post): View
+    {
+        $this->admin();
+        $revision = ContentRevision::query()->where('blog_post_id', $post->id)
+            ->where('reason', 'published-blog-completion-v1')->latest('revision_number')->firstOrFail();
+
+        return view('admin.blog.review', compact('post', 'revision'));
     }
 
     public function update(Request $request, BlogPost $post, SeoMetadataService $seoMetadata): RedirectResponse

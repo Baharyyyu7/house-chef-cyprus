@@ -1,5 +1,7 @@
 # Changelog
 
+- Added an idempotent, private-only completion audit and revision workflow for all 20 published blog articles, including topic-specific media briefs, official-source requirements for high-risk topics, an admin current/proposed comparison screen, and `BlogPosting` schema without automatic publication or approval.
+
 ## Unreleased
 
 - Added a secret-safe Hostinger Mail operations center, cached SPF/DKIM/DMARC readiness flags, delivery-count visibility, synthetic template previews and branded HTML/plain-text fallbacks for application-owned transactional mail.
