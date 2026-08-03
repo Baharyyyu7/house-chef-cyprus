@@ -158,6 +158,62 @@ hostinger_404_diagnostic() {
         log "HOSTINGER_WEB_ROOT_DIAGNOSTIC autoload_path=$([[ $(grep -Fc "__DIR__.'/../current/vendor/autoload.php'" "$(web_root_index)") -gt 0 ]] && printf current || printf invalid) bootstrap_path=$([[ $(grep -Fc "__DIR__.'/../current/bootstrap/app.php'" "$(web_root_index)") -gt 0 ]] && printf current || printf invalid)"
     fi
 }
+
+is_safe_release_directory() {
+    local candidate="$1"
+    local releases_real candidate_real release_name
+
+    [[ -d "$candidate" && ! -L "$candidate" ]] || return 1
+    release_name="$(basename "$candidate")"
+    [[ "$release_name" =~ ^[0-9a-f]{7,64}$ ]] || return 1
+    releases_real="$(cd -P "$RELEASES_DIR" && pwd)" || return 1
+    candidate_real="$(cd -P "$candidate" && pwd)" || return 1
+    [[ "$candidate_real" == "$releases_real/"* ]] || return 1
+}
+
+prune_old_releases() {
+    local listing candidate timestamp inactive_kept=0
+    listing="$(mktemp "${TMPDIR:-/tmp}/housechef-release-cleanup.XXXXXX")" || {
+        log 'WARNING: release cleanup skipped because its temporary listing could not be created.'
+        return 1
+    }
+
+    # No process substitution or /dev/fd: Hostinger's shared shell does not
+    # reliably provide either. A regular temporary file is portable here.
+    if ! find "$RELEASES_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -nr > "$listing"; then
+        log 'WARNING: release cleanup skipped because release listing failed.'
+        rm -f "$listing"
+        return 1
+    fi
+
+    while IFS=' ' read -r timestamp candidate; do
+        [[ -n "${candidate:-}" ]] || continue
+        if ! is_safe_release_directory "$candidate"; then
+            log "WARNING: skipped unsafe release cleanup candidate: $candidate"
+            continue
+        fi
+        if [[ "$candidate" == "$RELEASE_DIR" || ( -n "$PREVIOUS_RELEASE" && "$candidate" == "$PREVIOUS_RELEASE" ) ]]; then
+            log "Retaining protected release: $candidate"
+            continue
+        fi
+        if (( inactive_kept < 3 )); then
+            inactive_kept=$((inactive_kept + 1))
+            log "Retaining newest inactive release: $candidate"
+            continue
+        fi
+
+        log "Removing stale inactive release: $candidate"
+        if ! rm -rf -- "$candidate"; then
+            log "WARNING: failed to remove stale release; deployment remains successful: $candidate"
+            rm -f "$listing"
+            return 1
+        fi
+    done < "$listing"
+
+    rm -f "$listing"
+    return 0
+}
+
 rollback_post_switch_failure() {
     [[ "$SWITCHED" == true && -n "$PREVIOUS_RELEASE" && -f "$PREVIOUS_RELEASE/artisan" ]] || return 0
 
@@ -274,12 +330,11 @@ fi
 run "$PHP_BIN" "$CURRENT_LINK/artisan" app:database-readiness --json
 run "$PHP_BIN" "$CURRENT_LINK/artisan" backup:health --json
 
-log 'Retaining the active release plus the three newest inactive releases.'
-if ! "$DRY_RUN"; then
-    mapfile -t stale_releases < <(find "$RELEASES_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -nr | awk 'NR > 4 {print $2}')
-    for stale_release in "${stale_releases[@]:-}"; do
-        [[ "$stale_release" == "$RELEASE_DIR" ]] || { log "Retained cleanup candidate (manual review required): $stale_release"; }
-    done
+log 'Running best-effort release retention only after all critical validations.'
+if "$DRY_RUN"; then
+    log 'Would retain the active release, the rollback release, and three newest inactive releases.'
+elif ! prune_old_releases; then
+    log 'WARNING: release retention cleanup can be retried later; it will not roll back a healthy deployment.'
 fi
 
-log "Deploy validation complete for $RELEASE_COMMIT. No release directories were deleted."
+log "Deploy validation complete for $RELEASE_COMMIT."

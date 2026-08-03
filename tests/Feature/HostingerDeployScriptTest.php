@@ -73,6 +73,43 @@ final class HostingerDeployScriptTest extends TestCase
         $this->assertGreaterThan($smoke, strrpos($script, 'hostinger_404_diagnostic'));
     }
 
+    public function test_release_retention_uses_a_regular_temporary_file_without_dev_fd_or_process_substitution(): void
+    {
+        $script = $this->script();
+
+        $this->assertStringContainsString('prune_old_releases()', $script);
+        $this->assertStringContainsString('mktemp "${TMPDIR:-/tmp}/housechef-release-cleanup.XXXXXX"', $script);
+        $this->assertStringContainsString('done < "$listing"', $script);
+        $this->assertStringNotContainsString('mapfile -t stale_releases', $script);
+        $this->assertStringNotContainsString('< <(', $script);
+        $this->assertStringNotContainsString('/dev/fd/', $script);
+    }
+
+    public function test_release_retention_protects_active_and_rollback_releases_and_keeps_three_inactive_releases(): void
+    {
+        $script = $this->script();
+
+        $this->assertStringContainsString('[[ "$candidate" == "$RELEASE_DIR"', $script);
+        $this->assertStringContainsString('"$candidate" == "$PREVIOUS_RELEASE"', $script);
+        $this->assertStringContainsString('if (( inactive_kept < 3 )); then', $script);
+        $this->assertStringContainsString('is_safe_release_directory "$candidate"', $script);
+        $this->assertStringContainsString('[[ "$release_name" =~ ^[0-9a-f]{7,64}$ ]]', $script);
+        $this->assertStringContainsString('rm -rf -- "$candidate"', $script);
+    }
+
+    public function test_retention_cleanup_runs_after_critical_validation_and_cannot_rollback_a_healthy_release(): void
+    {
+        $script = $this->script();
+        $backupHealth = strpos($script, 'backup:health --json');
+        $retention = strpos($script, 'Running best-effort release retention only after all critical validations.');
+
+        $this->assertIsInt($backupHealth);
+        $this->assertIsInt($retention);
+        $this->assertLessThan($retention, $backupHealth);
+        $this->assertStringContainsString("log 'WARNING: release retention cleanup can be retried later; it will not roll back a healthy deployment.'", $script);
+        $this->assertStringContainsString('elif ! prune_old_releases; then', $script);
+    }
+
     private function script(): string
     {
         return (string) file_get_contents(base_path('scripts/deploy-hostinger-release.sh'));
