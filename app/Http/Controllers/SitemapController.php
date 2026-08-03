@@ -14,7 +14,9 @@ final class SitemapController extends Controller
     public function index(): Response
     {
         $sitemaps = collect([
-            ['loc' => route('sitemap.pages'), 'lastmod' => now()->toDateString()],
+            // Static pages have no trustworthy per-page update timestamp.
+            // Omitting lastmod is preferable to publishing a false daily change.
+            ['loc' => route('sitemap.pages'), 'lastmod' => null],
             ['loc' => route('sitemap.recipes'), 'lastmod' => $this->date(Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->max('updated_at'))],
             ['loc' => route('sitemap.blog'), 'lastmod' => $this->date(BlogPost::query()->publiclyVisible()->max('updated_at'))],
             ['loc' => route('sitemap.images'), 'lastmod' => $this->date(Media::query()->where('visibility', 'public')->max('updated_at'))],
