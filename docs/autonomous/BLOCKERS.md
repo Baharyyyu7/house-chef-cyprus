@@ -12,6 +12,9 @@
   publish them.
 - Legal text changes require the supplied approved text and, where required,
   legal-owner review.
+- Visual/browser QA requires an available interactive browser binding. The
+  local HTTP smoke check is intentionally recorded separately and does not
+  substitute for responsive, keyboard, or visual validation.
 
 ## Not blockers to local work
 

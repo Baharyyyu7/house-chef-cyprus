@@ -10,3 +10,5 @@
 | P1 | Unified legal/contact center | complete in code | Legal center and contact CRM were committed in `9b3862d` and `c62a8e1`. |
 | P1 | Benchmark and product roadmap | complete in docs | Original, non-copied benchmark committed in `c3bb7f5`. |
 | P1 | Editorial/media expansion | human-review blocked | No recipe/blog publication or media approval may be automated. |
+| Quality | Full local regression | passed | 338 tests: 337 passed, 1 safe skip, 1,823 assertions; Pint, PHPStan, build, secret scan, forbidden-file scan, docs link check, and diff check passed on 2026-08-03. |
+| Quality | Browser validation | blocked by browser binding | Local HTTP smoke passed for `/`, `/tarifler`, and `/login`; no interactive browser tab was available, so this is not recorded as visual browser QA. |
