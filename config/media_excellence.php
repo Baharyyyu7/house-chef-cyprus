@@ -25,6 +25,12 @@ return [
         'open_graph' => [1200, 630],
         'hero' => [1600, 1000],
     ],
+    'blog_profiles' => [
+        'hero' => [1600, 900],
+        'open_graph' => [1200, 630],
+        'card' => [800, 600],
+        'square' => [1080, 1080],
+    ],
     'cdn_base_url' => rtrim((string) env('MEDIA_CDN_BASE_URL', ''), '/'),
     'approval' => [
         'media_reviewer_can_final_approve' => (bool) env('MEDIA_REVIEWER_CAN_FINAL_APPROVE', false),

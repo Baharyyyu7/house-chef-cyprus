@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -62,6 +63,12 @@ final class BlogPost extends Model
     public function heroMedia(): BelongsTo
     {
         return $this->belongsTo(Media::class, 'hero_media_id');
+    }
+
+    /** @return MorphMany<Media, $this> */
+    public function media(): MorphMany
+    {
+        return $this->morphMany(Media::class, 'mediable');
     }
 
     /** @return BelongsToMany<BlogTag, $this> */

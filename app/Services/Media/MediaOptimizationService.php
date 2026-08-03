@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Media;
 
 use App\Models\Media;
+use App\Models\BlogPost;
 use Illuminate\Support\Facades\Storage;
 
 /** Generates only deterministic derivatives for approved local media. */
@@ -47,7 +48,10 @@ final class MediaOptimizationService
         $width = imagesx($source);
         $height = imagesy($source);
         $variants = [];
-        foreach ((array) config('media_excellence.recipe_profiles') as $name => $dimensions) {
+        $profiles = $media->mediable_type === BlogPost::class
+            ? (array) config('media_excellence.blog_profiles')
+            : (array) config('media_excellence.recipe_profiles');
+        foreach ($profiles as $name => $dimensions) {
             [$targetWidth, $targetHeight] = array_map('intval', (array) $dimensions);
             if ($targetWidth < 1 || $targetHeight < 1) {
                 continue;

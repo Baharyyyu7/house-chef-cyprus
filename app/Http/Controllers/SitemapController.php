@@ -57,6 +57,11 @@ final class SitemapController extends Controller
             ->filter(fn (Recipe $recipe): bool => $recipe->media->isNotEmpty())
             ->map(fn (Recipe $recipe): array => ['loc' => route('recipes.show', $recipe->slug), 'lastmod' => $recipe->updated_at?->toDateString(), 'images' => $recipe->media->map(fn (Media $media): array => ['loc' => $media->publicUrl(), 'title' => $media->alt_text ?: $recipe->slug])->filter(fn (array $image): bool => is_string($image['loc']) && $image['loc'] !== '')->values()->all()]);
 
+        $blogUrls = BlogPost::query()->publiclyVisible()->with('heroMedia')->get()
+            ->filter(fn (BlogPost $post): bool => $post->heroMedia?->isApprovedRealMedia() && $post->heroMedia->publicUrl() !== null)
+            ->map(fn (BlogPost $post): array => ['loc' => route('blog.show', $post), 'lastmod' => $post->updated_at?->toDateString(), 'images' => [['loc' => $post->heroMedia->responsiveUrl(1200) ?: $post->heroMedia->publicUrl(), 'title' => $post->heroMedia->alt_text ?: $post->title]]]);
+        $urls = $urls->concat($blogUrls)->values();
+
         return response()->view('image-sitemap', compact('urls'))->header('Content-Type', 'application/xml; charset=UTF-8');
     }
 
