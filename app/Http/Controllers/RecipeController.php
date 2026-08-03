@@ -111,6 +111,9 @@ final class RecipeController extends Controller
             'seoSchema' => $schema,
             'metadata' => $seo->for($recipe, $recipe->title.' · House Chef Cyprus', $recipe->excerpt ?: $recipe->description, route('recipes.show', $recipe), $request->query() === [] ? 'index,follow' : 'noindex,follow'),
             'seoImage' => $heroMedia?->publicUrl(),
+            'seoImageWidth' => $heroMedia?->width,
+            'seoImageHeight' => $heroMedia?->height,
+            'seoImageAlt' => $heroMedia?->alt_text,
         ]);
     }
 }

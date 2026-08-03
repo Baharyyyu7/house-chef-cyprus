@@ -1,4 +1,4 @@
-@props(['title' => 'House Chef Cyprus', 'metaDescription' => "Kıbrıs'tan ilham alan tarifler, malzeme dolabı ve dengeli beslenme rehberi.", 'structuredData' => null, 'canonicalUrl' => null, 'socialImage' => null, 'robots' => null])
+@props(['title' => 'House Chef Cyprus', 'metaDescription' => "Kıbrıs'tan ilham alan tarifler, malzeme dolabı ve dengeli beslenme rehberi.", 'structuredData' => null, 'canonicalUrl' => null, 'socialImage' => null, 'socialImageWidth' => null, 'socialImageHeight' => null, 'socialImageAlt' => null, 'robots' => null])
 <!DOCTYPE html>
 <html lang="tr" class="scroll-smooth">
 <head>
@@ -22,10 +22,16 @@
         <meta property="og:description" content="{{ $metaDescription }}">
         <meta property="og:url" content="{{ $canonicalUrl ?: url()->current() }}">
         <meta property="og:image" content="{{ $socialImage ?: url(config('brand.assets.og_default')) }}">
+        @if($socialImage)
+            @if($socialImageWidth)<meta property="og:image:width" content="{{ $socialImageWidth }}">@endif
+            @if($socialImageHeight)<meta property="og:image:height" content="{{ $socialImageHeight }}">@endif
+            @if($socialImageAlt)<meta property="og:image:alt" content="{{ $socialImageAlt }}">@endif
+        @endif
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="{{ $title }}">
         <meta name="twitter:description" content="{{ $metaDescription }}">
         <meta name="twitter:image" content="{{ $socialImage ?: url(config('brand.assets.og_default')) }}">
+        @if($socialImageAlt)<meta name="twitter:image:alt" content="{{ $socialImageAlt }}">@endif
     @endunless
     @if($structuredData)<script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>@endif
     @if(!request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))

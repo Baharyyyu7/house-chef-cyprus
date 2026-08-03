@@ -42,6 +42,27 @@ final class SeoAuthorityProgramTest extends TestCase
             ->assertDontSee('aggregateRating', false);
     }
 
+    public function test_only_approved_public_media_contributes_social_image_metadata(): void
+    {
+        $post = BlogPost::query()->create([
+            'title' => 'Onaylı görsel rehberi', 'slug' => 'onayli-gorsel-rehberi', 'excerpt' => 'Görsel kaynakları hakkında kısa rehber.',
+            'body' => str_repeat('Özgün editoryal bilgi. ', 30), 'status' => 'published', 'published_at' => now(),
+        ]);
+        $media = $post->media()->create([
+            'kind' => 'editorial_synthetic_illustration', 'disk' => 'public', 'path' => 'media/blog/approved.jpg', 'visibility' => 'public',
+            'media_status' => 'approved_real_media', 'verification_status' => 'verified', 'license_review_status' => 'approved', 'attribution_review_status' => 'approved',
+            'alt_text' => 'Onaylı konuya özel editoryal görsel', 'width' => 1600, 'height' => 900,
+        ]);
+        $post->update(['hero_media_id' => $media->id]);
+
+        $this->get(route('blog.show', $post))
+            ->assertOk()
+            ->assertSee('property="og:image:width" content="1600"', false)
+            ->assertSee('property="og:image:height" content="900"', false)
+            ->assertSee('property="og:image:alt" content="Onaylı konuya özel editoryal görsel"', false)
+            ->assertSee('name="twitter:image:alt" content="Onaylı konuya özel editoryal görsel"', false);
+    }
+
     public function test_faq_schema_is_emitted_only_for_actual_editorial_question_and_answer_blocks(): void
     {
         $post = BlogPost::query()->create([

@@ -1,4 +1,4 @@
-<x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$seoImage" :structured-data="$seoSchema">
+<x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$seoImage" :social-image-width="$seoImageWidth" :social-image-height="$seoImageHeight" :social-image-alt="$seoImageAlt" :structured-data="$seoSchema">
     @php
         $heroMedia = $recipe->media->first(fn ($media) => $media->isApprovedRealMedia());
         $hasApprovedMedia = $heroMedia !== null;
