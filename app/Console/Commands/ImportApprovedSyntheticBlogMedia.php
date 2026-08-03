@@ -28,8 +28,24 @@ final class ImportApprovedSyntheticBlogMedia extends Command
             $service->import($post, $source); $imported++;
         }
         $optimized = $optimizer->optimize(100);
-        $result = compact('imported', 'missing', 'optimized');
+        $incompleteVariants = BlogPost::query()->publiclyVisible()->with('heroMedia')->get()
+            ->filter(fn (BlogPost $post): bool => ! $this->hasRequiredVariants($post))
+            ->pluck('slug')->values()->all();
+        $result = compact('imported', 'missing', 'optimized', 'incompleteVariants');
         $this->line((bool) $this->option('json') ? json_encode($result, JSON_THROW_ON_ERROR) : 'Imported: '.$imported.', missing: '.count($missing));
-        return $missing === [] ? self::SUCCESS : self::FAILURE;
+        return $missing === [] && $incompleteVariants === [] ? self::SUCCESS : self::FAILURE;
+    }
+
+    private function hasRequiredVariants(BlogPost $post): bool
+    {
+        $variants = (array) $post->heroMedia?->responsive_variants;
+        foreach (['hero', 'open_graph', 'card', 'square'] as $profile) {
+            $variant = $variants[$profile] ?? null;
+            if (! is_array($variant) || ! is_string($variant['jpeg'] ?? null) || ! is_string($variant['webp'] ?? null) || ! is_string($variant['avif'] ?? null)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
