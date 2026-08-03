@@ -293,6 +293,7 @@ run ln -sfn "$SHARED_DIR/storage/app/public" "$RELEASE_DIR/public/storage"
 
 log 'Checking production environment and creating a verified pre-deploy backup.'
 artisan app:environment-check --environment=production --strict --json
+artisan seo:deployment-guard --environment=production --json
 artisan backup:create --type=pre-deploy --json
 artisan backup:verify --json
 

@@ -1,4 +1,4 @@
-<x-layouts.site title="{{ request()->routeIs('home') ? 'House Chef Cyprus' : 'Tarifler' }}">
+<x-layouts.site title="{{ request()->routeIs('home') ? 'House Chef Cyprus' : 'Tarifler' }}" :canonical-url="$seoIndexability['canonical']" :robots="$seoIndexability['robots']">
 @if (request()->routeIs('home'))
     <section class="hc-container pt-6 sm:pt-9">
         <div class="hc-home-hero relative isolate overflow-hidden rounded-[2rem] px-6 py-10 sm:rounded-[2.5rem] sm:px-10 sm:py-14 lg:min-h-[38rem] lg:px-14 lg:py-20">

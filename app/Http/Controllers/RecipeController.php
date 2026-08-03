@@ -16,6 +16,7 @@ use App\Services\DietaryCompatibilityService;
 use App\Services\IngredientMatchingService;
 use App\Services\Measurements\RecipeIngredientDisplayService;
 use App\Services\NutritionService;
+use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoMetadataService;
 use App\Services\Seo\SeoSchemaService;
 use App\Services\Seo\ZeroResultSearchService;
@@ -23,7 +24,7 @@ use Illuminate\Http\Request;
 
 final class RecipeController extends Controller
 {
-    public function index(Request $request, RecipeSearchInterface $search, ZeroResultSearchService $zeroResults)
+    public function index(Request $request, RecipeSearchInterface $search, ZeroResultSearchService $zeroResults, SeoIndexabilityService $indexability)
     {
         $filters = $request->only([
             'q', 'cuisine', 'category', 'difficulty', 'dietary_tag', 'exclude_allergens',
@@ -41,6 +42,7 @@ final class RecipeController extends Controller
             'categories' => Category::orderBy('name')->get(),
             'dietaryTags' => DietaryTag::orderBy('name')->get(),
             'allergens' => Allergen::orderBy('name')->get(),
+            'seoIndexability' => $indexability->forRequest($request, $request->routeIs('home') ? route('home') : route('recipes.index')),
         ];
 
         if ($request->routeIs('home')) {
@@ -106,7 +108,7 @@ final class RecipeController extends Controller
                 ->limit(4)
                 ->get(),
             'seoSchema' => $schema,
-            'metadata' => $seo->for($recipe, $recipe->title.' · House Chef Cyprus', $recipe->excerpt ?: $recipe->description, route('recipes.show', $recipe)),
+            'metadata' => $seo->for($recipe, $recipe->title.' · House Chef Cyprus', $recipe->excerpt ?: $recipe->description, route('recipes.show', $recipe), $request->query() === [] ? 'index,follow' : 'noindex,follow'),
             'seoImage' => $heroMedia?->publicUrl(),
         ]);
     }
