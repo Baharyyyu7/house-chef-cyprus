@@ -31,6 +31,10 @@ final class PublicRecipeMediaCompletionTest extends TestCase
         $this->assertSame(0, $report['approved_media']);
         $this->assertFalse($report['auto_approve']);
         $this->assertFalse($report['auto_attach']);
+        $row = $report['recipes'][0];
+        $this->assertSame('NOT_RECORDED', $row['identity_confirmation']['state']);
+        $this->assertFalse($row['generation_eligible']);
+        $this->assertSame('IDENTITY_CONFIRMATION_REQUIRED', $row['generation_blocker']);
     }
 
     public function test_only_fully_approved_existing_media_with_required_variants_enters_apply_manifest(): void
@@ -49,6 +53,8 @@ final class PublicRecipeMediaCompletionTest extends TestCase
         $this->assertSame($media->public_id, $manifest['entries'][0]['target_media_public_id']);
         $this->assertSame($recipe->updated_at?->toIso8601String(), $manifest['entries'][0]['expected_recipe_version']);
         $this->assertTrue($manifest['optimistic_concurrency_required']);
+        $this->assertSame(['thumbnail', 'square', 'card', 'open_graph', 'hero'], $row['variants']['required']);
+        $this->assertSame([], $row['variants']['missing']);
     }
 
     public function test_missing_approved_file_is_classified_without_exposing_a_broken_public_image(): void

@@ -18,7 +18,7 @@ final class PublicRecipeMediaCompletionService
     public function audit(bool $probePublicUrls = false): array
     {
         $recipes = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')
-            ->with(['media.approvedBy', 'media.reviewedBy'])->orderBy('title')->get();
+            ->with(['cuisine', 'category', 'recipeIngredients.ingredient', 'media.approvedBy', 'media.reviewedBy'])->orderBy('title')->get();
         $duplicateKeys = $this->duplicateKeys($recipes->pluck('media')->flatten(1));
         $rows = $recipes->map(fn (Recipe $recipe): array => $this->row($recipe, $duplicateKeys, $probePublicUrls));
 
@@ -40,7 +40,7 @@ final class PublicRecipeMediaCompletionService
     public function applyManifest(): array
     {
         $recipes = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')
-            ->with(['media.approvedBy', 'media.reviewedBy'])->orderBy('title')->get();
+            ->with(['cuisine', 'category', 'recipeIngredients.ingredient', 'media.approvedBy', 'media.reviewedBy'])->orderBy('title')->get();
         $entries = [];
         foreach ($recipes as $recipe) {
             $approved = $recipe->media->first(fn (Media $media): bool => $media->isApprovedRealMedia());
@@ -111,16 +111,35 @@ final class PublicRecipeMediaCompletionService
         };
 
         $dimensions = $active instanceof Media && $active->width && $active->height ? $active->width.'x'.$active->height : null;
+        $identity = $this->identityState($recipe);
 
         return [
+            'recipe_id' => $recipe->getKey(),
             'recipe_public_id' => $recipe->public_id,
             'title' => $recipe->title,
+            'slug' => $recipe->slug,
+            'publication_status' => $recipe->status,
+            'verification_status' => $recipe->verification_status,
+            'cuisine' => $recipe->cuisine?->name,
+            'category' => $recipe->category?->name,
+            'primary_ingredients' => $recipe->recipeIngredients
+                ->sortBy('sort_order')
+                ->take(6)
+                ->map(fn ($ingredient): ?string => $ingredient->ingredient?->name)
+                ->filter()
+                ->values()
+                ->all(),
+            'identity_confirmation' => $identity,
+            'generation_eligible' => false,
+            'generation_blocker' => 'IDENTITY_CONFIRMATION_REQUIRED',
             'current_media_public_id' => $active?->public_id,
             'current_media_path' => $active?->path,
             'media_approval_status' => $active?->media_status,
             'media_classification' => $active?->kind,
             'storage_disk' => $active?->disk,
             'storage_file_exists' => $fileExists,
+            'source' => $this->sourceSummary($active, $fileExists),
+            'variants' => $this->variantSummary($approved),
             'responsive_variants_exist' => $variantsReady,
             'public_url' => $publicUrl,
             'http_status' => $httpStatus,
@@ -131,6 +150,75 @@ final class PublicRecipeMediaCompletionService
             'duplicate_usage' => $duplicate,
             'classification' => $classification,
         ];
+    }
+
+    /** @return array{state:string,automatic_confirmation:bool,reason:string} */
+    private function identityState(Recipe $recipe): array
+    {
+        // A published/verified state demonstrates public visibility, not a visual
+        // identity decision. There is intentionally no inferred confirmation from
+        // a title, seed data, provider result, or previous placeholder image.
+        return [
+            'state' => 'NOT_RECORDED',
+            'automatic_confirmation' => false,
+            'reason' => 'Görsel üretimi veya onayı için tarif kimliğinin insan editör tarafından ayrı olarak kaydedilmesi gerekir.',
+        ];
+    }
+
+    /** @return array<string, mixed>|null */
+    private function sourceSummary(?Media $media, bool $fileExists): ?array
+    {
+        if (! $media instanceof Media) {
+            return null;
+        }
+
+        return [
+            'disk' => $media->disk,
+            'path' => $media->path,
+            'mime_type' => $media->mime_type,
+            'dimensions' => $media->width && $media->height ? ['width' => (int) $media->width, 'height' => (int) $media->height] : null,
+            'checksum_sha256' => $media->checksum_sha256,
+            'perceptual_hash' => $media->perceptual_hash,
+            'file_exists' => $fileExists,
+            'provenance' => [
+                'source_name' => $media->source_name,
+                'source_url' => $media->source_url,
+                'license' => $media->license,
+                'generated_by_ai' => (bool) $media->generated_by_ai,
+                'approval_state' => $media->ai_review_status,
+            ],
+        ];
+    }
+
+    /** @return array{required:list<string>,present:list<string>,missing:list<string>,complete:bool}|null */
+    private function variantSummary(?Media $media): ?array
+    {
+        if (! $media instanceof Media) {
+            return null;
+        }
+
+        if ($media->isApprovedUnsplash()) {
+            return ['required' => ['provider_managed'], 'present' => ['provider_managed'], 'missing' => [], 'complete' => true];
+        }
+
+        $raw = $media->getRawOriginal('responsive_variants');
+        $variants = is_string($raw) && $raw !== '' ? json_decode($raw, true) : [];
+        $variants = is_array($variants) ? $variants : [];
+        $required = ['thumbnail', 'square', 'card', 'open_graph', 'hero'];
+        $present = [];
+        foreach ($variants as $variant) {
+            if (! is_array($variant)) {
+                continue;
+            }
+            $name = $variant['name'] ?? null;
+            if (is_string($name) && in_array($name, $required, true) && is_string($variant['jpeg'] ?? null) && is_string($variant['webp'] ?? null)) {
+                $present[] = $name;
+            }
+        }
+        $present = array_values(array_unique($present));
+        $missing = array_values(array_diff($required, $present));
+
+        return ['required' => $required, 'present' => $present, 'missing' => $missing, 'complete' => $missing === []];
     }
 
     private function fileExists(Media $media): bool
