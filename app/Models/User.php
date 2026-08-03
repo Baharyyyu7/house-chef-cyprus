@@ -20,7 +20,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $last_login_at
  * @property Carbon|null $last_activity_at
  */
-#[Fillable(['name', 'email', 'password', 'role', 'account_status'])]
+#[Fillable(['name', 'first_name', 'last_name', 'email', 'phone', 'country', 'city_or_region', 'preferred_language', 'registration_source', 'terms_accepted_at', 'password', 'role', 'account_status'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -40,6 +40,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'last_activity_at' => 'datetime',
+            'terms_accepted_at' => 'datetime',
+            'marketing_consent_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -91,6 +93,12 @@ class User extends Authenticatable implements MustVerifyEmail
     public function activities(): HasMany
     {
         return $this->hasMany(UserActivity::class);
+    }
+
+    /** @return HasMany<MemberRegistrationNotification, $this> */
+    public function registrationNotifications(): HasMany
+    {
+        return $this->hasMany(MemberRegistrationNotification::class);
     }
 
     /** @return HasMany<AiConversation, $this> */

@@ -24,17 +24,26 @@ final class UserController extends Controller
             ->when($request->filled('role'), fn ($query) => $query->where('role', $request->string('role')->toString()))
             ->when($request->filled('status'), fn ($query) => $query->where('account_status', $request->string('status')->toString()))
             ->when($request->filled('verified'), fn ($query) => $request->string('verified')->toString() === 'yes' ? $query->whereNotNull('email_verified_at') : $query->whereNull('email_verified_at'))
+            ->when($request->filled('country'), fn ($query) => $query->where('country', $request->string('country')->trim()->toString()))
+            ->when($request->filled('source'), fn ($query) => $query->where('registration_source', $request->string('source')->trim()->toString()))
+            ->when($request->filled('registered_from'), fn ($query) => $query->whereDate('created_at', '>=', $request->date('registered_from')))
+            ->when($request->filled('registered_to'), fn ($query) => $query->whereDate('created_at', '<=', $request->date('registered_to')))
             ->orderByDesc('last_activity_at')
             ->paginate(25)
             ->withQueryString();
 
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', [
+            'users' => $users,
+            'countries' => User::query()->whereNotNull('country')->distinct()->orderBy('country')->pluck('country'),
+            'sources' => User::query()->whereNotNull('registration_source')->distinct()->orderBy('registration_source')->pluck('registration_source'),
+        ]);
     }
 
     public function show(User $user): View
     {
         return view('admin.users.show', [
             'user' => $user->loadCount(['favoriteRecipes', 'pantryItems', 'cookingSessions']),
+            'registrationNotification' => $user->registrationNotifications()->latest()->first(),
             'activities' => $user->activities()->latest('occurred_at')->paginate(20, ['*'], 'activity_page'),
             'audits' => AuditLog::query()->where('user_id', $user->id)->latest()->limit(20)->get(),
         ]);

@@ -8,13 +8,17 @@
             <select class="hc-input" name="role"><option value="">Tüm roller</option><option value="admin" @selected(request('role') === 'admin')>Yönetici</option><option value="member" @selected(request('role') === 'member')>Üye</option></select>
             <select class="hc-input" name="status"><option value="">Tüm durumlar</option><option value="active" @selected(request('status') === 'active')>Aktif</option><option value="suspended" @selected(request('status') === 'suspended')>Askıda</option></select>
             <select class="hc-input" name="verified"><option value="">E-posta durumu</option><option value="yes" @selected(request('verified') === 'yes')>Doğrulandı</option><option value="no" @selected(request('verified') === 'no')>Doğrulanmadı</option></select>
+            <select class="hc-input" name="country"><option value="">Tüm ülkeler</option>@foreach($countries as $country)<option value="{{ $country }}" @selected(request('country') === $country)>{{ $country }}</option>@endforeach</select>
+            <select class="hc-input" name="source"><option value="">Tüm kayıt kaynakları</option>@foreach($sources as $source)<option value="{{ $source }}" @selected(request('source') === $source)>{{ $source }}</option>@endforeach</select>
+            <label class="text-xs text-muted">Başlangıç<input class="hc-input mt-1" type="date" name="registered_from" value="{{ request('registered_from') }}"></label>
+            <label class="text-xs text-muted">Bitiş<input class="hc-input mt-1" type="date" name="registered_to" value="{{ request('registered_to') }}"></label>
         </x-admin.filter-bar>
 
         <div class="hc-admin-table-shell mt-6">
             <div class="hc-admin-table-shell__meta"><strong>{{ $users->total() }} kullanıcı</strong><span>IP bilgileri varsayılan olarak maskelidir.</span></div>
             <div class="hc-table-wrap"><table class="hc-table hc-admin-data-table"><thead><tr><th>Kullanıcı</th><th>Durum</th><th>Son aktivite</th><th>Güvenli özet</th><th></th></tr></thead><tbody>
                 @forelse($users as $user)<tr>
-                    <td><strong>{{ $user->name }}</strong><div class="text-xs text-muted">{{ $user->email }} · {{ $user->public_id }}</div></td>
+                    <td><strong>{{ $user->name }}</strong><div class="text-xs text-muted">{{ $user->email }} · {{ $user->public_id }}</div><div class="text-xs text-muted">{{ $user->phone ?: 'Telefon belirtilmedi' }} · {{ collect([$user->country, $user->city_or_region])->filter()->join(' / ') ?: 'Konum belirtilmedi' }}</div></td>
                     <td><span class="hc-admin-status hc-admin-status--{{ $user->account_status === 'active' ? 'success' : 'neutral' }}">{{ $user->account_status === 'active' ? 'Aktif' : 'Askıda' }}</span><div class="text-xs text-muted">{{ $user->role === 'admin' ? 'Yönetici' : 'Üye' }} · {{ $user->email_verified_at ? 'E-posta doğrulandı' : 'E-posta doğrulanmadı' }}</div></td>
                     <td><span class="text-sm">{{ $user->last_activity_at?->diffForHumans() ?? 'Henüz yok' }}</span><div class="text-xs text-muted">Son giriş: {{ $user->last_login_at?->diffForHumans() ?? 'Henüz yok' }}</div></td>
                     <td><span class="text-sm">{{ $user->favorite_recipes_count }} favori · {{ $user->pantry_items_count }} dolap</span><div class="text-xs text-muted">{{ $user->cooking_sessions_count }} pişirme oturumu · {{ $user->last_login_ip_masked ?: 'IP kaydı yok' }}</div></td>

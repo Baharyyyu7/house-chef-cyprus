@@ -25,10 +25,12 @@ class RegistrationTest extends TestCase
     public function test_new_users_can_register(): void
     {
         $component = Volt::test('pages.auth.register')
-            ->set('name', 'Test User')
+            ->set('first_name', 'Test')
+            ->set('last_name', 'User')
             ->set('email', 'test@example.com')
             ->set('password', 'StrongPass123!')
-            ->set('password_confirmation', 'StrongPass123!');
+            ->set('password_confirmation', 'StrongPass123!')
+            ->set('terms_and_privacy_acceptance', true);
 
         $component->call('register');
 
@@ -43,10 +45,12 @@ class RegistrationTest extends TestCase
         User::factory()->create(['email' => 'used@example.com']);
 
         Volt::test('pages.auth.register')
-            ->set('name', 'Test User')
+            ->set('first_name', 'Test')
+            ->set('last_name', 'User')
             ->set('email', 'used@example.com')
             ->set('password', 'password')
             ->set('password_confirmation', 'password')
+            ->set('terms_and_privacy_acceptance', true)
             ->call('register')
             ->assertHasErrors(['email', 'password']);
 
@@ -64,10 +68,12 @@ class RegistrationTest extends TestCase
         RateLimiter::hit($key, 3600);
 
         Volt::test('pages.auth.register')
-            ->set('name', 'Rate Limited')
+            ->set('first_name', 'Rate')
+            ->set('last_name', 'Limited')
             ->set('email', 'limited@example.com')
             ->set('password', 'StrongPass123!')
             ->set('password_confirmation', 'StrongPass123!')
+            ->set('terms_and_privacy_acceptance', true)
             ->call('register')
             ->assertHasErrors('email');
 

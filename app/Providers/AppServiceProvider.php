@@ -6,6 +6,8 @@ use App\Contracts\Media\ImageGenerationProviderInterface;
 use App\Contracts\Media\MediaStorageInterface;
 use App\Contracts\Observability\ErrorReporterInterface;
 use App\Contracts\Search\RecipeSearchInterface;
+use App\Events\MemberRegistered;
+use App\Listeners\SendNewMemberAdminNotification;
 use App\Models\ContentFactoryIssue;
 use App\Models\EditorialReviewPack;
 use App\Models\IngredientUnitConversion;
@@ -24,6 +26,7 @@ use App\Services\Observability\LocalLogErrorReporter;
 use App\Services\Search\DatabaseRecipeSearch;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -47,6 +50,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Event::listen(MemberRegistered::class, SendNewMemberAdminNotification::class);
+
         Password::defaults(fn (): Password => Password::min(12)
             ->letters()
             ->mixedCase()

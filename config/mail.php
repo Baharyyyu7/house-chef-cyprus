@@ -115,4 +115,6 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    'registration_admin_recipient' => env('REGISTRATION_ADMIN_NOTIFICATION_TO', 'info@housechefcyprus.com'),
+
 ];
