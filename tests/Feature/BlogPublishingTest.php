@@ -28,6 +28,28 @@ final class BlogPublishingTest extends TestCase
         $this->get('/sitemaps/blog.xml')->assertOk()->assertSee($published->slug)->assertDontSee($draft->slug);
     }
 
+    public function test_blog_without_approved_media_uses_an_honest_non_photographic_state(): void
+    {
+        $post = BlogPost::create([
+            'title' => 'Kaynağı doğrulanan mutfak notu',
+            'slug' => 'kaynagi-dogrulanan-mutfak-notu',
+            'excerpt' => 'Editoryal görseli henüz onaylanmamış yazı.',
+            'body' => 'Yazının özgün gövde metni.',
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+
+        $this->get(route('blog.index'))
+            ->assertOk()
+            ->assertSee('Yazıya özel görsel hazırlanıyor')
+            ->assertSee('Onaylı ve konuya özel editoryal görsel bulunana kadar fotoğraf gösterilmez.');
+
+        $this->get(route('blog.show', $post))
+            ->assertOk()
+            ->assertSee('Bu yazı için onaylı görsel bekleniyor')
+            ->assertSee('genel veya ilgisiz fotoğraf gösterilmez.');
+    }
+
     public function test_admin_can_create_and_publish_a_post_while_a_member_is_forbidden(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
