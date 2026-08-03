@@ -24,6 +24,6 @@ final class NewMemberRegisteredMail extends Mailable
 
     public function content(): Content
     {
-        return new Content(view: 'mail.internal.new-member-registered');
+        return new Content(view: 'mail.internal.new-member-registered', text: 'mail.internal.new-member-registered-text');
     }
 }

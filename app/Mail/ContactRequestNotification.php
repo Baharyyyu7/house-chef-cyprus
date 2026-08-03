@@ -25,6 +25,6 @@ final class ContactRequestNotification extends Mailable
 
     public function content(): Content
     {
-        return new Content(view: 'mail.contact-request-notification');
+        return new Content(view: 'mail.contact-request-notification', text: 'mail.contact-request-notification-text');
     }
 }

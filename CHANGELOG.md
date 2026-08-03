@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added a secret-safe Hostinger Mail operations center, cached SPF/DKIM/DMARC readiness flags, delivery-count visibility and branded HTML/plain-text fallbacks for application-owned transactional mail.
+
 ## Milestone G — Product Experience & UX Excellence
 
 - Added a shared product-experience audit contract, safe JSON commands and an admin UX health surface without fabricating browser or Core Web Vitals data.

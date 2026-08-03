@@ -117,4 +117,10 @@ return [
 
     'registration_admin_recipient' => env('REGISTRATION_ADMIN_NOTIFICATION_TO', 'info@housechefcyprus.com'),
 
+    'dns' => [
+        'spf_verified' => (bool) env('MAIL_SPF_VERIFIED', false),
+        'dkim_verified' => (bool) env('MAIL_DKIM_VERIFIED', false),
+        'dmarc_verified' => (bool) env('MAIL_DMARC_VERIFIED', false),
+    ],
+
 ];

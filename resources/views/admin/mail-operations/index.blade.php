@@ -1,0 +1,17 @@
+<x-layouts.site title="E-posta Operasyonları · House Chef Cyprus" robots="noindex,nofollow">
+    <section class="hc-container py-8 sm:py-10">
+        <x-admin.page-header eyebrow="Hostinger Mail" title="E-posta operasyon merkezi" description="SMTP secret değerlerini göstermeden teslimat hazırlığı, kuyruk ve bildirim geçmişini izler." />
+        <div class="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="hc-admin-stat"><span>SMTP</span><strong>{{ $mail['smtp']['configured'] ? 'Hazır' : 'Eksik' }}</strong></div>
+            <div class="hc-admin-stat"><span>Kuyruk</span><strong>{{ $mail['queue']['async'] ? 'Asenkron' : 'Sync' }}</strong></div>
+            <div class="hc-admin-stat"><span>Başarısız mail işi</span><strong>{{ $mail['queue']['failed_mail_jobs'] }}</strong></div>
+            <div class="hc-admin-stat"><span>Bildirim hatası</span><strong>{{ $mail['registration_notifications']['failed'] }}</strong></div>
+        </div>
+        <div class="mt-7 grid gap-6 xl:grid-cols-2">
+            <section class="hc-admin-form-card"><h2 class="hc-heading-3">SMTP ve DNS sağlığı</h2><dl class="mt-4 grid gap-3 text-sm"><div class="flex justify-between"><dt>Mailer</dt><dd>{{ $mail['smtp']['mailer'] }}</dd></div><div class="flex justify-between"><dt>Host / kullanıcı / gönderen</dt><dd>{{ $mail['smtp']['host_present'] && $mail['smtp']['username_present'] && $mail['smtp']['from_present'] ? 'Tanımlı' : 'Eksik' }}</dd></div>@foreach($mail['dns'] as $name => $verified)<div class="flex justify-between"><dt>{{ strtoupper($name) }}</dt><dd>{{ $verified ? 'VERIFIED' : 'ENV_NOT_CONFIRMED' }}</dd></div>@endforeach</dl><p class="mt-4 text-xs text-muted">Parola, SMTP secret veya mailbox credential hiçbir zaman bu ekrana taşınmaz.</p></section>
+            <section class="hc-admin-form-card"><h2 class="hc-heading-3">Kayıt bildirimleri</h2><div class="mt-4 grid grid-cols-3 gap-3 text-center"><div><strong class="block text-2xl">{{ $mail['registration_notifications']['pending'] }}</strong><span class="text-xs text-muted">Bekleyen</span></div><div><strong class="block text-2xl">{{ $mail['registration_notifications']['sent'] }}</strong><span class="text-xs text-muted">Gönderilen</span></div><div><strong class="block text-2xl">{{ $mail['registration_notifications']['failed'] }}</strong><span class="text-xs text-muted">Hatalı</span></div></div><a class="hc-v3-btn hc-v3-btn--outline mt-5" href="{{ route('admin.failed-jobs.index') }}">Başarısız işleri aç</a></section>
+        </div>
+        <section class="hc-admin-form-card mt-7"><h2 class="hc-heading-3">Mail şablonları</h2><div class="mt-4 grid gap-3 md:grid-cols-2">@foreach($mail['templates'] as $template)<div class="rounded-2xl border p-4" style="border-color:var(--hc-border-subtle)"><p class="font-bold">{{ $template['name'] }}</p><p class="mt-1 text-sm text-muted">Responsive HTML: {{ $template['html'] ? 'Var' : 'Yok' }} · Düz metin: {{ $template['text'] ? 'Var' : 'Yok' }}</p></div>@endforeach</div></section>
+        <div class="mt-7 grid gap-4 md:grid-cols-2"><div class="hc-alert hc-alert-info"><strong>Bounce:</strong> {{ $mail['bounce']['status'] }} — {{ $mail['bounce']['reason'] }}</div><div class="hc-alert hc-alert-info"><strong>Newsletter:</strong> {{ $mail['marketing']['status'] }} — {{ $mail['marketing']['reason'] }}</div></div>
+    </section>
+</x-layouts.site>

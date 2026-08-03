@@ -7,7 +7,7 @@ Son doğrulama: 2026-08-03. Bu belge yalnız Hostinger MCP read-only sonuçları
 | Website | AVAILABLE | `housechefcyprus.com`, etkin, ana vhost |
 | Plan | AVAILABLE | Business Web Hosting (`hostinger_business_v3`) |
 | Web root | AVAILABLE | `/home/u584361532/domains/housechefcyprus.com/public_html` |
-| PHP | AVAILABLE | Gerçek SSH denetiminde PHP 8.4; PHP-details MCP çağrısı bu denetimde 500 verdi |
+| PHP | AVAILABLE | Hostinger MCP: PHP 8.4.19, OPcache açık, 1024M memory, 360 sn execution |
 | Composer / Git / SSH | AVAILABLE | Önceki production release ve SSH denetimleriyle doğrulandı |
 | Node/npm | NOT_AVAILABLE | Production sunucuda build yapılmaz; Vite artifact CI/yerelde üretilir |
 | Scheduler | AVAILABLE | Dakikalık `schedule:run` cron mevcut |
@@ -16,8 +16,19 @@ Son doğrulama: 2026-08-03. Bu belge yalnız Hostinger MCP read-only sonuçları
 | DNS | AVAILABLE | Zone read-only erişimi doğrulandı |
 | Mail DNS | AVAILABLE | Hostinger MX, SPF, DKIM ve DMARC kayıtları mevcut |
 | CDN | AVAILABLE | Apex ve `www` Hostinger CDN hedeflerine bağlı |
-| PHP limits/extensions | NOT_VERIFIED | PHP-details MCP endpoint bu turda 500 verdi; tahmin edilmedi |
-| Database inventory | NOT_VERIFIED | MCP filtre doğrulaması başarısız oldu; secret veya isim raporlanmadı |
+| HTTP/2 / HTTP/3 advertisement | AVAILABLE | Canlı yanıt HTTP/2; CDN `alt-svc` ile HTTP/3 ilan ediyor |
+| Gzip | AVAILABLE | Canlı HTML yanıtında gzip doğrulandı |
+| HSTS / HTTPS | AVAILABLE | HTTPS 200 ve bir yıllık includeSubDomains HSTS doğrulandı |
+| Edge cache | AVAILABLE_WITH_LIMITS | Hostinger CDN aktif; dinamik Laravel HTML yanıtı `DYNAMIC`, kör cache açılmaz |
+| PHP limits/extensions | AVAILABLE | 1024M upload, 2048M post, 5000 input vars; GD/Imagick/WebP/AVIF mevcut |
+| Database inventory | AVAILABLE | MySQL veritabanı 101 MB / 3072 MB; dış bağlantı kuralı yok |
+| OPcache | AVAILABLE | Web ve CLI açık, 256M cache, 16,229 accelerated file limiti |
+| Brotli PHP extension | NOT_AVAILABLE | Extension kapalı; CDN edge compression bağımsız değerlendirilir |
+| Native command security | AVAILABLE_WITH_LIMITS | `proc_open` kullanılabilir; `exec`, `shell_exec`, `system`, PHP `symlink` kapalı |
 | HTTP/3, Brotli, inode, connection limits | NOT_VERIFIED | Güvenilir ölçüm yok |
 
 `NOT_VERIFIED`, kullanım dışı anlamına gelmez; yalnız kanıt olmadığı anlamına gelir.
+
+Mail DNS: Hostinger MX, üç DKIM selector, SPF ve DMARC (`p=none`) doğrulandı. DMARC enforcement değişikliği teslimat gözlemi ve owner onayı olmadan yapılmaz.
+
+Canlı HTTP yanıtı `x-powered-by: PHP/8.4.19` başlığını hâlâ yayınlıyor. Hostinger PHP `expose_php` ayarının kapatılması önerilir; production ayarı bu inceleme sırasında değiştirilmedi. Uygulama güvenlik başlıkları, HSTS, gzip ve CDN katmanı aktif doğrulandı.

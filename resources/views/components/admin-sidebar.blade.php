@@ -40,6 +40,7 @@
         'Sistem' => [
             ['route' => 'admin.dashboard', 'label' => 'Sistem Özeti', 'icon' => 'info'],
             ['route' => 'admin.integrations.index', 'label' => 'Entegrasyonlar', 'icon' => 'sparkles'],
+            ['route' => 'admin.mail-operations.index', 'label' => 'E-posta Operasyonları', 'icon' => 'info'],
             ['route' => 'admin.failed-jobs.index', 'label' => 'Başarısız İşler', 'icon' => 'warning'],
             ['route' => 'admin.backups.index', 'label' => 'Yedekler', 'icon' => 'archive'],
             ['route' => 'admin.restore-history.index', 'label' => 'Geri Yükleme Geçmişi', 'icon' => 'arrow-right'],
