@@ -33,6 +33,7 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\InformationPageController;
 use App\Http\Controllers\IngredientExplorerController;
+use App\Http\Controllers\LegalInformationCenterController;
 use App\Http\Controllers\PantryController;
 use App\Http\Controllers\PersonalizationController;
 use App\Http\Controllers\RecipeController;
@@ -53,8 +54,15 @@ Route::get('/sitemaps/recipes.xml', [SitemapController::class, 'recipes'])->name
 Route::get('/sitemaps/blog.xml', [SitemapController::class, 'blog'])->name('sitemap.blog');
 Route::get('/sitemaps/images.xml', [SitemapController::class, 'images'])->name('sitemap.images');
 Route::view('/robots.txt', 'robots')->name('robots');
+Route::get('/yasal-bilgilendirme', [LegalInformationCenterController::class, 'index'])->name('legal.center');
+Route::redirect('/kullanim-kosullari', '/yasal-bilgilendirme#kullanim-kosullari', 301);
+Route::redirect('/gizlilik', '/yasal-bilgilendirme#gizlilik-ve-kisisel-veriler', 301);
+Route::redirect('/cerezler', '/yasal-bilgilendirme#cerez-politikasi', 301);
+Route::redirect('/cerez-politikasi', '/yasal-bilgilendirme#cerez-politikasi', 301);
+Route::redirect('/kaynak-politikasi', '/yasal-bilgilendirme#icerik-ve-kaynak-politikasi', 301);
+Route::redirect('/kaynak-ve-veri-guven-politikasi', '/yasal-bilgilendirme#icerik-ve-kaynak-politikasi', 301);
 Route::get('/{page}', [InformationPageController::class, 'show'])
-    ->whereIn('page', ['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'kaynak-ve-veri-guven-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'gorsel-ve-kaynak-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'gizlilik', 'kullanim-kosullari', 'cerez-politikasi', 'iletisim'])
+    ->whereIn('page', ['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'gorsel-ve-kaynak-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'iletisim'])
     ->name('information.show');
 
 Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');

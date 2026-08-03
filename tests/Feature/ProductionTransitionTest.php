@@ -18,7 +18,7 @@ final class ProductionTransitionTest extends TestCase
 
     public function test_production_information_pages_are_public_indexable_and_use_real_policy_language(): void
     {
-        foreach (['kaynak-ve-veri-guven-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir'] as $page) {
+        foreach (['besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir'] as $page) {
             $this->get(route('information.show', $page))
                 ->assertOk()
                 ->assertSee('canonical')

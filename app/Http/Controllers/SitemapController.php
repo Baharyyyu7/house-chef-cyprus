@@ -25,7 +25,7 @@ final class SitemapController extends Controller
 
     public function pages(): Response
     {
-        $staticPaths = ['', 'tarifler', 'blog', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'kaynak-ve-veri-guven-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'gizlilik', 'kullanim-kosullari', 'cerez-politikasi', 'iletisim'];
+        $staticPaths = ['', 'tarifler', 'blog', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'iletisim'];
         $urls = collect($staticPaths)->map(fn (string $path): array => ['loc' => url($path), 'lastmod' => null]);
 
         return $this->urls($urls);

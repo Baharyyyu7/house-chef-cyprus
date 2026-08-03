@@ -15,9 +15,28 @@ final class InformationAndSeoPagesTest extends TestCase
 
     public function test_information_pages_render_in_turkish(): void
     {
-        foreach (['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'gorsel-ve-kaynak-politikasi', 'gizlilik', 'kullanim-kosullari', 'cerez-politikasi', 'iletisim'] as $path) {
+        foreach (['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'gorsel-ve-kaynak-politikasi', 'iletisim'] as $path) {
             $this->get('/'.$path)->assertOk()->assertSee('House Chef Cyprus');
         }
+    }
+
+    public function test_legal_information_center_is_canonical_and_legacy_pages_redirect_to_their_sections(): void
+    {
+        $this->get(route('legal.center'))
+            ->assertOk()
+            ->assertSee('House Chef Cyprus Kullanım Koşulları, Gizlilik, Çerez ve İçerik Politikası')
+            ->assertSee('Son güncelleme: 3 Ağustos 2026')
+            ->assertSee('Tarif ve Sağlık Uyarıları')
+            ->assertSee('Görsel ve Yapay Zekâ Politikası')
+            ->assertSee('data-legal-copy-status', false)
+            ->assertSee('brand/house-chef-cyprus-logo-on-light.svg', false);
+
+        $this->get('/kullanim-kosullari')->assertRedirect('/yasal-bilgilendirme#kullanim-kosullari');
+        $this->get('/gizlilik')->assertRedirect('/yasal-bilgilendirme#gizlilik-ve-kisisel-veriler');
+        $this->get('/cerezler')->assertRedirect('/yasal-bilgilendirme#cerez-politikasi');
+        $this->get('/cerez-politikasi')->assertRedirect('/yasal-bilgilendirme#cerez-politikasi');
+        $this->get('/kaynak-politikasi')->assertRedirect('/yasal-bilgilendirme#icerik-ve-kaynak-politikasi');
+        $this->get('/kaynak-ve-veri-guven-politikasi')->assertRedirect('/yasal-bilgilendirme#icerik-ve-kaynak-politikasi');
     }
 
     public function test_robots_disallows_private_areas_and_sitemap_only_lists_public_verified_recipes(): void
