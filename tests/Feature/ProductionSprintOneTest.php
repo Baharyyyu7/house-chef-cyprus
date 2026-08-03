@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 final class ProductionSprintOneTest extends TestCase
@@ -43,6 +44,13 @@ final class ProductionSprintOneTest extends TestCase
 
     public function test_production_strict_profile_accepts_private_default_storage_with_a_public_symlink(): void
     {
+        File::ensureDirectoryExists(storage_path('app/public'));
+        $publicStorageLink = public_path('storage');
+        $createdLink = false;
+        if (! is_link($publicStorageLink) && ! file_exists($publicStorageLink)) {
+            $createdLink = symlink(storage_path('app/public'), $publicStorageLink);
+        }
+
         config([
             'app.debug' => false,
             'app.url' => 'https://example.test',
@@ -62,9 +70,15 @@ final class ProductionSprintOneTest extends TestCase
             'production.canonical_scheme' => 'https',
         ]);
 
-        $this->artisan('app:environment-check --environment=production --strict --json')
-            ->expectsOutputToContain('"public_storage_configured":true')
-            ->assertSuccessful();
+        try {
+            $this->artisan('app:environment-check --environment=production --strict --json')
+                ->expectsOutputToContain('"public_storage_configured":true')
+                ->assertSuccessful();
+        } finally {
+            if ($createdLink && is_link($publicStorageLink)) {
+                unlink($publicStorageLink);
+            }
+        }
     }
 
     public function test_staging_profile_requires_noindex_and_social_disablement(): void
