@@ -12,3 +12,4 @@
 | P1 | Editorial/media expansion | human-review blocked | Local quality scan found 630 blocked profiles; media health has 0 approved-real-media, 70 branded fallbacks, and 630 missing-media records. No recipe/blog publication or media approval may be automated. |
 | Quality | Full local regression | passed | 338 tests: 337 passed, 1 safe skip, 1,823 assertions; Pint, PHPStan, build, secret scan, forbidden-file scan, docs link check, and diff check passed on 2026-08-03. |
 | Quality | Browser validation | blocked by browser binding | Local HTTP smoke passed for `/`, `/tarifler`, and `/login`; no interactive browser tab was available, so this is not recorded as visual browser QA. |
+| SEO | Technical audit | human editorial/media follow-up | Local audit score 80; 5 recipe-description warnings, no critical/error findings, and 0 approved public images. |

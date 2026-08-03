@@ -26,6 +26,14 @@
 - These are human-review and licensed-media gates, not an authorization to
   change publication or verification state automatically.
 
+## SEO audit snapshot (2026-08-03 local scan)
+
+- Technical SEO score is 80 with no critical or error-level finding. Five
+  published recipes need editorial description expansion.
+- The public catalogue has 50 indexable recipes and 20 indexable articles, but
+  zero approved public images. Image schema/sitemap coverage must remain absent
+  until real media has a documented licence and human approval.
+
 ## Not blockers to local work
 
 - 2,340 human review records remain operational backlog; they are not silently
