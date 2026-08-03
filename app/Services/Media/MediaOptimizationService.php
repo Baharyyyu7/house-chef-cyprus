@@ -18,22 +18,35 @@ final class MediaOptimizationService
             ->whereNotIn('optimization_status', ['ready', 'provider_managed'])->orderBy('id')->limit($limit)->get();
         $result = ['processed' => 0, 'skipped' => 0, 'failed' => 0];
         foreach ($media as $item) {
-            if ($item->kind === 'external_hotlinked_media') {
-                $item->update(['optimization_status' => 'provider_managed']);
-                $result['skipped']++;
-
-                continue;
-            }
-            try {
-                $this->generate($item);
-                $result['processed']++;
-            } catch (\Throwable) {
-                $item->update(['optimization_status' => 'failed', 'processing_error_code' => 'MEDIA_OPTIMIZATION_FAILED', 'processing_error_message' => 'Görsel varyasyonları güvenli biçimde üretilemedi.']);
-                $result['failed']++;
-            }
+            $this->optimizeItem($item, $result);
         }
 
         return $result;
+    }
+
+    /**
+     * Optimizes a known media record without allowing unrelated backlog items to
+     * consume the caller's bounded batch. The passed result array is updated in
+     * the same shape as {@see optimize()}.
+     *
+     * @param array{processed:int,skipped:int,failed:int} $result
+     */
+    public function optimizeItem(Media $item, array &$result): void
+    {
+        if ($item->kind === 'external_hotlinked_media') {
+            $item->update(['optimization_status' => 'provider_managed']);
+            $result['skipped']++;
+
+            return;
+        }
+
+        try {
+            $this->generate($item);
+            $result['processed']++;
+        } catch (\Throwable) {
+            $item->update(['optimization_status' => 'failed', 'processing_error_code' => 'MEDIA_OPTIMIZATION_FAILED', 'processing_error_message' => 'Görsel varyasyonları güvenli biçimde üretilemedi.']);
+            $result['failed']++;
+        }
     }
 
     private function generate(Media $media): void

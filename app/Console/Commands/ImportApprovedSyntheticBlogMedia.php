@@ -21,13 +21,25 @@ final class ImportApprovedSyntheticBlogMedia extends Command
             $this->error('BLOG_SYNTHETIC_SOURCE_DIRECTORY_MISSING');
             return self::FAILURE;
         }
-        $imported = 0; $missing = [];
+        $imported = 0;
+        $missing = [];
+        $media = [];
         foreach (BlogPost::query()->publiclyVisible()->orderBy('id')->get() as $post) {
             $source = rtrim($directory, '/').'/'.$post->slug.'.png';
-            if (! is_file($source)) { $missing[] = $post->slug; continue; }
-            $service->import($post, $source); $imported++;
+            if (! is_file($source)) {
+                $missing[] = $post->slug;
+
+                continue;
+            }
+            $media[] = $service->import($post, $source);
+            $imported++;
         }
-        $optimized = $optimizer->optimize(100);
+        $optimized = ['processed' => 0, 'skipped' => 0, 'failed' => 0];
+        foreach ($media as $item) {
+            if ($item->optimization_status !== 'ready') {
+                $optimizer->optimizeItem($item, $optimized);
+            }
+        }
         $incompleteVariants = BlogPost::query()->publiclyVisible()->with('heroMedia')->get()
             ->filter(fn (BlogPost $post): bool => ! $this->hasRequiredVariants($post))
             ->pluck('slug')->values()->all();
@@ -39,10 +51,22 @@ final class ImportApprovedSyntheticBlogMedia extends Command
     private function hasRequiredVariants(BlogPost $post): bool
     {
         $variants = (array) $post->heroMedia?->responsive_variants;
+        $formats = ['jpeg'];
+        if (function_exists('imagewebp')) {
+            $formats[] = 'webp';
+        }
+        if (function_exists('imageavif')) {
+            $formats[] = 'avif';
+        }
         foreach (['hero', 'open_graph', 'card', 'square', 'portrait', 'thumbnail'] as $profile) {
             $variant = $variants[$profile] ?? null;
-            if (! is_array($variant) || ! is_string($variant['jpeg'] ?? null) || ! is_string($variant['webp'] ?? null) || ! is_string($variant['avif'] ?? null)) {
+            if (! is_array($variant)) {
                 return false;
+            }
+            foreach ($formats as $format) {
+                if (! is_string($variant[$format] ?? null)) {
+                    return false;
+                }
             }
         }
 
