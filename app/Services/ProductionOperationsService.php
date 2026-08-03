@@ -109,7 +109,7 @@ final class ProductionOperationsService
         return [
             'release_public_id' => (string) Str::ulid(),
             'version' => (string) (config('production.artifact_version') ?: 'production-artifact-v1'),
-            'commit_sha' => trim((string) @shell_exec('git rev-parse HEAD 2>/dev/null')) ?: 'unavailable',
+            'commit_sha' => $this->releaseCommitSha(),
             'build_timestamp' => now()->toIso8601String(),
             'php_version' => PHP_VERSION,
             'laravel_version' => app()->version(),
@@ -137,5 +137,22 @@ final class ProductionOperationsService
             'checked_at' => now()->toIso8601String(),
             'components' => $components,
         ];
+    }
+
+    private function releaseCommitSha(): string
+    {
+        $metadata = base_path('.house-chef-build-commit');
+        $candidates = [
+            is_readable($metadata) ? trim((string) file_get_contents($metadata)) : null,
+            config('production.commit_sha'),
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (is_string($candidate) && preg_match('/^[0-9a-f]{7,64}$/', $candidate) === 1) {
+                return $candidate;
+            }
+        }
+
+        return 'unavailable';
     }
 }
