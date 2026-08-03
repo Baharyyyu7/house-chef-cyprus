@@ -179,7 +179,7 @@ final class NutritionController extends Controller
 
     private function authorizeAdmin(): void
     {
-        abort_unless(auth()->user()?->isAdmin(), 403);
+        $this->authorizeAdminOperations();
     }
 
     private function audit(string $action, object $model): void

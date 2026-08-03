@@ -106,6 +106,6 @@ final class FailedJobController extends Controller
 
     private function admin(): void
     {
-        abort_unless(auth()->user()?->isAdmin(), 403);
+        $this->authorizeAdminOperations();
     }
 }

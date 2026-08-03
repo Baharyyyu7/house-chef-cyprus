@@ -11,7 +11,7 @@ final class RestoreHistoryController extends Controller
 {
     public function index(Request $r): View
     {
-        abort_unless(auth()->user()?->isAdmin(), 403);
+        $this->authorizeAdminOperations();
         $items = RestoreHistory::query()->when($r->status, fn ($q, $v) => $q->where('status', $v))->when($r->target, fn ($q, $v) => $q->where('target', $v))->when($r->backup_id, fn ($q, $v) => $q->where('backup_id', 'like', '%'.$v.'%'))->latest()->paginate(30)->withQueryString();
 
         return view('admin.restore-history.index', compact('items'));
@@ -19,7 +19,7 @@ final class RestoreHistoryController extends Controller
 
     public function show(RestoreHistory $restoreHistory): View
     {
-        abort_unless(auth()->user()?->isAdmin(), 403);
+        $this->authorizeAdminOperations();
 
         return view('admin.restore-history.show', ['item' => $restoreHistory]);
     }

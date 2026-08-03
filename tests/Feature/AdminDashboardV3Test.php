@@ -147,6 +147,21 @@ final class AdminDashboardV3Test extends TestCase
             ->assertDontSee('987');
     }
 
+    public function test_dashboard_operational_refreshes_create_a_safe_audit_event(): void
+    {
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post(route('admin.system-status.refresh-cache'))
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('audit_logs', [
+            'user_id' => $admin->id,
+            'action' => 'admin_dashboard.cache_probe_refreshed',
+            'auditable_type' => 'admin_dashboard',
+            'auditable_id' => 0,
+        ]);
+    }
+
     private function admin(): User
     {
         return User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);

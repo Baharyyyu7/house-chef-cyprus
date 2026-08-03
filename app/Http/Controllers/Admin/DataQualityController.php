@@ -87,7 +87,7 @@ final class DataQualityController extends Controller
 
     private function admin(): void
     {
-        abort_unless(auth()->user()?->isAdmin(), 403);
+        $this->authorizeAdminOperations();
     }
 
     /** @return array{label:string,url:string}|null */

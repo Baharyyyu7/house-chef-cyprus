@@ -11,7 +11,7 @@ Bu kayıt, House Chef Cyprus'un mevcut kamu sitesi için güvenli yönetim kapsa
 | AOC-005 | Mail operasyonları | Yapılandırma/readiness durumu ve queue sayıları güvenli biçimde izlenir. | CODE_COMPLETE | Mail operations feature testleri | BLOCKED_EXTERNAL | SMTP, SPF/DKIM/DMARC ve teslim raporları sunucuda doğrulanmalı. |
 | AOC-006 | Queue/scheduler | Snapshot ve yenileme aksiyonları admin ile sınırlıdır. | CODE_COMPLETE | Mevcut operasyon testleri | BLOCKED_PRODUCTION_ACCESS | Hostinger cron/queue çalıştırma zamanları SSH ile doğrulanmalı. |
 | AOC-007 | Backup/restore | Özel disk yedek manifesti, doğrulama ve restore-test geçmişi mevcut; production restore otomatik değildir. | CODE_COMPLETE | Backup service testleri | BLOCKED_PRODUCTION_ACCESS | Son yedek ve yalnız test veritabanında restore-test sonucu sunucuda doğrulanmalı. |
-| AOC-008 | Yayın/incident | Sistem olayları ve audit kayıtları admin arayüzünde bounded olarak sunulur. | CODE_COMPLETE | Mevcut system-event/audit testleri | BLOCKED_PRODUCTION_ACCESS | Aktif release, rollback release ve maintenance durumu SSH ile okunmalı. |
+| AOC-008 | Yayın/incident | Sistem olayları, dashboard operasyon yenilemeleri ve audit kayıtları admin arayüzünde bounded olarak sunulur. | CODE_COMPLETE | Safe dashboard audit testi eklendi; yerel PHP sürümü nedeniyle bu oturumda çalıştırılamadı. | BLOCKED_PRODUCTION_ACCESS | Aktif release, rollback release ve maintenance durumu SSH ile okunmalı. |
 
 ## Güvenlik sınırları
 
