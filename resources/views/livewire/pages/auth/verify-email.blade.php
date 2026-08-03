@@ -2,7 +2,9 @@
 
 use App\Livewire\Actions\Logout;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
@@ -13,13 +15,24 @@ new #[Layout('layouts.guest')] class extends Component
      */
     public function sendVerification(): void
     {
-        if (Auth::user()->hasVerifiedEmail()) {
+        $user = Auth::user();
+        if ($user->hasVerifiedEmail()) {
             $this->redirectIntended(default: route('dashboard', absolute: false));
 
             return;
         }
 
-        Auth::user()->sendEmailVerificationNotification();
+        $throttleKey = 'verification-resend|'.$user->getAuthIdentifier().'|'.request()->ip();
+        if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
+            throw ValidationException::withMessages([
+                'verification' => 'Çok fazla doğrulama bağlantısı istendi. Lütfen daha sonra tekrar deneyin.',
+            ]);
+        }
+
+        // Count attempted sends before delivery so a broken mail transport cannot
+        // be used to bypass a bounded resend policy.
+        RateLimiter::hit($throttleKey, 3600);
+        $user->sendEmailVerificationNotification();
 
         Session::flash('status', 'verification-link-sent');
     }
@@ -55,4 +68,5 @@ new #[Layout('layouts.guest')] class extends Component
             Çıkış yap
         </button>
     </div>
+    <x-input-error :messages="$errors->get('verification')" class="mt-4" />
 </div>

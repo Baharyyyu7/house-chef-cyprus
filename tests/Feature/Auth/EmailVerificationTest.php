@@ -6,7 +6,10 @@ use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
+use Livewire\Volt\Volt;
 use Tests\TestCase;
 
 class EmailVerificationTest extends TestCase
@@ -56,5 +59,19 @@ class EmailVerificationTest extends TestCase
         $this->actingAs($user)->get($verificationUrl);
 
         $this->assertFalse($user->fresh()->hasVerifiedEmail());
+    }
+
+    public function test_unverified_member_can_request_only_a_bounded_number_of_verification_links(): void
+    {
+        Notification::fake();
+        $user = User::factory()->unverified()->create();
+        $throttleKey = 'verification-resend|'.$user->id.'|127.0.0.1';
+        RateLimiter::clear($throttleKey);
+
+        $component = Volt::actingAs($user)->test('pages.auth.verify-email');
+        $component->call('sendVerification')->assertHasNoErrors();
+        $component->call('sendVerification')->assertHasNoErrors();
+        $component->call('sendVerification')->assertHasNoErrors();
+        $component->call('sendVerification')->assertHasErrors('verification');
     }
 }
