@@ -14,10 +14,16 @@ use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 
 final class DatabaseRecipeSearch implements RecipeSearchInterface
 {
-    public function __construct(private readonly NutritionService $nutrition, private readonly DietaryCompatibilityService $dietary, private readonly AllergenAnalysisService $allergens) {}
+    public function __construct(
+        private readonly NutritionService $nutrition,
+        private readonly DietaryCompatibilityService $dietary,
+        private readonly AllergenAnalysisService $allergens,
+        private readonly TurkishRecipeQueryParser $queryParser,
+    ) {}
 
     public function search(array $filters): LengthAwarePaginator
     {
+        $searchPlan = $this->queryParser->parse((string) ($filters['q'] ?? ''));
         $perPage = min((int) config('performance.pagination.api_max'), max(1, (int) ($filters['per_page'] ?? config('performance.pagination.public'))));
         $page = max(1, (int) ($filters['page'] ?? 1));
         $hasNutritionFilter = isset($filters['min_protein']) || isset($filters['max_calories']) || ($filters['verified_only'] ?? false);
@@ -46,12 +52,29 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
             ->with($relations)
             ->where('status', 'published')
             ->where('verification_status', 'verified')
-            ->when($filters['q'] ?? null, fn ($query, string $term) => $query->where(fn ($nested) => $nested->where('title', 'like', "%{$term}%")->orWhereHas('ingredients', fn ($ingredients) => $ingredients->where('name', 'like', "%{$term}%"))))
-            ->when($filters['cuisine'] ?? null, fn ($query, string $slug) => $query->whereHas('cuisine', fn ($cuisines) => $cuisines->where('slug', $slug)))
+            ->when($filters['q'] ?? null, function ($query) use ($searchPlan): void {
+                $query->where(function ($nested) use ($searchPlan): void {
+                    $original = (string) $searchPlan['original_query'];
+                    if ($original !== '') {
+                        $nested->where('title', 'like', "%{$original}%");
+                    }
+                    foreach ($searchPlan['included_ingredients'] as $term) {
+                        $nested->orWhereHas('ingredients', fn ($ingredients) => $ingredients->where('name', 'like', "%{$term}%"));
+                    }
+                });
+            })
+            ->when($filters['cuisine'] ?? $searchPlan['cuisine'], fn ($query, string $slug) => $query->whereHas('cuisine', fn ($cuisines) => $cuisines->where('slug', $slug)->orWhere('name', 'like', "%{$slug}%")))
             ->when($filters['category'] ?? null, fn ($query, string $slug) => $query->whereHas('category', fn ($categories) => $categories->where('slug', $slug)))
             ->when($filters['ingredient'] ?? null, fn ($query, string $publicId) => $query->whereHas('ingredients', fn ($ingredients) => $ingredients->where('public_id', $publicId)))
-            ->when($filters['difficulty'] ?? null, fn ($query, string $difficulty) => $query->where('difficulty', $difficulty))
-            ->when($filters['max_minutes'] ?? null, fn ($query, int $minutes) => $query->whereRaw('(prep_minutes + cook_minutes + rest_minutes) <= ?', [$minutes]));
+            ->when($filters['difficulty'] ?? $searchPlan['difficulty'], fn ($query, string $difficulty) => $query->where('difficulty', $difficulty))
+            ->when($filters['max_minutes'] ?? $searchPlan['max_minutes'], fn ($query, int $minutes) => $query->whereRaw('(prep_minutes + cook_minutes + rest_minutes) <= ?', [$minutes]));
+
+        foreach ($searchPlan['included_ingredients'] as $term) {
+            $query->whereHas('ingredients', fn ($ingredients) => $ingredients->where('name', 'like', "%{$term}%"));
+        }
+        foreach ($searchPlan['excluded_ingredients'] as $term) {
+            $query->whereDoesntHave('ingredients', fn ($ingredients) => $ingredients->where('name', 'like', "%{$term}%"));
+        }
 
         if (($filters['sort'] ?? null) === 'time') {
             $query->orderByRaw('(prep_minutes + cook_minutes + rest_minutes)');
