@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 
 final class QueuePublishedRecipeReviewBatch extends Command
 {
-    protected $signature = 'content:published-recipe-review-batch {--limit=10 : Bir batch içindeki tarif sayısı} {--page=1 : Sabit sıralamadaki batch sayfası} {--write : Yalnız private inceleme kayıtlarını oluştur} {--json : Makine okunabilir çıktı}';
+    protected $signature = 'content:published-recipe-review-batch {--limit=10 : Bir batch içindeki tarif sayısı} {--page=1 : Sabit sıralamadaki batch sayfası} {--scope=published : published veya draft} {--write : Yalnız private inceleme kayıtlarını oluştur} {--json : Makine okunabilir çıktı}';
 
     protected $description = 'Yayınlanan tarifler için private kimlik, içerik ve medya inceleme kuyruğu hazırlar; yayınlama veya doğrulama yapmaz.';
 
@@ -17,6 +17,7 @@ final class QueuePublishedRecipeReviewBatch extends Command
     {
         $limit = (int) $this->option('limit');
         $page = (int) $this->option('page');
+        $scope = (string) $this->option('scope');
         if ($limit < 1 || $limit > 50) {
             $this->error('limit 1 ile 50 arasında olmalıdır.');
 
@@ -27,9 +28,15 @@ final class QueuePublishedRecipeReviewBatch extends Command
 
             return self::INVALID;
         }
+        if (! in_array($scope, ['published', 'draft'], true)) {
+            $this->error('scope published veya draft olmalıdır.');
 
-        $result = $queue->queue($limit, $page, (bool) $this->option('write')) + [
+            return self::INVALID;
+        }
+
+        $result = $queue->queue($limit, $page, (bool) $this->option('write'), $scope) + [
             'page' => $page,
+            'scope' => $scope,
             'auto_publish' => false,
             'auto_verify' => false,
             'human_approval_required' => true,

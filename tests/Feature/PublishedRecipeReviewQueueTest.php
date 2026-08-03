@@ -92,6 +92,20 @@ final class PublishedRecipeReviewQueueTest extends TestCase
         $this->assertSame(50, Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->count());
     }
 
+    public function test_draft_scope_queues_private_draft_reviews_without_making_drafts_public(): void
+    {
+        Recipe::query()->firstOrFail()->update(['status' => 'draft']);
+        $draftsBefore = Recipe::query()->where('status', 'draft')->count();
+        $publishedWithDraftStateBefore = Recipe::query()->where('status', 'published')->where('content_factory_state', 'draft_identity_review')->count();
+
+        $this->artisan('content:published-recipe-review-batch', ['--limit' => 1, '--page' => 1, '--scope' => 'draft', '--write' => true, '--json' => true])
+            ->assertSuccessful();
+
+        $this->assertSame(1, ContentFactoryReview::query()->where('stage', 'draft_identity_review')->count());
+        $this->assertSame($draftsBefore, Recipe::query()->where('status', 'draft')->count());
+        $this->assertSame($publishedWithDraftStateBefore, Recipe::query()->where('status', 'published')->where('content_factory_state', 'draft_identity_review')->count());
+    }
+
     /** @param list<string> $columns @return array<string, mixed> */
     private function rawState(Recipe $recipe, array $columns): array
     {

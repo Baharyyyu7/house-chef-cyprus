@@ -40,23 +40,25 @@ final class PublishedRecipeReviewQueueService
     /**
      * @return array{selected:int,queued:int,identity_states:array<string,int>,media_waiting:int,recipes:list<array<string,mixed>>}
      */
-    public function queue(int $limit = 10, int $page = 1, bool $write = false): array
+    public function queue(int $limit = 10, int $page = 1, bool $write = false, string $scope = 'published'): array
     {
-        $recipes = Recipe::query()
+        $query = Recipe::query()
             ->with(['cuisine', 'category', 'recipeIngredients.ingredient', 'steps', 'media', 'nutritionSnapshots', 'provenances', 'seoMetadata'])
-            ->where('status', 'published')
-            ->where('verification_status', 'verified')
+            ->where('status', $scope === 'draft' ? 'draft' : 'published')
             ->orderByDesc('is_featured')
             ->orderBy('published_at')
             ->orderBy('id')
             ->offset(($page - 1) * $limit)
-            ->limit($limit)
-            ->get();
+            ->limit($limit);
+        if ($scope === 'published') {
+            $query->where('verification_status', 'verified');
+        }
+        $recipes = $query->get();
 
-        $rows = $recipes->map(function (Recipe $recipe) use ($write): array {
+        $rows = $recipes->map(function (Recipe $recipe) use ($scope, $write): array {
             $assessment = $this->assess($recipe);
             if ($write) {
-                $this->persist($recipe, $assessment);
+                $this->persist($recipe, $assessment, $scope);
             }
 
             return ['public_id' => $recipe->public_id, 'title' => $recipe->title] + $assessment;
@@ -116,36 +118,37 @@ final class PublishedRecipeReviewQueueService
     }
 
     /** @param array<string,mixed> $assessment */
-    private function persist(Recipe $recipe, array $assessment): void
+    private function persist(Recipe $recipe, array $assessment, string $scope): void
     {
-        $this->review($recipe, 'identity_review', 'pending', true, [
+        $prefix = $scope === 'draft' ? 'draft_' : '';
+        $this->review($recipe, $prefix.'identity_review', 'pending', true, [
             'identity_state' => $assessment['identity_state'],
             'missing_title_ingredients' => $assessment['missing_title_ingredients'],
             'automated_state_is_not_approval' => true,
         ]);
-        $this->review($recipe, 'content_review', 'pending', true, [
+        $this->review($recipe, $prefix.'content_review', 'pending', true, [
             'ingredient_count' => $assessment['ingredient_count'],
             'step_count' => $assessment['step_count'],
             'minimum_meaningful_steps' => 5,
             'revision_creation_blocked_until_identity_review' => true,
         ]);
-        $this->review($recipe, 'media_review', 'waiting_for_identity_review', false, [
+        $this->review($recipe, $prefix.'media_review', 'waiting_for_identity_review', false, [
             'media_state' => $assessment['media_state'],
             'placeholder_media' => $assessment['placeholder_media'],
             'candidate_generation_allowed' => false,
             'human_media_approval_required' => true,
         ]);
-        $this->review($recipe, 'media_brief', 'blocked_identity_review', false, $this->mediaBrief($recipe, $assessment));
+        $this->review($recipe, $prefix.'media_brief', 'blocked_identity_review', false, $this->mediaBrief($recipe, $assessment));
 
-        $this->issue($recipe, 'recipe_identity', 'title', $assessment['identity_state'], 'high', 'Tarif kimliği, malzeme listesi ve adımlar için insan editör incelemesi');
+        $this->issue($recipe, $prefix.'recipe_identity', 'title', $assessment['identity_state'], 'high', 'Tarif kimliği, malzeme listesi ve adımlar için insan editör incelemesi');
         if ($assessment['step_count'] < 5) {
-            $this->issue($recipe, 'recipe_step_completeness', 'steps', 'Tarif anlamlı en az beş hazırlık adımı içermiyor.', 'medium', 'Özgün editoryal tarif metni ve mutfak testi');
+            $this->issue($recipe, $prefix.'recipe_step_completeness', 'steps', 'Tarif anlamlı en az beş hazırlık adımı içermiyor.', 'medium', 'Özgün editoryal tarif metni ve mutfak testi');
         }
         if ($assessment['placeholder_media']) {
-            $this->issue($recipe, 'recipe_media_truthfulness', 'media', 'Yer tutucu medya onaylı yemek fotoğrafı değildir.', 'high', 'Lisans/provenance kaydı olan, insan onaylı yemek görseli');
+            $this->issue($recipe, $prefix.'recipe_media_truthfulness', 'media', 'Yer tutucu medya onaylı yemek fotoğrafı değildir.', 'high', 'Lisans/provenance kaydı olan, insan onaylı yemek görseli');
         }
         if ($assessment['nutrition_snapshot_count'] === 0) {
-            $this->issue($recipe, 'recipe_nutrition_review', 'nutrition', 'Aktif beslenme snapshotı bulunamadı.', 'high', 'Kaynaklı beslenme incelemesi veya görünürlüğü kapatma');
+            $this->issue($recipe, $prefix.'recipe_nutrition_review', 'nutrition', 'Aktif beslenme snapshotı bulunamadı.', 'high', 'Kaynaklı beslenme incelemesi veya görünürlüğü kapatma');
         }
     }
 
@@ -187,7 +190,7 @@ final class PublishedRecipeReviewQueueService
 
     private function issue(Recipe $recipe, string $type, string $field, string $claim, string $risk, string $sourceRequirement): void
     {
-        $fingerprint = hash('sha256', Recipe::class.'|'.$recipe->public_id.'|published-catalogue|'.$type.'|'.$field);
+        $fingerprint = hash('sha256', Recipe::class.'|'.$recipe->public_id.'|catalogue-review|'.$type.'|'.$field);
         ContentFactoryIssue::query()->updateOrCreate(
             ['fingerprint' => $fingerprint],
             ['public_id' => (string) Str::ulid(), 'entity_type' => Recipe::class, 'entity_public_id' => $recipe->public_id, 'issue_type' => $type, 'field_name' => $field, 'claim' => $claim, 'risk_level' => $risk, 'source_requirement' => $sourceRequirement, 'confidence_score' => 0, 'status' => 'pending', 'reviewed_by_user_id' => null, 'resolution_note' => null, 'resolved_at' => null],
