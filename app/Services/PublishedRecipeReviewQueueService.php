@@ -99,12 +99,16 @@ final class PublishedRecipeReviewQueueService
         $hasOvenMethod = str_contains($title, 'fırın') || str_contains($title, 'tepsi');
         $stepsMentionOven = $recipe->steps->contains(fn ($step): bool => str_contains(Str::lower((string) $step->instruction), 'fırın') || str_contains(Str::lower((string) $step->title), 'fırın'));
         $placeholderMedia = $recipe->media->contains(fn ($media): bool => (bool) $media->is_placeholder || $media->verification_status === 'branded_fallback');
-        $identityState = $missingIdentityIngredients !== []
+        $programmaticTitle = Str::contains($recipe->title, ['Mutfağı Usulü', 'Pratik Tarifler Usulü']);
+        $identityState = $programmaticTitle
+            ? 'BLOCKED_IDENTITY_UNKNOWN'
+            : ($missingIdentityIngredients !== []
             ? 'TITLE_INGREDIENT_MISMATCH'
-            : ($hasOvenMethod && ! $stepsMentionOven ? 'TITLE_METHOD_MISMATCH' : 'IDENTITY_NEEDS_REVIEW');
+            : ($hasOvenMethod && ! $stepsMentionOven ? 'TITLE_METHOD_MISMATCH' : 'IDENTITY_NEEDS_REVIEW'));
 
         return [
             'identity_state' => $identityState,
+            'programmatic_title_pattern' => $programmaticTitle,
             'missing_title_ingredients' => $missingIdentityIngredients,
             'ingredient_count' => count($ingredientNames),
             'step_count' => $recipe->steps->count(),
@@ -141,6 +145,9 @@ final class PublishedRecipeReviewQueueService
         $this->review($recipe, $prefix.'media_brief', 'blocked_identity_review', false, $this->mediaBrief($recipe, $assessment));
 
         $this->issue($recipe, $prefix.'recipe_identity', 'title', $assessment['identity_state'], 'high', 'Tarif kimliği, malzeme listesi ve adımlar için insan editör incelemesi');
+        if ($assessment['programmatic_title_pattern']) {
+            $this->issue($recipe, $prefix.'recipe_programmatic_identity', 'title', 'Programatik başlık kalıbı kaynaklı tarif kimliği belirsiz.', 'high', 'Tarifin özgün mutfak testi, kaynak/provenance incelemesi ve insan editör kararı');
+        }
         if ($assessment['step_count'] < 5) {
             $this->issue($recipe, $prefix.'recipe_step_completeness', 'steps', 'Tarif anlamlı en az beş hazırlık adımı içermiyor.', 'medium', 'Özgün editoryal tarif metni ve mutfak testi');
         }

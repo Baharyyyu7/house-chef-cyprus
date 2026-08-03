@@ -94,7 +94,7 @@ final class PublishedRecipeReviewQueueTest extends TestCase
 
     public function test_draft_scope_queues_private_draft_reviews_without_making_drafts_public(): void
     {
-        Recipe::query()->firstOrFail()->update(['status' => 'draft']);
+        Recipe::query()->firstOrFail()->update(['status' => 'draft', 'title' => 'Kıbrıs Mutfağı Usulü Limonlu Nohut tava']);
         $draftsBefore = Recipe::query()->where('status', 'draft')->count();
         $publishedWithDraftStateBefore = Recipe::query()->where('status', 'published')->where('content_factory_state', 'draft_identity_review')->count();
 
@@ -102,6 +102,7 @@ final class PublishedRecipeReviewQueueTest extends TestCase
             ->assertSuccessful();
 
         $this->assertSame(1, ContentFactoryReview::query()->where('stage', 'draft_identity_review')->count());
+        $this->assertDatabaseHas('content_factory_issues', ['issue_type' => 'draft_recipe_programmatic_identity', 'risk_level' => 'high']);
         $this->assertSame($draftsBefore, Recipe::query()->where('status', 'draft')->count());
         $this->assertSame($publishedWithDraftStateBefore, Recipe::query()->where('status', 'published')->where('content_factory_state', 'draft_identity_review')->count());
     }
