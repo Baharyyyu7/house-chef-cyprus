@@ -98,6 +98,44 @@
                     </div>
                 </article>
 
+                <section class="grid gap-6 lg:grid-cols-3" aria-label="Operasyon kuyrukları">
+                    <article class="hc-v3-card p-5">
+                        <div class="flex items-center justify-between gap-3"><div><p class="hc-kicker">İÇERİK OPERASYONLARI</p><h2 class="hc-heading-4 mt-1">Yayın ve inceleme</h2></div><a href="{{ route('admin.recipe-verification.index') }}" class="hc-caption font-bold" style="color:var(--hc-text-accent)">İncele</a></div>
+                        <dl class="hc-admin-operation-list mt-5">
+                            <div><dt>Yayındaki tarif</dt><dd>{{ number_format($operations['content']['recipes_published'], 0, ',', '.') }}</dd></div>
+                            <div><dt>İnceleme bekleyen tarif</dt><dd>{{ number_format($operations['content']['recipes_review_required'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Onaylı medya eksiği</dt><dd>{{ number_format($operations['content']['recipes_missing_approved_media'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Yayındaki blog</dt><dd>{{ number_format($operations['content']['blogs_published'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Blog medya eksiği</dt><dd>{{ number_format($operations['content']['blogs_missing_approved_media'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Zamanlanmış içerik</dt><dd>{{ number_format($operations['content']['scheduled'], 0, ',', '.') }}</dd></div>
+                        </dl>
+                    </article>
+
+                    <article class="hc-v3-card p-5">
+                        <div class="flex items-center justify-between gap-3"><div><p class="hc-kicker">ÜYE OPERASYONLARI</p><h2 class="hc-heading-4 mt-1">Hesap durumu</h2></div><a href="{{ route('admin.users.index') }}" class="hc-caption font-bold" style="color:var(--hc-text-accent)">Üyeleri aç</a></div>
+                        <dl class="hc-admin-operation-list mt-5">
+                            <div><dt>Toplam üye</dt><dd>{{ number_format($operations['members']['total'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Yeni kayıtlar</dt><dd>{{ number_format($operations['members']['recent_registrations'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Doğrulanmamış e-posta</dt><dd>{{ number_format($operations['members']['unverified'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Askıya alınmış hesap</dt><dd>{{ number_format($operations['members']['suspended'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Silme talebi</dt><dd>{{ number_format($operations['members']['deletion_requests'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Açık veri dışa aktarma</dt><dd>{{ number_format($operations['members']['export_requests'], 0, ',', '.') }}</dd></div>
+                        </dl>
+                    </article>
+
+                    <article class="hc-v3-card p-5">
+                        <div class="flex items-center justify-between gap-3"><div><p class="hc-kicker">İLETİŞİM VE KURTARMA</p><h2 class="hc-heading-4 mt-1">İş akışı sağlığı</h2></div><a href="{{ route('admin.contact-requests.index') }}" class="hc-caption font-bold" style="color:var(--hc-text-accent)">Talepleri aç</a></div>
+                        <dl class="hc-admin-operation-list mt-5">
+                            <div><dt>Yeni iletişim talebi</dt><dd>{{ number_format($operations['communication']['new_contact_requests'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Açık iletişim talebi</dt><dd>{{ number_format($operations['communication']['open_contact_requests'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Bekleyen e-posta işi</dt><dd>{{ number_format($operations['communication']['pending_mail_jobs'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Başarısız e-posta işi</dt><dd>{{ number_format($operations['communication']['failed_mail_jobs'], 0, ',', '.') }}</dd></div>
+                            <div><dt>Son restore testi</dt><dd>{{ $operations['restore']['status'] ? $statusLabel($operations['restore']['status']) : 'Kayıt yok' }}</dd></div>
+                            <div><dt>Restore tamamlanma</dt><dd>{{ $operations['restore']['finished_at'] ? \Illuminate\Support\Carbon::parse($operations['restore']['finished_at'])->translatedFormat('d M Y, H:i') : 'Kayıt yok' }}</dd></div>
+                        </dl>
+                    </article>
+                </section>
+
                 <article class="hc-v3-card p-5 sm:p-6">
                     <div class="flex flex-wrap items-start justify-between gap-4"><div><p class="hc-kicker">VERİ GÜVENİ</p><h2 class="hc-heading-3 mt-1">Kalite skorları</h2></div><a href="{{ route('admin.data-quality.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Veri kalitesine git</a></div>
                     <div class="hc-admin-quality-grid mt-6">

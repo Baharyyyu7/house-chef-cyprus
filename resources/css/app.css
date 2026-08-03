@@ -163,6 +163,11 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .hc-admin-stat > strong, .hc-admin-metric-card > strong { display:block; min-width:0; overflow-wrap:anywhere; font-family:Manrope,sans-serif; font-size:clamp(1.8rem,3vw,2.55rem); font-weight:800; line-height:1.05; letter-spacing:-.055em; color:var(--hc-text-primary); }
     .hc-admin-chart__canvas { position:relative; height:15rem; }
     .hc-admin-system-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; }
+    .hc-admin-operation-list { display:grid; gap:.1rem; }
+    .hc-admin-operation-list > div { display:flex; min-width:0; align-items:baseline; justify-content:space-between; gap:1rem; padding:.65rem 0; border-bottom:1px solid var(--hc-border-default); }
+    .hc-admin-operation-list > div:last-child { border-bottom:0; padding-bottom:0; }
+    .hc-admin-operation-list dt { min-width:0; color:var(--hc-text-secondary); font-size:.82rem; overflow-wrap:anywhere; }
+    .hc-admin-operation-list dd { flex:0 0 auto; margin:0; color:var(--hc-text-primary); font-weight:800; text-align:right; }
     .hc-admin-system-card { display:flex; min-height:6.75rem; flex-direction:column; justify-content:center; gap:.2rem; padding:1rem; border:1px solid var(--hc-border-subtle); border-radius:var(--hc-radius-md); background:var(--hc-background-subtle); }
     .hc-admin-system-card > span,.hc-admin-system-card small { font-size:.72rem; color:var(--hc-text-muted); }.hc-admin-system-card strong { font-size:.9rem; color:var(--hc-text-primary); }
     .hc-admin-quality-grid { display:grid; gap:1rem; }.hc-admin-quality-grid > div { font-size:.82rem; font-weight:700; color:var(--hc-text-secondary); }.hc-admin-quality-grid strong { color:var(--hc-text-primary); }

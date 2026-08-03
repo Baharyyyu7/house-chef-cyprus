@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\AuditLog;
+use App\Models\BlogPost;
+use App\Models\ContactRequest;
 use App\Models\DataQualityIssue;
 use App\Models\Ingredient;
 use App\Models\Media;
+use App\Models\PersonalizationExportRequest;
 use App\Models\Recipe;
 use App\Models\RecipeNutritionSnapshot;
+use App\Models\RestoreHistory;
 use App\Models\User;
 use App\Services\Observability\MetricService;
 use Illuminate\Support\Carbon;
@@ -49,6 +53,9 @@ final class AdminDashboardService
             $allergenLinkedIngredients = Ingredient::query()->whereHas('allergenDetails')->count();
             $allergenCompleteness = $ingredientCount > 0 ? round(($allergenLinkedIngredients / $ingredientCount) * 100) : null;
             $backup = $this->lastBackup();
+            $contentOperations = $this->contentOperations();
+            $memberOperations = $this->memberOperations($from);
+            $communicationOperations = $this->communicationOperations($from);
 
             $cards = [
                 $this->metric('toplam_tarif', 'Toplam tarif', Recipe::query()->count(), Recipe::query()->whereBetween('created_at', [$previousFrom, $from])->count(), Recipe::query()->where('created_at', '>=', $from)->count(), 'Tarif kataloğu'),
@@ -74,6 +81,12 @@ final class AdminDashboardService
                     $this->distributionChart('Doğrulama durumu', 'Tariflerin editoryal doğrulama görünümü.', 'doughnut', Recipe::query()->selectRaw("COALESCE(verification_status, 'Belirsiz') as label, COUNT(*) as total")->groupBy('label')->orderByDesc('total')->pluck('total', 'label')->all()),
                 ],
                 'qualityScores' => $qualityScores,
+                'operations' => [
+                    'content' => $contentOperations,
+                    'members' => $memberOperations,
+                    'communication' => $communicationOperations,
+                    'restore' => $this->restoreOperations(),
+                ],
                 'system' => [
                     'health' => $health,
                     'queue' => $queue,
@@ -232,5 +245,67 @@ final class AdminDashboardService
             30 => 'Son 30 gün',
             default => 'Son 90 gün',
         };
+    }
+
+    /** @return array<string, int> */
+    private function contentOperations(): array
+    {
+        $approvedPublicMedia = static fn ($query): mixed => $query
+            ->where('visibility', 'public')
+            ->where('is_placeholder', false)
+            ->where('verification_status', 'verified')
+            ->where('media_status', 'approved_real_media')
+            ->where('license_review_status', 'approved')
+            ->where('attribution_review_status', 'approved');
+
+        return [
+            'recipes_total' => Recipe::query()->count(),
+            'recipes_published' => Recipe::query()->where('status', 'published')->count(),
+            'recipes_draft' => Recipe::query()->where('status', 'draft')->count(),
+            'recipes_review_required' => Recipe::query()->whereIn('verification_status', ['needs_review', 'unreviewed', 'partially_verified'])->count(),
+            'recipes_missing_approved_media' => Recipe::query()->where('status', 'published')->whereDoesntHave('media', $approvedPublicMedia)->count(),
+            'blogs_total' => BlogPost::query()->count(),
+            'blogs_published' => BlogPost::query()->where('status', 'published')->count(),
+            'blogs_review_required' => BlogPost::query()->whereIn('editorial_status', ['needs_review', 'unreviewed', 'changes_requested'])->count(),
+            'blogs_missing_approved_media' => BlogPost::query()->where('status', 'published')->where(function ($query) use ($approvedPublicMedia): void {
+                $query->whereNull('hero_media_id')->orWhereDoesntHave('heroMedia', $approvedPublicMedia);
+            })->count(),
+            'scheduled' => Recipe::query()->where('status', 'scheduled')->count() + BlogPost::query()->whereNotNull('scheduled_at')->where('scheduled_at', '>', now())->count(),
+        ];
+    }
+
+    /** @return array<string, int> */
+    private function memberOperations(Carbon $from): array
+    {
+        return [
+            'total' => User::query()->count(),
+            'recent_registrations' => User::query()->where('created_at', '>=', $from)->count(),
+            'unverified' => User::query()->whereNull('email_verified_at')->count(),
+            'suspended' => User::query()->where('account_status', 'suspended')->count(),
+            'deletion_requests' => User::query()->where('account_status', 'deletion_requested')->count(),
+            'export_requests' => PersonalizationExportRequest::query()->where('status', 'requested')->count(),
+        ];
+    }
+
+    /** @return array<string, int> */
+    private function communicationOperations(Carbon $from): array
+    {
+        return [
+            'new_contact_requests' => ContactRequest::query()->where('submitted_at', '>=', $from)->count(),
+            'open_contact_requests' => ContactRequest::query()->whereNotIn('status', ['resolved', 'closed', 'anonymized'])->count(),
+            'pending_mail_jobs' => (int) DB::table('jobs')->where('payload', 'like', '%Mail%')->count(),
+            'failed_mail_jobs' => (int) DB::table('failed_jobs')->where('payload', 'like', '%Mail%')->count(),
+        ];
+    }
+
+    /** @return array<string, string|null> */
+    private function restoreOperations(): array
+    {
+        $latest = RestoreHistory::query()->latest('created_at')->first(['status', 'finished_at']);
+
+        return [
+            'status' => $latest?->status,
+            'finished_at' => $latest?->finished_at?->toIso8601String(),
+        ];
     }
 }

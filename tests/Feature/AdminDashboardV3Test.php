@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\AuditLog;
+use App\Models\BlogPost;
+use App\Models\ContactRequest;
 use App\Models\Ingredient;
+use App\Models\PersonalizationExportRequest;
 use App\Models\Recipe;
 use App\Models\User;
 use App\Services\AdminDashboardService;
@@ -58,6 +61,35 @@ final class AdminDashboardV3Test extends TestCase
         $this->assertSame(1, $byKey['inceleme']['current_value']);
         $this->assertSame(1, $byKey['malzemeler']['current_value']);
         $this->assertSame(7, $dashboard['period']);
+    }
+
+    public function test_dashboard_exposes_aggregate_content_member_and_communication_operations_without_private_records(): void
+    {
+        $member = User::factory()->create(['email_verified_at' => null, 'account_status' => 'suspended']);
+        $deletionRequest = User::factory()->create(['email_verified_at' => now(), 'account_status' => 'deletion_requested']);
+        Recipe::create(['title' => 'Medya bekleyen tarif', 'slug' => 'medya-bekleyen-tarif', 'servings' => 2, 'difficulty' => 'Kolay', 'status' => 'published', 'verification_status' => 'verified']);
+        BlogPost::create(['title' => 'Medya bekleyen blog', 'slug' => 'medya-bekleyen-blog', 'excerpt' => 'Kısa özet', 'body' => 'Özgün gövde', 'status' => 'published', 'published_at' => now()]);
+        ContactRequest::create(['first_name' => 'Gizli', 'last_name' => 'Kişi', 'email' => 'private@example.test', 'subject' => 'Genel', 'message' => 'Bu veri dashboard üzerinde gösterilmemelidir.', 'privacy_consent_at' => now(), 'submitted_at' => now(), 'status' => 'new']);
+        PersonalizationExportRequest::create(['user_id' => $deletionRequest->id, 'status' => 'requested', 'requested_at' => now()]);
+        Cache::flush();
+
+        $dashboard = app(AdminDashboardService::class)->dashboard(7);
+
+        $this->assertSame(1, $dashboard['operations']['content']['recipes_missing_approved_media']);
+        $this->assertSame(1, $dashboard['operations']['content']['blogs_missing_approved_media']);
+        $this->assertSame(1, $dashboard['operations']['members']['suspended']);
+        $this->assertSame(1, $dashboard['operations']['members']['deletion_requests']);
+        $this->assertSame(1, $dashboard['operations']['members']['export_requests']);
+        $this->assertSame(1, $dashboard['operations']['communication']['open_contact_requests']);
+        $this->actingAs($this->admin())->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('İÇERİK OPERASYONLARI')
+            ->assertSee('ÜYE OPERASYONLARI')
+            ->assertSee('İLETİŞİM VE KURTARMA')
+            ->assertDontSee('private@example.test')
+            ->assertDontSee('Bu veri dashboard üzerinde gösterilmemelidir.');
+
+        $this->assertNotNull($member->fresh());
     }
 
     public function test_dashboard_exposes_accessible_real_chart_data_and_empty_states_without_fake_values(): void
