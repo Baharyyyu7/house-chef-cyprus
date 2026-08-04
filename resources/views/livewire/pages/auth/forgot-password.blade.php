@@ -1,6 +1,9 @@
 <?php
 
+use App\Models\SystemEvent;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
@@ -17,22 +20,39 @@ new #[Layout('layouts.guest')] class extends Component
             'email' => ['required', 'string', 'email'],
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $this->only('email')
-        );
+        $throttleKey = 'password-reset:'.hash('sha256', strtolower(trim($this->email)).'|'.request()->ip());
 
-        if ($status != Password::RESET_LINK_SENT) {
-            $this->addError('email', __($status));
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $this->addError('email', 'Bu işlem için lütfen birkaç dakika bekleyin.');
 
             return;
         }
 
-        $this->reset('email');
+        RateLimiter::hit($throttleKey, 3600);
 
-        session()->flash('status', __($status));
+        try {
+            Password::sendResetLink($this->only('email'));
+        } catch (\Throwable $exception) {
+            // Do not disclose mail infrastructure failures to guests or turn them
+            // into a 500 response. Operations can investigate the safe event.
+            Log::error('Password reset delivery request failed.', [
+                'exception' => class_basename($exception),
+            ]);
+
+            try {
+                SystemEvent::query()->create([
+                    'event_type' => 'password_reset_delivery_failed',
+                    'severity' => 'error',
+                    'message' => 'Parola sıfırlama e-postası teslim edilemedi.',
+                    'metadata' => ['exception' => class_basename($exception)],
+                ]);
+            } catch (\Throwable) {
+                // Logging must never make the public recovery flow fail.
+            }
+        }
+
+        $this->reset('email');
+        session()->flash('status', 'İşlem talebiniz alındı. Hesabınız mevcutsa şifre sıfırlama bağlantısı e-posta adresinize gönderilecektir.');
     }
 }; ?>
 

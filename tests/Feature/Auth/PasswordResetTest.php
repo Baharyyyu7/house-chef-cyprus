@@ -2,11 +2,14 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\SystemEvent;
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
 use Livewire\Volt\Volt;
+use RuntimeException;
 use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
@@ -80,5 +83,23 @@ class PasswordResetTest extends TestCase
 
             return true;
         });
+    }
+
+    public function test_mail_delivery_exception_does_not_turn_a_reset_request_into_a_public_error(): void
+    {
+        Password::shouldReceive('sendResetLink')
+            ->once()
+            ->andThrow(new RuntimeException('SMTP credentials must not be exposed'));
+
+        Volt::test('pages.auth.forgot-password')
+            ->set('email', 'member@example.test')
+            ->call('sendPasswordResetLink')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('system_events', [
+            'event_type' => 'password_reset_delivery_failed',
+            'severity' => 'error',
+        ]);
+        $this->assertStringNotContainsString('SMTP credentials', (string) SystemEvent::query()->latest()->value('metadata'));
     }
 }
