@@ -44,6 +44,7 @@ if ! "$DRY_RUN"; then
         --exclude='storage/framework/views/*' \
         --exclude='storage/app/public/*' \
         --exclude='storage/app/private/backups/*' \
+        --exclude='storage/app/media-import/*' \
         --exclude='public/storage' \
         --exclude='.DS_Store' \
         --exclude='._*' \
