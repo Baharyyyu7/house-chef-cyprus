@@ -20,10 +20,12 @@ return [
     'responsive_widths' => [400, 640, 800, 1200, 1600],
     'recipe_profiles' => [
         'thumbnail' => [400, 300],
-        'square' => [640, 640],
+        'square' => [1080, 1080],
         'card' => [800, 600],
         'open_graph' => [1200, 630],
         'hero' => [1600, 1000],
+        'wide' => [1600, 900],
+        'portrait' => [1080, 1350],
     ],
     'blog_profiles' => [
         'hero' => [1600, 900],
