@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Media;
 
-use App\Models\Media;
 use App\Models\BlogPost;
+use App\Models\Media;
 use Illuminate\Support\Facades\Storage;
 
 /** Generates only deterministic derivatives for approved local media. */
@@ -29,7 +29,7 @@ final class MediaOptimizationService
      * consume the caller's bounded batch. The passed result array is updated in
      * the same shape as {@see optimize()}.
      *
-     * @param array{processed:int,skipped:int,failed:int} $result
+     * @param  array{processed:int,skipped:int,failed:int}  $result
      */
     public function optimizeItem(Media $item, array &$result): void
     {

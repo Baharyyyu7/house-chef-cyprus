@@ -125,10 +125,14 @@ final class ApprovedMediaImportService
                 if ($optimization['failed'] !== 0 || ! $this->hasVariants($media, $contentType)) {
                     throw new \RuntimeException('MEDIA_VARIANT_GENERATION_FAILED');
                 }
-                foreach ((array) $media->responsive_variants as $variant) {
-                    foreach (['jpeg', 'webp', 'avif'] as $format) {
-                        if (is_string($variant[$format] ?? null)) {
-                            $storedPaths[] = $variant[$format];
+                /** @var array<string, array<string, string>> $variants */
+                $variants = (array) $media->responsive_variants;
+                foreach ($variants as $variant) {
+                    if (is_array($variant)) {
+                        foreach (['jpeg', 'webp', 'avif'] as $format) {
+                            if (isset($variant[$format]) && is_string($variant[$format])) {
+                                $storedPaths[] = $variant[$format];
+                            }
                         }
                     }
                 }
@@ -242,11 +246,12 @@ final class ApprovedMediaImportService
 
     private function hasVariants(Media $media, string $contentType): bool
     {
+        /** @var array<string, array<string, string>> $variants */
         $variants = (array) $media->responsive_variants;
-        $profiles = $contentType === 'blog' ? config('media_excellence.blog_profiles') : config('media_excellence.recipe_profiles');
-        foreach (array_keys((array) $profiles) as $profile) {
+        $profiles = (array) ($contentType === 'blog' ? config('media_excellence.blog_profiles') : config('media_excellence.recipe_profiles'));
+        foreach (array_keys($profiles) as $profile) {
             $variant = $variants[$profile] ?? null;
-            if (! is_array($variant) || ! is_string($variant['jpeg'] ?? null) || ! Storage::disk('public')->exists($variant['jpeg'])) {
+            if (! is_array($variant) || ! isset($variant['jpeg']) || ! is_string($variant['jpeg']) || ! Storage::disk('public')->exists($variant['jpeg'])) {
                 return false;
             }
         }

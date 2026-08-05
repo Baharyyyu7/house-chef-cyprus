@@ -70,7 +70,7 @@ final class TurkishRecipeQueryParser
         if ($cuisine !== null) {
             $matched[] = 'kibris';
         }
-        $maxMinutes = preg_match('/\b(\d{1,3})\s*dakika(?:ya)?\b/u', $normalized, $matches) === 1 ? max(1, min(360, (int) $matches[1])) : null;
+        $maxMinutes = preg_match('/\b(\d{1,3})\s*dakika(?:da|dan|ya(?:\s+kadar)?)?\b/u', $normalized, $matches) === 1 ? max(1, min(360, (int) $matches[1])) : null;
         if ($maxMinutes !== null) {
             $matched[] = $matches[1].' dakika';
         }

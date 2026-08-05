@@ -100,6 +100,6 @@ class PasswordResetTest extends TestCase
             'event_type' => 'password_reset_delivery_failed',
             'severity' => 'error',
         ]);
-        $this->assertStringNotContainsString('SMTP credentials', (string) SystemEvent::query()->latest()->value('metadata'));
+        $this->assertStringNotContainsString('SMTP credentials', (string) json_encode(SystemEvent::query()->latest()->value('metadata')));
     }
 }

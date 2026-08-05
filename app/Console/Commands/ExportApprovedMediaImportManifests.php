@@ -45,7 +45,7 @@ final class ExportApprovedMediaImportManifests extends Command
                     'slug' => $recipe->slug,
                     'category' => $recipe->category?->name,
                     'cuisine' => $recipe->cuisine?->name,
-                    'cooking_method' => $recipe->content_factory_metadata['cooking_method'] ?? null,
+                    'cooking_method' => is_array($recipe->content_factory_metadata) ? ($recipe->content_factory_metadata['cooking_method'] ?? null) : null,
                     'primary_ingredients' => $recipe->recipeIngredients->sortBy('sort_order')->take(6)->map(fn ($item): ?string => $item->ingredient?->name)->filter()->values()->all(),
                     'expected_source_filenames' => $this->sourceNames('recipe', $recipe->slug),
                     'source_checksum_sha256' => null,

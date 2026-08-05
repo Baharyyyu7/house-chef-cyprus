@@ -59,7 +59,7 @@ final class PublicBlogMediaCompletionService
         $media = $post->heroMedia;
         $approved = $media?->isApprovedRealMedia() === true;
         $fileExists = $media instanceof Media ? $this->fileExists($media) : false;
-        $publicUrl = $approved ? $media?->publicUrl() : null;
+        $publicUrl = ($approved && $media instanceof Media) ? $media->publicUrl() : null;
         $httpStatus = $probePublicUrls && $publicUrl ? $this->safeHttpStatus($publicUrl) : null;
         $variants = $this->variantSummary($media);
         $duplicateKey = $media?->checksum_sha256 ?: ($media?->path ? 'path:'.$media->disk.':'.$media->path : null);
@@ -150,11 +150,12 @@ final class PublicBlogMediaCompletionService
         if (! $media instanceof Media) {
             return ['required' => $required, 'present' => [], 'missing' => $required, 'complete' => false];
         }
+        /** @var array<string, array<string, string>> $variants */
         $variants = (array) $media->responsive_variants;
         $present = [];
         foreach ($required as $profile) {
             $variant = $variants[$profile] ?? null;
-            if (is_array($variant) && is_string($variant['jpeg'] ?? null) && is_string($variant['webp'] ?? null)) {
+            if (is_array($variant) && isset($variant['jpeg'], $variant['webp']) && is_string($variant['jpeg']) && is_string($variant['webp'])) {
                 $present[] = $profile;
             }
         }

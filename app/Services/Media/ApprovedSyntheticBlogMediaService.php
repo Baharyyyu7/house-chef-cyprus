@@ -19,9 +19,13 @@ final class ApprovedSyntheticBlogMediaService
         if (! is_file($source) || ! is_readable($source)) {
             throw new \RuntimeException('BLOG_SYNTHETIC_SOURCE_MISSING');
         }
-        $bytes = file_get_contents($source);
-        $image = $bytes === false ? false : @getimagesizefromstring($bytes);
-        if (! is_array($image) || ! is_string($bytes)) {
+        $raw = file_get_contents($source);
+        if ($raw === false) {
+            throw new \RuntimeException('BLOG_SYNTHETIC_SOURCE_INVALID');
+        }
+        $bytes = $raw;
+        $image = @getimagesizefromstring($bytes);
+        if (! is_array($image)) {
             throw new \RuntimeException('BLOG_SYNTHETIC_SOURCE_INVALID');
         }
         $checksum = hash('sha256', $bytes);

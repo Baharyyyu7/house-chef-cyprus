@@ -27,7 +27,7 @@ final class ApprovedMediaImportCommandTest extends TestCase
             mkdir($directory, 0700, true);
         }
         $this->sourcePath = $directory.'/recipe--onayli-test-tarifi.png';
-        $image = imagecreatetruecolor(1536, 1024);
+        $image = imagecreatetruecolor(1600, 1350);
         imagefill($image, 0, 0, imagecolorallocate($image, 210, 120, 50));
         imagepng($image, $this->sourcePath);
         imagedestroy($image);

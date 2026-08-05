@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\BlogPost;
-use App\Models\Media;
 use App\Services\Media\PublicBlogMediaCompletionService;
 use Database\Seeders\HouseChefSeeder;
 use Database\Seeders\ProductionBlogCatalogueSeeder;

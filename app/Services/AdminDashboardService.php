@@ -305,7 +305,7 @@ final class AdminDashboardService
 
         return [
             'status' => $latest?->status,
-            'finished_at' => $latest?->finished_at?->toIso8601String(),
+            'finished_at' => $latest?->finished_at instanceof \DateTimeInterface ? $latest->finished_at->toIso8601String() : null,
         ];
     }
 }

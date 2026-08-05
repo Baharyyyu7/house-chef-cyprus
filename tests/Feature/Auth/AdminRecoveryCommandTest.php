@@ -51,7 +51,7 @@ class AdminRecoveryCommandTest extends TestCase
             'auditable_id' => $user->id,
             'action' => 'user.admin_access_recovered',
         ]);
-        $this->assertStringNotContainsString('YeniGucluParola123!', (string) AuditLog::query()->latest()->value('metadata'));
+        $this->assertStringNotContainsString('YeniGucluParola123!', (string) json_encode(AuditLog::query()->latest()->value('metadata')));
     }
 
     public function test_missing_user_does_not_create_an_account(): void

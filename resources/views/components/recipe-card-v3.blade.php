@@ -6,7 +6,7 @@
     $alt = $media?->alt_text ?: '';
 @endphp
 
-<article {{ $attributes->merge(['class' => 'hc-v3-card hc-v3-card--interactive group flex min-h-[27rem] flex-col overflow-hidden']) }}>
+<article {{ $attributes->merge(['class' => 'hc-v3-card hc-v3-card--interactive group flex w-full min-w-0 min-h-[27rem] flex-col overflow-hidden']) }}>
     <a class="relative block aspect-[1.16] overflow-hidden bg-stone-100 dark:bg-stone-900" href="{{ route('recipes.show', $recipe) }}" aria-label="{{ $recipe->title }} tarifini incele">
         @if($hasApprovedMedia)
             <picture>

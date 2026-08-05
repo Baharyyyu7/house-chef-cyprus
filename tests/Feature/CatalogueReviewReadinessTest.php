@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Services\CatalogueReviewReadinessService;
 use App\Models\Recipe;
+use App\Services\CatalogueReviewReadinessService;
 use Database\Seeders\HouseChefSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

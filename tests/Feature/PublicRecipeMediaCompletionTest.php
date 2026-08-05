@@ -86,8 +86,8 @@ final class PublicRecipeMediaCompletionTest extends TestCase
         $variants = (array) $media->fresh()->responsive_variants;
 
         $this->assertSame(1, $result['processed']);
-        $this->assertSame([400, 640, 800, 1200, 1600], collect($variants)->pluck('width')->sort()->values()->all());
-        $this->assertSame([300, 600, 630, 640, 1000], collect($variants)->pluck('height')->sort()->values()->all());
+        $this->assertSame([400, 800, 1080, 1080, 1200, 1600, 1600], collect($variants)->pluck('width')->sort()->values()->all());
+        $this->assertSame([300, 600, 630, 900, 1000, 1080, 1350], collect($variants)->pluck('height')->sort()->values()->all());
         foreach ($variants as $variant) {
             Storage::disk('public')->assertExists($variant['jpeg']);
             if (function_exists('imagewebp')) {

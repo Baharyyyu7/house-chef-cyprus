@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 final class AdminOperationsAccessTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_every_named_admin_route_has_an_authenticated_server_side_operations_gate(): void
     {
         $allowedGates = [

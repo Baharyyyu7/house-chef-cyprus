@@ -12,6 +12,7 @@ use Illuminate\Console\Command;
 final class ImportApprovedSyntheticBlogMedia extends Command
 {
     protected $signature = 'content:import-approved-synthetic-blog-media {--source-directory= : Absolute or project-relative source directory} {--json}';
+
     protected $description = 'Imports user-approved synthetic blog illustrations and creates responsive public derivatives.';
 
     public function handle(ApprovedSyntheticBlogMediaService $service, MediaOptimizationService $optimizer): int
@@ -19,6 +20,7 @@ final class ImportApprovedSyntheticBlogMedia extends Command
         $directory = (string) ($this->option('source-directory') ?: resource_path('editorial/blog-synthetic'));
         if (! is_dir($directory)) {
             $this->error('BLOG_SYNTHETIC_SOURCE_DIRECTORY_MISSING');
+
             return self::FAILURE;
         }
         $imported = 0;
@@ -45,12 +47,13 @@ final class ImportApprovedSyntheticBlogMedia extends Command
             ->pluck('slug')->values()->all();
         $result = compact('imported', 'missing', 'optimized', 'incompleteVariants');
         $this->line((bool) $this->option('json') ? json_encode($result, JSON_THROW_ON_ERROR) : 'Imported: '.$imported.', missing: '.count($missing));
+
         return $missing === [] && $incompleteVariants === [] ? self::SUCCESS : self::FAILURE;
     }
 
     private function hasRequiredVariants(BlogPost $post): bool
     {
-        $variants = (array) $post->heroMedia?->responsive_variants;
+        $variants = is_array($post->heroMedia?->responsive_variants) ? $post->heroMedia->responsive_variants : [];
         $formats = ['jpeg'];
         if (function_exists('imagewebp')) {
             $formats[] = 'webp';
@@ -64,7 +67,8 @@ final class ImportApprovedSyntheticBlogMedia extends Command
                 return false;
             }
             foreach ($formats as $format) {
-                if (! is_string($variant[$format] ?? null)) {
+                $path = $variant[$format] ?? null;
+                if (! is_string($path)) {
                     return false;
                 }
             }

@@ -100,12 +100,12 @@ final class RecipeFactoryReconciliationService
     private function record(Recipe $recipe): array
     {
         $ingredients = $recipe->recipeIngredients
-            ->map(fn ($item): string => $this->normalize((string) ($item->ingredient?->name ?? '')).':'.(string) ($item->canonical_quantity ?? $item->quantity ?? '').':'.$this->normalize((string) ($item->canonical_unit ?? $item->unit ?? '')))
+            ->map(fn ($item): string => $this->normalize((string) (($item->ingredient ? $item->ingredient->name : null) ?? '')).':'.(string) ($item->canonical_quantity ?? $item->quantity ?? '').':'.$this->normalize((string) ($item->canonical_unit ?? $item->unit ?? '')))
             ->filter()
             ->sort()
             ->values();
         $ingredientNames = $recipe->recipeIngredients
-            ->map(fn ($item): string => $this->normalize((string) ($item->ingredient?->name ?? '')))
+            ->map(fn ($item): string => $this->normalize((string) (($item->ingredient ? $item->ingredient->name : null) ?? '')))
             ->filter()
             ->values();
         $instructions = $recipe->steps
@@ -180,10 +180,11 @@ final class RecipeFactoryReconciliationService
         return $review;
     }
 
-    /** @param Collection<int, string> $instructions */
-    private function method(string $title, string $instructions): string
+    /** @param Collection<int, string>|string $instructions */
+    private function method(string $title, Collection|string $instructions): string
     {
-        $content = $title.' '.$instructions;
+        $instructionText = $instructions instanceof Collection ? $instructions->implode(' ') : $instructions;
+        $content = $title.' '.$instructionText;
 
         return match (true) {
             str_contains($content, 'fırın'), str_contains($content, 'tepsi') => 'oven',
