@@ -2,6 +2,7 @@
     @php
         $heroMedia = $recipe->media->first(fn ($media) => $media->isApprovedRealMedia());
         $hasApprovedMedia = $heroMedia !== null;
+        $isSyntheticHero = (bool) $heroMedia?->generated_by_ai;
     @endphp
 
     <section class="hc-recipe-detail-hero relative isolate overflow-hidden bg-charcoal-950 text-white">
@@ -43,10 +44,13 @@
                 @elseif($heroMedia?->attribution)
                     <p class="mt-4 text-xs text-stone-300">{{ $heroMedia->attribution }}</p>
                 @endif
+                @if($hasApprovedMedia && $isSyntheticHero)
+                    <p class="mt-2 text-xs text-stone-300">Yapay zekâ ile üretilmiş, editoryal olarak onaylanmış görsel.</p>
+                @endif
             </div>
             <aside class="self-end rounded-[1.5rem] border border-white/15 bg-black/30 p-5 backdrop-blur-md">
                 <p class="hc-overline text-orange-300">Tarif güvencesi</p>
-                <p class="mt-3 text-sm leading-6 text-stone-100">{{ $hasApprovedMedia ? 'Tarif kaydı ve görselinin editoryal inceleme durumu burada şeffaf biçimde gösterilir.' : 'Onaylı yemek fotoğrafı henüz yok; yer tutucu görsel yemek fotoğrafı olarak gösterilmez.' }}</p>
+                <p class="mt-3 text-sm leading-6 text-stone-100">{{ $hasApprovedMedia ? ($isSyntheticHero ? 'Bu tarifteki görsel yapay zekâ ile üretilmiş ve editoryal olarak onaylanmıştır; gerçek fotoğraf olarak sunulmaz.' : 'Tarif kaydı ve görselinin editoryal inceleme durumu burada şeffaf biçimde gösterilir.') : 'Onaylı yemek fotoğrafı henüz yok; yer tutucu görsel yemek fotoğrafı olarak gösterilmez.' }}</p>
                 <div class="mt-4 flex flex-wrap gap-2"><span class="hc-v3-badge border-white/20 bg-white/10 text-white">{{ $hasApprovedMedia && $recipe->verification_status === 'verified' ? '✓ Kayıt doğrulandı' : 'ⓘ İnceleme sürüyor' }}</span><span class="hc-v3-badge border-white/20 bg-white/10 text-white">{{ $recipe->ingredients->count() }} malzeme</span></div>
             </aside>
         </div>
