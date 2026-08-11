@@ -244,16 +244,16 @@ final class PublicRecipeMediaCompletionService
         $raw = $media->getRawOriginal('responsive_variants');
         $decoded = is_string($raw) && $raw !== '' ? json_decode($raw, true) : [];
         $variants = is_array($decoded) ? $decoded : [];
-        $widths = collect($variants)->pluck('width')->map(fn ($width): int => (int) $width);
+        $requiredProfiles = ['thumbnail', 'square', 'card', 'open_graph', 'hero'];
 
-        return collect([400, 640, 800, 1200, 1600])->every(fn (int $width): bool => $widths->contains($width))
-            && collect($variants)->every(function (mixed $variant): bool {
-                if (! is_array($variant)) {
-                    return false;
-                }
+        return collect($requiredProfiles)->every(function (string $profile) use ($variants): bool {
+            $variant = $variants[$profile] ?? null;
+            if (! is_array($variant)) {
+                return false;
+            }
 
-                return is_string($variant['jpeg'] ?? null) && is_string($variant['webp'] ?? null);
-            });
+            return is_string($variant['jpeg'] ?? null) && is_string($variant['webp'] ?? null);
+        });
     }
 
     private function safeHttpStatus(string $url): ?int

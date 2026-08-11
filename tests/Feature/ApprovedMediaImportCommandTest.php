@@ -73,11 +73,31 @@ final class ApprovedMediaImportCommandTest extends TestCase
         $this->assertSame(2, $recipe->media()->count());
     }
 
+    public function test_dry_run_can_reconcile_an_approved_source_to_its_published_slug_without_changing_the_public_id(): void
+    {
+        $recipe = Recipe::query()->create([
+            'title' => 'Onaylı Test Tarifi',
+            'slug' => 'onayli-test-tarifi',
+            'status' => 'published',
+            'verification_status' => 'verified',
+        ]);
+        $this->writeManifest($recipe, '01HWRONGPUBLICIDFORPACKAGEX');
+
+        $this->artisan('media:import-approved', [
+            '--manifest' => $this->manifestPath,
+            '--allow-controlled-resample' => true,
+            '--json' => true,
+        ])->expectsOutputToContain('published_slug_after_public_id_miss')->assertExitCode(0);
+
+        $this->assertSame(0, Media::query()->count());
+        $this->assertNotSame('01HWRONGPUBLICIDFORPACKAGEX', $recipe->fresh()->public_id);
+    }
+
     /** @return array<string,mixed> */
-    private function writeManifest(Recipe $recipe): void
+    private function writeManifest(Recipe $recipe, ?string $claimedPublicId = null): void
     {
         file_put_contents($this->manifestPath, json_encode(['entries' => [[
-            'content_type' => 'recipe', 'public_id' => $recipe->public_id, 'source_filename' => 'recipe--onayli-test-tarifi.png',
+            'content_type' => 'recipe', 'public_id' => $claimedPublicId ?: $recipe->public_id, 'source_filename' => 'recipe--onayli-test-tarifi.png',
             'identity_match' => true, 'approval_state' => 'APPROVED', 'reviewer' => 'House Chef Cyprus Editorial',
             'provenance' => ['provider' => 'built_in_image_generation', 'model' => 'built_in_image_generation', 'generated_at' => '2026-08-04T00:00:00+03:00', 'prompt_version' => 'test'],
         ]]], JSON_THROW_ON_ERROR));

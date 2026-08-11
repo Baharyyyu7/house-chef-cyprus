@@ -30,8 +30,10 @@ final class ApprovedMediaImportService
     public function preview(array $entry, bool $allowControlledResample, float $maxUpscale): array
     {
         $contentType = (string) ($entry['content_type'] ?? 'recipe');
-        $model = $this->content($contentType, (string) ($entry['public_id'] ?? ''));
-        $path = $this->sourcePath($contentType, (string) ($entry['source_filename'] ?? ''), $model->slug);
+        $claimedPublicId = (string) ($entry['public_id'] ?? '');
+        $sourceFilename = (string) ($entry['source_filename'] ?? '');
+        $model = $this->content($contentType, $claimedPublicId, $sourceFilename);
+        $path = $this->sourcePath($contentType, $sourceFilename, $model->slug);
         $bytes = file_get_contents($path);
         $image = is_string($bytes) ? @getimagesizefromstring($bytes) : false;
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -66,6 +68,8 @@ final class ApprovedMediaImportService
         return [
             'content_type' => $contentType,
             'public_id' => $model->public_id,
+            'claimed_public_id' => $claimedPublicId,
+            'content_resolution' => $model->public_id === $claimedPublicId ? 'public_id' : 'published_slug_after_public_id_miss',
             'slug' => $model->slug,
             'source_state' => $this->sourceState($width, $height, $scale),
             'source' => ['mime' => $mime, 'width' => $width, 'height' => $height, 'megapixels' => round($megapixels, 2), 'checksum_sha256' => $checksum],
@@ -85,7 +89,7 @@ final class ApprovedMediaImportService
             return [...$preview, 'status' => 'PREVIEW_ONLY'];
         }
         $contentType = $preview['content_type'];
-        $model = $this->content($contentType, (string) $preview['public_id']);
+        $model = $this->content($contentType, (string) $preview['public_id'], (string) $entry['source_filename']);
         $source = $this->sourcePath($contentType, (string) $entry['source_filename'], $model->slug);
         $bytes = file_get_contents($source);
         if (! is_string($bytes)) {
@@ -157,7 +161,7 @@ final class ApprovedMediaImportService
     }
 
     /** @return Recipe|BlogPost */
-    private function content(string $contentType, string $publicId): Model
+    private function content(string $contentType, string $publicId, string $sourceFilename): Model
     {
         $query = match ($contentType) {
             'recipe' => Recipe::query()->where('status', 'published')->where('verification_status', 'verified'),
@@ -166,17 +170,31 @@ final class ApprovedMediaImportService
         };
         $model = $query->where('public_id', $publicId)->first();
         if (! $model instanceof Model) {
+            // A seed may retain an older public ID while the approved source
+            // package was assembled elsewhere. The strict filename grammar
+            // supplies the canonical slug; this never updates any public ID.
+            $model = $query->where('slug', $this->sourceSlug($contentType, $sourceFilename))->first();
+        }
+        if (! $model instanceof Model) {
             throw new \RuntimeException('MEDIA_CONTENT_NOT_PUBLISHED_OR_VERIFIED');
         }
 
         return $model;
     }
 
-    private function sourcePath(string $contentType, string $filename, string $slug): string
+    private function sourceSlug(string $contentType, string $filename): string
     {
-        if (! preg_match('/\A(?:recipe|blog)--[a-z0-9-]+\.(?:jpe?g|png|webp)\z/i', $filename)) {
+        if (! preg_match('/\\A(?:recipe|blog)--([a-z0-9-]+)\\.(?:jpe?g|png|webp)\\z/i', $filename, $matches)
+            || ! str_starts_with(strtolower($filename), strtolower($contentType).'--')) {
             throw new \RuntimeException('MEDIA_SOURCE_FILENAME_INVALID');
         }
+
+        return $matches[1];
+    }
+
+    private function sourcePath(string $contentType, string $filename, string $slug): string
+    {
+        $this->sourceSlug($contentType, $filename);
         $expected = $contentType.'--'.$slug;
         if (pathinfo($filename, PATHINFO_FILENAME) !== $expected) {
             throw new \RuntimeException('MEDIA_SOURCE_SLUG_MISMATCH');
