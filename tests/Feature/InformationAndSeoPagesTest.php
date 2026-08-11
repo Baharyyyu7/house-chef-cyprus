@@ -70,8 +70,8 @@ final class InformationAndSeoPagesTest extends TestCase
         $this->get('/login')->assertOk()->assertSee('name="robots" content="noindex,nofollow"', false);
         $this->get('/profil-olmayan-v1-rc-sayfa')
             ->assertNotFound()
-            ->assertSee('Aradığınız sayfa burada değil.')
-            ->assertSee('Ana sayfaya dön')
+            ->assertSee('Aradığınız tarif veya sayfa bulunamadı')
+            ->assertSee('Ana Sayfaya Dön')
             ->assertSee('name="robots" content="noindex,nofollow"', false);
     }
 }

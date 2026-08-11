@@ -58,7 +58,7 @@ new #[Layout('layouts.guest')] class extends Component
 
 <div>
     <p class="hc-kicker">Hesap erişimi</p>
-    <h1 class="mt-2 font-display text-3xl font-semibold text-forest-950 dark:text-cream-50">Şifrenizi yenileyin</h1>
+    <h1 class="mt-2 hc-display-lg">Şifrenizi yenileyin</h1>
     <p class="mt-2 text-sm leading-6 text-muted">E-posta adresinizi girin. Hesabınız varsa parolanızı yenilemeniz için güvenli bir bağlantı gönderilecektir.</p>
 
     <!-- Session Status -->

@@ -50,7 +50,7 @@ new #[Layout('layouts.guest')] class extends Component
 
 <div>
     <p class="hc-kicker">Son adım</p>
-    <h1 class="mt-2 font-display text-3xl font-semibold text-forest-950 dark:text-cream-50">E-posta adresinizi doğrulayın</h1>
+    <h1 class="mt-2 hc-display-lg">E-posta adresinizi doğrulayın</h1>
     <p class="mt-2 text-sm leading-6 text-muted">Başlamadan önce e-posta adresinize gönderilen doğrulama bağlantısına tıklayın. Mesajı göremiyorsanız yeni bir bağlantı gönderebiliriz.</p>
 
     @if (session('status') == 'verification-link-sent')

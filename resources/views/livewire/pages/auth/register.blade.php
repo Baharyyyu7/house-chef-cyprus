@@ -106,7 +106,7 @@ new #[Layout('layouts.guest')] class extends Component
 
 <div>
     <p class="hc-kicker">House Chef ailesi</p>
-    <h1 class="mt-2 font-display text-3xl font-semibold text-forest-950">Üye olun</h1>
+    <h1 class="mt-2 hc-display-lg">Üye olun</h1>
     <p class="mt-2 text-sm leading-6 text-muted">Malzeme dolabınızı, favorilerinizi ve pişirme akışınızı kişiselleştirin.</p>
     <form wire:submit="register" class="mt-7" x-data="{ passwordVisible: false, confirmationVisible: false }">
         <div class="grid gap-4 sm:grid-cols-2">

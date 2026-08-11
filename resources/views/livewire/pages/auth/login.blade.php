@@ -26,7 +26,7 @@ new #[Layout('layouts.guest')] class extends Component
 
 <div>
     <p class="hc-kicker">Tekrar hoş geldiniz</p>
-    <h1 class="mt-2 font-display text-3xl font-semibold text-forest-950">Giriş yapın</h1>
+    <h1 class="mt-2 hc-display-lg">Giriş yapın</h1>
     <p class="mt-2 text-sm leading-6 text-muted">Tariflerinizi, favorilerinizi ve malzeme dolabınızı kaldığınız yerden yönetin.</p>
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />

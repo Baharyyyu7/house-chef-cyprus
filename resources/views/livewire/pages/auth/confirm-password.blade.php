@@ -35,8 +35,8 @@ new #[Layout('layouts.guest')] class extends Component
 
 <div>
     <p class="hc-kicker">Güvenli işlem</p>
-    <h1 class="mt-2 font-display text-3xl font-semibold text-forest-950 dark:text-cream-50">Parolanızı doğrulayın</h1>
-    <p class="mt-2 text-sm leading-6 text-muted">Bu hassas alana devam etmek için mevcut parolanızı tekrar girin.</p>
+    <h1 class="mt-2 hc-display-lg">Parolanızı doğrulayın</h1>
+    <p class="mt-2 text-sm leading-6 text-[var(--hc-text-secondary)]">Bu hassas alana devam etmek için mevcut parolanızı tekrar girin.</p>
 
     <form wire:submit="confirmPassword" class="mt-7" x-data="{ passwordVisible: false }">
         <!-- Password -->

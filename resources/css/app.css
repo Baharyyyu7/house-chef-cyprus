@@ -47,26 +47,38 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .hc-skip-link { position:fixed; z-index:100; left:1rem; top:-5rem; border-radius:var(--hc-radius-sm); background:var(--hc-brand-primary); color:var(--hc-brand-contrast); padding:.75rem 1rem; font-weight:800; transition:top var(--hc-duration-fast) var(--hc-ease-standard); }
     .hc-skip-link:focus { top:1rem; }
     .hc-page { @apply py-8 sm:py-12 lg:py-16; }
-    .hc-kicker { @apply text-xs font-extrabold uppercase tracking-[.18em] text-orange-600; }
+    .hc-kicker, .hc-eyebrow { @apply text-xs font-extrabold uppercase tracking-[.18em] text-orange-600; }
     .hc-title { @apply font-display text-4xl font-bold leading-[1.05] sm:text-5xl; color: var(--hc-text); }
     .hc-subtitle { @apply mt-3 max-w-2xl text-base leading-7 sm:text-lg; color: var(--hc-muted); }
     .hc-card { @apply rounded-3xl border p-5 shadow-card; border-color: var(--hc-line); background: var(--hc-surface); }
-    .hc-card-hover { @apply hc-card transition duration-300 hover:-translate-y-1 hover:shadow-lift motion-reduce:transform-none motion-reduce:transition-none; }
+    .hc-card-hover { @apply hc-card transition duration-300 motion-reduce:transform-none motion-reduce:transition-none; }
+    .hc-card-hover:hover { transform: translateY(-4px); box-shadow: var(--hc-shadow-lg); border-color: var(--hc-border-strong); }
     .hc-panel { @apply rounded-3xl border p-5 shadow-card sm:p-6; border-color: var(--hc-line); background: var(--hc-surface); }
     .hc-btn { @apply inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-extrabold transition duration-200 active:scale-[.98] focus-visible:ring-offset-2 motion-reduce:transform-none motion-reduce:transition-none; }
-    .hc-btn-primary { @apply hc-btn bg-orange-500 text-white hover:bg-orange-600; }
-    .hc-btn-gold { @apply hc-btn bg-orange-500 text-white hover:bg-orange-600; }
-    .hc-btn-outline { @apply hc-btn border hover:border-orange-300; border-color: var(--hc-line); background: var(--hc-surface); color: var(--hc-text); }
-    .hc-btn-outline:hover { background: var(--hc-surface-soft); }
-    .hc-btn-danger { @apply hc-btn border border-red-200 bg-red-50 text-red-800 hover:bg-red-100; }
+    .hc-btn-primary, .hc-btn-gold { @apply hc-btn; background: var(--hc-brand-primary); color: var(--hc-brand-contrast); }
+    .hc-btn-primary:hover, .hc-btn-gold:hover { background: var(--hc-brand-hover); }
+    .hc-btn-outline { @apply hc-btn border; border-color: var(--hc-line); background: var(--hc-surface); color: var(--hc-text); }
+    .hc-btn-outline:hover { background: var(--hc-surface-soft); border-color: var(--hc-brand-primary); }
+    .hc-btn-danger { @apply hc-btn border; border-color: var(--hc-border-danger); background: var(--hc-status-danger); color: #fff; }
+    .hc-btn-danger:hover { background: var(--hc-status-danger); opacity: 0.9; }
     .hc-badge { @apply inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-extrabold; border-color: var(--hc-line); background: var(--hc-surface-soft); color: var(--hc-muted-strong); }
-    .hc-badge-gold { @apply hc-badge border-orange-100 bg-orange-100 text-orange-700; }
-    .hc-badge-warning { @apply hc-badge border-orange-200 bg-orange-50 text-orange-700; }
-    .hc-badge-danger { @apply hc-badge border-red-200 bg-red-50 text-red-800; }
-    .hc-alert-success { @apply rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-900; }
-    .hc-alert-warning { @apply rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950; }
-    .hc-alert-error { @apply rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900; }
+    .hc-badge-gold, .hc-badge-warning { @apply hc-badge border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900/50 dark:bg-orange-900/20 dark:text-orange-400; }
+    .hc-badge-danger { @apply hc-badge border-red-200 bg-red-50 text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400; }
+    .hc-alert-success { @apply rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-400; }
+    .hc-alert-warning { @apply rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-400; }
+    .hc-alert-error { @apply rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400; }
     .hc-empty { @apply rounded-3xl border border-dashed px-6 py-12 text-center; border-color: var(--hc-line); background: var(--hc-surface); color: var(--hc-muted); }
+    .hc-input { @apply block w-full px-3 py-2.5 text-sm rounded-2xl border focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:outline-none transition; border-color: var(--hc-line); background: var(--hc-surface); color: var(--hc-text); }
+    .hc-input:hover { border-color: var(--hc-border-strong); }
+    .hc-status-badge { @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-extrabold rounded-full border; border-color: var(--hc-line); background: var(--hc-surface-soft); color: var(--hc-muted-strong); }
+    .hc-v3-chip { @apply inline-flex items-center px-3 py-1 text-sm font-extrabold rounded-full border transition cursor-pointer; border-color: var(--hc-line); background: var(--hc-surface); color: var(--hc-text); }
+    .hc-v3-chip:hover { border-color: var(--hc-border-strong); background: var(--hc-surface-soft); }
+    .hc-v3-chip--active { border-color: var(--hc-brand-primary); background: var(--hc-brand-soft); color: var(--hc-brand-active); }
+    .hc-pagination { @apply flex flex-wrap items-center justify-center gap-2 mt-8; }
+    .hc-pagination .page-item { @apply inline-flex items-center justify-center min-h-10 min-w-[2.5rem] px-3 py-2 rounded-xl text-sm font-extrabold transition; border: 1px solid var(--hc-line); background: var(--hc-surface); color: var(--hc-muted-strong); }
+    .hc-pagination .page-item:hover { border-color: var(--hc-border-strong); background: var(--hc-surface-soft); color: var(--hc-text); }
+    .hc-pagination .page-item.active { border-color: var(--hc-brand-primary); background: var(--hc-brand-primary); color: var(--hc-brand-contrast); }
+    .hc-pagination .page-item.disabled { opacity: 0.5; cursor: not-allowed; }
     .hc-table-wrap { @apply overflow-x-auto rounded-2xl border shadow-card; border-color:var(--hc-border-default); background:var(--hc-surface-raised); }
     .hc-table { @apply min-w-full divide-y text-left text-sm; border-color:var(--hc-border-subtle); }
     .hc-table thead { @apply text-xs font-bold uppercase tracking-wide; background:var(--hc-background-subtle); color:var(--hc-text-secondary); }
@@ -207,4 +219,4 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
 @media (max-width: 767px) { .hc-admin-step-card { grid-template-columns:2.3rem minmax(0,1fr); }.hc-admin-step-card > :last-child { grid-column:1 / -1; justify-content:flex-end; } }
 @media (max-width: 767px) { html, body, .admin-shell { overflow-x:clip; } }
 @media (prefers-reduced-motion: reduce) { .hc-v3-reveal { animation:none; } }
-@media print { .hc-public-header, .hc-footer, .hc-recipe-detail-hero nav, .hc-theme-button, .hc-icon-button, form, button, .hc-skip-link { display:none !important; } body { background:#fff; color:#111; } .hc-v3-card, .hc-panel { break-inside:avoid; box-shadow:none; } [data-legal-center] { background:#fff !important; padding:0 !important; } [data-legal-document] { max-width:none !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; padding:0 !important; } [data-legal-section] { break-inside:auto; } }
+@media print { .hc-public-header, .hc-mobile-drawer, .hc-footer, .hc-recipe-detail-hero nav, .hc-theme-button, .hc-icon-button, form, button, .hc-skip-link { display:none !important; } body { background:#fff; color:#111; } .hc-v3-card, .hc-panel { break-inside:avoid; box-shadow:none; } [data-legal-center] { background:#fff !important; padding:0 !important; } [data-legal-document] { max-width:none !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; padding:0 !important; } [data-legal-section] { break-inside:auto; } }

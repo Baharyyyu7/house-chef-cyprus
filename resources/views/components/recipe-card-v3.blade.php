@@ -7,8 +7,8 @@
     $isSyntheticMedia = (bool) $media?->generated_by_ai;
 @endphp
 
-<article {{ $attributes->merge(['class' => 'hc-v3-card hc-v3-card--interactive group flex w-full min-w-0 min-h-[27rem] flex-col overflow-hidden']) }}>
-    <a class="relative block aspect-[1.16] overflow-hidden bg-stone-100 dark:bg-stone-900" href="{{ route('recipes.show', $recipe) }}" aria-label="{{ $recipe->title }} tarifini incele">
+<article {{ $attributes->merge(['class' => 'hc-v3-card hc-v3-card--interactive group relative flex w-full min-w-0 min-h-[27rem] flex-col overflow-hidden']) }}>
+    <a class="relative block aspect-[1.16] overflow-hidden bg-stone-100 dark:bg-stone-900" tabindex="-1" aria-hidden="true" href="{{ route('recipes.show', $recipe) }}">
         @if($hasApprovedMedia)
             <picture>
                 @if($media->responsiveSrcset([400, 800], 'avif'))<source type="image/avif" srcset="{{ $media->responsiveSrcset([400, 800], 'avif') }}" sizes="(min-width: 640px) 400px, 100vw">@endif
@@ -29,7 +29,7 @@
     </a>
     <div class="flex flex-1 flex-col p-5">
         <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color: var(--hc-text-muted)"><span>{{ $recipe->category?->name ?? 'Tarif' }}</span><span class="capitalize">{{ $recipe->difficulty }}</span></div>
-        <h2 class="mt-3 hc-heading-3 line-clamp-2"><a class="focus-visible:rounded" href="{{ route('recipes.show', $recipe) }}">{{ $recipe->title }}</a></h2>
+        <h2 class="mt-3 hc-heading-3 line-clamp-2"><a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('recipes.show', $recipe) }}">{{ $recipe->title }}</a></h2>
         <p class="hc-body-sm mt-3 line-clamp-3" style="color: var(--hc-text-secondary)">{{ $recipe->excerpt }}</p>
         <div class="mt-4 flex flex-wrap gap-2">@foreach($recipe->dietaryTags->take(2) as $tag)<span class="hc-v3-badge hc-v3-badge--success">{{ $tag->name ?? str($tag->code)->replace('_', ' ')->title() }}</span>@endforeach</div>
         <div class="mt-auto flex items-center justify-between gap-3 pt-5">

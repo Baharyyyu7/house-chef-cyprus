@@ -12,7 +12,7 @@
                         <span class="hc-overline text-orange-300">Yemek yapma modu</span>
                         <span class="hc-v3-badge border-white/20 bg-white/10 text-white">{{ $session->status === 'paused' ? '⏸ Duraklatıldı' : '▶ Canlı oturum' }}</span>
                     </div>
-                    <h1 class="mt-2 font-display text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-4xl">{{ $session->recipe->title }}</h1>
+                    <h1 class="mt-2 hc-display-lg text-white">{{ $session->recipe->title }}</h1>
                     <p class="mt-2 text-sm text-stone-300">{{ $session->servings_snapshot }} porsiyon · Toplam {{ $totalSteps }} adım · {{ $completedCount }}/{{ $totalSteps }} adım tamamlandı</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
@@ -58,7 +58,7 @@
             <!-- Steps Feed -->
             <div class="space-y-6">
                 <div class="flex items-center justify-between">
-                    <h2 class="font-display text-xl font-bold text-[var(--hc-text-primary)] sm:text-2xl">Hazırlık Adımları</h2>
+                    <h2 class="hc-display-lg">Hazırlık Adımları</h2>
                     <span class="text-xs text-[var(--hc-text-muted)] hidden sm:inline">Klavye: Sol/Sağ yön tuşlarıyla adım geçişi yapabilirsiniz</span>
                 </div>
 
@@ -72,7 +72,7 @@
                                 </span>
                                 <div>
                                     <p class="hc-overline {{ $done ? 'text-emerald-700 dark:text-emerald-300' : 'text-orange-600 dark:text-orange-300' }}">Adım {{ $step->position }} · {{ $step->is_optional ? 'İsteğe bağlı' : 'Gerekli' }}</p>
-                                    <h3 class="mt-1 font-display text-xl font-bold text-[var(--hc-text-primary)] sm:text-2xl">{{ $step->title ?: ($step->position.'. Hazırlık Adımı') }}</h3>
+                                    <h3 class="mt-1 hc-heading-3">{{ $step->title ?: ($step->position.'. Hazırlık Adımı') }}</h3>
                                 </div>
                             </div>
                             @if($done)
@@ -132,7 +132,7 @@
                 <section class="hc-v3-card p-6 shadow-md">
                     <div class="flex items-center justify-between border-b border-[var(--hc-border-subtle)] pb-4">
                         <div>
-                            <h2 class="font-display text-xl font-bold text-[var(--hc-text-primary)]">⏱ Zamanlayıcılar</h2>
+                            <h2 class="hc-heading-4">⏱ Zamanlayıcılar</h2>
                             <p class="mt-0.5 text-xs text-[var(--hc-text-muted)]">Canlı pişirme zamanlayıcıları</p>
                         </div>
                     </div>

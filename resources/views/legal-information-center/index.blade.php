@@ -4,12 +4,12 @@
             <header>
                 <x-brand-logo size="lg" context="legal" />
                 <p class="hc-kicker mt-8">Yasal Bilgilendirme</p>
-                <h1 class="mt-3 max-w-3xl text-3xl font-extrabold leading-tight tracking-[-.04em] text-ink dark:text-stone-50 sm:text-4xl lg:text-5xl">{{ $title }}</h1>
+                <h1 class="mt-3 max-w-3xl hc-display-xl text-[var(--hc-text-primary)]">{{ $title }}</h1>
                 <p class="mt-5 text-sm font-semibold text-muted">{{ $updatedAt }}</p>
                 <p class="mt-6 text-base leading-8 text-muted sm:text-[1.05rem]">{{ $introduction }}</p>
                 <div class="mt-7 flex flex-wrap gap-3 print:hidden">
-                    <button type="button" class="hc-btn hc-btn-primary" data-legal-print>Yazdır</button>
-                    <button type="button" class="hc-btn hc-btn-outline" data-copy-page>Sayfa bağlantısını kopyala</button>
+                    <button type="button" class="hc-v3-btn hc-v3-btn--primary" data-legal-print>Yazdır</button>
+                    <button type="button" class="hc-v3-btn hc-v3-btn--outline" data-copy-page>Sayfa bağlantısını kopyala</button>
                     <span class="self-center text-sm text-muted" data-legal-copy-status aria-live="polite"></span>
                 </div>
             </header>
@@ -18,7 +18,7 @@
                 @foreach ($sections as $section)
                     <div id="{{ $section['id'] }}" class="scroll-mt-28 [&+&]:mt-6" data-legal-section>
                         @foreach ($section['paragraphs'] as $paragraph)
-                            <p @class(['mt-5' => !$loop->first])>@if($loop->first)<strong class="font-extrabold text-ink dark:text-stone-100">{{ $section['title'] }}.</strong> @endif{{ $paragraph }}</p>
+                            <p @class(['mt-5' => !$loop->first])>@if($loop->first)<strong class="font-extrabold text-[var(--hc-text-primary)]">{{ $section['title'] }}.</strong> @endif{{ $paragraph }}</p>
                         @endforeach
                     </div>
                 @endforeach
@@ -26,7 +26,7 @@
 
             <section id="iletisim-ve-geri-bildirim" class="mt-12 border-t pt-10 dark:border-stone-800" style="border-color:var(--hc-border-subtle)" aria-labelledby="contact-heading">
                 <p class="hc-kicker">İletişim</p>
-                <h2 id="contact-heading" class="mt-2 text-2xl font-extrabold tracking-tight text-ink dark:text-stone-50 sm:text-3xl">İletişim ve Geri Bildirim</h2>
+                <h2 id="contact-heading" class="mt-2 hc-display-lg text-[var(--hc-text-primary)]">İletişim ve Geri Bildirim</h2>
                 <p class="mt-4 max-w-3xl leading-7 text-muted">Geri bildiriminizi, içerik hatasını veya destek talebinizi üyelik oluşturmadan iletebilirsiniz. Bilgiler yalnız talebinizi değerlendirmek için kullanılır.</p>
                 @if (session('status'))<div class="hc-alert hc-alert-success mt-6" role="status">{{ session('status') }}</div>@endif
                 <form class="mt-7 grid gap-5 rounded-xl border bg-[#fffaf5] p-5 dark:border-stone-700 dark:bg-[#201d19] sm:grid-cols-2 sm:p-6" style="border-color:var(--hc-border-subtle)" method="post" action="{{ route('legal.center.contact.store') }}" novalidate>
@@ -45,7 +45,7 @@
                     @endif
                     <label class="sm:col-span-2 flex items-start gap-3 text-sm leading-6"><input class="mt-1 rounded border-stone-300 text-orange-600 focus:ring-orange-500" type="checkbox" name="privacy_consent" value="1" @checked(old('privacy_consent')) required><span>Talebimin değerlendirilmesi için kişisel verilerimin <a class="font-bold text-orange-700 underline" href="#gizlilik-ve-kisisel-veriler">Gizlilik ve Kişisel Veriler</a> bölümünde açıklandığı şekilde işlenmesini kabul ediyorum.</span></label>
                     @error('privacy_consent')<p class="sm:col-span-2 hc-form-error">{{ $message }}</p>@enderror
-                    <div class="sm:col-span-2 flex flex-wrap items-center gap-4"><button class="hc-btn hc-btn-primary" type="submit">Mesajı gönder</button><p class="text-sm text-muted">Spam koruması uygulanır. Talep numaranız gönderimden sonra gösterilir.</p></div>
+                    <div class="sm:col-span-2 flex flex-wrap items-center gap-4"><button class="hc-v3-btn hc-v3-btn--primary" type="submit">Mesajı gönder</button><p class="text-sm text-muted">Spam koruması uygulanır. Talep numaranız gönderimden sonra gösterilir.</p></div>
                 </form>
             </section>
 

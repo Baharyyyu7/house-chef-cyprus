@@ -71,7 +71,7 @@ new #[Layout('layouts.guest')] class extends Component
 
 <div>
     <p class="hc-kicker">Yeni parola</p>
-    <h1 class="mt-2 font-display text-3xl font-semibold text-forest-950 dark:text-cream-50">Parolanızı güncelleyin</h1>
+    <h1 class="mt-2 hc-display-lg">Parolanızı güncelleyin</h1>
     <p class="mt-2 text-sm leading-6 text-muted">Güvenli ve benzersiz bir parola belirleyerek hesabınıza yeniden erişin.</p>
 
     <form wire:submit="resetPassword" class="mt-7" x-data="{ passwordVisible: false, confirmationVisible: false }">
