@@ -168,7 +168,7 @@ final class ApprovedMediaImportService
             'blog' => BlogPost::query()->publiclyVisible(),
             default => throw new \RuntimeException('MEDIA_CONTENT_TYPE_INVALID'),
         };
-        $model = $query->where('public_id', $publicId)->first();
+        $model = (clone $query)->where('public_id', $publicId)->first();
         if (! $model instanceof Model) {
             // A seed may retain an older public ID while the approved source
             // package was assembled elsewhere. The strict filename grammar

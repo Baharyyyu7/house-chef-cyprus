@@ -35,7 +35,14 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
         $relations = [
             'cuisine:id,public_id,name,slug',
             'category:id,public_id,name,slug',
-            'media' => fn ($query) => $query->select(['id', 'mediable_type', 'mediable_id', 'disk', 'path', 'alt_text', 'is_placeholder', 'sort_order'])->where('visibility', 'public'),
+            // Card rendering intentionally runs the full public-media gate. Do
+            // not trim the approval fields from this eager load: an incomplete
+            // projection makes approved media look like a fallback.
+            'media' => fn ($query) => $query->select([
+                'id', 'mediable_type', 'mediable_id', 'kind', 'disk', 'path', 'source_name', 'source_url', 'provider_metadata',
+                'alt_text', 'is_placeholder', 'visibility', 'media_status', 'verification_status',
+                'license_review_status', 'attribution_review_status', 'generated_by_ai', 'responsive_variants', 'sort_order',
+            ])->where('visibility', 'public'),
             'dietaryTags:id,code,name',
         ];
 
