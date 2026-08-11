@@ -27,7 +27,19 @@ final class BlogController extends Controller
     public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService): View
     {
         abort_unless(BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists(), 404);
-        $post->load(['category', 'tags', 'heroMedia', 'author', 'recipes.media']);
+        // A blog relation can be prepared before a recipe is editorially ready.
+        // Never expose that private relation as a public link: the recipe route
+        // deliberately returns 404 for anything other than published + verified.
+        $post->load([
+            'category',
+            'tags',
+            'heroMedia',
+            'author',
+            'recipes' => fn ($query) => $query
+                ->where('status', 'published')
+                ->where('verification_status', 'verified')
+                ->with(['media' => fn ($media) => $media->where('visibility', 'public')]),
+        ]);
         $relatedPosts = BlogPost::query()->publiclyVisible()
             ->whereKeyNot($post->id)
             ->when($post->blog_category_id !== null, fn ($query) => $query->where('blog_category_id', $post->blog_category_id))

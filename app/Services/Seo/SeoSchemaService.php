@@ -17,6 +17,8 @@ final class SeoSchemaService
             '@type' => 'Recipe', 'name' => $recipe->title,
             'description' => $recipe->excerpt ?: $recipe->description,
             'url' => route('recipes.show', $recipe),
+            'mainEntityOfPage' => route('recipes.show', $recipe),
+            'dateModified' => $recipe->updated_at?->toAtomString(),
             'recipeCuisine' => $recipe->cuisine?->name,
             'recipeCategory' => $recipe->category?->name,
             'prepTime' => 'PT'.$recipe->prep_minutes.'M', 'cookTime' => 'PT'.$recipe->cook_minutes.'M',

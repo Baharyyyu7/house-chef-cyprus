@@ -24,6 +24,8 @@ final class SeoAuthorityProgramTest extends TestCase
             ->assertOk()
             ->assertSee('"@type":"Recipe"', false)
             ->assertSee('"@type":"BreadcrumbList"', false)
+            ->assertSee('"mainEntityOfPage":"'.route('recipes.show', $recipe).'"', false)
+            ->assertSee('"dateModified"', false)
             ->assertDontSee('aggregateRating', false)
             ->assertDontSee('reviewRating', false);
     }
@@ -61,6 +63,25 @@ final class SeoAuthorityProgramTest extends TestCase
             ->assertSee('property="og:image:height" content="900"', false)
             ->assertSee('property="og:image:alt" content="Onaylı konuya özel editoryal görsel"', false)
             ->assertSee('name="twitter:image:alt" content="Onaylı konuya özel editoryal görsel"', false);
+    }
+
+    public function test_public_blog_related_recipes_exclude_drafts_and_unverified_records(): void
+    {
+        $post = BlogPost::query()->create([
+            'title' => 'Tarif bağlantısı rehberi', 'slug' => 'tarif-baglantisi-rehberi', 'excerpt' => 'Güvenli ilgili tarif bağlantıları.',
+            'body' => str_repeat('Özgün editoryal bilgi. ', 30), 'status' => 'published', 'published_at' => now(),
+        ]);
+        $visible = $this->recipe();
+        $hidden = Recipe::query()->create([
+            'title' => 'Taslak tarif', 'slug' => 'taslak-tarif', 'status' => 'draft', 'verification_status' => 'needs_review',
+        ]);
+        $post->recipes()->attach([$visible->id, $hidden->id]);
+
+        $this->get(route('blog.show', $post))
+            ->assertOk()
+            ->assertSee($visible->title)
+            ->assertDontSee($hidden->title)
+            ->assertDontSee(route('recipes.show', $hidden));
     }
 
     public function test_faq_schema_is_emitted_only_for_actual_editorial_question_and_answer_blocks(): void
