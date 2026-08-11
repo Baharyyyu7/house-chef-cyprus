@@ -314,6 +314,10 @@ if [[ -d "$RELEASE_DIR/resources/editorial/blog-synthetic" ]]; then
     log 'Importing the versioned, production-approved synthetic blog illustrations.'
     artisan content:import-approved-synthetic-blog-media --source-directory="$RELEASE_DIR/resources/editorial/blog-synthetic" --json
 fi
+if [[ -f "$RELEASE_DIR/storage/app/media-import/approved-media-manifest.json" ]]; then
+    log 'Importing the manifest-approved private recipe or blog media.'
+    artisan media:import-approved --replace-fallbacks --json
+fi
 artisan config:cache
 artisan route:cache
 artisan view:cache
