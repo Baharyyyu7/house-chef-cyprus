@@ -81,6 +81,7 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .nav-link-active { @apply text-orange-700 dark:text-orange-300; }
     .mobile-nav-link { @apply rounded-2xl px-3 py-3; color: var(--hc-text); }
     .mobile-nav-link:hover { background: var(--hc-surface-soft); }
+    .mobile-nav-link-active { @apply font-extrabold text-orange-700 dark:text-orange-300; background: var(--hc-surface-soft); }
     .hc-public-header { background: var(--hc-header); border-color: transparent; }
     .hc-public-header.is-scrolled { background: var(--hc-header-scrolled); border-color: var(--hc-line); box-shadow: 0 10px 35px var(--hc-shadow); }
     .hc-theme-button, .hc-icon-button { @apply grid place-items-center rounded-2xl border text-lg; height: 2.75rem; width: 2.75rem; border-color: var(--hc-line); background: var(--hc-surface); color: var(--hc-text); }

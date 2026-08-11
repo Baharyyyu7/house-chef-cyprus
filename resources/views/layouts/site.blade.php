@@ -104,13 +104,13 @@
             <nav :class="scrolled ? 'h-[4.25rem]' : 'h-[5.25rem]'" class="hc-container flex items-center justify-between gap-4 transition-all duration-300" aria-label="Ana menü">
                 <x-brand-logo class="scale-105" />
                 <div class="hidden items-center gap-6 text-sm font-bold xl:flex">
-                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}">Ana Sayfa</a>
-                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}">Tarifler</a>
-                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}">Blog</a>
+                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}" @if(request()->routeIs('home')) aria-current="page" @endif>Ana Sayfa</a>
+                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>Tarifler</a>
+                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif>Blog</a>
                     @auth
-                        <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a>
-                        <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ route('ai-kitchen.index') }}">AI Mutfak</a>
-                        <a @class(['nav-link', 'nav-link-active' => request()->routeIs('pantry.*')]) href="{{ route('pantry.index') }}">Dolabım</a>
+                        <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>Ne Pişirebilirim?</a>
+                        <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ route('ai-kitchen.index') }}" @if(request()->routeIs('ai-kitchen.*')) aria-current="page" @endif>AI Mutfak</a>
+                        <a @class(['nav-link', 'nav-link-active' => request()->routeIs('pantry.*')]) href="{{ route('pantry.index') }}" @if(request()->routeIs('pantry.*')) aria-current="page" @endif>Dolabım</a>
                     @endauth
                 </div>
                 <div class="hidden items-center gap-2 xl:flex">
@@ -133,20 +133,20 @@
                 <div x-ref="publicDrawer" class="mx-auto max-w-7xl">
                     <div class="mb-3 flex justify-end"><button data-public-drawer-close @click="menuOpen = false" class="hc-icon-button !h-10 !w-10 !rounded-xl" aria-label="Menüyü kapat"><x-ui.icon name="close" size="18" /></button></div>
                 <div class="grid gap-2 text-sm font-semibold">
-                    <a class="mobile-nav-link" href="{{ route('home') }}">Ana Sayfa</a>
-                    <a class="mobile-nav-link" href="{{ route('recipes.index') }}">Tarifler</a>
-                    <a class="mobile-nav-link" href="{{ route('blog.index') }}">Blog</a>
+                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}" @click="menuOpen = false" @if(request()->routeIs('home')) aria-current="page" @endif>Ana Sayfa</a>
+                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}" @click="menuOpen = false" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>Tarifler</a>
+                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}" @click="menuOpen = false" @if(request()->routeIs('blog.*')) aria-current="page" @endif>Blog</a>
                     @auth
-                        <a class="mobile-nav-link" href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a>
-                        <a class="mobile-nav-link" href="{{ route('ai-kitchen.index') }}">AI Mutfak</a>
-                        <a class="mobile-nav-link" href="{{ route('pantry.index') }}">Dolabım</a>
-                        <a class="mobile-nav-link" href="{{ route('favorites.index') }}">Favoriler</a>
-                        <a class="mobile-nav-link" href="{{ route('dashboard') }}">Hesabım</a>
-                        @if(auth()->user()->isAdmin())<a class="mobile-nav-link" href="{{ route('admin.dashboard') }}">Yönetim</a>@endif
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}" @click="menuOpen = false" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>Ne Pişirebilirim?</a>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ route('ai-kitchen.index') }}" @click="menuOpen = false" @if(request()->routeIs('ai-kitchen.*')) aria-current="page" @endif>AI Mutfak</a>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('pantry.*')]) href="{{ route('pantry.index') }}" @click="menuOpen = false" @if(request()->routeIs('pantry.*')) aria-current="page" @endif>Dolabım</a>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('favorites.*')]) href="{{ route('favorites.index') }}" @click="menuOpen = false" @if(request()->routeIs('favorites.*')) aria-current="page" @endif>Favoriler</a>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('dashboard', 'profile')]) href="{{ route('dashboard') }}" @click="menuOpen = false" @if(request()->routeIs('dashboard', 'profile')) aria-current="page" @endif>Hesabım</a>
+                        @if(auth()->user()->isAdmin())<a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('admin.*')]) href="{{ route('admin.dashboard') }}" @click="menuOpen = false" @if(request()->routeIs('admin.*')) aria-current="page" @endif>Yönetim</a>@endif
                         <form method="post" action="{{ route('logout') }}">@csrf<button class="mobile-nav-link w-full text-left" type="submit">Çıkış yap</button></form>
                     @else
-                        <a class="mobile-nav-link" href="{{ route('login') }}">Giriş Yap</a>
-                        <a class="mobile-nav-link text-gold-700" href="{{ route('register') }}">Üye Ol</a>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('login')]) href="{{ route('login') }}" @click="menuOpen = false" @if(request()->routeIs('login')) aria-current="page" @endif>Giriş Yap</a>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('register'), 'text-gold-700']) href="{{ route('register') }}" @click="menuOpen = false" @if(request()->routeIs('register')) aria-current="page" @endif>Üye Ol</a>
                     @endauth
                 </div>
                 </div>
