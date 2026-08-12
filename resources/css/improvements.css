@@ -1,0 +1,54 @@
+/* Frontend Redesign Fixes - House Chef Cyprus */
+
+/* 1. Image Loading (Intentional Fade) */
+img.lazyload, img.lazyloading {
+    opacity: 0;
+}
+img.lazyloaded {
+    opacity: 1;
+    transition: opacity 0.4s ease-out;
+}
+
+/* 2. Microinteractions (Subtle Lift) */
+.hc-v3-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hc-shadow-md);
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+    .hc-v3-card:hover {
+        transform: none;
+        transition: none;
+    }
+}
+
+/* 3. Recipe Grid Vertical Rhythm */
+.hc-recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
+}
+.hc-v3-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.hc-card-content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 4. Dolabinda Ne Var Layout */
+.hc-pantry-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+@media (min-width: 768px) {
+    .hc-pantry-container {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+}
