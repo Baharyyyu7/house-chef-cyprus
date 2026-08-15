@@ -25,10 +25,9 @@ final class MediaPhotographicAuditTest extends TestCase
 
         $this->artisan('media:photographic-audit')->assertSuccessful();
 
-        // Dry-run yalnız etiketler, public uygunluğu bozmaz.
-        $this->assertSame('non_photographic', $gradient->fresh()?->fidelity_status);
+        // Dry-run hiçbir kaydı değiştirmez.
         $this->assertSame('approved_real_media', $gradient->fresh()?->media_status);
-        $this->assertSame('photographic', $photo->fresh()?->fidelity_status);
+        $this->assertSame('approved_real_media', $photo->fresh()?->media_status);
 
         $this->artisan('media:photographic-audit --apply')->assertSuccessful();
 
@@ -38,6 +37,26 @@ final class MediaPhotographicAuditTest extends TestCase
         // Gerçek fotoğrafa dokunulmaz.
         $this->assertSame('approved_real_media', $photo->fresh()?->media_status);
         $this->assertTrue($photo->fresh()?->isApprovedRealMedia());
+    }
+
+    /**
+     * fidelity_status "görsel bu yemeğe ait mi" sorusunu yanıtlar ve strong_match
+     * sözlüğünü başka akışlar okur. Bu komut oraya yazarsa tamamlama denetimi
+     * gerçek fotoğrafları WRONG_DISH_MEDIA sanır.
+     */
+    public function test_it_never_writes_to_the_fidelity_status_vocabulary(): void
+    {
+        Storage::fake('public');
+        $recipe = $this->makeRecipe();
+        $gradient = $this->attach($recipe, 'media/gradient.png', $this->gradientImage());
+        $photo = $this->attach($recipe, 'media/photo.png', $this->noisyImage());
+        $gradient->forceFill(['fidelity_status' => 'strong_match'])->save();
+        $photo->forceFill(['fidelity_status' => 'strong_match'])->save();
+
+        $this->artisan('media:photographic-audit --apply')->assertSuccessful();
+
+        $this->assertSame('strong_match', $gradient->fresh()?->fidelity_status);
+        $this->assertSame('strong_match', $photo->fresh()?->fidelity_status);
     }
 
     public function test_it_reports_missing_files_as_inconclusive_without_demoting(): void

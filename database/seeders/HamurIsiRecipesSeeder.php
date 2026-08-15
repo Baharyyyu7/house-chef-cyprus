@@ -25,27 +25,27 @@ final class HamurIsiRecipesSeeder extends Seeder
     public function run(): void
     {
         $category = Category::where('slug', 'hamur-isi')->firstOrFail();
-        $kibris   = Cuisine::where('slug', 'kibris-mutfagi')->firstOrFail();
-        $turk     = Cuisine::where('slug', 'turk-mutfagi')->firstOrFail();
-        $akdeniz  = Cuisine::where('slug', 'akdeniz-mutfagi')->firstOrFail();
+        $kibris = Cuisine::where('slug', 'kibris-mutfagi')->firstOrFail();
+        $turk = Cuisine::where('slug', 'turk-mutfagi')->firstOrFail();
+        $akdeniz = Cuisine::where('slug', 'akdeniz-mutfagi')->firstOrFail();
 
         // Ingredient IDs (verified in DB)
-        $ing = fn(string $name): int => Ingredient::where('name', $name)->firstOrFail()->id;
+        $ing = fn (string $name): int => Ingredient::where('name', $name)->firstOrFail()->id;
 
-        $un      = $ing('Un');
+        $un = $ing('Un');
         $yumurta = $ing('Yumurta');
-        $sut     = $ing('Süt');
-        $seker   = $ing('Şeker');
-        $tuz     = $ing('Tuz');
-        $ter     = $ing('Tereyağı');
-        $yogurt  = $ing('Yoğurt');
-        $peynir  = $ing('Peynir');
+        $sut = $ing('Süt');
+        $seker = $ing('Şeker');
+        $tuz = $ing('Tuz');
+        $ter = $ing('Tereyağı');
+        $yogurt = $ing('Yoğurt');
+        $peynir = $ing('Peynir');
         $zeytiny = $ing('Zeytinyağı');
-        $sogan   = $ing('Soğan');
+        $sogan = $ing('Soğan');
         $ispanak = $ing('Ispanak');
-        $ceviz   = $ing('Ceviz');
-        $yufka   = $ing('Baklavalık Yufka');
-        $nane    = $ing('Nane');
+        $ceviz = $ing('Ceviz');
+        $yufka = $ing('Baklavalık Yufka');
+        $nane = $ing('Nane');
 
         // Each recipe: [title, slug, cuisine_id, excerpt, description, country, prep, cook, rest, servings, difficulty, ingredients[], steps[]]
         // Ingredient row: [ingredient_id, display_quantity, display_measure_code, sort_order, canonical_quantity, canonical_unit]
@@ -55,13 +55,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 1 ──────────────────────────────────────────────────────────
             [
-                'title'       => 'Kıbrıs Usulü Flaouna',
-                'slug'        => 'kibris-usulu-flaouna',
-                'cuisine_id'  => $kibris->id,
-                'excerpt'     => 'Kıbrıs\'ın geleneksel Paskalya çöreği; hellim, nane ve yumurtayla hazırlanan yumuşak, lezzetli bir hamur işi.',
+                'title' => 'Kıbrıs Usulü Flaouna',
+                'slug' => 'kibris-usulu-flaouna',
+                'cuisine_id' => $kibris->id,
+                'excerpt' => 'Kıbrıs\'ın geleneksel Paskalya çöreği; hellim, nane ve yumurtayla hazırlanan yumuşak, lezzetli bir hamur işi.',
                 'description' => 'Flaouna, Kıbrıs mutfağının vazgeçilmez Paskalya lezzetidir. Hellim peyniri, taze nane ve yumurtanın muhteşem uyumuyla hazırlanan bu çörek, fırından çıktığında altın sarısı rengiyle sofraları süsler. Hem tatlı hem tuzlu aromaların bir arada olduğu bu tarif, kuşaktan kuşağa geçen bir miras lezzetidir.',
-                'country'     => 'Kıbrıs',
-                'prep'        => 45, 'cook' => 35, 'rest' => 60, 'servings' => 12, 'difficulty' => 'Orta',
+                'country' => 'Kıbrıs',
+                'prep' => 45, 'cook' => 35, 'rest' => 60, 'servings' => 12, 'difficulty' => 'Orta',
                 'ingredients' => [
                     [$un,      '500', 'gram',       1, '500', 'g'],
                     [$yumurta, '3',   'adet',        2, '3',   'adet'],
@@ -82,13 +82,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 2 ──────────────────────────────────────────────────────────
             [
-                'title'       => 'Ispanaklı Börek',
-                'slug'        => 'ispanakli-borek',
-                'cuisine_id'  => $turk->id,
-                'excerpt'     => 'Çıtır yufkalar arasında ıspanak ve beyaz peynirin buluştuğu, fırında pişen klasik Türk böreği.',
+                'title' => 'Ispanaklı Börek',
+                'slug' => 'ispanakli-borek',
+                'cuisine_id' => $turk->id,
+                'excerpt' => 'Çıtır yufkalar arasında ıspanak ve beyaz peynirin buluştuğu, fırında pişen klasik Türk böreği.',
                 'description' => 'Ispanaklı börek, Türk mutfağının en köklü hamur işlerinden biridir. İnce yufkalar arasına sıkıştırılan taze ıspanak ve beyaz peynir, yüksek ısıda fırında çıtır çıtır pişer. Her lokmasında eşsiz bir doku ve lezzet sunan bu tarif, hem kahvaltı hem de öğün olarak idealdir.',
-                'country'     => 'Türkiye',
-                'prep'        => 30, 'cook' => 40, 'rest' => 0, 'servings' => 8, 'difficulty' => 'Kolay',
+                'country' => 'Türkiye',
+                'prep' => 30, 'cook' => 40, 'rest' => 0, 'servings' => 8, 'difficulty' => 'Kolay',
                 'ingredients' => [
                     [$yufka,   '6',   'adet',        1, null,  null],
                     [$ispanak, '400', 'gram',        2, '400', 'g'],
@@ -108,13 +108,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 3 ──────────────────────────────────────────────────────────
             [
-                'title'       => 'Soğanlı Çörek',
-                'slug'        => 'soganli-corek',
-                'cuisine_id'  => $kibris->id,
-                'excerpt'     => 'Kıbrıs\'ta geleneksel olarak yapılan, karamelize soğan dolgusu olan yumuşak ekmek çöreği.',
+                'title' => 'Soğanlı Çörek',
+                'slug' => 'soganli-corek',
+                'cuisine_id' => $kibris->id,
+                'excerpt' => 'Kıbrıs\'ta geleneksel olarak yapılan, karamelize soğan dolgusu olan yumuşak ekmek çöreği.',
                 'description' => 'Soğanlı çörek, Kıbrıs evlerinde nesilden nesile aktarılan mütevazı ama bir o kadar lezzetli bir hamur işidir. Yavaş yavaş karamelize edilen soğanlar, baharatlarla buluşarak çöreğin içinde eşsiz bir tatlılık ve derinlik yaratır.',
-                'country'     => 'Kıbrıs',
-                'prep'        => 30, 'cook' => 30, 'rest' => 90, 'servings' => 10, 'difficulty' => 'Orta',
+                'country' => 'Kıbrıs',
+                'prep' => 30, 'cook' => 30, 'rest' => 90, 'servings' => 10, 'difficulty' => 'Orta',
                 'ingredients' => [
                     [$un,      '500', 'gram',        1, '500', 'g'],
                     [$sogan,   '300', 'gram',        2, '300', 'g'],
@@ -136,13 +136,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 4 ──────────────────────────────────────────────────────────
             [
-                'title'       => 'Cevizli Baklava',
-                'slug'        => 'cevizli-baklava',
-                'cuisine_id'  => $turk->id,
-                'excerpt'     => 'Çıtır yufka katmanları arasında taze ceviz ve aromatik şerbetle hazırlanan geleneksel Türk baklavası.',
+                'title' => 'Cevizli Baklava',
+                'slug' => 'cevizli-baklava',
+                'cuisine_id' => $turk->id,
+                'excerpt' => 'Çıtır yufka katmanları arasında taze ceviz ve aromatik şerbetle hazırlanan geleneksel Türk baklavası.',
                 'description' => 'Baklava, Türk mutfağının dünyaya armağan ettiği en nadide tatlılardan biridir. İnce ince açılmış yufka katları arasına yerleştirilen taze ceviz, kızgın yağ ve soğuk şerbetin buluşmasıyla eşsiz bir çıtırlık elde edilir. Sabırla hazırlanan bu tarif, özel günlerin ve misafir ağırlamalarının vazgeçilmezidir.',
-                'country'     => 'Türkiye',
-                'prep'        => 60, 'cook' => 45, 'rest' => 120, 'servings' => 20, 'difficulty' => 'Zor',
+                'country' => 'Türkiye',
+                'prep' => 60, 'cook' => 45, 'rest' => 120, 'servings' => 20, 'difficulty' => 'Zor',
                 'ingredients' => [
                     [$yufka,  '1000', 'gram',  1, null,  null],
                     [$ceviz,  '400',  'gram',  2, '400', 'g'],
@@ -161,13 +161,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 5 ──────────────────────────────────────────────────────────
             [
-                'title'       => 'Akdeniz Zeytinli Ekmek',
-                'slug'        => 'akdeniz-zeytinli-ekmek',
-                'cuisine_id'  => $akdeniz->id,
-                'excerpt'     => 'Zeytin, kekik ve zeytinyağıyla zenginleştirilen, çıtır kabuklu ve yumuşak içli Akdeniz ekmeği.',
+                'title' => 'Akdeniz Zeytinli Ekmek',
+                'slug' => 'akdeniz-zeytinli-ekmek',
+                'cuisine_id' => $akdeniz->id,
+                'excerpt' => 'Zeytin, kekik ve zeytinyağıyla zenginleştirilen, çıtır kabuklu ve yumuşak içli Akdeniz ekmeği.',
                 'description' => 'Akdeniz mutfağının en yalın ve en besleyici unsurlarından biri olan zeytinli ekmek, her lokmasında güneşin sıcaklığını hissettirir. Yeşil ve siyah zeytinlerin harika uyumu, kekiğin aromatik kokusu ve kaliteli zeytinyağının zenginliğiyle hazırlanan bu ekmek, tek başına bir öğün olabilir.',
-                'country'     => 'Türkiye',
-                'prep'        => 20, 'cook' => 35, 'rest' => 75, 'servings' => 8, 'difficulty' => 'Kolay',
+                'country' => 'Türkiye',
+                'prep' => 20, 'cook' => 35, 'rest' => 75, 'servings' => 8, 'difficulty' => 'Kolay',
                 'ingredients' => [
                     [$un,      '450', 'gram',       1, '450', 'g'],
                     [$zeytiny, '60',  'mililitre',  2, '60',  'ml'],
@@ -186,13 +186,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 6 ──────────────────────────────────────────────────────────
             [
-                'title'       => 'Yoğurtlu Poğaça',
-                'slug'        => 'yogurtlu-pogaca',
-                'cuisine_id'  => $turk->id,
-                'excerpt'     => 'Yoğurtla yoğrulan, içi peynirli, dışı altın sarısı çıtır kabuğuyla kahvaltıların gözdesi poğaça.',
+                'title' => 'Yoğurtlu Poğaça',
+                'slug' => 'yogurtlu-pogaca',
+                'cuisine_id' => $turk->id,
+                'excerpt' => 'Yoğurtla yoğrulan, içi peynirli, dışı altın sarısı çıtır kabuğuyla kahvaltıların gözdesi poğaça.',
                 'description' => 'Yoğurtlu poğaça, Türk kahvaltı kültürünün ayrılmaz parçasıdır. Yoğurt, hamura özel bir yumuşaklık ve hafif ekşilik katar. Peynirli iç harç eşliğinde fırından çıkan bu poğaçalar, çayın yanında mis gibi tüketilir.',
-                'country'     => 'Türkiye',
-                'prep'        => 25, 'cook' => 25, 'rest' => 30, 'servings' => 12, 'difficulty' => 'Kolay',
+                'country' => 'Türkiye',
+                'prep' => 25, 'cook' => 25, 'rest' => 30, 'servings' => 12, 'difficulty' => 'Kolay',
                 'ingredients' => [
                     [$un,      '400', 'gram',       1, '400', 'g'],
                     [$yogurt,  '200', 'gram',       2, '200', 'g'],
@@ -212,13 +212,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 7 ──────────────────────────────────────────────────────────
             [
-                'title'       => 'Su Böreği',
-                'slug'        => 'su-boregi',
-                'cuisine_id'  => $turk->id,
-                'excerpt'     => 'Haşlanıp yufkalar arasına dizilen, peynir ve maydanozla hazırlanan el yapımı su böreği.',
+                'title' => 'Su Böreği',
+                'slug' => 'su-boregi',
+                'cuisine_id' => $turk->id,
+                'excerpt' => 'Haşlanıp yufkalar arasına dizilen, peynir ve maydanozla hazırlanan el yapımı su böreği.',
                 'description' => 'Su böreği, Türk mutfağının en ustaca hazırlanan hamur işlerinden biridir. Haşlanmış yufkaların katman katman dizilmesi, tuzlu peynir ve taze maydanozla doldurulması; fırında eşsiz bir yumuşaklık ve çıtırlık yaratır. Sabahın erken saatlerinde hazırlanıp sıcak servis edilen su böreği, misafir sofralarının baş tacıdır.',
-                'country'     => 'Türkiye',
-                'prep'        => 50, 'cook' => 35, 'rest' => 0, 'servings' => 10, 'difficulty' => 'Zor',
+                'country' => 'Türkiye',
+                'prep' => 50, 'cook' => 35, 'rest' => 0, 'servings' => 10, 'difficulty' => 'Zor',
                 'ingredients' => [
                     [$yufka,   '8',   'adet',        1, null,  null],
                     [$peynir,  '300', 'gram',        2, '300', 'g'],
@@ -238,13 +238,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 8 ──────────────────────────────────────────────────────────
             [
-                'title'       => 'Kıbrıs Hellimli Gözleme',
-                'slug'        => 'kibris-hellimli-gozleme',
-                'cuisine_id'  => $kibris->id,
-                'excerpt'     => 'Taze hellim ve naneyle hazırlanan, sacda pişen geleneksel Kıbrıs gözlemesi.',
+                'title' => 'Kıbrıs Hellimli Gözleme',
+                'slug' => 'kibris-hellimli-gozleme',
+                'cuisine_id' => $kibris->id,
+                'excerpt' => 'Taze hellim ve naneyle hazırlanan, sacda pişen geleneksel Kıbrıs gözlemesi.',
                 'description' => 'Kıbrıs\'ın simgesi hellim peyniri, gözleme hamuruna özel bir kimlik katar. Taze nane yaprakları ve eritilmiş hellimin bir araya geldiği bu gözleme, sacda ya da tavada pişerek eşsiz bir çıtırlık elde eder.',
-                'country'     => 'Kıbrıs',
-                'prep'        => 20, 'cook' => 20, 'rest' => 20, 'servings' => 6, 'difficulty' => 'Kolay',
+                'country' => 'Kıbrıs',
+                'prep' => 20, 'cook' => 20, 'rest' => 20, 'servings' => 6, 'difficulty' => 'Kolay',
                 'ingredients' => [
                     [$un,      '300', 'gram',       1, '300', 'g'],
                     [$peynir,  '200', 'gram',       2, '200', 'g'],
@@ -263,13 +263,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 9 ──────────────────────────────────────────────────────────
             [
-                'title'       => 'Peynirli Pide',
-                'slug'        => 'peynirli-pide',
-                'cuisine_id'  => $turk->id,
-                'excerpt'     => 'Tekne şeklinde hazırlanan, içi bol peynirli ve yumurtalı geleneksel Türk pidesi.',
+                'title' => 'Peynirli Pide',
+                'slug' => 'peynirli-pide',
+                'cuisine_id' => $turk->id,
+                'excerpt' => 'Tekne şeklinde hazırlanan, içi bol peynirli ve yumurtalı geleneksel Türk pidesi.',
                 'description' => 'Pide, Türk ekmek kültürünün en şenlikli temsilcisidir. Özellikle Karadeniz bölgesine özgü tekne biçimindeki bu pide, bol peynir ve yumurtayla doldurularak taş fırın ısısında pişirilir. Yüzeyindeki kabarcıklar ve kızaran kenarlarıyla servis masasına geldiğinde tüm gözleri üzerine çeker.',
-                'country'     => 'Türkiye',
-                'prep'        => 30, 'cook' => 20, 'rest' => 60, 'servings' => 6, 'difficulty' => 'Orta',
+                'country' => 'Türkiye',
+                'prep' => 30, 'cook' => 20, 'rest' => 60, 'servings' => 6, 'difficulty' => 'Orta',
                 'ingredients' => [
                     [$un,      '500', 'gram',       1, '500', 'g'],
                     [$peynir,  '300', 'gram',       2, '300', 'g'],
@@ -290,13 +290,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 10 ─────────────────────────────────────────────────────────
             [
-                'title'       => 'Cevizli Sarma Çörek',
-                'slug'        => 'cevizli-sarma-corek',
-                'cuisine_id'  => $akdeniz->id,
-                'excerpt'     => 'Tarçın, ceviz ve şekerle doldurularak sarılan, fırında pişen aromaterapi gibi bir çörek.',
+                'title' => 'Cevizli Sarma Çörek',
+                'slug' => 'cevizli-sarma-corek',
+                'cuisine_id' => $akdeniz->id,
+                'excerpt' => 'Tarçın, ceviz ve şekerle doldurularak sarılan, fırında pişen aromaterapi gibi bir çörek.',
                 'description' => 'Cevizli sarma çörek, Akdeniz\'in zengin baharatlı lezzetlerini bir araya getiren özel bir tarif. Yumuşak mayalı hamur üzerine yayılan ceviz ve şeker karışımı, hamur rulo yapılıp fırınlandığında eşsiz bir tatlılık kazanır.',
-                'country'     => 'Türkiye',
-                'prep'        => 35, 'cook' => 30, 'rest' => 90, 'servings' => 10, 'difficulty' => 'Orta',
+                'country' => 'Türkiye',
+                'prep' => 35, 'cook' => 30, 'rest' => 90, 'servings' => 10, 'difficulty' => 'Orta',
                 'ingredients' => [
                     [$un,      '480', 'gram',       1, '480', 'g'],
                     [$ceviz,   '200', 'gram',       2, '200', 'g'],
@@ -317,13 +317,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 11 ─────────────────────────────────────────────────────────
             [
-                'title'       => 'Pratik Lavaş Ekmeği',
-                'slug'        => 'pratik-lavas-ekmegi',
-                'cuisine_id'  => $akdeniz->id,
-                'excerpt'     => 'Mayasız, hızla hazırlanan, tavada pişen ince Akdeniz lavaşı; tüm yemeklerin yanında mükemmel.',
+                'title' => 'Pratik Lavaş Ekmeği',
+                'slug' => 'pratik-lavas-ekmegi',
+                'cuisine_id' => $akdeniz->id,
+                'excerpt' => 'Mayasız, hızla hazırlanan, tavada pişen ince Akdeniz lavaşı; tüm yemeklerin yanında mükemmel.',
                 'description' => 'Lavaş, Orta Doğu ve Akdeniz mutfağının en pratik ekmeklerinden biridir. Mayasız hamuru 10 dakikada hazırlanır, yüksek ısıda tavada ya da sacda pişirilerek birkaç dakikada sofraya gelir.',
-                'country'     => 'Türkiye',
-                'prep'        => 15, 'cook' => 20, 'rest' => 10, 'servings' => 8, 'difficulty' => 'Kolay',
+                'country' => 'Türkiye',
+                'prep' => 15, 'cook' => 20, 'rest' => 10, 'servings' => 8, 'difficulty' => 'Kolay',
                 'ingredients' => [
                     [$un,      '350', 'gram',       1, '350', 'g'],
                     [$tuz,     '6',   'gram',       2, '6',   'g'],
@@ -339,13 +339,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 12 ─────────────────────────────────────────────────────────
             [
-                'title'       => 'Katmer',
-                'slug'        => 'katmer',
-                'cuisine_id'  => $turk->id,
-                'excerpt'     => 'Gaziantep\'in simgesi; tereyağı ve cevizle hazırlanan, sacda pişen çıtır hamur katmeri.',
+                'title' => 'Katmer',
+                'slug' => 'katmer',
+                'cuisine_id' => $turk->id,
+                'excerpt' => 'Gaziantep\'in simgesi; tereyağı ve cevizle hazırlanan, sacda pişen çıtır hamur katmeri.',
                 'description' => 'Katmer, Türk mutfağının Gaziantep\'e özgü, nefis bir hamur işidir. Açılan ince hamurun tereyağı ve cevizle doldurulması, ardından sac üzerinde hızla pişirilmesiyle oluşan çıtır çıtır katmanlar, bu tarifi eşsiz kılar.',
-                'country'     => 'Türkiye',
-                'prep'        => 20, 'cook' => 20, 'rest' => 30, 'servings' => 6, 'difficulty' => 'Orta',
+                'country' => 'Türkiye',
+                'prep' => 20, 'cook' => 20, 'rest' => 30, 'servings' => 6, 'difficulty' => 'Orta',
                 'ingredients' => [
                     [$un,      '350', 'gram',  1, '350', 'g'],
                     [$ter,     '100', 'gram',  2, '100', 'g'],
@@ -364,13 +364,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 13 ─────────────────────────────────────────────────────────
             [
-                'title'       => 'Dilber Dudağı',
-                'slug'        => 'dilber-dudagi',
-                'cuisine_id'  => $turk->id,
-                'excerpt'     => 'Şekilli, kızarmış hamurdan yapılan, üzeri şerbetle ıslanmış geleneksel Osmanlı tatlısı.',
+                'title' => 'Dilber Dudağı',
+                'slug' => 'dilber-dudagi',
+                'cuisine_id' => $turk->id,
+                'excerpt' => 'Şekilli, kızarmış hamurdan yapılan, üzeri şerbetle ıslanmış geleneksel Osmanlı tatlısı.',
                 'description' => 'Dilber dudağı, Osmanlı saray mutfağından günümüze uzanan, şeklinden ismini almış zarif bir tatlıdır. Yoğurt ve yumurtayla hazırlanan hamur; yağda kızarttıktan sonra şerbete daldırılır.',
-                'country'     => 'Türkiye',
-                'prep'        => 20, 'cook' => 30, 'rest' => 20, 'servings' => 16, 'difficulty' => 'Orta',
+                'country' => 'Türkiye',
+                'prep' => 20, 'cook' => 30, 'rest' => 20, 'servings' => 16, 'difficulty' => 'Orta',
                 'ingredients' => [
                     [$un,      '350', 'gram',  1, '350', 'g'],
                     [$yogurt,  '150', 'gram',  2, '150', 'g'],
@@ -390,13 +390,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 14 ─────────────────────────────────────────────────────────
             [
-                'title'       => 'Lor Peynirli Tepsi Böreği',
-                'slug'        => 'lor-peynirli-tepsi-boregi',
-                'cuisine_id'  => $turk->id,
-                'excerpt'     => 'Lor peyniri ve maydanozla hazırlanan, sütlü yufkalardan yapılan hafif ve lezzetli tepsi böreği.',
+                'title' => 'Lor Peynirli Tepsi Böreği',
+                'slug' => 'lor-peynirli-tepsi-boregi',
+                'cuisine_id' => $turk->id,
+                'excerpt' => 'Lor peyniri ve maydanozla hazırlanan, sütlü yufkalardan yapılan hafif ve lezzetli tepsi böreği.',
                 'description' => 'Lor peyniri, börek harcına beyaz peynirden farklı bir yumuşaklık ve hafiflik katar. Taze maydanoz ve karabiber eşliğinde hazırlanan bu iç harç, sütlü yufka katmanları arasına yerleştirilir ve fırında kızararak mükemmel bir tat ve dokuya kavuşur.',
-                'country'     => 'Türkiye',
-                'prep'        => 25, 'cook' => 35, 'rest' => 0, 'servings' => 8, 'difficulty' => 'Kolay',
+                'country' => 'Türkiye',
+                'prep' => 25, 'cook' => 35, 'rest' => 0, 'servings' => 8, 'difficulty' => 'Kolay',
                 'ingredients' => [
                     [$yufka,   '5',   'adet',        1, null,  null],
                     [$peynir,  '250', 'gram',        2, '250', 'g'],
@@ -416,13 +416,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 15 ─────────────────────────────────────────────────────────
             [
-                'title'       => 'Sütlü Revani',
-                'slug'        => 'sutlu-revani',
-                'cuisine_id'  => $turk->id,
-                'excerpt'     => 'İrmik ve undan yapılan, ılık sütlü şerbetle ıslatılarak servis edilen geleneksel Türk tatlısı.',
+                'title' => 'Sütlü Revani',
+                'slug' => 'sutlu-revani',
+                'cuisine_id' => $turk->id,
+                'excerpt' => 'İrmik ve undan yapılan, ılık sütlü şerbetle ıslatılarak servis edilen geleneksel Türk tatlısı.',
                 'description' => 'Revani, Osmanlı mutfağından bugüne taşınan irmikli, hafif tatlılar arasında özel bir yere sahiptir. Fırında pişen irmik-un tabanı, üzerine dökülen ılık sütlü şerbetle zenginleşir.',
-                'country'     => 'Türkiye',
-                'prep'        => 20, 'cook' => 35, 'rest' => 30, 'servings' => 12, 'difficulty' => 'Kolay',
+                'country' => 'Türkiye',
+                'prep' => 20, 'cook' => 35, 'rest' => 30, 'servings' => 12, 'difficulty' => 'Kolay',
                 'ingredients' => [
                     [$un,      '150', 'gram',       1, '150', 'g'],
                     [$seker,   '300', 'gram',       2, '300', 'g'],
@@ -442,13 +442,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 16 ─────────────────────────────────────────────────────────
             [
-                'title'       => 'Akdeniz Yassı Ekmek',
-                'slug'        => 'akdeniz-yassi-ekmek',
-                'cuisine_id'  => $akdeniz->id,
-                'excerpt'     => 'Zeytinyağı ve baharatlarla fırınlanan, yassı mayalı hamurdan yapılan Akdeniz odaklı ekmek.',
+                'title' => 'Akdeniz Yassı Ekmek',
+                'slug' => 'akdeniz-yassi-ekmek',
+                'cuisine_id' => $akdeniz->id,
+                'excerpt' => 'Zeytinyağı ve baharatlarla fırınlanan, yassı mayalı hamurdan yapılan Akdeniz odaklı ekmek.',
                 'description' => 'Bu tarif, Kıbrıs, Türkiye, Yunanistan ve Lübnan mutfaklarının kesişim noktasından doğar. Kahvaltıda, mezzeyle ya da çorbanın yanında servis edilen bu ekmek, sade ama derin bir lezzete sahiptir.',
-                'country'     => 'Türkiye',
-                'prep'        => 20, 'cook' => 25, 'rest' => 60, 'servings' => 6, 'difficulty' => 'Kolay',
+                'country' => 'Türkiye',
+                'prep' => 20, 'cook' => 25, 'rest' => 60, 'servings' => 6, 'difficulty' => 'Kolay',
                 'ingredients' => [
                     [$un,      '400', 'gram',       1, '400', 'g'],
                     [$zeytiny, '60',  'mililitre',  2, '60',  'ml'],
@@ -467,13 +467,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 17 ─────────────────────────────────────────────────────────
             [
-                'title'       => 'Fırın Simit',
-                'slug'        => 'firin-simit',
-                'cuisine_id'  => $turk->id,
-                'excerpt'     => 'Susamlı, çıtır kabuklu, içi yumuşak ev yapımı simit; kahvaltının vazgeçilmezi.',
+                'title' => 'Fırın Simit',
+                'slug' => 'firin-simit',
+                'cuisine_id' => $turk->id,
+                'excerpt' => 'Susamlı, çıtır kabuklu, içi yumuşak ev yapımı simit; kahvaltının vazgeçilmezi.',
                 'description' => 'Simit, Türkiye\'nin simgesi haline gelmiş bir sokak lezzetidir. Ev yapımı simit ise hem daha taze hem de katkısız olmasıyla fırından alınandan çok daha lezzetlidir.',
-                'country'     => 'Türkiye',
-                'prep'        => 30, 'cook' => 25, 'rest' => 60, 'servings' => 8, 'difficulty' => 'Orta',
+                'country' => 'Türkiye',
+                'prep' => 30, 'cook' => 25, 'rest' => 60, 'servings' => 8, 'difficulty' => 'Orta',
                 'ingredients' => [
                     [$un,      '500', 'gram',       1, '500', 'g'],
                     [$seker,   '15',  'gram',       2, '15',  'g'],
@@ -491,13 +491,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 18 ─────────────────────────────────────────────────────────
             [
-                'title'       => 'Tatlı Tarçınlı Rulo',
-                'slug'        => 'tatli-tarcinli-rulo',
-                'cuisine_id'  => $akdeniz->id,
-                'excerpt'     => 'Tarçın ve şekerle rulo yapılmış, fırından çıkınca üstüne krema sürülen yumuşak tatlı ekmek.',
+                'title' => 'Tatlı Tarçınlı Rulo',
+                'slug' => 'tatli-tarcinli-rulo',
+                'cuisine_id' => $akdeniz->id,
+                'excerpt' => 'Tarçın ve şekerle rulo yapılmış, fırından çıkınca üstüne krema sürülen yumuşak tatlı ekmek.',
                 'description' => 'Tarçınlı rulo, tüm dünyada sevilen ama Akdeniz ve Türk mutfağında kendi yorumuyla parlayan bir tatlı ekmektir. Yumuşak mayalı hamurun tarçın-şeker karışımıyla rulo yapılması ve fırınlanması, evin her köşesini büyüleyici bir kokuya bürür.',
-                'country'     => 'Türkiye',
-                'prep'        => 30, 'cook' => 30, 'rest' => 90, 'servings' => 10, 'difficulty' => 'Orta',
+                'country' => 'Türkiye',
+                'prep' => 30, 'cook' => 30, 'rest' => 90, 'servings' => 10, 'difficulty' => 'Orta',
                 'ingredients' => [
                     [$un,      '450', 'gram',       1, '450', 'g'],
                     [$seker,   '100', 'gram',       2, '100', 'g'],
@@ -518,13 +518,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 19 ─────────────────────────────────────────────────────────
             [
-                'title'       => 'Kıbrıs Kolokoti',
-                'slug'        => 'kibris-kolokoti',
-                'cuisine_id'  => $kibris->id,
-                'excerpt'     => 'Balkabağı, ceviz ve şekerle hazırlanan geleneksel Kıbrıs el böreği; tatlı ve tuzlunun eşsiz birlikteliği.',
+                'title' => 'Kıbrıs Kolokoti',
+                'slug' => 'kibris-kolokoti',
+                'cuisine_id' => $kibris->id,
+                'excerpt' => 'Balkabağı, ceviz ve şekerle hazırlanan geleneksel Kıbrıs el böreği; tatlı ve tuzlunun eşsiz birlikteliği.',
                 'description' => 'Kolokoti, Kıbrıs\'a özgü, balkabağı ve ceviz dolu el yapımı bir börek/turtacıktır. Orta Çağ\'dan bu yana Kıbrıslıların sofralarında bulunan bu tarif, hem tatlı hem de tuzlu aromaların nadir görülen uyumunu taşır.',
-                'country'     => 'Kıbrıs',
-                'prep'        => 40, 'cook' => 40, 'rest' => 30, 'servings' => 10, 'difficulty' => 'Orta',
+                'country' => 'Kıbrıs',
+                'prep' => 40, 'cook' => 40, 'rest' => 30, 'servings' => 10, 'difficulty' => 'Orta',
                 'ingredients' => [
                     [$un,      '400', 'gram',       1, '400', 'g'],
                     [$zeytiny, '50',  'mililitre',  2, '50',  'ml'],
@@ -543,13 +543,13 @@ final class HamurIsiRecipesSeeder extends Seeder
 
             // ── 20 ─────────────────────────────────────────────────────────
             [
-                'title'       => 'Yoğurtlu Soğan Halkası',
-                'slug'        => 'yogurtlu-sogan-halkasi',
-                'cuisine_id'  => $akdeniz->id,
-                'excerpt'     => 'Yoğurt ve undan hazırlanan çıtır hamura batırılmış, yağda kızartılmış soğan halkası.',
+                'title' => 'Yoğurtlu Soğan Halkası',
+                'slug' => 'yogurtlu-sogan-halkasi',
+                'cuisine_id' => $akdeniz->id,
+                'excerpt' => 'Yoğurt ve undan hazırlanan çıtır hamura batırılmış, yağda kızartılmış soğan halkası.',
                 'description' => 'Soğan halkası; Akdeniz ve dünya mutfağında sevilen bir atıştırmalıktır. Yoğurt bazlı hamura batırılan soğanlar, kızgın yağda kabaran çıtır bir kaplama kazanır. Ev yapımı versiyon, pazar ürünlerinden hem daha lezzetli hem de katkısızdır.',
-                'country'     => 'Türkiye',
-                'prep'        => 15, 'cook' => 20, 'rest' => 10, 'servings' => 4, 'difficulty' => 'Kolay',
+                'country' => 'Türkiye',
+                'prep' => 15, 'cook' => 20, 'rest' => 10, 'servings' => 4, 'difficulty' => 'Kolay',
                 'ingredients' => [
                     [$un,      '150', 'gram',  1, '150', 'g'],
                     [$yogurt,  '100', 'gram',  2, '100', 'g'],
@@ -570,75 +570,76 @@ final class HamurIsiRecipesSeeder extends Seeder
         foreach ($recipes as $data) {
             if (Recipe::where('slug', $data['slug'])->exists()) {
                 $this->command->line("  SKIP (exists): {$data['slug']}");
+
                 continue;
             }
 
             $recipe = Recipe::create([
-                'public_id'                   => strtoupper((string) Str::ulid()),
-                'cuisine_id'                  => $data['cuisine_id'],
-                'category_id'                 => $category->id,
-                'title'                       => $data['title'],
-                'slug'                        => $data['slug'],
-                'excerpt'                     => $data['excerpt'],
-                'description'                 => $data['description'],
-                'country'                     => $data['country'] ?? null,
-                'prep_minutes'                => $data['prep'],
-                'cook_minutes'                => $data['cook'],
-                'rest_minutes'                => $data['rest'],
-                'servings'                    => $data['servings'],
-                'difficulty'                  => $data['difficulty'],
-                'status'                      => 'published',
-                'verification_status'         => 'verified',
-                'editorial_status'            => 'approved',
-                'completeness_score'          => 85,
-                'completeness_status'         => 'complete',
-                'is_featured'                 => false,
-                'source_name'                 => 'House Chef Cyprus Editoryal Ekibi',
-                'content_origin'              => 'original',
-                'reliability_score'           => 95,
-                'published_at'                => now(),
-                'editorial_reviewed_at'       => now(),
-                'fact_check_required'         => false,
+                'public_id' => strtoupper((string) Str::ulid()),
+                'cuisine_id' => $data['cuisine_id'],
+                'category_id' => $category->id,
+                'title' => $data['title'],
+                'slug' => $data['slug'],
+                'excerpt' => $data['excerpt'],
+                'description' => $data['description'],
+                'country' => $data['country'] ?? null,
+                'prep_minutes' => $data['prep'],
+                'cook_minutes' => $data['cook'],
+                'rest_minutes' => $data['rest'],
+                'servings' => $data['servings'],
+                'difficulty' => $data['difficulty'],
+                'status' => 'published',
+                'verification_status' => 'verified',
+                'editorial_status' => 'approved',
+                'completeness_score' => 85,
+                'completeness_status' => 'complete',
+                'is_featured' => false,
+                'source_name' => 'House Chef Cyprus Editoryal Ekibi',
+                'content_origin' => 'original',
+                'reliability_score' => 95,
+                'published_at' => now(),
+                'editorial_reviewed_at' => now(),
+                'fact_check_required' => false,
             ]);
 
             foreach ($data['ingredients'] as [$ingId, $qty, $unit, $sort, $canonQty, $canonUnit]) {
                 RecipeIngredient::create([
-                    'recipe_id'              => $recipe->id,
-                    'ingredient_id'          => $ingId,
-                    'display_quantity'        => $qty,
-                    'display_measure_code'    => $unit,
-                    'sort_order'             => $sort,
-                    'canonical_quantity'      => $canonQty,
-                    'canonical_unit'         => $canonUnit,
-                    'scaling_behavior'       => 'scalable',
-                    'is_optional'            => false,
-                    'conversion_confidence'  => $canonQty ? 'verified' : 'unknown',
+                    'recipe_id' => $recipe->id,
+                    'ingredient_id' => $ingId,
+                    'display_quantity' => $qty,
+                    'display_measure_code' => $unit,
+                    'sort_order' => $sort,
+                    'canonical_quantity' => $canonQty,
+                    'canonical_unit' => $canonUnit,
+                    'scaling_behavior' => 'scalable',
+                    'is_optional' => false,
+                    'conversion_confidence' => $canonQty ? 'verified' : 'unknown',
                 ]);
             }
 
             foreach ($data['steps'] as [$position, $instruction, $tip, $duration]) {
                 RecipeStep::create([
-                    'recipe_id'        => $recipe->id,
-                    'position'         => $position,
-                    'title'            => 'Adım '.$position,
-                    'instruction'      => $instruction,
-                    'chef_tip'         => $tip,
+                    'recipe_id' => $recipe->id,
+                    'position' => $position,
+                    'title' => 'Adım '.$position,
+                    'instruction' => $instruction,
+                    'chef_tip' => $tip,
                     'duration_seconds' => $duration,
-                    'timer_required'   => false,
-                    'is_optional'      => false,
+                    'timer_required' => false,
+                    'is_optional' => false,
                 ]);
             }
 
             RecipeProvenance::create([
-                'recipe_id'          => $recipe->id,
-                'content_source_id'  => null,
-                'source_type'        => 'original',
-                'is_ai_generated'    => false,
-                'is_user_generated'  => false,
-                'verification_status'=> 'verified',
-                'confidence'         => 'high',
-                'reviewed_at'        => now(),
-                'is_active'          => true,
+                'recipe_id' => $recipe->id,
+                'content_source_id' => null,
+                'source_type' => 'original',
+                'is_ai_generated' => false,
+                'is_user_generated' => false,
+                'verification_status' => 'verified',
+                'confidence' => 'high',
+                'reviewed_at' => now(),
+                'is_active' => true,
             ]);
 
             $this->command->info("  ✓ {$recipe->title}");

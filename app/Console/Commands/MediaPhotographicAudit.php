@@ -50,7 +50,6 @@ final class MediaPhotographicAudit extends Command
 
             if ($result['photographic'] === true) {
                 $photographic++;
-                $media->forceFill(['fidelity_status' => 'photographic'])->save();
 
                 continue;
             }
@@ -64,14 +63,13 @@ final class MediaPhotographicAudit extends Command
                 'unique_colors' => $result['unique_colors'],
             ];
 
-            $changes = ['fidelity_status' => 'non_photographic'];
             if ($apply) {
                 // Kayıt ve dosya korunur; yalnız public uygunluk geri alınır.
-                $changes['media_status'] = 'no_media';
+                // fidelity_status'e dokunulmaz: o alan "görsel bu yemeğe ait mi"
+                // sorusunu yanıtlar ve strong_match sözlüğü başka akışlara aittir.
+                $media->forceFill(['media_status' => 'no_media'])->save();
                 $demoted++;
             }
-
-            $media->forceFill($changes)->save();
         }
 
         $report = [
