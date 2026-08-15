@@ -2,7 +2,7 @@
 
 return [
     'pagination' => [
-        'public' => 12,
+        'public' => 24,
         'api_default' => 12,
         'api_max' => 50,
         'admin' => 30,
