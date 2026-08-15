@@ -30,3 +30,8 @@ Thumbs.db
 /build-artifacts
 /output
 /.playwright-cli
+
+# Deploy medya artifactlari (repoya girmez, 966MB/58MB)
+public-media-deploy.tar.gz
+recipe-media-*.tar.gz
+tmp-extract/

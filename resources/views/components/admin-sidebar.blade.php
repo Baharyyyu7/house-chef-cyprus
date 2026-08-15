@@ -1,44 +1,37 @@
 @php
     $groups = [
-        'Genel Bakış' => [
+        'Günlük çalışma' => [
             ['route' => 'admin.dashboard', 'label' => 'Genel Bakış', 'icon' => 'sparkles'],
-            ['route' => 'admin.product-experience.index', 'label' => 'Ürün Deneyimi', 'icon' => 'sparkles'],
-            ['route' => 'admin.release-candidate.index', 'label' => 'RC1 Kontrol Merkezi', 'icon' => 'check'],
-        ],
-        'Kullanıcı ve akıllı sistemler' => [
             ['route' => 'admin.users.index', 'label' => 'Kullanıcılar', 'icon' => 'users'],
             ['route' => 'admin.contact-requests.index', 'label' => 'İletişim Talepleri', 'icon' => 'info'],
-            ['route' => 'admin.ai-kitchen.index', 'label' => 'AI Operasyonları', 'icon' => 'sparkles'],
-            ['route' => 'admin.personalization.index', 'label' => 'Kişiselleştirme', 'icon' => 'users'],
         ],
         'İçerik yönetimi' => [
             ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => 'menu'],
             ['route' => 'admin.blog.index', 'label' => 'Blog Yazıları', 'icon' => 'menu'],
-            ['route' => 'admin.content-factory.index', 'label' => 'İçerik Fabrikası', 'icon' => 'sparkles'],
-            ['route' => 'admin.production-content.index', 'label' => 'Production İçerik Merkezi', 'icon' => 'check'],
             ['route' => 'admin.editorial-operations.index', 'label' => 'Editoryal Operasyonlar', 'icon' => 'check'],
             ['route' => 'admin.recipe-verification.index', 'label' => 'İçerik Doğrulama', 'icon' => 'check'],
         ],
         'Medya' => [
             ['route' => 'admin.media.index', 'label' => 'Medya', 'icon' => 'image'],
-            ['route' => 'admin.media-operations.index', 'label' => 'Medya Operasyonları', 'icon' => 'image'],
-            ['route' => 'admin.ai-image-studio.index', 'label' => 'Görsel Stüdyosu', 'icon' => 'image'],
         ],
         'SEO' => [
             ['route' => 'admin.seo.index', 'label' => 'SEO Operasyonları', 'icon' => 'search'],
-            ['route' => 'admin.seo.issues', 'label' => 'SEO Sağlığı', 'icon' => 'check'],
         ],
-        'Malzeme verisi' => [
+        'Gelişmiş araçlar' => [
+            ['route' => 'admin.content-factory.index', 'label' => 'İçerik Fabrikası', 'icon' => 'sparkles'],
+            ['route' => 'admin.production-content.index', 'label' => 'Production İçerik Merkezi', 'icon' => 'check'],
+            ['route' => 'admin.media-operations.index', 'label' => 'Medya Operasyonları', 'icon' => 'image'],
+            ['route' => 'admin.ai-image-studio.index', 'label' => 'Görsel Stüdyosu', 'icon' => 'image'],
+            ['route' => 'admin.seo.issues', 'label' => 'SEO Sağlığı', 'icon' => 'check'],
             ['route' => 'admin.ingredients.index', 'label' => 'Malzemeler', 'icon' => 'search'],
             ['route' => 'admin.measurements.units', 'label' => 'Ölçü Birimleri', 'icon' => 'info'],
             ['route' => 'admin.measurements.conversions', 'label' => 'Dönüşümler', 'icon' => 'arrow-right'],
-        ],
-        'Beslenme ve güven' => [
             ['route' => 'admin.nutrition.index', 'label' => 'Beslenme', 'icon' => 'info'],
             ['route' => 'admin.data-quality.index', 'label' => 'Veri Kalitesi', 'icon' => 'check'],
-        ],
-        'Sistem' => [
-            ['route' => 'admin.dashboard', 'label' => 'Sistem Özeti', 'icon' => 'info'],
+            ['route' => 'admin.product-experience.index', 'label' => 'Ürün Deneyimi', 'icon' => 'sparkles'],
+            ['route' => 'admin.release-candidate.index', 'label' => 'RC Kontrol Merkezi', 'icon' => 'check'],
+            ['route' => 'admin.ai-kitchen.index', 'label' => 'AI Operasyonları', 'icon' => 'sparkles'],
+            ['route' => 'admin.personalization.index', 'label' => 'Kişiselleştirme', 'icon' => 'users'],
             ['route' => 'admin.integrations.index', 'label' => 'Entegrasyonlar', 'icon' => 'sparkles'],
             ['route' => 'admin.mail-operations.index', 'label' => 'E-posta Operasyonları', 'icon' => 'info'],
             ['route' => 'admin.failed-jobs.index', 'label' => 'Başarısız İşler', 'icon' => 'warning'],
@@ -68,7 +61,7 @@
         @foreach ($groups as $group => $items)
             @php($groupActive = collect($items)->contains(fn ($item) => request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route'])))
             @php($groupSearch = mb_strtolower($group.' '.collect($items)->pluck('label')->join(' '), 'UTF-8'))
-            <section aria-label="{{ $group }}" x-data="{ open: {{ $groupActive ? 'true' : 'false' }} }" x-show="!adminSidebarQuery || '{{ $groupSearch }}'.includes(adminSidebarQuery.toLocaleLowerCase('tr-TR'))">
+            <section aria-label="{{ $group }}" x-data="{ open: {{ $groupActive || $group !== 'Gelişmiş araçlar' ? 'true' : 'false' }} }" x-show="!adminSidebarQuery || '{{ $groupSearch }}'.includes(adminSidebarQuery.toLocaleLowerCase('tr-TR'))">
                 <button type="button" @click="open = !open" x-show="!adminSidebarCollapsed" class="mb-2 flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1 text-left text-[10px] font-extrabold uppercase tracking-[.16em] text-white/55 hover:bg-white/5 hover:text-white" :aria-expanded="open">
                     <span>{{ $group }}</span><span class="text-sm leading-none" x-text="open ? '−' : '+'"></span>
                 </button>

@@ -45,11 +45,75 @@
     <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&family=inter:400,500,600,700&display=swap" rel="stylesheet" />
     <title>{{ $title }}</title>
     <script>if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');</script>
+    {{-- Kırık medya koruması: yüklenemeyen görseller alt metnini ekrana düşürmesin, nötr yüzeyle değişsin. --}}
+    <script>
+    (function () {
+        var FALLBACK = "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20800%20600'%3E%3Crect%20width='800'%20height='600'%20fill='%23e0ddda'/%3E%3Cg%20fill='none'%20stroke='%23a8a29e'%20stroke-width='9'%3E%3Ccircle%20cx='400'%20cy='300'%20r='104'/%3E%3Ccircle%20cx='400'%20cy='300'%20r='52'/%3E%3C/g%3E%3C/svg%3E";
+        function settle(img) { img.classList.remove('hc-media-loading'); }
+        function fail(img) {
+            if (img.dataset.hcMediaFailed) { return; }
+            img.dataset.hcMediaFailed = '1';
+            var parent = img.parentElement;
+            if (parent && parent.tagName === 'PICTURE') {
+                var sources = parent.querySelectorAll('source');
+                for (var i = 0; i < sources.length; i++) { sources[i].parentNode.removeChild(sources[i]); }
+            }
+            img.removeAttribute('srcset');
+            img.removeAttribute('sizes');
+            img.setAttribute('alt', '');
+            img.setAttribute('aria-hidden', 'true');
+            settle(img);
+            img.classList.add('hc-media-fallback');
+            img.src = FALLBACK;
+        }
+        document.addEventListener('error', function (event) {
+            var target = event.target;
+            if (target && target.tagName === 'IMG') { fail(target); }
+        }, true);
+        document.addEventListener('load', function (event) {
+            var target = event.target;
+            if (target && target.tagName === 'IMG') { settle(target); }
+        }, true);
+        function prime() {
+            var images = document.images;
+            for (var i = 0; i < images.length; i++) {
+                var img = images[i];
+                if (img.dataset.hcMediaFailed) { continue; }
+                if (!img.complete) { img.classList.add('hc-media-loading'); continue; }
+                if (img.naturalWidth === 0) { fail(img); } else { settle(img); }
+            }
+        }
+        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', prime); } else { prime(); }
+        document.addEventListener('livewire:navigated', prime);
+    })();
+    </script>
+    {{-- Yapışkan başlık yüksekliğini ölç: bölüm bağlantıları hedefi çubukların altında bırakmasın. --}}
+    <script>
+    (function () {
+        function measure() {
+            var root = document.documentElement;
+            var header = document.querySelector('.hc-public-header') || document.querySelector('body > header');
+            var nav = document.querySelector('.hc-sticky-under-header');
+            if (header) { root.style.setProperty('--hc-header-h', Math.round(header.getBoundingClientRect().height) + 'px'); }
+            root.style.setProperty('--hc-section-nav-h', nav ? Math.round(nav.getBoundingClientRect().height) + 'px' : '0px');
+        }
+        function watch() {
+            measure();
+            if (typeof ResizeObserver === 'function') {
+                var header = document.querySelector('.hc-public-header') || document.querySelector('body > header');
+                if (header) { new ResizeObserver(measure).observe(header); }
+            }
+        }
+        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', watch); } else { watch(); }
+        window.addEventListener('resize', measure);
+        document.addEventListener('livewire:navigated', measure);
+    })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @unless($isPrivateSurface)<x-google-integrations />@endunless
 </head>
-<body x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, adminSidebarCollapsed: false, adminSidebarQuery: '', scrolled: false }"
-    x-init="document.documentElement.classList.toggle('dark', dark); $watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light'; window.dispatchEvent(new CustomEvent('hc-theme-changed')); }); $watch('adminMenuOpen', value => document.body.classList.toggle('overflow-hidden', value)); $watch('menuOpen', value => document.body.classList.toggle('overflow-hidden', value))"
+<body x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, adminSidebarCollapsed: localStorage.hcAdminSidebarCollapsed === 'true', adminSidebarQuery: '', scrolled: false }"
+    x-init="document.documentElement.classList.toggle('dark', dark); $watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light'; window.dispatchEvent(new CustomEvent('hc-theme-changed')); }); $watch('adminSidebarCollapsed', value => localStorage.hcAdminSidebarCollapsed = value); $watch('adminMenuOpen', value => document.body.classList.toggle('overflow-hidden', value)); $watch('menuOpen', value => document.body.classList.toggle('overflow-hidden', value))"
     @keydown.escape.window="adminMenuOpen = false; menuOpen = false"
     class="min-h-screen antialiased">
     @if(!$isPrivateSurface && request()->cookie('hc_analytics_consent') === 'granted' && config('integrations.google.tag_manager.enabled') && preg_match('/^GTM-[A-Z0-9]+$/', (string) config('integrations.google.tag_manager.container_id')))

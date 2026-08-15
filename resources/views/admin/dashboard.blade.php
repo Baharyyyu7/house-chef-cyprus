@@ -76,12 +76,14 @@
                     @endforeach
                 </div>
 
-                <article id="system-status" class="hc-v3-card p-5 sm:p-6">
-                    <div class="flex flex-wrap items-start justify-between gap-4">
-                        <div><p class="hc-kicker">OPERASYONEL SAĞLIK</p><h2 class="hc-heading-3 mt-1">Sistem durumu</h2></div>
-                        <div class="flex flex-wrap gap-2"><a href="{{ route('admin.product-experience.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Ürün deneyimi</a><a href="{{ route('admin.system-events.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Sistem olayları</a></div>
-                    </div>
-                    <div class="hc-admin-system-grid mt-6">
+                <details id="system-status" class="hc-admin-disclosure hc-v3-card">
+                    <summary>
+                        <span><p class="hc-kicker">OPERASYONEL SAĞLIK</p><h2 class="hc-heading-3 mt-1">Sistem durumu</h2><p class="hc-caption mt-1">Kritik çalışma sinyalleri ve bakım araçları.</p></span>
+                        <span class="hc-admin-disclosure__hint">Ayrıntılar</span>
+                    </summary>
+                    <div class="hc-admin-disclosure__body">
+                    <div class="flex flex-wrap justify-end gap-2"><a href="{{ route('admin.product-experience.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Ürün deneyimi</a><a href="{{ route('admin.system-events.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Sistem olayları</a></div>
+                    <div class="hc-admin-system-grid mt-5">
                         <div class="hc-admin-system-card"><span>Uygulama</span><strong>{{ $statusLabel((string) ($system['health']['status'] ?? 'never_run')) }}</strong></div>
                         <div class="hc-admin-system-card"><span>Queue</span><strong>{{ $statusLabel((string) ($system['queue']['overall_status'] ?? 'never_run')) }}</strong><small>{{ (int) ($system['queue']['pending_jobs'] ?? 0) }} bekleyen · {{ (int) ($system['queue']['failed_jobs'] ?? 0) }} başarısız</small></div>
                         <div class="hc-admin-system-card"><span>Scheduler</span><strong>{{ $statusLabel((string) ($system['scheduler']['status'] ?? 'never_run')) }}</strong><small>{{ $system['scheduler']['last_task_name'] ?? 'Henüz görev kaydı yok' }}</small></div>
@@ -95,10 +97,15 @@
                         <form method="post" action="{{ route('admin.system-status.refresh-queue') }}">@csrf<button class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Queue yenile</button></form>
                         <form method="post" action="{{ route('admin.system-status.refresh-scheduler') }}">@csrf<button class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Scheduler yenile</button></form>
                         <form method="post" action="{{ route('admin.system-status.refresh-cache') }}">@csrf<button class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Cache yenile</button></form>
-                    </div>
-                </article>
+                    </div></div>
+                </details>
 
-                <section class="grid gap-6 lg:grid-cols-3" aria-label="Operasyon kuyrukları">
+                <details class="hc-admin-disclosure hc-v3-card">
+                    <summary>
+                        <span><p class="hc-kicker">OPERASYON KUYRUKLARI</p><h2 class="hc-heading-3 mt-1">Ayrıntılı iş akışı verileri</h2><p class="hc-caption mt-1">İçerik, üye ve iletişim operasyonlarının detayları.</p></span>
+                        <span class="hc-admin-disclosure__hint">Ayrıntılar</span>
+                    </summary>
+                    <section class="hc-admin-disclosure__body grid gap-6 lg:grid-cols-3" aria-label="Operasyon kuyrukları">
                     <article class="hc-v3-card p-5">
                         <div class="flex items-center justify-between gap-3"><div><p class="hc-kicker">İÇERİK OPERASYONLARI</p><h2 class="hc-heading-4 mt-1">Yayın ve inceleme</h2></div><a href="{{ route('admin.recipe-verification.index') }}" class="hc-caption font-bold" style="color:var(--hc-text-accent)">İncele</a></div>
                         <dl class="hc-admin-operation-list mt-5">
@@ -134,7 +141,8 @@
                             <div><dt>Restore tamamlanma</dt><dd>{{ $operations['restore']['finished_at'] ? \Illuminate\Support\Carbon::parse($operations['restore']['finished_at'])->translatedFormat('d M Y, H:i') : 'Kayıt yok' }}</dd></div>
                         </dl>
                     </article>
-                </section>
+                    </section>
+                </details>
 
                 <article class="hc-v3-card p-5 sm:p-6">
                     <div class="flex flex-wrap items-start justify-between gap-4"><div><p class="hc-kicker">VERİ GÜVENİ</p><h2 class="hc-heading-3 mt-1">Kalite skorları</h2></div><a href="{{ route('admin.data-quality.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Veri kalitesine git</a></div>
