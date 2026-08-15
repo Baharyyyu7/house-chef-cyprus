@@ -151,13 +151,15 @@ final class VisualDesignPhaseTest extends TestCase
         $this->seed();
         $recipe = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->firstOrFail();
 
-        $this->get(route('recipes.show', $recipe, ['servings' => 4]))
+        // route()'un üçüncü argümanı $absolute'tur; sorgu parametreleri parametre
+        // dizisinin içinde verilmezse URL'e hiç eklenmez ve test sessizce anlamsızlaşır.
+        $this->get(route('recipes.show', ['recipe' => $recipe, 'servings' => 4]))
             ->assertOk()
             ->assertSee('name="servings" value="4"', false)
             ->assertSee('name="servings_step" value="-1"', false)
             ->assertSee('name="servings_step" value="1"', false);
 
-        $this->get(route('recipes.show', $recipe, ['servings' => 4, 'servings_step' => 1]))
+        $this->get(route('recipes.show', ['recipe' => $recipe, 'servings' => 4, 'servings_step' => 1]))
             ->assertOk()
             ->assertSee('name="servings" value="5"', false);
     }
