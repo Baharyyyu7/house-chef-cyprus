@@ -78,7 +78,13 @@ final class RecipeController extends Controller
     {
         abort_unless(($recipe->status === 'published' && $recipe->verification_status === 'verified') || $request->user()?->isAdmin(), 404);
         $recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient', 'recipeIngredients.group', 'steps', 'media' => fn ($query) => $query->where('visibility', 'public'), 'provenances.contentSource']);
+        // Artır/azalt butonları input ile aynı adı paylaşamaz: ikisi de gönderilir ve
+        // DOM sırasına göre biri diğerini ezer. Butonlar yön bildirir, değeri burada uygularız.
         $servings = max(1, (int) $request->integer('servings', $recipe->servings));
+        $servingsStep = (int) $request->integer('servings_step', 0);
+        if ($servingsStep !== 0) {
+            $servings = max(1, min(99, $servings + ($servingsStep > 0 ? 1 : -1)));
+        }
 
         $nutritionResult = $nutrition->snapshot($recipe, $servings);
 

@@ -146,6 +146,22 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('fetchpriority="high"', false);
     }
 
+    public function test_recipe_servings_controls_use_a_separate_increment_contract_without_overwriting_the_typed_value(): void
+    {
+        $this->seed();
+        $recipe = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->firstOrFail();
+
+        $this->get(route('recipes.show', $recipe, ['servings' => 4]))
+            ->assertOk()
+            ->assertSee('name="servings" value="4"', false)
+            ->assertSee('name="servings_step" value="-1"', false)
+            ->assertSee('name="servings_step" value="1"', false);
+
+        $this->get(route('recipes.show', $recipe, ['servings' => 4, 'servings_step' => 1]))
+            ->assertOk()
+            ->assertSee('name="servings" value="5"', false);
+    }
+
     public function test_recipe_archive_keeps_advanced_filter_values_in_the_public_url_and_exposes_removable_filter_controls(): void
     {
         $this->seed();
