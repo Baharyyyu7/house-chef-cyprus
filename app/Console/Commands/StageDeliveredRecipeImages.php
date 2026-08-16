@@ -21,6 +21,7 @@ final class StageDeliveredRecipeImages extends Command
 {
     protected $signature = 'media:stage-delivered
         {--apply : Manifest dosyasına yaz, aksi hâlde yalnız rapor}
+        {--rename-to-current-slug : Dosya adını bu veritabanındaki slug ile eşitle}
         {--reviewer=House Chef Cyprus Editorial : Onayı üstlenen editör}';
 
     protected $description = 'Teslim edilen tarif görsellerini denetler ve içe aktarma manifestine hazırlar.';
@@ -95,13 +96,25 @@ final class StageDeliveredRecipeImages extends Command
                 continue;
             }
 
-            // İçe aktarıcı dosya adının tarifin güncel slug'ıyla birebir
-            // eşleşmesini şart koşar; bu kural görselin başka bir tarife
-            // yerleşmesini engeller ve gevşetilmemeli. Slug teslimden sonra
-            // değiştiyse çözüm, dosyayı burada güncel ada taşımaktır.
+            // İçe aktarıcı dosya adının tarifin slug'ıyla birebir eşleşmesini
+            // şart koşar; bu kural görselin başka bir tarife yerleşmesini
+            // engeller ve gevşetilmemeli.
+            //
+            // Ad uyuşmuyorsa dosya sessizce taşınmaz. Tek bir yerel seeder
+            // çalışması 678 tarifin 628'inin slug'ını değiştirdi ve canlıdan
+            // ayırdı; o veritabanına bakıp "düzeltmek" dosyaları canlıda
+            // hiçbir tarifi göstermeyen adlara taşırdı. Taşıma yalnız açıkça
+            // istendiğinde yapılır ve hangi veritabanına göre yapıldığı
+            // operatörün kararıdır.
             $beklenen = 'recipe--'.$recipe->slug.'.'.pathinfo($dosya, PATHINFO_EXTENSION);
 
             if ($dosya !== $beklenen) {
+                if (! $this->option('rename-to-current-slug')) {
+                    $atlanan[] = [$dosya, 'slug bu veritabanında farklı: '.$recipe->slug.' (doğru veritabanında mısınız? taşımak için --rename-to-current-slug)'];
+
+                    continue;
+                }
+
                 if ($this->option('apply') && ! @rename($yol, $klasor.'/'.$beklenen)) {
                     $atlanan[] = [$dosya, 'güncel slug adına taşınamadı: '.$beklenen];
 

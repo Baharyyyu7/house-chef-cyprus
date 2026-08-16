@@ -37,7 +37,8 @@ final class SitemapController extends Controller
 
     public function recipes(): Response
     {
-        $urls = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->orderBy('updated_at')->get(['slug', 'updated_at'])
+        $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified'))
+            ->orderBy('updated_at')->get(['id', 'slug', 'updated_at'])
             ->map(fn (Recipe $recipe): array => ['loc' => route('recipes.show', $recipe->slug), 'lastmod' => $recipe->updated_at?->toDateString()]);
 
         return $this->urls($urls);
@@ -45,15 +46,33 @@ final class SitemapController extends Controller
 
     public function blog(): Response
     {
-        $urls = BlogPost::query()->publiclyVisible()->orderBy('updated_at')->get(['slug', 'updated_at'])
+        $urls = $this->indexable(BlogPost::query()->publiclyVisible())
+            ->orderBy('updated_at')->get(['id', 'slug', 'updated_at'])
             ->map(fn (BlogPost $post): array => ['loc' => route('blog.show', $post), 'lastmod' => $post->updated_at?->toDateString()]);
 
         return $this->urls($urls);
     }
 
+    /**
+     * Sitemap "bu sayfayı indeksle" demektir. Yayındaki 678 tarifin 450'si
+     * seoMetadata.robots alanında noindex taşıyor -- inceleme beklediği için,
+     * ki bu doğru -- ama hepsi sitemap'e giriyordu. Google'a aynı sayfa için
+     * iki karşıt talimat vermek Search Console'da "gönderilen URL noindex
+     * işaretli" hatası üretir ve sitenin geri kalanına olan güveni düşürür.
+     *
+     * @template TModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<TModel>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<TModel>
+     */
+    private function indexable($query)
+    {
+        return $query->whereDoesntHave('seoMetadata', fn ($q) => $q->where('robots', 'like', '%noindex%'));
+    }
+
     public function images(PublicMediaEligibilityService $mediaEligibility): Response
     {
-        $urls = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')
+        $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified'))
             ->with(['media' => fn ($query) => $query->where('visibility', 'public')->where('verification_status', 'verified')->where('media_status', 'approved_real_media')->where('license_review_status', 'approved')->where('attribution_review_status', 'approved')->orderBy('sort_order')])
             ->get(['id', 'slug', 'updated_at'])
             ->map(function (Recipe $recipe) use ($mediaEligibility): ?array {
@@ -64,7 +83,7 @@ final class SitemapController extends Controller
                 return $images === [] ? null : ['loc' => route('recipes.show', $recipe->slug), 'lastmod' => $recipe->updated_at?->toDateString(), 'images' => $images];
             })->filter();
 
-        $blogUrls = BlogPost::query()->publiclyVisible()->with('heroMedia')->get()
+        $blogUrls = $this->indexable(BlogPost::query()->publiclyVisible())->with("heroMedia")->get()
             ->filter(fn (BlogPost $post): bool => $mediaEligibility->isEligible($post->heroMedia) && $post->heroMedia?->publicUrl() !== null)
             ->map(fn (BlogPost $post): array => ['loc' => route('blog.show', $post), 'lastmod' => $post->updated_at?->toDateString(), 'images' => [['loc' => $post->heroMedia->responsiveUrl(1200) ?: $post->heroMedia->publicUrl(), 'title' => $post->heroMedia->alt_text ?: $post->title]]]);
         $urls = $urls->concat($blogUrls)->values();
