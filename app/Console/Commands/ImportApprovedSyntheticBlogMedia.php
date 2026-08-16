@@ -25,6 +25,7 @@ final class ImportApprovedSyntheticBlogMedia extends Command
         }
         $imported = 0;
         $missing = [];
+        $attempted = [];
         $media = [];
         foreach (BlogPost::query()->publiclyVisible()->orderBy('id')->get() as $post) {
             $source = rtrim($directory, '/').'/'.$post->slug.'.png';
@@ -33,6 +34,7 @@ final class ImportApprovedSyntheticBlogMedia extends Command
 
                 continue;
             }
+            $attempted[] = $post->slug;
             $media[] = $service->import($post, $source);
             $imported++;
         }
@@ -42,13 +44,23 @@ final class ImportApprovedSyntheticBlogMedia extends Command
                 $optimizer->optimizeItem($item, $optimized);
             }
         }
+
+        // Varyant eksikliği yalnız içe aktarmayı denediğimiz yazılar için hatadır:
+        // orada bozulan gerçekten işlemedir. Kaynak görseli henüz olmayan bir yazı
+        // ise içerik boşluğudur ve blog-media:completion-audit'in işidir; onu deploy
+        // durdurucusu saymak, sitenin kendi "onaylı görsel yoksa yer tutucu göster"
+        // politikasıyla çelişiyor ve tüm sürümleri bloke ediyordu.
         $incompleteVariants = BlogPost::query()->publiclyVisible()->with('heroMedia')->get()
-            ->filter(fn (BlogPost $post): bool => ! $this->hasRequiredVariants($post))
+            ->filter(fn (BlogPost $post): bool => in_array($post->slug, $attempted, true) && ! $this->hasRequiredVariants($post))
             ->pluck('slug')->values()->all();
         $result = compact('imported', 'missing', 'optimized', 'incompleteVariants');
         $this->line((bool) $this->option('json') ? json_encode($result, JSON_THROW_ON_ERROR) : 'Imported: '.$imported.', missing: '.count($missing));
 
-        return $missing === [] && $incompleteVariants === [] ? self::SUCCESS : self::FAILURE;
+        if ($missing !== [] && ! $this->option('json')) {
+            $this->warn('Kaynak görseli bekleyen yayındaki yazı: '.implode(', ', $missing));
+        }
+
+        return $incompleteVariants === [] && $optimized['failed'] === 0 ? self::SUCCESS : self::FAILURE;
     }
 
     private function hasRequiredVariants(BlogPost $post): bool

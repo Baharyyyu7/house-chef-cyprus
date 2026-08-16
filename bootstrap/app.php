@@ -25,6 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
         __DIR__.'/../app/Console/Commands',
     ])
     ->withMiddleware(function (Middleware $middleware): void {
+        // This preference is intentionally written by browser-side JavaScript so the
+        // analytics tag can be loaded only after a visitor has opted in. It contains
+        // no account or session data and must therefore remain readable by Laravel.
+        $middleware->encryptCookies(except: ['hc_analytics_consent']);
         $middleware->append(RequestContext::class);
         $middleware->append(SecureHeaders::class);
     })

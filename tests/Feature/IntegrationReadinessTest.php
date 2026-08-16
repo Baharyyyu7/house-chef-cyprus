@@ -28,7 +28,7 @@ final class IntegrationReadinessTest extends TestCase
         config()->set('integrations.google.analytics.measurement_id', 'G-ABC123');
 
         $this->get('/')->assertOk()->assertDontSee('GTM-ABC123')->assertSee('Analitik tercihiniz');
-        $response = $this->withCookie('hc_analytics_consent', 'granted')->get('/')->assertOk();
+        $response = $this->withUnencryptedCookie('hc_analytics_consent', 'granted')->get('/')->assertOk();
         $response->assertSee('GTM-ABC123')->assertDontSee('gtag/js?id=G-ABC123');
         $response->assertSee("'analytics_storage':'granted'", false)
             ->assertSee("'ad_storage':'denied'", false);
@@ -42,7 +42,7 @@ final class IntegrationReadinessTest extends TestCase
         config()->set('integrations.google.analytics.measurement_id', 'G-ABC123');
 
         $this->get('/')->assertOk()->assertDontSee('gtag/js?id=G-ABC123');
-        $this->withCookie('hc_analytics_consent', 'granted')->get('/')
+        $this->withUnencryptedCookie('hc_analytics_consent', 'granted')->get('/')
             ->assertOk()
             ->assertSee('gtag/js?id=G-ABC123')
             ->assertSee("'analytics_storage':'granted'", false)
