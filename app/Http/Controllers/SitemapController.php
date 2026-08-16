@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\BlogPost;
 use App\Models\Media;
 use App\Models\Recipe;
+use App\Services\Media\PublicMediaEligibilityService;
 use Illuminate\Http\Response;
 
 final class SitemapController extends Controller
@@ -50,16 +51,21 @@ final class SitemapController extends Controller
         return $this->urls($urls);
     }
 
-    public function images(): Response
+    public function images(PublicMediaEligibilityService $mediaEligibility): Response
     {
         $urls = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')
             ->with(['media' => fn ($query) => $query->where('visibility', 'public')->where('verification_status', 'verified')->where('media_status', 'approved_real_media')->where('license_review_status', 'approved')->where('attribution_review_status', 'approved')->orderBy('sort_order')])
             ->get(['id', 'slug', 'updated_at'])
-            ->filter(fn (Recipe $recipe): bool => $recipe->media->isNotEmpty())
-            ->map(fn (Recipe $recipe): array => ['loc' => route('recipes.show', $recipe->slug), 'lastmod' => $recipe->updated_at?->toDateString(), 'images' => $recipe->media->map(fn (Media $media): array => ['loc' => $media->publicUrl(), 'title' => $media->alt_text ?: $recipe->slug])->filter(fn (array $image): bool => is_string($image['loc']) && $image['loc'] !== '')->values()->all()]);
+            ->map(function (Recipe $recipe) use ($mediaEligibility): ?array {
+                $images = $recipe->media->filter(fn (Media $media): bool => $mediaEligibility->isEligible($media))
+                    ->map(fn (Media $media): array => ['loc' => $media->publicUrl(), 'title' => $media->alt_text ?: $recipe->slug])
+                    ->filter(fn (array $image): bool => is_string($image['loc']) && $image['loc'] !== '')->values()->all();
+
+                return $images === [] ? null : ['loc' => route('recipes.show', $recipe->slug), 'lastmod' => $recipe->updated_at?->toDateString(), 'images' => $images];
+            })->filter();
 
         $blogUrls = BlogPost::query()->publiclyVisible()->with('heroMedia')->get()
-            ->filter(fn (BlogPost $post): bool => $post->heroMedia?->isApprovedRealMedia() && $post->heroMedia->publicUrl() !== null)
+            ->filter(fn (BlogPost $post): bool => $mediaEligibility->isEligible($post->heroMedia) && $post->heroMedia?->publicUrl() !== null)
             ->map(fn (BlogPost $post): array => ['loc' => route('blog.show', $post), 'lastmod' => $post->updated_at?->toDateString(), 'images' => [['loc' => $post->heroMedia->responsiveUrl(1200) ?: $post->heroMedia->publicUrl(), 'title' => $post->heroMedia->alt_text ?: $post->title]]]);
         $urls = $urls->concat($blogUrls)->values();
 

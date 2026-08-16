@@ -15,6 +15,7 @@ use App\Services\AllergenAnalysisService;
 use App\Services\DietaryCompatibilityService;
 use App\Services\IngredientMatchingService;
 use App\Services\Measurements\RecipeIngredientDisplayService;
+use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\NutritionService;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoMetadataService;
@@ -74,7 +75,7 @@ final class RecipeController extends Controller
         return view('recipes.index', $viewData);
     }
 
-    public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, SeoMetadataService $seo, SeoSchemaService $schemaService)
+    public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, PublicMediaEligibilityService $mediaEligibility, SeoMetadataService $seo, SeoSchemaService $schemaService)
     {
         abort_unless(($recipe->status === 'published' && $recipe->verification_status === 'verified') || $request->user()?->isAdmin(), 404);
         $recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient', 'recipeIngredients.group', 'steps', 'media' => fn ($query) => $query->where('visibility', 'public'), 'provenances.contentSource']);
@@ -88,7 +89,7 @@ final class RecipeController extends Controller
 
         $nutritionResult = $nutrition->snapshot($recipe, $servings);
 
-        $heroMedia = $recipe->media->first(fn ($media) => $media->isApprovedRealMedia());
+        $heroMedia = $mediaEligibility->firstEligible($recipe->media);
         $schema = $schemaService->recipe($recipe, collect($ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings))->pluck('formatted')->values()->all(), $heroMedia?->publicUrl() ?: '');
 
         return view('recipes.show', [

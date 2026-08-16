@@ -25,29 +25,41 @@
 
         <p class="hc-caption mt-4" style="color:var(--hc-text-muted)">Güncelleme: {{ \Illuminate\Support\Carbon::parse($updatedAt)->translatedFormat('d M Y, H:i') }} · {{ $periodLabel }}</p>
 
-        <section class="hc-admin-metrics hc-v3-stagger mt-7" aria-label="Temel metrikler">
-            @foreach ($cards as $card)
-                <article class="hc-admin-metric hc-v3-card hc-v3-card--interactive" aria-label="{{ $card['label'] }}: {{ $card['current_value'] ?? 'veri yok' }}{{ $card['suffix'] }}">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <p class="hc-label-md" style="color:var(--hc-text-muted)">{{ $card['label'] }}</p>
-                            @if ($card['data_status'] === 'available')
-                                <strong class="hc-admin-metric__value hc-display-lg" data-hc-count="{{ $card['current_value'] }}">{{ number_format((float) $card['current_value'], 0, ',', '.') }}{{ $card['suffix'] }}</strong>
-                            @else
-                                <strong class="hc-admin-metric__empty">Veri henüz oluşmadı</strong>
-                            @endif
-                        </div>
-                        <span class="hc-admin-metric__dot {{ $card['data_status'] === 'available' ? 'hc-admin-metric__dot--available' : '' }}" aria-hidden="true"></span>
-                    </div>
-                    <div class="hc-admin-metric__footer mt-4">
-                        <p class="hc-caption" style="color:var(--hc-text-muted)">{{ $card['description'] }}</p>
-                        @if ($card['percentage_change'] !== null)
-                            <span @class(['hc-admin-trend', 'hc-admin-trend--inverse' => $card['inverse']])>{{ $card['trend_direction'] === 'up' ? '↑' : ($card['trend_direction'] === 'down' ? '↓' : '—') }} {{ number_format(abs($card['percentage_change']), 1, ',', '.') }}%</span>
-                        @else
-                            <span class="hc-caption hc-admin-metric__trend-label" style="color:var(--hc-text-muted)">Karşılaştırma için yeterli veri yok</span>
-                        @endif
-                    </div>
+        @php
+            // Operatörün üzerine eylem aldığı metrikler önde; geri kalanı referans şeridi.
+            $birincilAnahtarlar = ['yayinda', 'inceleme', 'failed_jobs', 'kullanicilar'];
+            $kartlar = collect($cards)->keyBy('key');
+            $birincil = collect($birincilAnahtarlar)->map(fn ($k) => $kartlar->get($k))->filter()->values();
+            $ikincil = $kartlar->reject(fn ($c) => in_array($c['key'], $birincilAnahtarlar, true))->values();
+        @endphp
+
+        <section class="hc-admin-primary mt-7" aria-label="Öncelikli metrikler">
+            @foreach ($birincil as $card)
+                @php
+                    $deger = $card['data_status'] === 'available' ? (float) $card['current_value'] : null;
+                    $dikkat = $deger !== null && $deger > 0 && in_array($card['key'], ['inceleme', 'failed_jobs'], true);
+                @endphp
+                <article @class(['hc-admin-primary__card', 'hc-admin-primary__card--attention' => $dikkat]) aria-label="{{ $card['label'] }}: {{ $card['current_value'] ?? 'veri yok' }}{{ $card['suffix'] }}">
+                    <p class="hc-admin-primary__label">{{ $card['label'] }}</p>
+                    @if ($deger !== null)
+                        <strong class="hc-admin-primary__value">{{ number_format($deger, 0, ',', '.') }}{{ $card['suffix'] }}</strong>
+                    @else
+                        <strong class="hc-admin-primary__value hc-admin-primary__value--empty">—</strong>
+                    @endif
+                    <p class="hc-admin-primary__note">{{ $card['description'] }}</p>
+                    @if ($card['percentage_change'] !== null)
+                        <span @class(['hc-admin-trend', 'hc-admin-trend--inverse' => $card['inverse']])>{{ $card['trend_direction'] === 'up' ? '↑' : ($card['trend_direction'] === 'down' ? '↓' : '·') }} %{{ number_format(abs($card['percentage_change']), 1, ',', '.') }}</span>
+                    @endif
                 </article>
+            @endforeach
+        </section>
+
+        <section class="hc-admin-reference mt-4" aria-label="Referans sayılar">
+            @foreach ($ikincil as $card)
+                <div class="hc-admin-reference__item">
+                    <span class="hc-admin-reference__label">{{ $card['label'] }}</span>
+                    <strong class="hc-admin-reference__value">{{ $card['data_status'] === 'available' ? number_format((float) $card['current_value'], 0, ',', '.').$card['suffix'] : '—' }}</strong>
+                </div>
             @endforeach
         </section>
 

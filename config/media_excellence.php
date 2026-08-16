@@ -39,4 +39,9 @@ return [
     'approval' => [
         'media_reviewer_can_final_approve' => (bool) env('MEDIA_REVIEWER_CAN_FINAL_APPROVE', false),
     ],
+    'public_gate' => [
+        // Public rendering is deliberately stricter than an editorial status.
+        // Do not lower this to expose an uncertain or generic image.
+        'minimum_fidelity_confidence' => max(1, min(100, (int) env('MEDIA_PUBLIC_MINIMUM_FIDELITY_CONFIDENCE', 90))),
+    ],
 ];

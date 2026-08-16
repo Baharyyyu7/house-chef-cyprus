@@ -232,6 +232,21 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
 @media (max-width: 767px) { .hc-admin-step-card { grid-template-columns:2.3rem minmax(0,1fr); }.hc-admin-step-card > :last-child { grid-column:1 / -1; justify-content:flex-end; } }
 @media (max-width: 767px) { html, body, .admin-shell { overflow-x:clip; } }
 @media (prefers-reduced-motion: reduce) { .hc-v3-reveal { animation:none; } }
+/* Yönetim paneli metrikleri iki katmanda: eylem alınanlar önde, referans sayılar şeritte.
+   Eskiden on kart eşit ağırlıkta ve 13rem yüksekliğindeydi; hangisinin önemli olduğu okunmuyordu. */
+.hc-admin-primary { display:grid; grid-template-columns:1fr; gap:.85rem; }
+.hc-admin-primary__card { position:relative; display:flex; flex-direction:column; gap:.3rem; min-width:0; border-radius:var(--hc-radius-lg); border:1px solid var(--hc-border-default); background:var(--hc-surface-default); padding:1.1rem 1.25rem; }
+.hc-admin-primary__card--attention { border-color:var(--hc-border-warning); background:color-mix(in srgb, var(--hc-status-warning) 7%, var(--hc-surface-default)); }
+.hc-admin-primary__label { font-size:.72rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--hc-text-muted); }
+.hc-admin-primary__value { font-family:Manrope, sans-serif; font-size:2.35rem; font-weight:800; line-height:1.05; letter-spacing:-.05em; color:var(--hc-text-primary); font-variant-numeric:tabular-nums; }
+.hc-admin-primary__value--empty { color:var(--hc-text-muted); }
+.hc-admin-primary__note { font-size:.78rem; line-height:1.45; color:var(--hc-text-muted); }
+.hc-admin-reference { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; overflow:hidden; border-radius:var(--hc-radius-md); border:1px solid var(--hc-border-subtle); background:var(--hc-border-subtle); }
+.hc-admin-reference__item { display:flex; align-items:baseline; justify-content:space-between; gap:.75rem; min-width:0; background:var(--hc-surface-default); padding:.7rem .95rem; }
+.hc-admin-reference__label { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.78rem; font-weight:700; color:var(--hc-text-muted); }
+.hc-admin-reference__value { flex:none; font-size:.95rem; font-weight:800; color:var(--hc-text-primary); font-variant-numeric:tabular-nums; }
+@media (min-width: 640px) { .hc-admin-primary { grid-template-columns:repeat(2,minmax(0,1fr)); } .hc-admin-reference { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media (min-width: 1024px) { .hc-admin-primary { grid-template-columns:repeat(4,minmax(0,1fr)); } .hc-admin-reference { grid-template-columns:repeat(6,minmax(0,1fr)); } }
 /* Görünür SSS: aynı içerik FAQPage schema'sına da gider. */
 .hc-faq { border-radius:var(--hc-radius-md); border:1px solid var(--hc-border-default); background:var(--hc-surface-default); overflow:hidden; }
 .hc-faq__question { display:flex; align-items:center; justify-content:space-between; gap:.75rem; cursor:pointer; list-style:none; min-height:3.25rem; padding:.9rem 1.1rem; font-weight:800; color:var(--hc-text-primary); }

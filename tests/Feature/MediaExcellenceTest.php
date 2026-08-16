@@ -26,12 +26,13 @@ final class MediaExcellenceTest extends TestCase
 
     public function test_only_human_approved_licensed_real_media_is_eligible_for_public_media_surfaces(): void
     {
+        Storage::fake('public');
         $recipe = $this->recipe();
         $legacy = $recipe->media()->create([
             'kind' => 'image', 'disk' => 'public', 'path' => 'media/legacy.jpg', 'visibility' => 'public',
             'verification_status' => 'verified', 'alt_text' => 'Eski medya',
         ]);
-        $approved = $this->approvedMedia($recipe, 'media/approved.jpg');
+        $approved = $this->approvedMedia($recipe, 'media/approved.jpg', true);
 
         $this->assertFalse($legacy->isApprovedRealMedia());
         $this->assertTrue($approved->isApprovedRealMedia());
@@ -182,9 +183,9 @@ final class MediaExcellenceTest extends TestCase
         ]);
     }
 
-    private function approvedMedia(Recipe $recipe, string $path): Media
+    private function approvedMedia(Recipe $recipe, string $path, bool $publicReady = false): Media
     {
-        return $recipe->media()->create([
+        $attributes = [
             'kind' => 'image', 'disk' => 'public', 'path' => $path, 'visibility' => 'public',
             'media_status' => 'approved_real_media', 'fidelity_status' => 'strong_match', 'fidelity_confidence' => 95,
             'license_review_status' => 'approved', 'attribution_review_status' => 'approved', 'optimization_status' => 'ready',
@@ -192,6 +193,25 @@ final class MediaExcellenceTest extends TestCase
             'source_name' => 'Pexels', 'source_url' => 'https://www.pexels.com/photo/test', 'license' => 'Pexels License',
             'attribution' => 'Fotoğraf: House Chef test / Pexels', 'media_reviewed_at' => now(),
             'license_reviewed_at' => now(), 'attribution_reviewed_at' => now(), 'health_scanned_at' => now(),
-        ]);
+        ];
+
+        if ($publicReady) {
+            $reviewer = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+            Storage::disk('public')->put($path, 'approved source');
+            $attributes['responsive_variants'] = collect(['thumbnail', 'square', 'card', 'open_graph', 'hero'])->map(function (string $profile) use ($path): array {
+                $prefix = str($path)->beforeLast('.')->toString().'-'.$profile;
+                $jpeg = $prefix.'.jpg';
+                $webp = $prefix.'.webp';
+                Storage::disk('public')->put($jpeg, 'jpeg');
+                Storage::disk('public')->put($webp, 'webp');
+
+                return ['name' => $profile, 'width' => 1200, 'height' => 800, 'jpeg' => $jpeg, 'webp' => $webp];
+            })->all();
+            $attributes['media_reviewer_user_id'] = $reviewer->id;
+            $attributes['approved_by_user_id'] = $reviewer->id;
+            $attributes['approved_at'] = now();
+        }
+
+        return $recipe->media()->create($attributes);
     }
 }

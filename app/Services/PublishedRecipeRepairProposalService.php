@@ -44,7 +44,11 @@ final class PublishedRecipeRepairProposalService
             $rows[] = [
                 'public_id' => $recipe->public_id,
                 'title' => $recipe->title,
-                'identity_confirmed' => true,
+                // A proposed rewrite is not evidence that the existing title,
+                // ingredient list and media describe the same dish. This stays
+                // false until an editor records an identity decision.
+                'identity_confirmed' => false,
+                'identity_confirmation_state' => 'NOT_RECORDED',
                 'ingredients_corrected' => count($proposal['ingredients']),
                 'measurements_corrected' => count($proposal['ingredients']),
                 'step_count' => count($proposal['steps']),
@@ -52,15 +56,15 @@ final class PublishedRecipeRepairProposalService
                 'media_brief_ready' => true,
                 'placeholder_or_incorrect_media' => $current['media']['requires_replacement'],
                 'image_candidates_created' => 0,
-                'editor_review_status' => 'READY_FOR_EDITOR_REVIEW',
-                'media_review_status' => 'READY_FOR_MEDIA_REVIEW',
+                'editor_review_status' => 'IDENTITY_CONFIRMATION_REQUIRED',
+                'media_review_status' => 'IDENTITY_CONFIRMATION_REQUIRED',
             ];
         }
 
         return [
             'selected' => count($rows),
-            'identity_confirmed' => count($rows),
-            'blocked' => 0,
+            'identity_confirmed' => 0,
+            'blocked' => count($rows),
             'ingredients_corrected' => array_sum(array_column($rows, 'ingredients_corrected')),
             'measurements_corrected' => array_sum(array_column($rows, 'measurements_corrected')),
             'detailed_steps_prepared' => array_sum(array_column($rows, 'step_count')),

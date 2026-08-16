@@ -1,6 +1,6 @@
 <x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$seoImage" :social-image-width="$seoImageWidth" :social-image-height="$seoImageHeight" :social-image-alt="$seoImageAlt" :structured-data="$seoSchema">
     @php
-        $heroMedia = $recipe->media->first(fn ($media) => $media->isApprovedRealMedia());
+        $heroMedia = app(\App\Services\Media\PublicMediaEligibilityService::class)->firstEligible($recipe->media);
         $hasApprovedMedia = $heroMedia !== null;
         $isSyntheticHero = (bool) $heroMedia?->generated_by_ai;
     @endphp

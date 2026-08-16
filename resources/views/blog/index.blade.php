@@ -10,8 +10,8 @@
         </form>
         <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             @forelse($posts as $post)
-                @php($heroMedia = $post->heroMedia)
-                @php($hasApprovedMedia = $heroMedia?->isApprovedRealMedia() && $heroMedia?->publicUrl())
+                @php($heroMedia = app(\App\Services\Media\PublicMediaEligibilityService::class)->isEligible($post->heroMedia) ? $post->heroMedia : null)
+                @php($hasApprovedMedia = $heroMedia?->publicUrl())
                 <article class="hc-v3-card hc-v3-card--interactive group relative flex w-full min-w-0 flex-col overflow-hidden">
                     <a class="relative block aspect-[4/3] bg-stone-100 dark:bg-stone-900" tabindex="-1" aria-hidden="true" href="{{ route('blog.show', $post) }}">
                         @if($hasApprovedMedia)

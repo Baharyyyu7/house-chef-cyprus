@@ -6,8 +6,10 @@ namespace Tests\Feature;
 
 use App\Models\BlogPost;
 use App\Models\Recipe;
+use App\Models\User;
 use Database\Seeders\HouseChefSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 final class RecipeMediaTruthfulnessPresentationTest extends TestCase
@@ -34,6 +36,7 @@ final class RecipeMediaTruthfulnessPresentationTest extends TestCase
 
     public function test_approved_synthetic_media_is_disclosed_in_recipe_and_blog_cards(): void
     {
+        Storage::fake('public');
         $recipe = Recipe::query()->create([
             'title' => 'Sentetik görsel test tarifi',
             'slug' => 'sentetik-gorsel-test-tarifi',
@@ -68,6 +71,18 @@ final class RecipeMediaTruthfulnessPresentationTest extends TestCase
     /** @return array<string,mixed> */
     private function approvedSyntheticMedia(string $kind, string $path, string $altText): array
     {
+        $reviewer = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        Storage::disk('public')->put($path, 'synthetic source');
+        $variants = collect(['thumbnail', 'square', 'card', 'open_graph', 'hero'])->map(function (string $profile) use ($path): array {
+            $prefix = str($path)->beforeLast('.')->toString().'-'.$profile;
+            $jpeg = $prefix.'.jpg';
+            $webp = $prefix.'.webp';
+            Storage::disk('public')->put($jpeg, 'jpeg');
+            Storage::disk('public')->put($webp, 'webp');
+
+            return ['name' => $profile, 'width' => 1200, 'height' => 800, 'jpeg' => $jpeg, 'webp' => $webp];
+        })->all();
+
         return [
             'kind' => $kind,
             'disk' => 'public',
@@ -83,6 +98,13 @@ final class RecipeMediaTruthfulnessPresentationTest extends TestCase
             'generated_by_ai' => true,
             'ai_review_status' => 'SYNTHETIC_APPROVED',
             'alt_text' => $altText,
+            'fidelity_status' => 'strong_match',
+            'fidelity_confidence' => 95,
+            'responsive_variants' => $variants,
+            'media_reviewer_user_id' => $reviewer->id,
+            'media_reviewed_at' => now(),
+            'approved_by_user_id' => $reviewer->id,
+            'approved_at' => now(),
         ];
     }
 }

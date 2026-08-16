@@ -210,6 +210,42 @@ final class AdminDashboardService
         if ($backup === null) {
             $alerts[] = ['severity' => 'info', 'label' => 'Yedek kaydı yok', 'detail' => 'Henüz listelenebilir bir yedek kaydı bulunmuyor.', 'route' => 'admin.backups.index'];
         }
+
+        // Aşağıdaki iki kontrol DataQualityIssue kayıtlarına bağlı değildir. Panel yalnız
+        // açılmış issue'lara baksaydı, kimse kaydetmediği sürece "her şey yolunda" derdi;
+        // oysa aynı fotoğrafın onlarca tarifte kullanılması doğrudan sayılabilir bir durum.
+        $paylasilan = DB::table('media')
+            ->where('media_status', 'approved_real_media')
+            ->where('mediable_type', Recipe::class)
+            ->whereNotNull('path')
+            ->select('path', DB::raw('count(*) as adet'))
+            ->groupBy('path')
+            ->having('adet', '>', 1)
+            ->get();
+
+        if ($paylasilan->isNotEmpty()) {
+            $etkilenen = (int) $paylasilan->sum('adet') - $paylasilan->count();
+            $alerts[] = [
+                'severity' => 'danger',
+                'label' => 'Aynı görsel birden fazla tarifte',
+                'detail' => $etkilenen.' tarif, başka bir tarife ait fotoğrafı gösteriyor ('.$paylasilan->count().' görsel paylaşılıyor).',
+                'route' => 'admin.media.index',
+            ];
+        }
+
+        $gorselsiz = Recipe::query()
+            ->where('status', 'published')
+            ->whereDoesntHave('media', fn ($query) => $query->where('media_status', 'approved_real_media'))
+            ->count();
+
+        if ($gorselsiz > 0) {
+            $alerts[] = [
+                'severity' => 'warning',
+                'label' => 'Onaylı görseli olmayan yayındaki tarif',
+                'detail' => $gorselsiz.' yayındaki tarif yer tutucu ile gösteriliyor.',
+                'route' => 'admin.media.index',
+            ];
+        }
         foreach ([
             ['recipe_uses_placeholder_image', 'warning', 'Yer tutucu tarif görselleri', 'Yer tutucu görsellerin doğrulanmış görsellerle değiştirilmesi gerekiyor.'],
             ['conversion_low_confidence', 'warning', 'Düşük güvenli ölçü dönüşümleri', 'Ölçü dönüşümlerini kaynakla doğrulayın.'],

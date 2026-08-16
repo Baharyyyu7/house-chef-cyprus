@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\BlogTag;
+use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoMetadataService;
 use App\Services\Seo\SeoSchemaService;
@@ -24,7 +25,7 @@ final class BlogController extends Controller
         return view('blog.index', ['posts' => $posts, 'title' => 'Blog · House Chef Cyprus', 'seoIndexability' => $indexability->forRequest($request, route('blog.index'))]);
     }
 
-    public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService): View
+    public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService, PublicMediaEligibilityService $mediaEligibility): View
     {
         abort_unless(BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists(), 404);
         // A blog relation can be prepared before a recipe is editorially ready.
@@ -48,11 +49,12 @@ final class BlogController extends Controller
             ->limit(3)
             ->get();
 
-        $schema = $schemaService->article($post, $post->heroMedia?->isApprovedRealMedia() ? ($post->heroMedia->publicUrl() ?: '') : '');
+        $heroMedia = $mediaEligibility->isEligible($post->heroMedia) ? $post->heroMedia : null;
+        $schema = $schemaService->article($post, $heroMedia?->publicUrl() ?: '');
 
         $metadata = $seo->for($post, $post->meta_title ?: $post->title.' · House Chef Cyprus', $post->meta_description ?: $post->excerpt, route('blog.show', $post));
 
-        return view('blog.show', compact('post', 'schema', 'metadata', 'relatedPosts'));
+        return view('blog.show', compact('post', 'schema', 'metadata', 'relatedPosts', 'heroMedia'));
     }
 
     public function category(BlogCategory $category): View

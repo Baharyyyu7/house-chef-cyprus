@@ -1,7 +1,7 @@
 @props(['recipe', 'showFavorite' => true])
 
 @php
-    $media = $recipe->media->first(fn ($item) => $item->isApprovedRealMedia());
+    $media = app(\App\Services\Media\PublicMediaEligibilityService::class)->firstEligible($recipe->media);
     $hasApprovedMedia = $media !== null;
     $alt = $media?->alt_text ?: '';
     $isSyntheticMedia = (bool) $media?->generated_by_ai;
