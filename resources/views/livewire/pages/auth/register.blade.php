@@ -108,6 +108,27 @@ new #[Layout('layouts.guest')] class extends Component
     <p class="hc-kicker">House Chef ailesi</p>
     <h1 class="mt-2 hc-display-lg">Üye olun</h1>
     <p class="mt-2 text-sm leading-6 text-muted">Malzeme dolabınızı, favorilerinizi ve pişirme akışınızı kişiselleştirin.</p>
+
+    {{-- Üyelikle açılan dolap, koleksiyon ve pişirme akışı tek bir cümlenin
+         içinde kalıyordu; ziyaretçi neye kaydolduğunu bilmeden form dolduruyordu.
+         Bunlar sitenin zaten çalışan özellikleri, vaat değil. --}}
+    <ul class="mt-6 grid gap-3 sm:grid-cols-2">
+        @foreach ([
+            ['tag', 'Malzeme dolabı', 'Evdekileri gir, yapabileceğin tarifleri gör.'],
+            ['heart', 'Favoriler ve koleksiyonlar', 'Beğendiklerini kendi listelerinde topla.'],
+            ['book', 'Pişirme modu', 'Adım adım ilerle, zamanlayıcılar seninle.'],
+            ['sliders', 'Sana göre öneri', 'Diyet ve alerjen tercihlerine uyan tarifler.'],
+        ] as [$ikon, $baslik, $aciklama])
+            <li class="flex gap-3 rounded-2xl border p-3" style="border-color: var(--hc-line)">
+                <span class="mt-0.5 shrink-0 text-orange-600"><x-ui.icon :name="$ikon" size="18" /></span>
+                <span>
+                    <strong class="block text-sm font-bold">{{ $baslik }}</strong>
+                    <span class="mt-0.5 block text-xs leading-5 text-muted">{{ $aciklama }}</span>
+                </span>
+            </li>
+        @endforeach
+    </ul>
+
     <form wire:submit="register" class="mt-7" x-data="{ passwordVisible: false, confirmationVisible: false }">
         <div class="grid gap-4 sm:grid-cols-2">
             <div>

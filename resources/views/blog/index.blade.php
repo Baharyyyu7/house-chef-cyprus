@@ -8,7 +8,7 @@
             <input id="blog-search" class="hc-input flex-1" name="q" value="{{ request('q') }}" placeholder="Yazılarda ara">
             <button class="hc-v3-btn hc-v3-btn--primary">Ara</button>
         </form>
-        <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3" data-reveal-group>
             @forelse($posts as $post)
                 {{-- Rehber yazılarının çoğunda fotoğraf yok ve tipografik kapak kullanılır.
                      Ama onaylı bir görsel varsa onu göstermek gerekir: aksi hâlde editörün

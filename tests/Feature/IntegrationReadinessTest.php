@@ -57,6 +57,45 @@ final class IntegrationReadinessTest extends TestCase
         $this->get('/')->assertOk()->assertSee('google-site-verification')->assertSee('public-verification-token');
     }
 
+    public function test_adsense_verification_meta_is_production_only_and_requires_a_valid_publisher_id(): void
+    {
+        config()->set('integrations.google.adsense.verification_meta_enabled', true);
+        config()->set('integrations.google.adsense.client_id', 'ca-pub-6871524033163016');
+        $this->app->detectEnvironment(fn (): string => 'production');
+
+        $this->get('/')->assertOk()
+            ->assertSee('google-adsense-account')
+            ->assertSee('ca-pub-6871524033163016');
+
+        config()->set('integrations.google.adsense.client_id', 'not-a-publisher-id');
+        $this->get('/')->assertOk()->assertDontSee('google-adsense-account');
+    }
+
+    public function test_adsense_never_loads_from_analytics_consent_or_without_explicit_advertising_consent(): void
+    {
+        config()->set('integrations.google.adsense.enabled', true);
+        config()->set('integrations.google.adsense.client_id', 'ca-pub-6871524033163016');
+
+        $analyticsOnly = $this->withUnencryptedCookie('hc_analytics_consent', 'granted')
+            ->withUnencryptedCookie('hc_advertising_consent', 'denied')
+            ->get('/')
+            ->assertOk();
+        $this->assertStringNotContainsString('<script async src="https://pagead2.googlesyndication.com/', $analyticsOnly->getContent());
+
+        $response = $this->withUnencryptedCookie('hc_advertising_consent', 'granted')->get('/')->assertOk();
+        $response->assertSee('pagead2.googlesyndication.com')
+            ->assertSee('ca-pub-6871524033163016');
+        $this->assertStringContainsString('https://pagead2.googlesyndication.com', (string) $response->headers->get('Content-Security-Policy'));
+    }
+
+    public function test_ads_txt_contains_the_exact_authorized_seller_line(): void
+    {
+        $adsTxt = file_get_contents(public_path('ads.txt'));
+
+        $this->assertIsString($adsTxt);
+        $this->assertSame("google.com, pub-6871524033163016, DIRECT, f08c47fec0942fa0\n", $adsTxt);
+    }
+
     public function test_integration_center_is_admin_only_and_never_displays_secrets(): void
     {
         config()->set('integrations.google.auth.client_secret', 'must-not-leak');

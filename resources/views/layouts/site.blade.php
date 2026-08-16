@@ -10,6 +10,9 @@
     @if(app()->environment('production') && filled(config('integrations.google.site_verification')))
         <meta name="google-site-verification" content="{{ config('integrations.google.site_verification') }}">
     @endif
+    @if(app()->environment('production') && config('integrations.google.adsense.verification_meta_enabled') && preg_match('/^ca-pub-\\d+$/', (string) config('integrations.google.adsense.client_id')))
+        <meta name="google-adsense-account" content="{{ config('integrations.google.adsense.client_id') }}">
+    @endif
     <link rel="canonical" href="{{ $canonicalUrl ?: url()->current() }}">
     @php($isPrivateSurface = request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
     @if ($robots || $isPrivateSurface)
@@ -107,6 +110,42 @@
         if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', watch); } else { watch(); }
         window.addEventListener('resize', measure);
         document.addEventListener('livewire:navigated', measure);
+    })();
+    </script>
+    <script>
+    (function () {
+        // Kaydırıldıkça açılma. Başlangıç durumu buradan eklenir: betik
+        // çalışmazsa hiçbir şey gizlenmez, sayfa olduğu gibi görünür.
+        var azalt = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (azalt || typeof IntersectionObserver !== 'function') { return; }
+
+        var gozlemci = new IntersectionObserver(function (girisler) {
+            girisler.forEach(function (giris) {
+                if (!giris.isIntersecting) { return; }
+                giris.target.classList.add('is-revealed');
+                gozlemci.unobserve(giris.target);
+            });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+
+        function kur() {
+            document.querySelectorAll('[data-reveal-group]').forEach(function (grup) {
+                var cocuklar = Array.prototype.slice.call(grup.children);
+                cocuklar.forEach(function (cocuk, sira) {
+                    if (cocuk.hasAttribute('data-reveal')) { return; }
+                    cocuk.setAttribute('data-reveal', '');
+                    // Kademeli gecikme yalnız ilk satırlar için: uzun listede
+                    // sona kalan kart saniyelerce beklemesin.
+                    cocuk.style.transitionDelay = Math.min(sira, 5) * 55 + 'ms';
+                    gozlemci.observe(cocuk);
+                });
+            });
+            document.querySelectorAll('[data-reveal]:not(.is-revealed)').forEach(function (el) {
+                gozlemci.observe(el);
+            });
+        }
+
+        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', kur); } else { kur(); }
+        document.addEventListener('livewire:navigated', kur);
     })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
