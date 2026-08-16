@@ -30,7 +30,23 @@ final class IntegrationReadinessTest extends TestCase
         $this->get('/')->assertOk()->assertDontSee('GTM-ABC123')->assertSee('Analitik tercihiniz');
         $response = $this->withCookie('hc_analytics_consent', 'granted')->get('/')->assertOk();
         $response->assertSee('GTM-ABC123')->assertDontSee('gtag/js?id=G-ABC123');
+        $response->assertSee("'analytics_storage':'granted'", false)
+            ->assertSee("'ad_storage':'denied'", false);
         $this->assertStringContainsString('https://www.googletagmanager.com', (string) $response->headers->get('Content-Security-Policy'));
+    }
+
+    public function test_direct_ga_collects_page_views_only_after_explicit_analytics_consent(): void
+    {
+        config()->set('integrations.google.tag_manager.enabled', false);
+        config()->set('integrations.google.analytics.enabled', true);
+        config()->set('integrations.google.analytics.measurement_id', 'G-ABC123');
+
+        $this->get('/')->assertOk()->assertDontSee('gtag/js?id=G-ABC123');
+        $this->withCookie('hc_analytics_consent', 'granted')->get('/')
+            ->assertOk()
+            ->assertSee('gtag/js?id=G-ABC123')
+            ->assertSee("'analytics_storage':'granted'", false)
+            ->assertDontSee("'send_page_view':false", false);
     }
 
     public function test_site_verification_meta_is_production_only(): void

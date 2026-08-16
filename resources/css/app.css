@@ -232,6 +232,10 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
 @media (max-width: 767px) { .hc-admin-step-card { grid-template-columns:2.3rem minmax(0,1fr); }.hc-admin-step-card > :last-child { grid-column:1 / -1; justify-content:flex-end; } }
 @media (max-width: 767px) { html, body, .admin-shell { overflow-x:clip; } }
 @media (prefers-reduced-motion: reduce) { .hc-v3-reveal { animation:none; } }
+/* AI Mutfak birincil eylem alanı: sayfadaki tek büyük giriş noktası. */
+.hc-ai-primary { border-radius:var(--hc-radius-lg); border:1px solid var(--hc-border-default); background:var(--hc-surface-raised); padding:1.25rem; box-shadow:var(--hc-shadow-sm); }
+@media (min-width: 640px) { .hc-ai-primary { padding:1.75rem; } }
+.hc-ai-primary button[disabled] { opacity:.6; cursor:progress; }
 /* Malzeme seçici: aranabilir liste + kaldırılabilir çipler. */
 .hc-ingredient-results { position:absolute; z-index:30; left:0; right:0; margin-top:.35rem; max-height:16rem; overflow-y:auto; border-radius:var(--hc-radius-md); border:1px solid var(--hc-border-default); background:var(--hc-surface-raised); box-shadow:var(--hc-shadow-md); padding:.3rem; }
 .hc-ingredient-results__item { display:block; width:100%; text-align:start; border-radius:var(--hc-radius-sm); padding:.6rem .7rem; font-size:.9rem; font-weight:700; color:var(--hc-text-primary); min-height:2.75rem; }
