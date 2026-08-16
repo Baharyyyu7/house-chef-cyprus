@@ -45,6 +45,7 @@ use App\Http\Controllers\RecipeCollectionController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\SitemapController;
 use App\Models\BlogPost;
+use App\Models\Recipe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -53,7 +54,28 @@ Route::get('/health', HealthController::class)->name('health');
 Route::get('/tarifler', [RecipeController::class, 'index'])->name('recipes.index');
 // Malzemeye göre tarif eşleştirme herkese açıktır; dolap entegrasyonu üye olanlara özel kalır.
 Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])->name('ingredients.explore');
-Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])->name('recipes.show');
+Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
+    ->name('recipes.show')
+    // Tarif slug'ları rastgele bir sonek taşıyor ("adana-kebabi-MT5XA") ve tek
+    // bir toplu içerik çalışması 678 tarifin 628'inin sonekini değiştirebiliyor.
+    // Sonek değiştiğinde paylaşılmış ve indekslenmiş her adres 404 verir; asıl
+    // ada göre tek bir karşılık varsa oraya kalıcı olarak yönlendirilir.
+    ->missing(function (Request $request) {
+        $slug = (string) $request->route('recipe');
+        $govde = preg_replace('/-[A-Za-z0-9]{5}$/', '', $slug);
+
+        abort_if(! is_string($govde) || $govde === '' || $govde === $slug, 404);
+
+        $adaylar = Recipe::query()
+            ->where('status', 'published')
+            ->where(fn ($q) => $q->where('slug', $govde)->orWhere('slug', 'like', $govde.'-_____'))
+            ->limit(2)
+            ->get();
+
+        abort_unless($adaylar->count() === 1, 404);
+
+        return redirect()->route('recipes.show', $adaylar->first(), 301);
+    });
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/kategori/{category}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/blog/etiket/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
