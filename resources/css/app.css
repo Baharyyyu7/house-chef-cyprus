@@ -232,6 +232,35 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
 @media (max-width: 767px) { .hc-admin-step-card { grid-template-columns:2.3rem minmax(0,1fr); }.hc-admin-step-card > :last-child { grid-column:1 / -1; justify-content:flex-end; } }
 @media (max-width: 767px) { html, body, .admin-shell { overflow-x:clip; } }
 @media (prefers-reduced-motion: reduce) { .hc-v3-reveal { animation:none; } }
+/* Görünür SSS: aynı içerik FAQPage schema'sına da gider. */
+.hc-faq { border-radius:var(--hc-radius-md); border:1px solid var(--hc-border-default); background:var(--hc-surface-default); overflow:hidden; }
+.hc-faq__question { display:flex; align-items:center; justify-content:space-between; gap:.75rem; cursor:pointer; list-style:none; min-height:3.25rem; padding:.9rem 1.1rem; font-weight:800; color:var(--hc-text-primary); }
+.hc-faq__question::-webkit-details-marker { display:none; }
+.hc-faq__question::after { content:'+'; flex:none; font-size:1.25rem; line-height:1; color:var(--hc-text-accent); }
+.hc-faq[open] .hc-faq__question::after { content:'−'; }
+.hc-faq__question:hover { background:var(--hc-surface-interactive); }
+.hc-faq__answer { margin:0; padding:0 1.1rem 1.1rem; line-height:1.75; color:var(--hc-text-secondary); }
+/* Makale tipografisi: Tailwind typography eklentisi yerine projenin kendi
+   jetonlarıyla, böylece yazı sayfanın geri kalanıyla aynı ölçekte kalır. */
+.hc-prose { color:var(--hc-text-secondary); font-size:1.0625rem; line-height:1.85; }
+.hc-prose > * + * { margin-top:1.15em; }
+.hc-prose h2 { margin-top:2.4em; font-family:var(--hc-font-display, inherit); font-size:1.65rem; font-weight:800; letter-spacing:-.03em; line-height:1.25; color:var(--hc-text-primary); scroll-margin-top:calc(var(--hc-header-h) + 1rem); }
+.hc-prose h3 { margin-top:1.9em; font-size:1.22rem; font-weight:800; letter-spacing:-.02em; line-height:1.3; color:var(--hc-text-primary); scroll-margin-top:calc(var(--hc-header-h) + 1rem); }
+.hc-prose h2 + p, .hc-prose h3 + p { margin-top:.7em; }
+.hc-prose strong { color:var(--hc-text-primary); font-weight:800; }
+.hc-prose a { color:var(--hc-text-accent); font-weight:700; text-decoration:underline; text-underline-offset:.18em; }
+.hc-prose a:hover { text-decoration-thickness:2px; }
+.hc-prose ul, .hc-prose ol { padding-inline-start:1.35rem; }
+.hc-prose ul { list-style:disc; }
+.hc-prose ol { list-style:decimal; }
+.hc-prose li + li { margin-top:.5em; }
+.hc-prose li::marker { color:var(--hc-brand-primary); }
+.hc-prose blockquote { border-inline-start:3px solid var(--hc-brand-primary); padding-inline-start:1rem; font-style:italic; color:var(--hc-text-primary); }
+.hc-prose code { border-radius:.35rem; background:var(--hc-background-muted); padding:.15em .4em; font-size:.9em; }
+.hc-prose table { width:100%; border-collapse:collapse; font-size:.95rem; }
+.hc-prose th, .hc-prose td { border:1px solid var(--hc-border-default); padding:.55rem .7rem; text-align:start; }
+.hc-prose th { background:var(--hc-background-subtle); color:var(--hc-text-primary); font-weight:800; }
+.hc-prose hr { border:0; border-top:1px solid var(--hc-border-subtle); margin-block:2.2em; }
 /* Dolap özeti: aciliyet rengi kartın kendisinde, metne bakmadan anlaşılsın. */
 .hc-pantry-stat--warn { border-color:var(--hc-border-warning); background:color-mix(in srgb, var(--hc-status-warning) 8%, var(--hc-surface-default)); }
 .hc-pantry-stat--danger { border-color:var(--hc-border-danger); background:color-mix(in srgb, var(--hc-status-danger) 8%, var(--hc-surface-default)); }

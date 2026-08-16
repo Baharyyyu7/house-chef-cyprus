@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * @property Carbon|null $published_at
@@ -33,6 +34,20 @@ final class BlogPost extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    /**
+     * Gövde düz metin olarak nl2br ile basılıyordu: uzun bir yazı tek blok duvar
+     * metne dönüşüyor, ara başlık ve liste kurulamıyordu. Markdown alt kümesiyle
+     * yapı kurulur; ham HTML girişi çıkarılır ve güvensiz bağlantılar engellenir,
+     * böylece içerik editörden gelse bile işaretleme enjekte edilemez.
+     */
+    public function renderedBody(): string
+    {
+        return Str::markdown((string) $this->body, [
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
     }
 
     /** @param Builder<self> $query @return Builder<self> */
