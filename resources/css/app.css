@@ -232,6 +232,9 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
 @media (max-width: 767px) { .hc-admin-step-card { grid-template-columns:2.3rem minmax(0,1fr); }.hc-admin-step-card > :last-child { grid-column:1 / -1; justify-content:flex-end; } }
 @media (max-width: 767px) { html, body, .admin-shell { overflow-x:clip; } }
 @media (prefers-reduced-motion: reduce) { .hc-v3-reveal { animation:none; } }
+/* Dolap özeti: aciliyet rengi kartın kendisinde, metne bakmadan anlaşılsın. */
+.hc-pantry-stat--warn { border-color:var(--hc-border-warning); background:color-mix(in srgb, var(--hc-status-warning) 8%, var(--hc-surface-default)); }
+.hc-pantry-stat--danger { border-color:var(--hc-border-danger); background:color-mix(in srgb, var(--hc-status-danger) 8%, var(--hc-surface-default)); }
 /* AI Mutfak birincil eylem alanı: sayfadaki tek büyük giriş noktası. */
 .hc-ai-primary { border-radius:var(--hc-radius-lg); border:1px solid var(--hc-border-default); background:var(--hc-surface-raised); padding:1.25rem; box-shadow:var(--hc-shadow-sm); }
 @media (min-width: 640px) { .hc-ai-primary { padding:1.75rem; } }
