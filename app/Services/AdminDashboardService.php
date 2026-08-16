@@ -43,6 +43,10 @@ final class AdminDashboardService
             $from = now()->subDays($period);
             $previousFrom = now()->subDays($period * 2);
             $qualityScores = $this->quality->categoryScores();
+            // Tarama hiç çalışmadıysa açık issue yoktur ve her kategori %100
+            // çıkar. Bu, "sorun bulunamadı" değil "hiç bakılmadı" demektir;
+            // panel ikisini aynı şekilde gösteremez.
+            $qualityScanned = $this->quality->hasEverScanned();
             $queue = $this->queue->snapshot();
             $scheduler = $this->scheduler->snapshot();
             $health = $this->health->snapshot();
@@ -64,7 +68,7 @@ final class AdminDashboardService
                 $this->metric('inceleme', 'İnceleme bekleyen', Recipe::query()->whereIn('verification_status', ['needs_review', 'unreviewed', 'partially_verified'])->count(), 0, 0, 'İçerik kuyruğu', true),
                 $this->metric('kullanicilar', 'Toplam kullanıcı', User::query()->count(), User::query()->whereBetween('created_at', [$previousFrom, $from])->count(), User::query()->where('created_at', '>=', $from)->count(), 'Üye büyümesi'),
                 $this->metric('malzemeler', 'Toplam malzeme', $ingredientCount, Ingredient::query()->whereBetween('created_at', [$previousFrom, $from])->count(), Ingredient::query()->where('created_at', '>=', $from)->count(), 'Malzeme verisi'),
-                $this->metric('kalite', 'Veri kalitesi', $qualityScores['overall'], null, null, 'Açık issue ağırlığına göre', false, '%'),
+                $this->metric('kalite', 'Veri kalitesi', $qualityScanned ? $qualityScores['overall'] : null, null, null, $qualityScanned ? 'Açık issue ağırlığına göre' : 'Henüz taranmadı', false, '%'),
                 $this->metric('beslenme', 'Beslenme tamlığı', $nutritionCompleteness === null ? null : round((float) $nutritionCompleteness), null, null, 'Geçerli snapshot ortalaması', false, '%'),
                 $this->metric('alerjen', 'Alerjen kapsamı', $allergenCompleteness, null, null, 'Alerjen ilişkisi olan malzemeler', false, '%'),
                 $this->metric('failed_jobs', 'Başarısız işler', (int) $queue['failed_jobs'], null, null, 'Queue sağlık özeti', true),
@@ -81,6 +85,8 @@ final class AdminDashboardService
                     $this->distributionChart('Doğrulama durumu', 'Tariflerin editoryal doğrulama görünümü.', 'doughnut', Recipe::query()->selectRaw("COALESCE(verification_status, 'Belirsiz') as label, COUNT(*) as total")->groupBy('label')->orderByDesc('total')->pluck('total', 'label')->all()),
                 ],
                 'qualityScores' => $qualityScores,
+                'qualityScanned' => $qualityScanned,
+                'qualityScannedAt' => $this->quality->lastScannedAt()?->format(DATE_ATOM),
                 'operations' => [
                     'content' => $contentOperations,
                     'members' => $memberOperations,
@@ -182,14 +188,37 @@ final class AdminDashboardService
     /** @return list<array<string, string>> */
     private function activity(): array
     {
-        return AuditLog::query()->with('user:id,name,public_id')->latest()->limit(8)->get()->map(function (AuditLog $log): array {
-            return [
-                'action' => str($log->action)->replace('.', ' ')->headline()->value(),
-                'actor' => $log->user_id === null ? 'Sistem' : $log->user->name,
+        // Toplu işler aynı eylemi arka arkaya yüzlerce kez yazıyor; sekiz satırın
+        // sekizi de "Media Import Approved" olunca liste hiçbir şey anlatmıyordu.
+        // Peş peşe tekrarlar tek satırda sayıyla toplanır.
+        $logs = AuditLog::query()->with('user:id,name,public_id')->latest()->limit(120)->get();
+        $satirlar = [];
+
+        foreach ($logs as $log) {
+            $eylem = str($log->action)->replace('.', ' ')->headline()->value();
+            $aktor = $log->user_id === null ? 'Sistem' : $log->user->name;
+            $son = $satirlar === [] ? null : array_key_last($satirlar);
+
+            if ($son !== null && $satirlar[$son]['action'] === $eylem && $satirlar[$son]['actor'] === $aktor) {
+                $satirlar[$son]['repeat']++;
+
+                continue;
+            }
+
+            if (count($satirlar) === 8) {
+                break;
+            }
+
+            $satirlar[] = [
+                'action' => $eylem,
+                'actor' => $aktor,
                 'at' => $log->created_at?->diffForHumans() ?? '—',
                 'entity_public_id' => (string) data_get($log->metadata, 'recipe_public_id', data_get($log->metadata, 'entity_public_id', '')),
+                'repeat' => 1,
             ];
-        })->all();
+        }
+
+        return $satirlar;
     }
 
     /** @param array<string, mixed> $queue @param array<string, mixed>|null $backup @return list<array<string, string>> */
@@ -246,6 +275,25 @@ final class AdminDashboardService
                 'route' => 'admin.media.index',
             ];
         }
+        // Yayındaki tarif sayısı tek başına iyi haber gibi okunuyor. Sayının
+        // büyük bölümü "{Mutfak} Usulü Limonlu {Malzeme}" kalıbıyla toplu
+        // üretilmiş, adı bir yemeği tarif etmeyen kayıtlardan geliyor; bunlar
+        // arama motorları için scaled content abuse desenidir.
+        $sablon = Recipe::query()
+            ->where('status', 'published')
+            ->get(['title'])
+            ->reject(fn (Recipe $recipe): bool => Recipe::titleDescribesADish((string) $recipe->title))
+            ->count();
+
+        if ($sablon > 0) {
+            $alerts[] = [
+                'severity' => 'danger',
+                'label' => 'Şablonla üretilmiş yayındaki tarif',
+                'detail' => $sablon.' tarifin adı bir yemeği tarif etmiyor (örn. "Akdeniz Mutfağı Usulü Limonlu").',
+                'route' => 'admin.recipes.index',
+            ];
+        }
+
         foreach ([
             ['recipe_uses_placeholder_image', 'warning', 'Yer tutucu tarif görselleri', 'Yer tutucu görsellerin doğrulanmış görsellerle değiştirilmesi gerekiyor.'],
             ['conversion_low_confidence', 'warning', 'Düşük güvenli ölçü dönüşümleri', 'Ölçü dönüşümlerini kaynakla doğrulayın.'],

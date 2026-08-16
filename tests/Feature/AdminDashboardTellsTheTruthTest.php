@@ -62,6 +62,28 @@ final class AdminDashboardTellsTheTruthTest extends TestCase
             ->assertDontSee('Karşılaştırma için yeterli veri yok', false);
     }
 
+    public function test_it_does_not_claim_a_perfect_quality_score_before_any_scan_has_run(): void
+    {
+        // Skor "100 - açık bulgu cezası" olduğu için tarama hiç çalışmadığında
+        // her kategori %100 çıkar. Bu sayı sağlık değil, bilgisizliktir.
+        $this->actingAsAdmin()
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('Kalite taraması henüz çalıştırılmadı', false)
+            ->assertDontSee('Kaynak / provenance', false);
+    }
+
+    public function test_it_shows_the_category_scores_once_a_scan_has_run(): void
+    {
+        app(\App\Services\DataQualityService::class)->scan();
+
+        $this->actingAsAdmin()
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('Kaynak / provenance', false)
+            ->assertDontSee('Kalite taraması henüz çalıştırılmadı', false);
+    }
+
     private function publishedRecipeWithMedia(string $slug, string $path): Recipe
     {
         $recipe = Recipe::query()->create(['title' => Str::headline($slug), 'slug' => $slug, 'status' => 'published', 'verification_status' => 'verified']);

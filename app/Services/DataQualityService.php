@@ -20,6 +20,34 @@ use Illuminate\Support\Facades\Cache;
 
 final class DataQualityService
 {
+    /**
+     * Skorlar açık issue kayıtlarının cezasından türetilir. Hiç tarama
+     * yapılmadığında kayıt da olmaz ve her kategori %100 görünür; yani "%100"
+     * sağlıklı değil, "hiç bakılmadı" anlamına gelir. Panel bu ikisini
+     * ayırabilsin diye son tarama zamanı saklanır.
+     */
+    private const LAST_SCAN_KEY = 'data_quality.last_scanned_at';
+
+    public function lastScannedAt(): ?\DateTimeImmutable
+    {
+        $stamp = Cache::get(self::LAST_SCAN_KEY);
+
+        if (! is_string($stamp) || $stamp === '') {
+            return null;
+        }
+
+        try {
+            return new \DateTimeImmutable($stamp);
+        } catch (\Exception) {
+            return null;
+        }
+    }
+
+    public function hasEverScanned(): bool
+    {
+        return $this->lastScannedAt() !== null;
+    }
+
     /** @return list<array<string,mixed>> */
     public function report(): array
     {
@@ -206,6 +234,7 @@ final class DataQualityService
         $previous = Cache::get('data_quality.last_score');
         $score = $this->score();
         Cache::forever('data_quality.last_score', $score);
+        Cache::forever(self::LAST_SCAN_KEY, now()->toIso8601String());
 
         return ['new' => $new, 'updated' => $updated, 'resolved' => $resolved, 'score' => $score, 'previous_score' => is_int($previous) ? $previous : null];
     }

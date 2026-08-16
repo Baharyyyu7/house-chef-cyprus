@@ -11,6 +11,7 @@ use App\Models\Ingredient;
 use App\Models\Media;
 use App\Models\Recipe;
 use App\Services\Media\LocalMediaStorage;
+use App\Services\Media\PublicMediaEligibilityService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -21,9 +22,25 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class MediaController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, PublicMediaEligibilityService $gate): View
     {
         $this->admin();
+
+        // İçe aktarılmış ama insan onayı bekleyen görseller listenin içinde
+        // kayboluyordu; sonuç olarak dosyası ve varyantları hazır fotoğraflar
+        // hiç yayına çıkmadı. Onay bekleyenler ayrı bir bölümde toplanır.
+        $onayBekleyen = Media::query()
+            ->with('mediable')
+            ->where('media_status', 'approved_real_media')
+            ->whereNull('approved_by_user_id')
+            ->whereNotNull('path')
+            ->where('path', '!=', '')
+            ->latest()
+            ->limit(60)
+            ->get()
+            ->filter(fn (Media $item): bool => $gate->reason($item) === 'human_approval_missing')
+            ->values();
+
         $media = Media::query()
             ->with('mediable')
             ->when($request->string('kind')->isNotEmpty(), fn ($q) => $q->where('kind', $request->string('kind')->toString()))
@@ -32,7 +49,7 @@ final class MediaController extends Controller
             ->when($request->string('status')->isNotEmpty(), fn ($q) => $q->where('processing_status', $request->string('status')->toString()))
             ->latest()->paginate(30)->withQueryString();
 
-        return view('admin.media.index', compact('media'));
+        return view('admin.media.index', compact('media', 'onayBekleyen'));
     }
 
     public function create(): View
@@ -81,6 +98,49 @@ final class MediaController extends Controller
         abort_unless(is_string($media->path) && str_starts_with($media->path, 'media/') && ! str_contains($media->path, '..') && Storage::disk($media->disk)->exists($media->path), 404);
 
         return Storage::disk($media->disk)->download($media->path, 'media-'.$media->public_id);
+    }
+
+    /**
+     * İçe aktarılan görseller yayına çıkamıyordu. PublicMediaEligibilityService
+     * gerçek bir kullanıcıya bağlı inceleme ve onay kaydı arıyor -- ki bu doğru
+     * bir kural, hiçbir otomatik akış tek başına görsel yayınlayamamalı. Ama
+     * yönetim panelinde bu onayı verecek bir ekran yoktu: dosya içeri alınıyor,
+     * varyantları üretiliyor ve orada kalıyordu.
+     *
+     * Onay yalnız başka her koşulu geçmiş görsellere verilebilir; eksik olan
+     * tek şey insan kararıysa bu ekran onu kaydeder.
+     */
+    public function approve(string $publicId, PublicMediaEligibilityService $gate): RedirectResponse
+    {
+        $admin = $this->admin();
+        $media = Media::query()->where('public_id', $publicId)->firstOrFail();
+
+        if ($gate->reason($media) === null) {
+            return back()->with('status', 'Bu görsel zaten yayında.');
+        }
+
+        // Kapı insan onayını varyant ve kaynak kontrollerinden önce sorguluyor;
+        // "eksik olan yalnız onay" sonucuna bakmak yetmez, çünkü arkasındaki
+        // kontroller hiç çalışmamış olabilir. Onay bellekte uygulanır ve geriye
+        // başka engel kalıp kalmadığı ölçülür.
+        $media->forceFill([
+            'media_reviewer_user_id' => $admin->id,
+            'media_reviewed_at' => now(),
+            'approved_by_user_id' => $admin->id,
+            'approved_at' => now(),
+        ]);
+
+        $kalan = $gate->reason($media);
+
+        if ($kalan !== null) {
+            return back()->with('error', 'Görsel onaya hazır değil: '.$kalan);
+        }
+
+        $media->save();
+
+        $this->audit('media.approve', $media);
+
+        return back()->with('status', 'Görsel onaylandı ve yayına alındı.');
     }
 
     public function regenerate(string $publicId): RedirectResponse
@@ -144,8 +204,13 @@ final class MediaController extends Controller
         AuditLog::create(['user_id' => auth()->id(), 'action' => $action, 'auditable_type' => $media?->getMorphClass(), 'auditable_id' => $media?->getKey(), 'metadata' => $metadata]);
     }
 
-    private function admin(): void
+    private function admin(): \App\Models\User
     {
         $this->authorizeAdminOperations();
+
+        $user = auth()->user();
+        abort_unless($user instanceof \App\Models\User, 403);
+
+        return $user;
     }
 }

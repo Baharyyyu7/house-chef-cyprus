@@ -128,6 +128,33 @@ class Recipe extends Model
         return $this->belongsToMany(RecipeCollection::class, 'recipe_collection_items')->withTimestamps();
     }
 
+    /**
+     * Yayındaki 678 tarifin 450'si "{Mutfak} Usulü Limonlu {Malzeme}" kalıbıyla
+     * toplu üretilmiş, 17'sinin başlığı sıfatta kesilmiş ("Peynirli", "Fırında").
+     * Bu kayıtların adı bir yemeği tarif etmez: onlar için görsel ürettirmek de
+     * yayında tutmak da anlamsızdır. Kural hem panelde hem görsel brief'inde
+     * kullanılır, bu yüzden tek yerde durur.
+     */
+    public static function titleDescribesADish(string $title): bool
+    {
+        $title = trim($title);
+
+        if ($title === '' || mb_strpos($title, 'Usulü Limonlu') !== false) {
+            return false;
+        }
+
+        if (count(preg_split('/\s+/u', $title) ?: []) > 1) {
+            return true;
+        }
+
+        // Tek kelimelik başlık "Menemen" ya da "Humus" olabilir; bunlar geçerli
+        // yemek adlarıdır. Geçersiz olan, ardındaki ismi kaybetmiş sıfatlardır.
+        $parcalar = ['Fırın', 'Fırında', 'Et', 'Tavuk', 'Konya', 'Şiş', 'Dürüm'];
+
+        return ! in_array($title, $parcalar, true)
+            && preg_match('/(lı|li|lu|lü)$/u', $title) !== 1;
+    }
+
     public function totalMinutes(): int
     {
         return $this->prep_minutes + $this->cook_minutes + $this->rest_minutes;

@@ -2,6 +2,32 @@
     <section class="mx-auto max-w-7xl px-5 py-12">
         <div class="flex flex-wrap items-end justify-between gap-4"><div><a href="{{ route('admin.dashboard') }}" class="font-bold text-orange-700">← Yönetim</a><h1 class="mt-3 text-3xl font-black">Medya</h1></div><a class="rounded-xl bg-orange-700 px-4 py-2 font-bold text-white" href="{{ route('admin.media.create') }}">Görsel yükle</a></div>
         @if(session('status'))<p class="mt-4 rounded-xl bg-emerald-50 p-3 text-emerald-900">{{ session('status') }}</p>@endif
+        @if(session('error'))<p class="mt-4 rounded-xl bg-rose-50 p-3 text-rose-900">{{ session('error') }}</p>@endif
+
+        {{-- Dosyası ve varyantları hazır olduğu hâlde yalnız insan onayı bekleyen
+             görseller. Bu onay verilmeden görsel siteye çıkmaz; bekleyenler
+             listenin içinde kaybolduğu için ayrı bölümde toplanır. --}}
+        @if($onayBekleyen->isNotEmpty())
+            <section class="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-5">
+                <h2 class="text-lg font-black text-amber-950">Onay bekleyen görsel ({{ $onayBekleyen->count() }})</h2>
+                <p class="mt-1 text-sm text-amber-900">Bu görsellerin dosyası ve tüm boyutları hazır. Onaylanana kadar sitede görünmezler.</p>
+                <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    @foreach($onayBekleyen as $item)
+                        <article class="flex gap-3 rounded-xl bg-white p-3 shadow-sm">
+                            <img class="h-20 w-20 shrink-0 rounded-lg object-cover" src="{{ $item->responsiveUrl(400) }}" alt="" width="80" height="80" loading="lazy">
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate font-bold">{{ $item->mediable?->title ?? class_basename($item->mediable_type) }}</p>
+                                <p class="mt-0.5 truncate text-xs text-stone-500">{{ $item->width }}×{{ $item->height }} · {{ $item->kind }}</p>
+                                <div class="mt-2 flex items-center gap-3">
+                                    <form method="post" action="{{ route('admin.media.approve', $item->public_id) }}">@csrf<button class="rounded-lg bg-emerald-700 px-3 py-1.5 text-sm font-bold text-white">Onayla</button></form>
+                                    <a class="text-sm font-bold text-orange-700" href="{{ route('admin.media.show', $item->public_id) }}">İncele</a>
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
         <form class="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-5" method="get"><select class="rounded-lg border p-2" name="kind"><option value="">Tür</option><option value="image" @selected(request('kind') === 'image')>Görsel</option></select><select class="rounded-lg border p-2" name="disk"><option value="">Disk</option><option value="public">Public</option><option value="local">Private</option></select><select class="rounded-lg border p-2" name="visibility"><option value="">Görünürlük</option><option value="public">Public</option><option value="private">Private</option></select><select class="rounded-lg border p-2" name="status"><option value="">İşleme durumu</option><option value="ready">Hazır</option><option value="pending">Bekliyor</option><option value="failed">Başarısız</option></select><button class="rounded-lg border px-3">Filtrele</button></form>
         <div class="mt-5 flex flex-wrap gap-3"><form method="post" action="{{ route('admin.media.scan-orphans') }}">@csrf<button class="rounded-lg border px-3 py-2">Orphan tara</button></form><form method="post" action="{{ route('admin.media.cleanup-temporary') }}">@csrf<button class="rounded-lg border px-3 py-2">Geçicileri tara</button></form></div>
         <div class="mt-5 overflow-x-auto rounded-2xl bg-white p-5 shadow"><table class="w-full min-w-[980px] text-left text-sm"><thead><tr><th>Public ID</th><th>Tür / MIME</th><th>Boyut</th><th>Disk</th><th>Görünürlük</th><th>İşleme</th><th>Thumbnail</th><th>İlişki</th><th>Tarih</th><th></th></tr></thead><tbody>@forelse($media as $item)<tr class="border-t"><td class="font-mono text-xs">{{ $item->public_id }}</td><td>{{ $item->kind }}<br><span class="text-stone-500">{{ $item->mime_type }}</span></td><td>{{ $item->size ? number_format($item->size / 1024, 1).' KB' : '—' }}<br><span class="text-stone-500">{{ $item->width }}×{{ $item->height }}</span></td><td>{{ $item->disk }}</td><td>{{ $item->visibility }}</td><td>{{ $item->processing_status }}</td><td>{{ $item->thumbnail_status }}</td><td>{{ class_basename($item->mediable_type) }} {{ $item->mediable?->public_id ?? '—' }}</td><td>{{ $item->created_at?->format('d.m.Y H:i') }}</td><td><a class="font-bold text-orange-700" href="{{ route('admin.media.show', $item->public_id) }}">Detay</a></td></tr>@empty<tr><td colspan="10" class="p-8 text-center text-stone-500">Henüz medya kaydı yok. Güvenli bir görsel yükleyerek başlayabilirsiniz.</td></tr>@endforelse</tbody></table></div>{{ $media->links() }}

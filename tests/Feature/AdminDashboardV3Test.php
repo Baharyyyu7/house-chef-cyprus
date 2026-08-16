@@ -26,7 +26,10 @@ final class AdminDashboardV3Test extends TestCase
 
         $this->actingAs($admin)->get(route('admin.dashboard', ['period' => 30]))
             ->assertOk()
-            ->assertSee('YÖNETİM / GENEL BAKIŞ')
+            // Konum bilgisi üst çubuktaki breadcrumb'da bir kez verilir; sayfa
+            // başlığının üstünde ikinci kez tekrarlanmaz.
+            ->assertSee('aria-label="Breadcrumb"', false)
+            ->assertDontSee('YÖNETİM / GENEL BAKIŞ')
             ->assertSee('İçerik ve operasyon özeti')
             ->assertSee('Toplam tarif')
             ->assertSee('Son 30 gün')

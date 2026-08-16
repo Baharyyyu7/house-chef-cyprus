@@ -12,8 +12,9 @@
     <section class="hc-admin-dashboard hc-v3-section-reveal">
         <div class="hc-admin-page-header">
             <div>
-                <p class="hc-kicker">YÖNETİM / GENEL BAKIŞ</p>
-                <h1 class="hc-heading-1 mt-2">İçerik ve operasyon özeti</h1>
+                {{-- Üst çubukta zaten "Yönetim / Genel Bakış" breadcrumb'ı var;
+                     aynı satırı burada tekrarlamak başlığı geriye itiyordu. --}}
+                <h1 class="hc-heading-1">İçerik ve operasyon özeti</h1>
                 <p class="hc-body-sm mt-3 max-w-2xl" style="color:var(--hc-text-secondary)">Tüm sayılar, seçilen dönem ve mevcut kayıtlar üzerinden hesaplanır. Veri oluşmamış alanlar açıkça belirtilir.</p>
             </div>
             <div class="hc-admin-periods" role="group" aria-label="Dashboard dönemi">
@@ -24,6 +25,23 @@
         </div>
 
         <p class="hc-caption mt-4" style="color:var(--hc-text-muted)">Güncelleme: {{ \Illuminate\Support\Carbon::parse($updatedAt)->translatedFormat('d M Y, H:i') }} · {{ $periodLabel }}</p>
+
+        {{-- Bu bölüm sağ sütunun altındaydı: sayfanın tek eyleme dönüşebilir
+             bilgisi, kimsenin bakmadığı yerde duruyordu. Bir şey bozuksa
+             operatör onu sayılardan önce görmeli. --}}
+        @if (count($attention))
+            <section class="mt-6" aria-labelledby="attention-heading">
+                <div class="flex items-center gap-3">
+                    <h2 id="attention-heading" class="hc-heading-4">Dikkat gerekenler</h2>
+                    <span class="hc-v3-badge hc-v3-badge--warning">{{ count($attention) }}</span>
+                </div>
+                <div class="mt-3 grid gap-3 lg:grid-cols-2">
+                    @foreach ($attention as $item)
+                        <a href="{{ $item['url'] ?? route($item['route']) }}" class="hc-admin-attention hc-admin-attention--{{ $item['severity'] }}"><strong>{{ $item['label'] }}</strong><span>{{ $item['detail'] }}</span></a>
+                    @endforeach
+                </div>
+            </section>
+        @endif
 
         @php
             // Operatörün üzerine eylem aldığı metrikler önde; geri kalanı referans şeridi.
@@ -158,11 +176,25 @@
 
                 <article class="hc-v3-card p-5 sm:p-6">
                     <div class="flex flex-wrap items-start justify-between gap-4"><div><p class="hc-kicker">VERİ GÜVENİ</p><h2 class="hc-heading-3 mt-1">Kalite skorları</h2></div><a href="{{ route('admin.data-quality.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Veri kalitesine git</a></div>
-                    <div class="hc-admin-quality-grid mt-6">
-                        @foreach ($qualityScores as $key => $score)
-                            <div><div class="flex items-center justify-between gap-3"><span>{{ config('data_quality.categories.'.$key.'.label', $key === 'overall' ? 'Genel' : ucfirst(str_replace('_', ' ', $key))) }}</span><strong>{{ $score }}%</strong></div><div class="hc-admin-progress mt-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $score }}"><span style="width: {{ max(0, min(100, (int) $score)) }}%"></span></div></div>
-                        @endforeach
-                    </div>
+                    @if ($qualityScanned)
+                        <p class="mt-2 text-xs" style="color: var(--hc-text-muted)">Son tarama: {{ \Illuminate\Support\Carbon::parse($qualityScannedAt)->diffForHumans() }}</p>
+                        <div class="hc-admin-quality-grid mt-6">
+                            @foreach ($qualityScores as $key => $score)
+                                <div><div class="flex items-center justify-between gap-3"><span>{{ config('data_quality.categories.'.$key.'.label', $key === 'overall' ? 'Genel' : ucfirst(str_replace('_', ' ', $key))) }}</span><strong>{{ $score }}%</strong></div><div class="hc-admin-progress mt-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $score }}"><span style="width: {{ max(0, min(100, (int) $score)) }}%"></span></div></div>
+                            @endforeach
+                        </div>
+                    @else
+                        {{-- Skorlar açık issue cezasından türetilir: tarama hiç çalışmadıysa
+                             ceza da olmaz ve her kategori %100 çıkar. Bu sayıyı göstermek
+                             "her şey yolunda" demek olur; oysa henüz bakılmamıştır. --}}
+                        <div class="mt-6 rounded-2xl border border-dashed p-5" style="border-color: var(--hc-border-subtle)">
+                            <p class="font-bold">Kalite taraması henüz çalıştırılmadı</p>
+                            <p class="mt-2 text-sm leading-6" style="color: var(--hc-text-secondary)">
+                                Skorlar açık bulgu kayıtlarından hesaplanır. Tarama çalışmadığı için kayıt yok; bu yüzden burada yüzde göstermiyoruz. Tarama çalıştığında kategori skorları gerçek bulgularla dolar.
+                            </p>
+                            <code class="mt-4 inline-block rounded-lg px-3 py-2 text-xs" style="background: var(--hc-surface-muted)">php artisan data-quality:scan</code>
+                        </div>
+                    @endif
                 </article>
             </div>
 
@@ -176,25 +208,12 @@
                     </div>
                 </section>
 
-                <section class="hc-v3-card p-5" aria-labelledby="attention-heading">
-                    <div class="flex items-center justify-between gap-3"><h2 id="attention-heading" class="hc-heading-4">Dikkat gerekenler</h2><span class="hc-v3-badge {{ count($attention) ? 'hc-v3-badge--warning' : 'hc-v3-badge--success' }}">{{ count($attention) }}</span></div>
-                    @if (count($attention))
-                        <div class="mt-4 space-y-3">
-                            @foreach ($attention as $item)
-                                <a href="{{ $item['url'] ?? route($item['route']) }}" class="hc-admin-attention hc-admin-attention--{{ $item['severity'] }}"><strong>{{ $item['label'] }}</strong><span>{{ $item['detail'] }}</span></a>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="hc-v3-empty mt-4 py-7"><p class="font-bold">Açık dikkat kaydı yok</p><p class="hc-caption mt-1">Şu an listelenebilir kritik durum bulunmuyor.</p></div>
-                    @endif
-                </section>
-
                 <section class="hc-v3-card p-5">
                     <div class="flex items-center justify-between gap-3"><h2 class="hc-heading-4">Son etkinlikler</h2><a href="{{ route('admin.system-events.index') }}" class="hc-caption font-bold" style="color:var(--hc-text-accent)">Tümü</a></div>
                     @if (count($activity))
                         <ol class="mt-4 space-y-4">
                             @foreach ($activity as $item)
-                                <li class="hc-admin-activity"><span class="hc-admin-activity__marker" aria-hidden="true"></span><div><strong>{{ $item['action'] }}</strong><p>{{ $item['actor'] }} · {{ $item['at'] }}</p>@if($item['entity_public_id'])<code>{{ $item['entity_public_id'] }}</code>@endif</div></li>
+                                <li class="hc-admin-activity"><span class="hc-admin-activity__marker" aria-hidden="true"></span><div><strong>{{ $item['action'] }}</strong>@if(($item['repeat'] ?? 1) > 1)<span class="hc-v3-badge ml-2">{{ $item['repeat'] }}×</span>@endif<p>{{ $item['actor'] }} · {{ $item['at'] }}</p>@if($item['entity_public_id'])<code>{{ $item['entity_public_id'] }}</code>@endif</div></li>
                             @endforeach
                         </ol>
                     @else
