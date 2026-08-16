@@ -87,8 +87,23 @@
         </aside>
 
         <main id="steps" class="min-w-0 hc-scroll-target">
-            <div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">Adım adım hazırlayın</p><h2 class="hc-display-lg mt-2">Yapım adımları</h2></div><span class="hc-v3-badge">{{ $recipe->steps->count() }} adım</span></div>
-            <div class="hc-v3-stagger mt-7 space-y-4">@forelse($recipe->steps as $step)<article class="hc-v3-card flex gap-4 p-5 sm:gap-5 sm:p-6"><span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-orange-100 font-display text-lg font-bold text-orange-900 dark:bg-orange-500/20 dark:text-orange-200">{{ $step->position }}</span><div class="min-w-0 flex-1"><div class="flex flex-wrap items-start justify-between gap-2"><h3 class="hc-heading-3">{{ $step->title }}</h3>@if($step->duration_seconds)<span class="hc-v3-badge">⏱ {{ intdiv($step->duration_seconds, 60) }} dk</span>@endif</div><p class="hc-body-md mt-3" style="color: var(--hc-text-secondary)">{{ $step->instruction }}</p>@if($step->equipment)<p class="mt-3 text-sm" style="color: var(--hc-text-secondary)"><strong style="color: var(--hc-text-primary)">Ekipman:</strong> {{ $step->equipment }}</p>@endif@if($step->chef_tip)<p class="mt-4 rounded-2xl bg-orange-50 p-3 text-sm leading-6 text-orange-950 dark:bg-orange-500/10 dark:text-orange-100"><strong>Şef püf noktası:</strong> {{ $step->chef_tip }}</p>@endif@if($step->safety_note)<p class="mt-3 rounded-2xl bg-red-50 p-3 text-sm leading-6 text-red-950 dark:bg-red-500/10 dark:text-red-100"><strong>Güvenlik notu:</strong> {{ $step->safety_note }}</p>@endif</div></article>@empty<div class="hc-v3-empty">Bu tarif için henüz adım eklenmedi.</div>@endforelse</div>
+            @php($stepCount = $recipe->steps->count())
+            <div x-data="hcRecipeSteps('{{ $recipe->slug }}', {{ $stepCount }})" x-id="['step']">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <div><p class="hc-kicker">Adım adım hazırlayın</p><h2 class="hc-display-lg mt-2">Yapım adımları</h2></div>
+                <div class="flex items-center gap-2">
+                    <span class="hc-v3-badge" x-text="label"></span>
+                    <button type="button" class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" x-show="completed > 0" x-cloak x-on:click="reset()">Sıfırla</button>
+                </div>
+            </div>
+            @if($stepCount > 0)
+                <p class="hc-body-sm mt-3" style="color: var(--hc-text-muted)">Tamamladığınız adımları işaretleyin; bu cihazda kaldığınız yer saklanır.</p>
+                <div class="hc-step-progress mt-4" role="progressbar" aria-label="Tamamlanan adımlar" x-bind:aria-valuenow="completed" aria-valuemin="0" aria-valuemax="{{ $stepCount }}">
+                    <span class="hc-step-progress__bar" x-bind:style="`width: ${percent}%`"></span>
+                </div>
+            @endif
+            <div class="hc-v3-stagger mt-7 space-y-4">@forelse($recipe->steps as $step)<article class="hc-v3-card hc-step flex gap-4 p-5 sm:gap-5 sm:p-6" x-bind:class="isDone({{ $step->position }}) ? 'hc-step--done' : ''"><button type="button" class="hc-step__toggle" x-on:click="toggle({{ $step->position }})" x-bind:aria-pressed="isDone({{ $step->position }}) ? 'true' : 'false'" aria-label="{{ $step->position }}. adımı tamamlandı olarak işaretle"><span x-show="!isDone({{ $step->position }})">{{ $step->position }}</span><span x-show="isDone({{ $step->position }})" x-cloak aria-hidden="true">✓</span></button><div class="min-w-0 flex-1"><div class="flex flex-wrap items-start justify-between gap-2"><h3 class="hc-heading-3">{{ $step->title }}</h3>@if($step->duration_seconds)<span class="hc-v3-badge">⏱ {{ intdiv($step->duration_seconds, 60) }} dk</span>@endif</div><p class="hc-body-md mt-3" style="color: var(--hc-text-secondary)">{{ $step->instruction }}</p>@if($step->equipment)<p class="mt-3 text-sm" style="color: var(--hc-text-secondary)"><strong style="color: var(--hc-text-primary)">Ekipman:</strong> {{ $step->equipment }}</p>@endif@if($step->chef_tip)<p class="mt-4 rounded-2xl bg-orange-50 p-3 text-sm leading-6 text-orange-950 dark:bg-orange-500/10 dark:text-orange-100"><strong>Şef püf noktası:</strong> {{ $step->chef_tip }}</p>@endif@if($step->safety_note)<p class="mt-3 rounded-2xl bg-red-50 p-3 text-sm leading-6 text-red-950 dark:bg-red-500/10 dark:text-red-100"><strong>Güvenlik notu:</strong> {{ $step->safety_note }}</p>@endif</div></article>@empty<div class="hc-v3-empty">Bu tarif için henüz adım eklenmedi.</div>@endforelse</div>
+            </div>
 
             @if(!empty($recipe->equipment))
                 <section id="equipment" class="hc-v3-card mt-8 hc-scroll-target p-5 sm:p-6"><p class="hc-overline" style="color: var(--hc-text-muted)">Hazırlık için</p><h2 class="hc-heading-3 mt-2">Ekipman</h2><div class="mt-4 flex flex-wrap gap-2">@foreach($recipe->equipment as $equipment)<span class="hc-v3-badge">⌁ {{ $equipment }}</span>@endforeach</div></section>

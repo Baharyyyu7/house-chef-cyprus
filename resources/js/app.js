@@ -133,3 +133,54 @@ const mountPageFeatures = () => {
 document.addEventListener('DOMContentLoaded', mountPageFeatures);
 document.addEventListener('livewire:navigated', mountPageFeatures);
 window.addEventListener('hc-theme-changed', () => window.setTimeout(mountCharts, 0));
+
+// Tarif adımlarını pişirirken işaretlemek için. Giriş gerektirmez; ilerleme
+// yalnız kullanıcının cihazında, tarif başına ayrı bir anahtarda saklanır.
+document.addEventListener('alpine:init', () => {
+    window.Alpine.data('hcRecipeSteps', (slug, total) => ({
+        key: `hc-steps-${slug}`,
+        total,
+        done: [],
+        init() {
+            this.done = this.read().filter((value) => Number.isInteger(value) && value >= 1 && value <= this.total);
+        },
+        read() {
+            try {
+                const stored = JSON.parse(window.localStorage.getItem(this.key) ?? '[]');
+
+                return Array.isArray(stored) ? stored : [];
+            } catch {
+                return [];
+            }
+        },
+        persist() {
+            try {
+                window.localStorage.setItem(this.key, JSON.stringify(this.done));
+            } catch {
+                // Depolama kapalıysa ilerleme yalnız bu sayfa görüntülemesi boyunca yaşar.
+            }
+        },
+        isDone(position) {
+            return this.done.includes(position);
+        },
+        toggle(position) {
+            this.done = this.isDone(position)
+                ? this.done.filter((value) => value !== position)
+                : [...this.done, position];
+            this.persist();
+        },
+        reset() {
+            this.done = [];
+            this.persist();
+        },
+        get completed() {
+            return this.done.length;
+        },
+        get percent() {
+            return this.total > 0 ? Math.round((this.completed / this.total) * 100) : 0;
+        },
+        get label() {
+            return this.completed > 0 ? `${this.completed} / ${this.total} adım` : `${this.total} adım`;
+        },
+    }));
+});

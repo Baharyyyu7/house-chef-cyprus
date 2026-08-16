@@ -24,13 +24,16 @@ final class HamurIsiRecipesSeeder extends Seeder
 {
     public function run(): void
     {
-        $category = Category::where('slug', 'hamur-isi')->firstOrFail();
-        $kibris = Cuisine::where('slug', 'kibris-mutfagi')->firstOrFail();
-        $turk = Cuisine::where('slug', 'turk-mutfagi')->firstOrFail();
-        $akdeniz = Cuisine::where('slug', 'akdeniz-mutfagi')->firstOrFail();
+        $category = Category::firstOrCreate(['slug' => 'hamur-isi'], ['name' => 'Hamur İşi', 'description' => 'Hamur işi tarifleri', 'public_id' => (string) Str::ulid()]);
+        $kibris = Cuisine::firstOrCreate(['slug' => 'kibris-mutfagi'], ['name' => 'Kıbrıs Mutfağı', 'country' => 'Kıbrıs', 'public_id' => (string) Str::ulid()]);
+        $turk = Cuisine::firstOrCreate(['slug' => 'turk-mutfagi'], ['name' => 'Türk Mutfağı', 'country' => 'Türkiye', 'public_id' => (string) Str::ulid()]);
+        $akdeniz = Cuisine::firstOrCreate(['slug' => 'akdeniz-mutfagi'], ['name' => 'Akdeniz Mutfağı', 'country' => 'Akdeniz', 'public_id' => (string) Str::ulid()]);
 
-        // Ingredient IDs (verified in DB)
-        $ing = fn (string $name): int => Ingredient::where('name', $name)->firstOrFail()->id;
+        // Ingredient IDs (safely create if missing on production)
+        $ing = fn (string $name): int => Ingredient::firstOrCreate(
+            ['name' => $name],
+            ['slug' => Str::slug($name), 'canonical_name' => $name, 'default_unit' => 'gram', 'public_id' => (string) Str::ulid()]
+        )->id;
 
         $un = $ing('Un');
         $yumurta = $ing('Yumurta');

@@ -232,6 +232,17 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
 @media (max-width: 767px) { .hc-admin-step-card { grid-template-columns:2.3rem minmax(0,1fr); }.hc-admin-step-card > :last-child { grid-column:1 / -1; justify-content:flex-end; } }
 @media (max-width: 767px) { html, body, .admin-shell { overflow-x:clip; } }
 @media (prefers-reduced-motion: reduce) { .hc-v3-reveal { animation:none; } }
+/* Pişirirken adım işaretleme: tamamlanan adım geri planda kalır ama okunur kalır. */
+.hc-step__toggle { display:grid; place-items:center; flex:none; width:2.75rem; height:2.75rem; border-radius:9999px; border:2px solid transparent; background:#ffedd5; color:#7c2d12; font-weight:800; font-size:1.05rem; line-height:1; transition:background-color .18s ease, color .18s ease, border-color .18s ease; }
+.hc-step__toggle:hover { border-color:var(--hc-brand-primary); }
+.dark .hc-step__toggle { background:rgba(249,115,22,.2); color:#fed7aa; }
+.hc-step--done .hc-step__toggle { background:var(--hc-status-success); color:#fff; }
+.hc-step--done { opacity:.62; }
+.hc-step--done .hc-heading-3 { text-decoration:line-through; text-decoration-thickness:2px; }
+.hc-step-progress { height:.5rem; width:100%; overflow:hidden; border-radius:9999px; background:var(--hc-background-muted); }
+.dark .hc-step-progress { background:var(--hc-background-subtle); }
+.hc-step-progress__bar { display:block; height:100%; width:0; border-radius:9999px; background:var(--hc-status-success); transition:width .28s var(--hc-ease-standard); }
+@media (prefers-reduced-motion: reduce) { .hc-step-progress__bar, .hc-step__toggle { transition:none; } }
 /* Yapışkan header ve bölüm menüsünün gerçek yüksekliği; app.js çalışma anında günceller. */
 :root { --hc-header-h: 85px; --hc-section-nav-h: 53px; }
 .hc-sticky-under-header { top: var(--hc-header-h); }
