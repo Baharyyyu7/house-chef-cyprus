@@ -640,7 +640,7 @@ final class HamurIsiRecipesSeeder extends Seeder
                 'is_ai_generated' => false,
                 'is_user_generated' => false,
                 'verification_status' => 'verified',
-                'confidence' => 'high',
+                'confidence' => 90,
                 'reviewed_at' => now(),
                 'is_active' => true,
             ]);

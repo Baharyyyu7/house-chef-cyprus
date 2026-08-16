@@ -37,9 +37,14 @@ final class IngredientExplorerController extends Controller
         ]);
 
         $selected = array_values(array_unique(array_filter($validated['ingredients'] ?? [], 'is_string')));
-        $pantryItems = $request->user()->pantryItems()->where('is_available', true)->with('ingredient')->orderBy('expires_at')->get();
+        // Sayfa herkese açıktır: misafirler malzemeleriyle eşleştirme yapabilir,
+        // dolap entegrasyonu yalnız oturum açmış üyeler için çalışır.
+        $user = $request->user();
+        $pantryItems = $user === null
+            ? collect()
+            : $user->pantryItems()->where('is_available', true)->with('ingredient')->orderBy('expires_at')->get();
         $availablePantryItems = $pantryItems->filter(fn ($item) => $item->expires_at === null || Carbon::parse($item->expires_at)->isToday() || Carbon::parse($item->expires_at)->isFuture());
-        if ($request->boolean('use_pantry')) {
+        if ($user !== null && $request->boolean('use_pantry')) {
             $selected = $availablePantryItems->pluck('ingredient.public_id')->all();
         }
 
@@ -63,8 +68,18 @@ final class IngredientExplorerController extends Controller
             }
         }
 
+        $ingredients = Ingredient::query()->where('is_active', true)->with('aliases')->orderBy('name')->get();
+
         return view('ingredients.explore', [
-            'ingredients' => Ingredient::query()->where('is_active', true)->with('aliases')->orderBy('name')->get(),
+            'ingredients' => $ingredients,
+            // Boş ekranda kullanıcıya somut bir başlangıç sunar: en çok tarifte geçen malzemeler.
+            'popularIngredients' => Ingredient::query()
+                ->where('is_active', true)
+                ->withCount('recipeIngredients')
+                ->orderByDesc('recipe_ingredients_count')
+                ->orderBy('name')
+                ->limit(10)
+                ->get(),
             'allergens' => Allergen::query()->where('is_active', true)->orderBy('sort_order')->get(),
             'dietaryTags' => DietaryTag::query()->where('is_active', true)->orderBy('sort_order')->get(),
             'pantryItems' => $pantryItems,

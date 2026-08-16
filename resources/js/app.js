@@ -184,3 +184,69 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 });
+
+// Malzeme seçimi: "Cmd/Ctrl ile çoklu seçim" yerine aranabilir çip listesi.
+// Türkçe karakterler normalize edilir; "sogan" da "Soğan" da eşleşir.
+const hcNormalize = (value) => (value ?? '')
+    .toLocaleLowerCase('tr')
+    .replaceAll('ı', 'i').replaceAll('ğ', 'g').replaceAll('ü', 'u')
+    .replaceAll('ş', 's').replaceAll('ö', 'o').replaceAll('ç', 'c')
+    .replaceAll('â', 'a').replaceAll('î', 'i').replaceAll('û', 'u')
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+document.addEventListener('alpine:init', () => {
+    window.Alpine.data('hcIngredientPicker', (options, preselected) => ({
+        options,
+        selected: Array.isArray(preselected) ? preselected.filter((id) => options.some((o) => o.id === id)) : [],
+        query: '',
+        highlighted: 0,
+        get matches() {
+            const needle = hcNormalize(this.query);
+
+            if (needle === '') {
+                return [];
+            }
+
+            return this.options
+                .filter((option) => !this.selected.includes(option.id) && option.search.includes(needle))
+                .slice(0, 8);
+        },
+        get chosen() {
+            return this.selected
+                .map((id) => this.options.find((option) => option.id === id))
+                .filter(Boolean);
+        },
+        name(id) {
+            return this.options.find((option) => option.id === id)?.name ?? '';
+        },
+        add(id) {
+            if (id && !this.selected.includes(id)) {
+                this.selected = [...this.selected, id];
+            }
+            this.query = '';
+            this.highlighted = 0;
+        },
+        remove(id) {
+            this.selected = this.selected.filter((value) => value !== id);
+        },
+        clear() {
+            this.selected = [];
+            this.query = '';
+        },
+        move(delta) {
+            const total = this.matches.length;
+            if (total === 0) {
+                return;
+            }
+            this.highlighted = (this.highlighted + delta + total) % total;
+        },
+        commit() {
+            const match = this.matches[this.highlighted];
+            if (match) {
+                this.add(match.id);
+            }
+        },
+    }));
+});

@@ -1,14 +1,17 @@
 <x-layouts.site title="AI Mutfak Asistanı" robots="noindex,nofollow">
     @php($result = session('ai_kitchen_result'))
-    <section class="hc-container py-10 sm:py-14">
-        <div class="max-w-3xl">
-            <p class="hc-eyebrow">Kişisel mutfak desteği</p>
-            <h1 class="hc-heading-1 mt-3">AI Mutfak Asistanı</h1>
-            <p class="mt-4 text-lg text-muted">Tarif kataloğu ve dolabınıza göre öneri alın. AI çıktıları yayınlanmış tarif veya uzman tavsiyesi değildir.</p>
+    <section class="hc-container py-6 sm:py-10">
+        <div class="hc-workspace-hero">
+            <div class="hc-workspace-hero__inner">
+                <p class="hc-workspace-hero__eyebrow">Kişisel mutfak desteği</p>
+                <h1 class="hc-workspace-hero__title">Bugün mutfakta<br><span class="text-orange-300">neye ihtiyacınız var?</span></h1>
+                <p class="hc-workspace-hero__copy">Elinizdekilerden başlayın, haftayı planlayın veya artanları değerlendirin. Öneriler, House Chef Cyprus kataloğuna dayanır; yayınlanmış tarif ve uzman tavsiyesinin yerine geçmez.</p>
+                <div class="hc-workspace-hero__meta"><span>Tarif kataloğu öncelikli</span><span>Güvenlik notları görünür</span><span>Oturumunuza özel</span></div>
+            </div>
         </div>
 
         @if($result)
-            <section class="hc-v3-card mt-8" aria-live="polite">
+            <section class="hc-match-card mt-8" aria-live="polite">
                 <div class="flex flex-wrap items-center justify-between gap-3"><h2 class="hc-heading-4">Son öneri</h2><span class="hc-status-badge">{{ data_get($result, 'cache_hit') ? 'Önbellekten' : 'Yeni yanıt' }}</span></div>
                 <p class="mt-4 leading-7 text-muted">{{ data_get($result, 'answer') }}</p>
                 @if(data_get($result, 'safety_events'))<div class="hc-alert hc-alert-error mt-5" role="note">@foreach(data_get($result, 'safety_events', []) as $event)<p>{{ data_get($event, 'message') }}</p>@endforeach</div>@endif

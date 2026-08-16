@@ -48,6 +48,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [RecipeController::class, 'index'])->name('home');
 Route::get('/health', HealthController::class)->name('health');
 Route::get('/tarifler', [RecipeController::class, 'index'])->name('recipes.index');
+// Malzemeye göre tarif eşleştirme herkese açıktır; dolap entegrasyonu üye olanlara özel kalır.
+Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])->name('ingredients.explore');
 Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])->name('recipes.show');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/kategori/{category}', [BlogController::class, 'category'])->name('blog.category');
@@ -94,7 +96,6 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::post('/ai-mutfak/menu/{plan:public_id}/alisveris', [AiKitchenController::class, 'shopping'])->name('ai-kitchen.shopping');
     Route::post('/ai-mutfak/tarifler/{recipe:public_id}/porsiyon', [AiKitchenController::class, 'portion'])->name('ai-kitchen.portion');
     Route::post('/ai-mutfak/tarifler/{recipe:public_id}/beslenme', [AiKitchenController::class, 'nutrition'])->name('ai-kitchen.nutrition');
-    Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])->name('ingredients.explore');
     Route::get('/favoriler', [FavoriteController::class, 'index'])->name('favorites.index');
     Route::post('/tarifler/{recipe:slug}/favori', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
     Route::get('/koleksiyonlar', [RecipeCollectionController::class, 'index'])->name('collections.index');
