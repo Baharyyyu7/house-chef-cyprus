@@ -19,6 +19,7 @@ use App\Models\RecipeIngredient;
 use App\Models\RecipeMediaCandidate;
 use App\Observers\BlogPostObserver;
 use App\Observers\IngredientUnitConversionObserver;
+use App\Observers\MediaObserver;
 use App\Observers\NutritionFactObserver;
 use App\Observers\RecipeIngredientObserver;
 use App\Observers\RecipeObserver;
@@ -65,6 +66,7 @@ class AppServiceProvider extends ServiceProvider
         IngredientUnitConversion::observe(IngredientUnitConversionObserver::class);
         Recipe::observe(RecipeObserver::class);
         BlogPost::observe(BlogPostObserver::class);
+        Media::observe(MediaObserver::class);
         Gate::define('access-admin', fn ($user): bool => $user->isAdmin());
         Gate::define('access-ai-operations', fn ($user): bool => $user->isAdmin() && ! $user->isSystemReviewer());
         Gate::define('access-media-operations', fn ($user): bool => in_array($user->role, ['admin', 'media_reviewer'], true) && ! $user->isSystemReviewer());

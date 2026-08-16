@@ -39,10 +39,12 @@ final class BlogPublishingTest extends TestCase
             'published_at' => now(),
         ]);
 
+        // Listede fotoğraf yerine başlıktan üretilen tipografik kapak çıkar: yanlış
+        // yemeği gösteremez ve fotoğraf olduğunu iddia etmez.
         $this->get(route('blog.index'))
             ->assertOk()
-            ->assertSee('Yazıya özel görsel hazırlanıyor')
-            ->assertSee('Onaylı ve konuya özel editoryal görsel bulunana kadar fotoğraf gösterilmez.');
+            ->assertSee('role="img" aria-label="'.$post->title.'"', false)
+            ->assertDontSee('Yapay zekâ görseli', false);
 
         $this->get(route('blog.show', $post))
             ->assertOk()

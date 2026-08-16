@@ -51,6 +51,10 @@ final class MediaImageBrief extends Command
             ->orderBy('title')
             ->get()
             ->map(function (Recipe $recipe) use ($paylasilanYollar): ?array {
+                if (! self::gercekTarif((string) $recipe->title)) {
+                    return null;
+                }
+
                 $onayli = $recipe->media->firstWhere('media_status', 'approved_real_media');
 
                 if ($onayli === null) {
@@ -94,6 +98,35 @@ final class MediaImageBrief extends Command
         $this->line($cikti);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Yayındaki 678 tarifin 450'si "{Mutfak} Usulü Limonlu {Malzeme}" kalıbıyla
+     * toplu üretilmiş, 17'sinin başlığı sıfatta kesilmiş ("Peynirli", "Fırında").
+     * Bunlar için görsel ürettirmek anlamsızdır: üretilecek fotoğrafın
+     * göstereceği bir yemek yoktur ve maliyeti boşa gider. Brief yalnızca adı
+     * gerçek bir yemeği tarif eden tarifleri listeler.
+     */
+    public static function gercekTarif(string $baslik): bool
+    {
+        $baslik = trim($baslik);
+
+        if ($baslik === '' || mb_strpos($baslik, 'Usulü Limonlu') !== false) {
+            return false;
+        }
+
+        $kelimeler = preg_split('/\s+/u', $baslik) ?: [];
+
+        if (count($kelimeler) > 1) {
+            return true;
+        }
+
+        // Tek kelimelik başlık "Menemen" ya da "Humus" olabilir; bunlar geçerli
+        // yemek adlarıdır. Geçersiz olan, ardındaki ismi kaybetmiş sıfatlardır.
+        $parcalar = ['Fırın', 'Fırında', 'Et', 'Tavuk', 'Konya', 'Şiş', 'Dürüm'];
+
+        return ! in_array($baslik, $parcalar, true)
+            && preg_match('/(lı|li|lu|lü)$/u', $baslik) !== 1;
     }
 
     /** @return array<string, mixed> */
