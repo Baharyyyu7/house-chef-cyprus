@@ -19,7 +19,7 @@ class PublishAndVerifyAllSeeder extends Seeder
             'editorial_status' => 'approved',
             'completeness_status' => 'complete',
         ]);
-        
+
         Recipe::query()->whereNull('published_at')->update([
             'published_at' => now(),
         ]);
@@ -52,7 +52,7 @@ class PublishAndVerifyAllSeeder extends Seeder
         $publishedRecipesCount = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->count();
         $publishedBlogsCount = BlogPost::query()->publiclyVisible()->count();
 
-        $this->command->info("🎉 İŞLEM TAMAMLANDI!");
+        $this->command->info('🎉 İŞLEM TAMAMLANDI!');
         $this->command->info(" - Sitede Canlı Yayında Tarif Sayısı: {$publishedRecipesCount}");
         $this->command->info(" - Sitede Canlı Yayında Blog Sayısı: {$publishedBlogsCount}");
     }

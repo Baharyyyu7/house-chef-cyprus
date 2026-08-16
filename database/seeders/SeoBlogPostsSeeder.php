@@ -13,7 +13,7 @@ class SeoBlogPostsSeeder extends Seeder
     public function run(): void
     {
         $author = User::first();
-        if (!$author) {
+        if (! $author) {
             $author = User::create([
                 'name' => 'HouseChef Cyprus',
                 'email' => 'info@housechefcyprus.com',
@@ -141,21 +141,21 @@ HTML;
         ]);
         $this->command->info('✓ Lokanta Usulü Mercimek Çorbası SEO makale yayında (published) + FAQ şeması eklendi.');
         $this->command->info('1 SEO blog eklendi, şimdi kalan 999 SEO blog taslağı oluşturuluyor...');
-        
+
         $posts = [];
         $words = ['Lezzet', 'Tarif', 'Mutfak', 'Gurme', 'Pratik', 'Sağlıklı', 'Beslenme', 'Şef', 'Kıbrıs', 'Sırları', 'Özel', 'Yemek'];
-        
+
         for ($i = 0; $i < 999; $i++) {
             shuffle($words);
-            $title = implode(' ', array_slice($words, 0, rand(4, 6))) . ' ' . Str::random(4);
+            $title = implode(' ', array_slice($words, 0, rand(4, 6))).' '.Str::random(4);
             $posts[] = [
                 'public_id' => strtoupper((string) Str::ulid()),
                 'author_id' => $author->id,
                 'blog_category_id' => $category->id,
                 'title' => $title,
-                'slug' => Str::slug($title) . '-' . Str::random(5),
+                'slug' => Str::slug($title).'-'.Str::random(5),
                 'excerpt' => 'Bu harika yemek ve mutfak sırları üzerine detaylı bir gastronomi incelemesi. Denenmiş pratik bilgiler.',
-                'body' => "## Mutfak İpuçları\n\nBu taslak makale SEO performansı ve veritabanı testi için sistem tarafından otomatik oluşturulmuştur. Modern gastronomi teknikleri ve yöresel tatlar üzerine çalışmalar devam ediyor.\n\n### Detaylar\nTest verisi " . Str::random(10),
+                'body' => "## Mutfak İpuçları\n\nBu taslak makale SEO performansı ve veritabanı testi için sistem tarafından otomatik oluşturulmuştur. Modern gastronomi teknikleri ve yöresel tatlar üzerine çalışmalar devam ediyor.\n\n### Detaylar\nTest verisi ".Str::random(10),
                 'status' => 'draft',
                 'editorial_status' => 'draft',
                 'meta_title' => Str::limit($title, 65),
@@ -168,14 +168,14 @@ HTML;
             if (count($posts) >= 100) {
                 BlogPost::insert($posts);
                 $posts = [];
-                $this->command->line("  - " . ($i + 1) . " blog eklendi.");
+                $this->command->line('  - '.($i + 1).' blog eklendi.');
             }
         }
-        
+
         if (count($posts) > 0) {
             BlogPost::insert($posts);
         }
-        
+
         $this->command->info('Toplam 1000 SEO Blog gönderisi başarıyla sisteme eklendi!');
     }
 }

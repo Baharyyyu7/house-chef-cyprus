@@ -32,7 +32,7 @@ class AutoLinkAndOptimizeSeeder extends Seeder
                 fn ($w) => mb_strlen($w) > 3
             );
 
-            if (!empty($titleWords)) {
+            if (! empty($titleWords)) {
                 $matchedRecipes = $recipes->filter(function ($recipe) use ($titleWords) {
                     $recipeTitle = Str::lower($recipe->title);
                     foreach ($titleWords as $word) {
@@ -40,6 +40,7 @@ class AutoLinkAndOptimizeSeeder extends Seeder
                             return true;
                         }
                     }
+
                     return false;
                 })->take(3);
 
@@ -52,12 +53,12 @@ class AutoLinkAndOptimizeSeeder extends Seeder
                 $matchedIds = array_unique(array_merge($matchedIds, $fallbackIds));
             }
 
-            if (!empty($matchedIds)) {
+            if (! empty($matchedIds)) {
                 $post->recipes()->syncWithoutDetaching($matchedIds);
                 $linkedCount++;
 
                 // Eğer blog'un hero_media_id'si yoksa, bağlı tariflerden ilk medya sahibi olanın görselini ata
-                if (!$post->hero_media_id) {
+                if (! $post->hero_media_id) {
                     $recipeWithMedia = Recipe::whereIn('id', $matchedIds)
                         ->whereHas('media')
                         ->first();

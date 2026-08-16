@@ -26,7 +26,7 @@ class MegaTarifPaketi1Seeder extends Seeder
             'kibris-mutfagi' => Cuisine::firstOrCreate(
                 ['slug' => 'kibris-mutfagi'],
                 ['name' => 'Kıbrıs Mutfağı', 'country' => 'Kıbrıs', 'public_id' => (string) Str::ulid()]
-            )
+            ),
         ];
 
         $categories = [
@@ -35,7 +35,7 @@ class MegaTarifPaketi1Seeder extends Seeder
             'zeytinyagli-sebze' => Category::firstOrCreate(['slug' => 'zeytinyagli-sebze'], ['name' => 'Zeytinyağlılar ve Sebze', 'description' => 'Hafif zeytinyağlılar', 'public_id' => (string) Str::ulid()]),
             'salata-meze' => Category::firstOrCreate(['slug' => 'salata-meze'], ['name' => 'Salata ve Mezeler', 'description' => 'Taze salata ve mezeler', 'public_id' => (string) Str::ulid()]),
             'hamur-isi' => Category::firstOrCreate(['slug' => 'hamur-isi'], ['name' => 'Hamur İşleri', 'description' => 'Nefis hamur işleri', 'public_id' => (string) Str::ulid()]),
-            'tatli' => Category::firstOrCreate(['slug' => 'tatli'], ['name' => 'Tatlılar', 'description' => 'Tatlı tarifleri', 'public_id' => (string) Str::ulid()])
+            'tatli' => Category::firstOrCreate(['slug' => 'tatli'], ['name' => 'Tatlılar', 'description' => 'Tatlı tarifleri', 'public_id' => (string) Str::ulid()]),
         ];
 
         $ing = fn (string $name): int => Ingredient::firstOrCreate(
@@ -66,8 +66,8 @@ class MegaTarifPaketi1Seeder extends Seeder
                     ['instruction' => 'Bir kasede yoğurt, un ve yumurta sarısını pürüzsüz olana kadar çırpın.', 'duration' => 300, 'tip' => 'Terbiyenin kesilmemesi için pürüzsüz olmalı.'],
                     ['instruction' => 'Haşlanan pirincin suyundan bir kepçe alıp terbiyeye ekleyin ve ılıtın.', 'duration' => 120, 'tip' => 'Bu işlem çorbanın kesilmesini önler.'],
                     ['instruction' => 'Ilıyan terbiyeyi yavaş yavaş ve sürekli karıştırarak çorbaya ilave edin.', 'duration' => 180, 'tip' => 'Kaynayana kadar karıştırmayı bırakmayın.'],
-                    ['instruction' => 'Ayrı bir tavada tereyağını eritip naneyi yakın, çorbanın üzerine gezdirin.', 'duration' => 180, 'tip' => 'Naneyi yakmamaya özen gösterin.']
-                ]
+                    ['instruction' => 'Ayrı bir tavada tereyağını eritip naneyi yakın, çorbanın üzerine gezdirin.', 'duration' => 180, 'tip' => 'Naneyi yakmamaya özen gösterin.'],
+                ],
             ],
             [
                 'slug' => 'dugun-corbasi',
@@ -83,15 +83,15 @@ class MegaTarifPaketi1Seeder extends Seeder
                     ['name' => 'Un', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'gram'],
                     ['name' => 'Yumurta Sarısı', 'qty' => 1, 'unit' => 'adet', 'canon_qty' => 20, 'canon_unit' => 'gram'],
                     ['name' => 'Limon Suyu', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'ml'],
-                    ['name' => 'Tereyağı', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'gram']
+                    ['name' => 'Tereyağı', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'gram'],
                 ],
                 'steps' => [
                     ['instruction' => 'Kuzu gerdan etini düdüklü tencerede yumuşacık olana kadar haşlayın.', 'duration' => 2400, 'tip' => 'Etin suyunu dökmeyin, çorbada kullanacağız.'],
                     ['instruction' => 'Haşlanan etleri kemiklerinden ayırıp ince ince didikleyin.', 'duration' => 300, 'tip' => 'Etleri çok küçültmemeye özen gösterin.'],
                     ['instruction' => 'Terbiyesi için yoğurt, un, yumurta sarısı ve limon suyunu bir kasede çırpın.', 'duration' => 180, 'tip' => 'Pürüzsüz bir kıvam alana kadar çırpın.'],
                     ['instruction' => 'Et suyunu süzerek tencereye alın, kaynamaya başlayınca terbiyesini ılıtarak ekleyin.', 'duration' => 300, 'tip' => 'Terbiyeyi eklerken sürekli karıştırın.'],
-                    ['instruction' => 'Didiklenmiş etleri çorbaya ilave edin ve 5 dakika daha kaynatın.', 'duration' => 300, 'tip' => null]
-                ]
+                    ['instruction' => 'Didiklenmiş etleri çorbaya ilave edin ve 5 dakika daha kaynatın.', 'duration' => 300, 'tip' => null],
+                ],
             ],
             [
                 'slug' => 'tavuk-suyu-corbasi',
@@ -106,15 +106,15 @@ class MegaTarifPaketi1Seeder extends Seeder
                     ['name' => 'Tel Şehriye', 'qty' => 1, 'unit' => 'çay bardağı', 'canon_qty' => 80, 'canon_unit' => 'gram'],
                     ['name' => 'Havuç', 'qty' => 1, 'unit' => 'adet', 'canon_qty' => 100, 'canon_unit' => 'gram'],
                     ['name' => 'Limon Suyu', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'ml'],
-                    ['name' => 'Tuz', 'qty' => 1, 'unit' => 'tatlı kaşığı', 'canon_qty' => 5, 'canon_unit' => 'gram']
+                    ['name' => 'Tuz', 'qty' => 1, 'unit' => 'tatlı kaşığı', 'canon_qty' => 5, 'canon_unit' => 'gram'],
                 ],
                 'steps' => [
                     ['instruction' => 'Tavuk butlarını suda iyice haşlayın.', 'duration' => 1800, 'tip' => null],
                     ['instruction' => 'Haşlanan tavukları tiftikleyin, suyunu süzüp tencereye alın.', 'duration' => 300, 'tip' => null],
                     ['instruction' => 'Havucu rendeleyip az sıvı yağda kavurun ve tavuk suyuna ekleyin.', 'duration' => 300, 'tip' => 'Havuç çorbaya renk katar.'],
                     ['instruction' => 'Tavuk suyu kaynayınca tel şehriyeleri ilave edin.', 'duration' => 120, 'tip' => null],
-                    ['instruction' => 'Şehriyeler yumuşayınca tiftiklenmiş tavukları ekleyin, tuzla tatlandırın.', 'duration' => 300, 'tip' => null]
-                ]
+                    ['instruction' => 'Şehriyeler yumuşayınca tiftiklenmiş tavukları ekleyin, tuzla tatlandırın.', 'duration' => 300, 'tip' => null],
+                ],
             ],
             [
                 'slug' => 'domates-corbasi',
@@ -129,15 +129,15 @@ class MegaTarifPaketi1Seeder extends Seeder
                     ['name' => 'Tereyağı', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'gram'],
                     ['name' => 'Un', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'gram'],
                     ['name' => 'Süt', 'qty' => 1, 'unit' => 'su bardağı', 'canon_qty' => 200, 'canon_unit' => 'ml'],
-                    ['name' => 'Kaşar Peyniri (Rendelenmiş)', 'qty' => 1, 'unit' => 'çay bardağı', 'canon_qty' => 80, 'canon_unit' => 'gram']
+                    ['name' => 'Kaşar Peyniri (Rendelenmiş)', 'qty' => 1, 'unit' => 'çay bardağı', 'canon_qty' => 80, 'canon_unit' => 'gram'],
                 ],
                 'steps' => [
                     ['instruction' => 'Domatesleri rendeleyin.', 'duration' => 180, 'tip' => 'Yaz domatesi kullanmak lezzeti artırır.'],
                     ['instruction' => 'Tencerede tereyağını eritip unu kokusu çıkana kadar kavurun.', 'duration' => 180, 'tip' => 'Unu yakmamaya dikkat edin.'],
                     ['instruction' => 'Rendelenmiş domatesleri ilave edin.', 'duration' => 300, 'tip' => 'Domatesler suyunu çekene kadar pişirin.'],
                     ['instruction' => 'Sıcak suyu azar azar ekleyip kaynamaya bırakın.', 'duration' => 300, 'tip' => 'Kaynayana kadar karıştırın.'],
-                    ['instruction' => 'Sütü ılıtarak çorbaya ekleyin, 5 dakika daha kaynatıp ocaktan alın.', 'duration' => 300, 'tip' => null]
-                ]
+                    ['instruction' => 'Sütü ılıtarak çorbaya ekleyin, 5 dakika daha kaynatıp ocaktan alın.', 'duration' => 300, 'tip' => null],
+                ],
             ],
             [
                 'slug' => 'iskembe-corbasi',
@@ -152,15 +152,15 @@ class MegaTarifPaketi1Seeder extends Seeder
                     ['name' => 'Un', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'gram'],
                     ['name' => 'Yumurta Sarısı', 'qty' => 1, 'unit' => 'adet', 'canon_qty' => 20, 'canon_unit' => 'gram'],
                     ['name' => 'Sarımsak', 'qty' => 4, 'unit' => 'diş', 'canon_qty' => 12, 'canon_unit' => 'gram'],
-                    ['name' => 'Sirke', 'qty' => 1, 'unit' => 'çay bardağı', 'canon_qty' => 100, 'canon_unit' => 'ml']
+                    ['name' => 'Sirke', 'qty' => 1, 'unit' => 'çay bardağı', 'canon_qty' => 100, 'canon_unit' => 'ml'],
                 ],
                 'steps' => [
                     ['instruction' => 'İşkembeyi bol su ve sirke ile iyice yıkayıp temizleyin.', 'duration' => 600, 'tip' => 'Temizlik çorbanın lezzeti için çok önemlidir.'],
                     ['instruction' => 'Düdüklü tencerede işkembeyi yumuşayana kadar haşlayın.', 'duration' => 3600, 'tip' => null],
                     ['instruction' => 'Haşlanan işkembeleri küçük küçük doğrayın.', 'duration' => 300, 'tip' => null],
                     ['instruction' => 'Terbiyesi için un, yumurta sarısını çırpın, haşlama suyundan ekleyip ılıtın.', 'duration' => 300, 'tip' => 'Terbiyeyi pürüzsüz yapın.'],
-                    ['instruction' => 'Doğranmış işkembeleri suyuna ekleyin, terbiyeyi ilave edip kaynatın.', 'duration' => 600, 'tip' => null]
-                ]
+                    ['instruction' => 'Doğranmış işkembeleri suyuna ekleyin, terbiyeyi ilave edip kaynatın.', 'duration' => 600, 'tip' => null],
+                ],
             ],
             [
                 'slug' => 'mantar-corbasi',
@@ -175,15 +175,15 @@ class MegaTarifPaketi1Seeder extends Seeder
                     ['name' => 'Kremsa (Sıvı Krema)', 'qty' => 1, 'unit' => 'kutu', 'canon_qty' => 200, 'canon_unit' => 'ml'],
                     ['name' => 'Tereyağı', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'gram'],
                     ['name' => 'Un', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'gram'],
-                    ['name' => 'Karabiber', 'qty' => 1, 'unit' => 'çay kaşığı', 'canon_qty' => 2, 'canon_unit' => 'gram']
+                    ['name' => 'Karabiber', 'qty' => 1, 'unit' => 'çay kaşığı', 'canon_qty' => 2, 'canon_unit' => 'gram'],
                 ],
                 'steps' => [
                     ['instruction' => 'Mantarları ince ince dilimleyin.', 'duration' => 300, 'tip' => 'Kararmamaları için limonlu suda bekletebilirsiniz.'],
                     ['instruction' => 'Tencerede tereyağını eritip mantarları suyunu salıp çekene kadar soteleyin.', 'duration' => 480, 'tip' => null],
                     ['instruction' => 'Unu ilave edip mantarlarla birlikte biraz kavurun.', 'duration' => 180, 'tip' => 'Unun kokusu çıkana kadar kavurun.'],
                     ['instruction' => 'Sıcak suyu yavaşça ekleyip topaklanmaması için sürekli karıştırın.', 'duration' => 120, 'tip' => null],
-                    ['instruction' => 'Çorba kaynayıp kıvam alınca kremayı ekleyip bir taşım kaynatın.', 'duration' => 300, 'tip' => null]
-                ]
+                    ['instruction' => 'Çorba kaynayıp kıvam alınca kremayı ekleyip bir taşım kaynatın.', 'duration' => 300, 'tip' => null],
+                ],
             ],
             [
                 'slug' => 'sehriyeli-mercimek-corbasi',
@@ -198,15 +198,15 @@ class MegaTarifPaketi1Seeder extends Seeder
                     ['name' => 'Arpa Şehriye', 'qty' => 1, 'unit' => 'çay bardağı', 'canon_qty' => 80, 'canon_unit' => 'gram'],
                     ['name' => 'Kuru Soğan', 'qty' => 1, 'unit' => 'adet', 'canon_qty' => 100, 'canon_unit' => 'gram'],
                     ['name' => 'Domates Salçası', 'qty' => 1, 'unit' => 'yemek kaşığı', 'canon_qty' => 20, 'canon_unit' => 'gram'],
-                    ['name' => 'Sıvı Yağ', 'qty' => 3, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'ml']
+                    ['name' => 'Sıvı Yağ', 'qty' => 3, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'ml'],
                 ],
                 'steps' => [
                     ['instruction' => 'Yeşil mercimekleri yıkayıp kara suyu çıkana kadar haşlayın ve süzün.', 'duration' => 900, 'tip' => null],
                     ['instruction' => 'Soğanı yemeklik doğrayıp sıvı yağda kavurun.', 'duration' => 300, 'tip' => null],
                     ['instruction' => 'Salçayı ekleyip kokusu çıkana kadar kavurmaya devam edin.', 'duration' => 180, 'tip' => null],
                     ['instruction' => 'Haşlanmış mercimekleri ve sıcak suyu ekleyip kaynamaya bırakın.', 'duration' => 300, 'tip' => null],
-                    ['instruction' => 'Kaynayan çorbaya şehriyeleri ilave edin. Şehriyeler pişince ocaktan alın.', 'duration' => 600, 'tip' => null]
-                ]
+                    ['instruction' => 'Kaynayan çorbaya şehriyeleri ilave edin. Şehriyeler pişince ocaktan alın.', 'duration' => 600, 'tip' => null],
+                ],
             ],
             [
                 'slug' => 'balkabagi-corbasi',
@@ -221,15 +221,15 @@ class MegaTarifPaketi1Seeder extends Seeder
                     ['name' => 'Kuru Soğan', 'qty' => 1, 'unit' => 'adet', 'canon_qty' => 100, 'canon_unit' => 'gram'],
                     ['name' => 'Havuç', 'qty' => 1, 'unit' => 'adet', 'canon_qty' => 100, 'canon_unit' => 'gram'],
                     ['name' => 'Kremsa (Sıvı Krema)', 'qty' => 0.5, 'unit' => 'su bardağı', 'canon_qty' => 100, 'canon_unit' => 'ml'],
-                    ['name' => 'Zeytinyağı', 'qty' => 3, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'ml']
+                    ['name' => 'Zeytinyağı', 'qty' => 3, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'ml'],
                 ],
                 'steps' => [
                     ['instruction' => 'Soğan ve havucu iri parçalar halinde doğrayıp zeytinyağında soteleyin.', 'duration' => 300, 'tip' => null],
                     ['instruction' => 'Doğranmış balkabaklarını ekleyip birkaç dakika daha kavurun.', 'duration' => 180, 'tip' => null],
                     ['instruction' => 'Üzerini geçecek kadar sıcak su ekleyip sebzeler yumuşayana kadar kaynatın.', 'duration' => 1200, 'tip' => null],
                     ['instruction' => 'Sebzeler yumuşayınca çorbayı pürüzsüz olana kadar blenderdan geçirin.', 'duration' => 180, 'tip' => null],
-                    ['instruction' => 'Kremayı ekleyip karıştırın, bir taşım kaynatıp ocaktan alın.', 'duration' => 120, 'tip' => null]
-                ]
+                    ['instruction' => 'Kremayı ekleyip karıştırın, bir taşım kaynatıp ocaktan alın.', 'duration' => 120, 'tip' => null],
+                ],
             ],
             // ANA YEMEKLER (12 recipes)
             [
@@ -245,15 +245,15 @@ class MegaTarifPaketi1Seeder extends Seeder
                     ['name' => 'Yeşil Biber', 'qty' => 2, 'unit' => 'adet', 'canon_qty' => 60, 'canon_unit' => 'gram'],
                     ['name' => 'Kuru Soğan', 'qty' => 1, 'unit' => 'adet', 'canon_qty' => 100, 'canon_unit' => 'gram'],
                     ['name' => 'Domates', 'qty' => 2, 'unit' => 'adet', 'canon_qty' => 250, 'canon_unit' => 'gram'],
-                    ['name' => 'Sıvı Yağ', 'qty' => 3, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'ml']
+                    ['name' => 'Sıvı Yağ', 'qty' => 3, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'ml'],
                 ],
                 'steps' => [
                     ['instruction' => 'Tavukları küp küp doğrayın ve suyunu salıp çekene kadar soteleyin.', 'duration' => 600, 'tip' => null],
                     ['instruction' => 'Yemeklik doğranmış soğanları ekleyip pembeleşene kadar kavurun.', 'duration' => 300, 'tip' => null],
                     ['instruction' => 'Doğranmış biberleri ekleyip sotelemeye devam edin.', 'duration' => 180, 'tip' => null],
                     ['instruction' => 'Küp doğranmış domatesleri ve tuzu ekleyin.', 'duration' => 120, 'tip' => null],
-                    ['instruction' => 'Domatesler suyunu çekene kadar pişirin.', 'duration' => 600, 'tip' => null]
-                ]
+                    ['instruction' => 'Domatesler suyunu çekene kadar pişirin.', 'duration' => 600, 'tip' => null],
+                ],
             ],
             [
                 'slug' => 'izmir-kofte',
@@ -268,15 +268,15 @@ class MegaTarifPaketi1Seeder extends Seeder
                     ['name' => 'Kuru Soğan', 'qty' => 1, 'unit' => 'adet', 'canon_qty' => 100, 'canon_unit' => 'gram'],
                     ['name' => 'Galeta Unu', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'gram'],
                     ['name' => 'Patates', 'qty' => 4, 'unit' => 'adet', 'canon_qty' => 600, 'canon_unit' => 'gram'],
-                    ['name' => 'Domates Salçası', 'qty' => 1, 'unit' => 'yemek kaşığı', 'canon_qty' => 20, 'canon_unit' => 'gram']
+                    ['name' => 'Domates Salçası', 'qty' => 1, 'unit' => 'yemek kaşığı', 'canon_qty' => 20, 'canon_unit' => 'gram'],
                 ],
                 'steps' => [
                     ['instruction' => 'Kıyma, rendelenmiş soğan ve galeta unu ile köfteler hazırlayın.', 'duration' => 600, 'tip' => null],
                     ['instruction' => 'Patatesleri elma dilimi doğrayıp az yağda hafifçe kızartın.', 'duration' => 300, 'tip' => null],
                     ['instruction' => 'Köfteleri de aynı yağda hafifçe kızartın.', 'duration' => 300, 'tip' => null],
                     ['instruction' => 'Patates ve köfteleri fırın kabına dizin.', 'duration' => 180, 'tip' => null],
-                    ['instruction' => 'Salçayı sıcak suyla ezip üzerine gezdirin, fırında pişirin.', 'duration' => 1800, 'tip' => null]
-                ]
+                    ['instruction' => 'Salçayı sıcak suyla ezip üzerine gezdirin, fırında pişirin.', 'duration' => 1800, 'tip' => null],
+                ],
             ],
             [
                 'slug' => 'ali-nazik-kebab',
@@ -291,16 +291,16 @@ class MegaTarifPaketi1Seeder extends Seeder
                     ['name' => 'Dana Kıyma', 'qty' => 300, 'unit' => 'gram', 'canon_qty' => 300, 'canon_unit' => 'gram'],
                     ['name' => 'Süzme Yoğurt', 'qty' => 1, 'unit' => 'su bardağı', 'canon_qty' => 200, 'canon_unit' => 'gram'],
                     ['name' => 'Sarımsak', 'qty' => 2, 'unit' => 'diş', 'canon_qty' => 6, 'canon_unit' => 'gram'],
-                    ['name' => 'Tereyağı', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'gram']
+                    ['name' => 'Tereyağı', 'qty' => 2, 'unit' => 'yemek kaşığı', 'canon_qty' => 30, 'canon_unit' => 'gram'],
                 ],
                 'steps' => [
                     ['instruction' => 'Patlıcanları közleyip soyun ve ince ince doğrayın.', 'duration' => 1200, 'tip' => null],
                     ['instruction' => 'Sarımsaklı yoğurtla karıştırıp tabağa yayın.', 'duration' => 300, 'tip' => null],
                     ['instruction' => 'Tavada tereyağını eritip kıymayı kavurun.', 'duration' => 600, 'tip' => null],
                     ['instruction' => 'Salça ve baharatları ekleyip biraz daha kavurun.', 'duration' => 180, 'tip' => null],
-                    ['instruction' => 'Kıymalı harcı patlıcanlı yoğurdun üzerine döküp servis yapın.', 'duration' => 120, 'tip' => null]
-                ]
-            ]
+                    ['instruction' => 'Kıymalı harcı patlıcanlı yoğurdun üzerine döküp servis yapın.', 'duration' => 120, 'tip' => null],
+                ],
+            ],
         ];
 
         $more = [
@@ -350,7 +350,7 @@ class MegaTarifPaketi1Seeder extends Seeder
             ['un-helvasi', 'Un Helvası', 'tatli', 'turk-mutfagi', 'Kavrulmuş un helvası.', ['Un', 'Tereyağı', 'Şeker', 'Ceviz']],
             ['sakizli-muhallebi', 'Sakızlı Muhallebi', 'tatli', 'turk-mutfagi', 'Damla sakızlı muhallebi.', ['Süt', 'Şeker', 'Nişasta', 'Damla Sakızı']],
             ['lokma-tatlisi', 'Lokma Tatlısı', 'tatli', 'turk-mutfagi', 'Çıtır şerbetli lokma.', ['Un', 'Şeker', 'Maya', 'Sıvı Yağ']],
-            ['tel-kadayif', 'Tel Kadayıf', 'tatli', 'turk-mutfagi', 'Cevizli tel kadayıf.', ['Kadayıf', 'Tereyağı', 'Ceviz', 'Şeker']]
+            ['tel-kadayif', 'Tel Kadayıf', 'tatli', 'turk-mutfagi', 'Cevizli tel kadayıf.', ['Kadayıf', 'Tereyağı', 'Ceviz', 'Şeker']],
         ];
 
         foreach ($more as $mr) {
@@ -364,7 +364,7 @@ class MegaTarifPaketi1Seeder extends Seeder
                 'category' => $mr[2],
                 'cuisine' => $mr[3],
                 'excerpt' => $mr[4],
-                'description' => $mr[1] . ' harika bir tariftir. Sofralarınızı şenlendirecek.',
+                'description' => $mr[1].' harika bir tariftir. Sofralarınızı şenlendirecek.',
                 'prep' => 20, 'cook' => 30, 'rest' => 0, 'servings' => 4, 'difficulty' => 'medium',
                 'ingredients' => $ingrs,
                 'steps' => [
@@ -372,14 +372,15 @@ class MegaTarifPaketi1Seeder extends Seeder
                     ['instruction' => 'Uygun şekilde doğrayıp karıştırın.', 'duration' => 600, 'tip' => null],
                     ['instruction' => 'Gereken şekilde pişirin.', 'duration' => 1200, 'tip' => null],
                     ['instruction' => 'Tuz ve baharatları ekleyip tatlandırın.', 'duration' => 60, 'tip' => null],
-                    ['instruction' => 'Sıcak veya soğuk servis yapın.', 'duration' => 60, 'tip' => 'Afiyet olsun.']
-                ]
+                    ['instruction' => 'Sıcak veya soğuk servis yapın.', 'duration' => 60, 'tip' => 'Afiyet olsun.'],
+                ],
             ];
         }
 
         foreach ($recipes as $data) {
             if (Recipe::where('slug', $data['slug'])->exists()) {
                 $this->command->line("SKIP (exists): {$data['slug']}");
+
                 continue;
             }
 
@@ -432,7 +433,7 @@ class MegaTarifPaketi1Seeder extends Seeder
                 RecipeStep::create([
                     'recipe_id' => $recipe->id,
                     'position' => $pos,
-                    'title' => 'Adım ' . $pos,
+                    'title' => 'Adım '.$pos,
                     'instruction' => $step['instruction'],
                     'chef_tip' => $step['tip'],
                     'duration_seconds' => $step['duration'],

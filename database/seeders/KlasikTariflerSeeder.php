@@ -2,15 +2,15 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
-use App\Models\Recipe;
 use App\Models\Category;
 use App\Models\Cuisine;
 use App\Models\Ingredient;
+use App\Models\Recipe;
 use App\Models\RecipeIngredient;
-use App\Models\RecipeStep;
 use App\Models\RecipeProvenance;
+use App\Models\RecipeStep;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class KlasikTariflerSeeder extends Seeder
 {
@@ -93,7 +93,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Havuç ve patatesleri ilave edip 2-3 dakika daha kavurmaya devam edin.', 'tip' => null, 'duration' => 180],
                     ['instruction' => 'Yıkayıp süzdüğünüz kırmızı mercimekleri ve sıcak suyu tencereye ekleyin. Kaynayana kadar yüksek ateşte, kaynadıktan sonra kısık ateşte sebzeler ve mercimekler yumuşayana kadar yaklaşık 25 dakika pişirin.', 'tip' => null, 'duration' => 1500],
                     ['instruction' => 'Çorba piştikten sonra pürüzsüz bir kıvam alana kadar blenderdan geçirin. Tuz ve baharatlarını ekleyip bir taşım daha kaynatın.', 'tip' => 'Kıvamı koyu gelirse bir miktar daha sıcak su ekleyebilirsiniz.', 'duration' => 300],
-                ]
+                ],
             ],
             [
                 'title' => 'Ezogelin Çorbası',
@@ -122,7 +122,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Salçaları ve naneyi ekleyip kokusu çıkana kadar kavurmaya devam edin.', 'tip' => 'Nane salçayla kavrulduğunda lezzeti daha iyi ortaya çıkar.', 'duration' => 120],
                     ['instruction' => 'Yıkanmış bakliyatları tencereye ilave edip 1-2 dakika daha kavurun.', 'tip' => null, 'duration' => 120],
                     ['instruction' => 'Sıcak suyunu ekleyip, bakliyatlar iyice yumuşayana kadar yaklaşık 30 dakika kısık ateşte pişirin. İsteğe göre blenderdan hafifçe geçirebilirsiniz.', 'tip' => null, 'duration' => 1800],
-                ]
+                ],
             ],
             [
                 'title' => 'Tarhana Çorbası',
@@ -149,7 +149,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Kalan 4 bardak suyu tencereye ekleyin ve kaynamaya bırakın.', 'tip' => null, 'duration' => 300],
                     ['instruction' => 'Kaynayan suya çözdürdüğünüz tarhanayı azar azar ve sürekli karıştırarak ilave edin.', 'tip' => null, 'duration' => 120],
                     ['instruction' => 'Çorba kıvam alıp kaynayana kadar sürekli karıştırarak 10-15 dakika pişirin. Tuzunu ayarlayıp sıcak servis yapın.', 'tip' => null, 'duration' => 900],
-                ]
+                ],
             ],
 
             // ANA YEMEK (ET VE TAVUK)
@@ -179,7 +179,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Yemeklik doğranmış soğanları ekleyip pembeleşene kadar kavurmaya devam edin.', 'tip' => null, 'duration' => 300],
                     ['instruction' => 'Salçayı ilave edip kokusu çıkana kadar kavurun.', 'tip' => null, 'duration' => 180],
                     ['instruction' => 'Haşlanmış fasulyeleri ve üzerini geçecek kadar sıcak suyu ekleyip, fasulyeler ve etler tamamen yumuşayana kadar kısık ateşte pişirin.', 'tip' => null, 'duration' => 2400],
-                ]
+                ],
             ],
             [
                 'title' => 'Fırın Tavuk Baget',
@@ -207,7 +207,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Patatesleri elma dilimi şeklinde doğrayın ve kalan sosa bulayın.', 'tip' => null, 'duration' => 180],
                     ['instruction' => 'Tavukları ve patatesleri fırın tepsisine dizin.', 'tip' => null, 'duration' => 120],
                     ['instruction' => 'Önceden ısıtılmış 200 derece fırında üzerleri nar gibi kızarana kadar yaklaşık 45 dakika pişirin.', 'tip' => null, 'duration' => 2700],
-                ]
+                ],
             ],
             [
                 'title' => 'Kıbrıs Usulü Kleftiko (Kuzu Tandır)',
@@ -236,7 +236,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Patatesleri dörde bölün, soğanları ve domatesleri iri iri doğrayın.', 'tip' => null, 'duration' => 300],
                     ['instruction' => 'Fırın tepsisine veya toprak güvece etleri ve sebzeleri yerleştirin. Aralarına defne yaprağı ve biberiye dallarını koyun.', 'tip' => 'Fırın kağıdı ve alüminyum folyo ile hava almayacak şekilde kapatırsanız daha iyi pişer.', 'duration' => 300],
                     ['instruction' => 'Önceden ısıtılmış 160-170 derece fırında 2.5 - 3 saat kadar ağır ağır pişirin. Son 20 dakika üzerini açıp etlerin kızarmasını sağlayın.', 'tip' => null, 'duration' => 10800],
-                ]
+                ],
             ],
 
             // ZEYTİNYAĞLI VE SEBZE
@@ -266,7 +266,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Tencereye zeytinyağını alıp soğanları pembeleşene kadar kavurun.', 'tip' => null, 'duration' => 300],
                     ['instruction' => 'Fasulyeleri ekleyip rengi dönene kadar kavurun, ardından domatesleri ilave edin.', 'tip' => null, 'duration' => 300],
                     ['instruction' => 'Tuz, şeker ve çok az sıcak su ekleyip, tencerenin kapağını kapatarak kısık ateşte fasulyeler yumuşayana kadar pişirin. Soğuk veya ılık servis yapın.', 'tip' => 'Zeytinyağlı yemeklerin kendi suyuyla pişmesi lezzetini artırır.', 'duration' => 2400],
-                ]
+                ],
             ],
             [
                 'title' => 'Zeytinyağlı Enginar',
@@ -294,7 +294,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Garnitürü (havuç, bezelye, patates karışımı) ekleyip 1-2 dakika daha çevirin.', 'tip' => null, 'duration' => 120],
                     ['instruction' => 'Geniş bir tencereye enginarları çukur kısımları üste bakacak şekilde dizin. İçlerine hazırladığınız garnitürlü harcı paylaştırın.', 'tip' => null, 'duration' => 180],
                     ['instruction' => 'Üzerine limon suyu, şeker, tuz ve sıcak suyu ekleyip kısık ateşte enginarlar yumuşayana kadar pişirin.', 'tip' => 'Sıcak değil soğuk servis edilmesi önerilir.', 'duration' => 1800],
-                ]
+                ],
             ],
             [
                 'title' => 'İmam Bayıldı',
@@ -322,7 +322,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Zeytinyağında soğanları ve sarımsakları yumuşayana kadar kavurun. Domatesleri, tuz ve şekeri ekleyip domatesler suyunu çekene kadar pişirin.', 'tip' => null, 'duration' => 600],
                     ['instruction' => 'Kızarmış patlıcanların ortasını bir kaşık yardımıyla açın ve hazırladığınız iç harcı bolca doldurun.', 'tip' => null, 'duration' => 180],
                     ['instruction' => 'Tencereye dizip dibine çok az su ilave edin ve kısık ateşte yaklaşık 20-25 dakika pişirin. Soğuduktan sonra servis yapın.', 'tip' => null, 'duration' => 1500],
-                ]
+                ],
             ],
 
             // SALATA - MEZE
@@ -353,7 +353,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Doğranmış malzemeleri bir süzgece alıp fazla suyunun süzülmesini bekleyin.', 'tip' => null, 'duration' => 120],
                     ['instruction' => 'Geniş bir kasede malzemeleri birleştirin. Üzerine zeytinyağı, nar ekşisi, pul biber ve tuzu ekleyin.', 'tip' => null, 'duration' => 60],
                     ['instruction' => 'Tüm malzemeleri iyice karıştırıp servis tabağına alın. Tercihen soğuk servis yapın.', 'tip' => null, 'duration' => 60],
-                ]
+                ],
             ],
             [
                 'title' => 'Humus',
@@ -381,7 +381,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Tüm malzemeleri krema kıvamına gelene kadar robottan geçirin.', 'tip' => 'Çok katı olursa azar azar nohutun haşlama suyundan veya buzlu su ekleyebilirsiniz.', 'duration' => 180],
                     ['instruction' => 'Servis tabağına yayıp, ortasında hafif bir çukur oluşturun.', 'tip' => null, 'duration' => 60],
                     ['instruction' => 'Üzerine sızma zeytinyağı gezdirip, toz kırmızı biber veya kimyon ile süsleyerek servis yapın.', 'tip' => null, 'duration' => 60],
-                ]
+                ],
             ],
             [
                 'title' => 'Patlıcan Salatası (Babaganuş)',
@@ -408,7 +408,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Bir kasede ezilmiş sarımsak, limon suyu, tahin, zeytinyağı ve tuzu karıştırarak sosu hazırlayın.', 'tip' => null, 'duration' => 120],
                     ['instruction' => 'Patlıcanları hazırladığınız sosla iyice harmanlayın.', 'tip' => null, 'duration' => 120],
                     ['instruction' => 'Servis tabağına alıp üzerini maydanoz ve zeytinyağı ile süsleyerek servis edin.', 'tip' => null, 'duration' => 60],
-                ]
+                ],
             ],
 
             // HAMUR İŞİ
@@ -441,7 +441,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Kıymayı ve sebzeleri bir kaba alın. Biber salçası, sıvı yağ, tuz, karabiber ve pul biber ekleyerek harcı iyice yoğurun.', 'tip' => 'Harcın kolay sürülebilmesi için çok az su ekleyebilirsiniz.', 'duration' => 300],
                     ['instruction' => 'Dinlenen hamurdan mandalina büyüklüğünde bezeler koparın ve unlanmış tezgahta tabak büyüklüğünde incecik açın.', 'tip' => null, 'duration' => 600],
                     ['instruction' => 'Açtığınız hamurun üzerine iç harçtan koyup kenarlara kadar yayın. Önceden ısıtılmış 250 derece fırında veya krep tavasında altı ve üstü kızarana kadar pişirin.', 'tip' => null, 'duration' => 900],
-                ]
+                ],
             ],
             [
                 'title' => 'Peynirli Pide',
@@ -471,7 +471,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'İç harcı için ezilmiş beyaz peynir, rendelenmiş kaşar peyniri, ince kıyılmış maydanoz ve 1 yumurta akını karıştırın (sarısını kenarlara sürmek için ayırın).', 'tip' => null, 'duration' => 300],
                     ['instruction' => 'Mayalanan hamurdan bezeler alın, uzun oval şeklinde açın. Ortasına peynirli harçtan bolca koyup kenarlarını içe doğru katlayarak pide şekli verin.', 'tip' => null, 'duration' => 480],
                     ['instruction' => 'Kenarlarına yumurta sarısı sürüp, 200 derece fırında kızarana kadar pişirin. Fırından çıkınca kenarlarına tereyağı sürebilirsiniz.', 'tip' => null, 'duration' => 1200],
-                ]
+                ],
             ],
 
             // TATLILAR
@@ -500,7 +500,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Kaynamaya başladıktan sonra şekeri ekleyin ve 5-10 dakika daha kaynatın.', 'tip' => null, 'duration' => 600],
                     ['instruction' => 'Nişastayı yarım çay bardağı soğuk su ile açın ve kaynayan süte azar azar karıştırarak ekleyin. Kıvam alana kadar pişirin.', 'tip' => null, 'duration' => 300],
                     ['instruction' => 'Sütlacı ısıya dayanıklı kaselere paylaştırın. Fırın tepsisine dizip tepsiye yarıya kadar su doldurun. 200 derece fırının üst rafında üzerleri kızarana kadar fırınlayın.', 'tip' => null, 'duration' => 900],
-                ]
+                ],
             ],
             [
                 'title' => 'Künefe',
@@ -528,7 +528,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Künefe tavasını yağlayın. Kadayıfın yarısını tavaya eşit şekilde yayıp elinizle veya bir tabakla iyice bastırın.', 'tip' => 'İyice bastırmak künefenin dağılmasını engeller.', 'duration' => 180],
                     ['instruction' => 'Üzerine rendelenmiş veya dilimlenmiş künefe peynirini yayın (kenarlara çok taşırmayın). Kalan kadayıfı da peynirin üzerine yayıp tekrar sıkıca bastırın.', 'tip' => null, 'duration' => 180],
                     ['instruction' => 'Ocakta kısık ateşte altı kızarana kadar pişirin, sonra bir tabak yardımıyla ters çevirip diğer tarafını da kızartın. Sıcakken üzerine soğuk şerbeti döküp servis yapın.', 'tip' => null, 'duration' => 900],
-                ]
+                ],
             ],
             [
                 'title' => 'Kazandibi',
@@ -557,7 +557,7 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Alüminyum veya çelik bir tepsiyi tereyağı ile bolca yağlayın ve her yerine pudra şekeri serpin.', 'tip' => null, 'duration' => 120],
                     ['instruction' => 'Muhallebiden 2-3 kepçe alıp tepsiye ince bir tabaka halinde yayın. Tepsiyi ocak üzerinde çevirerek şekerin karamelize olmasını ve yanmasını sağlayın.', 'tip' => 'Tepsiyi sürekli çevirmek eşit yanmasını sağlar.', 'duration' => 600],
                     ['instruction' => 'Altı yanan tepsiye kalan muhallebiyi dikkatlice dökün. Oda sıcaklığına gelince buzdolabında en az 2-3 saat dinlendirin. Şeritler halinde kesip rulo yaparak servis edin.', 'tip' => null, 'duration' => 10800],
-                ]
+                ],
             ],
             [
                 'title' => 'Kıbrıs Macunu (Cevizli Sucuk)',
@@ -585,13 +585,14 @@ class KlasikTariflerSeeder extends Seeder
                     ['instruction' => 'Ayrı bir kapta nişasta ve unu az miktar suyla pürüzsüz olana kadar ezin. Kaynayan pekmezli karışıma yavaş yavaş ve sürekli karıştırarak ekleyin.', 'tip' => null, 'duration' => 300],
                     ['instruction' => 'Karışım (harç) koyu bir muhallebi kıvamı alana kadar pişirin ve altını kapatın.', 'tip' => null, 'duration' => 600],
                     ['instruction' => 'İpe dizdiğiniz cevizleri sıcak harca batırın, her yerinin bulanmasını sağlayın ve asarak kurumaya bırakın. 2-3 gün kuruduktan sonra tüketebilirsiniz.', 'tip' => 'Daha kalın bir tabaka isterseniz ilk kat kuruduktan sonra işlemi tekrarlayabilirsiniz.', 'duration' => 900],
-                ]
+                ],
             ],
         ];
 
         foreach ($recipesData as $data) {
             if (Recipe::where('slug', $data['slug'])->exists()) {
                 $this->command->line("SKIP (exists): {$data['slug']}");
+
                 continue;
             }
 
@@ -645,7 +646,7 @@ class KlasikTariflerSeeder extends Seeder
                 RecipeStep::create([
                     'recipe_id' => $recipe->id,
                     'position' => $position,
-                    'title' => 'Adım ' . $position,
+                    'title' => 'Adım '.$position,
                     'instruction' => $stepData['instruction'],
                     'chef_tip' => $stepData['tip'],
                     'duration_seconds' => $stepData['duration'],
