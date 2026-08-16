@@ -76,43 +76,90 @@ Kavrulan malzemelerin üzerine 1.2 litre sıcak suyu (veya et suyunu) ve zerdeç
 Küçük bir tavada kızdırdığınız pul biberli tereyağını altın sarısı çorbanızın üzerine gezdirerek, yanında taze limon dilimleri ve çıtır ekmek küpleriyle servis edin.
 HTML;
 
-        // 1. Gerçek SEO Post
+        // 1. Gerçek SEO Post (Yayında + FAQ Şeması)
+        $faqBlocks = [
+            [
+                'question' => 'Lokanta usulü mercimek çorbasının sırrı nedir? Neden patates ve havuç eklenmez?',
+                'answer' => 'Ev yapımı tariflerde kıvam artırmak için patates ve havuç sıklıkla kullanılır; ancak bu sebzeler piştikçe içlerindeki fruktoz ve sakkaroz şekerlerini salarak çorbanın tuzlu tat profilini tatlılaştırır. Gerçek lokanta usulü kıvam ve lezzet dengesi, un ve tereyağının kontrollü şekilde kavrulmasıyla (roux/meyane reaksiyonu) sağlanır.',
+            ],
+            [
+                'question' => 'Çorbayı pişirmeden önce mercimekleri yıkamak neden önemlidir?',
+                'answer' => 'Mercimeklerin durulama suyu tamamen berraklaşana kadar soğuk suda ovalanarak yıkanması gerekir. Bu işlem, mercimek yüzeyindeki serbest amiloz tozunu uzaklaştırarak çorbanın pişerken aşırı köpürmesini ve tencerenin tabanına yapışmasını engeller.',
+            ],
+            [
+                'question' => 'Çorbanın o meşhur ipeksi ve pürüzsüz kıvamı evde nasıl elde edilir?',
+                'answer' => 'Çorba tamamen piştikten sonra yüksek devirli bir el blenderı ile en az 3 dakika boyunca kesintisiz olarak mikronize edilmeli ve ardından mutlaka ince gözenekli bir süzgeçten süzülmelidir. Bu işlem lokantalardaki ipeksi akışkanlığı birebir sağlar.',
+            ],
+            [
+                'question' => 'Unu kavururken topaklanma nasıl önlenir?',
+                'answer' => 'Tereyağı ve sıvı yağ eritildikten sonra un eklenmeli ve çiğ kokusu gidene kadar kavrulmalıdır. Ardından soğan ve mercimek eklenerek kavurmaya devam edilmesi, yağların nişasta tanelerini kaplamasını sağlayarak topaklanmayı önler.',
+            ],
+        ];
+
         BlogPost::firstOrCreate(
             ['slug' => 'lokanta-usulu-suzme-mercimek-corbasi-tarifi'],
             [
                 'public_id' => strtoupper((string) Str::ulid()),
                 'author_id' => $author->id,
                 'blog_category_id' => $category->id,
-                'title' => 'Orijinal Lokanta Usulü Mercimek Çorbası Tarifi: İpeksi Kıvamın Sırrı',
+                'title' => 'Lokanta Usulü Süzme Mercimek Çorbası Tarifi: İpeksi Kıvamın Bilimsel Sırrı',
                 'excerpt' => 'Gerçek lokanta usulü süzme mercimek çorbası nasıl yapılır? Patates ve havuç koymadan, tam ölçülü ve ipeksi kıvamda çorba pişirmenin bilimsel sırları burada!',
                 'body' => $body,
-                'status' => 'draft', // Sistemde var olsun ama public olmasın (isteğe bağlı)
+                'status' => 'published',
                 'editorial_status' => 'approved',
-                'meta_title' => 'Orijinal Lokanta Usulü Mercimek Çorbası Tarifi: İpeksi Kıvamın Sırrı',
-                'meta_description' => 'Gerçek lokanta usulü süzme mercimek çorbası nasıl yapılır? Patates ve havuç koymadan, tam ölçülü ve ipeksi kıvamda çorba pişirmenin bilimsel sırları burada!',
+                'content_purpose' => 'evergreen',
+                'search_intent' => 'informational',
+                'primary_keyword' => 'lokanta usulü mercimek çorbası',
+                'secondary_keywords' => ['süzme mercimek çorbası', 'mercimek çorbası tarifi', 'lokanta çorbası sırrı', 'ipeksi mercimek çorbası'],
+                'faq_blocks' => $faqBlocks,
+                'source_notes' => [
+                    'House Chef Cyprus Editoryal Ekibi tarafından hazırlanmıştır.',
+                    'Gastronomi bilimi ve gıda teknolojisi kaynaklarına dayanmaktadır.',
+                ],
+                'meta_title' => 'Lokanta Usulü Süzme Mercimek Çorbası Tarifi | İpeksi Kıvamın Sırrı',
+                'meta_description' => 'Gerçek lokanta usulü süzme mercimek çorbası nasıl yapılır? Patates ve havuç koymadan, tam ölçülü ve ipeksi kıvamda çorba pişirmenin bilimsel sırları.',
                 'published_at' => now(),
             ]
         );
 
-        // 2. 999 Adet Mock SEO Post
-        $faker = \Faker\Factory::create('tr_TR');
+        // Mevcut kayıt varsa güncelle (daha önce draft olarak eklenmişse published yap + FAQ ekle)
+        BlogPost::where('slug', 'lokanta-usulu-suzme-mercimek-corbasi-tarifi')->update([
+            'status' => 'published',
+            'editorial_status' => 'approved',
+            'content_purpose' => 'evergreen',
+            'search_intent' => 'informational',
+            'primary_keyword' => 'lokanta usulü mercimek çorbası',
+            'secondary_keywords' => json_encode(['süzme mercimek çorbası', 'mercimek çorbası tarifi', 'lokanta çorbası sırrı', 'ipeksi mercimek çorbası']),
+            'faq_blocks' => json_encode($faqBlocks),
+            'source_notes' => json_encode([
+                'House Chef Cyprus Editoryal Ekibi tarafından hazırlanmıştır.',
+                'Gastronomi bilimi ve gıda teknolojisi kaynaklarına dayanmaktadır.',
+            ]),
+            'meta_title' => 'Lokanta Usulü Süzme Mercimek Çorbası Tarifi | İpeksi Kıvamın Sırrı',
+            'meta_description' => 'Gerçek lokanta usulü süzme mercimek çorbası nasıl yapılır? Patates ve havuç koymadan, tam ölçülü ve ipeksi kıvamda çorba pişirmenin bilimsel sırları.',
+            'published_at' => now(),
+        ]);
+        $this->command->info('✓ Lokanta Usulü Mercimek Çorbası SEO makale yayında (published) + FAQ şeması eklendi.');
         $this->command->info('1 SEO blog eklendi, şimdi kalan 999 SEO blog taslağı oluşturuluyor...');
         
         $posts = [];
+        $words = ['Lezzet', 'Tarif', 'Mutfak', 'Gurme', 'Pratik', 'Sağlıklı', 'Beslenme', 'Şef', 'Kıbrıs', 'Sırları', 'Özel', 'Yemek'];
+        
         for ($i = 0; $i < 999; $i++) {
-            $title = $faker->sentence(rand(4, 8));
+            shuffle($words);
+            $title = implode(' ', array_slice($words, 0, rand(4, 6))) . ' ' . Str::random(4);
             $posts[] = [
                 'public_id' => strtoupper((string) Str::ulid()),
                 'author_id' => $author->id,
                 'blog_category_id' => $category->id,
                 'title' => $title,
                 'slug' => Str::slug($title) . '-' . Str::random(5),
-                'excerpt' => $faker->paragraph(2),
-                'body' => $faker->paragraphs(rand(5, 10), true),
+                'excerpt' => 'Bu harika yemek ve mutfak sırları üzerine detaylı bir gastronomi incelemesi. Denenmiş pratik bilgiler.',
+                'body' => "## Mutfak İpuçları\n\nBu taslak makale SEO performansı ve veritabanı testi için sistem tarafından otomatik oluşturulmuştur. Modern gastronomi teknikleri ve yöresel tatlar üzerine çalışmalar devam ediyor.\n\n### Detaylar\nTest verisi " . Str::random(10),
                 'status' => 'draft',
                 'editorial_status' => 'draft',
                 'meta_title' => Str::limit($title, 65),
-                'meta_description' => Str::limit($faker->paragraph(1), 155),
+                'meta_description' => 'Mutfak sırları ve gastronomi hakkında kapsamlı SEO odaklı taslak makale.',
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

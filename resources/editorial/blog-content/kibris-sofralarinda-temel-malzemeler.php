@@ -6,7 +6,7 @@ return [
     'title' => 'Kıbrıs Sofralarında Temel Malzemeler',
     'excerpt' => 'Hellim, zeytinyağı, kişniş, bulgur ve limon. Kıbrıs mutfağını ayakta tutan malzemeleri, nasıl seçileceğini, nasıl saklanacağını ve hangi tariflerde ne yaptığını tek tek anlattık.',
     'meta_title' => 'Kıbrıs Mutfağının Temel Malzemeleri ve Kullanımı',
-    'meta_description' => 'Hellim nasıl seçilir, kişniş tohumu ne zaman eklenir, zeytinyağı hangi tarifte hangi kalitede kullanılır? Kıbrıs mutfağının temel malzemeleri için pratik rehber.',
+    'meta_description' => 'Hellim nasıl seçilir, kişniş ne zaman eklenir, zeytinyağı hangi tarifte kullanılır? Kıbrıs mutfağının temel malzemeleri için pratik rehber.',
     'primary_keyword' => 'kıbrıs mutfağı malzemeleri',
     'secondary_keywords' => ['hellim nasıl seçilir', 'kişniş tohumu', 'zeytinyağı seçimi', 'bulgur çeşitleri', 'kuru nane'],
     'body' => <<<'MARKDOWN'
