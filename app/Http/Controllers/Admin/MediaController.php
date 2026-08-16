@@ -166,6 +166,53 @@ final class MediaController extends Controller
         return back()->with('status', 'Görsel onaylandı ve yayına alındı.');
     }
 
+    /**
+     * Tek tek onaylamak 40 bekleyen görsel için 40 tıklama demekti ve üretim
+     * sürdükçe bu sayı 200'ü geçiyor. Toplu onay, kararın kendisini otomatikleş-
+     * tirmez: editör ızgaraya bakar, göstermek istediklerini işaretler ve bir
+     * kez onaylar. Her kayıt yine tek tek kapıdan geçirilir; geçemeyen atlanır
+     * ve kaç tanesinin neden atlandığı bildirilir.
+     */
+    public function approveMany(Request $request, PublicMediaEligibilityService $gate): RedirectResponse
+    {
+        $admin = $this->admin();
+
+        $secilenler = $request->validate([
+            'public_ids' => ['required', 'array', 'max:200'],
+            'public_ids.*' => ['string', 'size:26'],
+        ])['public_ids'];
+
+        $onaylanan = 0;
+        $atlanan = 0;
+
+        foreach (Media::query()->whereIn('public_id', $secilenler)->get() as $media) {
+            if ($gate->reason($media) === null) {
+                continue;
+            }
+
+            $media->forceFill([
+                'media_reviewer_user_id' => $admin->id,
+                'media_reviewed_at' => now(),
+                'approved_by_user_id' => $admin->id,
+                'approved_at' => now(),
+            ]);
+
+            if ($gate->reason($media) !== null) {
+                $atlanan++;
+
+                continue;
+            }
+
+            $media->save();
+            $this->audit('media.approve', $media);
+            $onaylanan++;
+        }
+
+        return back()->with('status', $atlanan === 0
+            ? $onaylanan.' görsel onaylandı ve yayına alındı.'
+            : $onaylanan.' görsel onaylandı, '.$atlanan.' tanesi başka bir kontrolü geçemediği için atlandı.');
+    }
+
     public function regenerate(string $publicId): RedirectResponse
     {
         $this->admin();

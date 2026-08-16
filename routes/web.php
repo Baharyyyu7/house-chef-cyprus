@@ -247,6 +247,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::get('medya/{publicId}', [AdminMediaController::class, 'show'])->name('media.show');
     Route::get('medya/{publicId}/indir', [AdminMediaController::class, 'downloadPrivate'])->name('media.download-private');
     Route::post('medya/{publicId}/thumbnail', [AdminMediaController::class, 'regenerate'])->name('media.regenerate');
+    Route::post('medya/toplu-onayla', [AdminMediaController::class, 'approveMany'])->name('media.approve-many');
     Route::post('medya/{publicId}/onayla', [AdminMediaController::class, 'approve'])->name('media.approve');
     Route::delete('medya/{publicId}', [AdminMediaController::class, 'destroy'])->name('media.destroy');
     Route::get('veri-kalitesi', [DataQualityController::class, 'index'])->name('data-quality.index');

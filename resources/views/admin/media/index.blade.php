@@ -38,7 +38,13 @@
              görseller. Bu onay verilmeden görsel siteye çıkmaz; bekleyenler
              listenin içinde kaybolduğu için en üstte ayrı durur. --}}
         @if($onayBekleyen->isNotEmpty())
-            <section class="mt-7 rounded-2xl border border-amber-300 bg-amber-50/70 p-5" x-data="{ acik: true }">
+            {{-- Tek tek onaylamak bekleyen sayısı kadar tıklama demek. Karar
+                 yine editörün: ızgaraya bakar, göstermek istediklerini işaretler
+                 ve bir kez onaylar. --}}
+            <form method="post" action="{{ route('admin.media.approve-many') }}"
+                  class="mt-7 rounded-2xl border border-amber-300 bg-amber-50/70 p-5"
+                  x-data="{ acik: true, secili: [] }">
+                @csrf
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <h2 class="text-lg font-black text-amber-950">Onay bekleyen görsel ({{ $onayBekleyen->count() }})</h2>
@@ -50,22 +56,33 @@
                     </button>
                 </div>
 
-                <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3" x-show="acik" x-collapse.duration.250ms>
-                    @foreach($onayBekleyen as $item)
-                        <article class="flex gap-3 rounded-xl bg-white p-3 shadow-sm transition-shadow duration-200 hover:shadow-md">
-                            <img class="h-20 w-20 shrink-0 rounded-lg bg-stone-100 object-cover" src="{{ $item->responsiveUrl(400) }}" alt="" width="80" height="80" loading="lazy">
-                            <div class="flex min-w-0 flex-1 flex-col">
-                                <p class="truncate font-bold">{{ $item->mediable?->title ?? class_basename($item->mediable_type) }}</p>
-                                <p class="mt-0.5 text-xs" style="color: var(--hc-text-muted)">{{ $item->width }}×{{ $item->height }}</p>
-                                <div class="mt-auto flex items-center gap-3 pt-2">
-                                    <form method="post" action="{{ route('admin.media.approve', $item->public_id) }}">@csrf<button class="rounded-lg bg-emerald-700 px-3 py-1.5 text-sm font-bold text-white transition-colors hover:bg-emerald-800">Onayla</button></form>
-                                    <a class="text-sm font-bold text-orange-700 hover:underline" href="{{ route('admin.media.show', $item->public_id) }}">İncele</a>
+                <div x-show="acik" x-collapse.duration.250ms>
+                    <div class="mt-4 flex flex-wrap items-center gap-3 border-y border-amber-200 py-3">
+                        <button type="button" @click="secili = @js($onayBekleyen->pluck('public_id')->all())" class="text-sm font-bold text-amber-900 hover:underline">Tümünü seç</button>
+                        <button type="button" @click="secili = []" class="text-sm font-bold text-amber-900 hover:underline">Seçimi temizle</button>
+                        <span class="text-sm text-amber-900" x-text="secili.length + ' seçili'"></span>
+                        <button type="submit" x-bind:disabled="secili.length === 0"
+                                class="ml-auto rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white transition-all duration-200 hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40">
+                            Seçilenleri onayla
+                        </button>
+                    </div>
+
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                        @foreach($onayBekleyen as $item)
+                            <label class="flex cursor-pointer gap-3 rounded-xl bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md"
+                                   :class="secili.includes(@js($item->public_id)) ? 'ring-2 ring-emerald-600' : ''">
+                                <input type="checkbox" name="public_ids[]" value="{{ $item->public_id }}" x-model="secili" class="mt-1 h-4 w-4 shrink-0 rounded border-stone-300 text-emerald-700 focus:ring-emerald-600">
+                                <img class="h-20 w-20 shrink-0 rounded-lg bg-stone-100 object-cover" src="{{ $item->responsiveUrl(400) }}" alt="" width="80" height="80" loading="lazy">
+                                <div class="flex min-w-0 flex-1 flex-col">
+                                    <p class="truncate font-bold">{{ $item->mediable?->title ?? class_basename($item->mediable_type) }}</p>
+                                    <p class="mt-0.5 text-xs" style="color: var(--hc-text-muted)">{{ $item->width }}×{{ $item->height }}</p>
+                                    <a class="mt-auto pt-2 text-sm font-bold text-orange-700 hover:underline" href="{{ route('admin.media.show', $item->public_id) }}">Büyük gör</a>
                                 </div>
-                            </div>
-                        </article>
-                    @endforeach
+                            </label>
+                        @endforeach
+                    </div>
                 </div>
-            </section>
+            </form>
         @endif
 
         <div class="mt-8 flex flex-wrap items-center gap-2">

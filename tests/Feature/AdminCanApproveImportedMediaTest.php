@@ -66,6 +66,49 @@ final class AdminCanApproveImportedMediaTest extends TestCase
         $this->assertNull($media->fresh()->approved_by_user_id);
     }
 
+    public function test_several_images_can_be_approved_in_one_action(): void
+    {
+        [$admin, $birinci] = $this->importedImage();
+        [, $ikinci] = $this->importedImage();
+
+        $this->actingAs($admin)
+            ->withSession(['_token' => 'test-csrf'])
+            ->post(route('admin.media.approve-many'), ['_token' => 'test-csrf', 'public_ids' => [$birinci->public_id, $ikinci->public_id]])
+            ->assertRedirect()
+            ->assertSessionMissing('error');
+
+        $this->assertSame($admin->id, $birinci->fresh()->approved_by_user_id);
+        $this->assertSame($admin->id, $ikinci->fresh()->approved_by_user_id);
+    }
+
+    public function test_batch_approval_skips_an_image_that_fails_another_check(): void
+    {
+        [$admin, $saglam] = $this->importedImage();
+        [, $eksik] = $this->importedImage();
+        $eksik->forceFill(['responsive_variants' => []])->save();
+
+        $this->actingAs($admin)
+            ->withSession(['_token' => 'test-csrf'])
+            ->post(route('admin.media.approve-many'), ['_token' => 'test-csrf', 'public_ids' => [$saglam->public_id, $eksik->public_id]])
+            ->assertRedirect();
+
+        $this->assertSame($admin->id, $saglam->fresh()->approved_by_user_id);
+        $this->assertNull($eksik->fresh()->approved_by_user_id);
+    }
+
+    public function test_a_member_cannot_approve_many(): void
+    {
+        [, $media] = $this->importedImage();
+        $member = User::factory()->create(['role' => 'member', 'email_verified_at' => now()]);
+
+        $this->actingAs($member)
+            ->withSession(['_token' => 'test-csrf'])
+            ->post(route('admin.media.approve-many'), ['_token' => 'test-csrf', 'public_ids' => [$media->public_id]])
+            ->assertForbidden();
+
+        $this->assertNull($media->fresh()->approved_by_user_id);
+    }
+
     public function test_a_member_cannot_approve_media(): void
     {
         [, $media] = $this->importedImage();
@@ -79,15 +122,23 @@ final class AdminCanApproveImportedMediaTest extends TestCase
         $this->assertNull($media->fresh()->approved_by_user_id);
     }
 
+    private bool $diskHazir = false;
+
     /** @return array{0: User, 1: Media} */
     private function importedImage(): array
     {
-        Storage::fake('public');
+        // Storage::fake her çağrıda diski siler; iki görsel kuran testte ilkinin
+        // dosyaları kaybolur ve kaynak kontrolünü geçemez.
+        if (! $this->diskHazir) {
+            Storage::fake('public');
+            $this->diskHazir = true;
+        }
 
-        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $admin = User::query()->where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $benzersiz = uniqid();
         $recipe = Recipe::query()->create([
             'title' => 'Adana Kebabı',
-            'slug' => 'adana-kebabi',
+            'slug' => 'adana-kebabi-'.$benzersiz,
             'status' => 'published',
             'verification_status' => 'verified',
             'published_at' => now(),
@@ -102,7 +153,7 @@ final class AdminCanApproveImportedMediaTest extends TestCase
         foreach (array_keys((array) config('media_excellence.recipe_profiles')) as $profile) {
             $variants[$profile] = ['name' => $profile];
             foreach (['jpeg' => 'jpg', 'webp' => 'webp', 'avif' => 'avif'] as $format => $uzanti) {
-                $yol = "media/approved-synthetic/recipe/{$profile}.{$uzanti}";
+                $yol = "media/approved-synthetic/recipe/{$benzersiz}/{$profile}.{$uzanti}";
                 Storage::disk('public')->put($yol, 'binary');
                 $variants[$profile][$format] = $yol;
             }
