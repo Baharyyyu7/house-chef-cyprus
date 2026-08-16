@@ -13,11 +13,22 @@ use Illuminate\Support\Facades\Storage;
  * fark üretmez; gerçek yemek fotoğrafları yüksek frekanslı detay taşır. Onay
  * alanları (media_status, verification_status) bu ayrımı yakalayamadığı için
  * marka grafikleri "approved_real_media" olarak public yüzeye çıkabiliyordu.
+ *
+ * Kenar enerjisi tek başına yetmiyor. "Sütlaç" için üretilmiş pembe zemin,
+ * beyaz elips ve gri dikdörtgenden ibaret bir grafik 23.86 enerji ölçtü ve
+ * eşiği rahatça geçti: birkaç keskin kenar, yüzeyin tamamı düz olsa bile
+ * yüksek enerji üretiyor. Renk çeşitliliği bu tuzağa düşmez -- 64x64'e
+ * indirilip 4 bit kuantalanan bir fotoğraf yüzlerce ton taşır, üretilmiş düz
+ * grafik onlarca. Ölçülen korpusta ayrım keskindi: yayındaki 15 fotoğrafın en
+ * düşüğü 275 renk, sahte grafiklerin en yükseği 83.
  */
 final class PhotographicContentAnalyzer
 {
     /** Bu eşiğin altındaki kenar enerjisi fotoğraf değil demektir. */
     public const ENERGY_THRESHOLD = 6.0;
+
+    /** Bu sayıdan az farklı ton taşıyan görüntü fotoğraf değildir. */
+    public const COLOUR_THRESHOLD = 150;
 
     private const SAMPLE_SIZE = 64;
 
@@ -54,7 +65,10 @@ final class PhotographicContentAnalyzer
             $previous = null;
             for ($x = 0; $x < self::SAMPLE_SIZE; $x++) {
                 $pixel = imagecolorat($sample, $x, $y);
-                $colors[$pixel >> 3] = true;
+                // Kanal başına 4 bite indirilir: JPEG sıkıştırmasının ürettiği
+                // bir tık farklı tonlar ayrı renk sayılmasın, gerçek ton
+                // zenginliği sayılsın.
+                $colors[((($pixel >> 20) & 15) << 8) | ((($pixel >> 12) & 15) << 4) | (($pixel >> 4) & 15)] = true;
 
                 if ($previous !== null) {
                     $energy += abs((($pixel >> 16) & 255) - (($previous >> 16) & 255))
@@ -74,12 +88,15 @@ final class PhotographicContentAnalyzer
         }
 
         $score = round($energy / $comparisons, 2);
+        $tonSayisi = count($colors);
 
+        // Fotoğraf sayılmak için ikisini birden geçmesi gerekir: yalnız
+        // enerjiye bakmak keskin kenarlı düz grafikleri içeri alıyordu.
         return [
             'analyzed' => true,
-            'photographic' => $score >= self::ENERGY_THRESHOLD,
+            'photographic' => $score >= self::ENERGY_THRESHOLD && $tonSayisi >= self::COLOUR_THRESHOLD,
             'energy' => $score,
-            'unique_colors' => count($colors),
+            'unique_colors' => $tonSayisi,
             'reason' => null,
         ];
     }
