@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataQualityController;
 use App\Http\Controllers\Admin\EditorialOperationsController;
 use App\Http\Controllers\Admin\FailedJobController;
+use App\Http\Controllers\Admin\ImageRequestController;
 use App\Http\Controllers\Admin\IngredientController as AdminIngredientController;
 use App\Http\Controllers\Admin\IntegrationCenterController;
 use App\Http\Controllers\Admin\MailOperationsController;
@@ -221,6 +222,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('seo/firsatlari-yenile', [SeoOperationsController::class, 'refreshOpportunities'])->name('seo.opportunities.refresh');
     Route::post('seo/sorunlar/{issue}/coz', [SeoOperationsController::class, 'resolve'])->name('seo.issues.resolve');
     Route::post('seo/sorunlar/{issue}/yeniden-ac', [SeoOperationsController::class, 'reopen'])->name('seo.issues.reopen');
+    Route::get('gorsel-talepleri', [ImageRequestController::class, 'index'])->name('image-requests.index');
     Route::get('ai-gorsel-studyosu', [AiImageStudioController::class, 'index'])->name('ai-image-studio.index');
     Route::get('ai-gorsel-studyosu/{generation}', [AiImageStudioController::class, 'show'])->name('ai-image-studio.show');
     Route::get('ai-gorsel-studyosu/{generation}/onizleme', [AiImageStudioController::class, 'preview'])->name('ai-image-studio.preview');

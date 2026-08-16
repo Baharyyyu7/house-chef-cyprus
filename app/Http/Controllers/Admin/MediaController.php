@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Jobs\GenerateMediaThumbnailsJob;
 use App\Models\AuditLog;
+use App\Models\BlogPost;
 use App\Models\Ingredient;
 use App\Models\Media;
 use App\Models\Recipe;
@@ -41,15 +42,37 @@ final class MediaController extends Controller
             ->filter(fn (Media $item): bool => $gate->reason($item) === 'human_approval_missing')
             ->values();
 
+        // Liste 7178 satırı 240 sayfaya yayıyordu ve sütunları public_id, disk,
+        // MIME gibi bir kararı desteklemeyen alanlardı. Bu satırların 2891'i
+        // dosyası olmayan ölü kayıt; varsayılan görünüm artık dosyası olanı
+        // gösterir, ölü kayıtlar kendi süzgecinden çağrılır.
+        $sayilar = [
+            'yayinda' => Media::query()->where('media_status', 'approved_real_media')->whereNotNull('approved_by_user_id')->count(),
+            'onay_bekleyen' => $onayBekleyen->count(),
+            'dosyasiz' => Media::query()->where(fn ($q) => $q->whereNull('path')->orWhere('path', ''))->count(),
+            'tumu' => Media::query()->count(),
+        ];
+
+        $suzgec = $request->string('durum')->toString() ?: 'dosyali';
+        $arama = trim($request->string('q')->toString());
+
         $media = Media::query()
             ->with('mediable')
-            ->when($request->string('kind')->isNotEmpty(), fn ($q) => $q->where('kind', $request->string('kind')->toString()))
-            ->when($request->string('disk')->isNotEmpty(), fn ($q) => $q->where('disk', $request->string('disk')->toString()))
-            ->when($request->string('visibility')->isNotEmpty(), fn ($q) => $q->where('visibility', $request->string('visibility')->toString()))
-            ->when($request->string('status')->isNotEmpty(), fn ($q) => $q->where('processing_status', $request->string('status')->toString()))
-            ->latest()->paginate(30)->withQueryString();
+            ->when($suzgec === 'dosyali', fn ($q) => $q->whereNotNull('path')->where('path', '!=', ''))
+            ->when($suzgec === 'yayinda', fn ($q) => $q->where('media_status', 'approved_real_media')->whereNotNull('approved_by_user_id'))
+            ->when($suzgec === 'dosyasiz', fn ($q) => $q->where(fn ($inner) => $inner->whereNull('path')->orWhere('path', '')))
+            ->when($arama !== '', function ($q) use ($arama): void {
+                // Bir görseli arayan kişi onu bağlı olduğu yemeğin adıyla arar,
+                // ULID'siyle değil.
+                $q->where(fn ($inner) => $inner
+                    ->where('alt_text', 'like', '%'.$arama.'%')
+                    ->orWhereHasMorph('mediable', [Recipe::class, BlogPost::class], fn ($m) => $m->where('title', 'like', '%'.$arama.'%')));
+            })
+            ->latest()
+            ->paginate(24)
+            ->withQueryString();
 
-        return view('admin.media.index', compact('media', 'onayBekleyen'));
+        return view('admin.media.index', compact('media', 'onayBekleyen', 'sayilar', 'suzgec', 'arama'));
     }
 
     public function create(): View

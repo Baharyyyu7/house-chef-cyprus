@@ -1,26 +1,65 @@
 <x-layouts.site title="Medya Yönetimi">
-    <section class="mx-auto max-w-7xl px-5 py-12">
-        <div class="flex flex-wrap items-end justify-between gap-4"><div><a href="{{ route('admin.dashboard') }}" class="font-bold text-orange-700">← Yönetim</a><h1 class="mt-3 text-3xl font-black">Medya</h1></div><a class="rounded-xl bg-orange-700 px-4 py-2 font-bold text-white" href="{{ route('admin.media.create') }}">Görsel yükle</a></div>
-        @if(session('status'))<p class="mt-4 rounded-xl bg-emerald-50 p-3 text-emerald-900">{{ session('status') }}</p>@endif
-        @if(session('error'))<p class="mt-4 rounded-xl bg-rose-50 p-3 text-rose-900">{{ session('error') }}</p>@endif
+    @php
+        $suzgecler = [
+            'dosyali' => ['Dosyası olan', $sayilar['tumu'] - $sayilar['dosyasiz']],
+            'yayinda' => ['Yayında', $sayilar['yayinda']],
+            'dosyasiz' => ['Dosyasız kayıt', $sayilar['dosyasiz']],
+            'tumu' => ['Tümü', $sayilar['tumu']],
+        ];
+
+        $durumRozeti = static function ($item): array {
+            if ($item->approved_by_user_id !== null && $item->media_status === 'approved_real_media') {
+                return ['Yayında', 'bg-emerald-100 text-emerald-900'];
+            }
+            if ($item->media_status === 'approved_real_media') {
+                return ['Onay bekliyor', 'bg-amber-100 text-amber-900'];
+            }
+            if (blank($item->path)) {
+                return ['Dosya yok', 'bg-rose-100 text-rose-900'];
+            }
+
+            return ['Yayında değil', 'bg-stone-200 text-stone-700'];
+        };
+    @endphp
+
+    <section class="mx-auto max-w-7xl px-5 py-10">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="hc-heading-1">Medya</h1>
+                <p class="hc-body-sm mt-2" style="color: var(--hc-text-secondary)">Yayındaki her görselin dosyası, boyutları ve onayı burada görünür.</p>
+            </div>
+            <a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('admin.media.create') }}"><x-ui.icon name="image" size="17" /> Görsel yükle</a>
+        </div>
+
+        @if(session('status'))<p class="mt-5 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-900">{{ session('status') }}</p>@endif
+        @if(session('error'))<p class="mt-5 rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-900">{{ session('error') }}</p>@endif
 
         {{-- Dosyası ve varyantları hazır olduğu hâlde yalnız insan onayı bekleyen
              görseller. Bu onay verilmeden görsel siteye çıkmaz; bekleyenler
-             listenin içinde kaybolduğu için ayrı bölümde toplanır. --}}
+             listenin içinde kaybolduğu için en üstte ayrı durur. --}}
         @if($onayBekleyen->isNotEmpty())
-            <section class="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-5">
-                <h2 class="text-lg font-black text-amber-950">Onay bekleyen görsel ({{ $onayBekleyen->count() }})</h2>
-                <p class="mt-1 text-sm text-amber-900">Bu görsellerin dosyası ve tüm boyutları hazır. Onaylanana kadar sitede görünmezler.</p>
-                <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <section class="mt-7 rounded-2xl border border-amber-300 bg-amber-50/70 p-5" x-data="{ acik: true }">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-black text-amber-950">Onay bekleyen görsel ({{ $onayBekleyen->count() }})</h2>
+                        <p class="mt-1 text-sm text-amber-900">Dosyaları ve tüm boyutları hazır. Onaylanana kadar sitede görünmezler.</p>
+                    </div>
+                    <button type="button" @click="acik = !acik" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">
+                        <span x-text="acik ? 'Gizle' : 'Göster'"></span>
+                        <span class="transition-transform duration-300" :class="acik ? 'rotate-180' : ''"><x-ui.icon name="chevron-down" size="15" /></span>
+                    </button>
+                </div>
+
+                <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3" x-show="acik" x-collapse.duration.250ms>
                     @foreach($onayBekleyen as $item)
-                        <article class="flex gap-3 rounded-xl bg-white p-3 shadow-sm">
-                            <img class="h-20 w-20 shrink-0 rounded-lg object-cover" src="{{ $item->responsiveUrl(400) }}" alt="" width="80" height="80" loading="lazy">
-                            <div class="min-w-0 flex-1">
+                        <article class="flex gap-3 rounded-xl bg-white p-3 shadow-sm transition-shadow duration-200 hover:shadow-md">
+                            <img class="h-20 w-20 shrink-0 rounded-lg bg-stone-100 object-cover" src="{{ $item->responsiveUrl(400) }}" alt="" width="80" height="80" loading="lazy">
+                            <div class="flex min-w-0 flex-1 flex-col">
                                 <p class="truncate font-bold">{{ $item->mediable?->title ?? class_basename($item->mediable_type) }}</p>
-                                <p class="mt-0.5 truncate text-xs text-stone-500">{{ $item->width }}×{{ $item->height }} · {{ $item->kind }}</p>
-                                <div class="mt-2 flex items-center gap-3">
-                                    <form method="post" action="{{ route('admin.media.approve', $item->public_id) }}">@csrf<button class="rounded-lg bg-emerald-700 px-3 py-1.5 text-sm font-bold text-white">Onayla</button></form>
-                                    <a class="text-sm font-bold text-orange-700" href="{{ route('admin.media.show', $item->public_id) }}">İncele</a>
+                                <p class="mt-0.5 text-xs" style="color: var(--hc-text-muted)">{{ $item->width }}×{{ $item->height }}</p>
+                                <div class="mt-auto flex items-center gap-3 pt-2">
+                                    <form method="post" action="{{ route('admin.media.approve', $item->public_id) }}">@csrf<button class="rounded-lg bg-emerald-700 px-3 py-1.5 text-sm font-bold text-white transition-colors hover:bg-emerald-800">Onayla</button></form>
+                                    <a class="text-sm font-bold text-orange-700 hover:underline" href="{{ route('admin.media.show', $item->public_id) }}">İncele</a>
                                 </div>
                             </div>
                         </article>
@@ -28,8 +67,72 @@
                 </div>
             </section>
         @endif
-        <form class="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-5" method="get"><select class="rounded-lg border p-2" name="kind"><option value="">Tür</option><option value="image" @selected(request('kind') === 'image')>Görsel</option></select><select class="rounded-lg border p-2" name="disk"><option value="">Disk</option><option value="public">Public</option><option value="local">Private</option></select><select class="rounded-lg border p-2" name="visibility"><option value="">Görünürlük</option><option value="public">Public</option><option value="private">Private</option></select><select class="rounded-lg border p-2" name="status"><option value="">İşleme durumu</option><option value="ready">Hazır</option><option value="pending">Bekliyor</option><option value="failed">Başarısız</option></select><button class="rounded-lg border px-3">Filtrele</button></form>
-        <div class="mt-5 flex flex-wrap gap-3"><form method="post" action="{{ route('admin.media.scan-orphans') }}">@csrf<button class="rounded-lg border px-3 py-2">Orphan tara</button></form><form method="post" action="{{ route('admin.media.cleanup-temporary') }}">@csrf<button class="rounded-lg border px-3 py-2">Geçicileri tara</button></form></div>
-        <div class="mt-5 overflow-x-auto rounded-2xl bg-white p-5 shadow"><table class="w-full min-w-[980px] text-left text-sm"><thead><tr><th>Public ID</th><th>Tür / MIME</th><th>Boyut</th><th>Disk</th><th>Görünürlük</th><th>İşleme</th><th>Thumbnail</th><th>İlişki</th><th>Tarih</th><th></th></tr></thead><tbody>@forelse($media as $item)<tr class="border-t"><td class="font-mono text-xs">{{ $item->public_id }}</td><td>{{ $item->kind }}<br><span class="text-stone-500">{{ $item->mime_type }}</span></td><td>{{ $item->size ? number_format($item->size / 1024, 1).' KB' : '—' }}<br><span class="text-stone-500">{{ $item->width }}×{{ $item->height }}</span></td><td>{{ $item->disk }}</td><td>{{ $item->visibility }}</td><td>{{ $item->processing_status }}</td><td>{{ $item->thumbnail_status }}</td><td>{{ class_basename($item->mediable_type) }} {{ $item->mediable?->public_id ?? '—' }}</td><td>{{ $item->created_at?->format('d.m.Y H:i') }}</td><td><a class="font-bold text-orange-700" href="{{ route('admin.media.show', $item->public_id) }}">Detay</a></td></tr>@empty<tr><td colspan="10" class="p-8 text-center text-stone-500">Henüz medya kaydı yok. Güvenli bir görsel yükleyerek başlayabilirsiniz.</td></tr>@endforelse</tbody></table></div>{{ $media->links() }}
+
+        <div class="mt-8 flex flex-wrap items-center gap-2">
+            @foreach($suzgecler as $anahtar => [$etiket, $adet])
+                <a href="{{ route('admin.media.index', array_filter(['durum' => $anahtar, 'q' => $arama ?: null])) }}" @class([
+                    'inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-all duration-200',
+                    'bg-stone-900 text-white shadow-sm' => $suzgec === $anahtar,
+                    'bg-stone-100 text-stone-700 hover:bg-stone-200' => $suzgec !== $anahtar,
+                ])>
+                    {{ $etiket }}
+                    <span @class(['rounded-full px-2 py-0.5 text-xs', 'bg-white/20' => $suzgec === $anahtar, 'bg-white' => $suzgec !== $anahtar])>{{ number_format($adet) }}</span>
+                </a>
+            @endforeach
+        </div>
+
+        <form class="mt-4 flex max-w-lg gap-2" method="get">
+            <input type="hidden" name="durum" value="{{ $suzgec }}">
+            <label class="sr-only" for="medya-ara">Görsel ara</label>
+            <input id="medya-ara" class="hc-input flex-1" name="q" value="{{ $arama }}" placeholder="Yemek veya yazı adıyla ara">
+            <button class="hc-v3-btn hc-v3-btn--primary">Ara</button>
+            @if($arama !== '')<a class="hc-v3-btn hc-v3-btn--outline" href="{{ route('admin.media.index', ['durum' => $suzgec]) }}">Temizle</a>@endif
+        </form>
+
+        <div class="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            @forelse($media as $item)
+                @php([$rozet, $rozetSinif] = $durumRozeti($item))
+                <article class="hc-v3-card group overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                    <a class="relative block aspect-[4/3] bg-stone-100 dark:bg-stone-900" href="{{ route('admin.media.show', $item->public_id) }}">
+                        @if(filled($item->path))
+                            <img class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" src="{{ $item->responsiveUrl(400) }}" alt="{{ $item->alt_text }}" loading="lazy">
+                        @else
+                            <span class="grid h-full w-full place-items-center text-sm font-semibold" style="color: var(--hc-text-muted)">Dosya yok</span>
+                        @endif
+                        <span class="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold {{ $rozetSinif }}">{{ $rozet }}</span>
+                    </a>
+                    <div class="p-4">
+                        <p class="truncate font-bold">{{ $item->mediable?->title ?? '—' }}</p>
+                        <p class="mt-1 text-xs" style="color: var(--hc-text-muted)">
+                            {{ class_basename($item->mediable_type) === 'Recipe' ? 'Tarif' : 'Blog' }}
+                            @if($item->width) · {{ $item->width }}×{{ $item->height }} @endif
+                            @if($item->size) · {{ number_format($item->size / 1024) }} KB @endif
+                        </p>
+                        <div class="mt-3 flex items-center gap-3">
+                            <a class="text-sm font-bold text-orange-700 hover:underline" href="{{ route('admin.media.show', $item->public_id) }}">Detay</a>
+                            @if($item->media_status === 'approved_real_media' && $item->approved_by_user_id === null && filled($item->path))
+                                <form method="post" action="{{ route('admin.media.approve', $item->public_id) }}">@csrf<button class="text-sm font-bold text-emerald-700 hover:underline">Onayla</button></form>
+                            @endif
+                        </div>
+                    </div>
+                </article>
+            @empty
+                <div class="hc-v3-empty sm:col-span-2 lg:col-span-3 xl:col-span-4">
+                    <strong>Bu süzgeçte görsel yok.</strong>
+                    <p>Başka bir durum seçin ya da aramayı temizleyin.</p>
+                </div>
+            @endforelse
+        </div>
+
+        <div class="mt-8">{{ $media->links() }}</div>
+
+        <details class="mt-10 rounded-2xl border p-5" style="border-color: var(--hc-border-subtle)">
+            <summary class="cursor-pointer font-bold">Bakım araçları</summary>
+            <div class="mt-4 flex flex-wrap gap-3">
+                <form method="post" action="{{ route('admin.media.scan-orphans') }}">@csrf<button class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Orphan tara</button></form>
+                <form method="post" action="{{ route('admin.media.cleanup-temporary') }}">@csrf<button class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Geçicileri tara</button></form>
+            </div>
+            <p class="mt-3 text-xs" style="color: var(--hc-text-muted)">İkisi de dry-run çalışır; hiçbir dosyayı silmez.</p>
+        </details>
     </section>
 </x-layouts.site>

@@ -1,42 +1,43 @@
 @php
     /**
-     * Menüdeki 27 bölümün 21'i tek bir "Gelişmiş araçlar" listesindeydi ve
-     * yedi ayrı işlev aynı varsayılan ikonu paylaşıyordu; aranan bölümü
-     * bulmak listeyi baştan sona okumayı gerektiriyordu. Bölümler artık
-     * yapılan işe göre ayrılır ve en kalabalık grup dokuz maddedir.
+     * Menü altı başlık ve 28 madde ile hep açık duruyordu; ekranda kalan liste
+     * aranan bölümü bulmayı kolaylaştırmıyor, yalnız uzuyordu. Başlık sayısı
+     * dörde indirildi ve yalnız içinde bulunulan bölüm açık durur (akordeon):
+     * ekranda aynı anda bir grubun maddeleri görünür, geri kalanı dört satır.
+     *
+     * Gruplama işin sıklığına göredir: "Her gün" bir yöneticinin her oturumda
+     * açtığı yerlerdir, "Üretim" içerik ve görsel hazırlama, "Veri ve SEO"
+     * arada bakılan tablolar, "Sistem" nadiren gerekenler.
      */
     $groups = [
-        'İçerik' => [
+        'Her gün' => [
             ['route' => 'admin.recipes.index', 'label' => 'Tarifler', 'icon' => 'book'],
             ['route' => 'admin.blog.index', 'label' => 'Blog Yazıları', 'icon' => 'pen'],
+            ['route' => 'admin.media.index', 'label' => 'Medya Kitaplığı', 'icon' => 'image'],
             ['route' => 'admin.recipe-verification.index', 'label' => 'İçerik Doğrulama', 'icon' => 'shield'],
+            ['route' => 'admin.contact-requests.index', 'label' => 'İletişim Talepleri', 'icon' => 'mail'],
+        ],
+        'Üretim' => [
+            ['route' => 'admin.image-requests.index', 'label' => 'Görsel Talepleri', 'icon' => 'image'],
+            ['route' => 'admin.ai-image-studio.index', 'label' => 'Görsel Stüdyosu', 'icon' => 'flask'],
+            ['route' => 'admin.media-operations.index', 'label' => 'Medya Operasyonları', 'icon' => 'sliders'],
             ['route' => 'admin.editorial-operations.index', 'label' => 'Editoryal Operasyonlar', 'icon' => 'check'],
-            ['route' => 'admin.content-factory.index', 'label' => 'İçerik Fabrikası', 'icon' => 'flask'],
+            ['route' => 'admin.content-factory.index', 'label' => 'İçerik Fabrikası', 'icon' => 'server'],
             ['route' => 'admin.production-content.index', 'label' => 'Production İçerik Merkezi', 'icon' => 'archive'],
         ],
-        'Medya' => [
-            ['route' => 'admin.media.index', 'label' => 'Medya Kitaplığı', 'icon' => 'image'],
-            ['route' => 'admin.media-operations.index', 'label' => 'Medya Operasyonları', 'icon' => 'sliders'],
-            ['route' => 'admin.ai-image-studio.index', 'label' => 'Görsel Stüdyosu', 'icon' => 'flask'],
-        ],
-        'Yemek verisi' => [
+        'Veri ve SEO' => [
             ['route' => 'admin.ingredients.index', 'label' => 'Malzemeler', 'icon' => 'tag'],
             ['route' => 'admin.measurements.units', 'label' => 'Ölçü Birimleri', 'icon' => 'scale'],
             ['route' => 'admin.measurements.conversions', 'label' => 'Dönüşümler', 'icon' => 'refresh'],
             ['route' => 'admin.nutrition.index', 'label' => 'Beslenme', 'icon' => 'heart'],
-        ],
-        'Büyüme' => [
+            ['route' => 'admin.data-quality.index', 'label' => 'Veri Kalitesi', 'icon' => 'database'],
             ['route' => 'admin.seo.index', 'label' => 'SEO Operasyonları', 'icon' => 'search'],
             ['route' => 'admin.seo.issues', 'label' => 'SEO Sağlığı', 'icon' => 'warning'],
             ['route' => 'admin.product-experience.index', 'label' => 'Ürün Deneyimi', 'icon' => 'gauge'],
             ['route' => 'admin.personalization.index', 'label' => 'Kişiselleştirme', 'icon' => 'sliders'],
         ],
-        'Topluluk' => [
-            ['route' => 'admin.users.index', 'label' => 'Kullanıcılar', 'icon' => 'users'],
-            ['route' => 'admin.contact-requests.index', 'label' => 'İletişim Talepleri', 'icon' => 'mail'],
-        ],
         'Sistem' => [
-            ['route' => 'admin.data-quality.index', 'label' => 'Veri Kalitesi', 'icon' => 'database'],
+            ['route' => 'admin.users.index', 'label' => 'Kullanıcılar', 'icon' => 'users'],
             ['route' => 'admin.release-candidate.index', 'label' => 'RC Kontrol Merkezi', 'icon' => 'shield'],
             ['route' => 'admin.ai-kitchen.index', 'label' => 'AI Operasyonları', 'icon' => 'flask'],
             ['route' => 'admin.integrations.index', 'label' => 'Entegrasyonlar', 'icon' => 'server'],
@@ -77,30 +78,45 @@
             <span data-admin-menu-label="genel bakış" x-show="!adminSidebarCollapsed" x-transition.opacity>Genel Bakış</span>
         </a>
 
+        {{-- Akordeon: aynı anda tek grup açık kalır, böylece menü 28 satır
+             yerine bir grubun maddeleri kadar uzar. Açık grup sayfa yüklenirken
+             bulunulan bölüme göre seçilir; hiçbiri değilse "Her gün" açılır. --}}
+        @php($acikGrup = collect($groups)->search(fn ($items) => collect($items)->contains(fn ($item) => request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route']))))
+        <div x-data="{ acik: '{{ $acikGrup === false ? 'Her gün' : $acikGrup }}' }" class="space-y-1.5">
         @foreach ($groups as $group => $items)
             @php($groupActive = collect($items)->contains(fn ($item) => request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route'])))
             @php($groupSearch = mb_strtolower($group.' '.collect($items)->pluck('label')->join(' '), 'UTF-8'))
-            {{-- "Sistem" günlük işin parçası değil; açık dururken menüyü uzatıyor. --}}
-            <section aria-label="{{ $group }}" x-data="{ open: {{ $groupActive || $group !== 'Sistem' ? 'true' : 'false' }} }" x-show="!adminSidebarQuery || '{{ $groupSearch }}'.includes(adminSidebarQuery.toLocaleLowerCase('tr-TR'))">
-                <button type="button" @click="open = !open" x-show="!adminSidebarCollapsed" class="mb-2 flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1 text-left text-[10px] font-extrabold uppercase tracking-[.16em] text-white/55 hover:bg-white/5 hover:text-white" :aria-expanded="open">
-                    <span>{{ $group }}</span><span class="text-sm leading-none" x-text="open ? '−' : '+'"></span>
+            <section aria-label="{{ $group }}" x-show="!adminSidebarQuery || '{{ $groupSearch }}'.includes(adminSidebarQuery.toLocaleLowerCase('tr-TR'))">
+                <button type="button" @click="acik = (acik === '{{ $group }}' ? '' : '{{ $group }}')" x-show="!adminSidebarCollapsed"
+                        class="group flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-[10px] font-extrabold uppercase tracking-[.16em] transition-colors duration-200 hover:bg-white/5"
+                        :class="acik === '{{ $group }}' ? 'text-orange-300' : 'text-white/50 hover:text-white'"
+                        :aria-expanded="acik === '{{ $group }}'">
+                    <span>{{ $group }}</span>
+                    <span class="transition-transform duration-300 ease-out" :class="acik === '{{ $group }}' ? 'rotate-180' : ''"><x-ui.icon name="chevron-down" size="14" /></span>
                 </button>
-                <div class="space-y-1" x-show="open || adminSidebarCollapsed || adminSidebarQuery" x-transition.opacity>
+                <div class="space-y-1 overflow-hidden"
+                     x-show="acik === '{{ $group }}' || adminSidebarCollapsed || adminSidebarQuery"
+                     x-collapse.duration.250ms>
                     @foreach ($items as $item)
                         @php($active = request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route']))
                         @php($itemSearch = mb_strtolower($item['label'], 'UTF-8'))
                         <a href="{{ route($item['route']) }}" :title="adminSidebarCollapsed ? '{{ $item['label'] }}' : null" x-show="!adminSidebarQuery || '{{ $itemSearch }}'.includes(adminSidebarQuery.toLocaleLowerCase('tr-TR'))" @class([
-                            'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition focus-visible:ring-orange-200',
+                            'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:ring-orange-200',
                             'bg-orange-400/18 text-white shadow-sm ring-1 ring-orange-300/20' => $active,
-                            'text-stone-300 hover:bg-white/8 hover:text-white' => ! $active,
+                            'text-stone-300 hover:translate-x-0.5 hover:bg-white/8 hover:text-white' => ! $active,
                         ])>
-                            <span class="grid h-6 w-6 shrink-0 place-items-center text-orange-300"><x-ui.icon :name="$item['icon']" size="18" /></span>
+                            @if ($active)
+                                {{-- Bulunulan sayfa göz ucuyla da seçilebilsin. --}}
+                                <span class="absolute inset-y-1.5 left-0 w-1 rounded-full bg-orange-400" aria-hidden="true"></span>
+                            @endif
+                            <span class="grid h-6 w-6 shrink-0 place-items-center text-orange-300 transition-transform duration-200 group-hover:scale-110"><x-ui.icon :name="$item['icon']" size="18" /></span>
                             <span data-admin-menu-label="{{ $itemSearch }}" x-show="!adminSidebarCollapsed" x-transition.opacity>{{ $item['label'] }}</span>
                         </a>
                     @endforeach
                 </div>
             </section>
         @endforeach
+        </div>
     </div>
 
     <div class="border-t border-white/10 p-4">
