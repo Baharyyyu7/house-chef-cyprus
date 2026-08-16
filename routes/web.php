@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\SystemEventController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AiKitchenController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\BlogCoverController;
 use App\Http\Controllers\ContactRequestController;
 use App\Http\Controllers\CookingSessionController;
 use App\Http\Controllers\FavoriteController;
@@ -59,6 +60,9 @@ Route::get('/blog/etiket/{tag}', [BlogController::class, 'tag'])->name('blog.tag
 // Bir yazının slug'ı sonradan uzatılırsa (ör. sonuna ayırt edici bir ek gelirse)
 // eski adres sessizce 404 olur ve indekslenmiş bağlantılar kırılır. Eski slug'la
 // başlayan yayındaki yazıya kalıcı yönlendirme yapılır; bulunamazsa 404 sürer.
+// Her yazının sosyal paylaşım görseli kendi başlığından üretilir; 216 yazının
+// aynı varsayılan marka görselini paylaşması yerine.
+Route::get('/blog/{post}/kapak.png', BlogCoverController::class)->name('blog.cover');
 Route::get('/blog/{post}', [BlogController::class, 'show'])
     ->name('blog.show')
     ->missing(function (Request $request) {

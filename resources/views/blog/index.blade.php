@@ -10,26 +10,9 @@
         </form>
         <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             @forelse($posts as $post)
-                @php($heroMedia = app(\App\Services\Media\PublicMediaEligibilityService::class)->isEligible($post->heroMedia) ? $post->heroMedia : null)
-                @php($hasApprovedMedia = $heroMedia?->publicUrl())
                 <article class="hc-v3-card hc-v3-card--interactive group relative flex w-full min-w-0 flex-col overflow-hidden">
                     <a class="relative block aspect-[4/3] bg-stone-100 dark:bg-stone-900" tabindex="-1" aria-hidden="true" href="{{ route('blog.show', $post) }}">
-                        @if($hasApprovedMedia)
-                            <picture>
-                                <source type="image/avif" srcset="{{ $heroMedia->responsiveUrl(800, 'avif') }}">
-                                <source type="image/webp" srcset="{{ $heroMedia->responsiveUrl(800, 'webp') }}">
-                                <img class="h-full w-full object-cover" src="{{ $heroMedia->responsiveUrl(800) }}" width="800" height="600" alt="{{ $heroMedia->generated_by_ai ? 'Yapay zekâ ile üretilmiş editoryal illüstrasyon: ' : '' }}{{ $heroMedia->alt_text }}" loading="lazy">
-                            </picture>
-                            @if($heroMedia->generated_by_ai)
-                                <span class="absolute right-3 top-3 hc-v3-badge border-white/20 bg-black/55 text-white backdrop-blur">Yapay zekâ görseli</span>
-                            @endif
-                        @else
-                            <div class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-                                <span class="grid h-11 w-11 place-items-center rounded-full bg-orange-100 text-xl text-orange-800 dark:bg-orange-500/15 dark:text-orange-200">▤</span>
-                                <strong>Yazıya özel görsel hazırlanıyor</strong>
-                                <span class="text-xs leading-5 text-muted">Onaylı ve konuya özel editoryal görsel bulunana kadar fotoğraf gösterilmez.</span>
-                            </div>
-                        @endif
+                        <x-blog-cover :post="$post" />
                     </a>
                     <div class="p-6">
                         <p class="hc-kicker">{{ $post->category?->name ?? 'Mutfak notu' }}</p>
