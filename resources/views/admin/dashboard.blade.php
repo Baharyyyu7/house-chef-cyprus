@@ -177,7 +177,9 @@
                 <article class="hc-v3-card p-5 sm:p-6">
                     <div class="flex flex-wrap items-start justify-between gap-4"><div><p class="hc-kicker">VERİ GÜVENİ</p><h2 class="hc-heading-3 mt-1">Kalite skorları</h2></div><a href="{{ route('admin.data-quality.index') }}" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">Veri kalitesine git</a></div>
                     @if ($qualityScanned)
-                        <p class="mt-2 text-xs" style="color: var(--hc-text-muted)">Son tarama: {{ \Illuminate\Support\Carbon::parse($qualityScannedAt)->diffForHumans() }}</p>
+                        @if ($qualityScannedAt)
+                            <p class="mt-2 text-xs" style="color: var(--hc-text-muted)">Son tarama: {{ \Illuminate\Support\Carbon::parse($qualityScannedAt)->diffForHumans() }}</p>
+                        @endif
                         <div class="hc-admin-quality-grid mt-6">
                             @foreach ($qualityScores as $key => $score)
                                 <div><div class="flex items-center justify-between gap-3"><span>{{ config('data_quality.categories.'.$key.'.label', $key === 'overall' ? 'Genel' : ucfirst(str_replace('_', ' ', $key))) }}</span><strong>{{ $score }}%</strong></div><div class="hc-admin-progress mt-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $score }}"><span style="width: {{ max(0, min(100, (int) $score)) }}%"></span></div></div>
@@ -192,7 +194,7 @@
                             <p class="mt-2 text-sm leading-6" style="color: var(--hc-text-secondary)">
                                 Skorlar açık bulgu kayıtlarından hesaplanır. Tarama çalışmadığı için kayıt yok; bu yüzden burada yüzde göstermiyoruz. Tarama çalıştığında kategori skorları gerçek bulgularla dolar.
                             </p>
-                            <code class="mt-4 inline-block rounded-lg px-3 py-2 text-xs" style="background: var(--hc-surface-muted)">php artisan data-quality:scan</code>
+                            <code class="mt-4 inline-block rounded-lg px-3 py-2 text-xs" style="background: var(--hc-surface-muted)">php artisan data:quality-scan</code>
                         </div>
                     @endif
                 </article>

@@ -76,6 +76,9 @@ final class AdminDashboardTellsTheTruthTest extends TestCase
     public function test_it_shows_the_category_scores_once_a_scan_has_run(): void
     {
         app(\App\Services\DataQualityService::class)->scan();
+        // Önbellek her deploy'da temizlenir; taranmış bir katalog bu yüzden
+        // "hiç bakılmadı" görünmemeli.
+        \Illuminate\Support\Facades\Cache::flush();
 
         $this->actingAsAdmin()
             ->get(route('admin.dashboard'))

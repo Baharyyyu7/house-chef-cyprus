@@ -43,9 +43,14 @@ final class DataQualityService
         }
     }
 
+    /**
+     * Zaman damgası önbellekte tutulur, ama önbellek her deploy'da temizlenir;
+     * yalnız ona bakmak taranmış bir katalogu "hiç bakılmadı" göstermeye yeter.
+     * Bulgu kaydının varlığı taramanın çalıştığının kalıcı kanıtıdır.
+     */
     public function hasEverScanned(): bool
     {
-        return $this->lastScannedAt() !== null;
+        return $this->lastScannedAt() !== null || DataQualityIssue::query()->exists();
     }
 
     /** @return list<array<string,mixed>> */
