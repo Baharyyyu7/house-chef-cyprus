@@ -10,6 +10,7 @@ use App\Models\SeoIssue;
 use App\Models\User;
 use App\Services\Seo\SeoMetadataService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 final class SeoAuthorityProgramTest extends TestCase
@@ -46,14 +47,26 @@ final class SeoAuthorityProgramTest extends TestCase
 
     public function test_only_approved_public_media_contributes_social_image_metadata(): void
     {
+        Storage::fake('public');
         $post = BlogPost::query()->create([
             'title' => 'Onaylı görsel rehberi', 'slug' => 'onayli-gorsel-rehberi', 'excerpt' => 'Görsel kaynakları hakkında kısa rehber.',
             'body' => str_repeat('Özgün editoryal bilgi. ', 30), 'status' => 'published', 'published_at' => now(),
         ]);
+        $reviewer = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        Storage::disk('public')->put('media/blog/approved.jpg', 'source');
+        $variants = [];
+        foreach (['thumbnail', 'square', 'card', 'open_graph', 'hero'] as $profile) {
+            $jpeg = "media/blog/approved-{$profile}.jpg";
+            $webp = "media/blog/approved-{$profile}.webp";
+            Storage::disk('public')->put($jpeg, 'jpeg');
+            Storage::disk('public')->put($webp, 'webp');
+            $variants[] = ['name' => $profile, 'width' => 1600, 'height' => 900, 'jpeg' => $jpeg, 'webp' => $webp];
+        }
         $media = $post->media()->create([
             'kind' => 'editorial_synthetic_illustration', 'disk' => 'public', 'path' => 'media/blog/approved.jpg', 'visibility' => 'public',
-            'media_status' => 'approved_real_media', 'verification_status' => 'verified', 'license_review_status' => 'approved', 'attribution_review_status' => 'approved',
-            'alt_text' => 'Onaylı konuya özel editoryal görsel', 'width' => 1600, 'height' => 900,
+            'media_status' => 'approved_real_media', 'verification_status' => 'verified', 'license_review_status' => 'approved', 'attribution_review_status' => 'approved', 'fidelity_status' => 'strong_match', 'fidelity_confidence' => 95,
+            'alt_text' => 'Onaylı konuya özel editoryal görsel', 'width' => 1600, 'height' => 900, 'responsive_variants' => $variants,
+            'media_reviewer_user_id' => $reviewer->id, 'media_reviewed_at' => now(), 'approved_by_user_id' => $reviewer->id, 'approved_at' => now(), 'checksum_sha256' => 'approved-blog-media-checksum',
         ]);
         $post->update(['hero_media_id' => $media->id]);
 

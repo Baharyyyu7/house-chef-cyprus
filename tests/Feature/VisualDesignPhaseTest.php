@@ -103,7 +103,7 @@ final class VisualDesignPhaseTest extends TestCase
         $this->actingAs($admin)->get(route('admin.dashboard'))
             ->assertOk()
             ->assertSee('hc-v3-card', false)
-            ->assertSee('hc-display-lg', false);
+            ->assertSee('hc-heading-1', false);
     }
 
     public function test_profile_pilot_uses_turkish_labels_and_does_not_render_the_old_english_headings(): void

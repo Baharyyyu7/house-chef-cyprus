@@ -43,6 +43,8 @@ use App\Http\Controllers\PersonalizationController;
 use App\Http\Controllers\RecipeCollectionController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\SitemapController;
+use App\Models\BlogPost;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [RecipeController::class, 'index'])->name('home');
@@ -54,7 +56,23 @@ Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])->name('
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/kategori/{category}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/blog/etiket/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
-Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
+// Bir yazının slug'ı sonradan uzatılırsa (ör. sonuna ayırt edici bir ek gelirse)
+// eski adres sessizce 404 olur ve indekslenmiş bağlantılar kırılır. Eski slug'la
+// başlayan yayındaki yazıya kalıcı yönlendirme yapılır; bulunamazsa 404 sürer.
+Route::get('/blog/{post}', [BlogController::class, 'show'])
+    ->name('blog.show')
+    ->missing(function (Request $request) {
+        $slug = (string) $request->route('post');
+
+        $match = BlogPost::query()->publiclyVisible()
+            ->where('slug', 'like', $slug.'-%')
+            ->orderByRaw('LENGTH(slug)')
+            ->first();
+
+        abort_if($match === null, 404);
+
+        return redirect()->route('blog.show', $match, 301);
+    });
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemaps/pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
 Route::get('/sitemaps/recipes.xml', [SitemapController::class, 'recipes'])->name('sitemap.recipes');
