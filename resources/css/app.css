@@ -245,6 +245,19 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
 [data-reveal-stagger] > * { transition-delay: var(--hc-reveal-delay, 0ms); }
 @media (prefers-reduced-motion: reduce) { [data-reveal] { opacity: 1; transform: none; transition: none; } }
 
+/* 21st.dev'deki sütunlu yorum ritmini Blade üzerinde, harici hareket
+   bağımlılığı olmadan kurar. İkinci grup yalnız kesintisiz döngü içindir. */
+.hc-testimonials-window { max-height:42rem; overflow:hidden; -webkit-mask-image:linear-gradient(to bottom,transparent,#000 12%,#000 88%,transparent); mask-image:linear-gradient(to bottom,transparent,#000 12%,#000 88%,transparent); }
+.hc-testimonials-column { max-width:22rem; }
+.hc-testimonials-track { animation:hc-testimonials-scroll var(--hc-testimonials-duration,20s) linear infinite; will-change:transform; }
+.hc-testimonials-window:hover .hc-testimonials-track,.hc-testimonials-window:focus-within .hc-testimonials-track,.hc-testimonials-window.is-paused .hc-testimonials-track { animation-play-state:paused; }
+.hc-testimonials-group { display:flex; flex-direction:column; gap:1.25rem; padding-bottom:1.25rem; }
+.hc-testimonial-card { position:relative; overflow:hidden; width:100%; border:1px solid var(--hc-border-default); border-radius:1.5rem; background:var(--hc-surface-raised); padding:1.5rem; box-shadow:0 14px 38px color-mix(in srgb,var(--hc-brand-primary) 9%,transparent); }
+.hc-testimonial-quote { position:absolute; right:1rem; top:.25rem; color:color-mix(in srgb,var(--hc-brand-primary) 18%,transparent); font-family:Georgia,serif; font-size:5rem; line-height:1; pointer-events:none; }
+@keyframes hc-testimonials-scroll { to { transform:translateY(-50%); } }
+@media (max-width:767px) { .hc-testimonials-window { max-height:38rem; }.hc-testimonials-column { max-width:24rem; } }
+@media (prefers-reduced-motion:reduce) { .hc-testimonials-window { max-height:none; overflow:visible; -webkit-mask-image:none; mask-image:none; }.hc-testimonials-track { animation:none; }.hc-testimonials-group[aria-hidden="true"] { display:none; } }
+
 @keyframes v2-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes v3-rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 @keyframes v2-hero-scale { from { transform: scale(1.025); } to { transform: scale(1); } }
