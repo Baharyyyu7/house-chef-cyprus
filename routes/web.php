@@ -50,6 +50,12 @@ use App\Models\Recipe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Gerçek ödeme akışı hazır değilken Premium sayfası görünür kalır; bu güvenli
+// fallback hiçbir ödeme veya üyelik aktivasyonu yapmaz.
+if (! Route::has('pricing')) {
+    Route::view('/fiyatlandirma', 'premium-preview')->name('pricing');
+}
+
 Route::get('/', [RecipeController::class, 'index'])->name('home');
 Route::get('/health', HealthController::class)->name('health');
 Route::get('/tarifler', [RecipeController::class, 'index'])->name('recipes.index');

@@ -105,6 +105,17 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .hc-theme-switch[aria-checked="true"] { background:color-mix(in srgb,#818cf8 28%,var(--hc-surface-soft)); }
     .hc-theme-switch[aria-checked="true"] .hc-theme-switch__knob { transform:translateX(1.5rem); }
     .hc-theme-switch__icon { @apply absolute inset-0 grid place-items-center; }
+
+    /* Tema değişirken yalnız renk yüzeylerini yumuşatır; yerleşim ve kullanıcı
+       etkileşimleri etkilenmez. Geçiş sınıfı düğme tarafından kısa süre tutulur. */
+    html.hc-theme-transitioning body,
+    html.hc-theme-transitioning body *,
+    html.hc-theme-transitioning body *::before,
+    html.hc-theme-transitioning body *::after {
+        transition-property: color, background-color, border-color, outline-color, fill, stroke, box-shadow !important;
+        transition-duration: .42s !important;
+        transition-timing-function: cubic-bezier(.22, 1, .36, 1) !important;
+    }
     .hc-mobile-drawer { border-color: var(--hc-line); background: var(--hc-bg); }
     .hc-footer { background: var(--hc-footer); color: var(--hc-footer-text); }
     .hc-footer-muted { color: var(--hc-footer-muted); }
