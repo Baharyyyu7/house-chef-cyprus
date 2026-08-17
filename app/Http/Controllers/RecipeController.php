@@ -69,7 +69,7 @@ final class RecipeController extends Controller
                 'mains' => $select($catalogue->filter(fn (Recipe $recipe): bool => str_contains(mb_strtolower((string) $recipe->category?->name), 'ana'))),
                 'desserts' => $select($catalogue->filter(fn (Recipe $recipe): bool => str_contains(mb_strtolower((string) $recipe->category?->name), 'tatlı'))),
             ];
-            $viewData['latestPosts'] = BlogPost::query()->publiclyVisible()->with(['category', 'heroMedia'])->latest('published_at')->take(3)->get();
+            $viewData['latestPosts'] = BlogPost::query()->publiclyVisible()->with(['category', 'heroMedia', 'media'])->latest('published_at')->take(3)->get();
         }
 
         return view('recipes.index', $viewData);

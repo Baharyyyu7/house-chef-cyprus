@@ -13,7 +13,7 @@
                 {{-- Rehber yazılarının çoğunda fotoğraf yok ve tipografik kapak kullanılır.
                      Ama onaylı bir görsel varsa onu göstermek gerekir: aksi hâlde editörün
                      onayladığı görsel yayına hiç çıkmaz ve yapay zekâ açıklaması kaybolur. --}}
-                @php($heroMedia = app(\App\Services\Media\PublicMediaEligibilityService::class)->isEligible($post->heroMedia) ? $post->heroMedia : null)
+                @php($heroMedia = app(\App\Services\Media\PublicMediaEligibilityService::class)->heroOrFirstEligible($post->heroMedia, $post->media))
                 <article class="hc-v3-card hc-v3-card--interactive group relative flex w-full min-w-0 flex-col overflow-hidden">
                     <a class="relative block aspect-[4/3] bg-stone-100 dark:bg-stone-900" tabindex="-1" aria-hidden="true" href="{{ route('blog.show', $post) }}">
                         @if($heroMedia?->publicUrl())

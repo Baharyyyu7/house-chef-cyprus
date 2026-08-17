@@ -18,7 +18,7 @@ final class BlogController extends Controller
 {
     public function index(Request $request, SeoIndexabilityService $indexability): View
     {
-        $posts = BlogPost::query()->publiclyVisible()->with(['category', 'tags', 'heroMedia'])
+        $posts = BlogPost::query()->publiclyVisible()->with(['category', 'tags', 'heroMedia', 'media'])
             ->when($request->filled('q'), fn ($query) => $query->where(fn ($nested) => $nested->where('title', 'like', '%'.$request->string('q')->toString().'%')->orWhere('excerpt', 'like', '%'.$request->string('q')->toString().'%')))
             ->latest('published_at')->paginate(12)->withQueryString();
 
@@ -44,12 +44,12 @@ final class BlogController extends Controller
         $relatedPosts = BlogPost::query()->publiclyVisible()
             ->whereKeyNot($post->id)
             ->when($post->blog_category_id !== null, fn ($query) => $query->where('blog_category_id', $post->blog_category_id))
-            ->with(['category', 'heroMedia'])
+            ->with(['category', 'heroMedia', 'media'])
             ->latest('published_at')
             ->limit(3)
             ->get();
 
-        $heroMedia = $mediaEligibility->isEligible($post->heroMedia) ? $post->heroMedia : null;
+        $heroMedia = $mediaEligibility->heroOrFirstEligible($post->heroMedia, $post->media);
         $schema = $schemaService->article($post, $heroMedia?->publicUrl() ?: '');
 
         $metadata = $seo->for($post, $post->meta_title ?: $post->title.' · House Chef Cyprus', $post->meta_description ?: $post->excerpt, route('blog.show', $post));
@@ -59,11 +59,11 @@ final class BlogController extends Controller
 
     public function category(BlogCategory $category): View
     {
-        return view('blog.index', ['posts' => $category->posts()->publiclyVisible()->with(['category', 'tags', 'heroMedia'])->latest('published_at')->paginate(12), 'title' => $category->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.category', $category), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
+        return view('blog.index', ['posts' => $category->posts()->publiclyVisible()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12), 'title' => $category->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.category', $category), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
     }
 
     public function tag(BlogTag $tag): View
     {
-        return view('blog.index', ['posts' => $tag->posts()->publiclyVisible()->with(['category', 'tags', 'heroMedia'])->latest('published_at')->paginate(12), 'title' => '#'.$tag->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.tag', $tag), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
+        return view('blog.index', ['posts' => $tag->posts()->publiclyVisible()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12), 'title' => '#'.$tag->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.tag', $tag), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
     }
 }

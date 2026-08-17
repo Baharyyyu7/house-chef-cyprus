@@ -37,6 +37,26 @@ final class PublicMediaEligibilityService
     }
 
     /**
+     * hero_media_id sabit bir kayda işaret eder ve o kayıt her an yayına
+     * uygunluğunu yitirebilir: dosyası kaybolabilir, denetimde düşürülebilir,
+     * onayı geri alınabilir. Bir yazının dört medyası varken hero'nun düşmüş
+     * olanı göstermesi yüzünden onaylı fotoğraf hiç görünmüyordu.
+     *
+     * İşaretçi geçerliyse ona saygı gösterilir; değilse yazının uygun olan ilk
+     * görseline düşülür.
+     *
+     * @param  iterable<Media>  $media
+     */
+    public function heroOrFirstEligible(?Media $hero, iterable $media): ?Media
+    {
+        if ($this->isEligible($hero)) {
+            return $hero;
+        }
+
+        return $this->firstEligible($media);
+    }
+
+    /**
      * Returns a stable, non-sensitive reason suitable for internal audits.
      */
     public function reason(?Media $media): ?string
