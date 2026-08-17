@@ -48,7 +48,7 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .hc-skip-link:focus { top:1rem; }
     .hc-page { @apply py-8 sm:py-12 lg:py-16; }
     .hc-kicker, .hc-eyebrow { @apply text-xs font-extrabold uppercase tracking-[.18em] text-orange-600; }
-    .hc-title { @apply font-display text-4xl font-bold leading-[1.05] sm:text-5xl; color: var(--hc-text); }
+    .hc-title { @apply font-display text-4xl font-bold leading-[1.14] sm:text-5xl; color: var(--hc-text); }
     .hc-subtitle { @apply mt-3 max-w-2xl text-base leading-7 sm:text-lg; color: var(--hc-muted); }
     .hc-card { @apply rounded-3xl border p-5 shadow-card; border-color: var(--hc-line); background: var(--hc-surface); }
     .hc-card-hover { @apply hc-card transition duration-300 motion-reduce:transform-none motion-reduce:transition-none; }
@@ -135,8 +135,8 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .v2-delay-2 { animation-delay: .16s; }
     .v2-delay-3 { animation-delay: .24s; }
     /* V3 typography */
-    .hc-display-xl { @apply font-display text-5xl font-semibold leading-[.98] tracking-[-.045em] sm:text-6xl lg:text-7xl; }
-    .hc-display-lg { @apply font-display text-4xl font-semibold leading-[1.02] tracking-[-.04em] sm:text-5xl; }
+    .hc-display-xl { @apply font-display text-5xl font-semibold leading-[1.08] tracking-[-.045em] sm:text-6xl lg:text-7xl; }
+    .hc-display-lg { @apply font-display text-4xl font-semibold leading-[1.11] tracking-[-.04em] sm:text-5xl; }
     .hc-heading-1 { @apply font-display text-4xl font-semibold leading-[1.06] sm:text-5xl; }
     .hc-heading-2 { @apply font-display text-3xl font-semibold leading-[1.12] sm:text-4xl; }
     .hc-heading-3 { @apply font-display text-2xl font-semibold leading-[1.2]; }
@@ -434,9 +434,15 @@ html.dark {
 
 /* --- Tipografi: iz aralığı ve satır aralığı boyuta göre değişir ------- */
 
+/* Satır aralıkları Türkçeye göre. Apple'ın display değerleri Latin için
+   ayarlı; ğ ve ş'nin altı, İ'nin noktası o kadar sıkı satırda bir üstteki
+   ve bir alttaki satıra giriyor. Ölçüm: 68px'lik başlıkta yazı tipinin
+   kendi satır kutusu 93px iken satır yüksekliği 66px'ti, 27px eksik.
+   Aşağıdaki değerler çıkıntıları kurtaracak kadar açık, display etkisini
+   bozmayacak kadar sıkı. */
 .hc-display-xl {
     font-size: clamp(2.75rem, 6.2vw, 4.75rem);
-    line-height: .97;
+    line-height: 1.08;
     letter-spacing: -.045em;
     font-weight: 600;
     font-optical-sizing: auto;
@@ -444,15 +450,15 @@ html.dark {
 }
 .hc-display-lg {
     font-size: clamp(2.25rem, 4.4vw, 3.5rem);
-    line-height: 1.02;
+    line-height: 1.11;
     letter-spacing: -.038em;
     font-weight: 600;
     font-optical-sizing: auto;
     text-wrap: balance;
 }
-.hc-heading-1 { font-size: clamp(1.95rem, 3.4vw, 2.75rem); line-height: 1.07; letter-spacing: -.032em; text-wrap: balance; }
-.hc-heading-2 { font-size: clamp(1.6rem, 2.6vw, 2.1rem);  line-height: 1.14; letter-spacing: -.026em; text-wrap: balance; }
-.hc-heading-3 { font-size: clamp(1.3rem, 1.9vw, 1.55rem); line-height: 1.22; letter-spacing: -.019em; }
+.hc-heading-1 { font-size: clamp(1.95rem, 3.4vw, 2.75rem); line-height: 1.15; letter-spacing: -.032em; text-wrap: balance; }
+.hc-heading-2 { font-size: clamp(1.6rem, 2.6vw, 2.1rem);  line-height: 1.2; letter-spacing: -.026em; text-wrap: balance; }
+.hc-heading-3 { font-size: clamp(1.3rem, 1.9vw, 1.55rem); line-height: 1.28; letter-spacing: -.019em; }
 .hc-heading-4 { font-size: 1.0625rem; line-height: 1.35;  letter-spacing: -.011em; font-weight: 700; }
 
 /* Gövde metni izsiz kalır; yalnız küçük boylar hafifçe açılır. */

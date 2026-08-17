@@ -87,6 +87,8 @@
 
             <section id="allergens" class="hc-v3-card hc-scroll-target p-5 sm:p-6"><h2 class="hc-heading-3">Alerjenler ve diyet</h2>@if($allergenAnalysis['groups']['contains'])<p class="mt-3 text-sm font-bold text-red-700 dark:text-red-300">⚠ İçerir: {{ collect($allergenAnalysis['groups']['contains'])->pluck('name')->unique()->join(', ') }}</p>@endif@if($allergenAnalysis['groups']['may_contain'])<p class="mt-2 text-sm font-bold text-amber-700 dark:text-amber-300">ⓘ İçerebilir: {{ collect($allergenAnalysis['groups']['may_contain'])->pluck('name')->unique()->join(', ') }}</p>@endif<div class="mt-4 flex flex-wrap gap-2">@foreach($dietaryCompatibility as $code => $compatibility)<span class="hc-v3-badge {{ in_array($compatibility['status'], ['compatible', 'manually_verified'], true) ? 'hc-v3-badge--success' : 'hc-v3-badge--warning' }}">{{ in_array($compatibility['status'], ['compatible', 'manually_verified'], true) ? '✓' : 'ⓘ' }} {{ str($code)->replace('_', ' ')->title() }}: {{ in_array($compatibility['status'], ['compatible', 'manually_verified'], true) ? 'uygun' : ($compatibility['status'] === 'incompatible' ? 'uygun değil' : 'belirsiz') }}</span>@endforeach</div><p class="mt-4 text-xs leading-5" style="color: var(--hc-text-muted)">{{ $allergenAnalysis['medical_disclaimer'] }}</p></section>
 
+            <x-membership-invite />
+
             <!-- Monetization: Sidebar Reklam Yuvası -->
             <x-ad-slot slot-name="sidebar" />
         </aside>

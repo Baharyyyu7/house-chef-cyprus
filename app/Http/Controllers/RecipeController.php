@@ -39,7 +39,12 @@ final class RecipeController extends Controller
 
         $viewData = [
             'recipes' => $recipes,
-            'cuisines' => Cuisine::orderBy('name')->get(),
+            // Sayım ana sayfadaki mutfak kutularının içini dolduruyor: boş bir
+            // kutu yerine o mutfakta kaç yayında tarif olduğu görünür.
+            // Filtre açılır listesi aynı koleksiyonu kullanmaya devam eder.
+            'cuisines' => Cuisine::withCount(['recipes' => fn ($q) => $q->where('status', 'published')])
+                ->orderBy('name')
+                ->get(),
             'categories' => Category::orderBy('name')->get(),
             'dietaryTags' => DietaryTag::orderBy('name')->get(),
             'allergens' => Allergen::orderBy('name')->get(),
