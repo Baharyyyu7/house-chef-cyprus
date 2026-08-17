@@ -1,13 +1,27 @@
 <x-layouts.site title="{{ request()->routeIs('home') ? 'House Chef Cyprus' : 'Tarifler' }}" :canonical-url="$seoIndexability['canonical']" :robots="$seoIndexability['robots']">
 @if (request()->routeIs('home'))
-    <section class="hc-container pt-6 sm:pt-9">
-        <div class="hc-home-hero relative isolate overflow-hidden rounded-[2rem] px-6 py-10 sm:rounded-[2.5rem] sm:px-10 sm:py-14 lg:min-h-[38rem] lg:px-14 lg:py-20">
-            <img class="v2-hero-image absolute inset-0 -z-20 h-full w-full object-cover object-[68%_center] opacity-70" src="{{ asset('images/house-chef-hero-v2.png') }}" alt="Halloumi, domates ve zeytinli Kıbrıs esintili Akdeniz tabağı">
-            <div class="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(9,9,9,.96)_0%,rgba(9,9,9,.78)_42%,rgba(9,9,9,.12)_78%)]"></div>
-            <div class="max-w-2xl"><p class="v2-reveal hc-kicker text-orange-300">Modern Akdeniz mutfağı</p><h1 class="v2-reveal v2-delay-1 mt-5 text-5xl font-extrabold leading-[.98] sm:text-6xl lg:text-7xl">Bugün sofranıza<br><span class="text-orange-400">iyi bir fikir</span> bırakın.</h1><p class="hc-hero-muted v2-reveal v2-delay-2 mt-6 max-w-xl text-base leading-7 sm:text-lg">Kıbrıs'ın sıcaklığından ilham alan tarifler, malzemeleriniz ve mutfak ritminiz için tek bir yerde.</p>
-                <div class="v2-reveal v2-delay-3 mt-8 flex flex-col gap-3 sm:flex-row"><a class="hc-btn hc-btn-primary px-6" href="{{ route('recipes.index') }}">Tarifleri keşfet <span class="ml-1">→</span></a><a class="hc-hero-secondary hc-btn px-6" href="{{ auth()->check() ? route('ingredients.explore') : route('register') }}">Elindekilerle tarif bul</a></div>
+    {{-- Hero sayfanın kendisidir, sayfanın üstünde duran bir kart değil.
+         Tam genişlikte açılır ve alt kenarı sayfa zeminine karışır; böylece
+         yüzen başlık çubuğu gerçekten içeriğin üstünden geçer. --}}
+    <section class="hc-home-hero relative isolate -mt-[var(--hc-header-h)] flex min-h-[86svh] items-end overflow-hidden pb-14 pt-[calc(var(--hc-header-h)+3rem)] sm:pb-20">
+        <img class="v2-hero-image absolute inset-0 -z-20 h-full w-full object-cover object-[64%_center]" src="{{ asset('images/house-chef-hero-v2.png') }}" alt="Halloumi, domates ve zeytinli Kıbrıs esintili Akdeniz tabağı" fetchpriority="high">
+        {{-- İki katman: yatay olan metne okunur bir zemin verir, dikey olan
+             hem çubuğu hem de alt kenarı sayfa zeminine bağlar. --}}
+        <div class="absolute inset-0 -z-10 bg-[linear-gradient(96deg,rgba(9,9,9,.93)_0%,rgba(9,9,9,.78)_34%,rgba(9,9,9,.28)_66%,rgba(9,9,9,.12)_100%)]"></div>
+        {{-- Dar ekranda metin tüm genişliğe yayıldığı için yatay perde yetmez;
+             ağırlık alt yarıya verilir. --}}
+        <div class="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(9,9,9,.58)_0%,rgba(9,9,9,.06)_22%,rgba(9,9,9,.34)_52%,rgba(9,9,9,.8)_100%)]"></div>
+        <div class="hc-container">
+            <div class="max-w-3xl">
+                <p class="v2-reveal hc-kicker text-orange-300">Modern Akdeniz mutfağı</p>
+                <h1 class="v2-reveal v2-delay-1 hc-display-xl mt-5 text-white">Bugün sofranıza iyi bir fikir bırakın.</h1>
+                <p class="hc-hero-muted v2-reveal v2-delay-2 hc-body-lg mt-6 max-w-xl">Kıbrıs'ın sıcaklığından ilham alan tarifler, malzemeleriniz ve mutfak ritminiz için tek bir yerde.</p>
+                {{-- Tek bir birincil eylem. İkincil eylem onunla yarışmaz. --}}
+                <div class="v2-reveal v2-delay-3 mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                    <a class="hc-btn hc-btn-primary px-7" href="{{ route('recipes.index') }}">Tarifleri keşfet <span class="ml-1" aria-hidden="true">→</span></a>
+                    <a class="hc-hero-secondary text-sm font-semibold text-white/80 underline-offset-4 transition hover:text-white hover:underline" href="{{ auth()->check() ? route('ingredients.explore') : route('register') }}">Elindekilerle tarif bul</a>
+                </div>
             </div>
-            <div class="absolute bottom-5 right-5 hidden max-w-48 rounded-2xl border border-white/15 bg-black/25 p-4 backdrop-blur-md sm:block"><p class="text-xs font-extrabold uppercase tracking-[.16em] text-orange-300">Kıbrıs'tan ilham</p><p class="mt-2 text-sm leading-5 text-stone-200">Ev mutfağına uyarlanmış, editoryal olarak takip edilen tarifler.</p></div>
         </div>
     </section>
 
@@ -61,7 +75,7 @@
             <div class="max-w-3xl">
                 <p class="hc-kicker">Doğrulanmış tarif koleksiyonu</p>
                 <h1 class="hc-display-lg mt-3">Tarifleri keşfedin.</h1>
-                <p class="hc-body-lg mt-4" style="color: var(--hc-text-secondary)">Kıbrıs ve Akdeniz mutfağından, ölçüleri ve editoryal bilgileri görünür 50 özgün tarif.</p>
+                <p class="hc-body-lg mt-4" style="color: var(--hc-text-secondary)">Kıbrıs ve Akdeniz mutfağından, ölçüleri ve editoryal bilgileri görünür {{ $recipes->total() }} özgün tarif.</p>
             </div>
             <a href="{{ route('ingredients.explore') }}" class="hc-v3-btn hc-v3-btn--outline">Malzemelerimle eşleştir <span aria-hidden="true">→</span></a>
         </div>

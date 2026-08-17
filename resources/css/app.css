@@ -240,8 +240,8 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
    animasyonunu kimse görmediği için boşa harcar. Kaydırıldıkça açılma
    IntersectionObserver ile kurulur ve başlangıç durumunu JavaScript ekler:
    betik çalışmazsa içerik olduğu gibi görünür, gizli kalmaz. */
-[data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity .5s cubic-bezier(.2,.8,.2,1), transform .5s cubic-bezier(.2,.8,.2,1); will-change: opacity, transform; }
-[data-reveal].is-revealed { opacity: 1; transform: none; }
+.hc-reveal-on [data-reveal] { opacity: 0; transform: translateY(14px); will-change: opacity, transform; }
+.hc-reveal-on [data-reveal].is-revealed { opacity: 1; transform: none; }
 [data-reveal-stagger] > * { transition-delay: var(--hc-reveal-delay, 0ms); }
 @media (prefers-reduced-motion: reduce) { [data-reveal] { opacity: 1; transform: none; transition: none; } }
 
@@ -405,4 +405,182 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
 .dark .hc-media-loading { background-color:#292524; background-image:linear-gradient(100deg, rgba(255,255,255,0) 28%, rgba(255,255,255,.09) 50%, rgba(255,255,255,0) 72%); }
 .hc-media-fallback { object-fit:cover; color:transparent; }
 @media (prefers-reduced-motion: reduce) { .hc-media-loading { animation:none; background-image:none; } }
+/* =====================================================================
+   Apple kalitesi katmanı
+   Bu blok dosyanın sonunda durur; aynı özgüllükteki eski kuralları
+   bilerek geçersiz kılar. Değişkenler yukarıdaki token katmanından
+   okunur, yeni palet tanımlanmaz.
+   ===================================================================== */
+
+:root {
+    /* Yay eğrileri. CSS gerçek yay çözemez; bunlar ölçülen yayın
+       eğrisine oturtulmuş yaklaşıklıklar. */
+    --hc-spring-smooth: cubic-bezier(.32,.72,0,1);   /* kritik sönümlü, taşma yok */
+    --hc-spring-snap:   cubic-bezier(.2,.9,.24,1);   /* kısa mesafe, hızlı oturma */
+    --hc-spring-bounce: linear(0,.0033,.0263,.0857,.1943,.3423,.5089,.6752,.8259,.9494,1.0413,1.1013,1.1329,1.1416,1.1338,1.1157,1.0931,1.0705,1.0511,1.0362,1.0259,1.0192,1.0075,1.0027,1); /* yalnız momentum taşıyan hareketler */
+
+    /* Katmanlı gölge. Tek büyük blur yerine temas + yayılım. */
+    --hc-elev-1: 0 1px 2px rgba(68,45,28,.06), 0 2px 8px rgba(68,45,28,.05);
+    --hc-elev-2: 0 1px 2px rgba(68,45,28,.07), 0 6px 16px rgba(68,45,28,.07), 0 12px 32px rgba(68,45,28,.05);
+    --hc-elev-3: 0 2px 4px rgba(68,45,28,.08), 0 12px 28px rgba(68,45,28,.10), 0 28px 64px rgba(68,45,28,.08);
+}
+
+html.dark {
+    --hc-elev-1: 0 1px 2px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.35);
+    --hc-elev-2: 0 1px 2px rgba(0,0,0,.55), 0 6px 16px rgba(0,0,0,.45), 0 12px 32px rgba(0,0,0,.35);
+    --hc-elev-3: 0 2px 4px rgba(0,0,0,.6), 0 12px 28px rgba(0,0,0,.5), 0 28px 64px rgba(0,0,0,.45);
+}
+
+/* --- Tipografi: iz aralığı ve satır aralığı boyuta göre değişir ------- */
+
+.hc-display-xl {
+    font-size: clamp(2.75rem, 6.2vw, 4.75rem);
+    line-height: .97;
+    letter-spacing: -.045em;
+    font-weight: 600;
+    font-optical-sizing: auto;
+    text-wrap: balance;
+}
+.hc-display-lg {
+    font-size: clamp(2.25rem, 4.4vw, 3.5rem);
+    line-height: 1.02;
+    letter-spacing: -.038em;
+    font-weight: 600;
+    font-optical-sizing: auto;
+    text-wrap: balance;
+}
+.hc-heading-1 { font-size: clamp(1.95rem, 3.4vw, 2.75rem); line-height: 1.07; letter-spacing: -.032em; text-wrap: balance; }
+.hc-heading-2 { font-size: clamp(1.6rem, 2.6vw, 2.1rem);  line-height: 1.14; letter-spacing: -.026em; text-wrap: balance; }
+.hc-heading-3 { font-size: clamp(1.3rem, 1.9vw, 1.55rem); line-height: 1.22; letter-spacing: -.019em; }
+.hc-heading-4 { font-size: 1.0625rem; line-height: 1.35;  letter-spacing: -.011em; font-weight: 700; }
+
+/* Gövde metni izsiz kalır; yalnız küçük boylar hafifçe açılır. */
+.hc-body-lg { font-size: 1.125rem; line-height: 1.65; letter-spacing: -.006em; }
+.hc-body-md { font-size: 1rem;     line-height: 1.62; letter-spacing: 0; }
+.hc-body-sm { font-size: .875rem;  line-height: 1.55; letter-spacing: .004em; }
+.hc-caption { font-size: .8125rem; line-height: 1.45; letter-spacing: .012em; }
+.hc-kicker, .hc-eyebrow, .hc-overline, .hc-label-md { letter-spacing: .1em; }
+
+/* --- Malzeme: gezinme çubuğu içeriğin üstünde yüzer ------------------- */
+
+.hc-public-header {
+    background: var(--hc-header);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border-color: transparent;
+    box-shadow: none;
+    transition: background-color .35s var(--hc-spring-smooth), box-shadow .35s var(--hc-spring-smooth);
+}
+/* Sert 1px çizgi yerine, yüzen çubuk içeriğe gerçekten bindiğinde
+   beliren bir kenar geçişi. */
+.hc-public-header::after {
+    content: '';
+    position: absolute;
+    inset: 100% 0 auto 0;
+    height: 1.25rem;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(to bottom, var(--hc-shadow), transparent);
+    transition: opacity .35s var(--hc-spring-smooth);
+}
+.hc-public-header.is-scrolled { background: var(--hc-header-scrolled); border-color: transparent; box-shadow: none; }
+.hc-public-header.is-scrolled::after { opacity: 1; }
+
+/* Ana sayfa: tepedeyken çubuk görüntünün üstünde saydam durur ve içeriği
+   koyu zemine göre okur. Kaydırılınca kendi malzemesine döner. */
+.hc-header-over-hero:not(.is-scrolled) {
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+.hc-header-over-hero:not(.is-scrolled) .nav-link { color: #fff; }
+/* Logo çift görsel olarak gelir: birincisi açık zemin, ikincisi koyu zemin
+   içindir. Aydınlık temada bile hero koyu olduğu için ikincisi gösterilir. */
+html:not(.dark) .hc-header-over-hero:not(.is-scrolled) .hc-brand-logo img:nth-of-type(1) { display: none; }
+html:not(.dark) .hc-header-over-hero:not(.is-scrolled) .hc-brand-logo img:nth-of-type(2) { display: block; }
+.hc-header-over-hero:not(.is-scrolled) .hc-theme-button,
+.hc-header-over-hero:not(.is-scrolled) .hc-icon-button,
+.hc-header-over-hero:not(.is-scrolled) .hc-btn-outline {
+    border-color: rgba(255,255,255,.28);
+    background: rgba(255,255,255,.12);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    color: #fff;
+}
+.hc-header-over-hero:not(.is-scrolled) .hc-theme-switch { border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.14); }
+
+/* Bulanık yüzeyin üstündeki metin düz griye bırakılmaz. */
+.hc-public-header .nav-link { color: var(--hc-text-primary); opacity: .72; font-weight: 600; letter-spacing: -.006em; transition: opacity .2s var(--hc-spring-snap), color .2s var(--hc-spring-snap); }
+.hc-public-header .nav-link:hover { opacity: 1; }
+.hc-public-header .nav-link-active { opacity: 1; font-weight: 700; }
+.hc-public-header .nav-link::after { transition: width .32s var(--hc-spring-smooth); }
+
+/* --- Yüzeyler ve derinlik --------------------------------------------- */
+
+.hc-card, .hc-panel { box-shadow: var(--hc-elev-1); }
+
+.hc-card-hover {
+    transition: transform .4s var(--hc-spring-smooth), box-shadow .4s var(--hc-spring-smooth), border-color .4s var(--hc-spring-smooth);
+    will-change: transform;
+}
+.hc-card-hover:hover { transform: translate3d(0,-6px,0); box-shadow: var(--hc-elev-3); border-color: var(--hc-border-strong); }
+/* Basınca içeri gider: geri bildirim tıklamada değil, basışta. */
+.hc-card-hover:active { transform: translate3d(0,-2px,0) scale(.994); transition-duration: .12s; }
+
+/* Kart görselleri kabın köşesini takip eder ve üstüne binmez. */
+.hc-card-hover img { transition: transform .6s var(--hc-spring-smooth); }
+.hc-card-hover:hover img { transform: scale(1.035); }
+
+/* --- Denetimler: basışta anlık yanıt ---------------------------------- */
+
+.hc-btn, .hc-btn-primary, .hc-btn-gold, .hc-btn-outline, .hc-icon-button, .hc-v3-chip {
+    transition: transform .16s var(--hc-spring-snap), background-color .2s var(--hc-spring-snap), border-color .2s var(--hc-spring-snap), box-shadow .2s var(--hc-spring-snap);
+}
+.hc-btn:active, .hc-btn-primary:active, .hc-btn-gold:active, .hc-btn-outline:active, .hc-icon-button:active, .hc-v3-chip:active {
+    transform: scale(.965);
+    transition-duration: .09s;
+}
+.hc-btn-primary, .hc-btn-gold { box-shadow: var(--hc-elev-1); }
+.hc-btn-primary:hover, .hc-btn-gold:hover { box-shadow: var(--hc-elev-2); }
+/* İkincil eylem birincil ile yarışmaz: dolu yerine kenarlıklı kalır. */
+.hc-btn-outline { box-shadow: none; }
+.hc-btn-outline:hover { border-color: var(--hc-border-strong); background: var(--hc-surface-soft); }
+
+/* --- Ortaya çıkış: taşıma yok, yalnız yumuşak oturma ------------------ */
+
+/* Gizleme durumu betiğin koyduğu sınıfa bağlı: betik çalışmazsa içerik
+   gizli kalmaz. Efekt kaybolur, içerik kaybolmaz. */
+.hc-reveal-on [data-reveal] {
+    opacity: 0;
+    transform: translate3d(0,16px,0);
+    transition: opacity .62s var(--hc-spring-smooth), transform .62s var(--hc-spring-smooth);
+}
+.hc-reveal-on [data-reveal].is-revealed { opacity: 1; transform: none; }
+
+/* --- Erişilebilirlik: üç bağımsız tercih ------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+    .hc-card-hover, .hc-card-hover img, .hc-btn, .hc-btn-primary, .hc-btn-gold,
+    .hc-btn-outline, .hc-icon-button, .hc-v3-chip, [data-reveal] {
+        transform: none !important;
+        transition: opacity .2s ease, background-color .2s ease, border-color .2s ease !important;
+    }
+    [data-reveal] { opacity: 1; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    .hc-public-header, .hc-mobile-drawer {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        background: var(--hc-background-page);
+    }
+}
+
+@media (prefers-contrast: more) {
+    .hc-public-header { background: var(--hc-background-page); -webkit-backdrop-filter: none; backdrop-filter: none; border-bottom: 1px solid var(--hc-text-primary); }
+    .hc-public-header::after { display: none; }
+    .hc-public-header .nav-link { opacity: 1; }
+    .hc-card, .hc-panel { border-color: var(--hc-text-primary); }
+}
+
 @media print { .hc-public-header, .hc-mobile-drawer, .hc-footer, .hc-recipe-detail-hero nav, .hc-theme-button, .hc-icon-button, form, button, .hc-skip-link { display:none !important; } body { background:#fff; color:#111; } .hc-v3-card, .hc-panel { break-inside:avoid; box-shadow:none; } [data-legal-center] { background:#fff !important; padding:0 !important; } [data-legal-document] { max-width:none !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; padding:0 !important; } [data-legal-section] { break-inside:auto; } }

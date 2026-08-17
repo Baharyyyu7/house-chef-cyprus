@@ -144,8 +144,22 @@
             });
         }
 
+        // Gizleme yalnız bu sınıf varken geçerli. Betik buraya kadar gelmediyse
+        // hiçbir blok gizlenmez; sayfa efektsiz ama eksiksiz görünür.
+        document.documentElement.classList.add('hc-reveal-on');
+
+        // Gözlemci beklenmedik bir nedenle tetiklenmezse içerik görünmez
+        // kalmasın: kısa bir süre sonra kalan her blok açılır.
+        function hepsiniAc() {
+            document.querySelectorAll('[data-reveal]:not(.is-revealed)').forEach(function (el) {
+                if (el.getBoundingClientRect().top < window.innerHeight * 1.5) { el.classList.add('is-revealed'); }
+            });
+        }
+
         if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', kur); } else { kur(); }
         document.addEventListener('livewire:navigated', kur);
+        window.addEventListener('load', function () { setTimeout(hepsiniAc, 1200); });
+        window.addEventListener('scroll', function () { window.requestAnimationFrame(hepsiniAc); }, { passive: true });
     })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -203,7 +217,12 @@
         </div>
     @else
         <a href="#main-content" class="hc-skip-link">İçeriğe geç</a>
-        <header @scroll.window="scrolled = window.scrollY > 16" :class="{ 'is-scrolled': scrolled }" class="hc-public-header sticky top-0 z-40 border-b backdrop-blur-xl transition-all duration-300">
+        {{-- Ana sayfada hero başlığın altından başlar. Sayfa tepesindeyken
+             çubuk kendi zeminini basmaz; görüntünün üstünde saydam durur. --}}
+        <header @scroll.window="scrolled = window.scrollY > 16" :class="{ 'is-scrolled': scrolled }" @class([
+            'hc-public-header sticky top-0 z-40 transition-all duration-300',
+            'hc-header-over-hero' => request()->routeIs('home'),
+        ])>
             <nav :class="scrolled ? 'h-[4.25rem]' : 'h-[5.25rem]'" class="hc-container flex items-center justify-between gap-4 transition-all duration-300" aria-label="Ana menü">
                 <x-brand-logo class="scale-105" />
                 <div class="hidden items-center gap-6 text-sm font-bold xl:flex">
