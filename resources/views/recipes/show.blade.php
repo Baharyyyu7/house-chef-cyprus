@@ -5,7 +5,9 @@
         $isSyntheticHero = (bool) $heroMedia?->generated_by_ai;
     @endphp
 
-    <section class="hc-recipe-detail-hero relative isolate overflow-hidden bg-charcoal-950 text-white">
+    {{-- Hero başlık çubuğunun altından başlar; çubuk sayfa tepesindeyken
+         saydam durduğu için arada krem bir bant kalmaz. --}}
+    <section class="hc-recipe-detail-hero relative isolate -mt-[var(--hc-header-h)] overflow-hidden bg-charcoal-950 pt-[var(--hc-header-h)] text-white">
         @if($hasApprovedMedia)
             <picture>
                 @if($heroMedia->responsiveSrcset([800, 1200, 1600], 'avif'))<source type="image/avif" srcset="{{ $heroMedia->responsiveSrcset([800, 1200, 1600], 'avif') }}" sizes="100vw">@endif

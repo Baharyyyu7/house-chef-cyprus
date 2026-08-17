@@ -217,11 +217,12 @@
         </div>
     @else
         <a href="#main-content" class="hc-skip-link">İçeriğe geç</a>
-        {{-- Ana sayfada hero başlığın altından başlar. Sayfa tepesindeyken
-             çubuk kendi zeminini basmaz; görüntünün üstünde saydam durur. --}}
+        {{-- Koyu açılışı olan sayfalarda hero başlığın altından başlar. Sayfa
+             tepesindeyken çubuk kendi zeminini basmaz; görüntünün üstünde
+             saydam durur ve içeriğini koyu zemine göre okutur. --}}
         <header @scroll.window="scrolled = window.scrollY > 16" :class="{ 'is-scrolled': scrolled }" @class([
             'hc-public-header sticky top-0 z-40 transition-all duration-300',
-            'hc-header-over-hero' => request()->routeIs('home'),
+            'hc-header-over-hero' => request()->routeIs('home', 'recipes.show'),
         ])>
             <nav :class="scrolled ? 'h-[4.25rem]' : 'h-[5.25rem]'" class="hc-container flex items-center justify-between gap-4 transition-all duration-300" aria-label="Ana menü">
                 <x-brand-logo class="scale-105" />
