@@ -4,7 +4,14 @@
          Tam genişlikte açılır ve alt kenarı sayfa zeminine karışır; böylece
          yüzen başlık çubuğu gerçekten içeriğin üstünden geçer. --}}
     <section class="hc-home-hero relative isolate -mt-[var(--hc-header-h)] flex min-h-[86svh] items-end overflow-hidden pb-14 pt-[calc(var(--hc-header-h)+3rem)] sm:pb-20">
-        <img class="v2-hero-image absolute inset-0 -z-20 h-full w-full object-cover object-[64%_center]" src="{{ asset('images/house-chef-hero-v2.png') }}" alt="Halloumi, domates ve zeytinli Kıbrıs esintili Akdeniz tabağı" fetchpriority="high">
+        {{-- Bu görsel sayfanın LCP öğesi. Kaynak PNG 2.9 MB'tı; fotoğraf için
+             yanlış format. Aynı kare AVIF olarak 222 KB, WebP olarak 294 KB;
+             dar ekranda 61 KB. PNG en sonda, eski tarayıcılar için duruyor. --}}
+        <picture>
+            <source type="image/avif" sizes="100vw" srcset="{{ asset('images/house-chef-hero-v2-900.avif') }} 900w, {{ asset('images/house-chef-hero-v2-1440.avif') }} 1440w, {{ asset('images/house-chef-hero-v2-1717.avif') }} 1717w">
+            <source type="image/webp" sizes="100vw" srcset="{{ asset('images/house-chef-hero-v2-900.webp') }} 900w, {{ asset('images/house-chef-hero-v2-1440.webp') }} 1440w, {{ asset('images/house-chef-hero-v2-1717.webp') }} 1717w">
+            <img class="v2-hero-image absolute inset-0 -z-20 h-full w-full object-cover object-[64%_center]" src="{{ asset('images/house-chef-hero-v2.png') }}" width="1717" height="916" alt="Halloumi, domates ve zeytinli Kıbrıs esintili Akdeniz tabağı" fetchpriority="high" decoding="async">
+        </picture>
         {{-- İki katman: yatay olan metne okunur bir zemin verir, dikey olan
              hem çubuğu hem de alt kenarı sayfa zeminine bağlar. --}}
         <div class="absolute inset-0 -z-10 bg-[linear-gradient(96deg,rgba(9,9,9,.93)_0%,rgba(9,9,9,.78)_34%,rgba(9,9,9,.28)_66%,rgba(9,9,9,.12)_100%)]"></div>

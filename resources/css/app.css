@@ -121,8 +121,9 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .hc-footer-muted { color: var(--hc-footer-muted); }
     .hc-home-hero { background: var(--hc-footer); color: #fff8f0; }
     .hc-hero-muted { color: #e7e5e4; }
-    .hc-hero-secondary { border: 1px solid rgba(255, 255, 255, .26); background: rgba(255, 255, 255, .1); color: #fff; backdrop-filter: blur(10px); }
-    .hc-hero-secondary:hover { background: rgba(255, 255, 255, .18); }
+    /* Hero'nun ikincil eylemi artık dolu bir düğme değil, düz bir bağlantı:
+       birincil eylemle yarışmaması için kutusu kaldırıldı. */
+    .hc-hero-secondary { border: 0; background: none; color: #fff; }
     .hc-brand-logo { line-height:0; }
     .hc-brand-logo__image { display:block; }
     .hc-featured-empty { background: linear-gradient(135deg, var(--hc-surface-soft), var(--hc-surface)); }
@@ -493,21 +494,21 @@ html.dark {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
 }
-.hc-header-over-hero:not(.is-scrolled) .nav-link { color: #fff; }
+.hc-header-over-hero:not(.is-scrolled) > nav .nav-link { color: #fff; }
 /* Logo çift görsel olarak gelir: birincisi açık zemin, ikincisi koyu zemin
    içindir. Aydınlık temada bile hero koyu olduğu için ikincisi gösterilir. */
-html:not(.dark) .hc-header-over-hero:not(.is-scrolled) .hc-brand-logo img:nth-of-type(1) { display: none; }
-html:not(.dark) .hc-header-over-hero:not(.is-scrolled) .hc-brand-logo img:nth-of-type(2) { display: block; }
-.hc-header-over-hero:not(.is-scrolled) .hc-theme-button,
-.hc-header-over-hero:not(.is-scrolled) .hc-icon-button,
-.hc-header-over-hero:not(.is-scrolled) .hc-btn-outline {
+html:not(.dark) .hc-header-over-hero:not(.is-scrolled) > nav .hc-brand-logo img:nth-of-type(1) { display: none; }
+html:not(.dark) .hc-header-over-hero:not(.is-scrolled) > nav .hc-brand-logo img:nth-of-type(2) { display: block; }
+.hc-header-over-hero:not(.is-scrolled) > nav .hc-theme-button,
+.hc-header-over-hero:not(.is-scrolled) > nav .hc-icon-button,
+.hc-header-over-hero:not(.is-scrolled) > nav .hc-btn-outline {
     border-color: rgba(255,255,255,.28);
     background: rgba(255,255,255,.12);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     color: #fff;
 }
-.hc-header-over-hero:not(.is-scrolled) .hc-theme-switch { border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.14); }
+.hc-header-over-hero:not(.is-scrolled) > nav .hc-theme-switch { border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.14); }
 
 /* Bulanık yüzeyin üstündeki metin düz griye bırakılmaz. */
 .hc-public-header .nav-link { color: var(--hc-text-primary); opacity: .72; font-weight: 600; letter-spacing: -.006em; transition: opacity .2s var(--hc-spring-snap), color .2s var(--hc-spring-snap); }
@@ -545,6 +546,56 @@ html:not(.dark) .hc-header-over-hero:not(.is-scrolled) .hc-brand-logo img:nth-of
 /* İkincil eylem birincil ile yarışmaz: dolu yerine kenarlıklı kalır. */
 .hc-btn-outline { box-shadow: none; }
 .hc-btn-outline:hover { border-color: var(--hc-border-strong); background: var(--hc-surface-soft); }
+
+/* --- Mobil çekmece: gerçek bir modal yüzey ---------------------------- */
+
+.hc-drawer-scrim { background: rgba(9,9,9,.44); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+/* Çekmece okunacak bir yüzeydir, arkasına bakılacak bir cam değil: tam opak
+   kalır. Saydamlık perdeye aittir, menüye değil. */
+.hc-mobile-drawer {
+    border-color: transparent;
+    background: var(--hc-background-page);
+    box-shadow: var(--hc-elev-3);
+}
+/* Çekmece açıkken sayfa kaymaz. Kilidin işareti düzenin zaten kullandığı
+   body.overflow-hidden; asıl kaydırıcı html olduğu için o da durdurulur,
+   yoksa gövdeyi kilitlemek tek başına yetmez. */
+html:has(> body.overflow-hidden) { overflow: hidden; }
+
+@media (prefers-reduced-transparency: reduce) {
+    .hc-drawer-scrim { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(9,9,9,.6); }
+}
+
+/* --- Odak halkası: zemin varsayımı yok -------------------------------- */
+
+/* Eski halka ring-offset ile çiziliyordu ve ofsetin rengi sayfa zemini
+   sabitlenerek verilmişti. Koyu bir hero'nun üstünde bu, düğmenin etrafına
+   krem bir kutu koyuyordu. outline altındaki her neyse onun üstüne çizer;
+   ayrıca yer kaplamaz, yani odaklanınca düzen kaymaz. */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--hc-brand-primary);
+    outline-offset: 3px;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-ring-offset-shadow: 0 0 #0000;
+    box-shadow: none;
+    border-radius: inherit;
+}
+
+/* Koyu hero'nun üstünde turuncu halka görüntüye karışır; beyaz ayrışır. */
+.hc-home-hero a:focus-visible, .hc-home-hero button:focus-visible,
+.hc-recipe-detail-hero a:focus-visible, .hc-recipe-detail-hero button:focus-visible,
+.hc-header-over-hero:not(.is-scrolled) > nav a:focus-visible,
+.hc-header-over-hero:not(.is-scrolled) > nav button:focus-visible {
+    outline-color: #fff;
+}
+
+@media (prefers-contrast: more) {
+    a:focus-visible, button:focus-visible, input:focus-visible,
+    select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+        outline-width: 3px;
+    }
+}
 
 /* --- Ortaya çıkış: taşıma yok, yalnız yumuşak oturma ------------------ */
 

@@ -44,7 +44,10 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset(config('brand.assets.favicon_32')) }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset(config('brand.assets.apple_touch_icon')) }}">
     <link rel="manifest" href="{{ asset('brand/site.webmanifest') }}">
+    {{-- İki preconnect gerekiyor: stil dosyası normal istekle, yazı tipi
+         dosyaları CORS ile çekilir ve ikincisi ayrı bir bağlantı açar. --}}
     <link rel="preconnect" href="https://fonts.bunny.net">
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
     <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&family=inter:400,500,600,700&display=swap" rel="stylesheet" />
     <title>{{ $title }}</title>
     <script>if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');</script>
@@ -259,7 +262,11 @@
                     <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="Menüyü aç"><x-ui.icon name="menu" size="20" /></button>
                 </div>
             </nav>
-            <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-y-2 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" x-init="$watch('menuOpen', open => { if (open) { $nextTick(() => $refs.publicDrawer.querySelector('[data-public-drawer-close]')?.focus()) } })" @keydown.tab.prevent="const items = [...$el.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex=\'-1\'])')].filter(item => !item.hidden); const current = items.indexOf(document.activeElement); const next = $event.shiftKey ? (current <= 0 ? items.length - 1 : current - 1) : (current === items.length - 1 ? 0 : current + 1); items[next]?.focus()" class="hc-mobile-drawer border-t px-5 py-5 shadow-xl xl:hidden" role="dialog" aria-modal="true" aria-label="Ana menü">
+            {{-- Çekmece kendini modal ilan ediyor; o hâlde arkası gerçekten
+                 kararmalı ve sayfa altında kaymamalı. Perdeye dokunmak kapatır. --}}
+            <div x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="menuOpen = false" class="hc-drawer-scrim fixed inset-0 -z-10 xl:hidden" aria-hidden="true"></div>
+            {{-- Giriş aşağı kayarak olur; çıkış aynı yolu geri izler. --}}
+            <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-y-3 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0 opacity-100" x-transition:leave-end="-translate-y-3 opacity-0" @keydown.escape.window="menuOpen = false" x-init="$watch('menuOpen', open => { if (open) { $nextTick(() => $refs.publicDrawer.querySelector('[data-public-drawer-close]')?.focus()) } })" @keydown.tab.prevent="const items = [...$el.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex=\'-1\'])')].filter(item => !item.hidden); const current = items.indexOf(document.activeElement); const next = $event.shiftKey ? (current <= 0 ? items.length - 1 : current - 1) : (current === items.length - 1 ? 0 : current + 1); items[next]?.focus()" class="hc-mobile-drawer border-t px-5 py-5 shadow-xl xl:hidden" role="dialog" aria-modal="true" aria-label="Ana menü">
                 <div x-ref="publicDrawer" class="mx-auto max-w-7xl">
                     <div class="mb-3 flex justify-end"><button data-public-drawer-close @click="menuOpen = false" class="hc-icon-button !h-10 !w-10 !rounded-xl" aria-label="Menüyü kapat"><x-ui.icon name="close" size="18" /></button></div>
                 <div class="grid gap-2 text-sm font-semibold">
