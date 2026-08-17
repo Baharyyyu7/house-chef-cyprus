@@ -7,7 +7,10 @@ use App\Models\StripeWebhookEvent;
 use App\Models\TipContribution;
 use App\Models\User;
 use App\Models\UserSubscription;
+use App\Notifications\DigitalOrderReady;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
+use Throwable;
 
 class StripeWebhookProcessor
 {
@@ -174,7 +177,9 @@ class StripeWebhookProcessor
     /** @param array<string, mixed> $session */
     private function completeOrder(array $session): void
     {
-        DB::transaction(function () use ($session): void {
+        $fulfilledOrderId = null;
+
+        DB::transaction(function () use ($session, &$fulfilledOrderId): void {
             $order = DigitalOrder::query()
                 ->where('order_uuid', data_get($session, 'metadata.order_uuid'))
                 ->lockForUpdate()
@@ -193,7 +198,21 @@ class StripeWebhookProcessor
                 'provider_payment_id' => $session['payment_intent'] ?? $session['id'],
             ]);
             $order->product()->increment('sales_count');
+            $fulfilledOrderId = $order->id;
         });
+
+        if ($fulfilledOrderId !== null) {
+            DB::afterCommit(function () use ($fulfilledOrderId): void {
+                try {
+                    $order = DigitalOrder::query()->find($fulfilledOrderId);
+                    if ($order && $order->status === 'completed') {
+                        Notification::route('mail', $order->buyer_email)->notify(new DigitalOrderReady($order->id));
+                    }
+                } catch (Throwable $exception) {
+                    report($exception);
+                }
+            });
+        }
     }
 
     /** @param array<string, mixed> $session */

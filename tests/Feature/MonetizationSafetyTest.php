@@ -7,7 +7,9 @@ use App\Models\DigitalOrder;
 use App\Models\DigitalProduct;
 use App\Models\User;
 use App\Models\UserSubscription;
+use App\Notifications\DigitalOrderReady;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
@@ -321,6 +323,7 @@ class MonetizationSafetyTest extends TestCase
 
     public function test_digital_order_is_completed_only_by_a_paid_matching_webhook(): void
     {
+        Notification::fake();
         $product = DigitalProduct::query()->create([
             'title' => 'Kıbrıs Mutfağı',
             'slug' => 'kibris-mutfagi-paid',
@@ -365,6 +368,7 @@ class MonetizationSafetyTest extends TestCase
             'provider_payment_id' => 'pi_paid_123',
         ]);
         $this->assertSame(1, $product->refresh()->sales_count);
+        Notification::assertSentOnDemand(DigitalOrderReady::class);
     }
 
     public function test_a_paid_checkout_with_the_wrong_session_id_cannot_complete_an_order(): void
