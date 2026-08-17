@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'live_mode' => env('STRIPE_LIVE_MODE', false),
+        'require_terms_consent' => env('STRIPE_REQUIRE_TERMS_CONSENT', true),
+    ],
+
 ];

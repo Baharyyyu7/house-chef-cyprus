@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $public_id
  * @property Carbon|null $last_login_at
  * @property Carbon|null $last_activity_at
+ * @property Carbon|null $premium_expires_at
  */
 #[Fillable(['name', 'first_name', 'last_name', 'email', 'phone', 'country', 'city_or_region', 'preferred_language', 'registration_source', 'terms_accepted_at', 'password', 'role', 'account_status'])]
 #[Hidden(['password', 'remember_token'])]
@@ -42,6 +43,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'last_activity_at' => 'datetime',
             'terms_accepted_at' => 'datetime',
             'marketing_consent_at' => 'datetime',
+            'is_premium' => 'boolean',
+            'premium_expires_at' => 'datetime',
+            'ai_usage_last_reset_at' => 'date',
             'password' => 'hashed',
         ];
     }
@@ -180,9 +184,12 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         if ($this->is_premium) {
-            if ($this->premium_expires_at === null || $this->premium_expires_at->isFuture()) {
-                return true;
-            }
+            $notExpired = $this->premium_expires_at === null || $this->premium_expires_at->isFuture();
+            $hasVerifiedSubscription = $this->subscriptions()
+                ->get()
+                ->contains(fn (UserSubscription $subscription) => $subscription->isActive() && $subscription->isPaymentVerified());
+
+            return $notExpired && $hasVerifiedSubscription;
         }
 
         return false;
@@ -217,6 +224,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         $this->checkAndResetAiDailyUsage();
+
         return max(0, 5 - (int) $this->ai_daily_usage_count);
     }
 
@@ -231,4 +239,3 @@ class User extends Authenticatable implements MustVerifyEmail
         }
     }
 }
-

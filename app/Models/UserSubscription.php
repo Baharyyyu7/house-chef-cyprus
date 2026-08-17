@@ -32,6 +32,7 @@ class UserSubscription extends Model
         'amount' => 'decimal:2',
     ];
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -40,5 +41,12 @@ class UserSubscription extends Model
     public function isActive(): bool
     {
         return $this->status === 'active' && ($this->expires_at === null || $this->expires_at->isFuture());
+    }
+
+    public function isPaymentVerified(): bool
+    {
+        return $this->payment_provider === 'stripe'
+            && filled($this->provider_subscription_id)
+            && data_get($this->metadata, 'verified_by_webhook') === true;
     }
 }

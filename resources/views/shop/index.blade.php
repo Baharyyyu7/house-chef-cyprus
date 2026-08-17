@@ -55,14 +55,29 @@
                                 </span>
                             </div>
 
-                            <form action="{{ route('shop.checkout', $product->slug) }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="email" value="{{ auth()->user()?->email ?? 'misafir@housechefcyprus.com' }}">
-                                <input type="hidden" name="name" value="{{ auth()->user()?->name ?? 'Gurme Misafir' }}">
-                                <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm transition-all shadow-xs">
-                                    Satın Al & İndir ➔
+                            @if($paymentsEnabled)
+                                <form action="{{ route('shop.checkout', $product->slug) }}" method="POST">
+                                    @csrf
+                                    @auth
+                                        <input type="hidden" name="email" value="{{ auth()->user()->email }}">
+                                        <input type="hidden" name="name" value="{{ auth()->user()->name }}">
+                                    @else
+                                        <div class="mb-3 grid gap-2">
+                                            <label class="sr-only" for="buyer-name-{{ $product->id }}">Adınız</label>
+                                            <input id="buyer-name-{{ $product->id }}" name="name" required maxlength="255" autocomplete="name" placeholder="Adınız" class="hc-input text-sm">
+                                            <label class="sr-only" for="buyer-email-{{ $product->id }}">E-posta adresiniz</label>
+                                            <input id="buyer-email-{{ $product->id }}" type="email" name="email" required autocomplete="email" placeholder="E-posta adresiniz" class="hc-input text-sm">
+                                        </div>
+                                    @endauth
+                                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm transition-all shadow-xs">
+                                        Güvenli Ödemeye Geç ➔
+                                    </button>
+                                </form>
+                            @else
+                                <button type="button" disabled class="px-5 py-2.5 rounded-xl bg-neutral-200 dark:bg-neutral-700 text-neutral-500 font-bold text-sm cursor-not-allowed">
+                                    Yakında
                                 </button>
-                            </form>
+                            @endif
                         </div>
                     </div>
                 @endforeach

@@ -16,6 +16,7 @@
                 {{ $subtitle }}
             </p>
 
+            @if(config('monetization.payments_enabled', false))
             <form action="{{ route('tip.process') }}" method="POST" class="mt-4 flex flex-wrap items-center gap-3">
                 @csrf
                 <div class="flex items-center gap-2">
@@ -30,6 +31,9 @@
                     </button>
                 </div>
             </form>
+            @else
+                <p class="mt-4 text-sm font-bold text-neutral-500 dark:text-neutral-400">Destek ödemeleri yakında açılacak.</p>
+            @endif
         </div>
     </div>
 </div>

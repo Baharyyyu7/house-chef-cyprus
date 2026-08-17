@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Recipe;
+use App\Models\User;
+use App\Models\UserSubscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 /**
@@ -92,7 +95,34 @@ final class AdSlotStaysClosedUntilEveryGateOpensTest extends TestCase
             ->assertDontSee('data-ad-slot', false);
     }
 
-    private function tarifSayfasi(?string $reklamOnayi): \Illuminate\Testing\TestResponse
+    public function test_a_paid_member_never_sees_an_ad(): void
+    {
+        $member = User::factory()->create();
+        $member->forceFill([
+            'is_premium' => true,
+            'premium_plan' => 'monthly',
+            'premium_expires_at' => now()->addMonth(),
+        ])->save();
+        UserSubscription::create([
+            'user_id' => $member->id,
+            'plan' => 'monthly',
+            'amount' => 4.99,
+            'currency' => 'EUR',
+            'payment_provider' => 'stripe',
+            'provider_subscription_id' => 'sub_verified_ad_free',
+            'status' => 'active',
+            'started_at' => now(),
+            'expires_at' => now()->addMonth(),
+            'metadata' => ['verified_by_webhook' => true],
+        ]);
+
+        $this->actingAs($member)
+            ->tarifSayfasi(reklamOnayi: 'granted')
+            ->assertOk()
+            ->assertDontSee('data-ad-slot', false);
+    }
+
+    private function tarifSayfasi(?string $reklamOnayi): TestResponse
     {
         $recipe = Recipe::query()->create([
             'title' => 'Adana Kebabı',

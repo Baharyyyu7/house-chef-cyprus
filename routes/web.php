@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\RestoreHistoryController;
 use App\Http\Controllers\Admin\SeoOperationsController;
 use App\Http\Controllers\Admin\SystemEventController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\AiKitchenController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BlogCoverController;
@@ -44,11 +45,33 @@ use App\Http\Controllers\PantryController;
 use App\Http\Controllers\PersonalizationController;
 use App\Http\Controllers\RecipeCollectionController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\TipController;
 use App\Models\BlogPost;
 use App\Models\Recipe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Monetization & Gelir Kanalları Route'ları
+|--------------------------------------------------------------------------
+*/
+Route::get('/fiyatlandirma', [SubscriptionController::class, 'pricing'])->name('pricing');
+Route::post('/abone-ol', [SubscriptionController::class, 'checkout'])->name('subscription.checkout')->middleware(['auth', 'throttle:payment-attempt']);
+Route::post('/abonelik-iptal', [SubscriptionController::class, 'cancel'])->name('subscription.cancel')->middleware(['auth', 'throttle:payment-attempt']);
+Route::post('/abonelik-yonet', [SubscriptionController::class, 'billingPortal'])->name('subscription.portal')->middleware(['auth', 'throttle:payment-attempt']);
+
+Route::get('/magaza', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/magaza/{product:slug}', [ShopController::class, 'show'])->name('shop.show');
+Route::post('/magaza/satin-al/{product:slug}', [ShopController::class, 'checkout'])->name('shop.checkout')->middleware('throttle:payment-attempt');
+Route::get('/magaza/onay/{orderUuid}', [ShopController::class, 'success'])->middleware('signed')->name('shop.success');
+Route::get('/magaza/indir/{downloadToken}', [ShopController::class, 'download'])->name('shop.download')->middleware('throttle:digital-download');
+
+Route::get('/go/{slug}', [AffiliateController::class, 'redirect'])->name('affiliate.redirect');
+Route::post('/destek-ol', [TipController::class, 'process'])->name('tip.process')->middleware('throttle:payment-attempt');
 
 // Gerçek ödeme akışı hazır değilken Premium sayfası görünür kalır; bu güvenli
 // fallback hiçbir ödeme veya üyelik aktivasyonu yapmaz.

@@ -42,6 +42,39 @@ final class ProductionSprintOneTest extends TestCase
         $this->artisan('app:environment-check --environment=production --strict --json')->assertSuccessful();
     }
 
+    public function test_production_strict_profile_rejects_an_incomplete_live_payment_configuration(): void
+    {
+        $this->configureSafeProduction();
+        config([
+            'monetization.payments_enabled' => true,
+            'services.stripe.secret' => 'sk_test_wrong_environment',
+            'services.stripe.webhook_secret' => '',
+            'services.stripe.live_mode' => false,
+            'monetization.plans.monthly.stripe_price_id' => '',
+            'monetization.plans.yearly.stripe_price_id' => '',
+        ]);
+
+        $this->artisan('app:environment-check --environment=production --strict --json')
+            ->expectsOutputToContain('"stripe_secret_configured":false')
+            ->assertFailed();
+    }
+
+    public function test_production_strict_profile_accepts_a_complete_live_payment_configuration(): void
+    {
+        $this->configureSafeProduction();
+        config([
+            'monetization.payments_enabled' => true,
+            'services.stripe.secret' => 'sk_live_configured',
+            'services.stripe.webhook_secret' => 'whsec_configured',
+            'services.stripe.live_mode' => true,
+            'services.stripe.require_terms_consent' => true,
+            'monetization.plans.monthly.stripe_price_id' => 'price_monthly',
+            'monetization.plans.yearly.stripe_price_id' => 'price_yearly',
+        ]);
+
+        $this->artisan('app:environment-check --environment=production --strict --json')->assertSuccessful();
+    }
+
     public function test_production_strict_profile_accepts_private_default_storage_with_a_public_symlink(): void
     {
         File::ensureDirectoryExists(storage_path('app/public'));
@@ -141,5 +174,26 @@ final class ProductionSprintOneTest extends TestCase
             exec($command, $unused, $exitCode);
             $this->assertSame(0, $exitCode, basename($script));
         }
+    }
+
+    private function configureSafeProduction(): void
+    {
+        config([
+            'app.debug' => false,
+            'app.url' => 'https://example.test',
+            'cache.default' => 'redis',
+            'queue.default' => 'redis',
+            'session.driver' => 'redis',
+            'session.secure' => true,
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.host' => 'smtp.example.test',
+            'filesystems.default' => 's3',
+            'ai_images.generation_enabled' => false,
+            'production.allow_sqlite' => true,
+            'production.backup_disk' => 's3',
+            'production.trusted_proxies' => '10.0.0.0/8',
+            'production.canonical_host' => 'example.test',
+            'production.canonical_scheme' => 'https',
+        ]);
     }
 }

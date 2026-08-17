@@ -18,14 +18,21 @@ class TipContribution extends Model
         'currency',
         'message',
         'payment_provider',
+        'checkout_session_id',
+        'checkout_expires_at',
         'provider_payment_id',
         'status',
+        'dispute_id',
+        'disputed_at',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'checkout_expires_at' => 'datetime',
+        'disputed_at' => 'datetime',
     ];
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

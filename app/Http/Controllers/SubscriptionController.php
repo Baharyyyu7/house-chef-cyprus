@@ -2,72 +2,96 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserSubscription;
-
+use App\Services\Payments\StripeCheckoutService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Throwable;
 
 class SubscriptionController extends Controller
 {
-    public function pricing(): View
+    public function pricing(StripeCheckoutService $stripe): View
     {
         $plans = config('monetization.plans', []);
-        return view('pricing', compact('plans'));
+        $paymentsEnabled = $stripe->isReady();
+
+        return view('pricing', compact('plans', 'paymentsEnabled'));
     }
 
-    public function checkout(Request $request): RedirectResponse
+    public function checkout(Request $request, StripeCheckoutService $stripe): RedirectResponse
     {
+        if (! $stripe->isReady()) {
+            return back()->withErrors(['payment' => 'Ödeme sistemi henüz açık değil. Premium üyelik yakında kullanıma sunulacak.']);
+        }
+
         $request->validate([
             'plan' => 'required|in:monthly,yearly',
         ]);
 
         $user = $request->user();
+
+        if ($user->isPremium()) {
+            return back()->withErrors(['payment' => 'Aktif bir aboneliğiniz var. Plan değişiklikleri için abonelik yönetimini kullanın.']);
+        }
+
         $planKey = $request->input('plan');
         $planConfig = config("monetization.plans.{$planKey}");
 
-        if (!$planConfig) {
-            return back()->with('error', 'Geçersiz abonelik planı seçildi.');
+        if (! $planConfig) {
+            return back()->withErrors(['plan' => 'Geçersiz abonelik planı seçildi.']);
         }
 
-        // Demo / Simülasyon ödeme işlemi (Stripe API Keys veya Iyzico aktifleşene kadar instant activation)
-        $expiresAt = $planKey === 'yearly' ? now()->addYear() : now()->addMonth();
+        try {
+            return redirect()->away($stripe->subscription($user, $planKey));
+        } catch (Throwable $exception) {
+            report($exception);
 
-        // Kullanıcıyı premium yap
-        $user->update([
-            'is_premium' => true,
-            'premium_plan' => $planKey,
-            'premium_expires_at' => $expiresAt,
-        ]);
-
-        // Abonelik kaydı ekle
-        UserSubscription::create([
-            'user_id' => $user->id,
-            'plan' => $planKey,
-            'amount' => $planConfig['price'],
-            'currency' => $planConfig['currency'],
-            'payment_provider' => 'stripe_checkout',
-            'provider_subscription_id' => 'sub_sim_' . uniqid(),
-            'status' => 'active',
-            'started_at' => now(),
-            'expires_at' => $expiresAt,
-        ]);
-
-        return redirect()->route('dashboard')->with('status', 'Tebrikler! House Chef Premium üyeliğiniz başarıyla aktif edildi. Sınırsız AI mutfak ve reklamsız deneyimin tadını çıkarın!');
+            return back()->withErrors(['payment' => 'Ödeme şu anda başlatılamıyor. Premium üyelik verilmedi.']);
+        }
     }
 
-    public function cancel(Request $request): RedirectResponse
+    public function cancel(Request $request, StripeCheckoutService $stripe): RedirectResponse
     {
+        if (! $stripe->isReady()) {
+            return back()->withErrors(['payment' => 'Ödeme sistemi kapalıyken abonelik işlemi başlatılamaz.']);
+        }
+
         $user = $request->user();
 
-        $activeSubscription = $user->subscriptions()->where('status', 'active')->first();
-        if ($activeSubscription) {
-            $activeSubscription->update([
-                'status' => 'cancelled',
-                'cancelled_at' => now(),
-            ]);
+        $activeSubscription = $user->subscriptions()
+            ->where('status', 'active')
+            ->where('payment_provider', 'stripe')
+            ->whereNotNull('provider_subscription_id')
+            ->first();
+
+        if (! $activeSubscription || ! $activeSubscription->isPaymentVerified()) {
+            return back()->withErrors(['payment' => 'Yönetilebilir aktif bir Stripe aboneliği bulunamadı.']);
+        }
+
+        try {
+            $stripe->cancelAtPeriodEnd($activeSubscription->provider_subscription_id);
+            $activeSubscription->update(['cancelled_at' => now()]);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return back()->withErrors(['payment' => 'Abonelik iptali şu anda tamamlanamadı.']);
         }
 
         return back()->with('status', 'Abonelik yenilemeniz iptal edildi. Mevcut süreniz bitene kadar Premium avantajlarından yararlanmaya devam edebilirsiniz.');
+    }
+
+    public function billingPortal(Request $request, StripeCheckoutService $stripe): RedirectResponse
+    {
+        if (! $stripe->isReady()) {
+            return back()->withErrors(['payment' => 'Ödeme sistemi kapalıyken abonelik yönetimi açılamaz.']);
+        }
+
+        try {
+            return redirect()->away($stripe->billingPortal($request->user()));
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return back()->withErrors(['payment' => 'Fatura ve abonelik yönetimi şu anda açılamıyor.']);
+        }
     }
 }

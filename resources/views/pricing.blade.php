@@ -16,6 +16,11 @@
                 <p class="mt-4 text-base sm:text-lg text-neutral-600 dark:text-neutral-300">
                     Sınırsız yapay zeka tarif asistanı, otomatik menü ve alışveriş listesi planlama ile tamamen reklamsız bir gurme deneyimi yaşayın.
                 </p>
+                @if(request('checkout') === 'success')
+                    <div class="hc-alert hc-alert-success mt-6" role="status">Ödemeniz alındı. Premium üyeliğiniz güvenli ödeme bildirimi doğrulanınca etkinleşir.</div>
+                @elseif(request('checkout') === 'cancelled')
+                    <div class="hc-alert hc-alert-error mt-6" role="status">Ödeme iptal edildi; hesabınızdan ücret alınmadı.</div>
+                @endif
             </div>
 
             <!-- Pricing Grid -->
@@ -56,11 +61,11 @@
 
                         <div class="mt-10">
                             @auth
-                                @if(auth()->user()->isPremium() && auth()->user()->premium_plan === $key)
+                                @if(auth()->user()->isPremium())
                                     <button disabled class="w-full py-3.5 px-6 rounded-2xl bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-center cursor-not-allowed">
-                                        Mevcut Planınız
+                                        {{ auth()->user()->premium_plan === $key ? 'Mevcut Planınız' : 'Portalda Plan Değiştirin' }}
                                     </button>
-                                @else
+                                @elseif($paymentsEnabled)
                                     <form action="{{ route('subscription.checkout') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="plan" value="{{ $key }}">
@@ -68,16 +73,39 @@
                                             Hemen Başlat ➔
                                         </button>
                                     </form>
+                                @else
+                                    <button type="button" disabled class="w-full py-3.5 px-6 rounded-2xl bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-center cursor-not-allowed">
+                                        Yakında
+                                    </button>
                                 @endif
                             @else
-                                <a href="{{ route('register') }}" class="block w-full py-3.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-center transition-all shadow-md">
-                                    Hesap Oluştur ve Katıl ➔
-                                </a>
+                                @if($paymentsEnabled)
+                                    <a href="{{ route('register') }}" class="block w-full py-3.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-center transition-all shadow-md">
+                                        Hesap Oluştur ve Katıl ➔
+                                    </a>
+                                @else
+                                    <button type="button" disabled class="w-full py-3.5 px-6 rounded-2xl bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-center cursor-not-allowed">
+                                        Yakında
+                                    </button>
+                                @endif
                             @endauth
                         </div>
                     </div>
                 @endforeach
             </div>
+
+            @auth
+                @if(auth()->user()->isPremium())
+                    <div class="mt-10 max-w-4xl mx-auto rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-6">
+                        <h2 class="text-lg font-black text-neutral-900 dark:text-white">Abonelik ve faturalar</h2>
+                        <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-300">Faturalarınızı görüntülemek, ödeme yönteminizi değiştirmek veya yenilemeyi iptal etmek için Stripe müşteri portalını kullanın.</p>
+                        <form action="{{ route('subscription.portal') }}" method="POST" class="mt-4">
+                            @csrf
+                            <button type="submit" class="hc-v3-btn hc-v3-btn--outline">Aboneliği ve faturaları yönet</button>
+                        </form>
+                    </div>
+                @endif
+            @endauth
 
             <!-- Tip Jar Section -->
             <div class="mt-16 max-w-4xl mx-auto">

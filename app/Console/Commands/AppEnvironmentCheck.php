@@ -56,6 +56,16 @@ final class AppEnvironmentCheck extends Command
             $checks['private_storage_distinct'] = config('filesystems.default') !== 'local' || filled(config('filesystems.disks.local.root'));
             $checks['demo_admin_absent'] = ! Schema::hasTable('users') || ! User::query()->where('email', 'admin@housechef.local')->exists();
             $checks['image_budget_guard'] = ! config('ai_images.generation_enabled') || filled(config('ai_images.production_budget.daily_usd'));
+
+            if (config('monetization.payments_enabled', false)) {
+                $stripeSecret = (string) config('services.stripe.secret', '');
+                $checks['stripe_secret_configured'] = str_starts_with($stripeSecret, $target === 'production' ? 'sk_live_' : 'sk_');
+                $checks['stripe_webhook_configured'] = str_starts_with((string) config('services.stripe.webhook_secret', ''), 'whsec_');
+                $checks['stripe_live_mode'] = $target !== 'production' || (bool) config('services.stripe.live_mode', false);
+                $checks['stripe_terms_consent'] = (bool) config('services.stripe.require_terms_consent', false);
+                $checks['stripe_prices_configured'] = collect(config('monetization.plans', []))
+                    ->every(fn (mixed $plan): bool => is_array($plan) && str_starts_with((string) ($plan['stripe_price_id'] ?? ''), 'price_'));
+            }
         }
         $warnings = [];
         if ($isProductionLike && ! filled(config('database.redis.default.host'))) {

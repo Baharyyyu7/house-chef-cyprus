@@ -19,8 +19,12 @@ class DigitalOrder extends Model
         'amount',
         'currency',
         'payment_provider',
+        'checkout_session_id',
+        'checkout_expires_at',
         'provider_payment_id',
         'status',
+        'dispute_id',
+        'disputed_at',
         'download_token',
         'download_count',
         'max_downloads',
@@ -30,13 +34,17 @@ class DigitalOrder extends Model
         'amount' => 'decimal:2',
         'download_count' => 'integer',
         'max_downloads' => 'integer',
+        'checkout_expires_at' => 'datetime',
+        'disputed_at' => 'datetime',
     ];
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsTo<DigitalProduct, $this> */
     public function product(): BelongsTo
     {
         return $this->belongsTo(DigitalProduct::class, 'digital_product_id');

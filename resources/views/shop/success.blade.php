@@ -5,16 +5,16 @@
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="rounded-3xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 p-8 shadow-sm text-center">
                 
-                <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-3xl mx-auto mb-4">
-                    ✓
+                <div class="w-16 h-16 rounded-2xl {{ $order->status === 'completed' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400' }} flex items-center justify-center text-3xl mx-auto mb-4">
+                    {{ $order->status === 'completed' ? '✓' : '…' }}
                 </div>
 
                 <h1 class="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white">
-                    Siparişiniz Başarıyla Tamamlandı!
+                    {{ $order->status === 'completed' ? 'Siparişiniz Başarıyla Tamamlandı!' : 'Ödemeniz Doğrulanıyor' }}
                 </h1>
 
                 <p class="text-sm text-neutral-600 dark:text-neutral-300 mt-2">
-                    Satın aldığınız dijital ürün hazır. Aşağıdaki butona tıklayarak hemen indirebilirsiniz.
+                    {{ $order->status === 'completed' ? 'Satın aldığınız dijital ürün hazır. Aşağıdaki butona tıklayarak hemen indirebilirsiniz.' : 'İndirme bağlantısı yalnız Stripe ödeme bildirimi doğrulandıktan sonra açılır. Lütfen kısa süre sonra sayfayı yenileyin.' }}
                 </p>
 
                 <div class="mt-6 p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 text-left">
@@ -27,11 +27,13 @@
                     </div>
                 </div>
 
+                @if($order->status === 'completed')
                 <div class="mt-8">
                     <a href="{{ route('shop.download', $order->download_token) }}" class="inline-flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-base transition-all shadow-md">
                         📥 Dijital Ürünü İndir (PDF)
                     </a>
                 </div>
+                @endif
 
                 <div class="mt-6">
                     <a href="{{ route('shop.index') }}" class="text-xs text-neutral-500 dark:text-neutral-400 underline hover:text-amber-600">
