@@ -210,8 +210,12 @@
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}" @if(request()->routeIs('home')) aria-current="page" @endif>Ana Sayfa</a>
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>Tarifler</a>
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif>Blog</a>
-                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('shop.*')]) href="{{ route('shop.index') }}" @if(request()->routeIs('shop.*')) aria-current="page" @endif>Mağaza</a>
-                    <a @class(['nav-link', 'text-amber-500 font-extrabold', 'nav-link-active' => request()->routeIs('pricing')]) href="{{ route('pricing') }}" @if(request()->routeIs('pricing')) aria-current="page" @endif>👑 Premium</a>
+                    @if (Route::has('shop.index'))
+                        <a @class(['nav-link', 'nav-link-active' => request()->routeIs('shop.*')]) href="{{ route('shop.index') }}" @if(request()->routeIs('shop.*')) aria-current="page" @endif>Mağaza</a>
+                    @endif
+                    @if (Route::has('pricing'))
+                        <a @class(['nav-link', 'text-amber-500 font-extrabold', 'nav-link-active' => request()->routeIs('pricing')]) href="{{ route('pricing') }}" @if(request()->routeIs('pricing')) aria-current="page" @endif>👑 Premium</a>
+                    @endif
                     @auth
                         <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>Ne Pişirebilirim?</a>
                         <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ route('ai-kitchen.index') }}" @if(request()->routeIs('ai-kitchen.*')) aria-current="page" @endif>AI Mutfak</a>
