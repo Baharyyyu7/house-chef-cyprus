@@ -21,8 +21,13 @@ final class SecureHeaders
         $googleScript = $googleTagEnabled ? ' https://www.googletagmanager.com' : '';
         $googleConnect = $googleTagEnabled ? ' https://www.google-analytics.com https://region1.google-analytics.com' : '';
         $googleFrame = $googleTagEnabled ? ' https://www.googletagmanager.com' : '';
-        $scriptPolicy = "script-src 'self' 'unsafe-inline' 'unsafe-eval'{$googleScript}";
-        $response->headers->set('Content-Security-Policy', "default-src 'self'; {$scriptPolicy}; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; img-src 'self' data: https:; font-src 'self' data: https://fonts.bunny.net; connect-src 'self'{$googleConnect}; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com{$googleFrame}; frame-ancestors 'self'; base-uri 'self'; form-action 'self'");
+        $adsenseEnabled = (bool) config('integrations.google.adsense.enabled')
+            && preg_match('/^ca-pub-\\d+$/', (string) config('integrations.google.adsense.client_id')) === 1;
+        $adsenseScript = $adsenseEnabled ? ' https://pagead2.googlesyndication.com' : '';
+        $adsenseConnect = $adsenseEnabled ? ' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net' : '';
+        $adsenseFrame = $adsenseEnabled ? ' https://googleads.g.doubleclick.net' : '';
+        $scriptPolicy = "script-src 'self' 'unsafe-inline' 'unsafe-eval'{$googleScript}{$adsenseScript}";
+        $response->headers->set('Content-Security-Policy', "default-src 'self'; {$scriptPolicy}; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; img-src 'self' data: https:; font-src 'self' data: https://fonts.bunny.net; connect-src 'self'{$googleConnect}{$adsenseConnect}; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com{$googleFrame}{$adsenseFrame}; frame-ancestors 'self'; base-uri 'self'; form-action 'self'");
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');

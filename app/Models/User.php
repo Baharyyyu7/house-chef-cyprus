@@ -154,4 +154,81 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(PersonalizationExportRequest::class);
     }
+
+    /** @return HasMany<UserSubscription, $this> */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    /** @return HasMany<DigitalOrder, $this> */
+    public function digitalOrders(): HasMany
+    {
+        return $this->hasMany(DigitalOrder::class);
+    }
+
+    /** @return HasMany<TipContribution, $this> */
+    public function tips(): HasMany
+    {
+        return $this->hasMany(TipContribution::class);
+    }
+
+    public function isPremium(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if ($this->is_premium) {
+            if ($this->premium_expires_at === null || $this->premium_expires_at->isFuture()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function canUseAiKitchen(): bool
+    {
+        if ($this->isPremium()) {
+            return true;
+        }
+
+        $this->checkAndResetAiDailyUsage();
+
+        // Ücretsiz kullanıcılar için günde 5 AI sorgusu hakkı
+        return $this->ai_daily_usage_count < 5;
+    }
+
+    public function incrementAiUsage(): void
+    {
+        if ($this->isPremium()) {
+            return;
+        }
+
+        $this->checkAndResetAiDailyUsage();
+        $this->increment('ai_daily_usage_count');
+    }
+
+    public function remainingDailyAiQueries(): int
+    {
+        if ($this->isPremium()) {
+            return 999;
+        }
+
+        $this->checkAndResetAiDailyUsage();
+        return max(0, 5 - (int) $this->ai_daily_usage_count);
+    }
+
+    protected function checkAndResetAiDailyUsage(): void
+    {
+        $today = Carbon::today();
+        if ($this->ai_usage_last_reset_at === null || Carbon::parse($this->ai_usage_last_reset_at)->lt($today)) {
+            $this->update([
+                'ai_daily_usage_count' => 0,
+                'ai_usage_last_reset_at' => $today,
+            ]);
+        }
+    }
 }
+
