@@ -19,10 +19,7 @@
     <main class="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-4 py-10 sm:px-6">
         <div class="mb-8 flex items-center justify-between">
             <x-brand-logo context="auth" size="lg" class="transition hover:scale-[1.02] motion-reduce:transition-none" />
-            <button @click="dark = !dark" class="hc-theme-button" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'">
-                <span x-show="dark"><x-ui.icon name="sun" size="20" /></span>
-                <span x-show="!dark"><x-ui.icon name="moon" size="20" /></span>
-            </button>
+            <x-theme-switch />
         </div>
         <section class="hc-v3-card p-6 shadow-xl sm:p-8">
             {{ $slot }}
@@ -39,4 +36,3 @@
     @livewireScripts
 </body>
 </html>
-

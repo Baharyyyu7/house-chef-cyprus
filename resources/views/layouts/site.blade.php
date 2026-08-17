@@ -176,7 +176,7 @@
                             @if (Route::has('admin.recipes.create'))
                                 <a href="{{ route('admin.recipes.create') }}" class="hc-v3-btn hc-v3-btn--primary hidden sm:inline-flex"><x-ui.icon name="plus" size="16" />Yeni tarif</a>
                             @endif
-                            <button @click="dark = !dark" class="hc-v3-btn hc-v3-btn--outline px-3 py-2" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"><span x-show="dark"><x-ui.icon name="sun" size="18" /></span><span x-show="!dark"><x-ui.icon name="moon" size="18" /></span></button>
+                            <x-theme-switch />
                             <a href="{{ route('profile') }}" class="admin-topbar__user hidden sm:inline-flex" aria-label="Profil ayarları">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</a>
                         </div>
                     </div>
@@ -220,7 +220,7 @@
                 </div>
 
                 <div class="hidden items-center gap-2 xl:flex">
-                    <button @click="dark = !dark" class="hc-theme-button" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"><span x-show="dark"><x-ui.icon name="sun" size="20" /></span><span x-show="!dark"><x-ui.icon name="moon" size="20" /></span></button>
+                    <x-theme-switch />
                     @auth
                         <a href="{{ route('favorites.index') }}" class="hc-icon-button" aria-label="Favoriler"><x-ui.icon name="heart" size="20" /></a>
                         @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline">Yönetim</a>@endif
@@ -231,7 +231,7 @@
                     @endauth
                 </div>
                 <div class="flex items-center gap-2 xl:hidden">
-                    <button @click="dark = !dark" class="hc-theme-button !h-10 !w-10 !rounded-xl" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"><span x-show="dark"><x-ui.icon name="sun" size="18" /></span><span x-show="!dark"><x-ui.icon name="moon" size="18" /></span></button>
+                    <x-theme-switch />
                     <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="Menüyü aç"><x-ui.icon name="menu" size="20" /></button>
                 </div>
             </nav>
