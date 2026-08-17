@@ -9,7 +9,7 @@
     check with hc_analytics_consent: EEA advertising needs a certified CMP and
     a distinct advertising-consent signal before a third-party ad request.
 --}}
-@if($adsenseEnabled && request()->cookie('hc_advertising_consent') === 'granted')
+@if($adsenseEnabled && config('integrations.google.adsense.certified_cmp_enabled') && request()->cookie('hc_advertising_consent') === 'granted')
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ urlencode((string) config('integrations.google.adsense.client_id')) }}" crossorigin="anonymous"></script>
 @endif
 @if(request()->cookie('hc_analytics_consent') === 'granted' && $gtmEnabled)

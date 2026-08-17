@@ -19,6 +19,18 @@ return [
             'enabled' => (bool) env('GOOGLE_TAG_MANAGER_ENABLED', false),
             'container_id' => env('GOOGLE_TAG_MANAGER_CONTAINER_ID'),
         ],
+        /*
+         * The publisher identifier is public, but ad delivery is deliberately
+         * opt-in. A simple analytics preference is not an EEA ad-consent
+         * mechanism, so production must keep this disabled until a
+         * Google-certified CMP is configured and tested.
+         */
+        'adsense' => [
+            'enabled' => (bool) env('GOOGLE_ADSENSE_ENABLED', false),
+            'client_id' => env('GOOGLE_ADSENSE_CLIENT_ID'),
+            'verification_meta_enabled' => (bool) env('GOOGLE_ADSENSE_VERIFICATION_META_ENABLED', false),
+            'certified_cmp_enabled' => (bool) env('GOOGLE_CERTIFIED_CMP_ENABLED', false),
+        ],
         'auth' => [
             'enabled' => (bool) env('GOOGLE_AUTH_ENABLED', false),
             'client_id' => env('GOOGLE_CLIENT_ID'),

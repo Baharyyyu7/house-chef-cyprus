@@ -118,16 +118,24 @@ const mountLegalInformationCenter = () => {
 const mountPageFeatures = () => {
     mountAdminDashboard();
     mountLegalInformationCenter();
-    document.querySelectorAll('[data-consent-choice]').forEach((button) => {
-        if (button.dataset.consentBound === 'true') return;
-        button.dataset.consentBound = 'true';
-        button.addEventListener('click', () => {
-            const choice = button.dataset.consentChoice === 'granted' ? 'granted' : 'denied';
-            const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-            document.cookie = `hc_analytics_consent=${choice}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
-            window.location.reload();
+    // Ölçüm ve reklam onayı ayrı çerezlerde tutulur: ölçüme izin veren biri
+    // reklama da izin vermiş sayılamaz. Reklam yuvası yalnız kendi çerezine
+    // bakar, bu yüzden o çerezi verecek bir düğme olmadan hiçbir reklam çıkmaz.
+    const bindConsent = (selector, datasetKey, cookieName) => {
+        document.querySelectorAll(selector).forEach((button) => {
+            if (button.dataset.consentBound === 'true') return;
+            button.dataset.consentBound = 'true';
+            button.addEventListener('click', () => {
+                const choice = button.dataset[datasetKey] === 'granted' ? 'granted' : 'denied';
+                const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+                document.cookie = `${cookieName}=${choice}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
+                window.location.reload();
+            });
         });
-    });
+    };
+
+    bindConsent('[data-consent-choice]', 'consentChoice', 'hc_analytics_consent');
+    bindConsent('[data-advertising-choice]', 'advertisingChoice', 'hc_advertising_consent');
 };
 
 document.addEventListener('DOMContentLoaded', mountPageFeatures);

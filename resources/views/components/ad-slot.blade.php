@@ -4,34 +4,42 @@
 ])
 
 @php
-    $isEnabled = config('monetization.ads_enabled', true);
-    $isPremiumUser = auth()->check() && auth()->user()->isPremium();
-    $slotId = config("monetization.slots.{$slotName}", '1234567890');
-    $clientId = config('monetization.adsense_client_id', 'ca-pub-XXXXXXXXXXXXXXXX');
+    /**
+     * Reklam yuvası iki kapıya birden bağlıdır ve ikisi de aynı kaynaktan okur:
+     * yayıncı kimliği ve onay durumu integrations.google.adsense'ten gelir.
+     * Daha önce burada ikinci bir yapılandırma vardı (monetization.adsense_client_id)
+     * ve o yol onay çerezine hiç bakmıyordu; iki kaynak olduğu sürece biri
+     * kapalıyken diğerinin açık kalması an meselesiydi.
+     *
+     * Yayıncı kimliği doğrulanmadan hiçbir şey basılmaz. Yer tutucu kimlikle
+     * ("ca-pub-XXXXXXXXXXXXXXXX") istek atmak, başvurusu incelemede olan bir
+     * hesabın reddedilmesinin bilinen yollarından biridir.
+     */
+    $clientId = (string) config('integrations.google.adsense.client_id');
+    $gecerliKimlik = preg_match('/^ca-pub-\d+$/', $clientId) === 1;
+
+    $onayVar = request()->cookie('hc_advertising_consent') === 'granted';
+    $cmpHazir = (bool) config('integrations.google.adsense.certified_cmp_enabled');
+    $acik = (bool) config('integrations.google.adsense.enabled');
+
+    $slotId = (string) config("monetization.slots.{$slotName}", '');
+    $gecerliSlot = $slotId !== '' && preg_match('/^\d{6,}$/', $slotId) === 1 && ! str_starts_with($slotId, '12345678');
+
+    // Ödeme yapan üye reklam görmez: abonelikte satılan şeylerden biri budur.
+    $ucretliUye = auth()->check() && auth()->user()->isPremium();
+
+    $gosterilsin = $acik && $cmpHazir && $onayVar && $gecerliKimlik && $gecerliSlot && ! $ucretliUye;
 @endphp
 
-@if($isEnabled && !$isPremiumUser)
-    <div class="ad-slot-container rounded-2xl bg-neutral-100 dark:bg-neutral-800/60 p-4 border border-dashed border-neutral-300 dark:border-neutral-700 text-center transition-all overflow-hidden {{ $class }}">
-        <div class="text-[11px] font-semibold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase mb-2">
-            REKLAM
-        </div>
-        
-        <!-- Google AdSense Container -->
+@if($gosterilsin)
+    <div class="ad-slot {{ $class }}" role="complementary" aria-label="Reklam">
+        <p class="mb-2 text-center text-[11px] font-bold uppercase tracking-[.14em]" style="color: var(--hc-text-muted)">Reklam</p>
         <ins class="adsbygoogle"
              style="display:block; text-align:center;"
              data-ad-layout="in-article"
              data-ad-format="fluid"
              data-ad-client="{{ $clientId }}"
              data-ad-slot="{{ $slotId }}"></ins>
-             
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-
-        <div class="mt-2 text-xs text-neutral-400 dark:text-neutral-500">
-            <a href="{{ route('pricing') }}" class="underline hover:text-amber-600 transition-colors">
-                Reklamları kaldırmak için Premium'a geçin →
-            </a>
-        </div>
+        <script nonce="{{ request()->attributes->get('csp_nonce') }}">(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
 @endif

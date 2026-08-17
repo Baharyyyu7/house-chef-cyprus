@@ -210,12 +210,15 @@
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}" @if(request()->routeIs('home')) aria-current="page" @endif>Ana Sayfa</a>
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>Tarifler</a>
                     <a @class(['nav-link', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif>Blog</a>
+                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('shop.*')]) href="{{ route('shop.index') }}" @if(request()->routeIs('shop.*')) aria-current="page" @endif>Mağaza</a>
+                    <a @class(['nav-link', 'text-amber-500 font-extrabold', 'nav-link-active' => request()->routeIs('pricing')]) href="{{ route('pricing') }}" @if(request()->routeIs('pricing')) aria-current="page" @endif>👑 Premium</a>
                     @auth
                         <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>Ne Pişirebilirim?</a>
                         <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ route('ai-kitchen.index') }}" @if(request()->routeIs('ai-kitchen.*')) aria-current="page" @endif>AI Mutfak</a>
                         <a @class(['nav-link', 'nav-link-active' => request()->routeIs('pantry.*')]) href="{{ route('pantry.index') }}" @if(request()->routeIs('pantry.*')) aria-current="page" @endif>Dolabım</a>
                     @endauth
                 </div>
+
                 <div class="hidden items-center gap-2 xl:flex">
                     <button @click="dark = !dark" class="hc-theme-button" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"><span x-show="dark"><x-ui.icon name="sun" size="20" /></span><span x-show="!dark"><x-ui.icon name="moon" size="20" /></span></button>
                     @auth

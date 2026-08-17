@@ -25,10 +25,15 @@ return Application::configure(basePath: dirname(__DIR__))
         __DIR__.'/../app/Console/Commands',
     ])
     ->withMiddleware(function (Middleware $middleware): void {
-        // This preference is intentionally written by browser-side JavaScript so the
-        // analytics tag can be loaded only after a visitor has opted in. It contains
-        // no account or session data and must therefore remain readable by Laravel.
-        $middleware->encryptCookies(except: ['hc_analytics_consent']);
+        // These preferences are intentionally written by browser-side JavaScript so a
+        // tag is loaded only after a visitor has opted in. They contain no account or
+        // session data and must therefore remain readable by Laravel.
+        //
+        // hc_advertising_consent belongs here for the same reason as the analytics one:
+        // left encrypted, Laravel could never read what the browser wrote, the ad slot
+        // saw a null consent on every request, and no advertising could ever render —
+        // silently, with the configuration looking correct.
+        $middleware->encryptCookies(except: ['hc_analytics_consent', 'hc_advertising_consent']);
         $middleware->append(RequestContext::class);
         $middleware->append(SecureHeaders::class);
     })

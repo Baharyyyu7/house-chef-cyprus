@@ -1,0 +1,89 @@
+<x-layouts.site title="House Chef Cyprus">
+    <x-slot name="title">House Chef Premium — Sınırsız AI Mutfak ve Özel Avantajlar</x-slot>
+    <x-slot name="description">House Chef Cyprus Premium ile sınırsız AI tarif asistanı, haftalık otomatik menü planlama, reklamsız deneyim ve gelişmiş besin değerlerine erişin.</x-slot>
+
+    <div class="py-12 bg-neutral-50 dark:bg-neutral-900/60 min-h-screen">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Header -->
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs uppercase tracking-widest mb-4">
+                    PREMIUM AYRICALIKLAR
+                </span>
+                <h1 class="text-3xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
+                    Mutfağınızda Şef Düzeyinde <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">AI Gücü ve Kolaylık</span>
+                </h1>
+                <p class="mt-4 text-base sm:text-lg text-neutral-600 dark:text-neutral-300">
+                    Sınırsız yapay zeka tarif asistanı, otomatik menü ve alışveriş listesi planlama ile tamamen reklamsız bir gurme deneyimi yaşayın.
+                </p>
+            </div>
+
+            <!-- Pricing Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                @foreach($plans as $key => $plan)
+                    <div class="relative rounded-3xl bg-white dark:bg-neutral-800 border-2 {{ $key === 'yearly' ? 'border-amber-500 shadow-xl' : 'border-neutral-200 dark:border-neutral-700 shadow-sm' }} p-8 flex flex-col justify-between transition-all">
+                        
+                        @if(isset($plan['discount_badge']))
+                            <div class="absolute -top-3.5 right-8 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-black text-xs px-3.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                {{ $plan['discount_badge'] }}
+                            </div>
+                        @endif
+
+                        <div>
+                            <h2 class="text-2xl font-bold text-neutral-900 dark:text-white">
+                                {{ $plan['name'] }}
+                            </h2>
+                            <div class="mt-4 flex items-baseline gap-2">
+                                <span class="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white">
+                                    {{ $plan['symbol'] }}{{ number_format($plan['price'], 2) }}
+                                </span>
+                                <span class="text-sm font-semibold text-neutral-500 dark:text-neutral-400">
+                                    / {{ $plan['interval'] }}
+                                </span>
+                            </div>
+
+                            <ul class="mt-8 space-y-4">
+                                @foreach($plan['features'] as $feature)
+                                    <li class="flex items-center gap-3 text-sm text-neutral-700 dark:text-neutral-200">
+                                        <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        <span>{{ $feature }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+
+                        <div class="mt-10">
+                            @auth
+                                @if(auth()->user()->isPremium() && auth()->user()->premium_plan === $key)
+                                    <button disabled class="w-full py-3.5 px-6 rounded-2xl bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-center cursor-not-allowed">
+                                        Mevcut Planınız
+                                    </button>
+                                @else
+                                    <form action="{{ route('subscription.checkout') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="plan" value="{{ $key }}">
+                                        <button type="submit" class="w-full py-3.5 px-6 rounded-2xl {{ $key === 'yearly' ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md' : 'bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900' }} font-bold text-center transition-all">
+                                            Hemen Başlat ➔
+                                        </button>
+                                    </form>
+                                @endif
+                            @else
+                                <a href="{{ route('register') }}" class="block w-full py-3.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-center transition-all shadow-md">
+                                    Hesap Oluştur ve Katıl ➔
+                                </a>
+                            @endauth
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Tip Jar Section -->
+            <div class="mt-16 max-w-4xl mx-auto">
+                <x-tip-jar />
+            </div>
+
+        </div>
+    </div>
+</x-layouts.site>
