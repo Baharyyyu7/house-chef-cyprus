@@ -2,10 +2,9 @@
     Tarif ve yazı sayfalarındaki tek dönüşüm yüzeyi. En çok trafik alan
     sayfalarda hiçbir üyelik teklifi yoktu.
 
-    Burada yalnız kodda karşılığı olan şeyler sayılıyor. Premium
-    yapılandırmasındaki "Haftalık Otomatik Menü Planlama" ve "Akıllı Alışveriş
-    Listesi" gibi maddeler doğrulanamadığı için kasıtlı olarak tekrarlanmıyor;
-    tam liste fiyatlandırma sayfasında kalır ve oraya bağlanılır.
+    Burada yalnız kodda karşılığı olan şeyler sayılıyor ve karşılık rota
+    olarak aranıyor. Tam liste fiyatlandırma sayfasında kalır; kart onu
+    tekrarlamak yerine oraya bağlanır.
 
     Üyeye hiçbir şey gösterilmez: ödeme yapmış birine satış yapılmaz.
 --}}

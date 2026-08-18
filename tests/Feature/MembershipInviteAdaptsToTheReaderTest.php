@@ -18,9 +18,10 @@ use Tests\TestCase;
  *    bayrağı değil webhook'la doğrulanmış abonelik demektir; isPremium()
  *    bilerek bu kadar katı.
  * 2. Ziyaretçiye ücretsiz hesap, giriş yapmış ücretsiz üyeye premium önerilir.
- * 3. Kartta yalnız kodda karşılığı olan şeyler sayılır. Premium
- *    yapılandırmasındaki bazı maddeler ("Haftalık Otomatik Menü Planlama",
- *    "Akıllı Alışveriş Listesi") doğrulanamadığı için burada tekrarlanmaz.
+ * 3. Kartta yalnız kodda karşılığı olan şeyler sayılır ve o karşılık rota
+ *    olarak aranır. Bir özelliği İngilizce adıyla arayıp bulamamak, o
+ *    özelliğin olmadığı anlamına gelmiyor: menü planlama ve alışveriş
+ *    listesi ai-mutfak/menu ve .../alisveris altında gerçekten var.
  */
 final class MembershipInviteAdaptsToTheReaderTest extends TestCase
 {
@@ -71,12 +72,18 @@ final class MembershipInviteAdaptsToTheReaderTest extends TestCase
             ->assertDontSee('Bu tarifi kaydedin.');
     }
 
-    public function test_it_does_not_advertise_features_we_cannot_point_at(): void
+    /**
+     * Satılan her premium özelliğin arkasında gerçekten bir sayfa olmalı.
+     * Fiyatlandırmadaki liste kolayca gerçekten kopabilir; bu test onu
+     * rotalara bağlar.
+     */
+    public function test_every_premium_feature_we_sell_has_a_page_behind_it(): void
     {
-        $yanit = $this->actingAs(User::factory()->create())->get($this->tarifAdresi());
-
-        foreach (['Haftalık Otomatik Menü Planlama', 'Akıllı Alışveriş Listesi'] as $dogrulanmamis) {
-            $yanit->assertDontSee($dogrulanmamis);
+        foreach (['ai-kitchen.meal-plan', 'ai-kitchen.index', 'pantry.index', 'collections.index'] as $rota) {
+            $this->assertTrue(
+                \Illuminate\Support\Facades\Route::has($rota),
+                "Premium listesinde satılan bir özelliğin rotası yok: {$rota}"
+            );
         }
     }
 

@@ -1,61 +1,78 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * Burada bir zamanlar dokuz uydurma kişi ve dokuz uydurma yorum vardı. Altına
+ * "temsili içeriktir" notu düşülmüştü, ama uydurma isim ve uydurma alıntı,
+ * altında ne yazarsa yazsın, sayfada sosyal kanıt gibi okunuyor.
+ *
+ * Tasarım korundu; içerik değişti. Buradaki her madde sitede doğrulanabilir
+ * ve kod tarafında karşılığı var — yani okuyucu iddiayı sınayabilir. Gerçek
+ * kullanıcı yorumu geldiğinde, yalnız izinli ve doğrulanmış olanlar buraya
+ * eklenir; uydurma isim bir daha girmez.
+ *
+ * 'name'  -> maddenin başlığı
+ * 'role'  -> hangi konuya ait olduğu
+ * 'text'  -> nerede görülebileceği
+ */
+
 return [
-    'disclosure' => 'Bu bölümdeki isimler ve metinler temsili yerleşim içeriğidir; doğrulanmış kullanıcı yorumları geldikçe yalnız izinli geri bildirimlerle değiştirilecektir.',
+    'disclosure' => 'Buradaki maddeler kullanıcı yorumu değil, sitenin çalışma biçimine dair taahhütlerdir; her biri tarif ve yazı sayfalarında doğrulanabilir.',
 
     'home' => [
         [
-            'name' => 'Elif Karaca',
-            'role' => 'Ev mutfağı kullanıcısı',
-            'text' => 'Hafta içi ne pişireceğimi düşünürken tarifleri süreye göre ayırabilmek işimi kolaylaştırıyor.',
+            'name' => 'Onaysız görsel yayınlanmaz',
+            'role' => 'Görsel bütünlüğü',
+            'text' => 'Bir tarifin fotoğrafı yoksa yer tutucu açıkça belirtilir; ilgisiz bir yemek fotoğrafı o tarifin fotoğrafı gibi gösterilmez.',
             'image' => null,
         ],
         [
-            'name' => 'Mert Yalçın',
-            'role' => 'Pratik tarif meraklısı',
-            'text' => 'Malzemeye göre arama fikri çok kullanışlı. Evde olanları değerlendirmek için iyi bir başlangıç sunuyor.',
+            'name' => 'Yapay zekâ görseli olduğu yazar',
+            'role' => 'Görsel bütünlüğü',
+            'text' => 'Üretilmiş bir görsel kullanıldığında tarif sayfasında bunu söyleyen bir not bulunur.',
             'image' => null,
         ],
         [
-            'name' => 'Zeynep Aydın',
-            'role' => 'Haftalık menü planlayan kullanıcı',
-            'text' => 'Tariflerin süre ve porsiyon bilgisini tek bakışta görebilmek menü planlamasını daha düzenli hâle getiriyor.',
+            'name' => 'Editoryal kontrol tarihi görünür',
+            'role' => 'İçerik',
+            'text' => 'Her tarifte son editoryal kontrolün ne zaman yapıldığı yazar; yapılmadıysa o da yazar.',
             'image' => null,
         ],
         [
-            'name' => 'Burak Demir',
-            'role' => 'Yeni başlayan ev aşçısı',
-            'text' => 'Adımların sade anlatılması mutfakta yeni olan biri için güven veriyor. Nereden başlayacağım belli oluyor.',
+            'name' => 'Alerjen bilgisi ayrı gösterilir',
+            'role' => 'Beslenme',
+            'text' => 'İçerir ve içerebilir ayrı ayrı listelenir, belirsizlik belirsiz olarak işaretlenir.',
             'image' => null,
         ],
         [
-            'name' => 'Ceren Aksoy',
-            'role' => 'Akdeniz mutfağı meraklısı',
-            'text' => 'Kıbrıs ve Akdeniz tariflerini aynı yerde keşfetmek hoşuma gidiyor. Seçkiler aradığım tarza hızlıca ulaştırıyor.',
+            'name' => 'Besin değerleri tahminse söylenir',
+            'role' => 'Beslenme',
+            'text' => 'Değerlerin hesaplanmış mı yoksa tahmini bileşen içerdiği mi, güven skoruyla birlikte belirtilir.',
             'image' => null,
         ],
         [
-            'name' => 'Onur Kaya',
-            'role' => 'Yoğun çalışan kullanıcı',
-            'text' => 'Kısa sürede hazırlanabilen tarifleri ayrı görebilmek özellikle iş çıkışı karar vermeyi kolaylaştırıyor.',
+            'name' => 'Ölçüler ev ölçüsüne çevrilir',
+            'role' => 'Mutfak',
+            'text' => 'Porsiyon değiştiğinde miktarlar birlikte güncellenir; dönüşümün güven düzeyi kayıt altındadır.',
             'image' => null,
         ],
         [
-            'name' => 'Derya Şahin',
-            'role' => 'Aile sofrası planlayıcısı',
-            'text' => 'Porsiyonu değiştirdiğimde ölçülerin uyarlanması kalabalık sofralar için pratik bir yardımcı oluyor.',
+            'name' => 'Elinizdekilerle eşleştirme',
+            'role' => 'Mutfak',
+            'text' => 'Malzeme dolabınızı tariflerle eşleştirir, eksikleri ve uygun alternatifleri açıkça gösterir.',
             'image' => null,
         ],
         [
-            'name' => 'Emre Koç',
-            'role' => 'Tarif koleksiyonu kullanıcısı',
-            'text' => 'Beğendiğim tarifleri bir arada tutabilmek tekrar bulma derdini ortadan kaldırıyor.',
+            'name' => 'Reklam izni ölçüm izninden ayrıdır',
+            'role' => 'Gizlilik',
+            'text' => 'Ölçüme izin vermeniz reklam izni sayılmaz; iki tercih ayrı tutulur ve istediğiniz zaman değiştirilir.',
             'image' => null,
         ],
         [
-            'name' => 'Selin Arslan',
-            'role' => 'Evde üretmeyi seven kullanıcı',
-            'text' => 'Tasarım sakin ve tarifler kolay taranıyor. Mutfakta telefondan takip ederken gereksiz kalabalık hissettirmiyor.',
+            'name' => 'Premium üyeye reklam gösterilmez',
+            'role' => 'Gizlilik',
+            'text' => 'Ücretli üyelikte sitede hiçbir reklam isteği yapılmaz.',
             'image' => null,
         ],
     ],

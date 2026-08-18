@@ -20,9 +20,9 @@
     <section x-data="{ paused: false }" class="hc-testimonials-section border-y border-line bg-surface py-16 dark:border-[#2a2a2a] dark:bg-[#141414]" aria-labelledby="home-testimonials-title">
         <div class="hc-container">
             <div class="mx-auto flex max-w-2xl flex-col items-center text-center" data-reveal>
-                <p class="hc-kicker rounded-full border border-orange-200 bg-orange-50 px-4 py-2 dark:border-orange-900/60 dark:bg-orange-950/30">Kullanıcı notları</p>
-                <h2 id="home-testimonials-title" class="hc-title mt-5">Kullanıcılarımız ne diyor?</h2>
-                <p class="mt-4 max-w-xl leading-7 text-warm dark:text-stone-400">House Chef Cyprus deneyimini farklı mutfak alışkanlıkları üzerinden keşfedin.</p>
+                <p class="hc-kicker rounded-full border border-orange-200 bg-orange-50 px-4 py-2 dark:border-orange-900/60 dark:bg-orange-950/30">Şeffaflık</p>
+                <h2 id="home-testimonials-title" class="hc-title mt-5">Neye güvenebilirsiniz?</h2>
+                <p class="mt-4 max-w-xl leading-7 text-warm dark:text-stone-400">Aşağıdakilerin hepsi tarif ve yazı sayfalarında görülebilir; iddia edip göstermediğimiz bir şey yok.</p>
                 @if(filled($disclosure))
                     <p class="mt-3 text-xs font-semibold leading-5 text-muted" data-testimonial-disclosure>{{ $disclosure }}</p>
                 @endif
