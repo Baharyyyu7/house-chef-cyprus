@@ -136,6 +136,8 @@ Route::get('/sitemaps/blog.xml', [SitemapController::class, 'blog'])->name('site
 Route::get('/sitemaps/images.xml', [SitemapController::class, 'images'])->name('sitemap.images');
 Route::view('/robots.txt', 'robots')->name('robots');
 Route::get('/yasal-bilgilendirme', [LegalInformationCenterController::class, 'index'])->name('legal.center');
+// İletişim formu yasal metnin içine gömülüydü; kendi sayfası oldu.
+Route::view('/iletisim', 'contact.index')->name('contact.index');
 Route::post('/yasal-bilgilendirme/iletisim', [ContactRequestController::class, 'store'])->middleware('throttle:contact-request')->name('legal.center.contact.store');
 Route::redirect('/kullanim-kosullari', '/yasal-bilgilendirme#kullanim-kosullari', 301);
 Route::redirect('/gizlilik', '/yasal-bilgilendirme#gizlilik-ve-kisisel-veriler', 301);

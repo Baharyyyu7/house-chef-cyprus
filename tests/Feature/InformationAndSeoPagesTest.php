@@ -37,7 +37,9 @@ final class InformationAndSeoPagesTest extends TestCase
             ->assertSee('/yasal-bilgilendirme#gorsel-ve-yapay-zeka-politikasi', false)
             ->assertSee('/yasal-bilgilendirme#icerik-ve-kaynak-politikasi', false)
             ->assertSee('/yasal-bilgilendirme#gizlilik-ve-kisisel-veriler', false)
-            ->assertSee('/yasal-bilgilendirme#iletisim-ve-geri-bildirim', false)
+            // Footer artık ayrı iletişim sayfasına bağlanıyor; bölüm belgede
+            // duruyor ve çapasıyla hâlâ adreslenebilir olmalı.
+            ->assertSee('id="iletisim-ve-geri-bildirim"', false)
             ->assertSee('brand/house-chef-cyprus-logo-on-light.svg', false);
 
         $this->assertSame(1, substr_count($response->getContent(), '<h1'));

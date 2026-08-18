@@ -27,7 +27,7 @@ final class IntegrationReadinessTest extends TestCase
         config()->set('integrations.google.analytics.enabled', true);
         config()->set('integrations.google.analytics.measurement_id', 'G-ABC123');
 
-        $this->get('/')->assertOk()->assertDontSee('GTM-ABC123')->assertSee('Analitik tercihiniz');
+        $this->get('/')->assertOk()->assertDontSee('GTM-ABC123')->assertSee('data-analytics-consent', false);
         $response = $this->withUnencryptedCookie('hc_analytics_consent', 'granted')->get('/')->assertOk();
         $response->assertSee('GTM-ABC123')->assertDontSee('gtag/js?id=G-ABC123');
         $response->assertSee("'analytics_storage':'granted'", false)

@@ -355,7 +355,7 @@
                         <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'nasil-calisir') }}">Nasıl çalışır?</a>
                         <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'sss') }}">Sıkça sorulanlar</a>
                         <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'tarif-dogrulama-politikasi') }}">Tarif doğrulama</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#iletisim-ve-geri-bildirim">İletişim</a>
+                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('contact.index') }}">İletişim</a>
                     </div>
                 </div>
 

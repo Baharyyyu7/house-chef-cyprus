@@ -722,3 +722,28 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
 .hc-admin-progress.is-dusuk > span { background: var(--hc-status-danger); }
 .hc-admin-progress.is-orta  > span { background: var(--hc-status-warning); }
 .hc-admin-progress.is-tamam > span { background: var(--hc-status-success); }
+
+/* --- Çerez şeridi ------------------------------------------------------ */
+
+/* Engel değil, alttan gelen bir şerit: sayfa arkasında okunabilir kalır.
+   Malzeme, yüzen bir yüzey olduğunu söyler. */
+.hc-consent { pointer-events: none; }
+.hc-consent__panel {
+    pointer-events: auto;
+    background: var(--hc-header-scrolled);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--hc-line);
+    box-shadow: var(--hc-elev-3);
+}
+.hc-btn--sm { min-height: 2.25rem; padding-inline: .85rem; font-size: .8125rem; }
+
+@media (prefers-reduced-transparency: reduce) {
+    .hc-consent__panel { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--hc-surface-default); }
+}
+
+/* --- Form alanı: etiket üstte, girdi altta ---------------------------- */
+
+/* Etiketler girdilerin soluna düşüp hizasız duruyordu. */
+.hc-field { display: grid; gap: .4rem; }
+.hc-field__label { font-size: .8125rem; font-weight: 700; color: var(--hc-text-primary); }
