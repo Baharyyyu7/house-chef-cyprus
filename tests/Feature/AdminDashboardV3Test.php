@@ -112,6 +112,40 @@ final class AdminDashboardV3Test extends TestCase
         $this->assertNotEmpty($available['charts'][1]['summary']);
     }
 
+    public function test_dashboard_uses_only_aggregate_active_member_country_profiles_for_the_world_activity_map(): void
+    {
+        User::factory()->create(['last_activity_at' => now(), 'last_country_code' => 'TR']);
+        User::factory()->create(['last_activity_at' => now(), 'country' => 'Türkiye']);
+        User::factory()->create(['last_activity_at' => now()->subDays(8), 'last_country_code' => 'DE']);
+        Cache::flush();
+
+        $map = app(AdminDashboardService::class)->dashboard(7)['audienceMap'];
+
+        $this->assertSame('available', $map['data_status']);
+        $this->assertSame(2, $map['total_members']);
+        $this->assertSame('TR', $map['countries'][0]['country_code']);
+        $this->assertSame('Türkiye', $map['countries'][0]['label']);
+        $this->assertSame('member_profile_aggregate', $map['source']);
+
+        $this->actingAs($this->admin())->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('Ülke bazlı hareketlilik')
+            ->assertSee('Google Analytics ziyaretçi raporu değildir.')
+            ->assertDontSee('last_country_code');
+    }
+
+    public function test_dashboard_world_activity_map_is_explicitly_empty_without_active_country_profiles(): void
+    {
+        User::factory()->create(['last_activity_at' => now(), 'country' => null, 'last_country_code' => null]);
+        Cache::flush();
+
+        $map = app(AdminDashboardService::class)->dashboard(7)['audienceMap'];
+
+        $this->assertSame('empty', $map['data_status']);
+        $this->assertSame(0, $map['total_members']);
+        $this->assertSame('Konum özeti için yeterli üye etkinliği verisi yok.', $map['summary']);
+    }
+
     public function test_dashboard_analytics_are_cached_per_period_and_refresh_after_invalidation(): void
     {
         Recipe::create(['title' => 'Önbellek tarifi', 'slug' => 'onbellek-tarifi', 'servings' => 2, 'difficulty' => 'Kolay', 'status' => 'published', 'verification_status' => 'verified']);

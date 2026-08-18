@@ -19,10 +19,75 @@ use App\Services\Observability\MetricService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 final class AdminDashboardService
 {
     private const PERIODS = [1, 7, 30, 90];
+
+    /**
+     * Şematik harita koordinatları yalnız ülke bazlı toplulaştırılmış üye
+     * etkinliğini anlatmak içindir; siyasi sınır veya hassas konum verisi
+     * temsil etmez.
+     *
+     * @var array<string, array{label: string, x: int, y: int}>
+     */
+    private const AUDIENCE_COUNTRIES = [
+        'AU' => ['label' => 'Avustralya', 'x' => 806, 'y' => 354],
+        'CA' => ['label' => 'Kanada', 'x' => 271, 'y' => 139],
+        'CY' => ['label' => 'Kıbrıs', 'x' => 546, 'y' => 222],
+        'DE' => ['label' => 'Almanya', 'x' => 500, 'y' => 182],
+        'ES' => ['label' => 'İspanya', 'x' => 467, 'y' => 212],
+        'FR' => ['label' => 'Fransa', 'x' => 480, 'y' => 200],
+        'GB' => ['label' => 'Birleşik Krallık', 'x' => 462, 'y' => 166],
+        'GR' => ['label' => 'Yunanistan', 'x' => 530, 'y' => 215],
+        'IT' => ['label' => 'İtalya', 'x' => 512, 'y' => 211],
+        'NL' => ['label' => 'Hollanda', 'x' => 490, 'y' => 174],
+        'SA' => ['label' => 'Suudi Arabistan', 'x' => 580, 'y' => 251],
+        'TR' => ['label' => 'Türkiye', 'x' => 563, 'y' => 208],
+        'UA' => ['label' => 'Ukrayna', 'x' => 551, 'y' => 177],
+        'AE' => ['label' => 'Birleşik Arap Emirlikleri', 'x' => 604, 'y' => 242],
+        'US' => ['label' => 'Amerika Birleşik Devletleri', 'x' => 244, 'y' => 202],
+    ];
+
+    /** @var array<string, string> */
+    private const COUNTRY_PROFILE_ALIASES = [
+        'almanya' => 'DE',
+        'america' => 'US',
+        'amerika' => 'US',
+        'amerikabirlesikdevletleri' => 'US',
+        'australia' => 'AU',
+        'avustralya' => 'AU',
+        'birlesikarapemirlikleri' => 'AE',
+        'birlesikkrallik' => 'GB',
+        'canada' => 'CA',
+        'cyprus' => 'CY',
+        'england' => 'GB',
+        'france' => 'FR',
+        'germany' => 'DE',
+        'greece' => 'GR',
+        'hollanda' => 'NL',
+        'ingiltere' => 'GB',
+        'italia' => 'IT',
+        'italy' => 'IT',
+        'ispanya' => 'ES',
+        'kibris' => 'CY',
+        'kktc' => 'CY',
+        'kanada' => 'CA',
+        'netherlands' => 'NL',
+        'northcyprus' => 'CY',
+        'saudiarabia' => 'SA',
+        'suudiarabistan' => 'SA',
+        'turkey' => 'TR',
+        'turkiye' => 'TR',
+        'uae' => 'AE',
+        'uk' => 'GB',
+        'ukraine' => 'UA',
+        'unitedarabemirates' => 'AE',
+        'unitedkingdom' => 'GB',
+        'unitedstates' => 'US',
+        'yunanistan' => 'GR',
+    ];
 
     public function __construct(
         private readonly DataQualityService $quality,
@@ -84,6 +149,7 @@ final class AdminDashboardService
                     $this->distributionChart('Mutfak dağılımı', 'Tariflerin mutfaklara göre gerçek dağılımı.', 'bar', DB::table('recipes')->leftJoin('cuisines', 'recipes.cuisine_id', '=', 'cuisines.id')->selectRaw("COALESCE(cuisines.name, 'Belirsiz') as label, COUNT(recipes.id) as total")->groupBy('label')->orderByDesc('total')->limit(8)->pluck('total', 'label')->all()),
                     $this->distributionChart('Doğrulama durumu', 'Tariflerin editoryal doğrulama görünümü.', 'doughnut', Recipe::query()->selectRaw("COALESCE(verification_status, 'Belirsiz') as label, COUNT(*) as total")->groupBy('label')->orderByDesc('total')->pluck('total', 'label')->all()),
                 ],
+                'audienceMap' => $this->audienceMap($from),
                 'qualityScores' => $qualityScores,
                 'qualityScanned' => $qualityScanned,
                 'qualityScannedAt' => $this->quality->lastScannedAt()?->format(DATE_ATOM),
@@ -125,6 +191,66 @@ final class AdminDashboardService
                 ],
             ];
         });
+    }
+
+    /** @return array{data_status: string, total_members: int, countries: list<array<string, int|string>>, summary: string, source: string} */
+    private function audienceMap(Carbon $from): array
+    {
+        $totals = [];
+
+        User::query()
+            ->whereNotNull('last_activity_at')
+            ->where('last_activity_at', '>=', $from)
+            ->get(['last_country_code', 'country'])
+            ->each(function (User $member) use (&$totals): void {
+                $countryCode = $this->countryCodeForMember($member);
+
+                if ($countryCode !== null) {
+                    $totals[$countryCode] = ($totals[$countryCode] ?? 0) + 1;
+                }
+            });
+
+        arsort($totals);
+        $countries = [];
+
+        foreach (array_slice($totals, 0, 8, true) as $countryCode => $members) {
+            $country = self::AUDIENCE_COUNTRIES[$countryCode];
+            $countries[] = [
+                'country_code' => $countryCode,
+                'label' => $country['label'],
+                'members' => $members,
+                'x' => $country['x'],
+                'y' => $country['y'],
+            ];
+        }
+
+        $totalMembers = array_sum(array_column($countries, 'members'));
+
+        return [
+            'data_status' => $countries === [] ? 'empty' : 'available',
+            'total_members' => $totalMembers,
+            'countries' => $countries,
+            'summary' => $countries === []
+                ? 'Konum özeti için yeterli üye etkinliği verisi yok.'
+                : $totalMembers.' etkin üye, '.count($countries).' ülke üzerinden toplulaştırıldı.',
+            'source' => 'member_profile_aggregate',
+        ];
+    }
+
+    private function countryCodeForMember(User $member): ?string
+    {
+        $recordedCode = strtoupper(trim((string) $member->last_country_code));
+
+        if (isset(self::AUDIENCE_COUNTRIES[$recordedCode])) {
+            return $recordedCode;
+        }
+
+        $profileCountry = Str::of(Str::ascii(trim((string) $member->country)))
+            ->lower()
+            ->replaceMatches('/[^a-z]/', '')
+            ->value();
+
+        return self::COUNTRY_PROFILE_ALIASES[$profileCountry] ?? null;
     }
 
     /** @return array<string, mixed> */
@@ -185,7 +311,7 @@ final class AdminDashboardService
         ];
     }
 
-    /** @return list<array<string, string>> */
+    /** @return list<array{action: string, actor: string, at: string, entity_public_id: string, repeat: int}> */
     private function activity(): array
     {
         // Toplu işler aynı eylemi arka arkaya yüzlerce kez yazıyor; sekiz satırın

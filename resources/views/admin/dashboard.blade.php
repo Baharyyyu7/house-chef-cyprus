@@ -230,6 +230,7 @@
                         </div>
                     @endif
                 </article>
+
             </div>
 
             <aside class="space-y-6">
@@ -255,6 +256,10 @@
                     @endif
                 </section>
             </aside>
+        </section>
+
+        <section class="mt-6">
+            <x-admin.world-activity-map :map="$audienceMap" :period-label="$periodLabel" />
         </section>
     </section>
 </x-layouts.site>
