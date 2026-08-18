@@ -32,7 +32,9 @@ final class AdminCanApproveImportedMediaTest extends TestCase
         $this->actingAs($admin)
             ->get(route('admin.media.index'))
             ->assertOk()
-            ->assertSee('Onay bekleyen görsel (1)', false);
+            // Bölüm başlığı kaç görselin beklediğini söylemeli; editör
+            // ekranı açtığında yapılacak işin büyüklüğünü görüyor.
+            ->assertSee('Bu 1 görsel yayına hazır, onayını bekliyor', false);
     }
 
     public function test_approving_it_records_the_admin_and_puts_it_on_the_site(): void

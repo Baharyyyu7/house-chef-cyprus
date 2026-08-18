@@ -1,9 +1,12 @@
 <x-layouts.site title="Medya Yönetimi">
     @php
+        // Süzgeç adları ne yaptıklarını söylemeli. "Dosyası olan" bir
+        // durumu değil bir alanı tarif ediyordu; "Dosyasız kayıt" ise
+        // aslında hiçbir işe yaramayan ölü satırlar demek.
         $suzgecler = [
-            'dosyali' => ['Dosyası olan', $sayilar['tumu'] - $sayilar['dosyasiz']],
-            'yayinda' => ['Yayında', $sayilar['yayinda']],
-            'dosyasiz' => ['Dosyasız kayıt', $sayilar['dosyasiz']],
+            'dosyali' => ['Görseli hazır', $sayilar['tumu'] - $sayilar['dosyasiz']],
+            'yayinda' => ['Sitede görünüyor', $sayilar['yayinda']],
+            'dosyasiz' => ['Boş kayıt (görsel yok)', $sayilar['dosyasiz']],
             'tumu' => ['Tümü', $sayilar['tumu']],
         ];
 
@@ -47,8 +50,8 @@
                 @csrf
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h2 class="text-lg font-black text-amber-950">Onay bekleyen görsel ({{ $onayBekleyen->count() }})</h2>
-                        <p class="mt-1 text-sm text-amber-900">Dosyaları ve tüm boyutları hazır. Onaylanana kadar sitede görünmezler.</p>
+                        <h2 class="text-lg font-black text-amber-950">Bu {{ $onayBekleyen->count() }} görsel yayına hazır, onayını bekliyor</h2>
+                        <p class="mt-1 text-sm text-amber-900">Her birine bakın, yemeğe ait olanları işaretleyin ve tek seferde onaylayın. Onaylamadığınız hiçbiri sitede görünmez.</p>
                     </div>
                     <button type="button" @click="acik = !acik" class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm">
                         <span x-text="acik ? 'Gizle' : 'Göster'"></span>
@@ -67,17 +70,31 @@
                         </button>
                     </div>
 
-                    <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    {{-- Bir yemek fotoğrafı 80 pikselde değerlendirilemez. Kararı
+                         veren şey görselin kendisi, o yüzden kart görselle
+                         başlıyor ve yemeğin adı onun altında duruyor. Kodlar
+                         ve ölçüler karara girmiyor; detay sayfasında kalıyor. --}}
+                    <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         @foreach($onayBekleyen as $item)
-                            <label class="flex cursor-pointer gap-3 rounded-xl bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md"
+                            <label class="group block cursor-pointer overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-200 hover:shadow-lg"
                                    :class="secili.includes(@js($item->public_id)) ? 'ring-2 ring-emerald-600' : ''">
-                                <input type="checkbox" name="public_ids[]" value="{{ $item->public_id }}" x-model="secili" class="mt-1 h-4 w-4 shrink-0 rounded border-stone-300 text-emerald-700 focus:ring-emerald-600">
-                                <img class="h-20 w-20 shrink-0 rounded-lg bg-stone-100 object-cover" src="{{ $item->responsiveUrl(400) }}" alt="" width="80" height="80" loading="lazy">
-                                <div class="flex min-w-0 flex-1 flex-col">
-                                    <p class="truncate font-bold">{{ $item->mediable?->title ?? class_basename($item->mediable_type) }}</p>
-                                    <p class="mt-0.5 text-xs" style="color: var(--hc-text-muted)">{{ $item->width }}×{{ $item->height }}</p>
-                                    <a class="mt-auto pt-2 text-sm font-bold text-orange-700 hover:underline" href="{{ route('admin.media.show', $item->public_id) }}">Büyük gör</a>
-                                </div>
+                                <span class="relative block aspect-[4/3] bg-stone-100">
+                                    <img class="h-full w-full object-cover" src="{{ $item->responsiveUrl(800) }}" alt="{{ $item->alt_text }}" loading="lazy">
+
+                                    <span class="absolute left-3 top-3 grid h-7 w-7 place-items-center rounded-lg bg-white/90 shadow backdrop-blur">
+                                        <input type="checkbox" name="public_ids[]" value="{{ $item->public_id }}" x-model="secili" class="h-4 w-4 rounded border-stone-300 text-emerald-700 focus:ring-emerald-600">
+                                    </span>
+
+                                    <a class="absolute bottom-3 right-3 rounded-lg bg-black/60 px-2.5 py-1.5 text-xs font-bold text-white opacity-0 backdrop-blur transition-opacity duration-200 group-hover:opacity-100 focus:opacity-100"
+                                       href="{{ route('admin.media.show', $item->public_id) }}">Tam boy</a>
+                                </span>
+
+                                <span class="flex items-center justify-between gap-3 p-3.5">
+                                    <span class="min-w-0">
+                                        <span class="block truncate font-bold">{{ $item->mediable?->title ?? class_basename($item->mediable_type) }}</span>
+                                        <span class="hc-caption block" style="color: var(--hc-text-muted)">Onay bekliyor</span>
+                                    </span>
+                                </span>
                             </label>
                         @endforeach
                     </div>
