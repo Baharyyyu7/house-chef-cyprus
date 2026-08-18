@@ -2,6 +2,19 @@
 
 declare(strict_types=1);
 
+/*
+ * Reklam bölümü yalnız reklam gerçekten açıkken metne girer.
+ *
+ * Bu belgenin kendi ilkesi var ve gizlilik bölümünde yazılı:
+ * "Kullanılmayan analiz, reklam veya takip sistemleri bu metinde
+ * kullanılıyormuş gibi gösterilmez." Reklam kapalıyken bölüm hiç
+ * görünmez, açıldığı anda görünür; böylece metin iki durumda da doğrudur.
+ *
+ * Google, gizlilik politikasının üçüncü taraf reklam çerezlerini açıkça
+ * anlatmasını şart koşuyor. Bölüm o şartı karşılamak için var.
+ */
+$reklamAcik = (bool) env('GOOGLE_ADSENSE_ENABLED', false);
+
 return [
     'title' => 'House Chef Cyprus Kullanım Koşulları, Gizlilik, Çerez ve İçerik Politikası',
     'updated_at' => 'Son güncelleme: 3 Ağustos 2026',
@@ -70,6 +83,15 @@ return [
                 'House Chef Cyprus başka internet sitelerine bağlantılar verebilir. Bu sitelerin içerikleri, güvenlikleri, çerezleri, gizlilik politikaları ve veri işleme faaliyetleri House Chef Cyprus’un kontrolünde değildir. Kullanıcıların yönlendirildikleri sitelerin politikalarını ayrıca incelemesi önerilir. House Chef Cyprus, uygulanabilir hukukta ebeveyn izni gerektiren yaşın altındaki çocuklardan bilerek kişisel veri toplamayı amaçlamaz. Bir çocuğa ait verinin izinsiz olarak işlendiği düşünülüyorsa info@housechefcyprus.com adresi üzerinden bildirim yapılabilir.',
             ],
         ],
+        ...($reklamAcik ? [[
+            'id' => 'reklam-ve-ucuncu-taraflar',
+            'title' => 'Reklamlar ve Üçüncü Taraflar',
+            'paragraphs' => [
+                'House Chef Cyprus sitesinde Google tarafından sunulan reklamlar gösterilebilir. Google dâhil üçüncü taraf sağlayıcılar, kullanıcıların bu siteye ve başka sitelere yaptığı önceki ziyaretlere dayanarak reklam sunmak amacıyla çerez kullanabilir. Reklam çerezleri, reklamların gösterilmesi, tekrar gösterim sayısının sınırlanması, reklam performansının ölçülmesi ve kötüye kullanımın engellenmesi amacıyla kullanılabilir. Bu kapsamda IP adresi, tarayıcı ve cihaz bilgileri, yaklaşık konum ve site içi gezinme bilgileri reklam sağlayıcısına iletilebilir. House Chef Cyprus reklam sağlayıcısına ad, soyad, e-posta adresi veya parola gibi doğrudan kimlik bilgisi göndermez.',
+                'Avrupa Ekonomik Alanı, Birleşik Krallık ve İsviçre kullanıcıları için reklam ve ölçüm izni, Google tarafından sertifikalandırılmış bir izin yönetim platformu üzerinden ayrıca alınır. İzin verilmediği sürece kişiselleştirilmiş reklam isteği yapılmaz. Kullanıcılar kararlarını istedikleri zaman değiştirebilir; izin ekranı site üzerinden yeniden açılabilir. Ölçüm iznine verilen onay, reklam izni sayılmaz ve iki tercih ayrı tutulur.',
+                'Kullanıcılar kişiselleştirilmiş reklamları https://adssettings.google.com adresinden kapatabilir. Google’ın reklam amacıyla veri kullanımı hakkında ayrıntılı bilgi https://policies.google.com/technologies/ads adresinde yer alır. Üçüncü taraf sağlayıcıların genel tercih yönetimi için https://www.aboutads.info/choices ve https://www.youronlinechoices.com/tr adresleri kullanılabilir. Ücretli üyelik kullanan hesaplara reklam gösterilmez.',
+            ],
+        ]] : []),
         [
             'id' => 'kullanici-haklari',
             'title' => 'Kullanıcı Hakları',
