@@ -1,6 +1,7 @@
 @props(['title' => 'House Chef Cyprus', 'metaDescription' => "Kıbrıs'tan ilham alan tarifler, malzeme dolabı ve dengeli beslenme rehberi.", 'structuredData' => null, 'canonicalUrl' => null, 'socialImage' => null, 'socialImageWidth' => null, 'socialImageHeight' => null, 'socialImageAlt' => null, 'robots' => null])
+@php($activeLanguage = config('locales.supported.'.app()->getLocale(), config('locales.supported.'.config('locales.default', 'tr'), [])))
 <!DOCTYPE html>
-<html lang="tr" class="scroll-smooth">
+<html lang="{{ $activeLanguage['html_locale'] ?? 'tr' }}" dir="{{ $activeLanguage['direction'] ?? 'ltr' }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,7 +21,7 @@
     @endif
     @unless ($isPrivateSurface || str_contains((string) $robots, 'noindex'))
         <meta property="og:type" content="{{ request()->routeIs('blog.show') ? 'article' : 'website' }}">
-        <meta property="og:locale" content="tr_TR">
+        <meta property="og:locale" content="{{ $activeLanguage['og_locale'] ?? 'tr_TR' }}">
         <meta property="og:title" content="{{ $title }}">
         <meta property="og:description" content="{{ $metaDescription }}">
         <meta property="og:url" content="{{ $canonicalUrl ?: url()->current() }}">
@@ -38,7 +39,7 @@
     @endunless
     @if($structuredData)<script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>@endif
     @if(!request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
-        <script type="application/ld+json">{"\u0040context":"https://schema.org","\u0040graph":[{"\u0040type":"Organization","name":"House Chef Cyprus","url":"{{ url('/') }}","logo":"{{ url(config('brand.assets.mark_light')) }}"},{"\u0040type":"WebSite","name":"House Chef Cyprus","url":"{{ url('/') }}","inLanguage":"tr","publisher":{"\u0040type":"Organization","name":"House Chef Cyprus","logo":"{{ url(config('brand.assets.mark_light')) }}"},"potentialAction":{"\u0040type":"SearchAction","target":"{{ route('recipes.index') }}?q={search_term_string}","query-input":"required name=search_term_string"}}]}</script>
+        <script type="application/ld+json">{"\u0040context":"https://schema.org","\u0040graph":[{"\u0040type":"Organization","name":"House Chef Cyprus","url":"{{ url('/') }}","logo":"{{ url(config('brand.assets.mark_light')) }}"},{"\u0040type":"WebSite","name":"House Chef Cyprus","url":"{{ url('/') }}","inLanguage":"{{ $activeLanguage['html_locale'] ?? 'tr' }}","publisher":{"\u0040type":"Organization","name":"House Chef Cyprus","logo":"{{ url(config('brand.assets.mark_light')) }}"},"potentialAction":{"\u0040type":"SearchAction","target":"{{ route('recipes.index') }}?q={search_term_string}","query-input":"required name=search_term_string"}}]}</script>
     @endif
     <link rel="icon" type="image/svg+xml" href="{{ asset(config('brand.assets.favicon')) }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset(config('brand.assets.favicon_32')) }}">
@@ -193,6 +194,7 @@
                             @if (Route::has('admin.recipes.create'))
                                 <a href="{{ route('admin.recipes.create') }}" class="hc-v3-btn hc-v3-btn--primary hidden sm:inline-flex"><x-ui.icon name="plus" size="16" />Yeni tarif</a>
                             @endif
+                            <x-locale-switcher />
                             <x-theme-switch />
                             <a href="{{ route('profile') }}" class="admin-topbar__user hidden sm:inline-flex" aria-label="Profil ayarları">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</a>
                         </div>
@@ -286,17 +288,19 @@
                 </div>
 
                 <div class="hidden items-center gap-2 xl:flex">
-                    <x-theme-switch />
+                    <x-locale-switcher />
+                    <x-theme-switch class="hc-nav-control" />
                     @auth
-                        @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline">Yönetim</a>@endif
+                        @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline hc-nav-control">Yönetim</a>@endif
                         <x-user-menu />
                     @else
-                        <a href="{{ route('login') }}" class="hc-btn hc-btn-outline">Giriş Yap</a>
-                        <a href="{{ route('register') }}" class="hc-btn hc-btn-gold">Üye Ol</a>
+                        <a href="{{ route('login') }}" class="hc-btn hc-btn-outline hc-nav-control">Giriş Yap</a>
+                        <a href="{{ route('register') }}" class="hc-btn hc-btn-gold hc-nav-control">Üye Ol</a>
                     @endauth
                 </div>
                 <div class="flex items-center gap-2 xl:hidden">
-                    <x-theme-switch />
+                    <x-locale-switcher />
+                    <x-theme-switch class="hc-nav-control" />
                     <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="Menüyü aç"><x-ui.icon name="menu" size="20" /></button>
                 </div>
             </nav>
@@ -313,6 +317,11 @@
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}" @click="menuOpen = false" @if(request()->routeIs('blog.*')) aria-current="page" @endif>Blog</a>
                     @if (Route::has('pricing'))
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('pricing'), 'text-amber-600 dark:text-amber-400']) href="{{ route('pricing') }}" @click="menuOpen = false" @if(request()->routeIs('pricing')) aria-current="page" @endif>👑 Premium</a>
+                    @endif
+                    {{-- Mağaza masaüstü menüsünde vardı, çekmecede yoktu: telefondan
+                         gelen ziyaretçi dijital ürünleri hiç göremiyordu. --}}
+                    @if (Route::has('shop.index'))
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('shop.*')]) href="{{ route('shop.index') }}" @click="menuOpen = false" @if(request()->routeIs('shop.*')) aria-current="page" @endif>Mağaza</a>
                     @endif
                     @auth
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}" @click="menuOpen = false" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>Ne Pişirebilirim?</a>

@@ -18,6 +18,10 @@
         {{-- Dar ekranda metin tüm genişliğe yayıldığı için yatay perde yetmez;
              ağırlık alt yarıya verilir. --}}
         <div class="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(9,9,9,.58)_0%,rgba(9,9,9,.06)_22%,rgba(9,9,9,.34)_52%,rgba(9,9,9,.8)_100%)]"></div>
+        {{-- Kahraman görselin altı sayfa zeminine kesilerek değil, eriyerek
+             bağlanır: koyu kareden beyaz kağıda tek pikselde geçmek, iki ayrı
+             sayfa yapıştırılmış gibi duruyordu. --}}
+        <div class="hc-home-hero__eritme" aria-hidden="true"></div>
         <div class="hc-container">
             <div class="max-w-3xl">
                 <p class="v2-reveal hc-kicker text-orange-300">Modern Akdeniz mutfağı</p>

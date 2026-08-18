@@ -16,6 +16,11 @@
                 <p class="mt-4 text-base sm:text-lg text-neutral-600 dark:text-neutral-300">
                     Sınırsız yapay zeka tarif asistanı, otomatik menü ve alışveriş listesi planlama ile tamamen reklamsız bir gurme deneyimi yaşayın.
                 </p>
+                {{-- Ödeme açık değilken bunu açıkça söylemek bir güvenlik şartı:
+                     sayfa görünür kalır ama kimse ödeme yaptığını sanmaz. --}}
+                @unless($paymentsEnabled)
+                    <div class="hc-alert mt-6" role="status">Henüz ödeme almıyoruz. Premium üyelik yakında açılacak; bu sayfadan hiçbir ücret tahsil edilmez.</div>
+                @endunless
                 @if(request('checkout') === 'success')
                     <div class="hc-alert hc-alert-success mt-6" role="status">Ödemeniz alındı. Premium üyeliğiniz güvenli ödeme bildirimi doğrulanınca etkinleşir.</div>
                 @elseif(request('checkout') === 'cancelled')
@@ -23,10 +28,44 @@
                 @endif
             </div>
 
+            {{-- Ödeme sıklığı bir seçim, iki ayrı ürün değil. Segmentli anahtar
+                 seçileni taşıyan bir yüzeyle gösterir; kart altında değişir. --}}
+            <div
+                x-data="{
+                    sıklık: 'yearly',
+                    gostergeStil: '',
+                    kaydir() {
+                        const secili = this.$refs.raylar?.querySelector('[data-secili=\'true\']');
+                        if (! secili) return;
+                        this.gostergeStil = `transform: translateX(${secili.offsetLeft}px); width: ${secili.offsetWidth}px;`;
+                    },
+                }"
+                x-init="$nextTick(() => kaydir()); $watch('sıklık', () => kaydir()); window.addEventListener('resize', () => kaydir())"
+                class="max-w-4xl mx-auto"
+            >
+                {{-- Seçili yüzey sekmeden sekmeye kayar, iki ayrı yerde yanıp
+                     sönmez: göz nereye gittiğini takip edebilsin. --}}
+                <div x-ref="raylar" class="hc-plan-switch mx-auto" role="tablist" aria-label="Ödeme sıklığı">
+                    <span class="hc-plan-switch__gosterge" :style="gostergeStil" aria-hidden="true"></span>
+                    @foreach($plans as $key => $plan)
+                        <button type="button" role="tab" :aria-selected="(sıklık === '{{ $key }}').toString()"
+                            :data-secili="(sıklık === '{{ $key }}').toString()"
+                            @click="sıklık = '{{ $key }}'"
+                            class="hc-plan-switch__tab" :class="sıklık === '{{ $key }}' ? 'is-selected' : ''">
+                            <span>{{ $key === 'yearly' ? 'Yıllık' : 'Aylık' }}</span>
+                            @isset($plan['discount_badge'])
+                                <span class="hc-plan-switch__badge">{{ $plan['discount_badge'] }}</span>
+                            @endisset
+                        </button>
+                    @endforeach
+                </div>
+
             <!-- Pricing Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div class="mt-8 grid grid-cols-1 gap-8 max-w-xl mx-auto">
                 @foreach($plans as $key => $plan)
-                    <div class="relative rounded-3xl bg-white dark:bg-neutral-800 border-2 {{ $key === 'yearly' ? 'border-amber-500 shadow-xl' : 'border-neutral-200 dark:border-neutral-700 shadow-sm' }} p-8 flex flex-col justify-between transition-all">
+                    <div x-show="sıklık === '{{ $key }}'" x-cloak
+                        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+                        class="relative rounded-3xl bg-white dark:bg-neutral-800 border-2 {{ $key === 'yearly' ? 'border-amber-500 shadow-xl' : 'border-neutral-200 dark:border-neutral-700 shadow-sm' }} p-8 flex flex-col justify-between transition-all">
                         
                         @if(isset($plan['discount_badge']))
                             <div class="absolute -top-3.5 right-8 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-black text-xs px-3.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
@@ -92,6 +131,7 @@
                         </div>
                     </div>
                 @endforeach
+            </div>
             </div>
 
             @auth

@@ -19,7 +19,7 @@
             :aria-expanded="acik"
             aria-haspopup="menu"
             aria-label="Hesap menüsü"
-            class="hc-user-trigger inline-flex h-11 items-center gap-2 rounded-2xl bg-charcoal-900 py-2 pl-2 pr-4 text-sm font-extrabold text-white transition hover:bg-orange-600"
+            class="hc-user-trigger hc-nav-control inline-flex items-center gap-2 rounded-2xl bg-charcoal-900 py-2 pl-2 pr-4 text-sm font-extrabold text-white transition hover:bg-orange-600"
         >
             <span class="grid h-7 w-7 place-items-center rounded-xl bg-orange-500 text-xs">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</span>
             Hesabım

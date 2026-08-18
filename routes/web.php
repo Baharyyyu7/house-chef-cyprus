@@ -41,6 +41,7 @@ use App\Http\Controllers\HealthController;
 use App\Http\Controllers\InformationPageController;
 use App\Http\Controllers\IngredientExplorerController;
 use App\Http\Controllers\LegalInformationCenterController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PantryController;
 use App\Http\Controllers\PersonalizationController;
 use App\Http\Controllers\PolicyPageController;
@@ -74,13 +75,15 @@ Route::get('/magaza/indir/{downloadToken}', [ShopController::class, 'download'])
 Route::get('/go/{slug}', [AffiliateController::class, 'redirect'])->name('affiliate.redirect');
 Route::post('/destek-ol', [TipController::class, 'process'])->name('tip.process')->middleware('throttle:payment-attempt');
 
-// Gerçek ödeme akışı hazır değilken Premium sayfası görünür kalır; bu güvenli
-// fallback hiçbir ödeme veya üyelik aktivasyonu yapmaz.
-if (! Route::has('pricing')) {
-    Route::view('/fiyatlandirma', 'premium-preview')->name('pricing');
-}
+// Not: burada bir zamanlar `if (! Route::has('pricing'))` koşuluyla ikinci bir
+// /fiyatlandirma rotası vardı. Route::has kayıt sırasında ad tablosunu henüz
+// görmediği için koşul her zaman doğru çıkıyor, fallback yukarıdaki gerçek
+// rotayı eziyordu: Stripe akışını taşıyan sayfaya hiç ulaşılamıyordu.
+// Ödeme hazır değilken sayfayı görünür tutma işini zaten SubscriptionController
+// yapıyor ($paymentsEnabled false iken düğmeler "Yakında" olur).
 
 Route::get('/', [RecipeController::class, 'index'])->name('home');
+Route::post('/dil', LocaleController::class)->middleware('throttle:20,1')->name('locale.update');
 Route::get('/health', HealthController::class)->name('health');
 Route::get('/tarifler', [RecipeController::class, 'index'])->name('recipes.index');
 // Malzemeye göre tarif eşleştirme herkese açıktır; dolap entegrasyonu üye olanlara özel kalır.

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\AudienceCountryDay;
 use App\Models\AuditLog;
 use App\Models\BlogPost;
 use App\Models\ContactRequest;
@@ -196,6 +197,26 @@ final class AdminDashboardService
     /** @return array{data_status: string, total_members: int, countries: list<array<string, int|string>>, summary: string, source: string} */
     private function audienceMap(Carbon $from): array
     {
+        // Ziyaretçi ülkesi asıl kaynaktır: harita "kim geliyor" sorusunu
+        // yanıtlıyor, "kim üye oldu" sorusunu değil. Üye profili yalnız
+        // ziyaretçi sayacı boşken devreye girer.
+        $visitorTotals = [];
+
+        AudienceCountryDay::query()
+            ->where('day', '>=', $from->toDateString())
+            ->get(['country_code', 'hits'])
+            ->each(function (AudienceCountryDay $gun) use (&$visitorTotals): void {
+                $code = strtoupper((string) $gun->country_code);
+
+                if (isset(self::AUDIENCE_COUNTRIES[$code])) {
+                    $visitorTotals[$code] = ($visitorTotals[$code] ?? 0) + (int) $gun->hits;
+                }
+            });
+
+        if ($visitorTotals !== []) {
+            return $this->audienceMapFrom($visitorTotals, 'visitor_country_aggregate');
+        }
+
         $totals = [];
 
         User::query()
@@ -210,6 +231,15 @@ final class AdminDashboardService
                 }
             });
 
+        return $this->audienceMapFrom($totals, 'member_profile_aggregate');
+    }
+
+    /**
+     * @param  array<string, int>  $totals
+     * @return array{data_status: string, total_members: int, countries: list<array<string, int|string>>, summary: string, source: string}
+     */
+    private function audienceMapFrom(array $totals, string $source): array
+    {
         arsort($totals);
         $countries = [];
 
@@ -231,9 +261,9 @@ final class AdminDashboardService
             'total_members' => $totalMembers,
             'countries' => $countries,
             'summary' => $countries === []
-                ? 'Konum özeti için yeterli üye etkinliği verisi yok.'
-                : $totalMembers.' etkin üye, '.count($countries).' ülke üzerinden toplulaştırıldı.',
-            'source' => 'member_profile_aggregate',
+                ? 'Konum özeti için yeterli ziyaretçi verisi yok.'
+                : $totalMembers.($source === 'visitor_country_aggregate' ? ' ziyaret, ' : ' etkin üye, ').count($countries).' ülke üzerinden toplulaştırıldı.',
+            'source' => $source,
         ];
     }
 

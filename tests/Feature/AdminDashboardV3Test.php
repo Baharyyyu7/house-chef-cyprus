@@ -143,7 +143,7 @@ final class AdminDashboardV3Test extends TestCase
 
         $this->assertSame('empty', $map['data_status']);
         $this->assertSame(0, $map['total_members']);
-        $this->assertSame('Konum özeti için yeterli üye etkinliği verisi yok.', $map['summary']);
+        $this->assertSame('Konum özeti için yeterli ziyaretçi verisi yok.', $map['summary']);
     }
 
     public function test_dashboard_analytics_are_cached_per_period_and_refresh_after_invalidation(): void

@@ -31,6 +31,7 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     }
     html { @apply scroll-smooth; background: var(--hc-bg); }
     body { @apply min-w-0 font-sans antialiased; background: var(--hc-bg); color: var(--hc-text); }
+    html[dir="rtl"] body { direction: rtl; text-align: right; }
     main:focus { outline: none; }
     html, body, .hc-public-header, .hc-mobile-drawer, .hc-footer, .hc-card, .hc-panel, .hc-empty, input, select, textarea { transition: background-color .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease; }
     h1, h2, h3 { @apply font-display tracking-[-0.035em]; }
@@ -41,6 +42,9 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     input[type='checkbox'] { @apply rounded border-stone-300 text-orange-600; }
     ::selection { @apply bg-orange-100 text-charcoal-900; }
 }
+
+/* Locale selector: the other languages stay visibly pending until their
+   editorial content is actually reviewed and released. */
 
 @layer components {
     .hc-container { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
@@ -766,3 +770,53 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
 /* Etiketler girdilerin soluna düşüp hizasız duruyordu. */
 .hc-field { display: grid; gap: .4rem; }
 .hc-field__label { font-size: .8125rem; font-weight: 700; color: var(--hc-text-primary); }
+
+/* Başlık çubuğu kontrolleri: dil, tema, yönetim ve hesap düğmeleri yan yana
+   duruyor ama dördü de kendi yüksekliğini taşıyordu (40, 32, 44, 44 piksel).
+   Yan yana duran şeylerin aynı boyda olması gerekir; sıra hattı buradan gelir. */
+:root { --hc-nav-control: 2.5rem; }
+.hc-nav-control { height: var(--hc-nav-control); min-height: var(--hc-nav-control); }
+/* Anahtarın boyu artınca topuzu ve yolu da orantılı büyür, yoksa pil içinde
+   küçük bir topuz yüzer. */
+.hc-theme-switch.hc-nav-control { height: var(--hc-nav-control); width: 4.25rem; padding: .25rem; }
+.hc-theme-switch.hc-nav-control .hc-theme-switch__knob { width: 2rem; height: 2rem; }
+.hc-theme-switch.hc-nav-control[aria-checked="true"] .hc-theme-switch__knob { transform: translateX(1.75rem); }
+
+/* Ödeme sıklığı anahtarı. Seçili yüzey basıldığı anda değil, yay gibi yerine
+   oturarak gelir; hareket kısıtlıysa yalnız renk değişir. */
+.hc-plan-switch { display:inline-flex; margin-inline:auto; gap:.25rem; border-radius:9999px; border:1px solid var(--hc-line); background:var(--hc-surface-soft); padding:.25rem; }
+.hc-plan-switch { position:relative; display:flex; width:fit-content; }
+.hc-plan-switch__tab { display:inline-flex; align-items:center; gap:.5rem; border-radius:9999px; padding:.6rem 1.15rem; font-size:.9rem; font-weight:800; color:var(--hc-text-secondary); transition:background-color .28s cubic-bezier(.34,1.3,.64,1), color .28s ease, transform .18s ease; }
+.hc-plan-switch__tab:active { transform:scale(.97); }
+.hc-plan-switch__tab { position:relative; z-index:1; }
+.hc-plan-switch__tab.is-selected { color:var(--hc-text-primary); }
+/* Gösterge sekmenin altında kayar; yay eğrisi, seçimin yerine oturduğunu
+   hissettirir. Genişlik de kayar çünkü sekmeler eşit değil. */
+.hc-plan-switch__gosterge { position:absolute; top:.25rem; bottom:.25rem; left:0; z-index:0; border-radius:9999px; background:var(--hc-surface); box-shadow:0 2px 12px var(--hc-shadow); transition:transform .42s cubic-bezier(.34,1.4,.64,1), width .42s cubic-bezier(.34,1.4,.64,1); }
+.hc-plan-switch__badge { border-radius:9999px; background:color-mix(in srgb, var(--hc-gold) 20%, transparent); padding:.15rem .5rem; font-size:.68rem; font-weight:800; letter-spacing:.02em; white-space:nowrap; }
+@media (prefers-reduced-motion: reduce) { .hc-plan-switch__tab { transition:color .2s ease; } .hc-plan-switch__tab:active { transform:none; } .hc-plan-switch__gosterge { transition:none; } }
+
+/* Dil seçici. Bayrak solda, kod ortada, ok sağda; açılır listede dilin kendi
+   adı ve seçili olanda onay. Tetikleyici ile panel aynı köşeden doğar. */
+.hc-locale { flex: 0 0 auto; }
+.hc-locale__trigger { display:inline-flex; height:var(--hc-nav-control); align-items:center; gap:.4rem; border:1px solid var(--hc-line); border-radius:9999px; background:var(--hc-surface); padding:0 .7rem 0 .55rem; color:var(--hc-text-primary); font-size:.78rem; font-weight:800; letter-spacing:.06em; transition:border-color .2s ease, background-color .2s ease, transform .16s ease; }
+.hc-locale__trigger:hover { border-color:var(--hc-gold); background:var(--hc-surface-soft); }
+.hc-locale__trigger:active { transform:scale(.97); }
+.hc-locale__trigger:focus-visible { outline:2px solid var(--hc-gold); outline-offset:3px; }
+.hc-locale__flag { font-size:1.05rem; line-height:1; }
+.hc-locale__caret { display:inline-grid; place-items:center; color:var(--hc-text-secondary); transition:transform .28s cubic-bezier(.34,1.4,.64,1); }
+.hc-locale__caret.is-open { transform:rotate(180deg); }
+.hc-locale__panel { position:absolute; top:calc(100% + .5rem); right:0; z-index:50; width:14rem; transform-origin:top right; overflow:hidden; border:1px solid var(--hc-line); border-radius:1.15rem; padding:.35rem; background:var(--hc-surface); box-shadow:0 20px 48px var(--hc-shadow); }
+.hc-locale__option { display:flex; width:100%; align-items:center; gap:.6rem; border-radius:.85rem; padding:.6rem .7rem; color:var(--hc-text-primary); font-size:.9rem; font-weight:700; text-align:start; transition:background-color .18s ease; }
+.hc-locale__name { flex:1 1 auto; }
+button.hc-locale__option:hover { background:var(--hc-surface-soft); }
+.hc-locale__option.is-current { background:color-mix(in srgb, var(--hc-gold) 14%, transparent); }
+.hc-locale__check { color:var(--hc-gold); display:inline-grid; place-items:center; }
+.hc-locale__option.is-pending { cursor:not-allowed; opacity:.55; }
+.hc-locale__status { font-size:.62rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+html[dir="rtl"] .hc-locale__panel { right:auto; left:0; transform-origin:top left; }
+@media (prefers-reduced-motion: reduce) { .hc-locale__trigger:active { transform:none; } .hc-locale__caret { transition:none; } }
+
+/* Kahraman görselden sayfa zeminine geçiş. Yükseklik ekranla büyür ama bir
+   sınırı vardır; kısa ekranda görselin yarısını yutmasın. */
+.hc-home-hero__eritme { position:absolute; inset-inline:0; bottom:0; z-index:-9; height:clamp(5rem, 16vh, 11rem); background:linear-gradient(180deg, rgba(9,9,9,0) 0%, color-mix(in srgb, var(--hc-bg) 55%, transparent) 55%, var(--hc-bg) 100%); pointer-events:none; }
