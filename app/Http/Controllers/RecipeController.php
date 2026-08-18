@@ -95,7 +95,11 @@ final class RecipeController extends Controller
         $nutritionResult = $nutrition->snapshot($recipe, $servings);
 
         $heroMedia = $mediaEligibility->firstEligible($recipe->media);
-        $schema = $schemaService->recipe($recipe, collect($ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings))->pluck('formatted')->values()->all(), $heroMedia?->publicUrl() ?: '');
+        $sosyalGorsel = $heroMedia?->socialImage();
+
+        // Şema görseli de paylaşım varyantını kullanır; Google zengin sonuç
+        // için bu adresi okuyor ve ham kaynak bir tarifte 2,77 MB'tı.
+        $schema = $schemaService->recipe($recipe, collect($ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings))->pluck('formatted')->values()->all(), $sosyalGorsel['url'] ?? '');
 
         return view('recipes.show', [
             'recipe' => $recipe,
@@ -122,9 +126,11 @@ final class RecipeController extends Controller
                 ->get(),
             'seoSchema' => $schema,
             'metadata' => $seo->for($recipe, $recipe->title.' · House Chef Cyprus', $recipe->excerpt ?: $recipe->description, route('recipes.show', $recipe), $request->query() === [] ? 'index,follow' : 'noindex,follow'),
-            'seoImage' => $heroMedia?->publicUrl(),
-            'seoImageWidth' => $heroMedia?->width,
-            'seoImageHeight' => $heroMedia?->height,
+            // Paylaşım görseli ham kaynağı gösteriyordu; bir tarifte
+            // 2,77 MB'lık PNG. Hattın ürettiği 1200x630 varyantı bu iş için.
+            'seoImage' => $sosyalGorsel['url'] ?? null,
+            'seoImageWidth' => $sosyalGorsel['width'] ?? null,
+            'seoImageHeight' => $sosyalGorsel['height'] ?? null,
             'seoImageAlt' => $heroMedia?->alt_text,
         ]);
     }
