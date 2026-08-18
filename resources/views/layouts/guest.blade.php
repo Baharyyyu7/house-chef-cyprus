@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#ff6b00">
     <meta name="robots" content="noindex,nofollow">
-    <link rel="icon" type="image/svg+xml" href="{{ asset(config('brand.assets.favicon')) }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset(config('brand.assets.favicon_32')) }}"><link rel="icon" type="image/png" sizes="16x16" href="{{ asset(config('brand.assets.favicon_16')) }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset(config('brand.assets.apple_touch_icon')) }}">
     <link rel="manifest" href="{{ asset('brand/site.webmanifest') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">

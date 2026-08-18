@@ -41,8 +41,10 @@
     @if(!request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
         <script type="application/ld+json">{"\u0040context":"https://schema.org","\u0040graph":[{"\u0040type":"Organization","name":"House Chef Cyprus","url":"{{ url('/') }}","logo":"{{ url(config('brand.assets.mark_light')) }}"},{"\u0040type":"WebSite","name":"House Chef Cyprus","url":"{{ url('/') }}","inLanguage":"{{ $activeLanguage['html_locale'] ?? 'tr' }}","publisher":{"\u0040type":"Organization","name":"House Chef Cyprus","logo":"{{ url(config('brand.assets.mark_light')) }}"},"potentialAction":{"\u0040type":"SearchAction","target":"{{ route('recipes.index') }}?q={search_term_string}","query-input":"required name=search_term_string"}}]}</script>
     @endif
-    <link rel="icon" type="image/svg+xml" href="{{ asset(config('brand.assets.favicon')) }}">
+    {{-- favicon.svg 77 KB'lık bir kabuktu: içinde gömülü PNG vardı ve
+         tarayıcı onu 16 pikselde göstermek için indiriyordu. --}}
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset(config('brand.assets.favicon_32')) }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset(config('brand.assets.favicon_16')) }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset(config('brand.assets.apple_touch_icon')) }}">
     <link rel="manifest" href="{{ asset('brand/site.webmanifest') }}">
     {{-- İki preconnect gerekiyor: stil dosyası normal istekle, yazı tipi

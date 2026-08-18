@@ -831,3 +831,23 @@ html[dir="rtl"] .hc-locale__panel { right:auto; left:0; transform-origin:top lef
 /* Silme bölümü kendi rengini taşır; gövde metni okunur kalsın diye yalnız
    kenarı ve zemini değişir. */
 .hc-profile-tehlike { border-color:color-mix(in srgb, var(--hc-status-danger, #dc2626) 38%, var(--hc-line)); background:color-mix(in srgb, var(--hc-status-danger, #dc2626) 4%, var(--hc-surface)); }
+
+/* Bağlantıyla bir başlığa atlandığında hedef, yapışkan üst çubuğun altında
+   kalıyordu: sayfa doğru yere kayıyor ama başlık görünmüyordu. Kaydırma
+   çubuğun boyu kadar erken durur. */
+html { scroll-padding-top: calc(var(--hc-header-h, 84px) + 1.25rem); }
+:target { scroll-margin-top: calc(var(--hc-header-h, 84px) + 1.25rem); }
+
+/* Üst çubuktaki kontroller tek bir biçim dili konuşur. Yarıçapları 0, 9999
+   ve 12 piksel arasında değişiyordu; yan yana duran dört şey üç ayrı köşe
+   yuvarlaklığı taşıyınca hiçbiri diğerinin akrabası gibi görünmüyordu.
+   Şekil ortak, ağırlık farklı: yalnız hesap düğmesi dolu, çünkü tek birincil
+   eylem o. */
+.hc-nav-control,
+.hc-nav-control > .hc-locale__trigger { border-radius: 9999px; }
+a.hc-nav-control { padding-inline: 1.1rem; }
+.hc-user-trigger.hc-nav-control { border-radius: 9999px; padding-inline: .3rem 1rem; }
+.hc-user-trigger.hc-nav-control > span:first-child { border-radius: 9999px; }
+/* Anahtar ile diğerlerinin kenarı aynı renkte olsun; farklı kenar rengi
+   aynı sıradaki şeyleri iki gruba bölüyordu. */
+.hc-theme-switch.hc-nav-control { border-color: var(--hc-line); }

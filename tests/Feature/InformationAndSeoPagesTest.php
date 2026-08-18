@@ -40,7 +40,7 @@ final class InformationAndSeoPagesTest extends TestCase
             // Footer artık ayrı iletişim sayfasına bağlanıyor; bölüm belgede
             // duruyor ve çapasıyla hâlâ adreslenebilir olmalı.
             ->assertSee('id="iletisim-ve-geri-bildirim"', false)
-            ->assertSee('brand/house-chef-cyprus-logo-on-light.svg', false);
+            ->assertSee(config('brand.assets.logo_light'), false);
 
         $this->assertSame(1, substr_count($response->getContent(), '<h1'));
         $this->assertStringNotContainsString('Nefis Yemek Tarifleri', $response->getContent());

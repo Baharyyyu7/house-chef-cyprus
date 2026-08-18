@@ -14,6 +14,10 @@
     $assets = config('brand.assets');
     $light = asset($compact ? $assets['mark_light'] : $assets['logo_light']);
     $dark = asset($compact ? $assets['mark_dark'] : $assets['logo_dark']);
+    // Retina için ikinci bir kaynak; tarayıcı ekranına göre hangisini
+    // indireceğine kendi karar verir, ikisini birden indirmez.
+    $lightSrcset = $light.' 1x, '.asset($assets[$compact ? 'mark_light_2x' : 'logo_light_2x']).' 2x';
+    $darkSrcset = $dark.' 1x, '.asset($assets[$compact ? 'mark_dark_2x' : 'logo_dark_2x']).' 2x';
     $imageClass = 'hc-brand-logo__image max-w-full object-contain';
     $imageStyle = 'width: '.$width.'px; height: auto;';
     $alt = config('brand.name');
@@ -25,10 +29,10 @@
     <span {{ $attributes->merge(['class' => 'hc-brand-logo inline-flex shrink-0 items-center']) }}>
 @endif
     @if ($variant === 'auto')
-        <img src="{{ $light }}" width="{{ $compact ? 1024 : 908 }}" height="{{ $compact ? 1024 : 233 }}" class="{{ $imageClass }} dark:hidden" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}" @if($loading === 'eager') fetchpriority="high" @endif>
-        <img src="{{ $dark }}" width="{{ $compact ? 1024 : 908 }}" height="{{ $compact ? 1024 : 233 }}" class="{{ $imageClass }} hidden dark:block" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}" @if($loading === 'eager') fetchpriority="high" @endif>
+        <img src="{{ $light }}" srcset="{{ $lightSrcset }}" width="{{ $compact ? 128 : 344 }}" height="{{ $compact ? 128 : 88 }}" class="{{ $imageClass }} dark:hidden" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}" @if($loading === 'eager') fetchpriority="high" @endif>
+        <img src="{{ $dark }}" srcset="{{ $darkSrcset }}" width="{{ $compact ? 128 : 344 }}" height="{{ $compact ? 128 : 88 }}" class="{{ $imageClass }} hidden dark:block" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}" @if($loading === 'eager') fetchpriority="high" @endif>
     @else
-        <img src="{{ $variant === 'dark' ? $dark : $light }}" width="{{ $compact ? 1024 : 908 }}" height="{{ $compact ? 1024 : 233 }}" class="{{ $imageClass }}" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}" @if($loading === 'eager') fetchpriority="high" @endif>
+        <img src="{{ $variant === 'dark' ? $dark : $light }}" srcset="{{ $variant === 'dark' ? $darkSrcset : $lightSrcset }}" width="{{ $compact ? 128 : 344 }}" height="{{ $compact ? 128 : 88 }}" class="{{ $imageClass }}" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}" @if($loading === 'eager') fetchpriority="high" @endif>
     @endif
 @if ($linked)
     </a>
