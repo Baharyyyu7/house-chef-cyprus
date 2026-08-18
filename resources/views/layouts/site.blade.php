@@ -54,6 +54,39 @@
     <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&family=inter:400,500,600,700&display=swap" rel="stylesheet" />
     <title>{{ $title }}</title>
     <script>if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');</script>
+    <script>
+    /**
+     * Tema değişimi.
+     *
+     * Eskiden sayfadaki her elemana (body *) aynı anda geçiş veriliyordu,
+     * gölgeler dâhil. Binlerce elemanı aynı karede animasyonlamak takılmaya
+     * yol açıyordu; "smooth değil" hissinin sebebi buydu.
+     *
+     * View Transitions destekleyen tarayıcıda tarayıcı, boyanmış kareyi tek
+     * bir kompozit katman olarak çapraz geçirir: eleman sayısı ne olursa
+     * olsun maliyet aynı. Desteklemeyen tarayıcıda dar kapsamlı bir sınıf
+     * devreye girer. Hareket kısıtlıysa geçiş yok, doğrudan değişir.
+     */
+    window.hcTemaDegistir = function (uygula) {
+        var kisitli = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (kisitli) { uygula(); return; }
+
+        if (typeof document.startViewTransition === 'function') {
+            document.startViewTransition(uygula);
+
+            return;
+        }
+
+        var kok = document.documentElement;
+        kok.classList.add('hc-theme-transitioning');
+        uygula();
+        clearTimeout(window.hcThemeTransitionTimer);
+        window.hcThemeTransitionTimer = setTimeout(function () {
+            kok.classList.remove('hc-theme-transitioning');
+        }, 420);
+    };
+    </script>
     {{-- Kırık medya koruması: yüklenemeyen görseller alt metnini ekrana düşürmesin, nötr yüzeyle değişsin. --}}
     <script>
     (function () {

@@ -2,7 +2,7 @@
     type="button"
     role="switch"
     data-theme-switch
-    @click="document.documentElement.classList.add('hc-theme-transitioning'); dark = !dark; clearTimeout(window.hcThemeTransitionTimer); window.hcThemeTransitionTimer = setTimeout(() => document.documentElement.classList.remove('hc-theme-transitioning'), 480)"
+    @click="window.hcTemaDegistir(() => dark = !dark)"
     :aria-checked="dark.toString()"
     :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"
     :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"

@@ -112,12 +112,15 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
 
     /* Tema değişirken yalnız renk yüzeylerini yumuşatır; yerleşim ve kullanıcı
        etkileşimleri etkilenmez. Geçiş sınıfı düğme tarafından kısa süre tutulur. */
+    /* Yedek yol: View Transitions olmayan tarayıcı. Gölge listeden çıktı -
+       her elemanın gölgesini animasyonlamak en pahalı kısımdı ve göz zaten
+       fark etmiyor. */
     html.hc-theme-transitioning body,
     html.hc-theme-transitioning body *,
     html.hc-theme-transitioning body *::before,
     html.hc-theme-transitioning body *::after {
-        transition-property: color, background-color, border-color, outline-color, fill, stroke, box-shadow !important;
-        transition-duration: .42s !important;
+        transition-property: color, background-color, border-color, fill !important;
+        transition-duration: .34s !important;
         transition-timing-function: cubic-bezier(.22, 1, .36, 1) !important;
     }
     .hc-mobile-drawer { border-color: var(--hc-line); background: var(--hc-bg); }
@@ -819,7 +822,18 @@ html[dir="rtl"] .hc-locale__panel { right:auto; left:0; transform-origin:top lef
 
 /* Kahraman görselden sayfa zeminine geçiş. Yükseklik ekranla büyür ama bir
    sınırı vardır; kısa ekranda görselin yarısını yutmasın. */
-.hc-home-hero__eritme { position:absolute; inset-inline:0; bottom:0; z-index:-9; height:clamp(5rem, 16vh, 11rem); background:linear-gradient(180deg, rgba(9,9,9,0) 0%, color-mix(in srgb, var(--hc-bg) 55%, transparent) 55%, var(--hc-bg) 100%); pointer-events:none; }
+/* Tek bir doğrusal gradyan gözde bant oluşturuyordu: geçişin ortasında
+   belirgin bir çizgi görünüyor. Çok duraklı ve kolaylaştırılmış bir eğri
+   bandı kırar, alan da yükseldi ki geçiş aceleye gelmesin. */
+.hc-home-hero__eritme { position:absolute; inset-inline:0; bottom:0; z-index:-9; height:clamp(7rem, 24vh, 16rem); pointer-events:none;
+    background:linear-gradient(180deg,
+        rgba(9,9,9,0) 0%,
+        color-mix(in srgb, var(--hc-bg) 8%, transparent) 22%,
+        color-mix(in srgb, var(--hc-bg) 24%, transparent) 40%,
+        color-mix(in srgb, var(--hc-bg) 50%, transparent) 58%,
+        color-mix(in srgb, var(--hc-bg) 76%, transparent) 74%,
+        color-mix(in srgb, var(--hc-bg) 93%, transparent) 88%,
+        var(--hc-bg) 100%); }
 
 /* Profil sayfası. Baş harf rozeti hesap menüsündekiyle aynı dili konuşur,
    böylece iki yerde de aynı kişi olduğunuz belli olur. */
@@ -851,3 +865,46 @@ a.hc-nav-control { padding-inline: 1.1rem; }
 /* Anahtar ile diğerlerinin kenarı aynı renkte olsun; farklı kenar rengi
    aynı sıradaki şeyleri iki gruba bölüyordu. */
 .hc-theme-switch.hc-nav-control { border-color: var(--hc-line); }
+
+
+/* Tema geçişi: tarayıcı iki kareyi çapraz geçirir. Süre kısa, çünkü bu bir
+   durum değişimi; yolculuk değil. */
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: .38s; animation-timing-function: cubic-bezier(.22,1,.36,1); }
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) { animation: none; }
+}
+
+/* Arama bloğu. Girdi ile düğme ayrı iki nesne değil, tek bir yüzeyin iki
+   parçası: odaklanınca yüzeyin tamamı tepki verir. */
+.hc-arama { border:1px solid var(--hc-line); border-radius:1.6rem; background:var(--hc-surface); padding:1.25rem; box-shadow:var(--hc-elev-1); }
+@media (min-width: 640px) { .hc-arama { padding:1.6rem 1.75rem; } }
+.hc-arama__kutu { position:relative; display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; border:1px solid var(--hc-line); border-radius:9999px; background:var(--hc-surface-soft); padding:.4rem .4rem .4rem 1rem; transition:border-color .22s ease, box-shadow .22s ease, background-color .22s ease; }
+.hc-arama__kutu:focus-within { border-color:var(--hc-brand-primary); background:var(--hc-surface); box-shadow:0 0 0 4px color-mix(in srgb, var(--hc-brand-primary) 16%, transparent); }
+.hc-arama__ikon { display:grid; place-items:center; flex:0 0 auto; color:var(--hc-text-secondary); transition:color .22s ease; }
+.hc-arama__kutu:focus-within .hc-arama__ikon { color:var(--hc-brand-primary); }
+.hc-arama__girdi { flex:1 1 12rem; min-width:0; border:0; background:transparent; padding:.7rem .25rem; font-size:1rem; color:var(--hc-text-primary); }
+.hc-arama__girdi:focus { outline:none; box-shadow:none; }
+.hc-arama__girdi::placeholder { color:var(--hc-text-secondary); }
+
+/* Düğme basıldığı anda küçülür, bırakılınca yaylanarak döner: parmağın
+   altında gerçek bir nesne gibi. Ok, niyeti önden bildirir. */
+.hc-arama__dugme { display:inline-flex; flex:0 0 auto; align-items:center; gap:.45rem; border-radius:9999px; background:var(--hc-brand-primary); color:var(--hc-brand-contrast); padding:.75rem 1.4rem; font-size:.95rem; font-weight:800; box-shadow:var(--hc-elev-1); transition:transform .34s cubic-bezier(.34,1.4,.64,1), box-shadow .22s ease, background-color .22s ease; }
+.hc-arama__dugme:hover { box-shadow:var(--hc-elev-2); }
+.hc-arama__dugme:active { transform:scale(.96); transition-duration:.09s; }
+.hc-arama__dugme:focus-visible { outline:2px solid var(--hc-brand-primary); outline-offset:3px; }
+.hc-arama__ok { display:inline-block; transition:transform .34s cubic-bezier(.34,1.4,.64,1); }
+.hc-arama__dugme:hover .hc-arama__ok { transform:translateX(3px); }
+
+.hc-arama__oneriler { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; margin-top:1rem; }
+.hc-arama__etiket { font-size:.78rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--hc-text-secondary); }
+.hc-arama__cip { border:1px solid var(--hc-line); border-radius:9999px; padding:.4rem .85rem; font-size:.85rem; font-weight:700; color:var(--hc-text-secondary); transition:transform .3s cubic-bezier(.34,1.4,.64,1), border-color .2s ease, color .2s ease, background-color .2s ease; }
+.hc-arama__cip:hover { border-color:var(--hc-brand-primary); color:var(--hc-brand-primary); background:color-mix(in srgb, var(--hc-brand-primary) 8%, transparent); }
+.hc-arama__cip:active { transform:scale(.96); transition-duration:.09s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .hc-arama__dugme, .hc-arama__cip, .hc-arama__ok { transition:background-color .2s ease, color .2s ease, border-color .2s ease; }
+    .hc-arama__dugme:active, .hc-arama__cip:active { transform:none; }
+    .hc-arama__dugme:hover .hc-arama__ok { transform:none; }
+}

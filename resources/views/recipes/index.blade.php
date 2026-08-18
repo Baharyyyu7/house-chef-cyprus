@@ -36,8 +36,27 @@
         </div>
     </section>
 
+    {{-- Arama kutusu sayfanın ilk eylemi; öyle de görünmeli. Girdi ile
+         düğme tek bir yüzeyin parçası, ikon içeride, öneriler altında. --}}
     <section data-reveal class="hc-container py-14 sm:py-18">
-        <div class="hc-search-focus v2-reveal hc-panel grid gap-4 p-4 sm:grid-cols-[1fr_auto] sm:items-center sm:p-5"><div><p class="hc-kicker">Akıllı arama</p><form class="mt-3 flex flex-col gap-2 sm:flex-row" action="{{ route('recipes.index') }}"><label class="sr-only" for="hero-search">Tarif ara</label><input id="hero-search" class="min-w-0 flex-1 border-0 bg-transparent px-3 text-base focus:ring-0" name="q" placeholder="Malzeme, mutfak veya tarif ara"><button class="hc-btn hc-btn-primary shrink-0" type="submit">Tarif ara</button></form></div><div class="flex flex-wrap gap-2 sm:justify-end">@foreach(['20 dakikada', 'Kıbrıs Mutfağı', 'Kolay Tarifler'] as $chip)<a href="{{ route('recipes.index', ['q' => $chip]) }}" class="hc-badge transition hover:border-orange-300 hover:text-orange-700">{{ $chip }}</a>@endforeach</div></div>
+        <div class="hc-arama v2-reveal">
+            <p class="hc-kicker">Akıllı arama</p>
+            <form class="hc-arama__kutu mt-4" action="{{ route('recipes.index') }}">
+                <label class="sr-only" for="hero-search">Tarif ara</label>
+                <span class="hc-arama__ikon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span>
+                <input id="hero-search" class="hc-arama__girdi" name="q" placeholder="Malzeme, mutfak veya tarif ara" autocomplete="off">
+                <button class="hc-arama__dugme" type="submit">
+                    <span>Tarif ara</span>
+                    <span class="hc-arama__ok" aria-hidden="true">→</span>
+                </button>
+            </form>
+            <div class="hc-arama__oneriler">
+                <span class="hc-arama__etiket">Popüler:</span>
+                @foreach(['20 dakikada', 'Kıbrıs Mutfağı', 'Kolay Tarifler'] as $chip)
+                    <a href="{{ route('recipes.index', ['q' => $chip]) }}" class="hc-arama__cip">{{ $chip }}</a>
+                @endforeach
+            </div>
+        </div>
     </section>
 
     <section data-reveal class="hc-container pb-16"><div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="hc-kicker">Seçilmiş tarifler</p><h2 class="hc-title mt-3">Bu hafta mutfağa<br class="sm:hidden"> iyi gelecek tarifler.</h2></div><a class="hc-btn hc-btn-outline" href="{{ route('recipes.index') }}">Tüm tarifleri gör →</a></div>
