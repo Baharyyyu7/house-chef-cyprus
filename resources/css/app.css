@@ -710,3 +710,15 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
     white-space: nowrap;
 }
 .hc-user-trigger[aria-expanded="true"] { background: var(--hc-brand-primary); }
+
+/* --- Yönetim: kalite skorları ----------------------------------------- */
+
+/* Sayının rengi durumu söylüyor: bakan kişi hangisine bakacağını
+   listeyi okumadan görüyor. */
+.hc-quality-score.is-dusuk { color: var(--hc-status-danger); }
+.hc-quality-score.is-orta  { color: var(--hc-status-warning); }
+.hc-quality-score.is-tamam { color: var(--hc-status-success); }
+
+.hc-admin-progress.is-dusuk > span { background: var(--hc-status-danger); }
+.hc-admin-progress.is-orta  > span { background: var(--hc-status-warning); }
+.hc-admin-progress.is-tamam > span { background: var(--hc-status-success); }

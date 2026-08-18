@@ -229,27 +229,65 @@
         ])>
             <nav :class="scrolled ? 'h-[4.25rem]' : 'h-[5.25rem]'" class="hc-container flex items-center justify-between gap-4 transition-all duration-300" aria-label="Ana menü">
                 <x-brand-logo class="scale-105" />
-                <div class="hidden items-center gap-6 text-sm font-bold xl:flex">
-                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}" @if(request()->routeIs('home')) aria-current="page" @endif>Ana Sayfa</a>
-                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>Tarifler</a>
-                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif>Blog</a>
+                {{-- Menüde sekiz üst düzey bağlantı vardı ve sığmadığı için
+                     "Ana / Sayfa", "Ne / Pişirebilirim?", "AI / Mutfak" diye
+                     iki satıra kırılıyordu. Herkesin gittiği yerler üstte
+                     kaldı; üyeye özel araçlar tek bir başlık altına indi.
+                     "Ana Sayfa" kalktı çünkü logo zaten oraya götürüyor. --}}
+                <div class="hidden items-center gap-7 text-sm font-bold xl:flex">
+                    <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>Tarifler</a>
+                    <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif>Blog</a>
                     @if (Route::has('shop.index'))
-                        <a @class(['nav-link', 'nav-link-active' => request()->routeIs('shop.*')]) href="{{ route('shop.index') }}" @if(request()->routeIs('shop.*')) aria-current="page" @endif>Mağaza</a>
+                        <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('shop.*')]) href="{{ route('shop.index') }}" @if(request()->routeIs('shop.*')) aria-current="page" @endif>Mağaza</a>
                     @endif
-                    @if (Route::has('pricing'))
-                        <a @class(['nav-link', 'text-amber-500 font-extrabold', 'nav-link-active' => request()->routeIs('pricing')]) href="{{ route('pricing') }}" @if(request()->routeIs('pricing')) aria-current="page" @endif>👑 Premium</a>
-                    @endif
+
                     @auth
-                        <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>Ne Pişirebilirim?</a>
-                        <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ route('ai-kitchen.index') }}" @if(request()->routeIs('ai-kitchen.*')) aria-current="page" @endif>AI Mutfak</a>
-                        <a @class(['nav-link', 'nav-link-active' => request()->routeIs('pantry.*')]) href="{{ route('pantry.index') }}" @if(request()->routeIs('pantry.*')) aria-current="page" @endif>Dolabım</a>
+                        @php($mutfakRotalari = collect([
+                            ['ingredients.explore', 'Ne pişirebilirim?', 'Elindekilerle eşleştir'],
+                            ['ai-kitchen.index', 'AI Mutfak', 'Menü planla, artanları değerlendir'],
+                            ['pantry.index', 'Dolabım', 'Malzemelerini güncel tut'],
+                            ['favorites.index', 'Favorilerim', 'Beğendiğin tarifler'],
+                            ['collections.index', 'Koleksiyonlarım', 'Kendi gruplarını kur'],
+                        ])->filter(fn ($r) => Route::has($r[0])))
+
+                        <div class="relative" x-data="{ acik: false }" @keydown.escape.window="acik = false">
+                            <button type="button" @click="acik = !acik" :aria-expanded="acik" aria-haspopup="menu"
+                                    @class(['nav-link inline-flex items-center gap-1 whitespace-nowrap', 'nav-link-active' => request()->routeIs('ingredients.explore', 'ai-kitchen.*', 'pantry.*', 'favorites.*', 'collections.*')])>
+                                Mutfağım
+                                <span class="text-[.6rem] transition-transform duration-300" :class="acik ? 'rotate-180' : ''" aria-hidden="true">▾</span>
+                            </button>
+
+                            <div x-cloak x-show="acik" @click="acik = false" class="fixed inset-0 z-40" aria-hidden="true"></div>
+
+                            <div x-cloak x-show="acik"
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 -translate-y-1 scale-[.97]"
+                                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                 x-transition:leave-end="opacity-0 -translate-y-1 scale-[.97]"
+                                 class="hc-user-menu absolute left-1/2 z-50 mt-3 w-[20rem] -translate-x-1/2 origin-top overflow-hidden rounded-3xl p-1.5"
+                                 role="menu" aria-label="Mutfağım">
+                                @foreach ($mutfakRotalari as [$rota, $etiket, $aciklama])
+                                    <a href="{{ route($rota) }}" class="hc-user-menu__item !items-start" role="menuitem">
+                                        <span class="min-w-0">
+                                            <span class="block">{{ $etiket }}</span>
+                                            <span class="hc-caption block font-normal" style="color: var(--hc-text-secondary)">{{ $aciklama }}</span>
+                                        </span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
                     @endauth
+
+                    @if (Route::has('pricing'))
+                        <a @class(['nav-link whitespace-nowrap text-amber-600 dark:text-amber-400', 'nav-link-active' => request()->routeIs('pricing')]) href="{{ route('pricing') }}" @if(request()->routeIs('pricing')) aria-current="page" @endif>Premium</a>
+                    @endif
                 </div>
 
                 <div class="hidden items-center gap-2 xl:flex">
                     <x-theme-switch />
                     @auth
-                        <a href="{{ route('favorites.index') }}" class="hc-icon-button" aria-label="Favoriler"><x-ui.icon name="heart" size="20" /></a>
                         @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline">Yönetim</a>@endif
                         <x-user-menu />
                     @else
@@ -304,10 +342,33 @@
         </main>
 
         <footer class="hc-footer mt-20">
-            <div class="hc-container grid gap-10 py-14 md:grid-cols-[1.35fr_.8fr_.8fr_1fr]">
+            <div class="hc-container grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-[1.3fr_.75fr_.85fr_.85fr_1fr]">
                 <div><x-brand-logo variant="dark" /><p class="hc-footer-muted mt-5 max-w-sm text-sm leading-7">Kıbrıs sıcaklığını modern mutfak deneyimiyle bir araya getiriyoruz. Her tarif, daha keyifli bir ev sofrası için.</p><p class="hc-footer-muted mt-6 text-xs leading-5">Sosyal kanallar yalnız doğrulanmış kurumsal hesaplar yayına alındığında burada yer alır.</p></div>
                 <div><p class="text-sm font-extrabold text-orange-300">Keşfet</p><div class="hc-footer-muted mt-4 grid gap-3 text-sm"><a class="hover:text-orange-300" href="{{ route('recipes.index') }}">Tarifler</a><a class="hover:text-orange-300" href="{{ route('blog.index') }}">Blog</a>@auth<a class="hover:text-orange-300" href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a><a class="hover:text-orange-300" href="{{ route('pantry.index') }}">Malzeme Dolabım</a>@endauth</div></div>
-                <div><p class="text-sm font-extrabold text-orange-300">Platform</p><div class="hc-footer-muted mt-4 grid grid-cols-2 gap-3 text-sm"><a class="hover:text-orange-300" href="{{ route('information.show', 'hakkimizda') }}">Hakkımızda</a><a class="hover:text-orange-300" href="{{ route('information.show', 'nasil-calisir') }}">Nasıl çalışır?</a><a class="hover:text-orange-300" href="{{ route('information.show', 'sss') }}">Sık sorulan sorular</a><a class="hover:text-orange-300" href="{{ route('information.show', 'tarif-dogrulama-politikasi') }}">Tarif doğrulama</a><a class="hover:text-orange-300" href="{{ route('legal.center') }}">Yasal bilgilendirme</a><a class="hover:text-orange-300" href="{{ route('legal.center') }}#gorsel-ve-yapay-zeka-politikasi">Görsel ve medya</a><a class="hover:text-orange-300" href="{{ route('legal.center') }}#icerik-ve-kaynak-politikasi">Kaynak politikası</a><a class="hover:text-orange-300" href="{{ route('legal.center') }}#gizlilik-ve-kisisel-veriler">Gizlilik</a><a class="hover:text-orange-300" href="{{ route('legal.center') }}#kullanim-kosullari">Koşullar</a><a class="hover:text-orange-300" href="{{ route('legal.center') }}#cerez-politikasi">Çerezler</a><a class="hover:text-orange-300" href="{{ route('legal.center') }}#iletisim-ve-geri-bildirim">İletişim</a></div></div>
+                {{-- On bir baglanti tek dar sutunun icinde iki sutuna sikistirilmisti;
+                     "Sik sorulan / sorular" ve "Yasal / bilgilendirme" diye
+                     kiriliyordu. Iki ayri baslik, her biri tek sutun. --}}
+                <div>
+                    <p class="text-sm font-extrabold text-orange-300">Platform</p>
+                    <div class="hc-footer-muted mt-4 grid gap-3 text-sm">
+                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'hakkimizda') }}">Hakkımızda</a>
+                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'nasil-calisir') }}">Nasıl çalışır?</a>
+                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'sss') }}">Sıkça sorulanlar</a>
+                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'tarif-dogrulama-politikasi') }}">Tarif doğrulama</a>
+                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#iletisim-ve-geri-bildirim">İletişim</a>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-sm font-extrabold text-orange-300">Yasal</p>
+                    <div class="hc-footer-muted mt-4 grid gap-3 text-sm">
+                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#gizlilik-ve-kisisel-veriler">Gizlilik</a>
+                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#kullanim-kosullari">Kullanım koşulları</a>
+                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#cerez-politikasi">Çerezler</a>
+                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#gorsel-ve-yapay-zeka-politikasi">Görsel politikası</a>
+                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#icerik-ve-kaynak-politikasi">Kaynak politikası</a>
+                    </div>
+                </div>
                 <div><p class="text-sm font-extrabold text-orange-300">Bülten</p><p class="hc-footer-muted mt-4 text-sm leading-6">Yeni tarifler ve mutfak ilhamı için bizi takipte kalın.</p><a href="{{ route('register') }}" class="hc-btn hc-btn-primary mt-5">Ücretsiz üye ol</a></div>
             </div>
             <div class="border-t border-white/10"><div class="hc-container hc-footer-muted flex flex-col gap-2 py-5 text-xs sm:flex-row sm:items-center sm:justify-between"><span>© {{ date('Y') }} House Chef Cyprus</span><span>Özgün editoryal içerik · Gizlilik odaklı platform</span></div></div>

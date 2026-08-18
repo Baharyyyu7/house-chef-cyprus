@@ -180,9 +180,41 @@
                         @if ($qualityScannedAt)
                             <p class="mt-2 text-xs" style="color: var(--hc-text-muted)">Son tarama: {{ \Illuminate\Support\Carbon::parse($qualityScannedAt)->diffForHumans() }}</p>
                         @endif
-                        <div class="hc-admin-quality-grid mt-6">
-                            @foreach ($qualityScores as $key => $score)
-                                <div><div class="flex items-center justify-between gap-3"><span>{{ config('data_quality.categories.'.$key.'.label', $key === 'overall' ? 'Genel' : ucfirst(str_replace('_', ' ', $key))) }}</span><strong>{{ $score }}%</strong></div><div class="hc-admin-progress mt-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $score }}"><span style="width: {{ max(0, min(100, (int) $score)) }}%"></span></div></div>
+                        @php
+                            // Panelde on kategori aynı ağırlıkta sıralanıyordu ve asıl
+                            // sayı olan "Genel" en altta, diğerleriyle aynı boyutta
+                            // duruyordu. Bakan kişi hangisine bakacağını bilmiyordu.
+                            // Genel skor öne alındı; kalanlar düşükten yükseğe sıralandı,
+                            // çünkü ekranın işi neyin eksik olduğunu göstermek.
+                            $genel = $qualityScores['overall'] ?? null;
+                            $kategoriler = collect($qualityScores)->except('overall')->sort();
+                            $etiket = fn ($k) => config('data_quality.categories.'.$k.'.label')
+                                ?: ucfirst(str_replace('_', ' ', $k));
+                        @endphp
+
+                        @if ($genel !== null)
+                            <div class="mt-6 flex items-end gap-4">
+                                <span class="text-5xl font-black leading-none" style="color: var(--hc-text-primary)">%{{ $genel }}</span>
+                                <span class="hc-body-sm pb-1" style="color: var(--hc-text-secondary)">genel kalite</span>
+                            </div>
+                            <div class="hc-admin-progress mt-3" role="presentation">
+                                <span style="width: {{ $genel }}%"></span>
+                            </div>
+                        @endif
+
+                        <p class="hc-overline mt-7" style="color: var(--hc-text-muted)">Önce bunlar</p>
+                        <div class="hc-admin-quality-grid mt-3">
+                            @foreach ($kategoriler as $key => $score)
+                                @php($durum = $score < 40 ? 'is-dusuk' : ($score < 90 ? 'is-orta' : 'is-tamam'))
+                                <div>
+                                    <div class="flex items-center justify-between gap-3">
+                                        <span>{{ $etiket($key) }}</span>
+                                        <strong @class(['hc-quality-score', $durum])>%{{ $score }}</strong>
+                                    </div>
+                                    <div @class(['hc-admin-progress mt-2', $durum]) role="presentation">
+                                        <span style="width: {{ $score }}%"></span>
+                                    </div>
+                                </div>
                             @endforeach
                         </div>
                     @else
