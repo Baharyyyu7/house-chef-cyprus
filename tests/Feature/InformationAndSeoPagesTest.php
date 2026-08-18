@@ -46,10 +46,12 @@ final class InformationAndSeoPagesTest extends TestCase
         $this->assertStringNotContainsString('Nefis Yemek Tarifleri', $response->getContent());
         $this->assertStringNotContainsString('Vergi numarası', $response->getContent());
 
-        $this->get('/kullanim-kosullari')->assertRedirect('/yasal-bilgilendirme#kullanim-kosullari');
-        $this->get('/gizlilik')->assertRedirect('/yasal-bilgilendirme#gizlilik-ve-kisisel-veriler');
-        $this->get('/cerezler')->assertRedirect('/yasal-bilgilendirme#cerez-politikasi');
-        $this->get('/cerez-politikasi')->assertRedirect('/yasal-bilgilendirme#cerez-politikasi');
+        // Bu üç politika kendi sayfasına taşındı; artık yönlendirme değil,
+        // kendi kanonik adresi olan sayfalar. Metin merkezde tekrarlanmaz.
+        foreach (['/gizlilik', '/cerezler', '/kullanim-kosullari'] as $yol) {
+            $this->get($yol)->assertOk()->assertSee('rel="canonical" href="'.url($yol).'"', false);
+        }
+        $this->get('/cerez-politikasi')->assertRedirect('/cerezler');
         $this->get('/kaynak-politikasi')->assertRedirect('/yasal-bilgilendirme#icerik-ve-kaynak-politikasi');
         $this->get('/kaynak-ve-veri-guven-politikasi')->assertRedirect('/yasal-bilgilendirme#icerik-ve-kaynak-politikasi');
     }

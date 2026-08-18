@@ -15,6 +15,17 @@
             </header>
 
             <div class="mt-10 border-t pt-9 text-[1rem] leading-[1.85] text-warm dark:border-stone-800 dark:text-stone-300 sm:text-[1.06rem]" style="border-color:var(--hc-border-subtle)">
+                {{-- Gizlilik, çerez ve kullanım koşulları kendi sayfalarında.
+                     Merkez onları tekrarlamaz, gösterir. --}}
+                <div class="mt-2 grid gap-3 print:hidden sm:grid-cols-3">
+                    @foreach ($ayriSayfalar as $anahtar => $tanim)
+                        <a class="hc-card-hover rounded-2xl border p-4" style="border-color: var(--hc-line); background: var(--hc-surface)" href="{{ url('/'.$anahtar) }}">
+                            <span class="block font-bold">{{ $tanim['baslik'] }}</span>
+                            <span class="hc-caption mt-1 block" style="color: var(--hc-text-secondary)">{{ $tanim['ozet'] }}</span>
+                        </a>
+                    @endforeach
+                </div>
+
                 @foreach ($sections as $section)
                     <div id="{{ $section['id'] }}" class="scroll-mt-28 [&+&]:mt-6" data-legal-section>
                         @foreach ($section['paragraphs'] as $paragraph)

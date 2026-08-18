@@ -43,6 +43,7 @@ use App\Http\Controllers\IngredientExplorerController;
 use App\Http\Controllers\LegalInformationCenterController;
 use App\Http\Controllers\PantryController;
 use App\Http\Controllers\PersonalizationController;
+use App\Http\Controllers\PolicyPageController;
 use App\Http\Controllers\RecipeCollectionController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\ShopController;
@@ -139,10 +140,13 @@ Route::get('/yasal-bilgilendirme', [LegalInformationCenterController::class, 'in
 // İletişim formu yasal metnin içine gömülüydü; kendi sayfası oldu.
 Route::view('/iletisim', 'contact.index')->name('contact.index');
 Route::post('/yasal-bilgilendirme/iletisim', [ContactRequestController::class, 'store'])->middleware('throttle:contact-request')->name('legal.center.contact.store');
-Route::redirect('/kullanim-kosullari', '/yasal-bilgilendirme#kullanim-kosullari', 301);
-Route::redirect('/gizlilik', '/yasal-bilgilendirme#gizlilik-ve-kisisel-veriler', 301);
-Route::redirect('/cerezler', '/yasal-bilgilendirme#cerez-politikasi', 301);
-Route::redirect('/cerez-politikasi', '/yasal-bilgilendirme#cerez-politikasi', 301);
+// Bu üç politika kendi sayfasında duruyor. Bölümler yasal merkezden
+// taşındı, kopyalanmadı: aynı metin iki adreste dururken ikisi de
+// yinelenen içerik sayılır.
+Route::get('/gizlilik', PolicyPageController::class)->defaults('sayfa', 'gizlilik')->name('policy.gizlilik');
+Route::get('/cerezler', PolicyPageController::class)->defaults('sayfa', 'cerezler')->name('policy.cerezler');
+Route::get('/kullanim-kosullari', PolicyPageController::class)->defaults('sayfa', 'kullanim-kosullari')->name('policy.kullanim-kosullari');
+Route::redirect('/cerez-politikasi', '/cerezler', 301);
 Route::redirect('/kaynak-politikasi', '/yasal-bilgilendirme#icerik-ve-kaynak-politikasi', 301);
 Route::redirect('/kaynak-ve-veri-guven-politikasi', '/yasal-bilgilendirme#icerik-ve-kaynak-politikasi', 301);
 Route::get('/{page}', [InformationPageController::class, 'show'])

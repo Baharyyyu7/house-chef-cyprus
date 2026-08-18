@@ -15,7 +15,37 @@ declare(strict_types=1);
  */
 $reklamAcik = (bool) env('GOOGLE_ADSENSE_ENABLED', false);
 
+/*
+ * Üç politika kendi sayfasına taşındı: /gizlilik, /cerezler,
+ * /kullanim-kosullari. Bölümler kopyalanmaz, taşınır - aynı metin iki
+ * adreste durursa yinelenen içerik olur ve ikisi de zayıflar. Yasal merkez
+ * kalan bölümleri tutar ve bu üçüne bağlanır.
+ *
+ * Reklam açıklaması bilerek gizlilik sayfasında: Google reklam çerezlerinin
+ * anlatıldığını gizlilik politikasında arar, çerez sayfasına taşımak o şartı
+ * karşılamaz hâle getirir.
+ */
+$ayriSayfalar = [
+    'gizlilik' => [
+        'baslik' => 'Gizlilik ve Kişisel Veriler',
+        'ozet' => 'Hangi verileri neden işlediğimiz, kimlerle paylaştığımız, ne kadar sakladığımız ve reklamların bu tabloda nerede durduğu.',
+        'bolumler' => ['gizlilik-ve-kisisel-veriler', 'reklam-ve-ucuncu-taraflar', 'kullanici-haklari'],
+    ],
+    'cerezler' => [
+        'baslik' => 'Çerez Politikası',
+        'ozet' => 'Hangi çerezler zorunlu, hangileri izne bağlı ve tercihinizi nasıl değiştirirsiniz.',
+        'bolumler' => ['cerez-politikasi'],
+    ],
+    'kullanim-kosullari' => [
+        'baslik' => 'Kullanım Koşulları',
+        'ozet' => 'Siteyi kullanırken geçerli olan kurallar ve tarafların sorumlulukları.',
+        'bolumler' => ['kullanim-kosullari'],
+    ],
+];
+
 return [
+    'standalone_pages' => $ayriSayfalar,
+
     'title' => 'House Chef Cyprus Kullanım Koşulları, Gizlilik, Çerez ve İçerik Politikası',
     'updated_at' => 'Son güncelleme: 3 Ağustos 2026',
     'introduction' => 'Bu metin, House Chef Cyprus internet sitesinin kullanım koşullarını, tarif ve blog içeriklerine ilişkin bilgilendirmeleri, kullanıcı hesaplarını, kişisel verilerin işlenmesini, çerez kullanımını, telif haklarını, kullanıcı tarafından gönderilen içerikleri ve iletişim süreçlerini açıklamaktadır. House Chef Cyprus internet sitesini ziyaret eden, üyelik oluşturan veya sitedeki hizmetlerden yararlanan kullanıcılar, aşağıda yer alan koşulları okuduklarını ve kabul ettiklerini beyan ederler. House Chef Cyprus; yemek tarifleri, mutfak bilgileri, blog yazıları, kullanıcı hesapları, favoriler, alışveriş listeleri, kişiselleştirilmiş öneriler ve benzeri dijital hizmetler sunabilir. Site adresi https://housechefcyprus.com, iletişim e-posta adresi ise info@housechefcyprus.com şeklindedir.',

@@ -27,7 +27,9 @@ final class PrivacyPolicyCoversAdvertisingWhenAdsRunTest extends TestCase
     {
         $this->reklamDurumu(true);
 
-        $yanit = $this->get(route('legal.center'))->assertOk();
+        // Gizlilik politikası kendi sayfasına taşındı; Google reklam
+        // açıklamasını orada arar ve AdSense'e verilen adres de odur.
+        $yanit = $this->get('/gizlilik')->assertOk();
 
         $yanit->assertSee('Reklamlar ve Üçüncü Taraflar');
         // Google'ın istediği asıl açıklama: önceki ziyaretlere dayalı çerez.
@@ -41,7 +43,7 @@ final class PrivacyPolicyCoversAdvertisingWhenAdsRunTest extends TestCase
     {
         $this->reklamDurumu(false);
 
-        $this->get(route('legal.center'))
+        $this->get('/gizlilik')
             ->assertOk()
             ->assertDontSee('Reklamlar ve Üçüncü Taraflar')
             ->assertDontSee('adssettings.google.com', false);
