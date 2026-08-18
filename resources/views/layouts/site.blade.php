@@ -251,7 +251,7 @@
                     @auth
                         <a href="{{ route('favorites.index') }}" class="hc-icon-button" aria-label="Favoriler"><x-ui.icon name="heart" size="20" /></a>
                         @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline">Yönetim</a>@endif
-                        <a href="{{ route('dashboard') }}" class="inline-flex h-11 items-center gap-2 rounded-2xl bg-charcoal-900 py-2 pl-2 pr-4 text-sm font-extrabold text-white transition hover:bg-orange-600"><span class="grid h-7 w-7 place-items-center rounded-xl bg-orange-500 text-xs">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</span> Hesabım</a>
+                        <x-user-menu />
                     @else
                         <a href="{{ route('login') }}" class="hc-btn hc-btn-outline">Giriş Yap</a>
                         <a href="{{ route('register') }}" class="hc-btn hc-btn-gold">Üye Ol</a>

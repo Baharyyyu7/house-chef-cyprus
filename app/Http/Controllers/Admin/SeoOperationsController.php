@@ -23,14 +23,17 @@ final class SeoOperationsController extends Controller
     {
         $this->admin();
 
+        // Tek ölçüm, iki alan. Eskiden snapshot() iki kez çağrılıyordu.
+        $olcum = $authority->snapshot();
+
         return view('admin.seo.index', [
             'issues' => SeoIssue::query()->whereNull('resolved_at')->latest('last_detected_at')->limit(8)->get(),
             'opportunities' => ContentOpportunity::query()->where('status', 'open')->orderByDesc('priority')->limit(8)->get(),
             'briefs' => ContentBrief::query()->latest()->limit(5)->get(),
             'postsAwaitingReview' => BlogPost::query()->whereIn('editorial_status', ['draft', 'in_review', 'pending'])->count(),
             'providerHealth' => app(SeoProviderHealthService::class)->snapshot(),
-            'score' => $authority->snapshot()['score'],
-            'authority' => $authority->snapshot(),
+            'score' => $olcum['score'],
+            'authority' => $olcum,
         ]);
     }
 

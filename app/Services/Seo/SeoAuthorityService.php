@@ -19,8 +19,31 @@ use App\Models\SeoIssue;
  */
 final class SeoAuthorityService
 {
+    /**
+     * Ölçüm istek başına bir kez yapılır.
+     *
+     * snapshot() onlarca sayım sorgusu çalıştırıyor ve SEO ekranı onu aynı
+     * istekte iki kez çağırıyordu (bir kez skor için, bir kez tamamı için),
+     * yani sayfanın maliyeti iki katıydı. Sayılar tek bir istek içinde
+     * değişmediği için sonucu burada tutmak hem doğru hem de çağıranı
+     * dikkatli olmaya zorlamaktan daha güvenli.
+     *
+     * @var array<string,mixed>|null
+     */
+    private ?array $olculen = null;
+
     /** @return array{score:int,indexable:array<string,int>,coverage:array<string,int>,issues:array<string,int>,topics:array<string,int>,last_audit_at:?string} */
     public function snapshot(): array
+    {
+        if ($this->olculen !== null) {
+            return $this->olculen;
+        }
+
+        return $this->olculen = $this->olc();
+    }
+
+    /** @return array{score:int,indexable:array<string,int>,coverage:array<string,int>,issues:array<string,int>,topics:array<string,int>,last_audit_at:?string} */
+    private function olc(): array
     {
         $openIssues = SeoIssue::query()->whereNull('resolved_at');
         $issues = [
