@@ -15,8 +15,15 @@
 
         $sorunlu = ['rejected', 'unavailable', 'blocked'];
 
-        $asamaSayilari = collect($asamalar)->map(fn ($tanim) => collect($rows)->whereIn('status', $tanim[2])->count());
-        $sorunluSayi = collect($rows)->whereIn('status', $sorunlu)->count();
+        // Sayımlar tek geçişte çıkar. Önce her aşama için ayrı ayrı
+        // whereIn(...)->count() çalışıyordu; envanter 2891 satır olduğu için
+        // aynı koleksiyon baştan sona beş kez taranıyordu ve sayfanın
+        // maliyetinin çoğu buradaydı.
+        $durumSayilari = collect($rows)->countBy('status');
+        $topla = fn (array $durumlar) => collect($durumlar)->sum(fn ($d) => $durumSayilari[$d] ?? 0);
+
+        $asamaSayilari = collect($asamalar)->map(fn ($tanim) => $topla($tanim[2]));
+        $sorunluSayi = $topla($sorunlu);
 
         $renkler = [
             'rose' => 'border-rose-200 bg-rose-50 text-rose-950',
@@ -27,7 +34,10 @@
 
         $secili = request('asama', '');
         $seciliDurumlar = $secili === 'sorunlu' ? $sorunlu : ($asamalar[$secili][2] ?? []);
+        // Tablo zaten ilk 100 kaydı basıyor; tüm koleksiyonu ayrıca
+        // filtrelemek yerine sayfaya girecek kadarını almak yeterli.
         $gosterilecek = $seciliDurumlar === [] ? collect($rows) : collect($rows)->whereIn('status', $seciliDurumlar);
+        $gosterilecekSayi = $gosterilecek->count();
     @endphp
 
     <section class="hc-container py-8 sm:py-10">
@@ -98,8 +108,8 @@
                 </tbody>
             </table>
         </div>
-        @if($gosterilecek->count() > 100)
-            <p class="mt-3 text-xs" style="color: var(--hc-text-muted)">İlk 100 kayıt gösteriliyor ({{ number_format($gosterilecek->count()) }} kayıt var). Aşama veya içerik türü seçerek daraltın.</p>
+        @if($gosterilecekSayi > 100)
+            <p class="mt-3 text-xs" style="color: var(--hc-text-muted)">İlk 100 kayıt gösteriliyor ({{ number_format($gosterilecekSayi) }} kayıt var). Aşama veya içerik türü seçerek daraltın.</p>
         @endif
 
         @if($candidates->isNotEmpty())

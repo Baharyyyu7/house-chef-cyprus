@@ -45,7 +45,13 @@
             </div>
         @else
             <div class="mt-8 space-y-3">
-                @foreach($eksik as $tarif)
+                {{-- Ekranın işi bir partiyi kopyalayıp üretime vermek; yüzlerce
+                     bloğu birden basmak sayfayı yavaşlatıyordu. Sayaç gerçek
+                     toplamı gösterir, liste bir partilik kadarını. --}}
+                @if($eksik->count() > 50){{-- eksikNotu --}}
+                    <p class="hc-body-sm" style="color: var(--hc-text-secondary)">Toplam {{ number_format($eksik->count()) }} tarifin ilk 50'si listeleniyor. Bu parti üretildikten sonra sayfayı yenileyin.</p>
+                @endif
+                @foreach($eksik->take(50) as $tarif)
                     <article class="hc-v3-card overflow-hidden" x-data="{ acik: false }">
                         <button type="button" @click="acik = !acik"
                                 class="flex w-full items-center justify-between gap-4 p-4 text-left transition-colors duration-200 hover:bg-stone-50 dark:hover:bg-white/5"
