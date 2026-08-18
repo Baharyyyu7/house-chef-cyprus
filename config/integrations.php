@@ -30,6 +30,24 @@ return [
             'client_id' => env('GOOGLE_ADSENSE_CLIENT_ID'),
             'verification_meta_enabled' => (bool) env('GOOGLE_ADSENSE_VERIFICATION_META_ENABLED', false),
             'certified_cmp_enabled' => (bool) env('GOOGLE_CERTIFIED_CMP_ENABLED', false),
+
+            /*
+             * Onayı kimin topladığı.
+             *
+             * 'custom'  : kendi bandımız sorar, hc_advertising_consent çerezi
+             *             karar verir. Varsayılan ve bugüne kadarki davranış.
+             * 'google'  : Google'ın kendi sertifikalı CMP'si (Privacy &
+             *             messaging) sorar. Bu CMP AdSense betiğinin içinden
+             *             gelir, dolayısıyla betik onaydan ÖNCE yüklenmek
+             *             zorundadır; yoksa mesaj hiç görünmez ve onay hiç
+             *             oluşmaz. Betik Consent Mode v2 varsayılanları
+             *             "denied" iken yüklenir ve TCF sinyali gelene kadar
+             *             kişiselleştirilmiş reklam isteği atmaz.
+             *
+             * 'google' seçmeden önce AdSense panelinde Gizlilik ve mesajlaşma
+             * altında AEA mesajının yayında olması gerekir.
+             */
+            'cmp_provider' => env('GOOGLE_ADSENSE_CMP', 'custom'),
         ],
         'auth' => [
             'enabled' => (bool) env('GOOGLE_AUTH_ENABLED', false),

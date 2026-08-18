@@ -641,3 +641,37 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
 }
 
 @media print { .hc-public-header, .hc-mobile-drawer, .hc-footer, .hc-recipe-detail-hero nav, .hc-theme-button, .hc-icon-button, form, button, .hc-skip-link { display:none !important; } body { background:#fff; color:#111; } .hc-v3-card, .hc-panel { break-inside:avoid; box-shadow:none; } [data-legal-center] { background:#fff !important; padding:0 !important; } [data-legal-document] { max-width:none !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; padding:0 !important; } [data-legal-section] { break-inside:auto; } }
+
+/* =====================================================================
+   Yönetim paneli düzeltmeleri
+   ===================================================================== */
+
+/* Sağlayıcı kartı: ad, durum, model ve açıklama satır içi etiketlerdi ve
+   birbirine yapışıyordu. */
+.hc-provider-card { display: grid; gap: .3rem; align-content: start; }
+.hc-provider-card__name { font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--hc-text-muted); }
+.hc-provider-card__state {
+    justify-self: start;
+    padding: .15rem .5rem;
+    border: 1px solid var(--hc-border-default);
+    border-radius: var(--hc-radius-pill, 999px);
+    background: var(--hc-surface-default);
+    font-family: var(--hc-font-mono, ui-monospace, monospace);
+    font-size: .7rem;
+    font-weight: 700;
+    color: var(--hc-text-secondary);
+    overflow-wrap: anywhere;
+}
+.hc-provider-card__state.is-ready { border-color: var(--hc-status-success); color: var(--hc-status-success); }
+.hc-provider-card__model { margin-top: .15rem; font-size: .82rem; font-weight: 800; color: var(--hc-text-primary); overflow-wrap: anywhere; }
+.hc-provider-card__note { font-size: .78rem; line-height: 1.5; color: var(--hc-text-secondary); }
+
+/* Kenar çubuğundaki katlanır bölüm başlıkları tam genişlikte olduğu için
+   odak halkası kocaman turuncu bir kutu çiziyor ve hata kutusu gibi
+   okunuyordu. İçeri alınmış ve inceltilmiş bir halka aynı işi görür. */
+.admin-shell [data-admin-section-toggle]:focus-visible,
+.admin-shell summary:focus-visible {
+    outline-width: 2px;
+    outline-offset: -2px;
+    border-radius: var(--hc-radius-md);
+}

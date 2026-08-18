@@ -18,8 +18,15 @@
     $clientId = (string) config('integrations.google.adsense.client_id');
     $gecerliKimlik = preg_match('/^ca-pub-\d+$/', $clientId) === 1;
 
-    $onayVar = request()->cookie('hc_advertising_consent') === 'granted';
     $cmpHazir = (bool) config('integrations.google.adsense.certified_cmp_enabled');
+    $cmpSaglayici = (string) config('integrations.google.adsense.cmp_provider', 'custom');
+
+    // Onayı kim topluyorsa karar da onundur. Google'ın kendi CMP'si devredeyse
+    // TCF sinyalini o üretir ve adsbygoogle etiketi ona kendisi uyar; sunucu o
+    // sinyali göremediği için kendi çerezimize bakmak yanlış cevap verir.
+    // 'custom' modunda karar bizim çerezimizdedir ve hiçbir şey değişmez.
+    $onayVar = $cmpSaglayici === 'google'
+        || request()->cookie('hc_advertising_consent') === 'granted';
     $acik = (bool) config('integrations.google.adsense.enabled');
 
     $slotId = (string) config("monetization.slots.{$slotName}", '');

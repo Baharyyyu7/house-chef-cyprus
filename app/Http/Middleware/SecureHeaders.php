@@ -23,9 +23,18 @@ final class SecureHeaders
         $googleFrame = $googleTagEnabled ? ' https://www.googletagmanager.com' : '';
         $adsenseEnabled = (bool) config('integrations.google.adsense.enabled')
             && preg_match('/^ca-pub-\\d+$/', (string) config('integrations.google.adsense.client_id')) === 1;
-        $adsenseScript = $adsenseEnabled ? ' https://pagead2.googlesyndication.com' : '';
-        $adsenseConnect = $adsenseEnabled ? ' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net' : '';
-        $adsenseFrame = $adsenseEnabled ? ' https://googleads.g.doubleclick.net' : '';
+        // Google'ın kendi CMP'si (Privacy & messaging) ayrı alan adlarından
+        // gelir. CSP bunları tanımazsa onay mesajı sessizce engellenir; mesaj
+        // görünmeyince onay oluşmaz ve hiç reklam çıkmaz. Bu alan adları
+        // yalnız o CMP seçiliyken açılır.
+        $googleCmp = $adsenseEnabled && config('integrations.google.adsense.cmp_provider') === 'google';
+        $cmpScript = $googleCmp ? ' https://fundingchoicesmessages.google.com' : '';
+        $cmpConnect = $googleCmp ? ' https://fundingchoicesmessages.google.com' : '';
+        $cmpFrame = $googleCmp ? ' https://fundingchoicesmessages.google.com' : '';
+
+        $adsenseScript = $adsenseEnabled ? ' https://pagead2.googlesyndication.com https://tpc.googlesyndication.com'.$cmpScript : '';
+        $adsenseConnect = $adsenseEnabled ? ' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net'.$cmpConnect : '';
+        $adsenseFrame = $adsenseEnabled ? ' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com'.$cmpFrame : '';
         $scriptPolicy = "script-src 'self' 'unsafe-inline' 'unsafe-eval'{$googleScript}{$adsenseScript}";
         $response->headers->set('Content-Security-Policy', "default-src 'self'; {$scriptPolicy}; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; img-src 'self' data: https:; font-src 'self' data: https://fonts.bunny.net; connect-src 'self'{$googleConnect}{$adsenseConnect}; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com{$googleFrame}{$adsenseFrame}; frame-ancestors 'self'; base-uri 'self'; form-action 'self'");
         $response->headers->set('X-Content-Type-Options', 'nosniff');

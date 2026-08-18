@@ -87,7 +87,7 @@
             @php($groupActive = collect($items)->contains(fn ($item) => request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route'])))
             @php($groupSearch = mb_strtolower($group.' '.collect($items)->pluck('label')->join(' '), 'UTF-8'))
             <section aria-label="{{ $group }}" x-show="!adminSidebarQuery || '{{ $groupSearch }}'.includes(adminSidebarQuery.toLocaleLowerCase('tr-TR'))">
-                <button type="button" @click="acik = (acik === '{{ $group }}' ? '' : '{{ $group }}')" x-show="!adminSidebarCollapsed"
+                <button type="button" data-admin-section-toggle @click="acik = (acik === '{{ $group }}' ? '' : '{{ $group }}')" x-show="!adminSidebarCollapsed"
                         class="group flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-[10px] font-extrabold uppercase tracking-[.16em] transition-colors duration-200 hover:bg-white/5"
                         :class="acik === '{{ $group }}' ? 'text-orange-300' : 'text-white/50 hover:text-white'"
                         :aria-expanded="acik === '{{ $group }}'">
