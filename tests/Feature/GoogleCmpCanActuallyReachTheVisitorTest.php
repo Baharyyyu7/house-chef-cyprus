@@ -32,7 +32,7 @@ final class GoogleCmpCanActuallyReachTheVisitorTest extends TestCase
         config()->set('integrations.google.adsense.enabled', true);
         config()->set('integrations.google.adsense.certified_cmp_enabled', true);
         config()->set('integrations.google.adsense.client_id', 'ca-pub-1614195335767159');
-        config()->set('monetization.slots.sidebar', '9988776655');
+        config()->set('monetization.slots.in_article', ['id' => '9988776655', 'format' => 'in_article']);
     }
 
     public function test_the_google_cmp_loads_before_consent_or_it_can_never_ask(): void

@@ -36,14 +36,36 @@ return [
     | Reklam Yuvaları (Slot IDs)
     |--------------------------------------------------------------------------
     */
+    /*
+     * Her yuva kendi biçimini taşır. AdSense'te oluşturulan birim hangi
+     * biçimdeyse sayfada da o özniteliklerle basılmalı; yanlış öznitelikle
+     * basılan birim ya hiç dolmaz ya da bozuk görünür.
+     *
+     * Yer tutucu kimlikler ("12345678...") bilerek duruyor: gerçek kimlik
+     * girilmediği sürece ad-slot bileşeni hiçbir istek atmaz.
+     */
     'slots' => [
-        'recipe_header' => env('AD_SLOT_RECIPE_HEADER', '1234567890'),
-        'recipe_mid' => env('AD_SLOT_RECIPE_MID', '1234567891'),
-        'recipe_bottom' => env('AD_SLOT_RECIPE_BOTTOM', '1234567892'),
-        'blog_mid' => env('AD_SLOT_BLOG_MID', '1234567893'),
-        'blog_bottom' => env('AD_SLOT_BLOG_BOTTOM', '1234567894'),
-        'sidebar' => env('AD_SLOT_SIDEBAR', '1234567895'),
-        'home_mid' => env('AD_SLOT_HOME_MID', '1234567896'),
+        // Yazı içi: makale metninin arasına girer.
+        'in_article' => [
+            'id' => env('AD_SLOT_IN_ARTICLE', '1234567891'),
+            'format' => 'in_article',
+        ],
+        // Feed içi: liste ve ızgara akışlarının arasına girer.
+        'in_feed' => [
+            'id' => env('AD_SLOT_IN_FEED', '1234567893'),
+            'format' => 'in_feed',
+            'layout_key' => env('AD_SLOT_IN_FEED_LAYOUT_KEY', ''),
+        ],
+        // Multiplex: yazının sonunda içerik önerisi ızgarası.
+        'multiplex' => [
+            'id' => env('AD_SLOT_MULTIPLEX', '1234567892'),
+            'format' => 'multiplex',
+        ],
+        // Görüntülü: duyarlı, genel amaçlı birim.
+        'display' => [
+            'id' => env('AD_SLOT_DISPLAY', '1234567890'),
+            'format' => 'display',
+        ],
     ],
 
     /*

@@ -88,9 +88,6 @@
             <section id="allergens" class="hc-v3-card hc-scroll-target p-5 sm:p-6"><h2 class="hc-heading-3">Alerjenler ve diyet</h2>@if($allergenAnalysis['groups']['contains'])<p class="mt-3 text-sm font-bold text-red-700 dark:text-red-300">⚠ İçerir: {{ collect($allergenAnalysis['groups']['contains'])->pluck('name')->unique()->join(', ') }}</p>@endif@if($allergenAnalysis['groups']['may_contain'])<p class="mt-2 text-sm font-bold text-amber-700 dark:text-amber-300">ⓘ İçerebilir: {{ collect($allergenAnalysis['groups']['may_contain'])->pluck('name')->unique()->join(', ') }}</p>@endif<div class="mt-4 flex flex-wrap gap-2">@foreach($dietaryCompatibility as $code => $compatibility)<span class="hc-v3-badge {{ in_array($compatibility['status'], ['compatible', 'manually_verified'], true) ? 'hc-v3-badge--success' : 'hc-v3-badge--warning' }}">{{ in_array($compatibility['status'], ['compatible', 'manually_verified'], true) ? '✓' : 'ⓘ' }} {{ str($code)->replace('_', ' ')->title() }}: {{ in_array($compatibility['status'], ['compatible', 'manually_verified'], true) ? 'uygun' : ($compatibility['status'] === 'incompatible' ? 'uygun değil' : 'belirsiz') }}</span>@endforeach</div><p class="mt-4 text-xs leading-5" style="color: var(--hc-text-muted)">{{ $allergenAnalysis['medical_disclaimer'] }}</p></section>
 
             <x-membership-invite />
-
-            <!-- Monetization: Sidebar Reklam Yuvası -->
-            <x-ad-slot slot-name="sidebar" />
         </aside>
 
 
@@ -123,11 +120,19 @@
 
             <section id="storage" class="mt-8 grid gap-4 hc-scroll-target md:grid-cols-2"><article class="hc-v3-card p-5 sm:p-6"><p class="hc-overline" style="color: var(--hc-text-muted)">Servis ve saklama</p><h2 class="hc-heading-3 mt-2">Mutfak notları</h2><p class="hc-body-sm mt-4" style="color: var(--hc-text-secondary)">{{ $recipe->serving_suggestions ?: 'Servis önerisi henüz eklenmedi.' }}</p><p class="hc-body-sm mt-3" style="color: var(--hc-text-secondary)"><strong style="color: var(--hc-text-primary)">Saklama:</strong> {{ data_get($recipe->storage_notes, 'uyari', 'Saklama notu henüz eklenmedi.') }}</p>@if($recipe->reheating_notes)<p class="hc-body-sm mt-3" style="color: var(--hc-text-secondary)"><strong style="color: var(--hc-text-primary)">Yeniden ısıtma:</strong> {{ $recipe->reheating_notes }}</p>@endif@if($recipe->freezing_notes)<p class="hc-body-sm mt-3" style="color: var(--hc-text-secondary)"><strong style="color: var(--hc-text-primary)">Dondurma:</strong> {{ $recipe->freezing_notes }}</p>@endif</article><article class="hc-v3-card p-5 sm:p-6"><p class="hc-overline" style="color: var(--hc-text-muted)">Şeffaf kaynak bilgisi</p><h2 class="hc-heading-3 mt-2">Kaynak ve güncellik</h2><p class="hc-body-sm mt-4" style="color: var(--hc-text-secondary)">Doğrulama: <strong style="color: var(--hc-text-primary)">{{ $hasApprovedMedia && $recipe->verification_status === 'verified' ? 'Kayıt ve onaylı medya kontrolü tamamlandı' : 'yeniden editoryal ve medya incelemesi sürüyor' }}</strong></p><p class="hc-body-sm mt-3" style="color: var(--hc-text-secondary)">Son kontrol: {{ $recipe->editorial_reviewed_at?->format('d.m.Y') ?: 'Henüz kaydedilmedi' }}</p>@if($recipe->provenances->isNotEmpty())<p class="hc-body-sm mt-3" style="color: var(--hc-text-secondary)">Kaynak özeti: {{ $recipe->provenances->count() > 1 ? 'Birden fazla kaynakla editoryal olarak araştırıldı.' : ($recipe->provenances->first()->contentSource?->source_name ?: 'Kayıtlı editoryal kaynak') }}</p>@endif</article></section>
 
+            {{-- Yazı içi reklam adımların bittiği yerde durur. AdSense'in kendi
+                 yerleşim rehberi reklamı kenar çubuğuna koymayı açıkça
+                 önermiyor; okuma akışının doğal bir molasında duruyor. --}}
+            <x-ad-slot slot-name="in_article" />
+
             <section class="mt-8 rounded-[1.5rem] bg-charcoal-950 p-5 text-white sm:p-7"><p class="hc-overline text-orange-300">Pişirme rehberi</p><h2 class="hc-heading-3 mt-2">Tarif notları</h2><p class="mt-2 text-sm leading-6 text-stone-300">Bu tarifin püf noktalarını, sürelerini ve alerjen bilgilerini birlikte değerlendirin. Sağlık ve alerji kararları için profesyonel desteğin yerini tutmaz.</p><a class="hc-v3-btn hc-v3-btn--primary mt-5" href="#tips">Püf noktalarına git</a></section>
 
             @if($relatedRecipes->isNotEmpty())
                 <section class="mt-12"><div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">Bir sonraki tarifiniz</p><h2 class="hc-display-lg mt-2">Benzer tarifler</h2></div><a class="hc-v3-btn hc-v3-btn--ghost" href="{{ route('recipes.index', ['cuisine' => $recipe->cuisine?->slug]) }}">Tümünü gör <span aria-hidden="true">→</span></a></div><div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">@foreach($relatedRecipes as $relatedRecipe)<x-recipe-card-v3 :recipe="$relatedRecipe" :show-favorite="false" />@endforeach</div></section>
             @endif
+            {{-- Multiplex birimi içerik önerisi ızgarası; yazının sonunda,
+                 benzer tariflerin ardında duruyor. --}}
+            <x-ad-slot slot-name="multiplex" class="mt-12" />
         </main>
     </section>
 </x-layouts.site>

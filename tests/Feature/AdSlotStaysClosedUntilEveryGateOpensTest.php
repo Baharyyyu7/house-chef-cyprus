@@ -33,7 +33,7 @@ final class AdSlotStaysClosedUntilEveryGateOpensTest extends TestCase
         config()->set('integrations.google.adsense.enabled', true);
         config()->set('integrations.google.adsense.certified_cmp_enabled', true);
         config()->set('integrations.google.adsense.client_id', 'ca-pub-1614195335767159');
-        config()->set('monetization.slots.sidebar', '9988776655');
+        config()->set('monetization.slots.in_article', ['id' => '9988776655', 'format' => 'in_article']);
     }
 
     public function test_it_renders_when_every_gate_is_open(): void
@@ -79,7 +79,7 @@ final class AdSlotStaysClosedUntilEveryGateOpensTest extends TestCase
 
     public function test_a_placeholder_slot_id_never_reaches_google(): void
     {
-        config()->set('monetization.slots.sidebar', '1234567895');
+        config()->set('monetization.slots.in_article', ['id' => '1234567895', 'format' => 'in_article']);
 
         $this->tarifSayfasi(reklamOnayi: 'granted')
             ->assertOk()
