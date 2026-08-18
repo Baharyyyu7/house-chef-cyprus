@@ -1,9 +1,13 @@
-<x-app-layout>
-    <x-slot name="header"><p class="text-sm font-semibold uppercase tracking-[.18em] text-orange-600">Kişisel mutfak</p><h1 class="mt-2 text-3xl font-bold">Tercihlerinizi tanımlayın</h1><p class="mt-2 text-stone-600 dark:text-stone-300">İsteğe bağlıdır; istediğiniz zaman değiştirebilir veya kapatabilirsiniz.</p></x-slot>
+<x-layouts.site title="Kişisel mutfak">
+    <section class="hc-container pt-10">
+        <p class="text-sm font-semibold uppercase tracking-[.18em] text-orange-600">Kişisel mutfak</p><h1 class="mt-2 text-3xl font-bold">Tercihlerinizi tanımlayın</h1><p class="mt-2 text-stone-600 dark:text-stone-300">İsteğe bağlıdır; istediğiniz zaman değiştirebilir veya kapatabilirsiniz.</p>
+    </section>
+
+    
     <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6"><form method="POST" action="{{ route('personalization.onboarding.complete') }}" class="hc-panel space-y-6 p-6">@csrf
         <ol class="grid gap-2 text-sm sm:grid-cols-3" aria-label="Onboarding ilerlemesi"><li class="font-semibold text-orange-600">1. Hane</li><li>2. Tercihler</li><li>3. Onay</li></ol>
         <div class="grid gap-4 sm:grid-cols-2"><label>Hane büyüklüğü<input class="hc-input mt-1 w-full" name="household_size" min="1" max="20" type="number" value="{{ old('household_size', $profile->household_size) }}"></label><label>Varsayılan porsiyon<input class="hc-input mt-1 w-full" name="default_portions" min="1" max="20" type="number" value="{{ old('default_portions', $profile->default_portions) }}"></label><label>En uzun hazırlama süresi (dk)<input class="hc-input mt-1 w-full" name="preferred_duration_max" min="10" max="360" type="number" value="{{ old('preferred_duration_max', $profile->preferred_duration_max) }}"></label><label>Zorluk<select class="hc-input mt-1 w-full" name="preferred_difficulty"><option value="">Farketmez</option><option value="easy">Kolay</option><option value="medium">Orta</option><option value="hard">Zor</option></select></label></div>
         <p class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100"><strong>Alerjen güvenliği:</strong> alerjen veya hariç tutulmuş malzemeyi yalnız public kimliğiyle eklediğinizde önerilerden kesin olarak çıkarır. Bu alan tıbbi tavsiye değildir.</p>
         <div class="flex flex-wrap gap-3"><button class="hc-button-primary" type="submit">Kaydet ve önerileri gör</button><a class="hc-button-secondary" href="{{ route('personalization.index') }}">Şimdilik atla</a></div>
     </form></div>
-</x-app-layout>
+</x-layouts.site>

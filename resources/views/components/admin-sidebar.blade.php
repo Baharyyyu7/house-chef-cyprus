@@ -86,7 +86,12 @@
         @foreach ($groups as $group => $items)
             @php($groupActive = collect($items)->contains(fn ($item) => request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route'])))
             @php($groupSearch = mb_strtolower($group.' '.collect($items)->pluck('label')->join(' '), 'UTF-8'))
+            @php($gunluk = $group === 'Her gün')
             <section aria-label="{{ $group }}" x-show="!adminSidebarQuery || '{{ $groupSearch }}'.includes(adminSidebarQuery.toLocaleLowerCase('tr-TR'))">
+                {{-- "Her gün" akordeon değil: her oturumda kullanılan yerler
+                     bir tıklama arkasında durmamalı. Diğer üç grup kapalı
+                     kalır, derin işler bir kat aşağıda. --}}
+                @unless ($gunluk)
                 <button type="button" data-admin-section-toggle @click="acik = (acik === '{{ $group }}' ? '' : '{{ $group }}')" x-show="!adminSidebarCollapsed"
                         class="group flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-[10px] font-extrabold uppercase tracking-[.16em] transition-colors duration-200 hover:bg-white/5"
                         :class="acik === '{{ $group }}' ? 'text-orange-300' : 'text-white/50 hover:text-white'"
@@ -94,9 +99,12 @@
                     <span>{{ $group }}</span>
                     <span class="transition-transform duration-300 ease-out" :class="acik === '{{ $group }}' ? 'rotate-180' : ''"><x-ui.icon name="chevron-down" size="14" /></span>
                 </button>
+                @else
+                    <p class="px-2 pb-1 pt-2 text-[10px] font-extrabold uppercase tracking-[.16em] text-white/40" x-show="!adminSidebarCollapsed">{{ $group }}</p>
+                @endunless
                 <div class="space-y-1 overflow-hidden"
-                     x-show="acik === '{{ $group }}' || adminSidebarCollapsed || adminSidebarQuery"
-                     x-collapse.duration.250ms>
+                     x-show="{{ $gunluk ? 'true' : "acik === '".$group."'" }} || adminSidebarCollapsed || adminSidebarQuery"
+                     @unless($gunluk) x-collapse.duration.250ms @endunless>
                     @foreach ($items as $item)
                         @php($active = request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route']))
                         @php($itemSearch = mb_strtolower($item['label'], 'UTF-8'))

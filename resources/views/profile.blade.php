@@ -1,8 +1,10 @@
-<x-app-layout>
-    <x-slot name="header">
+<x-layouts.site title="Profilim">
+    <section class="hc-container pt-10">
         <p class="hc-kicker">Hesap ayarları</p>
         <h1 class="mt-2 hc-display-xl">Profilim</h1>
-    </x-slot>
+    </section>
+
+    
     <div class="space-y-6 hc-v3-section-reveal">
         <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <x-ui.card>
@@ -39,4 +41,4 @@
             </div>
         </x-ui.card>
     </div>
-</x-app-layout>
+</x-layouts.site>

@@ -237,9 +237,6 @@
                 <div class="hidden items-center gap-7 text-sm font-bold xl:flex">
                     <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>Tarifler</a>
                     <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif>Blog</a>
-                    @if (Route::has('shop.index'))
-                        <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('shop.*')]) href="{{ route('shop.index') }}" @if(request()->routeIs('shop.*')) aria-current="page" @endif>Mağaza</a>
-                    @endif
 
                     @auth
                         @php($mutfakRotalari = collect([
@@ -282,6 +279,9 @@
 
                     @if (Route::has('pricing'))
                         <a @class(['nav-link whitespace-nowrap text-amber-600 dark:text-amber-400', 'nav-link-active' => request()->routeIs('pricing')]) href="{{ route('pricing') }}" @if(request()->routeIs('pricing')) aria-current="page" @endif>Premium</a>
+                    @endif
+                    @if (Route::has('shop.index'))
+                        <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('shop.*')]) href="{{ route('shop.index') }}" @if(request()->routeIs('shop.*')) aria-current="page" @endif>Mağaza</a>
                     @endif
                 </div>
 
