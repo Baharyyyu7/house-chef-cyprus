@@ -131,6 +131,9 @@ return new class extends Migration
         Schema::dropIfExists('user_subscriptions');
 
         Schema::table('users', function (Blueprint $table) {
+            // stripe_customer_id indeksli oluşturuldu; SQLite indeksi duran
+            // sütunu düşüremiyor, önce indeks kaldırılmalı.
+            $table->dropIndex(['stripe_customer_id']);
             $table->dropColumn([
                 'is_premium',
                 'premium_plan',

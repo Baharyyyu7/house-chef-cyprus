@@ -36,12 +36,18 @@ return new class extends Migration
     {
         Schema::dropIfExists('stripe_webhook_events');
 
+        // checkout_session_id benzersiz indeksle oluşturuldu. SQLite'ta
+        // indeksi duran bir sütun düşürülemez; indeks önce kaldırılmalı.
+        // Aksi hâlde geri alma yolu hata veriyordu, yani deploy ters
+        // gittiğinde başvurulacak emniyet çalışmıyordu.
         Schema::table('tip_contributions', function (Blueprint $table): void {
+            $table->dropUnique(['checkout_session_id']);
             $table->dropIndex(['provider_payment_id']);
             $table->dropColumn('checkout_session_id');
         });
 
         Schema::table('digital_orders', function (Blueprint $table): void {
+            $table->dropUnique(['checkout_session_id']);
             $table->dropIndex(['provider_payment_id']);
             $table->dropColumn('checkout_session_id');
         });
