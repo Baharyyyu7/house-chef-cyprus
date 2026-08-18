@@ -53,6 +53,27 @@ final class AudienceCountryAggregateTest extends TestCase
         $this->assertSame(0, AudienceCountryDay::query()->count());
     }
 
+    public function test_a_country_arriving_as_a_server_variable_is_also_counted(): void
+    {
+        $this->withServerVariables(array_merge($_SERVER, ['GEOIP_COUNTRY_CODE' => 'GR']))
+            ->get('/')
+            ->assertOk();
+
+        $this->assertSame('GR', AudienceCountryDay::query()->sole()->country_code);
+    }
+
+    public function test_when_no_country_arrives_only_key_names_are_cached_never_values(): void
+    {
+        $this->withHeader('X-Geo-City', 'Girne')->get('/')->assertOk();
+
+        $adlar = cache()->get('audience:cografi-anahtar-adlari', []);
+
+        $this->assertContains('x-geo-city', $adlar);
+        // Değer hiçbir yere yazılmamalı; şehir adı bir konum verisidir.
+        $this->assertNotContains('Girne', $adlar);
+        $this->assertSame(0, AudienceCountryDay::query()->count());
+    }
+
     public function test_dashboard_map_prefers_visitor_countries_over_member_profiles(): void
     {
         AudienceCountryDay::query()->create(['day' => now()->toDateString(), 'country_code' => 'DE', 'hits' => 12]);
