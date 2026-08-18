@@ -820,3 +820,14 @@ html[dir="rtl"] .hc-locale__panel { right:auto; left:0; transform-origin:top lef
 /* Kahraman görselden sayfa zeminine geçiş. Yükseklik ekranla büyür ama bir
    sınırı vardır; kısa ekranda görselin yarısını yutmasın. */
 .hc-home-hero__eritme { position:absolute; inset-inline:0; bottom:0; z-index:-9; height:clamp(5rem, 16vh, 11rem); background:linear-gradient(180deg, rgba(9,9,9,0) 0%, color-mix(in srgb, var(--hc-bg) 55%, transparent) 55%, var(--hc-bg) 100%); pointer-events:none; }
+
+/* Profil sayfası. Baş harf rozeti hesap menüsündekiyle aynı dili konuşur,
+   böylece iki yerde de aynı kişi olduğunuz belli olur. */
+.hc-profile-avatar { display:grid; place-items:center; width:3.5rem; height:3.5rem; flex:0 0 auto; border-radius:1.15rem; background:var(--hc-brand-primary); color:#fff; font-size:1.35rem; font-weight:900; }
+.hc-profile-rozet { border-radius:9999px; border:1px solid var(--hc-line); padding:.4rem .8rem; font-size:.72rem; font-weight:800; letter-spacing:.02em; color:var(--hc-text-secondary); white-space:nowrap; }
+.hc-profile-rozet.is-onayli { border-color:color-mix(in srgb, var(--hc-status-success, #16a34a) 45%, transparent); color:var(--hc-status-success, #16a34a); }
+.hc-profile-link { font-size:.82rem; font-weight:800; color:var(--hc-brand-primary); }
+.hc-profile-link:hover { text-decoration:underline; text-underline-offset:3px; }
+/* Silme bölümü kendi rengini taşır; gövde metni okunur kalsın diye yalnız
+   kenarı ve zemini değişir. */
+.hc-profile-tehlike { border-color:color-mix(in srgb, var(--hc-status-danger, #dc2626) 38%, var(--hc-line)); background:color-mix(in srgb, var(--hc-status-danger, #dc2626) 4%, var(--hc-surface)); }

@@ -78,12 +78,9 @@
                 </a>
             @endif
 
-            @if (auth()->user()->isAdmin())
-                <div class="hc-user-menu__rule"></div>
-                <a href="{{ route('admin.dashboard') }}" class="hc-user-menu__item" role="menuitem">
-                    <span class="hc-user-menu__icon" aria-hidden="true">⌘</span>Yönetim alanı
-                </a>
-            @endif
+            {{-- Yönetim bağlantısı burada da vardı; başlık çubuğunda kendi
+                 düğmesi dururken aynı yere giden ikinci bir kapı, menüyü
+                 uzatmaktan başka bir şey yapmıyordu. --}}
 
             <div class="hc-user-menu__rule"></div>
             <form method="post" action="{{ route('logout') }}">
