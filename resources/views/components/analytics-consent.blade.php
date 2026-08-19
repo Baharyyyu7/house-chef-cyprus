@@ -37,7 +37,7 @@
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <p class="hc-body-sm min-w-0 flex-1" style="color: var(--hc-text-secondary)">
                     Siteyi çalıştıran çerezler her zaman açık.
-                    <span class="font-semibold" style="color: var(--hc-text-primary)">Ölçüm@if($reklamSorulacak) ve reklam@endif çerezleri</span> için izninizi soruyoruz.
+                    <span class="font-semibold" style="color: var(--hc-text-primary)">{{ $reklamSorulacak ? 'Ölçüm ve reklam' : 'Ölçüm' }} çerezleri</span> için izninizi soruyoruz.
                 </p>
 
                 <div class="flex shrink-0 flex-wrap items-center gap-2">

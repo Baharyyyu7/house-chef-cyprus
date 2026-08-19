@@ -62,7 +62,9 @@ final class RecipeMediaTruthfulnessPresentationTest extends TestCase
             ->assertSee('Yapay zekâ ile üretilmiş, editoryal olarak onaylanmış görsel.')
             ->assertSee('gerçek fotoğraf olarak sunulmaz');
 
-        $this->get(route('blog.index'))
+        // Uyarı eskiden yalnız listedeydi; liste görselsiz olunca uyarı da
+        // yok olmuştu. Görsel artık detayda duruyor, uyarı da orada.
+        $this->get(route('blog.show', $post))
             ->assertOk()
             ->assertSee('Yapay zekâ görseli')
             ->assertSee('Yapay zekâ ile üretilmiş editoryal illüstrasyon: Test illüstrasyonu');

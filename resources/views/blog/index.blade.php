@@ -12,27 +12,17 @@
             <input id="blog-search" class="hc-input flex-1" name="q" value="{{ request('q') }}" placeholder="Yazılarda ara">
             <button class="hc-v3-btn hc-v3-btn--primary">Ara</button>
         </form>
-        <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3" data-reveal-group>
+        {{-- Öne çıkanlar karusel olarak; altında tam liste duruyor. Karusel
+             aynı anda beş kart gösteriyor, 27 yazının hepsini ona bırakmak
+             geri kalanını gömerdi ve blog listesi bir SEO sayfası. --}}
+        <div class="mt-10">
+            <x-blog-carousel :posts="$posts->take(8)" />
+        </div>
+
+        <h2 class="hc-heading-3 mt-14">Tüm yazılar</h2>
+        <div class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3" data-reveal-group>
             @forelse($posts as $post)
-                {{-- Rehber yazılarının çoğunda fotoğraf yok ve tipografik kapak kullanılır.
-                     Ama onaylı bir görsel varsa onu göstermek gerekir: aksi hâlde editörün
-                     onayladığı görsel yayına hiç çıkmaz ve yapay zekâ açıklaması kaybolur. --}}
-                @php($heroMedia = app(\App\Services\Media\PublicMediaEligibilityService::class)->heroOrFirstEligible($post->heroMedia, $post->media))
                 <article class="hc-v3-card hc-v3-card--interactive group relative flex w-full min-w-0 flex-col overflow-hidden">
-                    <a class="relative block aspect-[4/3] bg-stone-100 dark:bg-stone-900" tabindex="-1" aria-hidden="true" href="{{ route('blog.show', $post) }}">
-                        @if($heroMedia?->publicUrl())
-                            <picture>
-                                <source type="image/avif" srcset="{{ $heroMedia->responsiveUrl(800, 'avif') }}">
-                                <source type="image/webp" srcset="{{ $heroMedia->responsiveUrl(800, 'webp') }}">
-                                <img class="h-full w-full object-cover" src="{{ $heroMedia->responsiveUrl(800) }}" width="800" height="600" alt="{{ $heroMedia->generated_by_ai ? 'Yapay zekâ ile üretilmiş editoryal illüstrasyon: ' : '' }}{{ $heroMedia->alt_text }}" loading="lazy">
-                            </picture>
-                            @if($heroMedia->generated_by_ai)
-                                <span class="absolute right-3 top-3 hc-v3-badge border-white/20 bg-black/55 text-white backdrop-blur">Yapay zekâ görseli</span>
-                            @endif
-                        @else
-                            <x-blog-cover :post="$post" />
-                        @endif
-                    </a>
                     <div class="p-6">
                         <p class="hc-kicker">{{ $post->category?->name ?? 'Mutfak notu' }}</p>
                         <h2 class="mt-2 text-xl font-bold"><a class="before:absolute before:inset-0" href="{{ route('blog.show', $post) }}">{{ $post->title }}</a></h2>

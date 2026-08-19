@@ -53,11 +53,13 @@ final class StaleHeroPointerFallsBackTest extends TestCase
             ->heroOrFirstEligible($post->heroMedia, $post->media));
     }
 
-    public function test_the_listing_shows_the_recovered_image(): void
+    public function test_the_detail_page_shows_the_recovered_image(): void
     {
+        // Liste görselsiz olduğu için kurtarılan görselin görüneceği tek yer
+        // yazının kendi sayfası.
         [$post] = $this->postWithStaleHero();
 
-        $this->get(route('blog.index'))
+        $this->get(route('blog.show', $post))
             ->assertOk()
             ->assertSee('media/blog/uygun', false);
     }

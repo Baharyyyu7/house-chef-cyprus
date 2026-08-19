@@ -258,3 +258,90 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 });
+
+/**
+ * Blog karuseli.
+ *
+ * Kartlar eliptik bir yörüngede durur, merkezdeki büyür. Konum hesabı
+ * React sürümündekiyle aynı mantık: sıra farkı listenin başına/sonuna
+ * sarılır, uzaklaştıkça ölçek ve saydamlık düşer.
+ *
+ * Hareket kısıtlıysa hiçbir şey dönmez ve otomatik ilerleme çalışmaz;
+ * kartlar okunabilir bir sırada durur.
+ */
+document.addEventListener('alpine:init', () => {
+    window.Alpine.data('hcBlogKaruseli', (adet) => ({
+        etkin: 0,
+        duraklat: false,
+        zamanlayici: null,
+        kisitli: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+
+        init() {
+            if (this.kisitli) {
+                return;
+            }
+
+            this.zamanlayici = setInterval(() => {
+                if (! this.duraklat) {
+                    this.ileri();
+                }
+            }, 5200);
+
+            this.$watch('duraklat', () => {});
+        },
+
+        destroy() {
+            if (this.zamanlayici) {
+                clearInterval(this.zamanlayici);
+            }
+        },
+
+        git(sira) {
+            this.etkin = ((sira % adet) + adet) % adet;
+        },
+
+        ileri() {
+            this.git(this.etkin + 1);
+        },
+
+        geri() {
+            this.git(this.etkin - 1);
+        },
+
+        /** Sıra farkı listenin iki ucundan da sarılır: son karttan sonra ilk kart gelir. */
+        fark(sira) {
+            const yari = Math.floor(adet / 2);
+            let f = sira - this.etkin;
+
+            if (f > yari) f -= adet;
+            if (f < -yari) f += adet;
+
+            return f;
+        },
+
+        gorunur(sira) {
+            return Math.abs(this.fark(sira)) <= 2;
+        },
+
+        konum(sira) {
+            const f = this.fark(sira);
+
+            if (this.kisitli) {
+                return Math.abs(f) <= 2 ? '' : 'display:none';
+            }
+
+            if (Math.abs(f) > 2) {
+                return 'opacity:0; pointer-events:none; transform:translate(-50%,-50%) scale(.7)';
+            }
+
+            const aci = (f / 5) * Math.PI;
+            const x = Math.sin(aci) * 240;
+            const y = -Math.cos(aci) * 92 + 92;
+            const uzaklik = Math.abs(f);
+            const olcek = Math.max(0.7, 1 - uzaklik * 0.13);
+            const saydam = Math.max(0.35, 1 - uzaklik * 0.3);
+
+            return `transform: translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${olcek}); opacity:${saydam}; z-index:${10 - uzaklik}`;
+        },
+    }));
+});
