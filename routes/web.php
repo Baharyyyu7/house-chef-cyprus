@@ -291,6 +291,10 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('ai-gorsel-studyosu/unsplash-aday/{candidate:public_id}/onayla', [AiImageStudioController::class, 'approveUnsplashCandidate'])->name('ai-image-studio.unsplash-candidates.approve');
     Route::get('medya/yukle', [AdminMediaController::class, 'create'])->name('media.create');
     Route::post('medya', [AdminMediaController::class, 'store'])->name('media.store');
+    // İçe aktarma ağır bir iş: aynı anda iki kez başlatmanın anlamı yok.
+    Route::post('medya/ice-aktar', [AdminMediaController::class, 'intake'])
+        ->middleware('throttle:6,1')
+        ->name('media.intake');
     Route::post('medya/orphan-tara', [AdminMediaController::class, 'scanOrphans'])->name('media.scan-orphans');
     Route::post('medya/gecici-temizle', [AdminMediaController::class, 'cleanupTemporary'])->name('media.cleanup-temporary');
     Route::get('medya/{publicId}', [AdminMediaController::class, 'show'])->name('media.show');

@@ -34,7 +34,21 @@
                 <h1 class="hc-heading-1">Medya</h1>
                 <p class="hc-body-sm mt-2" style="color: var(--hc-text-secondary)">Yayındaki her görselin dosyası, boyutları ve onayı burada görünür.</p>
             </div>
-            <a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('admin.media.create') }}"><x-ui.icon name="image" size="17" /> Görsel yükle</a>
+            <div class="flex flex-wrap items-center gap-2">
+                {{-- Teslim edilen görselleri onay kuyruğuna alır. Aynı iş SSH
+                     ile çalıştırılıyordu; onayı verecek kişi terminale girmek
+                     zorunda kalıyordu. --}}
+                <form method="post" action="{{ route('admin.media.intake') }}"
+                    x-data="{ calisiyor: false }" @submit="calisiyor = true">
+                    @csrf
+                    <button class="hc-v3-btn hc-v3-btn--outline" x-bind:disabled="calisiyor">
+                        <x-ui.icon name="archive" size="17" />
+                        <span x-show="! calisiyor">Teslim edilenleri içe aktar</span>
+                        <span x-cloak x-show="calisiyor">Aktarılıyor…</span>
+                    </button>
+                </form>
+                <a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('admin.media.create') }}"><x-ui.icon name="image" size="17" /> Görsel yükle</a>
+            </div>
         </div>
 
         @if(session('status'))<p class="mt-5 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-900">{{ session('status') }}</p>@endif

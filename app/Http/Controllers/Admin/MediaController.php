@@ -16,6 +16,7 @@ use App\Services\Media\PublicMediaEligibilityService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -254,6 +255,32 @@ final class MediaController extends Controller
         $this->audit('media.temporary_cleanup');
 
         return back()->with('status', 'Geçici dosya temizliği dry-run olarak tamamlandı.');
+    }
+
+    /**
+     * Teslim edilen görselleri onay kuyruğuna alır.
+     *
+     * Aynı iş SSH ile tek komuttan çalıştırılıyordu; onayı verecek kişi
+     * terminale girmek zorunda kalıyordu. Düğme aynı komutu çağırır ve
+     * sonucunu ekrana yazar - hiçbir görsel yayına çıkmaz, hepsi onay
+     * kuyruğunda durur.
+     */
+    public function intake(): RedirectResponse
+    {
+        $this->admin();
+
+        $cikti = new BufferedOutput();
+        Artisan::call('media:intake', ['--apply' => true], $cikti);
+
+        // Komut kendi özetini yazıyor; kullanıcıya sayıyı gösteren satırı
+        // buluyoruz ki ne olduğunu terminale bakmadan görsün.
+        $ozet = collect(explode("\n", $cikti->fetch()))
+            ->map(static fn (string $satir): string => trim(strip_tags($satir)))
+            ->first(static fn (string $satir): bool => str_contains($satir, 'onay kuyruğuna alındı'));
+
+        $this->audit('media.intake');
+
+        return back()->with('status', $ozet ?: 'İçe aktarma çalıştı; onay kuyruğunu kontrol edin.');
     }
 
     private function entity(string $type, string $publicId): Recipe|Ingredient|null
