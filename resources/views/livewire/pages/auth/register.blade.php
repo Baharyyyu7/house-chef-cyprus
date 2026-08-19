@@ -209,6 +209,8 @@ new #[Layout('layouts.guest')] class extends Component
             <x-input-error :messages="$errors->get('terms_and_privacy_acceptance')" class="mt-2" />
         </div>
 
+        <x-social-login class="mt-7" label="veya hesabınızla devam edin" />
+
         <div class="mt-6 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
             <a class="text-sm font-semibold text-gold-700 hover:text-gold-600" href="{{ route('login') }}">
                 Zaten üyeyim

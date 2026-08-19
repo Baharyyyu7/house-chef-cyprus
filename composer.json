@@ -12,6 +12,7 @@
         "php": "^8.3",
         "dompdf/dompdf": "^3.1",
         "laravel/framework": "^13.8",
+        "laravel/socialite": "^5.30",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^3.6.4",
         "livewire/volt": "^1.7.0",

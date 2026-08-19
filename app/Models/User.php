@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $last_activity_at
  * @property Carbon|null $premium_expires_at
  */
-#[Fillable(['name', 'first_name', 'last_name', 'email', 'phone', 'country', 'city_or_region', 'preferred_language', 'registration_source', 'terms_accepted_at', 'password', 'role', 'account_status'])]
+#[Fillable(['name', 'first_name', 'last_name', 'email', 'phone', 'country', 'city_or_region', 'preferred_language', 'registration_source', 'terms_accepted_at', 'password', 'role', 'account_status', 'social_provider', 'social_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {

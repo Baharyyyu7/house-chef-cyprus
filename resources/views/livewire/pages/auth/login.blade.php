@@ -72,6 +72,8 @@ new #[Layout('layouts.guest')] class extends Component
                 Giriş yap
             </x-primary-button>
         </div>
-        <p class="mt-6 text-center text-sm text-muted">Hesabınız yok mu? <a class="font-bold text-gold-700 hover:text-gold-600" href="{{ route('register') }}">Üye olun</a></p>
+        <x-social-login class="mt-7" />
+
+                <p class="mt-6 text-center text-sm text-muted">Hesabınız yok mu? <a class="font-bold text-gold-700 hover:text-gold-600" href="{{ route('register') }}">Üye olun</a></p>
     </form>
 </div>

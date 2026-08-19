@@ -35,6 +35,22 @@ return [
         ],
     ],
 
+    /*
+     * Sosyal giriş. Anahtarlar yoksa config/social_login.php sağlayıcıyı
+     * kapalı sayar ve düğme hiç basılmaz.
+     */
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('APP_URL').'/giris/google/geri-donus',
+    ],
+
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'redirect' => env('APP_URL').'/giris/github/geri-donus',
+    ],
+
     'stripe' => [
         'secret' => env('STRIPE_SECRET'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),

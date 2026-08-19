@@ -84,6 +84,17 @@ Route::post('/destek-ol', [TipController::class, 'process'])->name('tip.process'
 
 Route::get('/', [RecipeController::class, 'index'])->name('home');
 Route::post('/dil', LocaleController::class)->middleware('throttle:20,1')->name('locale.update');
+// Sosyal giriş. Sağlayıcı yapılandırılmamışsa controller 404 döner ve düğme
+// zaten basılmaz; anahtarsız bir düğme herkesi hata sayfasına götürür.
+Route::get('/giris/{provider}/yonlendir', [App\Http\Controllers\Auth\SocialLoginController::class, 'redirect'])
+    ->whereIn('provider', ['google', 'github'])
+    ->middleware('throttle:20,1')
+    ->name('social.redirect');
+Route::get('/giris/{provider}/geri-donus', [App\Http\Controllers\Auth\SocialLoginController::class, 'callback'])
+    ->whereIn('provider', ['google', 'github'])
+    ->middleware('throttle:20,1')
+    ->name('social.callback');
+
 Route::get('/health', HealthController::class)->name('health');
 Route::get('/tarifler', [RecipeController::class, 'index'])->name('recipes.index');
 // Malzemeye göre tarif eşleştirme herkese açıktır; dolap entegrasyonu üye olanlara özel kalır.

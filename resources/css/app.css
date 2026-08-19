@@ -954,3 +954,16 @@ a.hc-nav-control { padding-inline: 1.1rem; }
     .hc-karusel__kart { position:static; width:auto; height:auto; transform:none !important; opacity:1 !important; transition:none; }
     .hc-karusel__kart, .hc-karusel__ok, .hc-karusel__nokta { transition:none; }
 }
+
+/* Sosyal giriş. Ayraç metni çizginin üstüne oturur; iki ayrı çizgi çizmek
+   yerine tek çizgi ve zemin rengiyle kesilen bir etiket kullanılır. */
+.hc-sosyal { display:grid; gap:1rem; }
+.hc-sosyal__ayrac { position:relative; text-align:center; }
+.hc-sosyal__ayrac::before { content:""; position:absolute; inset-inline:0; top:50%; height:1px; background:var(--hc-line); }
+.hc-sosyal__ayrac span { position:relative; padding:0 .85rem; background:var(--hc-surface); font-size:.78rem; font-weight:700; color:var(--hc-text-secondary); }
+.hc-sosyal__dugmeler { display:grid; gap:.6rem; }
+.hc-sosyal__dugme { display:inline-flex; min-height:2.9rem; align-items:center; justify-content:center; gap:.6rem; border:1px solid var(--hc-line); border-radius:1rem; background:var(--hc-surface); padding:0 1rem; font-size:.9rem; font-weight:700; color:var(--hc-text-primary); transition:transform .3s cubic-bezier(.34,1.4,.64,1), border-color .2s ease, background-color .2s ease; }
+.hc-sosyal__dugme:hover { border-color:var(--hc-brand-primary); background:var(--hc-surface-soft); }
+.hc-sosyal__dugme:active { transform:scale(.98); transition-duration:.09s; }
+.hc-sosyal__dugme:focus-visible { outline:2px solid var(--hc-brand-primary); outline-offset:3px; }
+@media (prefers-reduced-motion: reduce) { .hc-sosyal__dugme { transition:border-color .2s ease, background-color .2s ease; } .hc-sosyal__dugme:active { transform:none; } }
