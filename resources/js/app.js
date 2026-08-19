@@ -121,21 +121,44 @@ const mountPageFeatures = () => {
     // Ölçüm ve reklam onayı ayrı çerezlerde tutulur: ölçüme izin veren biri
     // reklama da izin vermiş sayılamaz. Reklam yuvası yalnız kendi çerezine
     // bakar, bu yüzden o çerezi verecek bir düğme olmadan hiçbir reklam çıkmaz.
-    const bindConsent = (selector, datasetKey, cookieName) => {
-        document.querySelectorAll(selector).forEach((button) => {
-            if (button.dataset.consentBound === 'true') return;
-            button.dataset.consentBound = 'true';
-            button.addEventListener('click', () => {
-                const choice = button.dataset[datasetKey] === 'granted' ? 'granted' : 'denied';
-                const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-                document.cookie = `${cookieName}=${choice}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
-                window.location.reload();
-            });
-        });
+    //
+    // "Kabul et" düğmesi iki karar birden taşıyor: hem ölçüm hem reklam.
+    // Eskiden her karar için ayrı bir dinleyici vardı ve her biri kendi
+    // çerezini yazdıktan sonra sayfayı yeniliyordu. İlk dinleyici yenilemeyi
+    // başlatınca ikincisi hiç çalışmıyordu: reklam çerezi yazılmıyor, bant
+    // yenilenen sayfada geri geliyordu. Kullanıcı için düğme "çalışmıyor"du.
+    //
+    // Artık tek dinleyici var: düğmedeki bütün kararlar yazılır, yenileme
+    // en sonda bir kez yapılır.
+    const cerezYaz = (ad, deger) => {
+        const guvenli = window.location.protocol === 'https:' ? '; Secure' : '';
+        document.cookie = `${ad}=${deger}; Path=/; Max-Age=31536000; SameSite=Lax${guvenli}`;
     };
 
-    bindConsent('[data-consent-choice]', 'consentChoice', 'hc_analytics_consent');
-    bindConsent('[data-advertising-choice]', 'advertisingChoice', 'hc_advertising_consent');
+    const kararlar = [
+        ['consentChoice', 'hc_analytics_consent'],
+        ['advertisingChoice', 'hc_advertising_consent'],
+    ];
+
+    document.querySelectorAll('[data-consent-choice], [data-advertising-choice]').forEach((button) => {
+        if (button.dataset.consentBound === 'true') return;
+        button.dataset.consentBound = 'true';
+
+        button.addEventListener('click', () => {
+            let yazildi = false;
+
+            kararlar.forEach(([anahtar, cerez]) => {
+                const secim = button.dataset[anahtar];
+                if (secim === undefined) return;
+                cerezYaz(cerez, secim === 'granted' ? 'granted' : 'denied');
+                yazildi = true;
+            });
+
+            if (yazildi) {
+                window.location.reload();
+            }
+        });
+    });
 };
 
 document.addEventListener('DOMContentLoaded', mountPageFeatures);

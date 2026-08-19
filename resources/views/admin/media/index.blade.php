@@ -4,6 +4,9 @@
         // durumu değil bir alanı tarif ediyordu; "Dosyasız kayıt" ise
         // aslında hiçbir işe yaramayan ölü satırlar demek.
         $suzgecler = [
+            // Onay bekleyenler kendi bölümünde duruyordu ama şeritte yoktu:
+            // sayfayı açan kimse kaç görselin onayını beklediğini görmüyordu.
+            'onay' => ['Onay bekliyor', $sayilar['onay_bekleyen']],
             'dosyali' => ['Görseli hazır', $sayilar['tumu'] - $sayilar['dosyasiz']],
             'yayinda' => ['Sitede görünüyor', $sayilar['yayinda']],
             'dosyasiz' => ['Boş kayıt (görsel yok)', $sayilar['dosyasiz']],

@@ -58,6 +58,10 @@ final class MediaController extends Controller
 
         $media = Media::query()
             ->with('mediable')
+            ->when($suzgec === 'onay', fn ($q) => $q->where('media_status', 'approved_real_media')
+                ->whereNull('approved_by_user_id')
+                ->whereNotNull('path')
+                ->where('path', '!=', ''))
             ->when($suzgec === 'dosyali', fn ($q) => $q->whereNotNull('path')->where('path', '!=', ''))
             ->when($suzgec === 'yayinda', fn ($q) => $q->where('media_status', 'approved_real_media')->whereNotNull('approved_by_user_id'))
             ->when($suzgec === 'dosyasiz', fn ($q) => $q->where(fn ($inner) => $inner->whereNull('path')->orWhere('path', '')))

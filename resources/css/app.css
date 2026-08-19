@@ -967,3 +967,21 @@ a.hc-nav-control { padding-inline: 1.1rem; }
 .hc-sosyal__dugme:active { transform:scale(.98); transition-duration:.09s; }
 .hc-sosyal__dugme:focus-visible { outline:2px solid var(--hc-brand-primary); outline-offset:3px; }
 @media (prefers-reduced-motion: reduce) { .hc-sosyal__dugme { transition:border-color .2s ease, background-color .2s ease; } .hc-sosyal__dugme:active { transform:none; } }
+
+/* Giriş ve kayıt düzeni: solda form, sağda görsel. Dar ekranda görsel hiç
+   yüklenmez - orada yer yok ve mobil bağlantıyı boşuna harcar. */
+.hc-giris { display:grid; min-height:100vh; min-height:100svh; }
+.hc-giris__sutun { display:flex; align-items:center; justify-content:center; padding:2.5rem 1rem; }
+.hc-giris__icerik { width:100%; max-width:28rem; }
+.hc-giris__gorsel { display:none; }
+@media (min-width: 1024px) {
+    .hc-giris { grid-template-columns:1fr 1fr; }
+    .hc-giris__gorsel { position:relative; display:block; overflow:hidden; margin:1rem 1rem 1rem 0; border-radius:1.75rem; }
+    .hc-giris__gorsel img { height:100%; width:100%; object-fit:cover; }
+    /* Perde metnin okunmasını sağlar; görsel değişse bile kontrast korunur. */
+    .hc-giris__perde { position:absolute; inset:0; background:linear-gradient(180deg, rgba(9,9,9,.15) 0%, rgba(9,9,9,.35) 55%, rgba(9,9,9,.82) 100%); }
+    .hc-giris__kartlar { position:absolute; inset-inline:1.5rem; bottom:1.5rem; display:grid; gap:.75rem; }
+    .hc-giris__kart { display:grid; gap:.25rem; border:1px solid rgba(255,255,255,.16); border-radius:1.1rem; background:rgba(20,20,20,.55); padding:.9rem 1.05rem; backdrop-filter:blur(14px); }
+    .hc-giris__kart strong { font-size:.92rem; font-weight:800; color:#fff; }
+    .hc-giris__kart span { font-size:.8rem; line-height:1.5; color:rgba(255,255,255,.78); }
+}

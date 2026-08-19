@@ -16,23 +16,51 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body x-data="{ dark: localStorage.theme === 'dark' }" x-init="$watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light' })" class="min-h-screen font-sans text-[var(--hc-text-primary)] antialiased bg-[var(--hc-bg)]">
-    <main class="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-4 py-10 sm:px-6">
-        <div class="mb-8 flex items-center justify-between">
-            <x-brand-logo context="auth" size="lg" class="transition hover:scale-[1.02] motion-reduce:transition-none" />
-            <x-theme-switch />
-        </div>
-        <section class="hc-v3-card p-6 shadow-xl sm:p-8">
-            {{ $slot }}
-        </section>
-        <div class="mt-8 flex flex-col items-center gap-2 text-center text-xs text-[var(--hc-text-muted)]">
-            <span>© {{ date('Y') }} House Chef Cyprus · Kıbrıs ve Akdeniz Lezzetleri</span>
-            <div class="flex items-center gap-3">
-                <a href="{{ route('home') }}" class="hover:text-orange-600 dark:hover:text-orange-300">Ana Sayfa</a>
-                <span>·</span>
-                <a href="{{ route('legal.center') }}" class="hover:text-orange-600 dark:hover:text-orange-300">Gizlilik &amp; Koşullar</a>
+    {{-- İki sütun: solda form, sağda kahraman görsel ve gerçek özellikler.
+         Referans tasarımdaki kullanıcı yorumları bilerek yok - uydurma yorum
+         yazmak, olmayan bir memnuniyeti varmış gibi göstermek olurdu. Yerine
+         sitenin gerçekten yaptığı işler duruyor. --}}
+    <div class="hc-giris">
+        <main class="hc-giris__sutun">
+            <div class="hc-giris__icerik">
+                <div class="mb-8 flex items-center justify-between">
+                    <x-brand-logo context="auth" size="lg" class="transition hover:scale-[1.02] motion-reduce:transition-none" />
+                    <x-theme-switch />
+                </div>
+                <section class="hc-v3-card p-6 shadow-xl sm:p-8">
+                    {{ $slot }}
+                </section>
+                <div class="mt-8 flex flex-col items-center gap-2 text-center text-xs text-[var(--hc-text-muted)]">
+                    <span>© {{ date('Y') }} House Chef Cyprus · Kıbrıs ve Akdeniz Lezzetleri</span>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('home') }}" class="hover:text-orange-600 dark:hover:text-orange-300">Ana Sayfa</a>
+                        <span>·</span>
+                        <a href="{{ route('legal.center') }}" class="hover:text-orange-600 dark:hover:text-orange-300">Gizlilik &amp; Koşullar</a>
+                    </div>
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
+
+        <aside class="hc-giris__gorsel" aria-hidden="true">
+            <picture>
+                <source type="image/avif" srcset="{{ asset('images/house-chef-hero-v2-1440.avif') }}">
+                <source type="image/webp" srcset="{{ asset('images/house-chef-hero-v2-1440.webp') }}">
+                <img src="{{ asset('images/house-chef-hero-v2-1440.webp') }}" alt="" loading="lazy" decoding="async">
+            </picture>
+            <div class="hc-giris__perde"></div>
+            <div class="hc-giris__kartlar">
+                @foreach ([
+                    ['Dolabınızdakiyle eşleştirin', 'Evdeki malzemeleri girin, bugün ne pişirebileceğinizi görün.'],
+                    ['Ölçüleri doğrulanmış tarifler', 'Her tarifte ev ölçüsü, gram karşılığı ve besin değeri görünür.'],
+                ] as [$baslik, $metin])
+                    <div class="hc-giris__kart">
+                        <strong>{{ $baslik }}</strong>
+                        <span>{{ $metin }}</span>
+                    </div>
+                @endforeach
+            </div>
+        </aside>
+    </div>
     @livewireScripts
 </body>
 </html>
