@@ -37,6 +37,11 @@ final class MediaController extends Controller
             ->whereNull('approved_by_user_id')
             ->whereNotNull('path')
             ->where('path', '!=', '')
+            // Yer tutucu kapaklar onay kuyruğunda işi yok: bunlar sistemin
+            // fotoğraf olmadığında kendi çizdiği tipografik kapaklar, insan
+            // onayı bekleyen çekimler değil. Kuyruğu 3212 tanesi dolduruyor
+            // ve gerçek yemek fotoğrafları arada kayboluyordu.
+            ->where('path', 'not like', 'fallbacks/%')
             ->latest()
             ->limit(60)
             ->get()
@@ -62,7 +67,8 @@ final class MediaController extends Controller
             ->when($suzgec === 'onay', fn ($q) => $q->where('media_status', 'approved_real_media')
                 ->whereNull('approved_by_user_id')
                 ->whereNotNull('path')
-                ->where('path', '!=', ''))
+                ->where('path', '!=', '')
+                ->where('path', 'not like', 'fallbacks/%'))
             ->when($suzgec === 'dosyali', fn ($q) => $q->whereNotNull('path')->where('path', '!=', ''))
             ->when($suzgec === 'yayinda', fn ($q) => $q->where('media_status', 'approved_real_media')->whereNotNull('approved_by_user_id'))
             ->when($suzgec === 'dosyasiz', fn ($q) => $q->where(fn ($inner) => $inner->whereNull('path')->orWhere('path', '')))
