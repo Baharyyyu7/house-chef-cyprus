@@ -183,6 +183,11 @@
         <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-reveal-group>
             @forelse($recipes as $recipe)
                 <x-recipe-card-v3 :recipe="$recipe" />
+                {{-- Feed reklamı akışın içine girer, kenar çubuğuna değil. Altıncı
+                     karttan sonra: okur önce içeriği görsün, reklam araya girsin. --}}
+                @if($loop->iteration === 6 && ! $loop->last)
+                    <x-ad-slot slot-name="in_feed" class="col-span-full my-2" />
+                @endif
             @empty
                 <div class="hc-v3-empty col-span-full"><p class="hc-heading-3">Bu ölçütlere uygun tarif yok.</p><p class="hc-body-sm mt-2">Arama ifadenizi veya filtreleri değiştirip tekrar deneyin.</p><div class="mt-5 flex flex-wrap justify-center gap-3"><a class="hc-v3-btn hc-v3-btn--outline" href="{{ route('recipes.index') }}">Tüm tarifleri göster</a><a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('ingredients.explore') }}">Elindekilerle tarif bul</a></div></div>
             @endforelse

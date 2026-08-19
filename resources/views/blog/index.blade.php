@@ -41,6 +41,11 @@
                         <a class="mt-5 inline-flex font-bold text-orange-700" href="{{ route('blog.show', $post) }}">Devamını oku →</a>
                     </div>
                 </article>
+                {{-- Feed reklamı akışın içinde durur; kenar çubuğuna konursa
+                     performansı düşer ve okuma akışını da bölmez. --}}
+                @if($loop->iteration === 4 && ! $loop->last)
+                    <x-ad-slot slot-name="in_feed" class="col-span-full my-2" />
+                @endif
             @empty
                 <div class="hc-v3-empty md:col-span-2 xl:col-span-3"><strong>Henüz yayınlanmış blog yazısı yok.</strong><p>Yeni editoryal içerikler burada listelenecek.</p></div>
             @endforelse

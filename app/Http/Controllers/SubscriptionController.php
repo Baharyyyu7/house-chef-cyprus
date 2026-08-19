@@ -21,7 +21,7 @@ class SubscriptionController extends Controller
     public function checkout(Request $request, StripeCheckoutService $stripe): RedirectResponse
     {
         if (! $stripe->isReady()) {
-            return back()->withErrors(['payment' => 'Ödeme sistemi henüz açık değil. Premium üyelik yakında kullanıma sunulacak.']);
+            return back()->withErrors(['payment' => 'Ödeme altyapısı yakında aktif olacaktır']);
         }
 
         $request->validate([

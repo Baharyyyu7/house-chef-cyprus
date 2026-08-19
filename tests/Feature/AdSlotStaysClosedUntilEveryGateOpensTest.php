@@ -81,9 +81,12 @@ final class AdSlotStaysClosedUntilEveryGateOpensTest extends TestCase
     {
         config()->set('monetization.slots.in_article', ['id' => '1234567895', 'format' => 'in_article']);
 
+        // İddia yer tutucu kimliğe bakar, sayfadaki tüm reklamlara değil:
+        // aynı sayfada gerçek kimlikli başka bir yuva olduğunda "hiç reklam
+        // yok" beklentisi, asıl sorulan soruyu sormaz hâle geliyordu.
         $this->tarifSayfasi(reklamOnayi: 'granted')
             ->assertOk()
-            ->assertDontSee('data-ad-slot', false);
+            ->assertDontSee('1234567895', false);
     }
 
     public function test_it_stays_closed_when_advertising_is_switched_off(): void

@@ -37,17 +37,25 @@
                 <desc id="world-activity-map-description">{{ $map['summary'] }}</desc>
                 <defs>
                     <linearGradient id="worldMapSurface" x1="0" x2="1" y1="0" y2="1"><stop stop-color="var(--hc-background-subtle)"/><stop offset="1" stop-color="var(--hc-surface-raised)"/></linearGradient>
+                    {{-- Kutup bölgeleri kırpılır. Koordinatları sınıra sıkıştırmak
+                         düz kenarlar üretip haritanın üstünde ve altında gri
+                         bantlar bırakıyordu; kırpma burada yapılınca geometri
+                         olduğu gibi kalır. --}}
+                    <clipPath id="worldMapClip"><rect x="0" y="18" width="960" height="344" rx="24"/></clipPath>
                 </defs>
                 <rect x="0" y="18" width="960" height="344" rx="24" fill="url(#worldMapSurface)"/>
 
                 {{-- Ülkeler kendi sınırlarıyla çizilir; ziyaret geleni yoğunluğa
                      göre boyanır. Önce yalnız birer nokta konuyordu, ülkenin
                      kendisi seçilemiyordu. --}}
-                <x-admin.world-map-countries />
+                <g clip-path="url(#worldMapClip)">
+                    <x-admin.world-map-countries />
 
                 {{-- Dinleyici tek yerde: <use> öğelerinde mouseenter gölge ağaç
                      yüzünden güvenilir tetiklenmiyor, mouseover ise kabarıyor. --}}
-                <g class="hc-world-map__veri" @mouseover="const h = $event.target.closest('[data-ad]'); if (h) { konumla($event); ulke = { ad: h.dataset.ad, sayi: Number(h.dataset.sayi) } }">
+                </g>
+
+                <g clip-path="url(#worldMapClip)" class="hc-world-map__veri" @mouseover="const h = $event.target.closest('[data-ad]'); if (h) { konumla($event); ulke = { ad: h.dataset.ad, sayi: Number(h.dataset.sayi) } }">
                     @foreach ($map['countries'] as $country)
                         @php
                             $oran = min(1, (int) $country['members'] / $enYuksek);

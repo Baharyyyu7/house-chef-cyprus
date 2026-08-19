@@ -113,12 +113,37 @@ for (const f of dunya.features) {
 
     for (const cokgen of cokgenler) {
         for (const halka of cokgen) {
-            // Kutup kırpması dışına taşan halkaları atla: harita alanının
-            // dışına boyanan bir ülke, kutunun kenarına yapışık leke bırakır.
             const noktalar = halka.map(([lng, lat]) => [yuvarla(x(lng)), yuvarla(y(lat))]);
+
+            // Görüş alanının tamamen dışındaki halka atlanır.
             if (noktalar.every(([, py]) => py < UST || py > ALT)) continue;
 
-            d += 'M' + noktalar.map(([px, py]) => `${px} ${Math.min(ALT, Math.max(UST, py))}`).join('L') + 'Z';
+            // Koordinatları sınıra sıkıştırmak (clamp) düz kenarlar üretiyordu:
+            // haritanın üstünde ve altında gri bantlar oluşuyordu. Kırpma artık
+            // SVG tarafında clipPath ile yapılır, geometri bozulmaz.
+            //
+            // Tarih çizgisini geçen ülkeler (Alaska, Rusya, Fiji) bir noktadan
+            // diğerine haritanın bir ucundan öbür ucuna atlıyor ve arada dev bir
+            // dikdörtgen bırakıyordu. Sıçrama görülünce yol kesilir, yeni bir
+            // parça başlar.
+            const esik = GENISLIK / 2;
+            let parca = [];
+            const parcalar = [];
+
+            for (const nokta of noktalar) {
+                if (parca.length > 0 && Math.abs(nokta[0] - parca[parca.length - 1][0]) > esik) {
+                    parcalar.push(parca);
+                    parca = [];
+                }
+                parca.push(nokta);
+            }
+            if (parca.length > 0) parcalar.push(parca);
+
+            for (const p of parcalar) {
+                if (p.length < 3) continue;
+                d += 'M' + p.map(([px, py]) => `${px} ${py}`).join('L') + 'Z';
+            }
+
             for (const [px, py] of noktalar) { toplamX += px; toplamY += py; sayac++; }
         }
     }

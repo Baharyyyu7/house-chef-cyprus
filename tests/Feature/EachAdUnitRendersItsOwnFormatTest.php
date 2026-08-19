@@ -72,10 +72,12 @@ final class EachAdUnitRendersItsOwnFormatTest extends TestCase
 
     public function test_a_placeholder_id_still_blocks_every_format(): void
     {
+        // Yer tutucu kimliğin kendisi aranır: sayfada gerçek kimlikli başka
+        // bir yuva bulunduğunda "hiç reklam yok" iddiası konuyu kaçırıyordu.
         foreach (['in_article', 'multiplex', 'display'] as $bicim) {
             config()->set('monetization.slots.in_article', ['id' => '1234567890', 'format' => $bicim]);
 
-            $this->tarifSayfasi()->assertDontSee('data-ad-slot', false);
+            $this->tarifSayfasi()->assertDontSee('1234567890', false);
         }
     }
 

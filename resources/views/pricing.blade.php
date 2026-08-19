@@ -114,7 +114,7 @@
                                     </form>
                                 @else
                                     <button type="button" disabled class="w-full py-3.5 px-6 rounded-2xl bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-center cursor-not-allowed">
-                                        Yakında
+                                        Yakında Aktif
                                     </button>
                                 @endif
                             @else
@@ -124,7 +124,7 @@
                                     </a>
                                 @else
                                     <button type="button" disabled class="w-full py-3.5 px-6 rounded-2xl bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-center cursor-not-allowed">
-                                        Yakında
+                                        Yakında Aktif
                                     </button>
                                 @endif
                             @endauth

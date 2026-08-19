@@ -42,7 +42,7 @@ class ShopController extends Controller
     public function checkout(Request $request, DigitalProduct $product, StripeCheckoutService $stripe): RedirectResponse
     {
         if (! $stripe->isReady()) {
-            return back()->withErrors(['payment' => 'Ödeme sistemi henüz açık değil. Dijital ürün satışı yakında kullanıma sunulacak.']);
+            return back()->withErrors(['payment' => 'Ödeme altyapısı yakında aktif olacaktır']);
         }
 
         $request->validate([
