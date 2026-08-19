@@ -30,10 +30,13 @@
                 },
             }"
             @mousemove="konumla($event)"
+            @mouseover="const h = $event.target.closest('[data-ad]'); ulke = h ? { ad: h.dataset.ad, sayi: Number(h.dataset.sayi) } : null"
             @mouseleave="ulke = null"
         >
-            <svg class="hc-world-map__svg" viewBox="0 18 960 344" role="img" aria-labelledby="world-activity-map-title world-activity-map-description">
-                <title id="world-activity-map-title">Ziyaret gelen ülkeler için dünya haritası</title>
+            <svg class="hc-world-map__svg" viewBox="0 18 960 344" role="img" aria-label="Ziyaret gelen ülkeler için dünya haritası" aria-describedby="world-activity-map-description">
+                {{-- <title> tarayıcının kendi gri ipucunu açıyor ve bizim
+                     ipucumuzla çakışıyordu; erişilebilirlik aria-label ile
+                     karşılanır, ekranda tek bir ipucu kalır. --}}
                 <desc id="world-activity-map-description">{{ $map['summary'] }}</desc>
                 <defs>
                     <linearGradient id="worldMapSurface" x1="0" x2="1" y1="0" y2="1"><stop stop-color="var(--hc-background-subtle)"/><stop offset="1" stop-color="var(--hc-surface-raised)"/></linearGradient>
@@ -55,7 +58,10 @@
                      yüzünden güvenilir tetiklenmiyor, mouseover ise kabarıyor. --}}
                 </g>
 
-                <g clip-path="url(#worldMapClip)" class="hc-world-map__veri" @mouseover="const h = $event.target.closest('[data-ad]'); if (h) { konumla($event); ulke = { ad: h.dataset.ad, sayi: Number(h.dataset.sayi) } }">
+                {{-- Dinleyici tuvalde duruyor: grupta olsaydı deniz üzerine
+                     gelindiğinde hiç tetiklenmez, son ülkenin bilgisi ekranda
+                     asılı kalırdı. --}}
+                <g clip-path="url(#worldMapClip)" class="hc-world-map__veri">
                     @foreach ($map['countries'] as $country)
                         @php
                             $oran = min(1, (int) $country['members'] / $enYuksek);

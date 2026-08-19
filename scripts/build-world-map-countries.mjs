@@ -92,7 +92,9 @@ const takma = {
 
 const x = (lng) => ((lng + 180) / 360) * GENISLIK;
 const y = (lat) => ((90 - lat) / 180) * YUKSEKLIK;
-const yuvarla = (n) => Math.round(n * 10) / 10;
+// Tam sayıya yuvarlanır. 960 piksel genişlikte 176 ülkenin sınırında ondalık
+// basamak gözle görülmüyor ama dosyanın beşte birini kaplıyordu.
+const yuvarla = (n) => Math.round(n);
 
 const yollar = [];
 const etiketler = [];
