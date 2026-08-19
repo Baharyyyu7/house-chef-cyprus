@@ -1,4 +1,8 @@
-<x-layouts.site :title="$title" :canonical-url="$seoIndexability['canonical']" :robots="$seoIndexability['robots']">
+@php
+    // Açıklama sitedeki her sayfada aynıydı; blog listesi kendi işini anlatır.
+    $blogAciklamasi = 'Mutfak teknikleri, malzeme rehberleri ve Kıbrıs mutfağı üzerine editoryal yazılar. Her yazı kaynak ve doğrulama notlarıyla yayımlanır.';
+@endphp
+<x-layouts.site :title="$title" :meta-description="$blogAciklamasi" :canonical-url="$seoIndexability['canonical']" :robots="$seoIndexability['robots']">
     <section class="hc-container py-12 sm:py-16">
         <p class="hc-kicker">Editoryal içerik</p>
         <h1 class="hc-display-xl mt-3">Mutfak rehberi</h1>

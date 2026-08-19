@@ -1,6 +1,6 @@
-<x-layouts.site title="House Chef Cyprus">
-    <x-slot name="title">House Chef Premium — Sınırsız AI Mutfak ve Özel Avantajlar</x-slot>
-    <x-slot name="description">House Chef Cyprus Premium ile sınırsız AI tarif asistanı, haftalık otomatik menü planlama, reklamsız deneyim ve gelişmiş besin değerlerine erişin.</x-slot>
+<x-layouts.site
+    title="House Chef Premium — Sınırsız AI Mutfak ve Reklamsız Deneyim"
+    meta-description="Premium ile sınırsız AI tarif asistanı, haftalık otomatik menü planlama, akıllı alışveriş listesi ve tamamen reklamsız bir deneyim.">
 
     <div class="py-12 bg-neutral-50 dark:bg-neutral-900/60 min-h-screen">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,6 +1,6 @@
-<x-layouts.site title="House Chef Cyprus">
-    <x-slot name="title">Dijital Mutfak Mağazası — E-Kitap ve Özel Menü Paketleri</x-slot>
-    <x-slot name="description">House Chef Cyprus özel PDF yemek kitapları, dijital menü planları ve gurme mutfak rehberlerini keşfedin.</x-slot>
+<x-layouts.site
+    title="Dijital Mutfak Mağazası — E-Kitap ve Menü Paketleri · House Chef Cyprus"
+    meta-description="Kıbrıs ve Akdeniz mutfağından derlenmiş tariflerin PDF e-kitabı. Sitede yayında olan, ölçüleri doğrulanmış tariflerden hazırlandı; indirip çevrimdışı kullanın.">
 
     <div class="py-12 bg-neutral-50 dark:bg-neutral-900/60 min-h-screen">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,4 +1,21 @@
-<x-layouts.site title="{{ request()->routeIs('home') ? 'House Chef Cyprus' : 'Tarifler' }}" :canonical-url="$seoIndexability['canonical']" :robots="$seoIndexability['robots']">
+@php
+    /**
+     * Başlık ve açıklama sayfaya özel olmalı.
+     *
+     * Ana sayfanın başlığı yalnız "House Chef Cyprus", tarif arşivininki
+     * yalnız "Tarifler" idi; açıklama ise sitedeki her sayfada aynı cümleydi.
+     * Arama sonucunda kullanıcı bu iki satıra bakıp tıklayıp tıklamayacağına
+     * karar veriyor, Google da tekrar eden açıklamayı değerlendirmiyor.
+     */
+    $anaSayfa = request()->routeIs('home');
+    $sayfaBasligi = $anaSayfa
+        ? 'House Chef Cyprus — Kıbrıs ve Akdeniz Mutfağı Tarifleri'
+        : 'Tarifler — Kıbrıs ve Akdeniz Mutfağı · House Chef Cyprus';
+    $sayfaAciklamasi = $anaSayfa
+        ? 'Kıbrıs ve Akdeniz mutfağından ölçüleri doğrulanmış tarifler. Dolabınızdaki malzemeye göre ne pişirebileceğinizi bulun, adım adım pişirin.'
+        : 'Kıbrıs ve Akdeniz mutfağından '.$recipes->total().' doğrulanmış tarif. Süreye, mutfağa, kategoriye ve alerjene göre filtreleyin; her tarifte ölçüler ve besin değerleri görünür.';
+@endphp
+<x-layouts.site :title="$sayfaBasligi" :meta-description="$sayfaAciklamasi" :canonical-url="$seoIndexability['canonical']" :robots="$seoIndexability['robots']">
 @if (request()->routeIs('home'))
     {{-- Hero sayfanın kendisidir, sayfanın üstünde duran bir kart değil.
          Tam genişlikte açılır ve alt kenarı sayfa zeminine karışır; böylece
