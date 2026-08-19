@@ -655,6 +655,26 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
 }
 .hc-reveal-on [data-reveal].is-revealed { opacity: 1; transform: none; }
 
+/* Kahraman döngü videosu. Görselin üstünde durur ve yalnız oynayabildiğinde
+   görünür olur: kaynak takılmazsa ya da dosya düşerse altındaki görsel
+   olduğu gibi kalır, kimse boş bir kare görmez.
+   object-position görselinkiyle aynı (%64) - açılırken kadraj kaymasın. */
+.hc-hero-video {
+    position:absolute; inset:0; z-index:-20;
+    height:100%; width:100%;
+    object-fit:cover; object-position:64% center;
+    opacity:0;
+    transition:opacity .9s cubic-bezier(.22,1,.36,1);
+    pointer-events:none;
+}
+.hc-hero-video[data-hazir] { opacity:1; }
+
+/* Hareket kısıtlıysa video hiç gösterilmez. JS zaten yüklemiyor; bu, kaynağı
+   elle takılmış bir durumda bile geçerli olan ikinci kapı. */
+@media (prefers-reduced-motion: reduce) {
+    .hc-hero-video { display:none; }
+}
+
 /* --- Erişilebilirlik: üç bağımsız tercih ------------------------------ */
 
 @media (prefers-reduced-motion: reduce) {

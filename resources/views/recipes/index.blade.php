@@ -29,6 +29,11 @@
             <source type="image/webp" sizes="100vw" srcset="{{ asset('images/house-chef-hero-v2-900.webp') }} 900w, {{ asset('images/house-chef-hero-v2-1440.webp') }} 1440w, {{ asset('images/house-chef-hero-v2-1717.webp') }} 1717w">
             <img class="v2-hero-image absolute inset-0 -z-20 h-full w-full object-cover object-[64%_center]" src="{{ asset('images/house-chef-hero-v2.png') }}" width="1717" height="916" alt="Halloumi, domates ve zeytinli Kıbrıs esintili Akdeniz tabağı" fetchpriority="high" decoding="async">
         </picture>
+        {{-- Görselin üstünde duran döngü videosu. Görselin yerine geçmez:
+             LCP hâlâ yukarıdaki karedir, video sayfa yüklendikten sonra
+             açılır ve yalnız geniş ekranda, hareket kısıtlı değilse yüklenir.
+             Dosya yoksa bileşen hiçbir şey basmaz. --}}
+        <x-hero-video />
         {{-- İki katman: yatay olan metne okunur bir zemin verir, dikey olan
              hem çubuğu hem de alt kenarı sayfa zeminine bağlar. --}}
         <div class="absolute inset-0 -z-10 bg-[linear-gradient(96deg,rgba(9,9,9,.93)_0%,rgba(9,9,9,.78)_34%,rgba(9,9,9,.28)_66%,rgba(9,9,9,.12)_100%)]"></div>

@@ -44,3 +44,6 @@ tmp-extract/
 # Sürüm etiketi yalnız deploy paketinde üretilir; repoda durursa
 # sürüm testleri yerel SHA ile karışıyor.
 .house-chef-build-commit
+
+# Hero videosu ayrı teslim edilir; depoya ikili dosya girmez.
+/public/videos/

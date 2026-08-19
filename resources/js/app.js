@@ -372,3 +372,140 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 });
+
+/**
+ * Kahraman döngü videosu.
+ *
+ * Video kahraman görselin üzerine biner ve onun yerine geçmez: görsel
+ * sayfanın LCP öğesi, video ise süs. Bu yüzden kaynak HTML'de durmuyor -
+ * burada, sayfa yüklendikten sonra takılıyor. Böylece video baytları açılış
+ * ölçümünün dışında kalıyor.
+ *
+ * Beş kapı var; biri bile kapalıysa video hiç indirilmez ve altındaki
+ * görsel olduğu gibi kalır:
+ *   - dar ekran (mobilde 60 KB'lik görsel için 2 MB video indirilmez)
+ *   - hareket kısıtlı tercihi
+ *   - Save-Data isteği
+ *   - yavaş bağlantı
+ *   - dosyanın oynatılamaması
+ */
+(() => {
+    const video = document.querySelector('[data-hero-video]');
+
+    if (! video) {
+        return;
+    }
+
+    const genisEkran = window.matchMedia('(min-width: 1024px)');
+    const hareketKisitli = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    /**
+     * Koşullar her denemede yeniden ölçülür, bir kez değil.
+     *
+     * Önce bir kez ölçülüyordu ve arka planda açılan sekmede window.innerWidth
+     * 0 dönüyordu: kapı kapanıyor, video o sayfada bir daha hiç açılmıyordu.
+     * Kullanıcının linki yeni sekmede açması yeterliydi. Genişlik ve hareket
+     * tercihi değişebilen şeyler; ekran döndürülebilir, pencere büyütülebilir.
+     */
+    const kapilarAcik = () => {
+        const baglanti = navigator.connection || {};
+
+        return genisEkran.matches
+            && ! hareketKisitli.matches
+            && baglanti.saveData !== true
+            && ! ['slow-2g', '2g', '3g'].includes(baglanti.effectiveType);
+    };
+
+    let kaynakTakildi = false;
+
+    const kaynaklariTak = () => {
+        if (kaynakTakildi) {
+            return;
+        }
+
+        kaynakTakildi = true;
+
+        // Kaynak sırası önemli: tarayıcı ilk oynatabildiğini alır ve WebM
+        // aynı kareyi MP4'ten küçük veriyor.
+        for (const [tur, alan] of [['video/webm', 'webm'], ['video/mp4', 'mp4']]) {
+            const adres = video.dataset[alan];
+
+            if (adres) {
+                const kaynak = document.createElement('source');
+                kaynak.type = tur;
+                kaynak.src = adres;
+                video.append(kaynak);
+            }
+        }
+
+        // Görünür olmak için gerçekten kare basmış olması gerekiyor. canplay
+        // yetmez; dosya düştüğünde boş siyah bir kare açılıyordu.
+        video.addEventListener('playing', () => video.setAttribute('data-hazir', ''), { once: true });
+
+        // Kalıcı olarak vazgeçilen tek durum: dosya oynatılamıyor. Katman
+        // görünmez kalır, altındaki görsel olduğu gibi durur.
+        video.addEventListener('error', () => { video.dataset.kapali = 'medya-hatasi'; }, { once: true });
+
+        video.load();
+    };
+
+    /**
+     * Oynatma denemesi.
+     *
+     * Chrome sekme arka plandayken sessiz videoyu güç tasarrufu için
+     * duraklatıyor ve play() AbortError ile reddediliyor. Bu geçici: reddi
+     * kalıcı saymak, arka planda açılan sekmede videonun hiç görünmemesine
+     * yol açıyordu. Reddedilirse hiçbir şey yapılmaz, sekme öne geldiğinde
+     * yeniden denenir.
+     */
+    const oynat = () => {
+        if (video.dataset.kapali || document.visibilityState !== 'visible' || ! kapilarAcik()) {
+            return;
+        }
+
+        kaynaklariTak();
+
+        const sozu = video.play();
+
+        if (sozu && typeof sozu.catch === 'function') {
+            sozu.catch(() => {});
+        }
+    };
+
+    const durdur = () => {
+        if (kaynakTakildi) {
+            video.pause();
+        }
+    };
+
+    const basla = () => {
+        document.addEventListener('visibilitychange', () => {
+            document.visibilityState === 'visible' ? oynat() : durdur();
+        });
+
+        // Pencere büyüyünce ya da hareket tercihi değişince yeniden denenir.
+        genisEkran.addEventListener('change', () => (genisEkran.matches ? oynat() : durdur()));
+        hareketKisitli.addEventListener('change', () => (hareketKisitli.matches ? durdur() : oynat()));
+
+        // Hero ekrandan çıkınca oynatmanın sürmesi için sebep yok: görünmeyen
+        // bir videoyu döndürmek pil ve işlemci harcar.
+        if ('IntersectionObserver' in window) {
+            new IntersectionObserver((kayitlar) => {
+                for (const kayit of kayitlar) {
+                    kayit.isIntersecting ? oynat() : durdur();
+                }
+            }, { threshold: 0.05 }).observe(video);
+
+            return;
+        }
+
+        oynat();
+    };
+
+    // Sayfanın kendi yüklenmesi bitmeden başlamaz.
+    if (document.readyState === 'complete') {
+        basla();
+    } else {
+        window.addEventListener('load', basla, { once: true });
+    }
+})();
