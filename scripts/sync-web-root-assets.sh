@@ -33,14 +33,41 @@ if [ -d "$CURRENT/public/videos" ]; then
 fi
 
 # Doğrulama: HTML'in istediği dosyalar gerçekten servis ediliyor mu.
+#
+# Süreç ikamesi (< <(...)) kullanılmıyor: bu sunucunun kabuğunda /dev/fd
+# yok ve komut "No such file or directory" ile düşüyor. Aynı tuzağa
+# sha256sum -c ile de bir kez basıldı.
 eksik=0
+liste="$(mktemp)"
+
+# Manifest metin olarak taranmıyor: desen biçimlendirmeye bağlı ve manifest
+# boşluklu yazıldığında grep hiç eşleşme bulmadan sessizce boş liste
+# üretiyordu - doğrulama da hiçbir şeyi doğrulamamış oluyordu. JSON'u
+# ayrıştıran taraf okusun. Girişlerin yanında gelen css dosyaları da sayılır.
+"${PHP_BIN:-/usr/bin/php}" -r '
+    $m = json_decode(file_get_contents($argv[1]), true);
+    foreach (is_array($m) ? $m : [] as $giris) {
+        foreach (array_merge([$giris["file"] ?? null], $giris["css"] ?? []) as $yol) {
+            if (is_string($yol) && $yol !== "") { echo "build/".$yol."\n"; }
+        }
+    }
+' "$CURRENT/public/build/manifest.json" > "$liste"
+
+if [ ! -s "$liste" ]; then
+    echo "HATA: manifest okunamadı ya da boş; doğrulama yapılamıyor." >&2
+    rm -f "$liste"
+    exit 1
+fi
+
 while read -r dosya; do
     [ -n "$dosya" ] || continue
     if [ ! -f "$WEB_ROOT/$dosya" ]; then
         echo "EKSIK: $dosya" >&2
         eksik=1
     fi
-done < <(grep -o '"file":"[^"]*"' "$CURRENT/public/build/manifest.json" | cut -d'"' -f4 | sed 's|^|build/|')
+done < "$liste"
+
+rm -f "$liste"
 
 if [ "$eksik" -ne 0 ]; then
     echo "Web kökü eksik dosyayla kaldı; sürüm değiştirilmemeli." >&2
