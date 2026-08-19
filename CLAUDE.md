@@ -36,6 +36,15 @@
 
 ---
 
+## Ajanlar arası kurallar
+
+Bu depoda Codex ve Antigravity de çalışıyor. Dosya üretmeden önce
+[AGENTS.md](AGENTS.md) ve [docs/AJAN_CALISMA_KURALLARI.md](docs/AJAN_CALISMA_KURALLARI.md)
+geçerlidir: üretilen dosyanın nereye yazılacağı, hangi komutun yerelde
+çalıştırılmayacağı ve silme sırası orada tanımlı.
+
+---
+
 ## Session Start Protocol ⚡
 
 **MANDATORY** at start of each session:

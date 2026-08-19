@@ -35,3 +35,8 @@ Thumbs.db
 public-media-deploy.tar.gz
 recipe-media-*.tar.gz
 tmp-extract/
+
+# Yeniden üretilebilen ve diski dolduran çıktılar. Bir kez 1.205.410 dosya
+# birikti; ayrıntısı docs/AJAN_CALISMA_KURALLARI.md içinde.
+/storage/app/public/fallbacks/
+/storage/app/private/backups/
