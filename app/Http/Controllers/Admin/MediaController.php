@@ -46,6 +46,11 @@ final class MediaController extends Controller
             ->limit(60)
             ->get()
             ->filter(fn (Media $item): bool => $gate->reason($item) === 'human_approval_missing')
+            // path sütununun dolu olması dosyanın durduğu anlamına gelmiyor.
+            // Kuyruktaki altı kaydın da kaynak dosyası diskte yoktu: onay
+            // ekranı gri kutular gösteriyordu ve onaylayan kişi görmediği bir
+            // şeyi onaylamak zorunda kalıyordu.
+            ->filter(fn (Media $item): bool => Storage::disk($item->disk)->exists($item->path))
             ->values();
 
         // Liste 7178 satırı 240 sayfaya yayıyordu ve sütunları public_id, disk,
@@ -64,11 +69,10 @@ final class MediaController extends Controller
 
         $media = Media::query()
             ->with('mediable')
-            ->when($suzgec === 'onay', fn ($q) => $q->where('media_status', 'approved_real_media')
-                ->whereNull('approved_by_user_id')
-                ->whereNotNull('path')
-                ->where('path', '!=', '')
-                ->where('path', 'not like', 'fallbacks/%'))
+            // Sekme, üstteki onay bölümüyle aynı kayıtları göstermeli. Ayrı
+            // sorgular yazıldığında sekme, dosyası olmayan kayıtları geri
+            // getiriyordu: aynı sayfada iki farklı "onay bekleyen" tanımı vardı.
+            ->when($suzgec === 'onay', fn ($q) => $q->whereIn('id', $onayBekleyen->pluck('id')->all()))
             ->when($suzgec === 'dosyali', fn ($q) => $q->whereNotNull('path')->where('path', '!=', ''))
             ->when($suzgec === 'yayinda', fn ($q) => $q->where('media_status', 'approved_real_media')->whereNotNull('approved_by_user_id'))
             ->when($suzgec === 'dosyasiz', fn ($q) => $q->where(fn ($inner) => $inner->whereNull('path')->orWhere('path', '')))

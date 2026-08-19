@@ -40,3 +40,7 @@ tmp-extract/
 # birikti; ayrıntısı docs/AJAN_CALISMA_KURALLARI.md içinde.
 /storage/app/public/fallbacks/
 /storage/app/private/backups/
+
+# Sürüm etiketi yalnız deploy paketinde üretilir; repoda durursa
+# sürüm testleri yerel SHA ile karışıyor.
+.house-chef-build-commit

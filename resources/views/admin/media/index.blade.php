@@ -51,7 +51,6 @@
             </div>
         </div>
 
-        @if(session('status'))<p class="mt-5 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-900">{{ session('status') }}</p>@endif
         @if(session('error'))<p class="mt-5 rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-900">{{ session('error') }}</p>@endif
 
         {{-- Dosyası ve varyantları hazır olduğu hâlde yalnız insan onayı bekleyen
