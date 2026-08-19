@@ -7,8 +7,8 @@ zorunlu tutuluyor**: her biri `media:stage-delivered` ya da
 gelir. Kurala uymayan dosya sessizce atlanır, sunucuda durur ve siteye
 hiç çıkmaz.
 
-Son teslimatta 141 tarif görselinin **92'si** bu sebeplerle içeri alınamadı.
-Bölüm 6 o 92 dosyanın tam listesini veriyor.
+Son teslimatta teslim edilen görsellerin **81'i** bu sebeplerle içeri
+alınamadı. Bölüm 6 hepsinin listesini sebebine göre ayırıyor.
 
 ---
 
@@ -193,12 +193,12 @@ alanını kendin yazma, onay kaydı üretme.
 
 ## 6. Şu an düzeltilmesi gereken teslimat
 
-### 6.1 Yeniden üretilecek: ölçü yetersiz (42 dosya)
+### 6.1 Yeniden üretilecek: ölçü yetersiz (41 dosya)
 
 Aynı slug, aynı içerik, sadece **en az 1600x1350** olacak şekilde.
 
 ```
-recipe--cevizli-sarma-corek-ZYXMN.png            1536x1024
+
 recipe--cevizli-tarator-sos-V4ZPQ.png            1402x1122
 recipe--cevizli-tel-kadayif-7MD0X.png            1610x977
 recipe--citir-sigara-boregi-69V0Z.png            1536x1024
@@ -242,37 +242,16 @@ recipe--sebzeli-teriyaki-tavuk.png               1536x1024  (ayrıca slug eki ek
 recipe--zeytinyagli-nohutlu-pilav.png            1536x1024  (ayrıca slug eki eksik)
 ```
 
-### 6.2 Adı düzeltilecek: slug eki yanlış (22 dosya)
+### 6.2 Bu bölüm kaldırıldı
 
-Görselin kendisi geçerli. **Sadece dosya adını değiştir**, yeniden üretme.
-Sol taraf mevcut ad, sağ taraf olması gereken slug:
+Burada "slug eki yanlış, sadece adını değiştir" diye 22 dosyalık bir liste
+vardı. O liste yanlıştı: sayılan şeyler görsel değil, teslim klasörüne
+karışmış 163 baytlık macOS meta dosyalarıydı (`._recipe--...png`). Tarama
+onları da dosya sanıp slug uyuşmazlığı olarak raporluyordu.
 
-```
-recipe--acili-babaganus-Z3D9S.png                -> acili-babaganus-NJZQA
-recipe--adana-kebabi-Y5MTK.png                   -> adana-kebabi-MT5XA
-recipe--akdeniz-yassi-970NE.png                  -> akdeniz-yassi-P011Z
-recipe--akdeniz-yesillikleri-salatasi-W5PV6.png  -> akdeniz-yesillikleri-salatasi-RFZE4
-recipe--akdeniz-zeytinli-G0EZ6.png               -> akdeniz-zeytinli-PF2MF
-recipe--ali-nazik-kebabi-981YE.png               -> ali-nazik-kebabi-C0493
-recipe--antakya-usulu-kisir-9852K.png            -> antakya-usulu-kisir-3S3N1
-recipe--antalya-usulu-tahinli-piyaz-QS9PM.png    -> antalya-usulu-tahinli-piyaz-1XF5W
-recipe--avci-kebabi-JE0JW.png                    -> avci-kebabi-87E8S
-recipe--babaganus-koz-patlican-salatasi-5FFBY.png-> babaganus-koz-patlican-salatasi-BRQ2J
-recipe--baharatli-citir-patates-kizartmasi-H4K4K.png -> baharatli-citir-patates-kizartmasi-PS7H9
-recipe--bakir-tavada-sucuklu-yumurta-0SHGD.png   -> bakir-tavada-sucuklu-yumurta-Z7W5B
-recipe--balkabagi-corbasi-XC0NG.png              -> balkabagi-corbasi-RDC95
-recipe--beyti-30BTS.png                          -> beyti-MJSQ6
-recipe--bol-malzemeli-ev-kumpiri-ZBA17.png       -> bol-malzemeli-ev-kumpiri-HHH12
-recipe--bolu-usulu-orman-kebabi-XM3GW.png        -> bolu-usulu-orman-kebabi-NKZWM
-recipe--brokoli-corbasi-QEVTH.png                -> brokoli-corbasi-Q13XT
-recipe--cevizli-baklava-J7PBK.png                -> cevizli-baklava-PZQJ2
-recipe--cevizli-gavurdagi-salatasi-FDT3Y.png     -> cevizli-gavurdagi-salatasi-TC8TR
-recipe--cig-borek-S0X26.png                      -> cig-borek-J6606
-recipe--cig-kofte-YWCS4.png                      -> cig-kofte-A96HF
-recipe--cop-sis-QAATK.png                        -> cop-sis-PV7SP
-```
-
-Yeni ad: `recipe--{sağdaki-slug}.png`
+Meta dosyaları ayrıldıktan sonra bu kategoride tek bir gerçek dosya kalmadı.
+Ders kuralın kendisinde: teslim arşivini `COPYFILE_DISABLE=1 tar` ile üret,
+yoksa sahte hata raporları üretirsin (Bölüm 3).
 
 ### 6.3 Görsel üretme: tarif adı geçersiz (11 dosya)
 
