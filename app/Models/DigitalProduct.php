@@ -24,6 +24,22 @@ class DigitalProduct extends Model
         'is_active',
     ];
 
+    /**
+     * Fiyatın gösterim biçimi.
+     *
+     * Mağaza görünümünde para birimi simgesi "€" olarak sabit yazılmıştı:
+     * ürünün kendi para birimi ne olursa olsun ekranda euro görünüyordu.
+     * Simge burada, ürünün kaydettiği para biriminden türetilir.
+     */
+    public function formattedPrice(): string
+    {
+        $simgeler = ['TRY' => '₺', 'EUR' => '€', 'USD' => '$', 'GBP' => '£'];
+        $kod = strtoupper((string) $this->currency);
+        $simge = $simgeler[$kod] ?? ($kod.' ');
+
+        return $simge.number_format((float) $this->price, 2, ',', '.');
+    }
+
     protected $casts = [
         'price' => 'decimal:2',
         'is_active' => 'boolean',

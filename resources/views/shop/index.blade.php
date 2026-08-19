@@ -51,7 +51,7 @@
                             <div>
                                 <span class="text-xs text-neutral-400 dark:text-neutral-500 block">Fiyat</span>
                                 <span class="text-2xl font-black text-neutral-900 dark:text-white">
-                                    €{{ number_format($product->price, 2) }}
+                                    {{ $product->formattedPrice() }}
                                 </span>
                             </div>
 

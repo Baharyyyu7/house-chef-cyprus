@@ -17,7 +17,18 @@ class ShopController extends Controller
 {
     public function index(StripeCheckoutService $stripe): View
     {
-        $products = DigitalProduct::where('is_active', true)->latest()->get();
+        // Vitrinde yalnız dosyası gerçekten var olan ürün durur. Satın alma
+        // adımı dosyayı zaten kontrol ediyordu, ama ürün listede görünüyordu:
+        // "120 sayfa" yazan, arkasında hiçbir dosya olmayan bir kayıt okura
+        // satılabilirmiş gibi duruyordu.
+        $products = DigitalProduct::query()
+            ->where('is_active', true)
+            ->latest()
+            ->get()
+            ->filter(fn (DigitalProduct $product): bool => is_string($product->file_path)
+                && $product->file_path !== ''
+                && Storage::disk('local')->exists($product->file_path))
+            ->values();
         $paymentsEnabled = $stripe->isReady();
 
         return view('shop.index', compact('products', 'paymentsEnabled'));
