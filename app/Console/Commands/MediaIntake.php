@@ -75,11 +75,17 @@ final class MediaIntake extends Command
             return self::SUCCESS;
         }
 
-        $kayitlar = json_decode((string) file_get_contents($manifest), true);
-        $kayitlar = is_array($kayitlar) ? ($kayitlar['recipes'] ?? $kayitlar) : [];
+        $manifestVerisi = json_decode((string) file_get_contents($manifest), true);
+        // Manifest kayıtları 'entries' altında duruyor. Yanlış anahtar okumak
+        // sessiz bir hata: komut çalışır, hiçbir şey işlemez, "0 alındı" der.
+        $kayitlar = is_array($manifestVerisi) ? ($manifestVerisi['entries'] ?? []) : [];
 
         $alinan = 0;
         $atlanan = [];
+        // Yayında olmayan içeriğin kaydı "onaylı medya manifestinde" duramaz:
+        // deploy betiği bu manifesti doğruluyor ve tek bir geçersiz kayıt
+        // bütün sürümü durduruyor.
+        $temizlenecek = [];
 
         foreach ($kayitlar as $kayit) {
             $publicId = is_array($kayit) ? ($kayit['public_id'] ?? null) : null;
@@ -100,6 +106,7 @@ final class MediaIntake extends Command
 
             if ($tarif->status !== 'published' || $tarif->verification_status !== 'verified') {
                 $atlanan['tarif yayında değil ('.$tarif->status.')'][] = $tarif->title;
+                $temizlenecek[] = $publicId;
                 continue;
             }
 
@@ -117,7 +124,20 @@ final class MediaIntake extends Command
             }
         }
 
-        // 3. Varyantları üret ve fotoğraf denetimini çalıştır.
+        // 3. Yayına giremeyecek kayıtları manifestten çıkar.
+        if ($temizlenecek !== []) {
+            $manifestVerisi['entries'] = array_values(array_filter(
+                $manifestVerisi['entries'],
+                static fn (array $e): bool => ! in_array($e['public_id'] ?? '', $temizlenecek, true)
+            ));
+
+            file_put_contents(
+                $manifest,
+                json_encode($manifestVerisi, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            );
+        }
+
+        // 4. Varyantları üret ve fotoğraf denetimini çalıştır.
         if ($alinan > 0) {
             $this->components->task('Responsive varyantlar üretiliyor', function (): bool {
                 Artisan::call('media:optimize');

@@ -66,7 +66,10 @@ final class MediaIntakeSkipsInsteadOfAbortingTest extends TestCase
     {
         Storage::disk('local')->put(
             'media-import/approved-media-manifest.json',
-            json_encode(['recipes' => $kayitlar], JSON_UNESCAPED_UNICODE)
+            // Gerçek manifest kayıtları 'entries' altında tutuyor. Test bunu
+            // 'recipes' sanıyordu ve komut hiçbir kaydı görmediği hâlde yeşil
+            // kalıyordu - üretimde de sessizce hiçbir şey işlemedi.
+            json_encode(['schema_version' => 1, 'entries' => $kayitlar], JSON_UNESCAPED_UNICODE)
         );
     }
 }
