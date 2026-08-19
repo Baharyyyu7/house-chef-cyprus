@@ -209,8 +209,9 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .hc-admin-world-map { overflow:hidden; }
     .hc-world-map__canvas { overflow:hidden; border:1px solid var(--hc-border-subtle); border-radius:var(--hc-radius-lg); background:var(--hc-background-subtle); }
     .hc-world-map__svg { display:block; width:100%; height:auto; min-height:16rem; }
-    .hc-world-map__grid path { fill:none; stroke:var(--hc-border-subtle); stroke-width:1; opacity:.85; }
-    .hc-world-map__land path { fill:color-mix(in srgb, var(--hc-text-primary) 8%, transparent); stroke:color-mix(in srgb, var(--hc-text-primary) 12%, transparent); stroke-width:1.5; }
+    /* Kara, nokta ızgarasıyla çizilir. Noktalar sessiz kalmalı: üstlerinde
+       duran ülke işaretleri ve rotalar okunacak, harita zemin. */
+    .hc-world-map__kara circle { fill:color-mix(in srgb, var(--hc-text-primary) 30%, transparent); }
     .hc-world-map__route { fill:none; stroke:var(--hc-brand-primary); stroke-width:1.6; stroke-dasharray:5 9; opacity:.72; animation:hc-world-route 3.2s linear infinite; animation-delay:var(--route-delay); }
     .hc-world-map__pulse { fill:var(--hc-brand-primary); opacity:.24; transform-box:fill-box; transform-origin:center; animation:hc-world-pulse 2.1s ease-out infinite; animation-delay:var(--pulse-delay); }
     .hc-world-map__point { fill:var(--hc-brand-primary); stroke:var(--hc-surface-raised); stroke-width:2.5; }

@@ -34,21 +34,21 @@ final class AdminDashboardService
      * @var array<string, array{label: string, x: int, y: int}>
      */
     private const AUDIENCE_COUNTRIES = [
-        'AU' => ['label' => 'Avustralya', 'x' => 806, 'y' => 354],
-        'CA' => ['label' => 'Kanada', 'x' => 271, 'y' => 139],
-        'CY' => ['label' => 'Kıbrıs', 'x' => 546, 'y' => 222],
-        'DE' => ['label' => 'Almanya', 'x' => 500, 'y' => 182],
-        'ES' => ['label' => 'İspanya', 'x' => 467, 'y' => 212],
-        'FR' => ['label' => 'Fransa', 'x' => 480, 'y' => 200],
-        'GB' => ['label' => 'Birleşik Krallık', 'x' => 462, 'y' => 166],
-        'GR' => ['label' => 'Yunanistan', 'x' => 530, 'y' => 215],
-        'IT' => ['label' => 'İtalya', 'x' => 512, 'y' => 211],
-        'NL' => ['label' => 'Hollanda', 'x' => 490, 'y' => 174],
-        'SA' => ['label' => 'Suudi Arabistan', 'x' => 580, 'y' => 251],
-        'TR' => ['label' => 'Türkiye', 'x' => 563, 'y' => 208],
-        'UA' => ['label' => 'Ukrayna', 'x' => 551, 'y' => 177],
-        'AE' => ['label' => 'Birleşik Arap Emirlikleri', 'x' => 604, 'y' => 242],
-        'US' => ['label' => 'Amerika Birleşik Devletleri', 'x' => 244, 'y' => 202],
+        'AU' => ['label' => 'Avustralya', 'x' => 837, 'y' => 275],
+        'CA' => ['label' => 'Kanada', 'x' => 197, 'y' => 81],
+        'CY' => ['label' => 'Kıbrıs', 'x' => 569, 'y' => 131],
+        'DE' => ['label' => 'Almanya', 'x' => 508, 'y' => 93],
+        'ES' => ['label' => 'İspanya', 'x' => 470, 'y' => 118],
+        'FR' => ['label' => 'Fransa', 'x' => 486, 'y' => 104],
+        'GB' => ['label' => 'Birleşik Krallık', 'x' => 475, 'y' => 86],
+        'GR' => ['label' => 'Yunanistan', 'x' => 538, 'y' => 122],
+        'IT' => ['label' => 'İtalya', 'x' => 514, 'y' => 115],
+        'NL' => ['label' => 'Hollanda', 'x' => 494, 'y' => 91],
+        'SA' => ['label' => 'Suudi Arabistan', 'x' => 600, 'y' => 158],
+        'TR' => ['label' => 'Türkiye', 'x' => 574, 'y' => 122],
+        'UA' => ['label' => 'Ukrayna', 'x' => 563, 'y' => 99],
+        'AE' => ['label' => 'Birleşik Arap Emirlikleri', 'x' => 623, 'y' => 159],
+        'US' => ['label' => 'Amerika Birleşik Devletleri', 'x' => 217, 'y' => 120],
     ];
 
     /** @var array<string, string> */

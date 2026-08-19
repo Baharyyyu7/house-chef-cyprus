@@ -22,6 +22,7 @@
     @unless ($isPrivateSurface || str_contains((string) $robots, 'noindex'))
         <meta property="og:type" content="{{ request()->routeIs('blog.show') ? 'article' : 'website' }}">
         <meta property="og:locale" content="{{ $activeLanguage['og_locale'] ?? 'tr_TR' }}">
+        @include('partials.hreflang')
         <meta property="og:title" content="{{ $title }}">
         <meta property="og:description" content="{{ $metaDescription }}">
         <meta property="og:url" content="{{ $canonicalUrl ?: url()->current() }}">
