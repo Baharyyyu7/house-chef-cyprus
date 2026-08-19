@@ -357,8 +357,12 @@ document.addEventListener('alpine:init', () => {
                 return 'opacity:0; pointer-events:none; transform:translate(-50%,-50%) scale(.7)';
             }
 
+            // Yörünge yarıçapı sabit 240px'ti ve dar ekranda kartlar
+            // görünür alanın dışına taşıyordu. Yarıçap kartın kendi
+            // genişliğine göre daralır.
+            const yaricap = Math.min(240, Math.max(120, window.innerWidth * 0.26));
             const aci = (f / 5) * Math.PI;
-            const x = Math.sin(aci) * 240;
+            const x = Math.sin(aci) * yaricap;
             const y = -Math.cos(aci) * 92 + 92;
             const uzaklik = Math.abs(f);
             const olcek = Math.max(0.7, 1 - uzaklik * 0.13);
