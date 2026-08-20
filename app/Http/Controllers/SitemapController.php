@@ -39,7 +39,11 @@ final class SitemapController extends Controller
     {
         $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified'))
             ->orderBy('updated_at')->get(['id', 'slug', 'updated_at'])
-            ->map(fn (Recipe $recipe): array => ['loc' => route('recipes.show', $recipe->slug), 'lastmod' => $recipe->updated_at?->toDateString()]);
+            ->map(fn (Recipe $recipe): array => [
+                'loc' => route('recipes.show', $recipe->slug),
+                'lastmod' => $recipe->updated_at?->toDateString(),
+                'alternates' => $this->alternates('/tarifler/'.$recipe->slug, $recipe),
+            ]);
 
         return $this->urls($urls);
     }
@@ -48,9 +52,47 @@ final class SitemapController extends Controller
     {
         $urls = $this->indexable(BlogPost::query()->publiclyVisible())
             ->orderBy('updated_at')->get(['id', 'slug', 'updated_at'])
-            ->map(fn (BlogPost $post): array => ['loc' => route('blog.show', $post), 'lastmod' => $post->updated_at?->toDateString()]);
+            ->map(fn (BlogPost $post): array => [
+                'loc' => route('blog.show', $post),
+                'lastmod' => $post->updated_at?->toDateString(),
+                'alternates' => $this->alternates('/blog/'.$post->slug, $post),
+            ]);
 
         return $this->urls($urls);
+    }
+
+    /**
+     * Bir kaydın dil alternatifleri.
+     *
+     * Kaydın çevirisi olmayan dil kümeye girmez. Girseydi sitemap var olmayan
+     * bir adresi ilan ederdi; hedefi 404 olan hreflang çiftini Google atar ve
+     * kümenin tamamı geçersiz olur. Sitemap, listeleme ve HTML head'deki
+     * hreflang aynı "bu dilde var mı" tanımını paylaşmak zorunda.
+     *
+     * @return list<array{hreflang: string, href: string}>
+     */
+    private function alternates(string $path, object $kayit): array
+    {
+        $servis = app(\App\Services\Seo\LocaleUrlService::class);
+        $diller = array_filter(
+            $servis->enabledLocales(),
+            static fn (array $dil, string $kod): bool => $kayit->hasTranslation($kod),
+            ARRAY_FILTER_USE_BOTH
+        );
+
+        if (count($diller) < 2) {
+            return [];
+        }
+
+        $kume = [];
+
+        foreach ($diller as $kod => $dil) {
+            $kume[] = ['hreflang' => (string) ($dil['html_locale'] ?? $kod), 'href' => $servis->urlFor($kod, $path)];
+        }
+
+        $kume[] = ['hreflang' => 'x-default', 'href' => $servis->urlFor($servis->defaultLocale(), $path)];
+
+        return $kume;
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Concerns\HasPublicId;
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,7 +23,17 @@ use Illuminate\Support\Str;
  */
 final class BlogPost extends Model
 {
-    use HasPublicId;
+    use HasPublicId, HasTranslations;
+
+    /**
+     * Bir yazı sayfasını taşıyan alanlar.
+     *
+     * @return list<string>
+     */
+    public function translatableFields(): array
+    {
+        return ['title', 'excerpt', 'body'];
+    }
 
     protected $fillable = ['author_id', 'human_approved_by_user_id', 'blog_category_id', 'hero_media_id', 'content_brief_id', 'content_factory_batch_id', 'title', 'slug', 'excerpt', 'body', 'content_purpose', 'search_intent', 'primary_keyword', 'secondary_keywords', 'source_notes', 'faq_blocks', 'status', 'fact_check_status', 'editorial_status', 'content_factory_state', 'content_factory_readiness_score', 'content_factory_rule_version', 'content_factory_checked_at', 'content_factory_metadata', 'fact_check_required', 'originality_status', 'freshness_class', 'scheduled_at', 'review_due_at', 'human_approved_at', 'published_at', 'last_refreshed_at', 'meta_title', 'meta_description', 'canonical_url'];
 

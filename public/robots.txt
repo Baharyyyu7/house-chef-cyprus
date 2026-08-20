@@ -1,2 +1,31 @@
+# Bu dosya canlıda gerçekten servis edilen robots.txt'tir.
+#
+# routes/web.php içindeki /robots.txt görünümü canlıda çalışmıyor: web
+# sunucusu aynı adda gerçek bir dosya bulduğunda onu servis ediyor ve
+# uygulamaya hiç gelmiyor. Cloudflare de kendi yönettiği yapay zekâ
+# tarayıcı bloğunu bunun önüne ekliyor. Kuralları buraya yazmazsak
+# hiçbir yerde geçerli olmuyorlar.
+
+# İçerik sinyali: arama ve yapay zekâ yanıtlarında alıntılanmaya evet,
+# model eğitimine hayır. Site "Kıbrıs'ta ne yenir" gibi sorgularda AI
+# yanıtlarında kaynak olarak görünmek istiyor; içeriğinin izinsiz model
+# eğitiminde kullanılmasını istemiyor.
+#
+# UYARI: GPTBot, ClaudeBot, Google-Extended gibi ajanları engelleyen
+# satırlar bu dosyadan gelmiyor. Onları Cloudflare'in "Managed robots.txt"
+# özelliği bu dosyanın önüne ekliyor ve kod tarafından değiştirilemiyor.
+# Politikanın gerçekten geçerli olması için Cloudflare panelinden
+# kapatılması gerekiyor.
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+
 User-agent: *
-Disallow:
+Allow: /
+
+# Oturum gerektiren ya da kişiye özel alanlar arama sonuçlarında işi yok.
+Disallow: /dashboard
+Disallow: /dolabim
+Disallow: /favoriler
+Disallow: /pisir/
+Disallow: /yonetim/
+
+Sitemap: https://housechefcyprus.com/sitemap.xml

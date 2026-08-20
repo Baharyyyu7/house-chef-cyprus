@@ -51,5 +51,32 @@ return [
             'direction' => 'rtl',
             'enabled' => false,
         ],
+        'pl' => [
+            'flag' => '🇵🇱',
+            'label' => 'Polish',
+            'native_label' => 'Polski',
+            'html_locale' => 'pl',
+            'og_locale' => 'pl_PL',
+            'direction' => 'ltr',
+            'enabled' => false,
+        ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | URL öneki
+    |--------------------------------------------------------------------------
+    |
+    | Varsayılan dil kök adreste yaşar; diğerleri kendi önekinde. Dil çerezle
+    | seçildiği sürece bütün diller aynı URL'i paylaşıyordu ve arama motoru
+    | tek bir sürüm indeksleyebiliyordu: Googlebot çerez taşımaz, bu yüzden
+    | Türkçe dışındaki hiçbir sayfayı hiç görmedi. hreflang de kurulamıyordu,
+    | çünkü hreflang farklı URL'leri birbirine bağlar.
+    |
+    | Önek yalnız ETKİN diller için üretilir. Kapalı bir dile URL açmak,
+    | Türkçe içeriği yabancı dil sayfası gibi göstermek olurdu; çok sayıda
+    | zayıf dil sayfası site genelindeki kalite sinyalini aşağı çeker.
+    |
+    */
+    'default_has_prefix' => false,
 ];

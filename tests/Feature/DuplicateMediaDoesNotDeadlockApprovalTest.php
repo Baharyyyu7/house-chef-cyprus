@@ -91,6 +91,42 @@ final class DuplicateMediaDoesNotDeadlockApprovalTest extends TestCase
         $this->assertNotNull($birinci->fresh()->approved_by_user_id);
     }
 
+
+    public function test_a_copy_that_can_never_be_approved_leaves_the_queue(): void
+    {
+        // Kapı ilk engeli döndürür: eşi yayında olan ikiz "insan onayı eksik"
+        // diyordu ve kuyrukta onaylanmayı bekliyor görünüyordu. Onaylandığında
+        // kopya kontrolüne takılıp geri dönüyor, kuyrukta kalmaya devam
+        // ediyordu. Onaylayan kişi aynı görseli tekrar tekrar onaylamayı
+        // deniyordu.
+        [$yayindaki, $ikiz] = $this->ikizler();
+
+        $this->onayUygula($yayindaki);
+        $yayindaki->save();
+
+        $icerik = (string) $this->actingAs($this->editor)
+            ->get(route('admin.media.index', ['durum' => 'onay']))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringNotContainsString(
+            $ikiz->public_id,
+            $icerik,
+            'Onaylanması imkânsız bir kayıt onay kuyruğunda durmamalı.'
+        );
+    }
+
+    public function test_an_approvable_image_does_stay_in_the_queue(): void
+    {
+        // Daralma kuyruğu boşaltmamalı: onayın yayına çıkaracağı kayıt durur.
+        [$birinci] = $this->ikizler();
+
+        $this->actingAs($this->editor)
+            ->get(route('admin.media.index', ['durum' => 'onay']))
+            ->assertOk()
+            ->assertSee($birinci->public_id, false);
+    }
+
     /** @return array{0: Media, 1: Media} */
     private function ikizler(): array
     {

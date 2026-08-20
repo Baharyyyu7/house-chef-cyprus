@@ -26,7 +26,7 @@ final class MediaController extends Controller
 {
     public function index(Request $request, PublicMediaEligibilityService $gate): View
     {
-        $this->admin();
+        $admin = $this->admin();
 
         // İçe aktarılmış ama insan onayı bekleyen görseller listenin içinde
         // kayboluyordu; sonuç olarak dosyası ve varyantları hazır fotoğraflar
@@ -50,7 +50,26 @@ final class MediaController extends Controller
             // Kuyruktaki altı kaydın da kaynak dosyası diskte yoktu: onay
             // ekranı gri kutular gösteriyordu ve onaylayan kişi görmediği bir
             // şeyi onaylamak zorunda kalıyordu.
-            ->filter(fn (Media $item): bool => Storage::disk($item->disk)->exists($item->path))
+            ->filter(fn (Media $item): bool => Storage::disk($item->disk)->exists((string) $item->path))
+            // Kapı sırayla kontrol eder ve ilk engeli döndürür: "insan onayı
+            // eksik" diyen bir kaydın arkasında başka bir engel bekliyor
+            // olabilir. Eşi zaten yayında olan ikiz kayıtlar böyleydi -
+            // kuyrukta onaylanmayı bekliyor görünüyor, onaylandığında kopya
+            // kontrolüne takılıp geri dönüyor ve kuyrukta kalmaya devam
+            // ediyordu. Kuyruk, onayın gerçekten yayına çıkaracağı kayıtları
+            // gösterir; çıkaramayacağını göstermek onaylayan kişiyi boş yere
+            // uğraştırmaktan başka bir işe yaramıyor.
+            ->filter(function (Media $item) use ($gate, $admin): bool {
+                $deneme = clone $item;
+                $deneme->forceFill([
+                    'media_reviewer_user_id' => $admin->id,
+                    'media_reviewed_at' => now(),
+                    'approved_by_user_id' => $admin->id,
+                    'approved_at' => now(),
+                ]);
+
+                return $gate->reason($deneme) === null;
+            })
             ->values();
 
         // Liste 7178 satırı 240 sayfaya yayıyordu ve sütunları public_id, disk,
@@ -94,18 +113,30 @@ final class MediaController extends Controller
     {
         $this->admin();
 
-        return view('admin.media.create');
+        // Form 26 karakterlik ULID'i elle yazmayı istiyordu; kimse bir tarifin
+        // ULID'ini bilmiyor ve başka bir ekrandan kopyalamadan yükleme
+        // yapılamıyordu. Kayıtlar adıyla seçilir.
+        $tarifler = Recipe::query()->orderBy('title')->get(['public_id', 'title']);
+        $malzemeler = Ingredient::query()->orderBy('name')->get(['public_id', 'name']);
+
+        return view('admin.media.create', compact('tarifler', 'malzemeler'));
     }
 
     public function store(Request $request, LocalMediaStorage $storage): RedirectResponse
     {
-        $this->admin();
+        $admin = $this->admin();
         $data = $request->validate([
             'file' => ['required', 'file', 'max:'.max(1, (int) config('security.max_upload_bytes') / 1024)],
             'entity_type' => ['required', Rule::in(['recipe', 'ingredient'])],
             'entity_public_id' => ['required', 'string', 'size:26'],
             'visibility' => ['required', Rule::in(['public', 'private'])],
             'alt_text' => ['nullable', 'string', 'max:255'],
+            // Yükleyen kişinin açıkça üstlendiği iki beyan. Kapı bu alanları
+            // arıyor ve hiçbir arayüz onları yazmıyordu: elle yüklenen görsel
+            // "approval_incomplete" ile takılıp hiçbir zaman yayına
+            // çıkamıyordu. Beyanı sistem uydurmaz, yükleyen verir.
+            'telif_beyani' => ['accepted'],
+            'icerik_beyani' => ['accepted'],
         ]);
         $entity = $this->entity((string) $data['entity_type'], (string) $data['entity_public_id']);
         abort_if($entity === null, 422, 'İlişkili kayıt bulunamadı.');
@@ -114,11 +145,26 @@ final class MediaController extends Controller
             'kind' => 'image', 'disk' => $stored['disk'], 'path' => $stored['path'], 'mime_type' => $stored['mime_type'], 'size' => $stored['size'],
             'visibility' => $data['visibility'], 'alt_text' => $data['alt_text'] ?? null, 'width' => $stored['width'], 'height' => $stored['height'],
             'processing_status' => 'pending', 'thumbnail_status' => 'pending',
+            // Yükleyen kişi hem kaynağı hem de görselin bu yemeği gösterdiğini
+            // beyan etti; beyan kaydedilir ve kim verdiği yazılır. Yayına
+            // çıkarmaz: approved_by_user_id boş kalır, görsel onay kuyruğuna
+            // düşer ve bir insan ekranda ona bakıp onaylar.
+            'is_placeholder' => false,
+            'media_status' => 'approved_real_media',
+            'verification_status' => 'verified',
+            'license_review_status' => 'approved',
+            'attribution_review_status' => 'approved',
+            'fidelity_status' => 'approved',
+            'fidelity_confidence' => 100,
+            'media_reviewer_user_id' => $admin->id,
+            'media_reviewed_at' => now(),
+            'checksum_sha256' => hash_file('sha256', $request->file('file')->getRealPath()),
         ]);
         GenerateMediaThumbnailsJob::dispatch($media->public_id);
         $this->audit('media.upload', $media, ['visibility' => $media->visibility]);
 
-        return to_route('admin.media.show', $media->public_id)->with('status', 'Görsel güvenli olarak yüklendi; küçük görseller kuyruğa alındı.');
+        return to_route('admin.media.index', ['durum' => 'onay'])
+            ->with('status', 'Görsel yüklendi ve onay kuyruğuna alındı. Yayına çıkması için onaylamanız gerekiyor.');
     }
 
     public function show(string $publicId): View

@@ -15,6 +15,20 @@ Kısa özeti:
   okunur: ölçü alt sınırı, ad kalıbı ve reddedilme sebepleri orada.
   Son teslimatta 141 görselin 92'si bu kurallara uymadığı için içeri
   alınamadı.
+- **SEO blog yazıları da yerel diske yazılmaz**, sunucudaki
+  `shared/storage/app/content-import/blog/{slug}.json` klasörüne gider.
+  Teslim klasöründe PHP dosyası çalıştırılmaz veya içe alınmaz.
+  Kurallar, anahtar kelime araştırması ve dil stratejisi:
+  [docs/GOREV_SEO_BLOG_URETIMI.md](docs/GOREV_SEO_BLOG_URETIMI.md)
+- **İçerik çevirileri** sunucudaki
+  `shared/storage/app/content-import/translations/{dil}/` klasörüne gider,
+  yalnız JSON. Kurallar: [docs/GOREV_CEVIRI_URETIMI.md](docs/GOREV_CEVIRI_URETIMI.md)
+- **Hiçbir ajan dil etkinleştirmez.** `config/locales.php` içindeki `enabled`
+  alanına dokunulmaz. Çevirisi olmayan kayıt o dilin sitesinde yoktur;
+  yarım çeviriyle dil açmak site geneli kalite sinyalini düşürür.
+- **Hiçbir ajan yazı yayınlamaz.** Teslim edilen içerik `draft` olarak açılır;
+  yayın kararı insana aittir. 2026-08-16'da ~3.200 makine üretimi sayfa toplu
+  yayına çıktı ve arama sonuçlarını doldurdu.
 - **`recipe-images:generate-fallbacks` yerelde çalıştırılmaz.** Bu komut bir
   kez 1.205.410 dosya üretip diski doldurdu.
 - **`build-artifacts/` deploy doğrulandıktan sonra aynı oturumda silinir.**

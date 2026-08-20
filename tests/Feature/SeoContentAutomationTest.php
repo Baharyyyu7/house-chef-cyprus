@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\BlogPost;
+use App\Models\ContentOpportunity;
 use App\Models\Recipe;
 use App\Models\SeoIssue;
 use App\Models\User;
@@ -81,6 +82,20 @@ final class SeoContentAutomationTest extends TestCase
         $this->assertDatabaseHas('zero_result_searches', ['normalized_query' => 'limonlu nohut kasesi']);
         $this->assertDatabaseHas('content_opportunities', ['normalized_key' => 'zero-limonlu nohut kasesi']);
         $this->assertDatabaseMissing('zero_result_searches', ['normalized_query' => '127.0.0.1']);
+    }
+
+    public function test_generated_content_opportunities_are_editorial_candidates_and_never_publication_instructions(): void
+    {
+        $this->artisan('seo:content-opportunities --json')->assertSuccessful();
+
+        $opportunity = ContentOpportunity::query()
+            ->where('normalized_key', 'cluster-kibris-mutfagi')
+            ->sole();
+
+        $this->assertSame('open', $opportunity->status);
+        $this->assertTrue($opportunity->evidence['publication_requires_human_review']);
+        $this->assertSame('draft_only', $opportunity->evidence['delivery_policy']);
+        $this->assertArrayHasKey('collected_at', $opportunity->evidence);
     }
 
     public function test_safe_seo_commands_never_call_external_providers_by_default(): void

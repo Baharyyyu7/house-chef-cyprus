@@ -4,6 +4,7 @@ use App\Contracts\Observability\ErrorReporterInterface;
 use App\Http\Middleware\RequestContext;
 use App\Http\Middleware\SecureHeaders;
 use App\Http\Middleware\RecordAudienceCountry;
+use App\Http\Middleware\LocaleUrlPrefix;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -36,6 +37,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // saw a null consent on every request, and no advertising could ever render —
         // silently, with the configuration looking correct.
         $middleware->encryptCookies(except: ['hc_analytics_consent', 'hc_advertising_consent']);
+        // Yönlendirmeden önce çalışmalı: dil önekini istek yolundan çıkarıp
+        // normal rotaya düşürüyor, böylece rotalar ikinci kez tanımlanmıyor.
+        $middleware->prepend(LocaleUrlPrefix::class);
         $middleware->web(append: [SetLocale::class, RecordAudienceCountry::class]);
         $middleware->append(RequestContext::class);
         $middleware->append(SecureHeaders::class);

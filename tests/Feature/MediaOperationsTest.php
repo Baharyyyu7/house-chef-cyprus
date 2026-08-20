@@ -29,10 +29,14 @@ final class MediaOperationsTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
         $recipe = $this->recipe();
 
+        // Yükleme artık iki beyan istiyor ve görseli doğrudan yayına değil
+        // onay kuyruğuna alıyor: eskiden yüklenen görsel hiçbir zaman
+        // yayına çıkamıyordu, kapının aradığı alanlar hiç yazılmıyordu.
         $this->actingAs($admin)->post(route('admin.media.store'), [
             'file' => UploadedFile::fake()->image('meal.jpg', 240, 120),
             'entity_type' => 'recipe', 'entity_public_id' => $recipe->public_id, 'visibility' => 'public', 'alt_text' => 'Tarif görseli',
-        ])->assertRedirect(route('admin.media.show', Media::first()->public_id));
+            'telif_beyani' => '1', 'icerik_beyani' => '1',
+        ])->assertRedirect(route('admin.media.index', ['durum' => 'onay']));
 
         $media = Media::firstOrFail();
         $this->assertSame($recipe->id, $media->mediable_id);
@@ -41,6 +45,7 @@ final class MediaOperationsTest extends TestCase
         Storage::disk('public')->assertExists((string) $media->path);
         Queue::assertPushed(GenerateMediaThumbnailsJob::class);
         $this->assertDatabaseHas('audit_logs', ['action' => 'media.upload']);
+        $this->assertNull($media->approved_by_user_id, 'Yükleme tek başına yayına çıkarmamalı.');
     }
 
     public function test_upload_rejects_double_extensions_and_svg(): void

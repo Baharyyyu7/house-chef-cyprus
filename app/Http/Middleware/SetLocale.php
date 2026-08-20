@@ -21,6 +21,12 @@ class SetLocale
         $default = (string) config('locales.default', config('app.locale', 'tr'));
 
         $locale = $this->firstEnabledLocale([
+            // URL'deki dil öneki her şeyin önünde gelir: adres neyi
+            // gösteriyorsa o servis edilir. Çerez yalnız kullanıcı tercihini
+            // hatırlar; içeriği belirleyen URL'dir. Tersi olsaydı aynı adres
+            // farklı ziyaretçilere farklı dil gösterirdi ve arama motoru
+            // hangisini indeksleyeceğini bilemezdi.
+            $request->attributes->get('hc_url_locale'),
             $request->hasSession() ? $request->session()->get('hc_locale') : null,
             $request->user()?->preferred_language,
             $request->cookie('hc_locale'),

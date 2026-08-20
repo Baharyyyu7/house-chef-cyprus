@@ -15,6 +15,13 @@
         <meta name="google-adsense-account" content="{{ config('integrations.google.adsense.client_id') }}">
     @endif
     <link rel="canonical" href="{{ $canonicalUrl ?: url()->current() }}">
+    {{-- hreflang yalnız birden çok dil ETKİN olduğunda basılır. Kapalı bir
+         dile hreflang vermek, Türkçe içeriği yabancı dil sayfası gibi
+         göstermek olurdu. Küme kendini de içerir: kendine gönderme yapmayan
+         hreflang'i Google tamamen yok sayar. --}}
+    @foreach (app(\App\Services\Seo\LocaleUrlService::class)->alternates(request()) as $alternatif)
+        <link rel="alternate" hreflang="{{ $alternatif['hreflang'] }}" href="{{ $alternatif['href'] }}">
+    @endforeach
     @php($isPrivateSurface = request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
     @if ($robots || $isPrivateSurface)
         <meta name="robots" content="{{ $robots ?: 'noindex,nofollow' }}">

@@ -101,6 +101,14 @@ final class ApprovalQueueShowsOnlyRealPhotosTest extends TestCase
         Storage::fake('public');
         Storage::disk('public')->put('media/approved-synthetic/recipe/ABC/source.png', 'png');
 
+        // Kuyruk artık onayı zihinsel olarak uygulayıp gerçekten yayına
+        // çıkacak mı diye bakıyor; varyantlar da hazır olmalı.
+        foreach (['thumbnail', 'square', 'card', 'open_graph', 'hero'] as $boy) {
+            foreach (['jpg', 'webp'] as $uzanti) {
+                Storage::disk('public')->put('media/optimized/ABC/'.$boy.'.'.$uzanti, 'x');
+            }
+        }
+
         $tarif = Recipe::query()->create([
             'title' => 'Teslim Edilmiş Fotoğraflı Tarif',
             'slug' => 'teslim-'.uniqid(),
@@ -124,6 +132,12 @@ final class ApprovalQueueShowsOnlyRealPhotosTest extends TestCase
             // istiyor; içe aktarma bunu kendisi dolduruyor.
             'fidelity_status' => 'strong_match',
             'fidelity_confidence' => 95,
+            'responsive_variants' => collect(['thumbnail', 'square', 'card', 'open_graph', 'hero'])
+                ->map(fn (string $boy): array => [
+                    'name' => $boy,
+                    'jpeg' => 'media/optimized/ABC/'.$boy.'.jpg',
+                    'webp' => 'media/optimized/ABC/'.$boy.'.webp',
+                ])->all(),
         ]);
 
         $this->actingAs($this->yonetici())
