@@ -160,9 +160,28 @@ final class PublicMediaEligibilityService
         return $indexed;
     }
 
+    /**
+     * Kural, aynı dosyanın iki yerde birden yayına çıkmasını engellemek için
+     * var. Karşılaştırma her kayda değil, yalnız gerçekten yayında olanlara
+     * yapılır.
+     *
+     * Eskiden onay bekleyen ikizler de sayılıyordu ve bu bir kilitlenme
+     * üretiyordu: içe aktarma iki kez çalıştığında aynı dosya için iki kayıt
+     * oluşuyor, her biri diğerini kopya sayıyor ve ikisi de hiçbir zaman
+     * onaylanamıyordu. Onay ekranındaki sekiz görselin sekizi de bu yüzden
+     * "onaya hazır değil" veriyordu.
+     *
+     * Daralma kuralı zayıflatmıyor: ilk kopya onaylanıp yayına girdiği anda
+     * ikincisi yine engelleniyor. Toplu onay da kayıtları tek tek kaydettiği
+     * için aynı partide iki kopya birden geçemiyor.
+     */
     private function isDuplicated(Media $media): bool
     {
-        $query = Media::query()->whereKeyNot($media->getKey())->where('visibility', 'public');
+        $query = Media::query()
+            ->whereKeyNot($media->getKey())
+            ->where('visibility', 'public')
+            ->where('media_status', 'approved_real_media')
+            ->whereNotNull('approved_by_user_id');
 
         if (is_string($media->checksum_sha256) && $media->checksum_sha256 !== '') {
             return $query->where('checksum_sha256', $media->checksum_sha256)->exists();

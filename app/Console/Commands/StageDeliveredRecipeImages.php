@@ -46,6 +46,13 @@ final class StageDeliveredRecipeImages extends Command
         $manifest = is_array($manifest) ? $manifest : ['schema_version' => 1, 'entries' => []];
         $mevcut = collect($manifest['entries'] ?? [])->pluck('source_filename')->flip();
 
+        // Tekilleştirme yalnız dosya adına bakıyordu; aynı tarif farklı
+        // dosya adlarıyla manifeste birden çok kez girebiliyordu. Manifest
+        // 101 tarif için 122 kayda ulaştı ve içe aktarma aynı tarifi birden
+        // çok kez işledi: dört tarifte ikiz medya kaydı oluştu ve ikizler
+        // birbirini kopya saydığı için hiçbiri onaylanamadı.
+        $mevcutTarifler = collect($manifest['entries'] ?? [])->pluck('public_id')->filter()->flip();
+
         $hazir = [];
         $atlanan = [];
 
@@ -70,6 +77,12 @@ final class StageDeliveredRecipeImages extends Command
 
             if ($recipe instanceof Recipe === false) {
                 $atlanan[] = [$dosya, $recipe];
+
+                continue;
+            }
+
+            if ($mevcutTarifler->has($recipe->public_id)) {
+                $atlanan[] = [$dosya, 'bu tarif manifestte zaten var: '.$recipe->slug];
 
                 continue;
             }
@@ -124,6 +137,10 @@ final class StageDeliveredRecipeImages extends Command
                 $this->line(sprintf('  <fg=cyan>ad değişti</> %s → %s', $dosya, $beklenen));
                 $dosya = $beklenen;
             }
+
+            // Aynı çalıştırmada iki farklı dosya aynı tarife düşerse ikincisi
+            // de atlanmalı; yoksa tekrar bu partiden doğar.
+            $mevcutTarifler->put($recipe->public_id, true);
 
             $hazir[] = [
                 'content_type' => 'recipe',
