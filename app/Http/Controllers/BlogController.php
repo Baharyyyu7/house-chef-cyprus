@@ -18,7 +18,11 @@ final class BlogController extends Controller
 {
     public function index(Request $request, SeoIndexabilityService $indexability): View
     {
-        $posts = BlogPost::query()->publiclyVisible()->with(['category', 'tags', 'heroMedia', 'media'])
+        // Çevirisi olmayan yazı o dilin sitesinde yoktur. Listelenseydi
+        // /en/blog altında Türkçe başlıklar çıkardı; Google sayfanın dilini
+        // görünen içerikten belirler ve bu aynı içeriğin ikinci kopyası
+        // olurdu. Liste, sitemap ve hreflang aynı tanımı paylaşmak zorunda.
+        $posts = BlogPost::query()->publiclyVisible()->translatedInto()->with(['category', 'tags', 'heroMedia', 'media'])
             ->when($request->filled('q'), fn ($query) => $query->where(fn ($nested) => $nested->where('title', 'like', '%'.$request->string('q')->toString().'%')->orWhere('excerpt', 'like', '%'.$request->string('q')->toString().'%')))
             ->latest('published_at')->paginate(12)->withQueryString();
 
@@ -28,6 +32,10 @@ final class BlogController extends Controller
     public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService, PublicMediaEligibilityService $mediaEligibility): View
     {
         abort_unless(BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists(), 404);
+        // Aynı kural detayda da geçerli: çevirisi olmayan yazının o dildeki
+        // adresi yoktur. Sessizce Türkçe gövde servis etmek, hreflang'in
+        // gösterdiği adresin başka dilde içerik döndürmesi demekti.
+        abort_unless($post->hasTranslation(), 404);
         // A blog relation can be prepared before a recipe is editorially ready.
         // Never expose that private relation as a public link: the recipe route
         // deliberately returns 404 for anything other than published + verified.
@@ -41,7 +49,7 @@ final class BlogController extends Controller
                 ->where('verification_status', 'verified')
                 ->with(['media' => fn ($media) => $media->where('visibility', 'public')]),
         ]);
-        $relatedPosts = BlogPost::query()->publiclyVisible()
+        $relatedPosts = BlogPost::query()->publiclyVisible()->translatedInto()
             ->whereKeyNot($post->id)
             ->when($post->blog_category_id !== null, fn ($query) => $query->where('blog_category_id', $post->blog_category_id))
             ->with(['category', 'heroMedia', 'media'])

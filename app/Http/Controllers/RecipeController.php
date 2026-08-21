@@ -52,9 +52,12 @@ final class RecipeController extends Controller
         ];
 
         if ($request->routeIs('home')) {
+            // Çevirisi olmayan tarif o dilin sitesinde yoktur; listede
+            // görünseydi /en/ altında Türkçe başlıklar çıkardı.
             $catalogue = Recipe::query()
                 ->where('status', 'published')
                 ->where('verification_status', 'verified')
+                ->translatedInto()
                 ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'verification_status'])
                 ->with(['cuisine:id,public_id,name,slug', 'category:id,public_id,name,slug', 'media' => fn ($query) => $query->where('visibility', 'public'), 'dietaryTags:id,code,name'])
                 ->orderByDesc('published_at')
@@ -83,6 +86,10 @@ final class RecipeController extends Controller
     public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, PublicMediaEligibilityService $mediaEligibility, SeoMetadataService $seo, SeoSchemaService $schemaService)
     {
         abort_unless(($recipe->status === 'published' && $recipe->verification_status === 'verified') || $request->user()?->isAdmin(), 404);
+        // Çevirisi olmayan tarifin o dildeki adresi yoktur. Sessizce Türkçe
+        // içerik servis etmek, hreflang'in gösterdiği adresin başka dilde
+        // içerik döndürmesi ve aynı içeriğin ikinci kopyası sayılması olurdu.
+        abort_unless($recipe->hasTranslation() || $request->user()?->isAdmin(), 404);
         $recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient', 'recipeIngredients.group', 'steps', 'media' => fn ($query) => $query->where('visibility', 'public'), 'provenances.contentSource']);
         // Artır/azalt butonları input ile aynı adı paylaşamaz: ikisi de gönderilir ve
         // DOM sırasına göre biri diğerini ezer. Butonlar yön bildirir, değeri burada uygularız.
