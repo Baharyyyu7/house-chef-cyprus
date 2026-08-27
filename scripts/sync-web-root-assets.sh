@@ -26,6 +26,25 @@ mkdir -p "$WEB_ROOT/build/assets"
 cp -a "$CURRENT/public/build/assets/." "$WEB_ROOT/build/assets/"
 cp -f "$CURRENT/public/build/manifest.json" "$WEB_ROOT/build/manifest.json"
 
+# Kök dizindeki statik dosyalar. Bunlar release'in public klasöründe duruyor
+# ama web kökü ayrı bir dizin olduğu için kendiliğinden oraya geçmiyorlar ve
+# her deploy'da elle kopyalanıyordu.
+#
+# Google site doğrulama dosyası özellikle önemli: Google "doğrulama başarılı
+# olduktan sonra bile dosyayı kaldırmayın" diyor. Bir deploy'da düşerse
+# Search Console mülkiyeti sessizce doğrulanmamış duruma geçer ve bütün
+# ölçüm kesilir.
+for kokDosya in robots.txt favicon.ico; do
+    if [ -f "$CURRENT/public/$kokDosya" ]; then
+        cp -f "$CURRENT/public/$kokDosya" "$WEB_ROOT/$kokDosya"
+    fi
+done
+
+for dogrulama in "$CURRENT"/public/google*.html; do
+    [ -f "$dogrulama" ] || continue
+    cp -f "$dogrulama" "$WEB_ROOT/$(basename "$dogrulama")"
+done
+
 # Video gibi ayrı teslim edilen büyük varlıklar da web kökünde olmalı.
 if [ -d "$CURRENT/public/videos" ]; then
     mkdir -p "$WEB_ROOT/videos"

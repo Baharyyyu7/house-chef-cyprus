@@ -938,6 +938,16 @@ a.hc-nav-control { padding-inline: 1.1rem; }
 .hc-arama__cip { border:1px solid var(--hc-line); border-radius:9999px; padding:.4rem .85rem; font-size:.85rem; font-weight:700; color:var(--hc-text-secondary); transition:transform .3s cubic-bezier(.34,1.4,.64,1), border-color .2s ease, color .2s ease, background-color .2s ease; }
 .hc-arama__cip:hover { border-color:var(--hc-brand-primary); color:var(--hc-brand-primary); background:color-mix(in srgb, var(--hc-brand-primary) 8%, transparent); }
 .hc-arama__cip:active { transform:scale(.96); transition-duration:.09s; }
+.hc-home-hero--master { min-height:clamp(38rem,82svh,52rem); }
+.hc-home-search { position:relative; border-color:color-mix(in srgb,var(--hc-line) 75%,transparent); box-shadow:0 1.5rem 4rem color-mix(in srgb,#140d08 14%,transparent); }
+.hc-home-pantry-band { background:linear-gradient(120deg,#1b1512 0%,#312019 52%,#9a3d12 150%); color:#fff8f0; }
+.hc-home-steps { display:grid; gap:.7rem; }
+.hc-home-steps li { display:grid; grid-template-columns:2.25rem minmax(0,1fr); align-items:center; gap:.85rem; min-height:4.25rem; border:1px solid rgba(255,248,240,.16); border-radius:1rem; padding:.8rem 1rem; background:rgba(255,255,255,.06); backdrop-filter:blur(8px); }
+.hc-home-steps span { display:grid; width:2.1rem; height:2.1rem; place-items:center; border-radius:999px; background:#f97316; color:#fff; font-size:.72rem; font-weight:800; }
+.hc-home-steps p { font-size:.92rem; font-weight:750; line-height:1.35; }
+.hc-home-utility { min-height:18rem; padding:2rem; border:1px solid var(--hc-line); border-radius:1.5rem; background:linear-gradient(145deg,var(--hc-surface-raised),var(--hc-surface)); box-shadow:var(--hc-elev-1); }
+.hc-home-utility--warm { background:linear-gradient(145deg,#fff1e7,var(--hc-surface)); }
+.dark .hc-home-utility--warm { background:linear-gradient(145deg,#3a2118,var(--hc-surface)); }
 
 @media (prefers-reduced-motion: reduce) {
     .hc-arama__dugme, .hc-arama__cip, .hc-arama__ok { transition:background-color .2s ease, color .2s ease, border-color .2s ease; }

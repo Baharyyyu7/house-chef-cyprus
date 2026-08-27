@@ -70,6 +70,32 @@ final class RecipeMediaTruthfulnessPresentationTest extends TestCase
             ->assertSee('Yapay zekâ ile üretilmiş editoryal illüstrasyon: Test illüstrasyonu');
     }
 
+    public function test_homepage_featured_query_keeps_all_fields_required_by_the_public_media_gate(): void
+    {
+        Storage::fake('public');
+        $recipe = Recipe::query()->create([
+            'title' => 'Ana sayfa görsel kapısı tarifi',
+            'slug' => 'ana-sayfa-gorsel-kapisi-tarifi',
+            'excerpt' => 'Ana sayfa kartındaki onaylı görseli doğrulayan tarif.',
+            'prep_minutes' => 10,
+            'cook_minutes' => 20,
+            'rest_minutes' => 0,
+            'servings' => 4,
+            'difficulty' => 'Kolay',
+            'status' => 'published',
+            'verification_status' => 'verified',
+            'is_featured' => true,
+            'published_at' => now(),
+        ]);
+        $recipe->media()->create($this->approvedSyntheticMedia('recipe_synthetic', 'media/test/homepage.jpg', 'Ana sayfa test yemeği'));
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('Ana sayfa görsel kapısı tarifi')
+            ->assertSee('Yapay zekâ görseli')
+            ->assertDontSee('Yemek fotoğrafı hazırlanıyor');
+    }
+
     /** @return array<string,mixed> */
     private function approvedSyntheticMedia(string $kind, string $path, string $altText): array
     {

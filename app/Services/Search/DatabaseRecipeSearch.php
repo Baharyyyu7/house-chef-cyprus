@@ -42,6 +42,8 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
                 'id', 'mediable_type', 'mediable_id', 'kind', 'disk', 'path', 'source_name', 'source_url', 'provider_metadata',
                 'alt_text', 'is_placeholder', 'visibility', 'media_status', 'verification_status',
                 'license_review_status', 'attribution_review_status', 'generated_by_ai', 'responsive_variants', 'sort_order',
+                'fidelity_status', 'fidelity_confidence', 'checksum_sha256', 'perceptual_hash',
+                'media_reviewer_user_id', 'media_reviewed_at', 'approved_by_user_id', 'approved_at',
             ])->where('visibility', 'public'),
             'dietaryTags:id,code,name',
         ];

@@ -17,10 +17,13 @@
 @endphp
 <x-layouts.site :title="$sayfaBasligi" :meta-description="$sayfaAciklamasi" :canonical-url="$seoIndexability['canonical']" :robots="$seoIndexability['robots']">
 @if (request()->routeIs('home'))
+    @php
+        $homeHighlights = $recipes->take(4);
+    @endphp
     {{-- Hero sayfanın kendisidir, sayfanın üstünde duran bir kart değil.
          Tam genişlikte açılır ve alt kenarı sayfa zeminine karışır; böylece
          yüzen başlık çubuğu gerçekten içeriğin üstünden geçer. --}}
-    <section class="hc-home-hero relative isolate -mt-[var(--hc-header-h)] flex min-h-[86svh] items-end overflow-hidden pb-14 pt-[calc(var(--hc-header-h)+3rem)] sm:pb-20">
+    <section class="hc-home-hero hc-home-hero--master relative isolate -mt-[var(--hc-header-h)] flex min-h-[82svh] items-end overflow-hidden pb-16 pt-[calc(var(--hc-header-h)+3rem)] sm:pb-20">
         {{-- Bu görsel sayfanın LCP öğesi. Kaynak PNG 2.9 MB'tı; fotoğraf için
              yanlış format. Aynı kare AVIF olarak 222 KB, WebP olarak 294 KB;
              dar ekranda 61 KB. PNG en sonda, eski tarayıcılar için duruyor. --}}
@@ -45,14 +48,14 @@
              sayfa yapıştırılmış gibi duruyordu. --}}
         <div class="hc-home-hero__eritme" aria-hidden="true"></div>
         <div class="hc-container">
-            <div class="max-w-3xl">
-                <p class="v2-reveal hc-kicker text-orange-300">Modern Akdeniz mutfağı</p>
-                <h1 class="v2-reveal v2-delay-1 hc-display-xl mt-5 text-white">Bugün sofranıza iyi bir fikir bırakın.</h1>
-                <p class="hc-hero-muted v2-reveal v2-delay-2 hc-body-lg mt-6 max-w-xl">Kıbrıs'ın sıcaklığından ilham alan tarifler, malzemeleriniz ve mutfak ritminiz için tek bir yerde.</p>
+            <div class="max-w-4xl">
+                <p class="v2-reveal hc-kicker text-orange-300">Kıbrıs'tan, bugünün sofrasına</p>
+                <h1 class="v2-reveal v2-delay-1 hc-display-xl mt-5 max-w-3xl text-white">Ne pişireceğinizi düşünmeyin. İyi bir tabakla başlayın.</h1>
+                <p class="hc-hero-muted v2-reveal v2-delay-2 hc-body-lg mt-6 max-w-2xl">Doğrulanmış tarifler, elinizdeki malzemeler ve mutfağınıza uyum sağlayan sakin bir keşif deneyimi.</p>
                 {{-- Tek bir birincil eylem. İkincil eylem onunla yarışmaz. --}}
                 <div class="v2-reveal v2-delay-3 mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-                    <a class="hc-btn hc-btn-primary px-7" href="{{ route('recipes.index') }}">Tarifleri keşfet <span class="ml-1" aria-hidden="true">→</span></a>
-                    <a class="hc-hero-secondary text-sm font-semibold text-white/80 underline-offset-4 transition hover:text-white hover:underline" href="{{ auth()->check() ? route('ingredients.explore') : route('register') }}">Elindekilerle tarif bul</a>
+                    <a class="hc-btn hc-btn-primary px-7" href="#kesfet">Bugünün tariflerini gör <span class="ml-1" aria-hidden="true">→</span></a>
+                    <a class="hc-hero-secondary text-sm font-semibold text-white/80 underline-offset-4 transition hover:text-white hover:underline" href="{{ auth()->check() ? route('ingredients.explore') : route('register') }}">Malzemelerimle başla</a>
                 </div>
             </div>
         </div>
@@ -60,32 +63,32 @@
 
     {{-- Arama kutusu sayfanın ilk eylemi; öyle de görünmeli. Girdi ile
          düğme tek bir yüzeyin parçası, ikon içeride, öneriler altında. --}}
-    <section data-reveal class="hc-container py-14 sm:py-18">
-        <div class="hc-arama v2-reveal">
-            <p class="hc-kicker">Akıllı arama</p>
-            <form class="hc-arama__kutu mt-4" action="{{ route('recipes.index') }}">
+    <section id="kesfet" data-reveal class="hc-container relative z-10 -mt-8 pb-14 sm:-mt-12 sm:pb-20">
+        <div class="hc-arama hc-home-search v2-reveal">
+            <div class="flex flex-wrap items-end justify-between gap-3"><div><p class="hc-kicker">Mutfak kararını kolaylaştırın</p><h2 class="hc-heading-3 mt-2">Bir malzemeyle başlayın.</h2></div><a class="hc-text-link text-sm font-extrabold" href="{{ route('recipes.index') }}">Tüm arşiv →</a></div>
+            <form class="hc-arama__kutu mt-5" action="{{ route('recipes.index') }}">
                 <label class="sr-only" for="hero-search">Tarif ara</label>
                 <span class="hc-arama__ikon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span>
-                <input id="hero-search" class="hc-arama__girdi" name="q" placeholder="Malzeme, mutfak veya tarif ara" autocomplete="off">
+                <input id="hero-search" class="hc-arama__girdi" name="q" placeholder="Örn. hellim, patlıcan veya 20 dakikada" autocomplete="off">
                 <button class="hc-arama__dugme" type="submit">
                     <span>Tarif ara</span>
                     <span class="hc-arama__ok" aria-hidden="true">→</span>
                 </button>
             </form>
             <div class="hc-arama__oneriler">
-                <span class="hc-arama__etiket">Popüler:</span>
-                @foreach(['20 dakikada', 'Kıbrıs Mutfağı', 'Kolay Tarifler'] as $chip)
-                    <a href="{{ route('recipes.index', ['q' => $chip]) }}" class="hc-arama__cip">{{ $chip }}</a>
+                <span class="hc-arama__etiket">Hızlı giriş:</span>
+                @foreach([['20 dk altında', ['max_minutes' => 20]], ['Kıbrıs mutfağı', ['cuisine' => 'kibris']], ['Kolay tarifler', ['difficulty' => 'Kolay']]] as [$chip, $params])
+                    <a href="{{ route('recipes.index', $params) }}" class="hc-arama__cip">{{ $chip }}</a>
                 @endforeach
             </div>
         </div>
     </section>
 
-    <section data-reveal class="hc-container pb-16"><div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="hc-kicker">Seçilmiş tarifler</p><h2 class="hc-title mt-3">Bu hafta mutfağa<br class="sm:hidden"> iyi gelecek tarifler.</h2></div><a class="hc-btn hc-btn-outline" href="{{ route('recipes.index') }}">Tüm tarifleri gör →</a></div>
-        @if($recipes->isNotEmpty())
-            <div class="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3" data-reveal-group>
-                @foreach($recipes->take(6) as $recipe)
-                    <x-recipe-card-v3 :recipe="$recipe" />
+    <section data-reveal class="hc-container pb-20"><div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p class="hc-kicker">Bu hafta için seçtik</p><h2 class="hc-display-lg mt-3">Sofraya iyi gelecek<br class="hidden sm:block"> dört tarif.</h2></div><p class="hc-body-sm max-w-sm" style="color:var(--hc-text-secondary)">Süre, malzeme ve mevsim ritmini düşünerek seçilmiş doğrulanmış tarifler.</p></div>
+        @if($homeHighlights->isNotEmpty())
+            <div class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4" data-reveal-group>
+                @foreach($homeHighlights as $recipe)
+                    <x-recipe-card-v3 :recipe="$recipe" :show-favorite="false" />
                 @endforeach
             </div>
         @else
@@ -93,7 +96,7 @@
         @endif
     </section>
 
-    <section data-reveal class="border-y border-line bg-[#fdf1e6] py-16 dark:border-[#2a2a2a] dark:bg-[#141414]"><div class="hc-container grid gap-8 lg:grid-cols-[1.1fr_.9fr] lg:items-center"><div><p class="hc-kicker">Dolabında ne var?</p><h2 class="mt-3 text-4xl font-extrabold tracking-[-.04em] text-ink dark:text-stone-50 sm:text-5xl">Elindekileri seç.<br>Gerisini birlikte bulalım.</h2><p class="mt-5 max-w-xl leading-7 text-warm dark:text-stone-400">Malzeme dolabınızı tariflerle eşleştiriyor; eksikleri ve uygun alternatifleri açıkça gösteriyoruz.</p><a class="hc-btn hc-btn-primary mt-7" href="{{ auth()->check() ? route('ingredients.explore') : route('register') }}">Elindekilerle tarif bul →</a></div><div class="grid grid-cols-2 gap-3"><div class="rounded-3xl bg-orange-500 p-6 text-white"><p class="text-sm font-bold text-orange-100">01</p><p class="mt-10 text-xl font-extrabold">Dolabını ekle</p><p class="mt-2 text-sm leading-6 text-orange-100">Malzemelerini güncel tut.</p></div><div class="rounded-3xl bg-surface p-6 shadow-card dark:bg-[#1c1c1c]"><p class="text-sm font-bold text-orange-600">02</p><p class="mt-10 text-xl font-extrabold text-ink dark:text-stone-50">Tarifleri eşleştir</p><p class="mt-2 text-sm leading-6 text-warm dark:text-stone-400">Uygun sonuçları gör.</p></div><div class="col-span-2 rounded-3xl bg-charcoal-900 p-6 text-white"><p class="text-sm font-bold text-orange-300">03</p><p class="mt-2 text-xl font-extrabold">Eksikleri ve alternatifleri sakin, anlaşılır bir akışta değerlendirin.</p></div></div></div></section>
+    <section data-reveal class="hc-home-pantry-band"><div class="hc-container grid gap-8 py-14 lg:grid-cols-[1.18fr_.82fr] lg:items-end"><div><p class="hc-kicker text-orange-300">Elinizdekilerle daha iyi karar</p><h2 class="hc-display-lg mt-3 max-w-2xl text-white">Dolabınızdakiler, akşam yemeğine dönüşsün.</h2><p class="mt-5 max-w-xl hc-body-md text-stone-300">Malzemelerinizi seçin. Uygun tarifleri, eksikleri ve güvenli alternatifleri tek akışta görün.</p><a class="hc-btn mt-7 bg-white text-charcoal-900 hover:bg-orange-50" href="{{ auth()->check() ? route('ingredients.explore') : route('register') }}">Malzemelerimle tarif bul <span aria-hidden="true">→</span></a></div><ol class="hc-home-steps"><li><span>01</span><p>Dolabınızdakileri ekleyin.</p></li><li><span>02</span><p>Size uyan tarifleri görün.</p></li><li><span>03</span><p>Eksikleri bilinçli tamamlayın.</p></li></ol></div></section>
 
     <section data-reveal class="hc-container py-16"><div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">Mutfak seçkisi</p><h2 class="hc-heading-2 mt-3">Kıbrıs'tan başlayın.</h2></div><a class="hidden text-sm font-extrabold text-orange-700 sm:inline" href="{{ route('recipes.index') }}">Tarif arşivine git →</a></div>{{-- Kutular eskiden bir yıldız ve bir addan ibaretti; yüksekti ve boştu.
              Artık koleksiyonun büyüklüğünü gösteriyor ve en dolu mutfaklar başa
@@ -111,22 +114,7 @@
             @endforeach
         </div></section>
 
-    @foreach([
-        'quick' => ['30 dakikanın altında', 'Yoğun günlerde hızdan ödün vermeden sofraya gelen tarifler.'],
-        'cyprus' => ['Kıbrıs ve Akdeniz lezzetleri', 'Yerel mutfak ritminden ilham alan seçilmiş tarifler.'],
-        'breakfast' => ['Kahvaltı tarifleri', 'Güne iyi başlayan, paylaşması kolay tarifler.'],
-        'mains' => ['Ana yemekler', 'Hafta içi ve misafir sofraları için güvenilir ana yemekler.'],
-        'desserts' => ['Tatlılar', 'Sofrayı tamamlayan dengeli tatlı seçenekleri.'],
-    ] as $sectionKey => [$sectionTitle, $sectionDescription])
-        @if(($homeSections[$sectionKey] ?? collect())->isNotEmpty())
-            <section class="hc-container pb-16">
-                <div class="flex flex-wrap items-end justify-between gap-4"><div><p class="hc-kicker">Tarif seçkisi</p><h2 class="hc-title mt-2">{{ $sectionTitle }}</h2><p class="mt-2 max-w-2xl text-sm leading-6 text-warm dark:text-stone-400">{{ $sectionDescription }}</p></div><a class="hc-btn hc-btn-outline" href="{{ route('recipes.index') }}">Tümünü keşfet →</a></div>
-                <div class="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-reveal-group>@foreach($homeSections[$sectionKey] as $sectionRecipe)<x-recipe-card-v3 :recipe="$sectionRecipe" />@endforeach</div>
-            </section>
-        @endif
-    @endforeach
-
-    <section class="hc-container grid gap-4 pb-16 md:grid-cols-3" data-reveal-group><a href="{{ route('recipes.index') }}" class="hc-panel group"><span class="text-2xl text-orange-500">⌁</span><h3 class="mt-5 text-xl font-extrabold">Hızlı kategoriler</h3><p class="mt-2 text-sm leading-6 text-warm dark:text-stone-400">Süreye, mutfağa ve günün temposuna göre tarif keşfedin.</p><span class="mt-5 inline-flex text-sm font-extrabold text-orange-700">Hızlı tarifler →</span></a><div class="hc-panel"><span class="text-2xl text-orange-500">◎</span><h3 class="mt-5 text-xl font-extrabold">Beslenme & alerjen</h3><p class="mt-2 text-sm leading-6 text-warm dark:text-stone-400">Kaynağı ve güven düzeyi görünür bilgilerle daha bilinçli seçimler.</p></div><a href="{{ auth()->check() ? route('ingredients.explore') : route('register') }}" class="hc-panel"><span class="text-2xl text-orange-500">◷</span><h3 class="mt-5 text-xl font-extrabold">Cooking Mode</h3><p class="mt-2 text-sm leading-6 text-warm dark:text-stone-400">Tarifi adım adım, zamanlayıcılarla takip edin.</p><span class="mt-5 inline-flex text-sm font-extrabold text-orange-700">Pişirme modunu keşfet →</span></a></section>
+    <section data-reveal class="hc-container grid gap-5 pb-20 lg:grid-cols-2"><article class="hc-home-utility"><p class="hc-kicker">Hızlı karar</p><h2 class="hc-heading-2 mt-3">Akşam yemeği için<br>30 dakikanız mı var?</h2><p class="hc-body-sm mt-4" style="color:var(--hc-text-secondary)">Hazırlık ve pişirme süresine göre sakin, hızlı seçenekleri ayırdık.</p><a class="hc-text-link mt-7 inline-flex font-extrabold" href="{{ route('recipes.index', ['max_minutes' => 30]) }}">30 dakikanın altındakileri aç →</a></article><article class="hc-home-utility hc-home-utility--warm"><p class="hc-kicker">Yerel seçki</p><h2 class="hc-heading-2 mt-3">Kıbrıs ve Akdeniz<br>sofralarından başlayın.</h2><p class="hc-body-sm mt-4" style="color:var(--hc-text-secondary)">Yerel ritim, iyi malzeme ve paylaşmaya değer tarifler.</p><a class="hc-text-link mt-7 inline-flex font-extrabold" href="{{ route('recipes.index', ['cuisine' => 'kibris']) }}">Kıbrıs mutfağını keşfet →</a></article></section>
 
     @if(($latestPosts ?? collect())->isNotEmpty())
         <section class="hc-container pb-16"><div class="flex flex-wrap items-end justify-between gap-4"><div><p class="hc-kicker">Editoryal mutfak rehberi</p><h2 class="hc-title mt-2">Son blog yazıları</h2></div><a class="hc-btn hc-btn-outline" href="{{ route('blog.index') }}">Tüm yazılar →</a></div><div class="mt-7 grid gap-5 md:grid-cols-3">@foreach($latestPosts as $post)@php($heroMedia = app(\App\Services\Media\PublicMediaEligibilityService::class)->heroOrFirstEligible($post->heroMedia, $post->media))<article class="hc-v3-card overflow-hidden"><a class="block aspect-[16/9] bg-stone-100 dark:bg-stone-900" href="{{ route('blog.show', $post) }}">@if($heroMedia?->publicUrl())<img class="h-full w-full object-cover" src="{{ $heroMedia->publicUrl() }}" alt="{{ $heroMedia->alt_text }}" loading="lazy">@else<div class="flex h-full flex-col items-center justify-center gap-2 p-5 text-center"><span class="hc-kicker">{{ $post->category?->name ?? 'Mutfak notu' }}</span><strong>Yazıya özel görsel hazırlanıyor</strong><span class="text-xs text-muted">Onaylı editoryal görsel bekleniyor.</span></div>@endif</a><div class="p-5"><p class="hc-kicker">{{ $post->category?->name ?? 'Mutfak notu' }}</p><h3 class="mt-2 text-xl font-extrabold"><a href="{{ route('blog.show', $post) }}">{{ $post->title }}</a></h3><p class="mt-2 line-clamp-2 text-sm text-warm dark:text-stone-400">{{ $post->excerpt }}</p><a class="mt-4 inline-flex font-extrabold text-orange-700" href="{{ route('blog.show', $post) }}">Yazıyı oku →</a></div></article>@endforeach</div></section>
