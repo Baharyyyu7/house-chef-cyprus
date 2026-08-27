@@ -39,14 +39,40 @@ final class VisualDesignPhaseTest extends TestCase
 
     public function test_v2_homepage_uses_the_real_food_hero_and_keeps_search_and_primary_calls_to_action(): void
     {
-        $this->get(route('home'))
+        // Metin değil davranış doğrulanıyor. Kahraman bölümündeki çağrı
+        // metinleri tasarım turlarında yeniden yazılıyor ve birebir dizeye
+        // bağlı bir test, kasıtlı bir metin değişikliğinde kırılıp gerçek
+        // bir hata varmış gibi görünüyordu.
+        $icerik = (string) $this->get(route('home'))
             ->assertOk()
             ->assertSee('house-chef-hero-v2.png', false)
-            ->assertSee('Tarifleri keşfet')
-            ->assertSee('Elindekilerle tarif bul')
-            ->assertSee('Akıllı arama')
+            // Arama kutusunun kendisi aranıyor, üstündeki başlık değil:
+            // başlık metni tasarım turlarında yeniden yazılıyor.
             ->assertSee('hero-search', false)
-            ->assertDontSee('∞ ilham');
+            ->assertDontSee('∞ ilham')
+            ->getContent();
+
+        // Arama gerçekten tarif listesine gönderiyor mu.
+        $this->assertMatchesRegularExpression(
+            '/<form[^>]*action="[^"]*tarifler[^"]*"/',
+            $icerik,
+            'Ana sayfadaki arama tarif listesine gitmeli.'
+        );
+
+        // Birincil çağrı: tarif listesine götüren bir düğme.
+        $this->assertMatchesRegularExpression(
+            '/<a[^>]*hc-btn-primary[^>]*href="[^"]*(#kesfet|tarifler)[^"]*"/',
+            $icerik,
+            'Kahraman bölümünde tariflere götüren birincil çağrı olmalı.'
+        );
+
+        // İkincil çağrı: malzemeden tarife giden yol. Ziyaretçi girişliyse
+        // malzeme keşfine, değilse kayda gider.
+        $this->assertMatchesRegularExpression(
+            '/<a[^>]*hc-hero-secondary[^>]*href="[^"]*(malzeme|register|ingredient)[^"]*"/i',
+            $icerik,
+            'Kahraman bölümünde malzemeden başlatan ikincil çağrı olmalı.'
+        );
     }
 
     public function test_homepage_renders_an_explicit_featured_recipe_empty_state_when_no_recipes_exist(): void
