@@ -41,6 +41,7 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\InformationPageController;
 use App\Http\Controllers\IngredientExplorerController;
+use App\Http\Controllers\IngredientHubController;
 use App\Http\Controllers\LegalInformationCenterController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PantryController;
@@ -100,7 +101,11 @@ Route::get('/health', HealthController::class)->name('health');
 Route::get('/tarifler', [RecipeController::class, 'index'])->name('recipes.index');
 // Malzemeye göre tarif eşleştirme herkese açıktır; dolap entegrasyonu üye olanlara özel kalır.
 Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])->name('ingredients.explore');
-Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
+
+// Malzeme sayfaları: "Hellim ile ne yapılır?" Sayfa yalnız arkasında yeterli
+// tarif varsa açılır; eşiğin altındaki malzeme 404 verir.
+Route::get('/malzemeler', [IngredientHubController::class, 'index'])->name('ingredients.hub.index');
+Route::get('/malzemeler/{slug}', [IngredientHubController::class, 'show'])->name('ingredients.hub.show');Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
     ->name('recipes.show')
     // Tarif slug'ları rastgele bir sonek taşıyor ("adana-kebabi-MT5XA") ve tek
     // bir toplu içerik çalışması 678 tarifin 628'inin sonekini değiştirebiliyor.

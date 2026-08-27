@@ -31,8 +31,19 @@ final class SitemapController extends Controller
     public function pages(): Response
     {
         // ne-pisirebilirim üyelik duvarının arkasından çıkarıldı; indekslenebilir bir araç sayfasıdır.
-        $staticPaths = ['', 'tarifler', 'blog', 'ne-pisirebilirim', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'iletisim'];
+        $staticPaths = ['', 'tarifler', 'blog', 'malzemeler', 'ne-pisirebilirim', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'iletisim'];
         $urls = collect($staticPaths)->map(fn (string $path): array => ['loc' => url($path), 'lastmod' => null]);
+
+        // Malzeme sayfaları. Liste ile sitemap aynı eşiği paylaşmak zorunda:
+        // ayrışırsa sitemap 404 veren adresleri ilan eder ve tarama bütçesi
+        // boşa gider.
+        $urls = $urls->concat(
+            \App\Http\Controllers\IngredientHubController::sayfasiOlanlar()
+                ->map(fn ($malzeme): array => [
+                    'loc' => route('ingredients.hub.show', $malzeme->slug),
+                    'lastmod' => null,
+                ])
+        );
 
         return $this->urls($urls);
     }
