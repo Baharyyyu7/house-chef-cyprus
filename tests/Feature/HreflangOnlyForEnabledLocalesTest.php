@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\Recipe;
 use App\Services\Seo\LocaleUrlService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -78,7 +79,6 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
         $this->assertSame(rtrim(url('/tarifler'), '/'), $servis->urlFor('tr', '/en/tarifler'));
     }
 
-
     public function test_the_sitemap_stays_plain_while_only_one_locale_is_enabled(): void
     {
         $icerik = (string) $this->get(route('sitemap.pages'))->assertOk()->getContent();
@@ -93,7 +93,7 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
         // Google o hreflang çiftini atar. Kayıt başına hesaplanmak zorunda.
         config()->set('locales.supported.en.enabled', true);
 
-        $cevirisiz = \App\Models\Recipe::query()->create([
+        $cevirisiz = Recipe::query()->create([
             'title' => 'Çevirisiz Tarif', 'slug' => 'cevirisiz-'.uniqid(),
             'excerpt' => 'Özet.', 'description' => 'Açıklama.',
             'status' => 'published', 'verification_status' => 'verified', 'published_at' => now(),
@@ -109,7 +109,7 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
     {
         config()->set('locales.supported.en.enabled', true);
 
-        $tarif = \App\Models\Recipe::query()->create([
+        $tarif = Recipe::query()->create([
             'title' => 'Çevrili Tarif', 'slug' => 'cevrili-'.uniqid(),
             'excerpt' => 'Özet.', 'description' => 'Açıklama.',
             'status' => 'published', 'verification_status' => 'verified', 'published_at' => now(),

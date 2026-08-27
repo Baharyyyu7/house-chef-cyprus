@@ -101,12 +101,14 @@ final class MediaIntake extends Command
             // denenebilsin.
             if (! $tarif) {
                 $atlanan['tarif kaydı yok'][] = $publicId;
+
                 continue;
             }
 
             if ($tarif->status !== 'published' || $tarif->verification_status !== 'verified') {
                 $atlanan['tarif yayında değil ('.$tarif->status.')'][] = $tarif->title;
                 $temizlenecek[] = $publicId;
+
                 continue;
             }
 

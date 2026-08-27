@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Services\BackupService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,4 +18,3 @@ final class ObservabilityFoundationTest extends TestCase
         $this->getJson('/api/v1/version')->assertOk()->assertJsonPath('data.locale', 'tr');
     }
 }
-

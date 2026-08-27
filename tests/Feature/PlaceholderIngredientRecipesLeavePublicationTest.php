@@ -8,6 +8,7 @@ use App\Console\Commands\UnpublishPlaceholderIngredientRecipes;
 use App\Models\Ingredient;
 use App\Models\Recipe;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
@@ -83,7 +84,7 @@ final class PlaceholderIngredientRecipesLeavePublicationTest extends TestCase
     {
         $recipe = Recipe::query()->create([
             'title' => $baslik,
-            'slug' => \Illuminate\Support\Str::slug($baslik).'-'.uniqid(),
+            'slug' => Str::slug($baslik).'-'.uniqid(),
             'status' => 'published',
             'verification_status' => 'verified',
             'published_at' => $yayinTarihi ?? now(),
@@ -92,7 +93,7 @@ final class PlaceholderIngredientRecipesLeavePublicationTest extends TestCase
         foreach ($malzemeler as $sira => $ad) {
             $ingredient = Ingredient::query()->firstOrCreate(
                 ['name' => $ad],
-                ['slug' => \Illuminate\Support\Str::slug($ad).'-'.uniqid()]
+                ['slug' => Str::slug($ad).'-'.uniqid()]
             );
             $recipe->ingredients()->attach($ingredient->id, ['sort_order' => $sira + 1]);
         }

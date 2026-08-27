@@ -140,7 +140,7 @@ final class StageDeliveredRecipeImages extends Command
 
             // Aynı çalıştırmada iki farklı dosya aynı tarife düşerse ikincisi
             // de atlanmalı; yoksa tekrar bu partiden doğar.
-            $mevcutTarifler->put($recipe->public_id, true);
+            $mevcutTarifler->put($recipe->public_id, 1);
 
             $hazir[] = [
                 'content_type' => 'recipe',

@@ -1,10 +1,10 @@
 <?php
 
 use App\Contracts\Observability\ErrorReporterInterface;
+use App\Http\Middleware\LocaleUrlPrefix;
+use App\Http\Middleware\RecordAudienceCountry;
 use App\Http\Middleware\RequestContext;
 use App\Http\Middleware\SecureHeaders;
-use App\Http\Middleware\RecordAudienceCountry;
-use App\Http\Middleware\LocaleUrlPrefix;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;

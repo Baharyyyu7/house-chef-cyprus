@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\DigitalProduct;
+use App\Models\Ingredient;
+use App\Models\Recipe;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -83,7 +85,7 @@ final class ShopSellsOnlyRealFilesTest extends TestCase
 
     private function seedPublishedRecipe(): void
     {
-        $tarif = \App\Models\Recipe::query()->create([
+        $tarif = Recipe::query()->create([
             'title' => 'Fırında Hellim',
             'slug' => 'firinda-hellim-'.uniqid(),
             'status' => 'published',
@@ -92,7 +94,7 @@ final class ShopSellsOnlyRealFilesTest extends TestCase
             'published_at' => now(),
         ]);
 
-        $malzeme = \App\Models\Ingredient::query()->create([
+        $malzeme = Ingredient::query()->create([
             'name' => 'Hellim',
             'slug' => 'hellim-'.uniqid(),
         ]);

@@ -64,7 +64,8 @@ final class VerifyPendingRecipeImagery extends Command
             }
 
             $onaylanan++;
-            $this->line('  onaya hazır: '.($medya->mediable?->title ?? $medya->public_id));
+            $baslik = $medya->mediable->getAttribute('title');
+            $this->line('  onaya hazır: '.(is_string($baslik) && $baslik !== '' ? $baslik : $medya->public_id));
         }
 
         $this->line("Üç kontrolü de geçen: {$onaylanan}");

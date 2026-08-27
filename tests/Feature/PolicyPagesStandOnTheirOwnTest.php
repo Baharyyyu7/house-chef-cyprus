@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -29,7 +30,7 @@ final class PolicyPagesStandOnTheirOwnTest extends TestCase
         ];
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('sayfalar')]
+    #[DataProvider('sayfalar')]
     public function test_each_policy_has_its_own_page_and_canonical(string $yol, string $baslik): void
     {
         $this->get($yol)

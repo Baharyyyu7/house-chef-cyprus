@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\SystemEventController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\AiKitchenController;
+use App\Http\Controllers\Auth\SocialLoginController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BlogCoverController;
 use App\Http\Controllers\ContactRequestController;
@@ -86,11 +87,11 @@ Route::get('/', [RecipeController::class, 'index'])->name('home');
 Route::post('/dil', LocaleController::class)->middleware('throttle:20,1')->name('locale.update');
 // Sosyal giriş. Sağlayıcı yapılandırılmamışsa controller 404 döner ve düğme
 // zaten basılmaz; anahtarsız bir düğme herkesi hata sayfasına götürür.
-Route::get('/giris/{provider}/yonlendir', [App\Http\Controllers\Auth\SocialLoginController::class, 'redirect'])
+Route::get('/giris/{provider}/yonlendir', [SocialLoginController::class, 'redirect'])
     ->whereIn('provider', ['google', 'github'])
     ->middleware('throttle:20,1')
     ->name('social.redirect');
-Route::get('/giris/{provider}/geri-donus', [App\Http\Controllers\Auth\SocialLoginController::class, 'callback'])
+Route::get('/giris/{provider}/geri-donus', [SocialLoginController::class, 'callback'])
     ->whereIn('provider', ['google', 'github'])
     ->middleware('throttle:20,1')
     ->name('social.callback');

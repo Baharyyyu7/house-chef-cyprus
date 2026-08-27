@@ -8,6 +8,8 @@ use App\Models\BlogPost;
 use App\Models\Media;
 use App\Models\Recipe;
 use App\Services\Media\PublicMediaEligibilityService;
+use App\Services\Seo\LocaleUrlService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
 
 final class SitemapController extends Controller
@@ -73,7 +75,7 @@ final class SitemapController extends Controller
      */
     private function alternates(string $path, object $kayit): array
     {
-        $servis = app(\App\Services\Seo\LocaleUrlService::class);
+        $servis = app(LocaleUrlService::class);
         $diller = array_filter(
             $servis->enabledLocales(),
             static fn (array $dil, string $kod): bool => $kayit->hasTranslation($kod),
@@ -104,8 +106,8 @@ final class SitemapController extends Controller
      *
      * @template TModel of \Illuminate\Database\Eloquent\Model
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<TModel>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<TModel>
+     * @param  Builder<TModel>  $query
+     * @return Builder<TModel>
      */
     private function indexable($query)
     {
@@ -125,7 +127,7 @@ final class SitemapController extends Controller
                 return $images === [] ? null : ['loc' => route('recipes.show', $recipe->slug), 'lastmod' => $recipe->updated_at?->toDateString(), 'images' => $images];
             })->filter();
 
-        $blogUrls = $this->indexable(BlogPost::query()->publiclyVisible())->with("heroMedia")->get()
+        $blogUrls = $this->indexable(BlogPost::query()->publiclyVisible())->with('heroMedia')->get()
             ->filter(fn (BlogPost $post): bool => $mediaEligibility->isEligible($post->heroMedia) && $post->heroMedia?->publicUrl() !== null)
             ->map(fn (BlogPost $post): array => ['loc' => route('blog.show', $post), 'lastmod' => $post->updated_at?->toDateString(), 'images' => [['loc' => $post->heroMedia->responsiveUrl(1200) ?: $post->heroMedia->publicUrl(), 'title' => $post->heroMedia->alt_text ?: $post->title]]]);
         $urls = $urls->concat($blogUrls)->values();

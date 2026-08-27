@@ -10,6 +10,7 @@ use App\Services\Media\PublicMediaEligibilityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 final class ManualMediaUploadReachesApprovalTest extends TestCase
@@ -108,7 +109,7 @@ final class ManualMediaUploadReachesApprovalTest extends TestCase
     {
         return Recipe::query()->create([
             'title' => $baslik,
-            'slug' => \Illuminate\Support\Str::slug($baslik).'-'.uniqid(),
+            'slug' => Str::slug($baslik).'-'.uniqid(),
             'status' => 'published',
             'verification_status' => 'verified',
             'published_at' => now(),

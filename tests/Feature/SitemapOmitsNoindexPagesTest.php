@@ -47,8 +47,8 @@ final class SitemapOmitsNoindexPagesTest extends TestCase
 
     public function test_a_noindex_post_is_left_out_of_the_blog_sitemap(): void
     {
-        $gorunur = $this->yazi("yayinlanan-yazi", "index,follow");
-        $gizli = $this->yazi("inceleme-bekleyen-yazi", "noindex,nofollow");
+        $gorunur = $this->yazi('yayinlanan-yazi', 'index,follow');
+        $gizli = $this->yazi('inceleme-bekleyen-yazi', 'noindex,nofollow');
 
         $this->get('/sitemaps/blog.xml')
             ->assertOk()

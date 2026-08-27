@@ -6,7 +6,9 @@ namespace Tests\Feature;
 
 use App\Models\Recipe;
 use App\Models\User;
+use App\Services\DataQualityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -75,10 +77,10 @@ final class AdminDashboardTellsTheTruthTest extends TestCase
 
     public function test_it_shows_the_category_scores_once_a_scan_has_run(): void
     {
-        app(\App\Services\DataQualityService::class)->scan();
+        app(DataQualityService::class)->scan();
         // Önbellek her deploy'da temizlenir; taranmış bir katalog bu yüzden
         // "hiç bakılmadı" görünmemeli.
-        \Illuminate\Support\Facades\Cache::flush();
+        Cache::flush();
 
         $this->actingAsAdmin()
             ->get(route('admin.dashboard'))

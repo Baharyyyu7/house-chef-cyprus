@@ -8,6 +8,7 @@ use App\Models\Recipe;
 use App\Models\User;
 use App\Models\UserSubscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 /**
@@ -81,7 +82,7 @@ final class MembershipInviteAdaptsToTheReaderTest extends TestCase
     {
         foreach (['ai-kitchen.meal-plan', 'ai-kitchen.index', 'pantry.index', 'collections.index'] as $rota) {
             $this->assertTrue(
-                \Illuminate\Support\Facades\Route::has($rota),
+                Route::has($rota),
                 "Premium listesinde satılan bir özelliğin rotası yok: {$rota}"
             );
         }

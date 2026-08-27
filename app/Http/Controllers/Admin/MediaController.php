@@ -11,15 +11,16 @@ use App\Models\BlogPost;
 use App\Models\Ingredient;
 use App\Models\Media;
 use App\Models\Recipe;
+use App\Models\User;
 use App\Services\Media\LocalMediaStorage;
 use App\Services\Media\PublicMediaEligibilityService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class MediaController extends Controller
@@ -325,7 +326,7 @@ final class MediaController extends Controller
     {
         $this->admin();
 
-        $cikti = new BufferedOutput();
+        $cikti = new BufferedOutput;
         Artisan::call('media:intake', ['--apply' => true], $cikti);
 
         // Komut kendi özetini yazıyor; kullanıcıya sayıyı gösteren satırı
@@ -361,12 +362,12 @@ final class MediaController extends Controller
         AuditLog::create(['user_id' => auth()->id(), 'action' => $action, 'auditable_type' => $media?->getMorphClass(), 'auditable_id' => $media?->getKey(), 'metadata' => $metadata]);
     }
 
-    private function admin(): \App\Models\User
+    private function admin(): User
     {
         $this->authorizeAdminOperations();
 
         $user = auth()->user();
-        abort_unless($user instanceof \App\Models\User, 403);
+        abort_unless($user instanceof User, 403);
 
         return $user;
     }

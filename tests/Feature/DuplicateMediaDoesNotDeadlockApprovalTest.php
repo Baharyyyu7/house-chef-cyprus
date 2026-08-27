@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Media;
 use App\Models\Recipe;
+use App\Models\User;
 use App\Services\Media\PublicMediaEligibilityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +18,7 @@ final class DuplicateMediaDoesNotDeadlockApprovalTest extends TestCase
 
     private PublicMediaEligibilityService $kapi;
 
-    private \App\Models\User $editor;
+    private User $editor;
 
     protected function setUp(): void
     {
@@ -90,7 +91,6 @@ final class DuplicateMediaDoesNotDeadlockApprovalTest extends TestCase
 
         $this->assertNotNull($birinci->fresh()->approved_by_user_id);
     }
-
 
     public function test_a_copy_that_can_never_be_approved_leaves_the_queue(): void
     {
@@ -174,8 +174,8 @@ final class DuplicateMediaDoesNotDeadlockApprovalTest extends TestCase
         ]);
     }
 
-    private function yonetici(): \App\Models\User
+    private function yonetici(): User
     {
-        return \App\Models\User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        return User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
     }
 }

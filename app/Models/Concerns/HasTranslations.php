@@ -27,6 +27,7 @@ trait HasTranslations
     /** @return list<string> */
     abstract public function translatableFields(): array;
 
+    /** @return MorphMany<ContentTranslation, $this> */
     public function translations(): MorphMany
     {
         return $this->morphMany(ContentTranslation::class, 'translatable');

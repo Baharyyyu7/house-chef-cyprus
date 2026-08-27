@@ -11,7 +11,6 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 /**
  * Yayındaki tariflerden satılabilir bir e-kitap üretir.
@@ -68,7 +67,7 @@ final class BuildRecipeEbook extends Command
             'uretimTarihi' => now(),
         ])->render();
 
-        $options = new Options();
+        $options = new Options;
         $options->set('isRemoteEnabled', false);
         $options->set('defaultFont', 'DejaVu Sans');
         $dompdf = new Dompdf($options);

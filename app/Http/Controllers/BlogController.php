@@ -60,7 +60,7 @@ final class BlogController extends Controller
         $heroMedia = $mediaEligibility->heroOrFirstEligible($post->heroMedia, $post->media);
         $sosyalGorsel = $heroMedia?->socialImage();
         // Paylaşım ve şema görseli 1200x630 varyantını kullanır, ham kaynağı değil.
-        $schema = $schemaService->article($post, $sosyalGorsel["url"] ?? '');
+        $schema = $schemaService->article($post, $sosyalGorsel['url'] ?? '');
 
         $metadata = $seo->for($post, $post->meta_title ?: $post->title.' · House Chef Cyprus', $post->meta_description ?: $post->excerpt, route('blog.show', $post));
 
