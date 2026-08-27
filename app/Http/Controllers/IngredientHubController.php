@@ -31,6 +31,28 @@ final class IngredientHubController extends Controller
     /** Bir malzeme sayfasının var olması için gereken en az tarif sayısı. */
     private const ASGARI_TARIF = 5;
 
+    /**
+     * Sayfası olmayacak malzemeler.
+     *
+     * Tarif sayısı eşiği veri hacmini filtreliyor ama arama niyetini
+     * filtrelemiyor - ve sinyal burada ters işliyor. Tuz 73 tarifte, zeytinyağı
+     * 92 tarifte geçiyor; tam da her yemekte oldukları için. Kimse "tuz ile ne
+     * yapılır" diye aramaz. Bu sayfalar açılırsa yüksek tarif sayılarına rağmen
+     * niyetsiz kalır ve zayıf sayfa olarak site geneli kalite sinyalini düşürür.
+     *
+     * "Ana Malzeme" ise malzeme bile değil, veri tarafında kalmış bir yer
+     * tutucu etiket.
+     *
+     * Bu liste algoritmayla türetilemiyor: hangi malzemenin konu, hangisinin
+     * baharat olduğu editoryal bir karar.
+     */
+    private const KONU_OLMAYANLAR = [
+        'ana-malzeme',
+        'tuz', 'karabiber', 'seker', 'sivi-yag', 'zeytinyagi', 'su', 'un',
+        'kuru-sogan', 'sogan', 'sarimsak', 'tereyagi', 'limon-suyu', 'ceviz-ici',
+        'biber-salcasi', 'domates-salcasi', 'sut', 'yumurta',
+    ];
+
     public function index(Request $request, SeoIndexabilityService $indexability): View
     {
         $malzemeler = $this->yeterliMalzemeler();
@@ -46,6 +68,7 @@ final class IngredientHubController extends Controller
         $malzeme = Ingredient::query()->where('slug', $slug)->first();
 
         abort_if($malzeme === null, 404);
+        abort_if(in_array($malzeme->slug, self::KONU_OLMAYANLAR, true), 404);
 
         $tarifler = $this->tarifleriIcin($malzeme);
 
@@ -79,6 +102,7 @@ final class IngredientHubController extends Controller
 
         return Ingredient::query()
             ->whereIn('id', $sayilar->filter(fn (int $adet): bool => $adet >= self::ASGARI_TARIF)->keys())
+            ->whereNotIn('slug', self::KONU_OLMAYANLAR)
             ->orderBy('name')
             ->get()
             ->each(fn (Ingredient $m) => $m->setAttribute('tarif_sayisi', $sayilar[$m->id] ?? 0));

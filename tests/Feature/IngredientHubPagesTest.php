@@ -78,6 +78,40 @@ final class IngredientHubPagesTest extends TestCase
         $this->get(route('ingredients.hub.show', 'olmayan-malzeme'))->assertNotFound();
     }
 
+
+    public function test_a_pantry_staple_never_gets_a_page_however_many_recipes_it_has(): void
+    {
+        // Eşik veri hacmini filtreliyor ama arama niyetini filtrelemiyor ve
+        // sinyal burada ters işliyor: tuz 73 tarifte geçiyor, tam da her
+        // yemekte olduğu için. Kimse "tuz ile ne yapılır" diye aramaz.
+        $tuz = Ingredient::query()->create(['name' => 'Tuz', 'slug' => 'tuz']);
+
+        for ($i = 0; $i < 30; $i++) {
+            $tarif = Recipe::query()->create([
+                'title' => 'Tuzlu Tarif '.$i,
+                'slug' => 'tuzlu-tarif-'.$i.'-'.uniqid(),
+                'excerpt' => 'Özet.', 'description' => 'Açıklama.',
+                'status' => 'published', 'verification_status' => 'verified',
+                'published_at' => now(),
+            ]);
+            $tarif->recipeIngredients()->create([
+                'ingredient_id' => $tuz->id,
+                'display_quantity' => 1, 'display_measure_code' => 'g', 'sort_order' => 1,
+            ]);
+        }
+
+        $this->get(route('ingredients.hub.show', 'tuz'))->assertNotFound();
+        $this->get(route('ingredients.hub.index'))->assertOk()->assertDontSee('>Tuz<', false);
+    }
+
+    public function test_the_placeholder_label_is_not_treated_as_an_ingredient(): void
+    {
+        // "Ana Malzeme" veri tarafında kalmış bir etiket, malzeme değil.
+        Ingredient::query()->create(['name' => 'Ana Malzeme', 'slug' => 'ana-malzeme']);
+
+        $this->get(route('ingredients.hub.show', 'ana-malzeme'))->assertNotFound();
+    }
+
     private function malzemeIle(int $tarifSayisi, string $ad = 'Domates'): Ingredient
     {
         $malzeme = Ingredient::query()->create([
