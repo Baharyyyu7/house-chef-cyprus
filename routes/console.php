@@ -31,12 +31,16 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('blog_publish_sc
 // servisi 2026-08-02'de durunca o da durdu. Zamanlayıcı artık dışarıdan
 // (/_zamanlayici ucu) tetiklendiği için kuyruğu da buraya bağlıyoruz;
 // yoksa tetikleme çalışsa bile kuyruk beklemeye devam ederdi.
-// Kuyruk adlari acik yazilmali: queue:work varsayilan olarak yalniz
-// "default" kuyrugunu isler. Canlida bekleyen iki is "media"
-// kuyrugundaydi ve bu yuzden hic islenmiyordu.
+// queue:work degil queue:drain-bounded: zamanlayici Hostinger'in olu
+// cron'u yuzunden bir HTTP isteginin icinden tetikleniyor ve queue:work
+// bu baglamda calismiyor - CLI'da ayni gorev 3 saniye surup isleri
+// bitirirken HTTP yolunda hata vermeden, is islemeden aninda donuyor.
+// Kuyruk adlari acik yazilmali: varsayilan yalniz "default" isler.
+// Canlida bekleyen iki is "media" kuyrugundaydi ve bu yuzden 12 gun
+// hic islenmedi.
 // Süre sınırları tetikleyen HTTP isteğini asmamak için dar tutuldu:
 // uç 55 saniyelik bir kilit alıyor.
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('queue_drain', fn () => Artisan::call('queue:work', ['--queue' => 'default,media,mail,nutrition', '--stop-when-empty' => true, '--tries' => 3, '--timeout' => 20, '--max-time' => 25])))->name('queue_drain')->everyMinute()->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('queue_drain', fn () => Artisan::call('queue:drain-bounded', ['--queue' => 'default,media,mail,nutrition', '--max-jobs' => 20, '--max-seconds' => 20, '--tries' => 3, '--job-timeout' => 15])))->name('queue_drain')->everyMinute()->withoutOverlapping();
 // SEO tasks only derive local drafts, audits and summaries. They never publish content or call external providers without an explicit enabled configuration and approval.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_audit', fn () => Artisan::call('seo:audit')))->name('seo_audit')->dailyAt('01:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_sitemap_audit', fn () => Artisan::call('seo:sitemap-audit')))->name('seo_sitemap_audit')->dailyAt('01:25')->withoutOverlapping();

@@ -71,11 +71,14 @@ final class QueueIsDrainedByTheSchedulerTest extends TestCase
         $this->assertSame('* * * * *', $olay->expression);
     }
 
-    /** Zamanlanmış görevin queue:work çağrısındaki --queue değeri. */
+    /** Zamanlanmış görevin kuyruk boşaltma çağrısındaki --queue değeri. */
     private function kuyrukSecenegi(): string
     {
         $kaynak = (string) file_get_contents(base_path('routes/console.php'));
 
+        // Komut adı da doğrulanır: queue:work bu bağlamda çalışmadığı için
+        // geri dönülmemeli.
+        $this->assertStringContainsString('queue:drain-bounded', $kaynak);
         $this->assertMatchesRegularExpression("/'--queue' => '([a-z,_-]+)'/", $kaynak);
         preg_match("/'--queue' => '([a-z,_-]+)'/", $kaynak, $eslesme);
 
