@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Services\Queue\BoundedQueueDrainer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
@@ -52,24 +53,19 @@ final class SchedulerTriggerController extends Controller
 
             // Kuyruk ayrıca ve doğrudan boşaltılıyor.
             //
-            // Zamanlamada bir queue_drain görevi var ve CLI'da çalışıyor, ama
-            // bu uçtan çağrıldığında schedule:run onu çalıştırmıyor: aynı
-            // istekte blog_publish_scheduled koşuyor (işaret güncelleniyor),
-            // queue_drain koşmuyor ve schedule:run hiç çıktı üretmiyor. Aynı
-            // kod yerelde `artisan serve` altında sorunsuz çalışıyor, yani
-            // sebep Hostinger'ın web ortamına özgü ve makul bir maliyetle
-            // bulunamadı.
+            // Kuyruk burada, servis olarak boşaltılıyor.
             //
-            // Doğrudan çağrı o davranışa bağımlı değil. Sunucu tarafı cron
-            // düzelirse zamanlanmış görev de işini görür; ikisi aynı anda
-            // koşarsa ikincisi boş kuyruk görüp hemen döner.
-            Artisan::call('queue:drain-bounded', [
-                '--queue' => 'default,media,mail,nutrition',
-                '--max-jobs' => 20,
-                '--max-seconds' => 20,
-                '--tries' => 3,
-                '--job-timeout' => 15,
-            ]);
+            // Zamanlamada bir queue_drain görevi var ve CLI'da çalışıyor ama
+            // bu uçtan çağrıldığında koşmuyor. Sebep ölçüldü: bu bağlamda
+            // konsol komutları kayıtlı değil - üretimde
+            // `Artisan::call('queue:drain-bounded')` CommandNotFoundException
+            // atıyor, aynı komut CLI'da sorunsuz listeleniyor ve çalışıyor.
+            //
+            // Servis çağrısında konsol çekirdeği hiç devreye girmiyor,
+            // dolayısıyla iki bağlamda da aynı kod koşuyor. Sunucu tarafı
+            // cron düzelirse zamanlanmış görev de işini görür; ikisi aynı
+            // anda koşarsa ikincisi boş kuyruk görüp hemen döner.
+            app(BoundedQueueDrainer::class)->drain(['default', 'media', 'mail', 'nutrition']);
 
             // Eski cron komutu çıktısını shared/logs/scheduler.log'a
             // yönlendiriyordu; bu uç Artisan::call kullandığı için o kayıt

@@ -4,22 +4,14 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Services\Queue\BoundedQueueDrainer;
 use Illuminate\Console\Command;
-use Illuminate\Queue\WorkerOptions;
-use Illuminate\Support\Facades\DB;
 
 /**
- * Kuyruğu sınırlı sayıda iş ve sınırlı süre içinde boşaltır.
+ * BoundedQueueDrainer'ın ince konsol sarmalayıcısı.
  *
- * Neden ayrı bir komut: zamanlayıcı Hostinger'ın ölü cron'u yüzünden
- * /_zamanlayici ucundan, yani bir HTTP isteğinin içinden tetikleniyor.
- * `queue:work` bu bağlamda çalışmıyor - CLI'da aynı görev 3 saniye sürüp
- * işleri bitirirken HTTP yolunda hata vermeden, iş işlemeden anında
- * dönüyor. Daemon döngüsü, sinyal işleyicileri ve çıkış davranışı web
- * SAPI'sinde güvenilir değil.
- *
- * Bu komut Worker'ın tek iş çalıştıran API'sini doğrudan kullanır: döngü
- * bizde, dolayısıyla davranış iki bağlamda da aynı.
+ * Asıl mantık serviste duruyor çünkü tetikleme ucu bir HTTP isteği ve o
+ * bağlamda Artisan komutları güvenilir biçimde kayıtlı değil.
  */
 final class QueueDrainBounded extends Command
 {
@@ -31,64 +23,22 @@ final class QueueDrainBounded extends Command
         {--job-timeout=15 : Tek bir işin süre sınırı}
         {--json : Makine okunabilir çıktı}';
 
-    protected $description = 'Kuyruğu sınırlı sayıda iş ve süre içinde işler; HTTP bağlamında da çalışır.';
+    protected $description = 'Kuyruğu sınırlı sayıda iş ve süre içinde işler.';
 
-    public function handle(): int
+    public function handle(BoundedQueueDrainer $drainer): int
     {
-        // Worker'ın kurucusu container'dan çözülemiyor; framework onu
-        // 'queue.worker' adıyla kendisi bağlıyor.
-        $worker = $this->laravel->make('queue.worker');
-
-        $kuyruklar = array_values(array_filter(array_map('trim', explode(',', (string) $this->option('queue')))));
-        $enFazlaIs = max(1, (int) $this->option('max-jobs'));
-        $sonAn = microtime(true) + max(1, (int) $this->option('max-seconds'));
-
-        // sleep: 0 şart. Varsayılan 3 saniyeyle Worker boş her kuyrukta
-        // uyuyor; dört kuyruk için tetikleme başına 12 saniye demek.
-        $secenekler = new WorkerOptions(
-            sleep: 0,
-            maxTries: max(1, (int) $this->option('tries')),
-            timeout: max(1, (int) $this->option('job-timeout')),
+        $sonuc = $drainer->drain(
+            explode(',', (string) $this->option('queue')),
+            (int) $this->option('max-jobs'),
+            (int) $this->option('max-seconds'),
+            (int) $this->option('tries'),
+            (int) $this->option('job-timeout'),
         );
 
-        $baglanti = (string) config('queue.default');
-        $islenen = 0;
-
-        while ($islenen < $enFazlaIs && microtime(true) < $sonAn) {
-            $oncekiSayac = $islenen;
-
-            foreach ($kuyruklar as $kuyruk) {
-                if ($islenen >= $enFazlaIs || microtime(true) >= $sonAn) {
-                    break;
-                }
-
-                // runNextJob iş yoksa sessizce döner; boş kuyruk hata değil.
-                // Gerçekten iş işlendi mi, bekleyen sayısındaki değişimden
-                // anlaşılır - aksi halde boş kuyruk da sayılır ve döngü
-                // kendini sonlandıramaz.
-                $oncesi = $this->bekleyenToplam();
-                $worker->runNextJob($baglanti, $kuyruk, $secenekler);
-
-                if ($this->bekleyenToplam() !== $oncesi) {
-                    $islenen++;
-                }
-            }
-
-            // Hiçbir kuyrukta iş kalmadıysa beklemeye gerek yok.
-            if ($islenen === $oncekiSayac) {
-                break;
-            }
-        }
-
-        $sonuc = ['processed' => $islenen, 'queues' => $kuyruklar, 'remaining' => $this->bekleyenToplam()];
-
-        $this->line($this->option('json') ? (string) json_encode($sonuc, JSON_UNESCAPED_UNICODE) : "İşlenen: {$islenen}, kalan: {$sonuc['remaining']}");
+        $this->line($this->option('json')
+            ? (string) json_encode($sonuc, JSON_UNESCAPED_UNICODE)
+            : "İşlenen: {$sonuc['processed']}, kalan: {$sonuc['remaining']}");
 
         return self::SUCCESS;
-    }
-
-    private function bekleyenToplam(): int
-    {
-        return (int) DB::table('jobs')->count();
     }
 }

@@ -9,6 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Queue\InteractsWithQueue;
+use App\Services\Queue\BoundedQueueDrainer;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,20 @@ final class QueueDrainBoundedTest extends TestCase
         parent::setUp();
 
         config()->set('queue.default', 'database');
+    }
+
+    public function test_the_service_processes_a_job_without_artisan(): void
+    {
+        // Tetikleme ucu servisi doğrudan çağırıyor: HTTP bağlamında konsol
+        // komutları kayıtlı değil ve Artisan::call CommandNotFoundException
+        // atıyor. Servis yolu konsol çekirdeğine hiç dokunmamalı.
+        SayacIsi::dispatch()->onQueue('media');
+
+        $sonuc = app(BoundedQueueDrainer::class)->drain(['default', 'media']);
+
+        $this->assertSame(1, $sonuc['processed']);
+        $this->assertSame(0, $sonuc['remaining']);
+        $this->assertSame(1, Cache::get('sayac-isi', 0));
     }
 
     public function test_it_processes_a_queued_job(): void
