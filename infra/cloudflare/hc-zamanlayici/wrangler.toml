@@ -4,3 +4,12 @@ compatibility_date = "2026-08-28"
 
 [triggers]
 crons = ["* * * * *"]
+
+# Panelde açık olan ayarlar burada tanımlı değilse deploy onları kapatıyor.
+# İlk deploy Workers Logs'u sessizce kapattı; tetiklemenin çalıştığını
+# doğrulayacak tek yer orası olduğu için açık kalmalı.
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true

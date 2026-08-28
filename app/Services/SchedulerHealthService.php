@@ -29,7 +29,14 @@ final class SchedulerHealthService
     {
         $snapshot = Cache::get('scheduler.health', ['status' => 'never_run', 'task_count' => 2]);
         $lastStartedAt = $snapshot['last_started_at'] ?? null;
-        if ($snapshot['status'] === 'healthy' && is_string($lastStartedAt) && abs(now()->diffInHours($lastStartedAt)) > 26) {
+
+        // Bayatlık eşiği yapılandırmadan gelir. Önceden burada sabit 26 saat
+        // vardı ama rapor `max_age_minutes: 30` diyordu; yani alan bir söz
+        // veriyor, durum başka bir şeye bakıyordu. Zamanlayıcı 26 gün ölü
+        // kaldı ve bunu yakalayacak sinyal tam da buydu.
+        $azamiDakika = (int) (config('production.scheduler_max_age_minutes') ?: 30);
+
+        if ($snapshot['status'] === 'healthy' && is_string($lastStartedAt) && abs(now()->diffInMinutes($lastStartedAt)) > $azamiDakika) {
             $snapshot['status'] = 'delayed';
         }
 
