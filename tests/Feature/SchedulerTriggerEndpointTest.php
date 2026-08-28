@@ -76,6 +76,8 @@ final class SchedulerTriggerEndpointTest extends TestCase
         Artisan::shouldReceive('call')
             ->once()
             ->with('schedule:run', ['--no-interaction' => true]);
+        // Uç, hangi görevin koştuğunu loglayabilmek için çıktıyı da okuyor.
+        Artisan::shouldReceive('output')->andReturn('');
 
         $this->get('/_zamanlayici/'.self::TOKEN)->assertNoContent();
     }

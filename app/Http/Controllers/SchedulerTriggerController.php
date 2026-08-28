@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Zamanlayıcıyı dışarıdan tetikleme ucu.
@@ -48,6 +49,16 @@ final class SchedulerTriggerController extends Controller
 
         try {
             Artisan::call('schedule:run', ['--no-interaction' => true]);
+
+            // Eski cron komutu çıktısını shared/logs/scheduler.log'a
+            // yönlendiriyordu; bu uç Artisan::call kullandığı için o kayıt
+            // kayboldu ve "hangi görev koştu" sorusu cevapsız kaldı. Çıktı
+            // yalnız bir şey olduğunda yazılıyor: boş dakikalar log şişirmesin.
+            $cikti = trim(Artisan::output());
+
+            if ($cikti !== '') {
+                Log::channel(config('logging.default'))->info('zamanlayici', ['cikti' => $cikti]);
+            }
         } finally {
             $kilit->release();
         }
