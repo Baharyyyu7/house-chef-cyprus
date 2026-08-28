@@ -15,7 +15,7 @@ final class SeoSchemaService
     {
         $recipeNode = [
             '@type' => 'Recipe', 'name' => $recipe->title,
-            'description' => $recipe->excerpt ?: $recipe->description,
+            'description' => $recipe->description ?: $recipe->excerpt,
             'url' => route('recipes.show', $recipe),
             'mainEntityOfPage' => route('recipes.show', $recipe),
             'dateModified' => $recipe->updated_at?->toAtomString(),

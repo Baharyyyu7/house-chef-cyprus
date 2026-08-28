@@ -132,7 +132,7 @@ final class RecipeController extends Controller
                 ->limit(4)
                 ->get(),
             'seoSchema' => $schema,
-            'metadata' => $seo->for($recipe, $recipe->title.' · House Chef Cyprus', $recipe->excerpt ?: $recipe->description, route('recipes.show', $recipe), $request->query() === [] ? 'index,follow' : 'noindex,follow'),
+            'metadata' => $seo->for($recipe, $recipe->title.' · House Chef Cyprus', $recipe->description ?: $recipe->excerpt, route('recipes.show', $recipe), $request->query() === [] ? 'index,follow' : 'noindex,follow'),
             // Paylaşım görseli ham kaynağı gösteriyordu; bir tarifte
             // 2,77 MB'lık PNG. Hattın ürettiği 1200x630 varyantı bu iş için.
             'seoImage' => $sosyalGorsel['url'] ?? null,
