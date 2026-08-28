@@ -27,6 +27,13 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('backup_cleanup'
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('backup_daily', fn () => Artisan::call('backup:create', ['--type' => 'daily'])))->name('backup_daily')->dailyAt('00:20')->withoutOverlapping()->when(fn (): bool => (bool) config('observability.backup_scheduled'));
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('logs_cleanup', fn () => Artisan::call('logs:cleanup')))->name('logs_cleanup')->daily()->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('blog_publish_scheduled', fn () => Artisan::call('blog:publish-scheduled')))->name('blog_publish_scheduled')->everyMinute()->withoutOverlapping();
+// Kuyruk işçisi ayrı bir cron kaydıyla koşuyordu ve Hostinger'ın cron
+// servisi 2026-08-02'de durunca o da durdu. Zamanlayıcı artık dışarıdan
+// (/_zamanlayici ucu) tetiklendiği için kuyruğu da buraya bağlıyoruz;
+// yoksa tetikleme çalışsa bile kuyruk beklemeye devam ederdi.
+// Süre sınırları tetikleyen HTTP isteğini asmamak için dar tutuldu:
+// uç 55 saniyelik bir kilit alıyor.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('queue_drain', fn () => Artisan::call('queue:work', ['--stop-when-empty' => true, '--tries' => 3, '--timeout' => 20, '--max-time' => 25])))->name('queue_drain')->everyMinute()->withoutOverlapping();
 // SEO tasks only derive local drafts, audits and summaries. They never publish content or call external providers without an explicit enabled configuration and approval.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_audit', fn () => Artisan::call('seo:audit')))->name('seo_audit')->dailyAt('01:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_sitemap_audit', fn () => Artisan::call('seo:sitemap-audit')))->name('seo_sitemap_audit')->dailyAt('01:25')->withoutOverlapping();
