@@ -50,6 +50,27 @@ final class SchedulerTriggerController extends Controller
         try {
             Artisan::call('schedule:run', ['--no-interaction' => true]);
 
+            // Kuyruk ayrıca ve doğrudan boşaltılıyor.
+            //
+            // Zamanlamada bir queue_drain görevi var ve CLI'da çalışıyor, ama
+            // bu uçtan çağrıldığında schedule:run onu çalıştırmıyor: aynı
+            // istekte blog_publish_scheduled koşuyor (işaret güncelleniyor),
+            // queue_drain koşmuyor ve schedule:run hiç çıktı üretmiyor. Aynı
+            // kod yerelde `artisan serve` altında sorunsuz çalışıyor, yani
+            // sebep Hostinger'ın web ortamına özgü ve makul bir maliyetle
+            // bulunamadı.
+            //
+            // Doğrudan çağrı o davranışa bağımlı değil. Sunucu tarafı cron
+            // düzelirse zamanlanmış görev de işini görür; ikisi aynı anda
+            // koşarsa ikincisi boş kuyruk görüp hemen döner.
+            Artisan::call('queue:drain-bounded', [
+                '--queue' => 'default,media,mail,nutrition',
+                '--max-jobs' => 20,
+                '--max-seconds' => 20,
+                '--tries' => 3,
+                '--job-timeout' => 15,
+            ]);
+
             // Eski cron komutu çıktısını shared/logs/scheduler.log'a
             // yönlendiriyordu; bu uç Artisan::call kullandığı için o kayıt
             // kayboldu ve "hangi görev koştu" sorusu cevapsız kaldı. Çıktı

@@ -78,6 +78,9 @@ final class SchedulerTriggerEndpointTest extends TestCase
             ->with('schedule:run', ['--no-interaction' => true]);
         // Uç, hangi görevin koştuğunu loglayabilmek için çıktıyı da okuyor.
         Artisan::shouldReceive('output')->andReturn('');
+        // Kuyruk ayrıca ve doğrudan boşaltılıyor; zamanlamadaki görev bu
+        // bağlamda üretimde koşmuyor.
+        Artisan::shouldReceive('call')->once()->with('queue:drain-bounded', \Mockery::type('array'));
 
         $this->get('/_zamanlayici/'.self::TOKEN)->assertNoContent();
     }
