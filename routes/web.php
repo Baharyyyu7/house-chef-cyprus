@@ -42,6 +42,7 @@ use App\Http\Controllers\HealthController;
 use App\Http\Controllers\InformationPageController;
 use App\Http\Controllers\IngredientExplorerController;
 use App\Http\Controllers\IngredientHubController;
+use App\Http\Controllers\SchedulerTriggerController;
 use App\Http\Controllers\LegalInformationCenterController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PantryController;
@@ -156,6 +157,13 @@ Route::get('/sitemaps/recipes.xml', [SitemapController::class, 'recipes'])->name
 Route::get('/sitemaps/blog.xml', [SitemapController::class, 'blog'])->name('sitemap.blog');
 Route::get('/sitemaps/images.xml', [SitemapController::class, 'images'])->name('sitemap.images');
 Route::view('/robots.txt', 'robots')->name('robots');
+
+// Zamanlayıcı tetikleme ucu. Hostinger cron'u 2 Ağustos 2026'dan beri
+// çalışmıyor; bu uç dışarıdan bir zamanlayıcının uygulamayı dürtmesini
+// sağlıyor. Token tanımlı değilse 404 döner, yani varsayılan kapalıdır.
+Route::get('/_zamanlayici/{token}', SchedulerTriggerController::class)
+    ->middleware('throttle:6,1')
+    ->name('scheduler.trigger');
 Route::get('/yasal-bilgilendirme', [LegalInformationCenterController::class, 'index'])->name('legal.center');
 // İletişim formu yasal metnin içine gömülüydü; kendi sayfası oldu.
 Route::view('/iletisim', 'contact.index')->name('contact.index');

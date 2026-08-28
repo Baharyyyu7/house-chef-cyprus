@@ -65,6 +65,18 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Zamanlayıcı tetikleme belirteci
+    |--------------------------------------------------------------------------
+    |
+    | Hostinger cron'u bu hesapta çalışmadığı için zamanlayıcı dışarıdan
+    | tetikleniyor. Boş bırakılırsa uç 404 döner ve kapalı kalır.
+    |
+    */
+    'scheduler_trigger_token' => env('SCHEDULER_TRIGGER_TOKEN', ''),
+
+
     'timezone' => 'UTC',
 
     /*
