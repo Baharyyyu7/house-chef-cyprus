@@ -31,6 +31,37 @@ final class QueueIsDrainedByTheSchedulerTest extends TestCase
         $this->assertTrue($olay->withoutOverlapping, 'Üst üste binen çalıştırma kuyruğu paralel işletirdi.');
     }
 
+    public function test_every_queue_the_app_dispatches_to_is_drained(): void
+    {
+        // queue:work varsayılan olarak yalnız "default" kuyruğunu işler.
+        // Canlıda bekleyen iki iş "media" kuyruğundaydı; görev koşuyordu ama
+        // o işlere hiç dokunmuyordu. Uygulamanın kullandığı her kuyruk
+        // burada sayılmalı.
+        // Kuyruk adı yalnız app/Jobs içinde geçmiyor; iş gönderen her yer
+        // taranmalı, yoksa test eksik kalır.
+        $kullanilan = [];
+        $gezgin = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(app_path()));
+
+        foreach ($gezgin as $dosya) {
+            if (! $dosya->isFile() || $dosya->getExtension() !== 'php') {
+                continue;
+            }
+            if (preg_match_all("/onQueue\('([a-z_-]+)'\)/", (string) file_get_contents($dosya->getPathname()), $eslesme)) {
+                $kullanilan = [...$kullanilan, ...$eslesme[1]];
+            }
+        }
+
+        $this->assertNotEmpty($kullanilan, 'Tarama hiçbir kuyruk bulamadıysa test boş geçer.');
+
+        $tanimli = explode(',', $this->kuyrukSecenegi());
+
+        foreach (array_unique($kullanilan) as $kuyruk) {
+            $this->assertContains($kuyruk, $tanimli, "'$kuyruk' kuyruğu boşaltılmıyor.");
+        }
+
+        $this->assertContains('default', $tanimli);
+    }
+
     public function test_the_scheduler_still_publishes_blog_posts(): void
     {
         // Daralma değil, ekleme: var olan dakikalık görev yerinde kalmalı.
@@ -38,6 +69,17 @@ final class QueueIsDrainedByTheSchedulerTest extends TestCase
 
         $this->assertNotNull($olay);
         $this->assertSame('* * * * *', $olay->expression);
+    }
+
+    /** Zamanlanmış görevin queue:work çağrısındaki --queue değeri. */
+    private function kuyrukSecenegi(): string
+    {
+        $kaynak = (string) file_get_contents(base_path('routes/console.php'));
+
+        $this->assertMatchesRegularExpression("/'--queue' => '([a-z,_-]+)'/", $kaynak);
+        preg_match("/'--queue' => '([a-z,_-]+)'/", $kaynak, $eslesme);
+
+        return $eslesme[1];
     }
 
     private function gorev(string $ad): ?\Illuminate\Console\Scheduling\Event
