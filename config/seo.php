@@ -19,6 +19,12 @@ return [
         'duplicate_description_limit' => 160,
         'minimum_article_characters' => (int) env('SEO_MINIMUM_ARTICLE_CHARACTERS', 300),
         'minimum_recipe_description_characters' => (int) env('SEO_MINIMUM_RECIPE_DESCRIPTION_CHARACTERS', 120),
+
+        // Sıfır sonuçlu arama kaç kez tekrarlanırsa içerik fırsatı sayılır.
+        // Eşik yokken tek seferlik test aramaları ("functionalities",
+        // "search term string") editoryal öneri listesine giriyordu; beş
+        // öneriden ikisi çöptü. Gerçek talepler 18-25 aramada.
+        'minimum_zero_result_searches' => (int) env('SEO_MINIMUM_ZERO_RESULT_SEARCHES', 5),
     ],
     'search_console' => [
         'enabled' => (bool) env('GOOGLE_SEARCH_CONSOLE_ENABLED', env('SEARCH_CONSOLE_ENABLED', false)),
