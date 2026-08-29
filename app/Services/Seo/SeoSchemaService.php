@@ -25,6 +25,16 @@ final class SeoSchemaService
             'totalTime' => 'PT'.$recipe->totalMinutes().'M', 'recipeYield' => $recipe->servings.' porsiyon',
             'recipeIngredient' => $ingredients,
             'recipeInstructions' => $recipe->steps->map(fn ($step): array => ['@type' => 'HowToStep', 'name' => $step->title, 'text' => $step->instruction])->values()->all(),
+            // author ve datePublished hiçbir tarifte yoktu. İkisi de Google'ın
+            // önerdiği alanlar ve author E-E-A-T tarafında doğrudan sayılıyor -
+            // sitenin bütün konumlanması "doğrulanmış tarifler" üzerine ama
+            // içeriğin arkasında kimin durduğu söylenmiyordu.
+            'author' => [
+                '@type' => 'Organization',
+                'name' => config('brand.name'),
+                'url' => route('home'),
+            ],
+            'datePublished' => $recipe->published_at?->toAtomString(),
         ];
         if ($imageUrl !== '') {
             $recipeNode['image'] = [$imageUrl];
