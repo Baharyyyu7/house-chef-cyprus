@@ -42,6 +42,15 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('blog_publish_sc
 // uç 55 saniyelik bir kilit alıyor.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('queue_drain', fn () => Artisan::call('queue:drain-bounded', ['--queue' => 'default,media,mail,nutrition', '--max-jobs' => 20, '--max-seconds' => 20, '--tries' => 3, '--job-timeout' => 15])))->name('queue_drain')->everyMinute()->withoutOverlapping();
 // SEO tasks only derive local drafts, audits and summaries. They never publish content or call external providers without an explicit enabled configuration and approval.
+// İçerik bütünlüğü nöbetçisi. Bu sitede arıza hep aynı biçimde geldi:
+// bozuk içerik sessizce yayına girdi ve haftalarca fark edilmedi - 3.649
+// makine üretimi sayfa, malzemesi "Ana Malzeme" olan 34 tarif, adımları
+// yer tutucu olan 38 tarif, mercimek çorbası diye balık isteyen 13 tarif.
+// Hepsi "published" ve "verified" damgası taşıyordu.
+//
+// Nöbetçi içerik üretmiyor, yalnız bakıyor ve raporluyor. Otomatik yayından
+// alma bilerek kapalı: karar insanın.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_integrity_guard', fn () => Artisan::call('content:integrity-guard')))->name('content_integrity_guard')->dailyAt('01:05')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_audit', fn () => Artisan::call('seo:audit')))->name('seo_audit')->dailyAt('01:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_sitemap_audit', fn () => Artisan::call('seo:sitemap-audit')))->name('seo_sitemap_audit')->dailyAt('01:25')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_opportunities', fn () => Artisan::call('seo:content-opportunities')))->name('seo_content_opportunities')->dailyAt('01:43')->withoutOverlapping();
