@@ -28,7 +28,7 @@
         <span class="absolute bottom-3 left-3 text-xs font-extrabold {{ $hasApprovedMedia ? 'text-white' : 'text-stone-700 dark:text-stone-300' }}">{{ $recipe->totalMinutes() }} dk · {{ $recipe->servings }} porsiyon</span>
     </a>
     <div class="flex flex-1 flex-col p-5">
-        <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color: var(--hc-text-muted)"><span>{{ $recipe->category?->name ?? 'Tarif' }}</span><span class="capitalize">{{ $recipe->difficulty }}</span></div>
+        <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color: var(--hc-text-muted)"><span>{{ $recipe->category?->name ?? 'Tarif' }}</span><span>{{ $recipe->zorlukEtiketi() }}</span></div>
         <h2 class="mt-3 hc-heading-3 line-clamp-2"><a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('recipes.show', $recipe) }}">{{ $recipe->title }}</a></h2>
         <p class="hc-body-sm mt-3 line-clamp-3" style="color: var(--hc-text-secondary)">{{ $recipe->excerpt }}</p>
         <div class="mt-4 flex flex-wrap gap-2">@foreach($recipe->dietaryTags->take(2) as $tag)<span class="hc-v3-badge hc-v3-badge--success">{{ $tag->name ?? str($tag->code)->replace('_', ' ')->title() }}</span>@endforeach</div>

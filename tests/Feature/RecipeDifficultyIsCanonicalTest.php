@@ -60,6 +60,19 @@ final class RecipeDifficultyIsCanonicalTest extends TestCase
             ->assertDontSee('>Easy<', false);
     }
 
+    public function test_the_recipe_listing_shows_turkish_labels_too(): void
+    {
+        // Depolama kanonik İngilizceye çevrilince kartlar ham değeri
+        // basmaya devam etti: listede "Hard", "Easy", "Medium" görünüyordu.
+        // Detay sayfası düzeltilmiş ama kart bileşeni atlanmıştı.
+        $this->tarif('easy', 'Listede Kolay Görünen');
+
+        $this->get(route('recipes.index'))
+            ->assertOk()
+            ->assertSee('Kolay')
+            ->assertDontSee('>Easy<', false);
+    }
+
     public function test_an_unknown_value_is_left_untouched(): void
     {
         // Tanımadığını sessizce silmek veriyi kaybettirirdi.
