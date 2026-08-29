@@ -24,6 +24,19 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
+# Sunucu .avif uzantisini tanimiyordu ve dosyalari text/plain olarak
+# veriyordu. Dosyalar saglam (ftypavif imzasi, dogru boyut) ama <picture>
+# icinde tarayici type="image/avif" deyip istiyor, text/plain aliyor ve
+# cozumleyemiyor: naturalWidth 0 kaliyor. Kirik medya korumasi da bunu
+# hata sayip gorseli gri yer tutucuyla degistiriyordu.
+#
+# Anasayfanin hero gorseli bu yuzden yer tutucuya dusmustu; sorun tum
+# .avif dosyalarini kapsiyor. PNG, WebP ve JPEG dogru servis ediliyordu.
+<IfModule mod_mime.c>
+    AddType image/avif .avif
+    AddType image/avif-sequence .avifs
+</IfModule>
+
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType image/avif "access plus 30 days"
