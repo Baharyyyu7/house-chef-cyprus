@@ -51,6 +51,12 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('queue_drain', f
 // Nöbetçi içerik üretmiyor, yalnız bakıyor ve raporluyor. Otomatik yayından
 // alma bilerek kapalı: karar insanın.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_integrity_guard', fn () => Artisan::call('content:integrity-guard')))->name('content_integrity_guard')->dailyAt('01:05')->withoutOverlapping();
+// Varlık teslim sondası. Sunucu tarafı kusursuz görünürken tarayıcı
+// tarafı kırık olabiliyor: sunucu .avif uzantısını tanımayınca bütün AVIF
+// dosyaları text/plain olarak gidiyordu ve sitedeki her görsel gri yer
+// tutucuya düşüyordu. HTML doğruydu, dosyalar 200 veriyordu; hiçbir
+// sunucu tarafı denetimi bunu yakalayamazdı.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('asset_delivery_check', fn () => Artisan::call('assets:delivery-check')))->name('asset_delivery_check')->dailyAt('01:09')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_audit', fn () => Artisan::call('seo:audit')))->name('seo_audit')->dailyAt('01:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_sitemap_audit', fn () => Artisan::call('seo:sitemap-audit')))->name('seo_sitemap_audit')->dailyAt('01:25')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_opportunities', fn () => Artisan::call('seo:content-opportunities')))->name('seo_content_opportunities')->dailyAt('01:43')->withoutOverlapping();
