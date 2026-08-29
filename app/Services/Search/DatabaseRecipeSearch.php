@@ -62,6 +62,27 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
             ->where('status', 'published')
             ->where('verification_status', 'verified')
             ->when($filters['q'] ?? null, function ($query) use ($searchPlan): void {
+                // Sorgu yapısal filtrelere çözülüyorsa ham metni başlıkta
+                // aramak sonucu öldürüyordu: "kıbrıs mutfağı" doğru biçimde
+                // cuisine=kıbrıs'a çözülüyor ama hiçbir tarifin başlığında o
+                // ifade geçmediği için sıfır sonuç dönüyordu - oysa sitede
+                // "Kıbrıs Mutfağı" adlı, 22 tarifli bir mutfak var. Aynı şey
+                // "kolay tarifler" ve "20 dakikada" için de oluyordu; üçü
+                // birlikte 64 aramaydı ve hepsi boşa gitti.
+                //
+                // Yapısal sinyal varsa o filtreler zaten daraltıyor; metin
+                // şartı yalnız malzeme geçtiğinde ya da hiç sinyal yokken
+                // uygulanıyor.
+                $yapisal = ($searchPlan['cuisine'] ?? null) !== null
+                    || ($searchPlan['difficulty'] ?? null) !== null
+                    || ($searchPlan['max_minutes'] ?? null) !== null
+                    || ($searchPlan['method'] ?? null) !== null
+                    || ($searchPlan['meal_type'] ?? null) !== null;
+
+                if ($yapisal && $searchPlan['included_ingredients'] === []) {
+                    return;
+                }
+
                 $query->where(function ($nested) use ($searchPlan): void {
                     $original = (string) $searchPlan['original_query'];
                     if ($original !== '') {
