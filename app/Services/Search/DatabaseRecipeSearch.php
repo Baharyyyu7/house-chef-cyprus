@@ -75,7 +75,7 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
             ->when($filters['cuisine'] ?? $searchPlan['cuisine'], fn ($query, string $slug) => $query->whereHas('cuisine', fn ($cuisines) => $cuisines->where('slug', $slug)->orWhere('name', 'like', "%{$slug}%")))
             ->when($filters['category'] ?? null, fn ($query, string $slug) => $query->whereHas('category', fn ($categories) => $categories->where('slug', $slug)))
             ->when($filters['ingredient'] ?? null, fn ($query, string $publicId) => $query->whereHas('ingredients', fn ($ingredients) => $ingredients->where('public_id', $publicId)))
-            ->when($filters['difficulty'] ?? $searchPlan['difficulty'], fn ($query, string $difficulty) => $query->where('difficulty', $difficulty))
+            ->when(Recipe::zorlukKanonik($filters['difficulty'] ?? $searchPlan['difficulty'] ?? null), fn ($query, string $difficulty) => $query->where('difficulty', $difficulty))
             ->when($filters['max_minutes'] ?? $searchPlan['max_minutes'], fn ($query, int $minutes) => $query->whereRaw('(prep_minutes + cook_minutes + rest_minutes) <= ?', [$minutes]));
 
         foreach ($searchPlan['included_ingredients'] as $term) {

@@ -34,6 +34,54 @@ class Recipe extends Model
 
     protected $fillable = ['cuisine_id', 'category_id', 'content_factory_batch_id', 'data_source_id', 'external_id', 'content_origin', 'original_hash', 'first_imported_at', 'last_verified_at', 'title', 'slug', 'excerpt', 'description', 'country', 'region', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'dietary_tags', 'allergens', 'nutrition', 'storage_notes', 'source_name', 'source_url', 'reliability_score', 'status', 'is_featured', 'verification_status', 'editorial_status', 'content_factory_state', 'fact_check_required', 'completeness_score', 'completeness_status', 'content_factory_readiness_score', 'content_factory_rule_version', 'content_factory_checked_at', 'content_factory_metadata', 'editorial_reviewed_at', 'editorial_reviewed_by_user_id', 'human_approved_by_user_id', 'human_approved_at', 'published_at', 'equipment', 'tips', 'common_mistakes', 'serving_suggestions', 'reheating_notes', 'freezing_notes', 'cultural_notes', 'seasonality', 'image_status', 'image_license', 'image_attribution', 'image_reviewed_at'];
 
+    /**
+     * Zorluk değerinin kanonik biçimi ve Türkçe karşılıkları.
+     *
+     * Alan iki dilde birden saklanıyordu: 176 yayındaki tarifin 112'si
+     * "Kolay/Orta/Zor", 64'ü "easy/medium/hard". Sonuç, iki özelliğin
+     * kataloğun ayrık yarılarını görmesiydi - herkese açık zorluk filtresi
+     * Türkçe değerleri sorguluyor, kişiselleştirme profili İngilizce
+     * değerleri. Kesişimleri boştu.
+     *
+     * Kanonik biçim İngilizce: kişiselleştirme ve API zaten onu kullanıyor,
+     * dile bağlı değil. Türkçe yalnız gösterimde ve filtre girdisinde.
+     */
+    public const ZORLUKLAR = ['easy' => 'Kolay', 'medium' => 'Orta', 'hard' => 'Zor'];
+
+    /** Herhangi bir yazımı kanonik değere çevirir; tanımadığını null yapar. */
+    public static function zorlukKanonik(?string $deger): ?string
+    {
+        $deger = trim((string) $deger);
+
+        if ($deger === '') {
+            return null;
+        }
+
+        $kucuk = mb_strtolower($deger, 'UTF-8');
+
+        foreach (self::ZORLUKLAR as $kanonik => $etiket) {
+            if ($kucuk === $kanonik || $kucuk === mb_strtolower($etiket, 'UTF-8')) {
+                return $kanonik;
+            }
+        }
+
+        return null;
+    }
+
+    /** Gösterim etiketi. */
+    public function zorlukEtiketi(): ?string
+    {
+        return self::ZORLUKLAR[self::zorlukKanonik($this->difficulty)] ?? null;
+    }
+
+    /** Yazarken normalleştir ki karışım bir daha oluşmasın. */
+    protected function difficulty(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+            set: fn (?string $deger): ?string => self::zorlukKanonik($deger) ?? $deger,
+        );
+    }
+
     protected function casts(): array
     {
         return ['dietary_tags' => 'array', 'allergens' => 'array', 'nutrition' => 'array', 'storage_notes' => 'array', 'equipment' => 'array', 'tips' => 'array', 'common_mistakes' => 'array', 'seasonality' => 'array', 'content_factory_metadata' => 'array', 'is_featured' => 'boolean', 'fact_check_required' => 'boolean', 'content_factory_checked_at' => 'datetime', 'editorial_reviewed_at' => 'datetime', 'human_approved_at' => 'datetime', 'published_at' => 'datetime', 'image_reviewed_at' => 'datetime'];

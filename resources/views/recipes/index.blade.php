@@ -77,7 +77,7 @@
             </form>
             <div class="hc-arama__oneriler">
                 <span class="hc-arama__etiket">Hızlı giriş:</span>
-                @foreach([['20 dk altında', ['max_minutes' => 20]], ['Kıbrıs mutfağı', ['cuisine' => 'kibris']], ['Kolay tarifler', ['difficulty' => 'Kolay']]] as [$chip, $params])
+                @foreach([['20 dk altında', ['max_minutes' => 20]], ['Kıbrıs mutfağı', ['cuisine' => 'kibris']], ['Kolay tarifler', ['difficulty' => 'easy']]] as [$chip, $params])
                     <a href="{{ route('recipes.index', $params) }}" class="hc-arama__cip">{{ $chip }}</a>
                 @endforeach
             </div>
@@ -154,7 +154,7 @@
                 <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-extrabold"><span>Gelişmiş filtreler</span><span class="transition group-open:rotate-45" aria-hidden="true">+</span></summary>
                 <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div><label class="hc-v3-field-label" for="category">Kategori</label><select id="category" class="hc-v3-input" name="category"><option value="">Tüm kategoriler</option>@foreach($categories as $category)<option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>{{ $category->name }}</option>@endforeach</select></div>
-                    <div><label class="hc-v3-field-label" for="difficulty">Zorluk</label><select id="difficulty" class="hc-v3-input" name="difficulty"><option value="">Her seviye</option>@foreach(['Kolay', 'Orta', 'Zor'] as $difficulty)<option value="{{ $difficulty }}" @selected(request('difficulty') === $difficulty)>{{ $difficulty }}</option>@endforeach</select></div>
+                    <div><label class="hc-v3-field-label" for="difficulty">Zorluk</label><select id="difficulty" class="hc-v3-input" name="difficulty"><option value="">Her seviye</option>@foreach(\App\Models\Recipe::ZORLUKLAR as $difficultyValue => $difficultyLabel)<option value="{{ $difficultyValue }}" @selected(\App\Models\Recipe::zorlukKanonik(request('difficulty')) === $difficultyValue)>{{ $difficultyLabel }}</option>@endforeach</select></div>
                     <div><label class="hc-v3-field-label" for="dietary_tag">Beslenme tercihi</label><select id="dietary_tag" class="hc-v3-input" name="dietary_tag"><option value="">Tümü</option>@foreach($dietaryTags as $tag)<option value="{{ $tag->code }}" @selected(request('dietary_tag') === $tag->code)>{{ $tag->name }}</option>@endforeach</select></div>
                     <div><label class="hc-v3-field-label" for="sort">Sıralama</label><select id="sort" class="hc-v3-input" name="sort"><option value="">Öne çıkanlar</option><option value="time" @selected(request('sort') === 'time')>En kısa süre</option></select></div>
                     <div><label class="hc-v3-field-label" for="min_protein">En az protein (g)</label><input id="min_protein" class="hc-v3-input" type="number" min="0" step="0.1" name="min_protein" value="{{ request('min_protein') }}" placeholder="Örn. 15"></div>
