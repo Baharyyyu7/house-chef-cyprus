@@ -131,12 +131,9 @@
                 if (img.dataset.hcMediaFailed) { continue; }
                 if (!img.complete) { img.classList.add('hc-media-loading'); continue; }
                 // currentSrc bos ise tarayici henuz bir kaynak secmemistir.
-                // <picture> icindeki <img> bu ara durumda complete=true ve
-                // naturalWidth=0 gorunuyor; burada hata varsaymak saglam
-                // gorseli yer tutucuyla degistiriyordu. Anasayfanin hero
-                // gorseli tam olarak bu yuzden gri bir kareye donusmustu:
-                // sunucudan dogru src geliyor, dosyalarin hepsi 200 veriyor,
-                // ama istemci onu kirik sayiyordu.
+                // Cok kaynakli gorsellerde img bu ara durumda complete=true
+                // ve naturalWidth=0 gorunuyor; burada hata varsaymak saglam
+                // gorseli yer tutucuyla degistiriyordu.
                 //
                 // Gercek hatalar zaten error olayiyla yakalaniyor; prime()
                 // yalnizca dinleyici baglanmadan once biten yuklemeleri
