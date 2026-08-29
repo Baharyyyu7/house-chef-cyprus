@@ -57,6 +57,11 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_integri
 // tutucuya düşüyordu. HTML doğruydu, dosyalar 200 veriyordu; hiçbir
 // sunucu tarafı denetimi bunu yakalayamazdı.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('asset_delivery_check', fn () => Artisan::call('assets:delivery-check')))->name('asset_delivery_check')->dailyAt('01:09')->withoutOverlapping();
+// Görsel eksiği sırası. Yayındaki tariflerin yarısına yakını onaylı
+// görseli olmadığı için yer tutucuyla gösteriliyor; ziyaretçinin gördüğü
+// en büyük eksiklik bu. Görsel üretimi başka ajanlara veriliyor, bu görev
+// onlara verilecek sırayı sitenin kendi verisinden üretiyor.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_gap_queue', fn () => Artisan::call('media:gap-queue')))->name('media_gap_queue')->dailyAt('01:13')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_audit', fn () => Artisan::call('seo:audit')))->name('seo_audit')->dailyAt('01:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_sitemap_audit', fn () => Artisan::call('seo:sitemap-audit')))->name('seo_sitemap_audit')->dailyAt('01:25')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_opportunities', fn () => Artisan::call('seo:content-opportunities')))->name('seo_content_opportunities')->dailyAt('01:43')->withoutOverlapping();
