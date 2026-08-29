@@ -32,7 +32,11 @@ final class AdminDashboardTellsTheTruthTest extends TestCase
             ->get(route('admin.dashboard'))
             ->assertOk()
             ->assertSee('Aynı görsel birden fazla tarifte', false)
-            ->assertSee('1 tarif, başka bir tarife ait fotoğrafı gösteriyor', false);
+            // İki tarif aynı fotoğrafı gösteriyor; hangisinin yanlış olduğu
+            // bilinemeyeceği için ikisi de sayılıyor. Önceki ifade "1 tarif,
+            // başka bir tarife ait fotoğrafı gösteriyor" diyordu ve bu sayım
+            // aynı tarifin mükerrer kaydını da yanlış fotoğraf sayıyordu.
+            ->assertSee('2 tarif aynı fotoğrafı paylaşıyor', false);
     }
 
     public function test_it_stays_quiet_when_every_recipe_has_its_own_photo(): void
