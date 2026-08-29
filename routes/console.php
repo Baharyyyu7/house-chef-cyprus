@@ -62,6 +62,13 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('asset_delivery_
 // en büyük eksiklik bu. Görsel üretimi başka ajanlara veriliyor, bu görev
 // onlara verilecek sırayı sitenin kendi verisinden üretiyor.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_gap_queue', fn () => Artisan::call('media:gap-queue')))->name('media_gap_queue')->dailyAt('01:13')->withoutOverlapping();
+// Çeviri hazırlığı. Site dört dil için hazır ama hiç çeviri yok ve
+// dillerin dördü de kapalı - doğru durum, çünkü çevirisi olmayan kayıt o
+// dilde var olmuyor. Tehlike sıralamada: Türkçe tarafı eksik bir tarifi
+// çevirmek hatayı dille çarpar ve bu site zaten bir kez ölçekli zayıf
+// içerik yüzünden ceza yedi. Bu görev hangi tarifin çevrilmeye hazır
+// olduğunu ve baskın engelin ne olduğunu ölçüyor.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('translation_readiness', fn () => Artisan::call('content:translation-readiness')))->name('translation_readiness')->dailyAt('01:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_audit', fn () => Artisan::call('seo:audit')))->name('seo_audit')->dailyAt('01:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_sitemap_audit', fn () => Artisan::call('seo:sitemap-audit')))->name('seo_sitemap_audit')->dailyAt('01:25')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_opportunities', fn () => Artisan::call('seo:content-opportunities')))->name('seo_content_opportunities')->dailyAt('01:43')->withoutOverlapping();
