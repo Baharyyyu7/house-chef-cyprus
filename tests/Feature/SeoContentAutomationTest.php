@@ -76,7 +76,15 @@ final class SeoContentAutomationTest extends TestCase
 
     public function test_zero_result_queries_are_anonymous_and_can_create_safe_opportunities(): void
     {
-        $this->get(route('recipes.index', ['q' => 'limonlu nohut kasesi']))->assertOk();
+        // Fırsat üretimi artık tekrar şartına bağlı: tek seferlik test
+        // aramaları editoryal öneri listesine giriyordu. Eşiği aşacak kadar
+        // arama yapılıyor.
+        $esik = (int) config('seo.audit.minimum_zero_result_searches', 5);
+
+        for ($i = 0; $i < $esik; $i++) {
+            $this->get(route('recipes.index', ['q' => 'limonlu nohut kasesi']))->assertOk();
+        }
+
         $this->artisan('seo:content-opportunities --json')->assertSuccessful();
 
         $this->assertDatabaseHas('zero_result_searches', ['normalized_query' => 'limonlu nohut kasesi']);
