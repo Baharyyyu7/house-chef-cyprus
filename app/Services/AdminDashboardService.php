@@ -563,21 +563,48 @@ final class AdminDashboardService
         // Aşağıdaki iki kontrol DataQualityIssue kayıtlarına bağlı değildir. Panel yalnız
         // açılmış issue'lara baksaydı, kimse kaydetmediği sürece "her şey yolunda" derdi;
         // oysa aynı fotoğrafın onlarca tarifte kullanılması doğrudan sayılabilir bir durum.
+        // Kaç FARKLI tarifin aynı dosyayı gösterdiği sayılır. Önceden yalnız
+        // path'e göre gruplanıyordu, yani aynı tarifin tekrarlanan kayıtları
+        // da "başka bir tarife ait fotoğraf" sayılıyordu: panel 19 tarifi
+        // yanlış fotoğrafla gösteriyor diye uyarıyordu ama dokuz grubun
+        // dokuzu da tek bir tarifin mükerrer kaydıydı ve gerçekten farklı
+        // tarifler arasında paylaşılan tek bir görsel yoktu.
         $paylasilan = DB::table('media')
             ->where('media_status', 'approved_real_media')
             ->where('mediable_type', Recipe::class)
             ->whereNotNull('path')
-            ->select('path', DB::raw('count(*) as adet'))
+            ->select('path', DB::raw('count(distinct mediable_id) as tarif_adedi'), DB::raw('count(*) as adet'))
             ->groupBy('path')
-            ->having('adet', '>', 1)
+            ->having('tarif_adedi', '>', 1)
             ->get();
 
         if ($paylasilan->isNotEmpty()) {
-            $etkilenen = (int) $paylasilan->sum('adet') - $paylasilan->count();
+            $etkilenen = (int) $paylasilan->sum('tarif_adedi');
             $alerts[] = [
                 'severity' => 'danger',
                 'label' => 'Aynı görsel birden fazla tarifte',
-                'detail' => $etkilenen.' tarif, başka bir tarife ait fotoğrafı gösteriyor ('.$paylasilan->count().' görsel paylaşılıyor).',
+                'detail' => $etkilenen.' tarif aynı fotoğrafı paylaşıyor ('.$paylasilan->count().' görsel).',
+                'route' => 'admin.media.index',
+            ];
+        }
+
+        // Aynı tarifin mükerrer medya kaydı ayrı bir durum: ziyaretçiye
+        // yanlış bir şey göstermiyor, yalnızca temizlik gerektiriyor.
+        $mukerrer = DB::table('media')
+            ->where('media_status', 'approved_real_media')
+            ->where('mediable_type', Recipe::class)
+            ->whereNotNull('path')
+            ->select('path', 'mediable_id', DB::raw('count(*) as adet'))
+            ->groupBy('path', 'mediable_id')
+            ->having('adet', '>', 1)
+            ->get();
+
+        if ($mukerrer->isNotEmpty()) {
+            $fazlalik = (int) $mukerrer->sum('adet') - $mukerrer->count();
+            $alerts[] = [
+                'severity' => 'warning',
+                'label' => 'Mükerrer medya kaydı',
+                'detail' => $fazlalik.' fazladan kayıt, '.$mukerrer->count().' görselin aynı tarifte birden çok kez kayıtlı olmasından geliyor.',
                 'route' => 'admin.media.index',
             ];
         }
