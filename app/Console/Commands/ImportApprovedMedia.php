@@ -56,9 +56,9 @@ final class ImportApprovedMedia extends Command
             } catch (\Throwable $exception) {
                 // Yayından çekilmiş içerik deploy'u durdurmaz: manifest sabit,
                 // yayın durumu değişken. İçe aktarma yine yapılmıyor.
-                if ($exception->getMessage() === 'MEDIA_CONTENT_WITHDRAWN') {
+                if (in_array($exception->getMessage(), ['MEDIA_CONTENT_WITHDRAWN', 'MEDIA_CONTENT_MISSING'], true)) {
                     $withdrawn++;
-                    $results[] = ['public_id' => $entry['public_id'] ?? null, 'status' => 'SKIPPED', 'reason' => ['code' => 'MEDIA_CONTENT_WITHDRAWN']];
+                    $results[] = ['public_id' => $entry['public_id'] ?? null, 'status' => 'SKIPPED', 'reason' => ['code' => $exception->getMessage()]];
 
                     continue;
                 }

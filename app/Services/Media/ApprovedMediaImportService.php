@@ -183,10 +183,14 @@ final class ApprovedMediaImportService
             //
             // Güvenlik özelliği aynen duruyor: iki durumda da içe aktarma
             // yapılmıyor, yalnızca deploy'u durdurup durdurmayacağı değişiyor.
+            // İçerik yayından çekilmişse ya da tamamen silinmişse içe
+            // aktarılacak bir şey yok - bu bir hata değil, boş işlem.
+            // Manifest sabit, içerik değişken: kapı bu kaymayı hata sayınca
+            // deploy kalıcı olarak bloke oluyordu.
             throw new \RuntimeException(
                 $this->contentExistsUnpublished($contentType, $publicId, $sourceFilename)
                     ? 'MEDIA_CONTENT_WITHDRAWN'
-                    : 'MEDIA_CONTENT_NOT_PUBLISHED_OR_VERIFIED'
+                    : 'MEDIA_CONTENT_MISSING'
             );
         }
 
@@ -202,9 +206,11 @@ final class ApprovedMediaImportService
      */
     private function contentExistsUnpublished(string $contentType, string $publicId, string $sourceFilename): bool
     {
+        // withTrashed: soft-delete edilmiş kayıt hâlâ vardır, yalnız
+        // yayından çekilmiştir.
         $sorgu = match ($contentType) {
-            'recipe' => Recipe::query(),
-            'blog' => BlogPost::query(),
+            'recipe' => Recipe::withTrashed(),
+            'blog' => BlogPost::withTrashed(),
             default => null,
         };
 

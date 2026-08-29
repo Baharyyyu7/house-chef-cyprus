@@ -28,15 +28,43 @@ final class WithdrawnContentDoesNotBlockDeployTest extends TestCase
         $this->assertSame('MEDIA_CONTENT_WITHDRAWN', $sonuc['results'][0]['reason']['code']);
     }
 
-    public function test_media_for_content_that_does_not_exist_still_fails(): void
+    public function test_media_for_content_that_no_longer_exists_is_skipped(): void
     {
-        // Daralma gerçek kapıyı zayıflatmamalı: var olmayan kaydı işaret eden
-        // manifest satırı hâlâ hatadır.
+        // İçerik tamamen silinmişse içe aktarılacak bir şey yok - bu hata
+        // değil, boş işlem. Kapı bunu hata sayınca üretimde deploy kalıcı
+        // olarak bloke oldu: manifest sabit, katalog değişken.
+        // Ayrı kod veriliyor, böylece bayat manifest satırı görünür kalıyor.
         $sonuc = $this->calistir(null);
+
+        $this->assertSame(0, $sonuc['failed']);
+        $this->assertSame('SKIPPED', $sonuc['results'][0]['status']);
+        $this->assertSame('MEDIA_CONTENT_MISSING', $sonuc['results'][0]['reason']['code']);
+    }
+
+    public function test_a_soft_deleted_recipe_counts_as_withdrawn(): void
+    {
+        // Soft-delete edilmiş kayıt hâlâ vardır, yalnız yayından çekilmiştir.
+        // Sorgu silinmişleri dışladığı için bunlar "hiç yok" sayılıp
+        // deploy'u durduruyordu.
+        $tarif = $this->tarif('published');
+        $tarif->delete();
+
+        $sonuc = $this->calistir($tarif);
+
+        $this->assertSame(0, $sonuc['failed']);
+        $this->assertSame('MEDIA_CONTENT_WITHDRAWN', $sonuc['results'][0]['reason']['code']);
+    }
+
+    public function test_a_real_defect_still_fails_the_deploy(): void
+    {
+        // Daralma gerçek kapıyı zayıflatmamalı: kaydı olan ama kaynak dosyası
+        // okunamayan satır hâlâ hatadır.
+        $tarif = $this->tarif('published');
+
+        $sonuc = $this->calistir($tarif);
 
         $this->assertSame(1, $sonuc['failed']);
         $this->assertSame('FAILED', $sonuc['results'][0]['status']);
-        $this->assertSame('MEDIA_CONTENT_NOT_PUBLISHED_OR_VERIFIED', $sonuc['results'][0]['error']['code']);
     }
 
     public function test_an_unverified_recipe_is_skipped_rather_than_imported(): void
