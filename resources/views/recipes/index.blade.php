@@ -38,11 +38,15 @@
              Dosya yoksa bileşen hiçbir şey basmaz. --}}
         <x-hero-video />
         {{-- İki katman: yatay olan metne okunur bir zemin verir, dikey olan
-             hem çubuğu hem de alt kenarı sayfa zeminine bağlar. --}}
-        <div class="absolute inset-0 -z-10 bg-[linear-gradient(96deg,rgba(9,9,9,.93)_0%,rgba(9,9,9,.78)_34%,rgba(9,9,9,.28)_66%,rgba(9,9,9,.12)_100%)]"></div>
+             hem çubuğu hem de alt kenarı sayfa zeminine bağlar.
+             Perde metnin bittiği yerde açılıyor: önceki eğri sağ tarafı da
+             karartıyordu ve tabak neredeyse görünmüyordu. Metnin durduğu
+             %54'e kadar koyu kalıyor (beyaz yazı orada ~7:1 kontrast
+             görüyor), sonra hızla siliniyor. --}}
+        <div class="absolute inset-0 -z-10 bg-[linear-gradient(96deg,rgba(9,9,9,.94)_0%,rgba(9,9,9,.88)_34%,rgba(9,9,9,.58)_54%,rgba(9,9,9,.14)_72%,rgba(9,9,9,0)_100%)]"></div>
         {{-- Dar ekranda metin tüm genişliğe yayıldığı için yatay perde yetmez;
              ağırlık alt yarıya verilir. --}}
-        <div class="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(9,9,9,.58)_0%,rgba(9,9,9,.06)_22%,rgba(9,9,9,.34)_52%,rgba(9,9,9,.8)_100%)]"></div>
+        <div class="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(9,9,9,.50)_0%,rgba(9,9,9,.04)_22%,rgba(9,9,9,.10)_52%,rgba(9,9,9,.62)_100%)]"></div>
         {{-- Kahraman görselin altı sayfa zeminine kesilerek değil, eriyerek
              bağlanır: koyu kareden beyaz kağıda tek pikselde geçmek, iki ayrı
              sayfa yapıştırılmış gibi duruyordu. --}}
