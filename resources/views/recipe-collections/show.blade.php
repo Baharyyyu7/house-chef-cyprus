@@ -5,7 +5,7 @@
     :robots="$seoIndexability['robots']">
     <section class="hc-container py-14">
         <nav class="hc-body-sm text-muted" aria-label="Yol">
-            <a class="font-semibold text-gold-700 transition hover:underline" href="{{ route('recipes.index') }}">Tarifler</a>
+            <a class="font-semibold text-gold-700 transition hover:underline dark:text-gold-400" href="{{ route('recipes.index') }}">Tarifler</a>
             <span aria-hidden="true"> › </span><span class="text-charcoal-900 dark:text-charcoal-100 font-medium">{{ $koleksiyon['title'] }}</span>
         </nav>
 

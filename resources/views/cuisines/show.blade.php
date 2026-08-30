@@ -6,7 +6,7 @@
 
     <section class="hc-container py-14">
         <nav class="hc-body-sm text-muted" aria-label="Yol">
-            <a class="font-semibold text-gold-700 transition hover:underline" href="{{ route('cuisines.index') }}">Mutfaklar</a>
+            <a class="font-semibold text-gold-700 transition hover:underline dark:text-gold-400" href="{{ route('cuisines.index') }}">Mutfaklar</a>
             <span aria-hidden="true"> › </span><span class="text-charcoal-900 dark:text-charcoal-100 font-medium">{{ $mutfak->name }}</span>
         </nav>
 
