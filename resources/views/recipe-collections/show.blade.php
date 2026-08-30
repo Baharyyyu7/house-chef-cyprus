@@ -5,15 +5,15 @@
     :robots="$seoIndexability['robots']">
     <section class="hc-container py-14">
         <nav class="hc-body-sm text-muted" aria-label="Yol">
-            <a class="font-semibold text-gold-700" href="{{ route('recipes.index') }}">Tarifler</a>
-            <span aria-hidden="true"> › </span>{{ $koleksiyon['title'] }}
+            <a class="font-semibold text-gold-700 transition hover:underline" href="{{ route('recipes.index') }}">Tarifler</a>
+            <span aria-hidden="true"> › </span><span class="text-charcoal-900 dark:text-charcoal-100 font-medium">{{ $koleksiyon['title'] }}</span>
         </nav>
 
-        <h1 class="mt-3 font-display text-4xl font-semibold">{{ $koleksiyon['title'] }}</h1>
+        <h1 class="mt-4 font-display text-4xl font-semibold sm:text-5xl">{{ $koleksiyon['title'] }}</h1>
         <p class="hc-body-lg mt-4 max-w-2xl text-muted">{{ $koleksiyon['description'] }}</p>
-        <p class="hc-body-sm mt-3 text-muted">{{ $tarifler->count() }} doğrulanmış tarif bulundu.</p>
+        <p class="hc-body-sm mt-3 text-muted">{{ $tarifler->count() }} doğrulanmış tarif: ölçüler, süreler ve besin değerleri görünür.</p>
 
-        <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             @foreach ($tarifler as $tarif)
                 <x-recipe-card-v3 :recipe="$tarif" :show-favorite="false" />
             @endforeach
