@@ -94,4 +94,48 @@ final class RecipeCollectionLandingPagesTest extends TestCase
             ], $attributes, ['title' => $baslik, 'slug' => Str::slug($baslik)]));
         }
     }
+
+    public function test_the_home_chips_point_at_the_collection_pages(): void
+    {
+        // Sayfalar kuruldu ama hiçbir yerden bağlantı yoktu ve çipler hâlâ
+        // noindex filtreli görünüme gidiyordu - Kıbrıs çipiyle aynı hata
+        // sınıfı. Öksüz sayfa taranmaz.
+        for ($i = 0; $i < 4; $i++) {
+            $this->kolayVeHizliTarif('Çip Tarifi '.$i);
+        }
+        cache()->forget('koleksiyon-baglantilari');
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee(route('collections.sure', '20-dakika'), false)
+            ->assertSee(route('collections.zorluk', 'kolay'), false);
+    }
+
+    public function test_a_chip_falls_back_to_the_filter_when_the_page_is_thin(): void
+    {
+        // Anasayfadan 404'e bağlanmak, filtreye bağlanmaktan kötü.
+        cache()->forget('koleksiyon-baglantilari');
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee(route('recipes.index', ['max_minutes' => 20]), false)
+            ->assertDontSee(route('collections.sure', '20-dakika'), false);
+    }
+
+    private function kolayVeHizliTarif(string $baslik): \App\Models\Recipe
+    {
+        return \App\Models\Recipe::query()->create([
+            'title' => $baslik,
+            'slug' => \Illuminate\Support\Str::slug($baslik).'-'.uniqid(),
+            'excerpt' => 'Özet.',
+            'description' => 'Açıklama.',
+            'status' => 'published',
+            'verification_status' => 'verified',
+            'published_at' => now(),
+            'difficulty' => 'easy',
+            'prep_minutes' => 5,
+            'cook_minutes' => 10,
+            'rest_minutes' => 0,
+        ]);
+    }
 }

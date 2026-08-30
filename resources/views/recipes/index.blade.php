@@ -8,6 +8,15 @@
      * karar veriyor, Google da tekrar eden açıklamayı değerlendirmiyor.
      */
     $anaSayfa = request()->routeIs('home');
+
+    // Koleksiyon sayfalarinin hangileri var? Esik denetleyicide durur; burada
+    // yalniz sonucu soruyoruz. Bes sayim sorgusu her istekte donmesin diye
+    // kisa sureli onbellek: yeni nitelenen sayfa cipte birkac dakika sonra
+    // gorunur, sitemap zaten ham listeyi kullaniyor.
+    $koleksiyonlar = cache()->remember('koleksiyon-baglantilari', now()->addMinutes(10), fn (): array => \App\Http\Controllers\RecipeCollectionLandingController::sayfasiOlanlar()
+        ->mapWithKeys(fn (array $k): array => [$k['type'].':'.$k['slug'] => $k['url']])->all());
+
+    $koleksiyonBaglantisi = fn (string $tur, string $slug): ?string => $koleksiyonlar[$tur.':'.$slug] ?? null;
     $sayfaBasligi = $anaSayfa
         ? 'House Chef Cyprus — Kıbrıs ve Akdeniz Mutfağı Tarifleri'
         : 'Tarifler — Kıbrıs ve Akdeniz Mutfağı · House Chef Cyprus';
@@ -84,8 +93,12 @@
                 {{-- 'kibris' hicbir mutfaga karsilik gelmiyordu: cip sifir sonuc
                      donuyordu. Artik indekslenebilir mutfak sayfasina gidiyor. --}}
                 <a class="hc-arama__cip" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">Kıbrıs mutfağı</a>
-                @foreach([['20 dk altında', ['max_minutes' => 20]], ['Kolay tarifler', ['difficulty' => 'easy']]] as [$chip, $params])
-                    <a href="{{ route('recipes.index', $params) }}" class="hc-arama__cip">{{ $chip }}</a>
+                {{-- Sure ve zorluk koleksiyonlarinin artik indekslenebilir
+                     sayfasi var; cip filtreli (noindex) goruntuye degil oraya
+                     gidiyor. Sayfa esigi gecmiyorsa filtreye dusuluyor:
+                     anasayfadan 404'e baglanmak, filtreye baglanmaktan kotu. --}}
+                @foreach([['20 dk altında', 'sure', '20-dakika', ['max_minutes' => 20]], ['Kolay tarifler', 'zorluk', 'kolay', ['difficulty' => 'easy']]] as [$chip, $tur, $slug, $params])
+                    <a href="{{ $koleksiyonBaglantisi($tur, $slug) ?? route('recipes.index', $params) }}" class="hc-arama__cip">{{ $chip }}</a>
                 @endforeach
             </div>
         </div>
@@ -123,7 +136,7 @@
             @endforeach
         </div></section>
 
-    <section data-reveal class="hc-container grid gap-5 pb-20 lg:grid-cols-2"><article class="hc-home-utility"><p class="hc-kicker">Hızlı karar</p><h2 class="hc-heading-2 mt-3">Akşam yemeği için<br>30 dakikanız mı var?</h2><p class="hc-body-sm mt-4" style="color:var(--hc-text-secondary)">Hazırlık ve pişirme süresine göre sakin, hızlı seçenekleri ayırdık.</p><a class="hc-text-link mt-7 inline-flex font-extrabold" href="{{ route('recipes.index', ['max_minutes' => 30]) }}">30 dakikanın altındakileri aç →</a></article><article class="hc-home-utility hc-home-utility--warm"><p class="hc-kicker">Yerel seçki</p><h2 class="hc-heading-2 mt-3">Kıbrıs ve Akdeniz<br>sofralarından başlayın.</h2><p class="hc-body-sm mt-4" style="color:var(--hc-text-secondary)">Yerel ritim, iyi malzeme ve paylaşmaya değer tarifler.</p><a class="hc-text-link mt-7 inline-flex font-extrabold" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">Kıbrıs mutfağını keşfet →</a></article></section>
+    <section data-reveal class="hc-container grid gap-5 pb-20 lg:grid-cols-2"><article class="hc-home-utility"><p class="hc-kicker">Hızlı karar</p><h2 class="hc-heading-2 mt-3">Akşam yemeği için<br>30 dakikanız mı var?</h2><p class="hc-body-sm mt-4" style="color:var(--hc-text-secondary)">Hazırlık ve pişirme süresine göre sakin, hızlı seçenekleri ayırdık.</p><a class="hc-text-link mt-7 inline-flex font-extrabold" href="{{ $koleksiyonBaglantisi('sure', '30-dakika') ?? route('recipes.index', ['max_minutes' => 30]) }}">30 dakikanın altındakileri aç →</a></article><article class="hc-home-utility hc-home-utility--warm"><p class="hc-kicker">Yerel seçki</p><h2 class="hc-heading-2 mt-3">Kıbrıs ve Akdeniz<br>sofralarından başlayın.</h2><p class="hc-body-sm mt-4" style="color:var(--hc-text-secondary)">Yerel ritim, iyi malzeme ve paylaşmaya değer tarifler.</p><a class="hc-text-link mt-7 inline-flex font-extrabold" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">Kıbrıs mutfağını keşfet →</a></article></section>
 
     @if(($latestPosts ?? collect())->isNotEmpty())
         <section class="hc-container pb-16"><div class="flex flex-wrap items-end justify-between gap-4"><div><p class="hc-kicker">Editoryal mutfak rehberi</p><h2 class="hc-title mt-2">Son blog yazıları</h2></div><a class="hc-btn hc-btn-outline" href="{{ route('blog.index') }}">Tüm yazılar →</a></div><div class="mt-7 grid gap-5 md:grid-cols-3">@foreach($latestPosts as $post)@php($heroMedia = app(\App\Services\Media\PublicMediaEligibilityService::class)->heroOrFirstEligible($post->heroMedia, $post->media))<article class="hc-v3-card overflow-hidden"><a class="block aspect-[16/9] bg-stone-100 dark:bg-stone-900" href="{{ route('blog.show', $post) }}">@if($heroMedia?->publicUrl())<img class="h-full w-full object-cover" src="{{ $heroMedia->publicUrl() }}" alt="{{ $heroMedia->alt_text }}" loading="lazy">@else<div class="flex h-full flex-col items-center justify-center gap-2 p-5 text-center"><span class="hc-kicker">{{ $post->category?->name ?? 'Mutfak notu' }}</span><strong>Yazıya özel görsel hazırlanıyor</strong><span class="text-xs text-muted">Onaylı editoryal görsel bekleniyor.</span></div>@endif</a><div class="p-5"><p class="hc-kicker">{{ $post->category?->name ?? 'Mutfak notu' }}</p><h3 class="mt-2 text-xl font-extrabold"><a href="{{ route('blog.show', $post) }}">{{ $post->title }}</a></h3><p class="mt-2 line-clamp-2 text-sm text-warm dark:text-stone-400">{{ $post->excerpt }}</p><a class="mt-4 inline-flex font-extrabold text-orange-700" href="{{ route('blog.show', $post) }}">Yazıyı oku →</a></div></article>@endforeach</div></section>
