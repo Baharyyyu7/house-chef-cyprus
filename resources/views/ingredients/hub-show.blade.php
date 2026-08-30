@@ -1,6 +1,7 @@
 <x-layouts.site
     :title="$malzeme->name.' ile Ne Yapılır? '.$tarifler->count().' Tarif · House Chef Cyprus'"
     :meta-description="$malzeme->name.' ile yapabileceğiniz '.$tarifler->count().' doğrulanmış tarif: ölçüler, süreler ve adım adım anlatım.'"
+    :structured-data="$seoSchema"
     :canonical-url="$seoIndexability['canonical']"
     :robots="$seoIndexability['robots']">
 

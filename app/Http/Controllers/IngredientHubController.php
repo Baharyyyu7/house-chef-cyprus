@@ -8,8 +8,10 @@ use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\SeoIndexabilityService;
+use App\Services\Seo\SeoSchemaService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 /**
@@ -63,7 +65,7 @@ final class IngredientHubController extends Controller
         ]);
     }
 
-    public function show(Request $request, string $slug, SeoIndexabilityService $indexability, PublicMediaEligibilityService $gate): View
+    public function show(Request $request, string $slug, SeoIndexabilityService $indexability, PublicMediaEligibilityService $gate, SeoSchemaService $schema): View
     {
         $malzeme = Ingredient::query()->where('slug', $slug)->first();
 
@@ -76,11 +78,22 @@ final class IngredientHubController extends Controller
         // sayfa ziyaretçiye de arama motoruna da bir şey vermiyor.
         abort_if($tarifler->count() < self::ASGARI_TARIF, 404);
 
+        $canonical = route('ingredients.hub.show', $malzeme->slug);
+        $description = $malzeme->name.' ile yapabileceğiniz '.$tarifler->count().' doğrulanmış tarif: ölçüler, süreler ve adım adım anlatım.';
+
         return view('ingredients.hub-show', [
             'malzeme' => $malzeme,
             'tarifler' => $tarifler,
             'mediaEligibility' => $gate,
-            'seoIndexability' => $indexability->forRequest($request, route('ingredients.hub.show', $malzeme->slug)),
+            'seoIndexability' => $indexability->forRequest($request, $canonical),
+            'seoSchema' => $schema->collectionPage(
+                $malzeme->name.' ile ne yapılır?', $description, $canonical, $tarifler,
+                [
+                    ['name' => 'Ana Sayfa', 'url' => route('home')],
+                    ['name' => 'Malzemeler', 'url' => route('ingredients.hub.index')],
+                    ['name' => $malzeme->name, 'url' => $canonical],
+                ],
+            ),
         ]);
     }
 
@@ -111,7 +124,7 @@ final class IngredientHubController extends Controller
     /** @return \Illuminate\Support\Collection<int, int> */
     private function yayindakiTarifSayilari(): \Illuminate\Support\Collection
     {
-        return \Illuminate\Support\Facades\DB::table('recipe_ingredients')
+        return DB::table('recipe_ingredients')
             ->whereIn('recipe_id', $this->yayindakiTarifIdleri())
             ->selectRaw('ingredient_id, count(distinct recipe_id) as adet')
             ->groupBy('ingredient_id')

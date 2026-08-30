@@ -1,6 +1,7 @@
 <x-layouts.site
     :title="$koleksiyon['title'].' · House Chef Cyprus'"
     :meta-description="$koleksiyon['description']"
+    :structured-data="$seoSchema"
     :canonical-url="$seoIndexability['canonical']"
     :robots="$seoIndexability['robots']">
     <section class="hc-container py-14">

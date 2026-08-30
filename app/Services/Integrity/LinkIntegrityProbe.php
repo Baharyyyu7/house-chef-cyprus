@@ -38,12 +38,15 @@ final class LinkIntegrityProbe
     public function __construct(private readonly RecipeSearchInterface $search) {}
 
     /**
-     * @param list<string> $sayfalar taranacak hub adresleri
+     * @param  list<string>  $sayfalar  taranacak hub adresleri
+     * @param  list<string>  $dogrudanAdresler  Hub'da listelenmeyen fakat kendisi denetlenecek adresler
      * @return array<string, mixed>
      */
-    public function probe(array $sayfalar, int $sinir = 60): array
+    public function probe(array $sayfalar, int $sinir = 60, array $dogrudanAdresler = []): array
     {
-        $adresler = [];
+        // Doğrudan adresler önce eklenir; limit dolsa bile görev için kritik
+        // koleksiyon sayfalarının tarama dışında kalmasına izin verilmez.
+        $adresler = array_fill_keys($dogrudanAdresler, true);
 
         foreach ($sayfalar as $sayfa) {
             foreach ($this->baglantilar($sayfa) as $adres) {

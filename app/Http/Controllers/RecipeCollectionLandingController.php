@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\Recipe;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\SeoIndexabilityService;
+use App\Services\Seo\SeoSchemaService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -29,14 +30,14 @@ final class RecipeCollectionLandingController extends Controller
         'zor' => ['title' => 'Zor Tarifler', 'description' => 'Deneyim ve dikkat isteyen doğrulanmış tarifler.', 'difficulty' => 'hard'],
     ];
 
-    public function sure(Request $request, string $slug, SeoIndexabilityService $indexability, PublicMediaEligibilityService $gate): View
+    public function sure(Request $request, string $slug, SeoIndexabilityService $indexability, PublicMediaEligibilityService $gate, SeoSchemaService $schema): View
     {
-        return $this->goster($request, 'sure', $slug, $indexability, $gate);
+        return $this->goster($request, 'sure', $slug, $indexability, $gate, $schema);
     }
 
-    public function zorluk(Request $request, string $slug, SeoIndexabilityService $indexability, PublicMediaEligibilityService $gate): View
+    public function zorluk(Request $request, string $slug, SeoIndexabilityService $indexability, PublicMediaEligibilityService $gate, SeoSchemaService $schema): View
     {
-        return $this->goster($request, 'zorluk', $slug, $indexability, $gate);
+        return $this->goster($request, 'zorluk', $slug, $indexability, $gate, $schema);
     }
 
     /** @return Collection<int, array{type:string,slug:string,title:string,url:string}> */
@@ -66,7 +67,29 @@ final class RecipeCollectionLandingController extends Controller
         return (int) $tarifSayisi >= self::ASGARI_TARIF;
     }
 
-    private function goster(Request $request, string $tur, string $slug, SeoIndexabilityService $indexability, PublicMediaEligibilityService $gate): View
+    /** @param array<string,mixed> $plan */
+    public static function yapisalSorguAdresi(array $plan): ?string
+    {
+        $controller = new self;
+
+        foreach (self::SURELER as $slug => $tanim) {
+            if (($plan['max_minutes'] ?? null) === $tanim['max_minutes']
+                && self::sayfasiVar($controller->sorgu('sure', $tanim)->count())) {
+                return route('collections.sure', $slug);
+            }
+        }
+
+        foreach (self::ZORLUKLAR as $slug => $tanim) {
+            if (($plan['difficulty'] ?? null) === $tanim['difficulty']
+                && self::sayfasiVar($controller->sorgu('zorluk', $tanim)->count())) {
+                return route('collections.zorluk', $slug);
+            }
+        }
+
+        return null;
+    }
+
+    private function goster(Request $request, string $tur, string $slug, SeoIndexabilityService $indexability, PublicMediaEligibilityService $gate, SeoSchemaService $schema): View
     {
         $tanim = ($tur === 'sure' ? self::SURELER : self::ZORLUKLAR)[$slug] ?? null;
         abort_if($tanim === null, 404);
@@ -85,6 +108,17 @@ final class RecipeCollectionLandingController extends Controller
             'tarifler' => $tarifler,
             'mediaEligibility' => $gate,
             'seoIndexability' => $indexability->forRequest($request, $canonical),
+            'seoSchema' => $schema->collectionPage(
+                $tanim['title'],
+                $tanim['description'],
+                $canonical,
+                $tarifler,
+                [
+                    ['name' => 'Ana Sayfa', 'url' => route('home')],
+                    ['name' => 'Tarifler', 'url' => route('recipes.index')],
+                    ['name' => $tanim['title'], 'url' => $canonical],
+                ],
+            ),
         ]);
     }
 

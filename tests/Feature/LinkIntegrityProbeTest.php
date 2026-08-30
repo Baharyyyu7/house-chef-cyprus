@@ -8,6 +8,7 @@ use App\Models\Cuisine;
 use App\Models\Recipe;
 use App\Services\Integrity\LinkIntegrityProbe;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -80,8 +81,33 @@ final class LinkIntegrityProbeTest extends TestCase
         $this->assertCount(1, app(LinkIntegrityProbe::class)->baglantilar('https://ornek.test/sayfa'));
     }
 
+    public function test_the_command_checks_each_existing_duration_and_difficulty_collection_directly(): void
+    {
+        for ($i = 0; $i < 4; $i++) {
+            Recipe::query()->create([
+                'title' => 'Koleksiyon Tarif '.$i, 'slug' => 'koleksiyon-tarif-'.$i,
+                'status' => 'published', 'verification_status' => 'verified',
+                'difficulty' => 'easy', 'prep_minutes' => 5, 'cook_minutes' => 15, 'rest_minutes' => 0,
+            ]);
+        }
+
+        $istenenler = [];
+        Http::fake(function (Request $istek) use (&$istenenler) {
+            $istenenler[] = $istek->url();
+
+            return Http::response('<html></html>', 200);
+        });
+
+        $this->artisan('content:link-integrity --json')->assertSuccessful();
+
+        $this->assertContains(route('collections.sure', '20-dakika'), $istenenler);
+        $this->assertContains(route('collections.sure', '30-dakika'), $istenenler);
+        $this->assertContains(route('collections.zorluk', 'kolay'), $istenenler);
+        $this->assertNotContains(route('collections.zorluk', 'zor'), $istenenler);
+    }
+
     /**
-     * @param list<string> $adresler
+     * @param  list<string>  $adresler
      * @return array<string, mixed>
      */
     private function probe(array $adresler): array
@@ -94,7 +120,7 @@ final class LinkIntegrityProbeTest extends TestCase
         Http::preventStrayRequests();
 
         // Gerçek uygulama isteklerini test istemcisine yönlendir.
-        Http::fake(function (\Illuminate\Http\Client\Request $istek) use ($adresler) {
+        Http::fake(function (Request $istek) use ($adresler) {
             if (str_contains($istek->url(), 'ornek.test')) {
                 return Http::response(implode('', array_map(fn (string $a): string => '<a href="'.$a.'">x</a>', $adresler)), 200);
             }

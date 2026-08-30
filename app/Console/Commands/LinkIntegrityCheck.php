@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\RecipeCollectionLandingController;
 use App\Services\Integrity\IntegrityReportLog;
 use App\Services\Integrity\LinkIntegrityProbe;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Route;
 
 /**
  * Sitenin kendi iç bağlantılarını denetler.
@@ -23,7 +25,10 @@ final class LinkIntegrityCheck extends Command
 
     public function handle(LinkIntegrityProbe $probe, IntegrityReportLog $gunluk): int
     {
-        $rapor = $probe->probe($this->hublar(), (int) $this->option('limit'));
+        $koleksiyonlar = RecipeCollectionLandingController::sayfasiOlanlar()
+            ->pluck('url')
+            ->all();
+        $rapor = $probe->probe($this->hublar(), (int) $this->option('limit'), $koleksiyonlar);
 
         // Koşu kaydediliyor: tek bir sayı ancak bir öncekiyle yan yana
         // konduğunda sitenin iyileşip iyileşmediğini gösteriyor.
@@ -58,7 +63,7 @@ final class LinkIntegrityCheck extends Command
         $hublar = [route('home'), route('recipes.index'), route('blog.index')];
 
         foreach (['cuisines.index', 'ingredients.hub.index'] as $ad) {
-            if (\Illuminate\Support\Facades\Route::has($ad)) {
+            if (Route::has($ad)) {
                 $hublar[] = route($ad);
             }
         }

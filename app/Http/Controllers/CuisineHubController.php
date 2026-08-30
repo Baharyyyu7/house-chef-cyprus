@@ -8,6 +8,7 @@ use App\Models\Cuisine;
 use App\Models\Recipe;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\SeoIndexabilityService;
+use App\Services\Seo\SeoSchemaService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -53,7 +54,7 @@ final class CuisineHubController extends Controller
         ]);
     }
 
-    public function show(Request $request, string $slug, SeoIndexabilityService $indexability, PublicMediaEligibilityService $gate): View
+    public function show(Request $request, string $slug, SeoIndexabilityService $indexability, PublicMediaEligibilityService $gate, SeoSchemaService $schema): View
     {
         $mutfak = Cuisine::query()->where('slug', $slug)->first();
 
@@ -65,11 +66,22 @@ final class CuisineHubController extends Controller
         // ziyaretçiye de arama motoruna da bir şey vermiyor.
         abort_if($tarifler->count() < self::ASGARI_TARIF, 404);
 
+        $canonical = route('cuisines.show', $mutfak->slug);
+        $description = $mutfak->name.' mutfağından '.$tarifler->count().' doğrulanmış tarif: ölçüler, süreler ve adım adım anlatım.';
+
         return view('cuisines.show', [
             'mutfak' => $mutfak,
             'tarifler' => $tarifler,
             'mediaEligibility' => $gate,
-            'seoIndexability' => $indexability->forRequest($request, route('cuisines.show', $mutfak->slug)),
+            'seoIndexability' => $indexability->forRequest($request, $canonical),
+            'seoSchema' => $schema->collectionPage(
+                $mutfak->name.' Tarifleri', $description, $canonical, $tarifler,
+                [
+                    ['name' => 'Ana Sayfa', 'url' => route('home')],
+                    ['name' => 'Mutfaklar', 'url' => route('cuisines.index')],
+                    ['name' => $mutfak->name, 'url' => $canonical],
+                ],
+            ),
         ]);
     }
 

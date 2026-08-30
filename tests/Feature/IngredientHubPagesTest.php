@@ -78,6 +78,16 @@ final class IngredientHubPagesTest extends TestCase
         $this->get(route('ingredients.hub.show', 'olmayan-malzeme'))->assertNotFound();
     }
 
+    public function test_ingredient_page_marks_its_visible_recipes_as_a_collection(): void
+    {
+        $malzeme = $this->malzemeIle(5, 'Hellim');
+
+        $icerik = (string) $this->get(route('ingredients.hub.show', $malzeme->slug))->assertOk()->getContent();
+
+        $this->assertStringContainsString('"@type":"CollectionPage"', $icerik);
+        $this->assertStringContainsString('"numberOfItems":5', $icerik);
+        $this->assertStringContainsString('"name":"Hellim Tarifi 0"', $icerik);
+    }
 
     public function test_a_pantry_staple_never_gets_a_page_however_many_recipes_it_has(): void
     {

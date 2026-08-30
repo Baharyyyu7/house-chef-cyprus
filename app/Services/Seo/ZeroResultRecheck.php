@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Seo;
 
 use App\Contracts\Search\RecipeSearchInterface;
+use App\Http\Controllers\RecipeCollectionLandingController;
 use App\Models\ZeroResultSearch;
+use App\Services\Search\TurkishRecipeQueryParser;
 
 /**
  * Kayıtlı sıfır sonuçlu terimleri güncel katalogla yeniden dener.
@@ -22,6 +24,7 @@ final class ZeroResultRecheck
     public function __construct(
         private readonly RecipeSearchInterface $search,
         private readonly ZeroResultSearchService $kayit,
+        private readonly TurkishRecipeQueryParser $parser,
     ) {}
 
     /** @return array<string, mixed> */
@@ -35,8 +38,29 @@ final class ZeroResultRecheck
                 $adet = $this->search->search(['q' => $satir->normalized_query])->total();
 
                 if ($adet > 0) {
+                    // Yol saklanıyor, tam adres değil: sütun varchar(40) ve
+                    // "https://housechefcyprus.com/sure/20-dakika" 42 karakter.
+                    // Üretim MySQL'i STRICT_TRANS_TABLES ile çalışıyor, yani
+                    // bu satır "Data too long" fırlatıp gece koşan işi
+                    // düşürürdü. SQLite varchar sınırını uygulamadığı için
+                    // testler bunu göremez. Yol ayrıca alan adından bağımsız.
+                    $suggestedAction = RecipeCollectionLandingController::yapisalSorguAdresi(
+                        $this->parser->parse($satir->normalized_query)
+                    );
+                    $suggestedAction = is_string($suggestedAction)
+                        ? (parse_url($suggestedAction, PHP_URL_PATH) ?: null)
+                        : null;
+                    if ($suggestedAction !== null) {
+                        $satir->forceFill(['suggested_action' => $suggestedAction])->save();
+                    }
+
                     $this->kayit->resolve($satir->normalized_query, $adet);
-                    $cozulen[] = ['term' => $satir->normalized_query, 'results' => $adet, 'search_count' => (int) $satir->search_count];
+                    $cozulen[] = [
+                        'term' => $satir->normalized_query,
+                        'results' => $adet,
+                        'search_count' => (int) $satir->search_count,
+                        'suggested_action' => $suggestedAction,
+                    ];
 
                     return;
                 }

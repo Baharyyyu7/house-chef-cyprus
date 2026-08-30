@@ -58,6 +58,39 @@ final class RecipeCollectionLandingPagesTest extends TestCase
             ->assertDontSee('Gizli Zor Tarif');
     }
 
+    public function test_collection_schema_lists_exactly_the_visible_recipe_cards(): void
+    {
+        $this->tarifler(4, ['difficulty' => 'easy']);
+        $this->tarifler(1, ['difficulty' => 'hard', 'title' => 'Şemaya Girmeyen Zor Tarif']);
+
+        $icerik = (string) $this->get('/zorluk/kolay')->assertOk()->getContent();
+
+        $this->assertStringContainsString('"@type":"CollectionPage"', $icerik);
+        $this->assertStringContainsString('"@type":"ItemList"', $icerik);
+        $this->assertStringContainsString('"numberOfItems":4', $icerik);
+        $this->assertStringNotContainsString('Şemaya Girmeyen Zor Tarif', $icerik);
+        $this->assertStringNotContainsString('"image"', $this->collectionSchema($icerik));
+    }
+
+    public function test_collection_pages_emit_no_hreflang_while_only_turkish_is_enabled(): void
+    {
+        $this->tarifler(4, ['difficulty' => 'easy']);
+
+        $this->get('/zorluk/kolay')->assertOk()->assertDontSee('rel="alternate" hreflang', false);
+    }
+
+    public function test_collection_hreflang_uses_the_same_path_when_a_second_locale_is_enabled(): void
+    {
+        config(['locales.supported.en.enabled' => true]);
+        $this->tarifler(4, ['difficulty' => 'easy']);
+
+        $this->get('/zorluk/kolay')
+            ->assertOk()
+            ->assertSee('hreflang="tr" href="'.url('/zorluk/kolay').'"', false)
+            ->assertSee('hreflang="en" href="'.url('/en/zorluk/kolay').'"', false)
+            ->assertSee('hreflang="x-default" href="'.url('/zorluk/kolay').'"', false);
+    }
+
     public function test_the_sitemap_lists_exactly_the_duration_and_difficulty_pages_that_exist(): void
     {
         $this->tarifler(4, ['prep_minutes' => 5, 'cook_minutes' => 15, 'difficulty' => 'easy']);
@@ -122,11 +155,11 @@ final class RecipeCollectionLandingPagesTest extends TestCase
             ->assertDontSee(route('collections.sure', '20-dakika'), false);
     }
 
-    private function kolayVeHizliTarif(string $baslik): \App\Models\Recipe
+    private function kolayVeHizliTarif(string $baslik): Recipe
     {
-        return \App\Models\Recipe::query()->create([
+        return Recipe::query()->create([
             'title' => $baslik,
-            'slug' => \Illuminate\Support\Str::slug($baslik).'-'.uniqid(),
+            'slug' => Str::slug($baslik).'-'.uniqid(),
             'excerpt' => 'Özet.',
             'description' => 'Açıklama.',
             'status' => 'published',
@@ -137,5 +170,12 @@ final class RecipeCollectionLandingPagesTest extends TestCase
             'cook_minutes' => 10,
             'rest_minutes' => 0,
         ]);
+    }
+
+    private function collectionSchema(string $icerik): string
+    {
+        preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $icerik, $eslesmeler);
+
+        return collect($eslesmeler[1] ?? [])->first(fn (string $json): bool => str_contains($json, 'CollectionPage'), '');
     }
 }

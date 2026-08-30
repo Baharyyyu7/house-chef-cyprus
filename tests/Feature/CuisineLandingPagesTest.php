@@ -153,6 +153,17 @@ final class CuisineLandingPagesTest extends TestCase
         $this->assertStringContainsString('"position":4,"name":"'.$tarif->title.'","item":"'.route('recipes.show', $tarif).'"', $icerik);
     }
 
+    public function test_cuisine_page_marks_its_visible_recipes_as_a_collection(): void
+    {
+        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+
+        $icerik = (string) $this->get(route('cuisines.show', $mutfak->slug))->assertOk()->getContent();
+
+        $this->assertStringContainsString('"@type":"CollectionPage"', $icerik);
+        $this->assertStringContainsString('"numberOfItems":4', $icerik);
+        $this->assertStringContainsString('"name":"Kıbrıs Mutfağı Tarifi 0"', $icerik);
+    }
+
     private function mutfak(string $ad, string $slug, int $tarifAdedi): Cuisine
     {
         $mutfak = Cuisine::query()->create(['name' => $ad, 'slug' => $slug]);

@@ -6,10 +6,13 @@ namespace App\Services\Seo;
 
 use App\Models\BlogPost;
 use App\Models\Recipe;
+use App\Services\Media\PublicMediaEligibilityService;
 
 /** Builds schemas from already-public, visible editorial data only. */
 final class SeoSchemaService
 {
+    public function __construct(private readonly PublicMediaEligibilityService $mediaEligibility) {}
+
     /** @return array<string,mixed> */
     public function recipe(Recipe $recipe, array $ingredients, string $imageUrl = '', ?string $cuisineUrl = null): array
     {
@@ -77,6 +80,48 @@ final class SeoSchemaService
         }
 
         return $graph;
+    }
+
+    /**
+     * @param  iterable<Recipe>  $recipes  Yalnız sayfada gerçekten gösterilen tarifler
+     * @param  list<array{name:string,url:string}>  $crumbs
+     * @return array<string,mixed>
+     */
+    public function collectionPage(string $name, string $description, string $url, iterable $recipes, array $crumbs): array
+    {
+        $items = collect($recipes)->values()->map(function (Recipe $recipe, int $index): array {
+            $node = [
+                '@type' => 'Recipe',
+                'name' => $recipe->title,
+                'url' => route('recipes.show', $recipe),
+            ];
+
+            // Kartta yayına uygun görsel yoksa şema da görsel varmış gibi
+            // davranmaz. Aynı kamusal medya kapısı her iki yüzeyi korur.
+            $media = $this->mediaEligibility->firstEligible($recipe->media);
+            $image = $media?->responsiveUrl(1200) ?? $media?->publicUrl();
+            if (is_string($image) && $image !== '') {
+                $node['image'] = [$image];
+            }
+
+            return [
+                '@type' => 'ListItem',
+                'position' => $index + 1,
+                'item' => $node,
+            ];
+        })->all();
+
+        return $this->graph([
+            '@type' => 'CollectionPage',
+            'name' => $name,
+            'description' => $description,
+            'url' => $url,
+            'mainEntity' => [
+                '@type' => 'ItemList',
+                'numberOfItems' => count($items),
+                'itemListElement' => $items,
+            ],
+        ], $crumbs);
     }
 
     /** @param array<string,mixed> $node @param list<array{name:string,url:string}> $crumbs @return array<string,mixed> */

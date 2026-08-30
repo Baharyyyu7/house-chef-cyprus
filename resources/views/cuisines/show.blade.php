@@ -1,6 +1,7 @@
 <x-layouts.site
     :title="$mutfak->name.' Tarifleri · '.$tarifler->count().' Doğrulanmış Tarif · House Chef Cyprus'"
     :meta-description="$mutfak->name.' mutfağından '.$tarifler->count().' doğrulanmış tarif: ölçüler, süreler ve adım adım anlatım.'"
+    :structured-data="$seoSchema"
     :canonical-url="$seoIndexability['canonical']"
     :robots="$seoIndexability['robots']">
 

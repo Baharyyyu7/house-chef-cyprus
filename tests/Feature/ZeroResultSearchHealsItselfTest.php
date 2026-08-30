@@ -86,6 +86,38 @@ final class ZeroResultSearchHealsItselfTest extends TestCase
         $this->assertNull(ZeroResultSearch::query()->firstOrFail()->resolved_at);
     }
 
+    public function test_recheck_records_the_duration_collection_that_satisfied_the_demand(): void
+    {
+        for ($i = 0; $i < 4; $i++) {
+            Recipe::query()->create([
+                'title' => 'Hızlı Tarif '.$i, 'slug' => 'hizli-tarif-'.$i,
+                'status' => 'published', 'verification_status' => 'verified',
+                'prep_minutes' => 5, 'cook_minutes' => 15, 'rest_minutes' => 0,
+            ]);
+        }
+        ZeroResultSearch::query()->create(['normalized_query' => '20 dakikada', 'search_count' => 12, 'last_searched_at' => now()]);
+
+        app(ZeroResultRecheck::class)->run();
+
+        $this->assertSame('/sure/20-dakika', ZeroResultSearch::query()->firstOrFail()->suggested_action);
+    }
+
+    public function test_recheck_records_the_difficulty_collection_that_satisfied_the_demand(): void
+    {
+        for ($i = 0; $i < 4; $i++) {
+            Recipe::query()->create([
+                'title' => 'Kolay Tarif '.$i, 'slug' => 'kolay-tarif-'.$i,
+                'status' => 'published', 'verification_status' => 'verified',
+                'difficulty' => 'easy',
+            ]);
+        }
+        ZeroResultSearch::query()->create(['normalized_query' => 'kolay tarifler', 'search_count' => 19, 'last_searched_at' => now()]);
+
+        app(ZeroResultRecheck::class)->run();
+
+        $this->assertSame('/zorluk/kolay', ZeroResultSearch::query()->firstOrFail()->suggested_action);
+    }
+
     public function test_a_closed_record_stops_generating_content_work(): void
     {
         // Somut zarar buydu: karşılanmış talep için içerik görevi üretmek.
@@ -122,5 +154,30 @@ final class ZeroResultSearchHealsItselfTest extends TestCase
         $tarif->recipeIngredients()->create(['ingredient_id' => $malzeme->id, 'display_quantity' => 1, 'display_measure_code' => 'g', 'sort_order' => 1]);
 
         return $tarif;
+    }
+
+    public function test_the_recorded_action_fits_the_column(): void
+    {
+        // Sütun varchar(40) ve üretim MySQL'i STRICT_TRANS_TABLES ile
+        // çalışıyor: tam adres yazılsaydı ("https://housechefcyprus.com/
+        // sure/20-dakika" 42 karakter) gece koşan iş "Data too long" ile
+        // düşerdi. SQLite varchar sınırını uygulamadığı için bu ancak
+        // üretimde görülürdü.
+        for ($i = 0; $i < 4; $i++) {
+            Recipe::query()->create([
+                'title' => 'Kolon Tarifi '.$i, 'slug' => 'kolon-tarifi-'.$i,
+                'status' => 'published', 'verification_status' => 'verified',
+                'prep_minutes' => 5, 'cook_minutes' => 15, 'rest_minutes' => 0,
+            ]);
+        }
+        ZeroResultSearch::query()->create(['normalized_query' => '20 dakikada', 'search_count' => 26, 'last_searched_at' => now()]);
+
+        app(ZeroResultRecheck::class)->run();
+
+        $kayit = ZeroResultSearch::query()->firstOrFail();
+
+        $this->assertNotNull($kayit->suggested_action);
+        $this->assertLessThanOrEqual(40, mb_strlen($kayit->suggested_action));
+        $this->assertStringStartsWith('/', $kayit->suggested_action, 'Alan adı saklanmamalı: alan adı değişirse kayıt yanlış olur.');
     }
 }
