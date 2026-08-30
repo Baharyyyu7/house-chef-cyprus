@@ -69,7 +69,13 @@ final class RecipeCollectionLandingPagesTest extends TestCase
         $this->assertStringContainsString('"@type":"ItemList"', $icerik);
         $this->assertStringContainsString('"numberOfItems":4', $icerik);
         $this->assertStringNotContainsString('Şemaya Girmeyen Zor Tarif', $icerik);
-        $this->assertStringNotContainsString('"image"', $this->collectionSchema($icerik));
+        $schema = json_decode($this->collectionSchema($icerik), true, flags: JSON_THROW_ON_ERROR);
+        $collection = collect($schema['@graph'])->firstWhere('@type', 'CollectionPage');
+        foreach ($collection['mainEntity']['itemListElement'] as $item) {
+            $this->assertSame(['@type', 'position', 'url'], array_keys($item));
+            $this->assertArrayNotHasKey('item', $item, 'Özet sayfası ListItem içinde Recipe ayrıntısı ilan etmez.');
+            $this->assertArrayNotHasKey('image', $item, 'Kart özeti görsel uygunluğunu yapılandırılmış veride yeniden yorumlamaz.');
+        }
     }
 
     public function test_collection_pages_emit_no_hreflang_while_only_turkish_is_enabled(): void

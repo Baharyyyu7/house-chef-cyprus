@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Services\Integrity\IntegrityReportLog;
 use App\Models\AudienceCountryDay;
 use App\Models\AuditLog;
 use App\Models\BlogPost;
@@ -17,6 +16,8 @@ use App\Models\Recipe;
 use App\Models\RecipeNutritionSnapshot;
 use App\Models\RestoreHistory;
 use App\Models\User;
+use App\Models\ZeroResultSearch;
+use App\Services\Integrity\IntegrityReportLog;
 use App\Services\Observability\MetricService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -329,6 +330,7 @@ final class AdminDashboardService
                 // Otonom denetimlerin koşu geçmişi: sayı tek başına değil,
                 // bir önceki koşuyla farkıyla gösteriliyor.
                 'integrity' => $this->integrityLog->summary(),
+                'zeroResultDemand' => $this->zeroResultDemand(),
                 'system' => [
                     'health' => $health,
                     'queue' => $queue,
@@ -361,6 +363,26 @@ final class AdminDashboardService
                 ],
             ];
         });
+    }
+
+    /** @return array{open:list<array<string,mixed>>,resolved:list<array<string,mixed>>} */
+    private function zeroResultDemand(): array
+    {
+        $columns = ['normalized_query', 'search_count', 'suggested_action', 'resolved_at', 'resolved_result_count'];
+
+        return [
+            'open' => ZeroResultSearch::query()
+                ->whereNull('resolved_at')
+                ->orderByDesc('search_count')
+                ->limit(8)
+                ->get($columns)->toArray(),
+            'resolved' => ZeroResultSearch::query()
+                ->whereNotNull('resolved_at')
+                ->whereNotNull('suggested_action')
+                ->latest('resolved_at')
+                ->limit(8)
+                ->get($columns)->toArray(),
+        ];
     }
 
     /** @return array{data_status: string, total_members: int, countries: list<array<string, int|string>>, summary: string, source: string} */

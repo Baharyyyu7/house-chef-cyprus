@@ -82,6 +82,9 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('zero_result_rec
 // Koşu geçmişi trend için tutuluyor, arşiv için değil: üç aylık pencere
 // panelin gösterdiği her şeyi karşılıyor.
 Schedule::call(fn () => app(IntegrityReportLog::class)->prune(90))->name('integrity_report_prune')->weeklyOn(1, '02:10')->withoutOverlapping();
+// Salt okunur sözleşme muhafızı yalnız tablo + sütun genişliği + sabit değer
+// birlikte çözülebildiğinde bulgu üretir; belirsiz/dinamik yazımlar manşete girmez.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('database_schema_contract', fn () => Artisan::call('db:schema-contract')))->name('database_schema_contract')->dailyAt('01:29')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_audit', fn () => Artisan::call('seo:audit')))->name('seo_audit')->dailyAt('01:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_sitemap_audit', fn () => Artisan::call('seo:sitemap-audit')))->name('seo_sitemap_audit')->dailyAt('01:25')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_opportunities', fn () => Artisan::call('seo:content-opportunities')))->name('seo_content_opportunities')->dailyAt('01:43')->withoutOverlapping();

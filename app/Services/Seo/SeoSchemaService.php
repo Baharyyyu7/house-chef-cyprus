@@ -6,13 +6,10 @@ namespace App\Services\Seo;
 
 use App\Models\BlogPost;
 use App\Models\Recipe;
-use App\Services\Media\PublicMediaEligibilityService;
 
 /** Builds schemas from already-public, visible editorial data only. */
 final class SeoSchemaService
 {
-    public function __construct(private readonly PublicMediaEligibilityService $mediaEligibility) {}
-
     /** @return array<string,mixed> */
     public function recipe(Recipe $recipe, array $ingredients, string $imageUrl = '', ?string $cuisineUrl = null): array
     {
@@ -89,27 +86,14 @@ final class SeoSchemaService
      */
     public function collectionPage(string $name, string $description, string $url, iterable $recipes, array $crumbs): array
     {
-        $items = collect($recipes)->values()->map(function (Recipe $recipe, int $index): array {
-            $node = [
-                '@type' => 'Recipe',
-                'name' => $recipe->title,
-                'url' => route('recipes.show', $recipe),
-            ];
-
-            // Kartta yayına uygun görsel yoksa şema da görsel varmış gibi
-            // davranmaz. Aynı kamusal medya kapısı her iki yüzeyi korur.
-            $media = $this->mediaEligibility->firstEligible($recipe->media);
-            $image = $media?->responsiveUrl(1200) ?? $media?->publicUrl();
-            if (is_string($image) && $image !== '') {
-                $node['image'] = [$image];
-            }
-
-            return [
-                '@type' => 'ListItem',
-                'position' => $index + 1,
-                'item' => $node,
-            ];
-        })->all();
+        // Koleksiyon sayfası bir tarif ayrıntı sayfası değildir. ListItem
+        // yalnız görünür sıralamayı ve hedef adresi bildirir; Recipe/image
+        // ayrıntısı hedef tarif sayfasının kendi şemasının sorumluluğudur.
+        $items = collect($recipes)->values()->map(fn (Recipe $recipe, int $index): array => [
+            '@type' => 'ListItem',
+            'position' => $index + 1,
+            'url' => route('recipes.show', $recipe),
+        ])->all();
 
         return $this->graph([
             '@type' => 'CollectionPage',

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\ZeroResultSearch;
 use App\Services\Integrity\IntegrityReportLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 /**
@@ -63,12 +65,38 @@ final class AdminDashboardShowsAutonomousAuditsTest extends TestCase
         $this->panel()->assertSee('karşılaştırılacak önceki koşu yok', false);
     }
 
+    public function test_the_panel_turns_zero_result_demand_into_an_actionable_view(): void
+    {
+        ZeroResultSearch::query()->create([
+            'normalized_query' => 'hellim nasıl saklanır',
+            'locale' => 'tr',
+            'search_count' => 17,
+            'last_searched_at' => now(),
+        ]);
+        ZeroResultSearch::query()->create([
+            'normalized_query' => '20 dakikada ne pişirsem',
+            'locale' => 'tr',
+            'search_count' => 11,
+            'last_searched_at' => now(),
+            'resolved_at' => now(),
+            'resolved_result_count' => 16,
+            'suggested_action' => '/sure/20-dakika',
+        ]);
+
+        $this->panel()
+            ->assertSee('Sonuçsuz arama talepleri', false)
+            ->assertSee('hellim nasıl saklanır', false)
+            ->assertSee('17 arama', false)
+            ->assertSee('20 dakikada ne pişirsem', false)
+            ->assertSee('href="'.url('/sure/20-dakika').'"', false);
+    }
+
     private function kaydet(int $sayi): void
     {
         app(IntegrityReportLog::class)->record('media:gap-queue', 'gaps_found', $sayi, ['missing_media' => $sayi]);
     }
 
-    private function panel(): \Illuminate\Testing\TestResponse
+    private function panel(): TestResponse
     {
         Cache::flush();
 

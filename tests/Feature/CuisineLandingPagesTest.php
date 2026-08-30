@@ -161,7 +161,8 @@ final class CuisineLandingPagesTest extends TestCase
 
         $this->assertStringContainsString('"@type":"CollectionPage"', $icerik);
         $this->assertStringContainsString('"numberOfItems":4', $icerik);
-        $this->assertStringContainsString('"name":"Kıbrıs Mutfağı Tarifi 0"', $icerik);
+        $this->assertStringContainsString('"url":"'.route('recipes.show', $mutfak->recipes()->firstOrFail()).'"', $icerik);
+        $this->assertStringNotContainsString('"@type":"Recipe"', $this->collectionSchema($icerik));
     }
 
     private function mutfak(string $ad, string $slug, int $tarifAdedi): Cuisine
@@ -187,5 +188,12 @@ final class CuisineLandingPagesTest extends TestCase
             'published_at' => now(),
             'cuisine_id' => $mutfak->id,
         ]);
+    }
+
+    private function collectionSchema(string $icerik): string
+    {
+        preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $icerik, $eslesmeler);
+
+        return collect($eslesmeler[1] ?? [])->first(fn (string $json): bool => str_contains($json, 'CollectionPage'), '');
     }
 }

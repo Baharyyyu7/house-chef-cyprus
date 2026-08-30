@@ -24,6 +24,7 @@ final class IntegrityReportLog
         'search:recheck-zero-results' => ['baslik' => 'Karşılanmamış arama', 'birim' => 'karşılanmamış terim'],
         'content:link-integrity' => ['baslik' => 'Bağlantı bütünlüğü', 'birim' => 'kusurlu bağlantı'],
         'media:awaiting-approval' => ['baslik' => 'Onay bekleyen görsel', 'birim' => 'bitmiş ama görünmeyen'],
+        'db:schema-contract' => ['baslik' => 'Veritabanı sözleşmesi', 'birim' => 'kanıtlanmış taşma'],
     ];
 
     /** @param array<string, mixed> $payload */
@@ -90,7 +91,7 @@ final class IntegrityReportLog
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */
     private function ozet(array $payload): array

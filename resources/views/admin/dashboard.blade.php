@@ -143,6 +143,45 @@
                     </div>
                 </section>
 
+                <section class="hc-v3-card p-5 sm:p-6" aria-labelledby="zero-result-demand-heading">
+                    <p class="hc-kicker">TALEP SİNYALİ</p>
+                    <h2 id="zero-result-demand-heading" class="hc-heading-3 mt-1">Sonuçsuz arama talepleri</h2>
+                    <p class="hc-caption mt-1">Ziyaretçinin arayıp bulamadığı terimler ve sonradan karşılandıkları koleksiyon sayfaları.</p>
+                    <div class="mt-5 grid gap-6 lg:grid-cols-2">
+                        <div>
+                            <h3 class="hc-heading-4">Karşılanmamış</h3>
+                            @forelse ($zeroResultDemand['open'] as $search)
+                                <div class="mt-3 flex items-center justify-between gap-4 border-b pb-3" style="border-color:var(--hc-border-subtle)">
+                                    <span class="font-semibold">{{ $search['normalized_query'] }}</span>
+                                    <span class="hc-v3-badge hc-v3-badge--warning">{{ (int) $search['search_count'] }} arama</span>
+                                </div>
+                            @empty
+                                <p class="hc-caption mt-3">Açık sonuçsuz arama talebi yok.</p>
+                            @endforelse
+                        </div>
+                        <div>
+                            <h3 class="hc-heading-4">Karşılanmış</h3>
+                            @forelse ($zeroResultDemand['resolved'] as $search)
+                                @php
+                                    $hedef = str_starts_with((string) $search['suggested_action'], '/')
+                                        ? url($search['suggested_action'])
+                                        : null;
+                                @endphp
+                                <div class="mt-3 border-b pb-3" style="border-color:var(--hc-border-subtle)">
+                                    <p class="font-semibold">{{ $search['normalized_query'] }}</p>
+                                    @if ($hedef)
+                                        <a class="hc-caption font-bold" style="color:var(--hc-text-accent)" href="{{ $hedef }}">{{ $search['suggested_action'] }} →</a>
+                                    @else
+                                        <span class="hc-caption">Güvenli hedef kaydı yok</span>
+                                    @endif
+                                </div>
+                            @empty
+                                <p class="hc-caption mt-3">Henüz bir koleksiyon sayfasıyla karşılanan talep yok.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </section>
+
                 <details id="system-status" class="hc-admin-disclosure hc-v3-card">
                     <summary>
                         <span><p class="hc-kicker">OPERASYONEL SAĞLIK</p><h2 class="hc-heading-3 mt-1">Sistem durumu</h2><p class="hc-caption mt-1">Kritik çalışma sinyalleri ve bakım araçları.</p></span>

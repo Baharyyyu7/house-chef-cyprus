@@ -86,7 +86,7 @@ final class IngredientHubPagesTest extends TestCase
 
         $this->assertStringContainsString('"@type":"CollectionPage"', $icerik);
         $this->assertStringContainsString('"numberOfItems":5', $icerik);
-        $this->assertStringContainsString('"name":"Hellim Tarifi 0"', $icerik);
+        $this->assertStringNotContainsString('"@type":"Recipe"', $this->collectionSchema($icerik));
     }
 
     public function test_a_pantry_staple_never_gets_a_page_however_many_recipes_it_has(): void
@@ -149,5 +149,12 @@ final class IngredientHubPagesTest extends TestCase
         }
 
         return $malzeme;
+    }
+
+    private function collectionSchema(string $icerik): string
+    {
+        preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $icerik, $eslesmeler);
+
+        return collect($eslesmeler[1] ?? [])->first(fn (string $json): bool => str_contains($json, 'CollectionPage'), '');
     }
 }
