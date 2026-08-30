@@ -41,6 +41,7 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\InformationPageController;
 use App\Http\Controllers\IngredientExplorerController;
+use App\Http\Controllers\CuisineHubController;
 use App\Http\Controllers\IngredientHubController;
 use App\Http\Controllers\SchedulerTriggerController;
 use App\Http\Controllers\LegalInformationCenterController;
@@ -105,6 +106,10 @@ Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])-
 
 // Malzeme sayfaları: "Hellim ile ne yapılır?" Sayfa yalnız arkasında yeterli
 // tarif varsa açılır; eşiğin altındaki malzeme 404 verir.
+// Mutfak sayfalari: sitenin kendi arama kaydi "kibris mutfagi"ni 24 kez
+// olctu ama indekslenebilir tek bir mutfak sayfasi yoktu.
+Route::get('/mutfaklar', [CuisineHubController::class, 'index'])->name('cuisines.index');
+Route::get('/mutfaklar/{slug}', [CuisineHubController::class, 'show'])->name('cuisines.show');
 Route::get('/malzemeler', [IngredientHubController::class, 'index'])->name('ingredients.hub.index');
 Route::get('/malzemeler/{slug}', [IngredientHubController::class, 'show'])->name('ingredients.hub.show');Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
     ->name('recipes.show')
