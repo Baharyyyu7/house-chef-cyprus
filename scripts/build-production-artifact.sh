@@ -27,7 +27,12 @@ run() { if "$DRY_RUN"; then printf '[dry-run] '; printf '%q ' "$@"; printf '\n';
 surum_yollari=(artisan composer.json composer.lock app bootstrap config database public resources routes scripts storage lang)
 kirli="$(git -C "$ROOT" status --porcelain -- "${surum_yollari[@]}" | grep -v '^?? ' || true)"
 
-if [[ -n "$kirli" && "${ALLOW_DIRTY_BUILD:-0}" != "1" ]]; then
+# Kuru kosu hicbir sey uretmiyor, dolayisiyla kirli agac zararsiz: koruma
+# "commit edilmemis kod yayina gitmesin" icin var. Kontrolu kuru kosuda da
+# uygulamak, bu depoda surekli yanlis alarm demekti - uc ajan ayni agacta
+# calisiyor ve birinin commit etmemis dosyasi digerinin kuru kosusunu
+# dusuruyordu.
+if [[ -n "$kirli" && "$DRY_RUN" == "false" && "${ALLOW_DIRTY_BUILD:-0}" != "1" ]]; then
     printf 'HATA: calisma agacinda commit edilmemis surum dosyalari var.\n' >&2
     printf 'Artefakt calisma agacindan paketlenir; bunlar %s damgasiyla uretime giderdi.\n' "${COMMIT_SHA:0:7}" >&2
     printf '%s\n' "$kirli" >&2

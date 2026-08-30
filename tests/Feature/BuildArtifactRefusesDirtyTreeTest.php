@@ -49,6 +49,27 @@ final class BuildArtifactRefusesDirtyTreeTest extends TestCase
         }
     }
 
+    public function test_a_dry_run_is_not_blocked_by_a_dirty_tree(): void
+    {
+        // Kuru koşu hiçbir şey üretmiyor, dolayısıyla kirli ağaç zararsız.
+        // Kontrolü kuru koşuda da uygulamak bu depoda sürekli yanlış alarm
+        // demekti: üç ajan aynı ağaçta çalışıyor ve birinin commit etmediği
+        // dosya, diğerinin kuru koşusunu düşürüyordu.
+        $this->assertStringContainsString('"$DRY_RUN" == "false"', $this->kaynak());
+    }
+
+    public function test_the_dry_run_exemption_does_not_weaken_the_real_build(): void
+    {
+        // Muafiyet yalnız kuru koşuya ait: gerçek derleme hâlâ kirli ağacı
+        // reddetmeli, yoksa korumanın bir anlamı kalmaz.
+        $kaynak = $this->kaynak();
+
+        $this->assertMatchesRegularExpression(
+            '/if \[\[ -n "\$kirli" && "\$DRY_RUN" == "false" && "\$\{ALLOW_DIRTY_BUILD:-0\}" != "1" \]\]/',
+            $kaynak
+        );
+    }
+
     private function kaynak(): string
     {
         $yol = base_path(self::SCRIPT);
