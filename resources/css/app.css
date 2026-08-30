@@ -981,10 +981,14 @@ a.hc-nav-control { padding-inline: 1.1rem; }
 .hc-karusel__ok { display:grid; height:2.5rem; width:2.5rem; place-items:center; border:1px solid var(--hc-line); border-radius:9999px; background:var(--hc-surface); color:var(--hc-text-secondary); transition:transform .3s cubic-bezier(.34,1.4,.64,1), border-color .2s ease, color .2s ease; }
 .hc-karusel__ok:hover { border-color:var(--hc-brand-primary); color:var(--hc-brand-primary); }
 .hc-karusel__ok:active { transform:scale(.94); transition-duration:.09s; }
-.hc-karusel__noktalar { display:flex; align-items:center; gap:.4rem; }
-.hc-karusel__nokta { height:.375rem; width:.375rem; border-radius:9999px; background:color-mix(in srgb, var(--hc-text-primary) 22%, transparent); transition:width .3s cubic-bezier(.22,1,.36,1), background-color .2s ease; }
-.hc-karusel__nokta:hover { background:color-mix(in srgb, var(--hc-text-primary) 40%, transparent); }
-.hc-karusel__nokta.is-etkin { width:1.4rem; background:var(--hc-brand-primary); }
+.hc-karusel__noktalar { display:flex; align-items:center; gap:.125rem; }
+/* Nokta 6x6 pikseldi ve dokunma hedefi de o kadardi: telefonda basilamiyordu.
+   WCAG 2.5.8 asgari 24x24 istiyor. Gorsel nokta ayni kaliyor, buyuyen yalniz
+   dugmenin kendisi; nokta ::before ile ciziliyor. */
+.hc-karusel__nokta { display:grid; place-items:center; min-width:1.5rem; height:1.5rem; border-radius:9999px; background:none; }
+.hc-karusel__nokta::before { content:''; display:block; height:.375rem; width:.375rem; border-radius:9999px; background:color-mix(in srgb, var(--hc-text-primary) 22%, transparent); transition:width .3s cubic-bezier(.22,1,.36,1), background-color .2s ease; }
+.hc-karusel__nokta:hover::before { background:color-mix(in srgb, var(--hc-text-primary) 40%, transparent); }
+.hc-karusel__nokta.is-etkin::before { width:1.4rem; background:var(--hc-brand-primary); }
 
 /* Dar ekranda kart yörüngeden taşıyordu: yörünge yarıçapı JS'te viewport'a
    göre küçülüyor, kart genişliği de burada. */
@@ -998,7 +1002,7 @@ a.hc-nav-control { padding-inline: 1.1rem; }
 @media (prefers-reduced-motion: reduce) {
     .hc-karusel__yoruunge { position:static; height:auto; display:grid; gap:1rem; grid-template-columns:repeat(auto-fit, minmax(15rem, 1fr)); }
     .hc-karusel__kart { position:static; width:auto; height:auto; transform:none !important; opacity:1 !important; transition:none; }
-    .hc-karusel__kart, .hc-karusel__ok, .hc-karusel__nokta { transition:none; }
+    .hc-karusel__kart, .hc-karusel__ok, .hc-karusel__nokta::before { transition:none; }
 }
 
 /* Sosyal giriş. Ayraç metni çizginin üstüne oturur; iki ayrı çizgi çizmek

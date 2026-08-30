@@ -350,7 +350,12 @@
                     @endauth
                 </div>
                 <div class="flex items-center gap-2 xl:hidden">
-                    <x-locale-switcher />
+                    {{-- 375px'te logo + dil + tema + menu toplami 404px ediyordu:
+                         menu dugmesi ekranin disinda kaliyor ve sayfa yatay
+                         kaymadigi icin hata gorunmuyordu. Telefondan hicbir
+                         gezinme baglantisina ulasilamiyordu. Dar ekranda dil
+                         secici cubuktan cikip cekmeceye giriyor. --}}
+                    <div class="hidden sm:block"><x-locale-switcher /></div>
                     <x-theme-switch class="hc-nav-control" />
                     <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="Menüyü aç"><x-ui.icon name="menu" size="20" /></button>
                 </div>
@@ -386,6 +391,13 @@
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('login')]) href="{{ route('login') }}" @click="menuOpen = false" @if(request()->routeIs('login')) aria-current="page" @endif>Giriş Yap</a>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('register'), 'text-gold-700']) href="{{ route('register') }}" @click="menuOpen = false" @if(request()->routeIs('register')) aria-current="page" @endif>Üye Ol</a>
                     @endauth
+                </div>
+
+                {{-- Cubuktan cikan dil secicinin karsiligi: dar ekranda tek
+                     dil kontrolu burasi. --}}
+                <div class="mt-5 border-t pt-5 sm:hidden">
+                    <p class="hc-caption mb-3">Dil</p>
+                    <x-locale-switcher />
                 </div>
                 </div>
             </div>
