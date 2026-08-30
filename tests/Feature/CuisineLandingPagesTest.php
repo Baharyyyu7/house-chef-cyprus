@@ -121,6 +121,38 @@ final class CuisineLandingPagesTest extends TestCase
             ->assertDontSee(route('cuisines.show', 'yunan-mutfagi'), false);
     }
 
+    public function test_recipe_detail_links_to_the_cuisine_page_when_that_page_exists(): void
+    {
+        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+        $tarif = $mutfak->recipes()->firstOrFail();
+
+        $this->get(route('recipes.show', $tarif))
+            ->assertOk()
+            ->assertSee('<a href="'.route('cuisines.show', $mutfak->slug).'">Kıbrıs Mutfağı</a>', false);
+    }
+
+    public function test_recipe_detail_keeps_the_filter_link_when_the_cuisine_page_is_thin(): void
+    {
+        $mutfak = $this->mutfak('Yunan Mutfağı', 'yunan-mutfagi', 2);
+        $tarif = $mutfak->recipes()->firstOrFail();
+
+        $this->get(route('recipes.show', $tarif))
+            ->assertOk()
+            ->assertSee('<a href="'.route('recipes.index', ['cuisine' => $mutfak->slug]).'">Yunan Mutfağı</a>', false)
+            ->assertDontSee('<a href="'.route('cuisines.show', $mutfak->slug).'">', false);
+    }
+
+    public function test_recipe_breadcrumb_schema_routes_through_the_existing_cuisine_page(): void
+    {
+        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+        $tarif = $mutfak->recipes()->firstOrFail();
+        $icerik = (string) $this->get(route('recipes.show', $tarif))->assertOk()->getContent();
+
+        $this->assertStringContainsString('"position":2,"name":"Mutfaklar","item":"'.route('cuisines.index').'"', $icerik);
+        $this->assertStringContainsString('"position":3,"name":"Kıbrıs Mutfağı","item":"'.route('cuisines.show', $mutfak->slug).'"', $icerik);
+        $this->assertStringContainsString('"position":4,"name":"'.$tarif->title.'","item":"'.route('recipes.show', $tarif).'"', $icerik);
+    }
+
     private function mutfak(string $ad, string $slug, int $tarifAdedi): Cuisine
     {
         $mutfak = Cuisine::query()->create(['name' => $ad, 'slug' => $slug]);

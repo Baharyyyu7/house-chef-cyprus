@@ -38,7 +38,7 @@ final class SitemapController extends Controller
         // ayrışırsa sitemap 404 veren adresleri ilan eder ve tarama bütçesi
         // boşa gider.
         $urls = $urls->concat(
-            \App\Http\Controllers\IngredientHubController::sayfasiOlanlar()
+            IngredientHubController::sayfasiOlanlar()
                 ->map(fn ($malzeme): array => [
                     'loc' => route('ingredients.hub.show', $malzeme->slug),
                     'lastmod' => null,
@@ -47,9 +47,17 @@ final class SitemapController extends Controller
 
         // Mutfak sayfalari ayni esigi paylasiyor.
         $urls = $urls->concat(
-            \App\Http\Controllers\CuisineHubController::sayfasiOlanlar()
+            CuisineHubController::sayfasiOlanlar()
                 ->map(fn ($mutfak): array => [
                     'loc' => route('cuisines.show', $mutfak->slug),
+                    'lastmod' => null,
+                ])
+        );
+
+        $urls = $urls->concat(
+            RecipeCollectionLandingController::sayfasiOlanlar()
+                ->map(fn (array $koleksiyon): array => [
+                    'loc' => $koleksiyon['url'],
                     'lastmod' => null,
                 ])
         );

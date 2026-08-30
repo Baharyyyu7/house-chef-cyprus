@@ -21,7 +21,7 @@
         <div class="hc-container grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_19rem] lg:py-20">
             <div class="max-w-3xl">
                 <a class="hc-v3-btn hc-v3-btn--ghost -ml-3 text-white hover:bg-white/10" href="{{ route('recipes.index') }}"><span aria-hidden="true">←</span> Tarif koleksiyonuna dön</a>
-                <p class="hc-overline mt-8 text-orange-300">{{ $recipe->cuisine?->name ?? 'Ev mutfağı' }} <span aria-hidden="true">/</span> {{ $recipe->region ?: ($recipe->category?->name ?? 'Tarif') }}</p>
+                <p class="hc-overline mt-8 text-orange-300">@if($recipe->cuisine && $cuisineUrl)<a href="{{ $cuisineUrl }}">{{ $recipe->cuisine->name }}</a>@else Ev mutfağı @endif <span aria-hidden="true">/</span> {{ $recipe->region ?: ($recipe->category?->name ?? 'Tarif') }}</p>
                 <h1 class="hc-display-xl mt-4 max-w-3xl">{{ $recipe->title }}</h1>
                 <p class="hc-body-lg mt-5 max-w-2xl text-stone-200">{{ $recipe->excerpt }}</p>
                 <div class="mt-7 flex flex-wrap gap-2">@foreach([['Hazırlık', $recipe->prep_minutes.' dk'], ['Pişirme', $recipe->cook_minutes.' dk'], ['Toplam', $recipe->totalMinutes().' dk'], ['Porsiyon', $recipe->servings], ['Zorluk', $recipe->zorlukEtiketi()]] as [$label, $value])<span class="hc-v3-badge border-white/20 bg-white/10 text-white backdrop-blur"><strong class="text-orange-200">{{ $label }}</strong> {{ $value }}</span>@endforeach</div>
@@ -128,7 +128,7 @@
             <section class="mt-8 rounded-[1.5rem] bg-charcoal-950 p-5 text-white sm:p-7"><p class="hc-overline text-orange-300">Pişirme rehberi</p><h2 class="hc-heading-3 mt-2">Tarif notları</h2><p class="mt-2 text-sm leading-6 text-stone-300">Bu tarifin püf noktalarını, sürelerini ve alerjen bilgilerini birlikte değerlendirin. Sağlık ve alerji kararları için profesyonel desteğin yerini tutmaz.</p><a class="hc-v3-btn hc-v3-btn--primary mt-5" href="#tips">Püf noktalarına git</a></section>
 
             @if($relatedRecipes->isNotEmpty())
-                <section class="mt-12"><div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">Bir sonraki tarifiniz</p><h2 class="hc-display-lg mt-2">Benzer tarifler</h2></div><a class="hc-v3-btn hc-v3-btn--ghost" href="{{ route('recipes.index', ['cuisine' => $recipe->cuisine?->slug]) }}">Tümünü gör <span aria-hidden="true">→</span></a></div><div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">@foreach($relatedRecipes as $relatedRecipe)<x-recipe-card-v3 :recipe="$relatedRecipe" :show-favorite="false" />@endforeach</div></section>
+                <section class="mt-12"><div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">Bir sonraki tarifiniz</p><h2 class="hc-display-lg mt-2">Benzer tarifler</h2></div><a class="hc-v3-btn hc-v3-btn--ghost" href="{{ $cuisineUrl ?: route('recipes.index') }}">Tümünü gör <span aria-hidden="true">→</span></a></div><div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">@foreach($relatedRecipes as $relatedRecipe)<x-recipe-card-v3 :recipe="$relatedRecipe" :show-favorite="false" />@endforeach</div></section>
             @endif
             {{-- Multiplex birimi içerik önerisi ızgarası; yazının sonunda,
                  benzer tariflerin ardında duruyor. --}}

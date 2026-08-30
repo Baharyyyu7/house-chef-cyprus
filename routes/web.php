@@ -37,20 +37,21 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BlogCoverController;
 use App\Http\Controllers\ContactRequestController;
 use App\Http\Controllers\CookingSessionController;
+use App\Http\Controllers\CuisineHubController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\InformationPageController;
 use App\Http\Controllers\IngredientExplorerController;
-use App\Http\Controllers\CuisineHubController;
 use App\Http\Controllers\IngredientHubController;
-use App\Http\Controllers\SchedulerTriggerController;
 use App\Http\Controllers\LegalInformationCenterController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PantryController;
 use App\Http\Controllers\PersonalizationController;
 use App\Http\Controllers\PolicyPageController;
 use App\Http\Controllers\RecipeCollectionController;
+use App\Http\Controllers\RecipeCollectionLandingController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\SchedulerTriggerController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubscriptionController;
@@ -110,8 +111,11 @@ Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])-
 // olctu ama indekslenebilir tek bir mutfak sayfasi yoktu.
 Route::get('/mutfaklar', [CuisineHubController::class, 'index'])->name('cuisines.index');
 Route::get('/mutfaklar/{slug}', [CuisineHubController::class, 'show'])->name('cuisines.show');
+Route::get('/sure/{slug}', [RecipeCollectionLandingController::class, 'sure'])->name('collections.sure');
+Route::get('/zorluk/{slug}', [RecipeCollectionLandingController::class, 'zorluk'])->name('collections.zorluk');
 Route::get('/malzemeler', [IngredientHubController::class, 'index'])->name('ingredients.hub.index');
-Route::get('/malzemeler/{slug}', [IngredientHubController::class, 'show'])->name('ingredients.hub.show');Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
+Route::get('/malzemeler/{slug}', [IngredientHubController::class, 'show'])->name('ingredients.hub.show');
+Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
     ->name('recipes.show')
     // Tarif slug'ları rastgele bir sonek taşıyor ("adana-kebabi-MT5XA") ve tek
     // bir toplu içerik çalışması 678 tarifin 628'inin sonekini değiştirebiliyor.

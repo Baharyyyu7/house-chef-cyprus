@@ -11,7 +11,7 @@ use App\Models\Recipe;
 final class SeoSchemaService
 {
     /** @return array<string,mixed> */
-    public function recipe(Recipe $recipe, array $ingredients, string $imageUrl = ''): array
+    public function recipe(Recipe $recipe, array $ingredients, string $imageUrl = '', ?string $cuisineUrl = null): array
     {
         $recipeNode = [
             '@type' => 'Recipe', 'name' => $recipe->title,
@@ -40,11 +40,16 @@ final class SeoSchemaService
             $recipeNode['image'] = [$imageUrl];
         }
 
-        return $this->graph($recipeNode, [
-            ['name' => 'Ana Sayfa', 'url' => route('home')],
-            ['name' => 'Tarifler', 'url' => route('recipes.index')],
-            ['name' => $recipe->title, 'url' => route('recipes.show', $recipe)],
-        ]);
+        $crumbs = [['name' => 'Ana Sayfa', 'url' => route('home')]];
+        if ($recipe->cuisine !== null && $cuisineUrl !== null) {
+            $crumbs[] = ['name' => 'Mutfaklar', 'url' => route('cuisines.index')];
+            $crumbs[] = ['name' => $recipe->cuisine->name, 'url' => $cuisineUrl];
+        } else {
+            $crumbs[] = ['name' => 'Tarifler', 'url' => route('recipes.index')];
+        }
+        $crumbs[] = ['name' => $recipe->title, 'url' => route('recipes.show', $recipe)];
+
+        return $this->graph($recipeNode, $crumbs);
     }
 
     /** @return array<string,mixed> */

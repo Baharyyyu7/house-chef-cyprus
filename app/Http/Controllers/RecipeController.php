@@ -104,9 +104,20 @@ final class RecipeController extends Controller
         $heroMedia = $mediaEligibility->firstEligible($recipe->media);
         $sosyalGorsel = $heroMedia?->socialImage();
 
+        $cuisineUrl = null;
+        if ($recipe->cuisine !== null) {
+            $dogrulanmisTarifSayisi = $recipe->cuisine->recipes()
+                ->where('status', 'published')
+                ->where('verification_status', 'verified')
+                ->count();
+            $cuisineUrl = CuisineHubController::sayfasiVar($dogrulanmisTarifSayisi)
+                ? route('cuisines.show', $recipe->cuisine->slug)
+                : route('recipes.index', ['cuisine' => $recipe->cuisine->slug]);
+        }
+
         // Şema görseli de paylaşım varyantını kullanır; Google zengin sonuç
         // için bu adresi okuyor ve ham kaynak bir tarifte 2,77 MB'tı.
-        $schema = $schemaService->recipe($recipe, collect($ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings))->pluck('formatted')->values()->all(), $sosyalGorsel['url'] ?? '');
+        $schema = $schemaService->recipe($recipe, collect($ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings))->pluck('formatted')->values()->all(), $sosyalGorsel['url'] ?? '', $cuisineUrl);
 
         return view('recipes.show', [
             'recipe' => $recipe,
@@ -139,6 +150,7 @@ final class RecipeController extends Controller
             'seoImageWidth' => $sosyalGorsel['width'] ?? null,
             'seoImageHeight' => $sosyalGorsel['height'] ?? null,
             'seoImageAlt' => $heroMedia?->alt_text,
+            'cuisineUrl' => $cuisineUrl,
         ]);
     }
 }
