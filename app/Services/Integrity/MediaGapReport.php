@@ -43,8 +43,28 @@ final class MediaGapReport
             'checked_at' => now()->toIso8601String(),
             'published_recipes' => Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->count(),
             'missing_media' => $eksikler->count(),
+            // Bitmiş ama görünmeyen görseller. Üretim kapısı insan onayı
+            // istiyor ve istemekte haklı; ama onay verilmediği sürece
+            // tamamlanan görsel hiçbir yerde görünmüyordu - ne sitede ne
+            // panelde. 26 tamamlanmış görsel böyle bekliyordu.
+            'awaiting_approval' => $this->onayBekleyen(),
             'queue' => $siralı->take(max(1, $limit))->all(),
         ];
+    }
+
+    /**
+     * İçe aktarılmış, doğrulanmış, ama insan onayı beklediği için yayında
+     * görünmeyen görsel sayısı.
+     */
+    private function onayBekleyen(): int
+    {
+        $kapi = app(\App\Services\Media\PublicMediaEligibilityService::class);
+
+        return \App\Models\Media::query()
+            ->where('media_status', 'approved_real_media')
+            ->get()
+            ->filter(fn ($medya): bool => $kapi->reason($medya) === 'human_approval_missing')
+            ->count();
     }
 
     /** @return Collection<int, Recipe> */

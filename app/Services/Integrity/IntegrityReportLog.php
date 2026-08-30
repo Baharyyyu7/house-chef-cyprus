@@ -23,6 +23,7 @@ final class IntegrityReportLog
         'content:translation-readiness' => ['baslik' => 'Çeviri hazırlığı', 'birim' => 'engelli tarif'],
         'search:recheck-zero-results' => ['baslik' => 'Karşılanmamış arama', 'birim' => 'karşılanmamış terim'],
         'content:link-integrity' => ['baslik' => 'Bağlantı bütünlüğü', 'birim' => 'kusurlu bağlantı'],
+        'media:awaiting-approval' => ['baslik' => 'Onay bekleyen görsel', 'birim' => 'bitmiş ama görünmeyen'],
     ];
 
     /** @param array<string, mixed> $payload */

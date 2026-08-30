@@ -28,6 +28,11 @@ final class MediaGapQueue extends Command
         // konduğunda sitenin iyileşip iyileşmediğini gösteriyor.
         $gunluk->record('media:gap-queue', (string) $sonuc['status'], isset($sonuc['missing_media']) ? (int) $sonuc['missing_media'] : null, $sonuc);
 
+        // Bitmiş ama onay bekleyen görseller ayrı bir gösterge: eksik görselle
+        // aynı şey değil, çözümü de aynı değil. Biri üretim, diğeri onay.
+        $bekleyen = (int) ($sonuc['awaiting_approval'] ?? 0);
+        $gunluk->record('media:awaiting-approval', $bekleyen === 0 ? 'clear' : 'waiting', $bekleyen, ['awaiting_approval' => $bekleyen]);
+
         if ($this->option('json')) {
             $this->line((string) json_encode($sonuc, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 

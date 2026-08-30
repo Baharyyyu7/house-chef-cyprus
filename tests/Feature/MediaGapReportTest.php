@@ -113,6 +113,43 @@ final class MediaGapReportTest extends TestCase
         $this->assertSame(0, $this->rapor()['missing_media']);
     }
 
+    public function test_a_finished_image_waiting_for_human_approval_is_counted(): void
+    {
+        // Bitmiş ama görünmeyen görsel, eksik görselle aynı şey değil:
+        // birinin çözümü üretim, diğerininki onay. Üretimde 26 tamamlanmış
+        // görsel insan onayı beklerken bu hiçbir yerde görünmüyordu.
+        // Kurgu üretimdeki durumu birebir taklit ediyor: görsel içeri alınmış,
+        // kimlik eşleşmesi doğrulanmış; eksik olan tek şey insan onayı.
+        $tarif = $this->tarif('Onay Bekleyen');
+        $tarif->media()->create([
+            'kind' => 'recipe_synthetic',
+            'disk' => 'public',
+            'path' => 'media/approved-synthetic/recipe/ONAY/source.jpg',
+            'mime_type' => 'image/jpeg',
+            'visibility' => 'public',
+            'media_status' => 'approved_real_media',
+            'verification_status' => 'verified',
+            'fidelity_status' => 'strong_match',
+            'fidelity_confidence' => 100,
+            'license_review_status' => 'approved',
+            'attribution_review_status' => 'approved',
+            'is_placeholder' => false,
+        ]);
+
+        $this->assertSame(1, $this->rapor()['awaiting_approval']);
+    }
+
+    public function test_a_recipe_with_no_media_is_not_counted_as_awaiting_approval(): void
+    {
+        // İki gösterge karışmamalı.
+        $this->tarif('Görselsiz Tarif');
+
+        $rapor = $this->rapor();
+
+        $this->assertSame(1, $rapor['missing_media']);
+        $this->assertSame(0, $rapor['awaiting_approval']);
+    }
+
     /** @return array<string, mixed> */
     private function rapor(int $limit = 25): array
     {
