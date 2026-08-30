@@ -10,7 +10,7 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     :root {
         --hc-background-page:#fff8f0; --hc-background-subtle:#fdf1e6; --hc-background-muted:#f5ede5; --hc-background-inverse:#171717;
         --hc-surface-default:#fffdfc; --hc-surface-raised:#fff; --hc-surface-overlay:rgba(255,253,252,.96); --hc-surface-interactive:#fff4ed; --hc-surface-selected:#ffead9;
-        --hc-text-primary:#171717; --hc-text-secondary:#62564f; --hc-text-muted:#7b6e65; --hc-text-inverse:#fff8f0; --hc-text-accent:#c2410c; --hc-text-danger:#b42318; --hc-text-warning:#9a6700; --hc-text-success:#087443; --hc-text-info:#175cd3;
+        --hc-text-primary:#171717; --hc-text-secondary:#62564f; --hc-text-muted:#71645b; --hc-text-inverse:#fff8f0; --hc-text-accent:#c2410c; --hc-text-danger:#b42318; --hc-text-warning:#9a6700; --hc-text-success:#087443; --hc-text-info:#175cd3;
         --hc-border-subtle:#f1e8e0; --hc-border-default:#e8d8ca; --hc-border-strong:#c7b5a5; --hc-border-focus:#f97316; --hc-border-danger:#fda29b; --hc-border-warning:#fec84b;
         --hc-brand-primary:#ff6b00; --hc-brand-hover:#e85e00; --hc-brand-active:#c74c00; --hc-brand-soft:#ffead9; --hc-brand-contrast:#fff8f0;
         --hc-status-success:#087443; --hc-status-warning:#b54708; --hc-status-danger:#b42318; --hc-status-info:#175cd3; --hc-status-neutral:#62564f; --hc-chart-1:#f97316; --hc-chart-2:#b54708; --hc-chart-3:#175cd3; --hc-chart-4:#7f56d9; --hc-chart-5:#087443; --hc-chart-surface:#fffdfc;
@@ -215,7 +215,11 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
 .hc-world-map__ulkeler path { fill:color-mix(in srgb, var(--hc-text-primary) 9%, transparent); stroke:color-mix(in srgb, var(--hc-text-primary) 16%, transparent); stroke-width:.5; }
 /* Ziyaret gelen ülke kendi alanıyla boyanır; yoğunluk opaklıkla verilir. */
 .hc-world-map__ulke-aktif { fill:var(--hc-brand-primary); stroke:var(--hc-brand-primary); stroke-width:.6; cursor:pointer; transition:filter .18s ease; }
-.hc-world-map__ulke-aktif:hover, .hc-world-map__ulke-aktif:focus-visible { filter:brightness(1.15); outline:none; }
+.hc-world-map__ulke-aktif:hover { filter:brightness(1.15); }
+/* outline:none konmus ama yerine bir sey konmamisti: klavyeyle gezen
+   kullanici icin odak gostergesi yoktu. Parlaklik degisimi tek basina
+   gosterge sayilmaz - fare kullanicisiyla ayni gorunum. */
+.hc-world-map__ulke-aktif:focus-visible { filter:brightness(1.2); outline:2px solid var(--hc-brand-primary); outline-offset:2px; }
 .hc-world-map__veri { pointer-events:auto; }
 /* Nabız ve nokta işaretleri ülkelerin üstünde duruyor ve fareyi yakalıyordu:
    ülkenin üzerine gelindiğinde ipucu açılmıyordu. Onlar süs, tıklanmazlar. */
