@@ -273,6 +273,14 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
 
 /* Dark admin surfaces inherit one semantic palette, including dense legacy tables and form controls. */
 html.dark .admin-shell { --hc-background-page:#101114; --hc-background-subtle:#191b20; --hc-background-muted:#24262c; --hc-surface-default:#17191d; --hc-surface-raised:#1d2026; --hc-surface-interactive:#292d35; --hc-surface-selected:#332d26; --hc-text-primary:#fffaf5; --hc-text-secondary:#e4ddd6; --hc-text-muted:#c6bdb5; --hc-border-subtle:#30333a; --hc-border-default:#474b54; --hc-border-strong:#6c717b; }
+/* gold-700 (#c2410c) koyu zeminde 3.80:1 kaliyor; WCAG AA gövde metni icin
+   4.5:1 istiyor. Marka vurgusu olarak 17 ayri yerde link rengi olarak
+   kullaniliyordu - herkese açik kayit, sifre sifirlama ve e-posta dogrulama
+   sayfalari dahil. Her cagri yerine ayri `dark:` sinifi eklemek hem churn hem
+   de bir sonraki yeni sayfada yine unutulacak bir is; kural tek yerde duruyor.
+   gold-400 ayni zeminde 8.69:1. */
+html.dark .text-gold-700 { color:#fb923c; }
+
 html.dark .admin-shell .text-muted, html.dark .admin-shell .hc-caption { color:var(--hc-text-muted) !important; }
 html.dark .admin-shell input, html.dark .admin-shell select, html.dark .admin-shell textarea { background:var(--hc-surface-default); color:var(--hc-text-primary); border-color:var(--hc-border-default); }
 html.dark .admin-shell input::placeholder, html.dark .admin-shell textarea::placeholder { color:var(--hc-text-muted); }
