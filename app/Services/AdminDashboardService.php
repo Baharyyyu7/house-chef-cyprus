@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Services\Integrity\IntegrityReportLog;
 use App\Models\AudienceCountryDay;
 use App\Models\AuditLog;
 use App\Models\BlogPost;
@@ -262,6 +263,7 @@ final class AdminDashboardService
         private readonly SchedulerHealthService $scheduler,
         private readonly BackupService $backups,
         private readonly ProductionOperationsService $productionOperations,
+        private readonly IntegrityReportLog $integrityLog,
     ) {}
 
     /** @return array<string, mixed> */
@@ -324,6 +326,9 @@ final class AdminDashboardService
                     'communication' => $communicationOperations,
                     'restore' => $this->restoreOperations(),
                 ],
+                // Otonom denetimlerin koşu geçmişi: sayı tek başına değil,
+                // bir önceki koşuyla farkıyla gösteriliyor.
+                'integrity' => $this->integrityLog->summary(),
                 'system' => [
                     'health' => $health,
                     'queue' => $queue,

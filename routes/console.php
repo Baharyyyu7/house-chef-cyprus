@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Integrity\IntegrityReportLog;
 use App\Services\HealthService;
 use App\Services\SchedulerHealthService;
 use Illuminate\Foundation\Inspiring;
@@ -69,6 +70,10 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_gap_queue
 // içerik yüzünden ceza yedi. Bu görev hangi tarifin çevrilmeye hazır
 // olduğunu ve baskın engelin ne olduğunu ölçüyor.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('translation_readiness', fn () => Artisan::call('content:translation-readiness')))->name('translation_readiness')->dailyAt('01:17')->withoutOverlapping();
+
+// Koşu geçmişi trend için tutuluyor, arşiv için değil: üç aylık pencere
+// panelin gösterdiği her şeyi karşılıyor.
+Schedule::call(fn () => app(IntegrityReportLog::class)->prune(90))->name('integrity_report_prune')->weeklyOn(1, '02:10')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_audit', fn () => Artisan::call('seo:audit')))->name('seo_audit')->dailyAt('01:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_sitemap_audit', fn () => Artisan::call('seo:sitemap-audit')))->name('seo_sitemap_audit')->dailyAt('01:25')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_opportunities', fn () => Artisan::call('seo:content-opportunities')))->name('seo_content_opportunities')->dailyAt('01:43')->withoutOverlapping();

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Services\Integrity\AssetDeliveryProbe;
+use App\Services\Integrity\IntegrityReportLog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
@@ -21,7 +22,7 @@ final class AssetDeliveryCheck extends Command
 
     protected $description = 'Yayındaki varlıkların içerik türünü denetler; uzantı tanınmazsa tarayıcı görseli çözümleyemez.';
 
-    public function handle(AssetDeliveryProbe $probe): int
+    public function handle(AssetDeliveryProbe $probe, IntegrityReportLog $gunluk): int
     {
         $adresler = [];
 
@@ -33,12 +34,12 @@ final class AssetDeliveryCheck extends Command
 
         if ($adresler === []) {
             // Sayfa çekilemediyse "her şey yolunda" demek yanlış olur.
-            $this->cikti(['status' => 'failed', 'checked' => 0, 'failed' => 0, 'reason' => 'NO_ASSETS_DISCOVERED', 'results' => []]);
+            $this->raporla($gunluk, ['status' => 'failed', 'checked' => 0, 'failed' => 0, 'reason' => 'NO_ASSETS_DISCOVERED', 'results' => []]);
 
             return self::SUCCESS;
         }
 
-        $this->cikti($probe->probe($adresler));
+        $this->raporla($gunluk, $probe->probe($adresler));
 
         return self::SUCCESS;
     }
@@ -53,6 +54,16 @@ final class AssetDeliveryCheck extends Command
         }
 
         return $cevap->successful() ? $probe->adresler($cevap->body(), rtrim(config('app.url'), '/')) : [];
+    }
+
+    /** @param array<string, mixed> $rapor */
+    private function raporla(IntegrityReportLog $gunluk, array $rapor): void
+    {
+        // Koşu kaydediliyor: tek bir sayı ancak bir öncekiyle yan yana
+        // konduğunda sitenin iyileşip iyileşmediğini gösteriyor.
+        $gunluk->record('assets:delivery-check', (string) $rapor['status'], (int) $rapor['failed'], $rapor);
+
+        $this->cikti($rapor);
     }
 
     /** @param array<string, mixed> $rapor */

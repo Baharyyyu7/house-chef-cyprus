@@ -106,6 +106,43 @@
                     @endforeach
                 </div>
 
+                {{-- Otonom denetimler her gece koşuyor. Sayilar tek basina
+                     bilgi tasimiyor; bir onceki kosuyla farki tasiyor. --}}
+                <section class="hc-v3-card mt-6 p-5" aria-labelledby="otonom-denetim-baslik">
+                    <p class="hc-kicker">OTONOM DENETİMLER</p>
+                    <h2 id="otonom-denetim-baslik" class="hc-heading-3 mt-1">Sitenin kendini denetlemesi</h2>
+                    <p class="hc-caption mt-1">Her gece koşuyor. Ok, bir önceki koşuya göre değişimi gösteriyor; dördünde de az iyidir.</p>
+
+                    <div class="hc-admin-system-grid mt-5">
+                        @foreach ($integrity as $denetim)
+                            <div class="hc-admin-system-card">
+                                <span>{{ $denetim['baslik'] }}</span>
+
+                                @if ($denetim['durum'] === 'hic_kosmadi')
+                                    {{-- Hic bakilmamis bir denetimi "sorun yok" diye
+                                         gostermek yanlis olur. --}}
+                                    <strong>Henüz koşmadı</strong>
+                                    <small>İlk koşusunu bekliyor</small>
+                                @else
+                                    <strong>{{ $denetim['sayi'] === null ? '—' : $denetim['sayi'] }} {{ $denetim['birim'] }}</strong>
+                                    <small>
+                                        @if ($denetim['fark'] === null)
+                                            İlk koşu · karşılaştırılacak önceki koşu yok
+                                        @elseif ($denetim['fark'] < 0)
+                                            ▼ {{ abs($denetim['fark']) }} azaldı
+                                        @elseif ($denetim['fark'] > 0)
+                                            ▲ {{ $denetim['fark'] }} arttı
+                                        @else
+                                            Değişmedi
+                                        @endif
+                                        · {{ \Illuminate\Support\Carbon::parse($denetim['kosma_zamani'])->diffForHumans() }}
+                                    </small>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+
                 <details id="system-status" class="hc-admin-disclosure hc-v3-card">
                     <summary>
                         <span><p class="hc-kicker">OPERASYONEL SAĞLIK</p><h2 class="hc-heading-3 mt-1">Sistem durumu</h2><p class="hc-caption mt-1">Kritik çalışma sinyalleri ve bakım araçları.</p></span>

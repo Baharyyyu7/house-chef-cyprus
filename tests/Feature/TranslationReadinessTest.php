@@ -90,6 +90,22 @@ final class TranslationReadinessTest extends TestCase
         $this->assertSame(1, $engeller['aciklama_ince']);
     }
 
+    public function test_the_report_states_its_own_status(): void
+    {
+        // Koşu geçmişi dört muhafızı da aynı biçimde kaydediyor; bunun için
+        // her raporun durumunu kendisinin söylemesi gerekiyor.
+        $this->tarif('Engelli', gorsel: false);
+
+        $this->assertSame('blocked', $this->rapor()['status']);
+    }
+
+    public function test_a_fully_ready_catalogue_reports_ready(): void
+    {
+        $this->tarif('Hazır', gorsel: true);
+
+        $this->assertSame('ready', $this->rapor()['status']);
+    }
+
     /** @return array<string, mixed> */
     private function rapor(): array
     {

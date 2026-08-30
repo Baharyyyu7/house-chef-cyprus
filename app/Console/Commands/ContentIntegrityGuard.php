@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Services\Integrity\PublishedContentGuard;
+use App\Services\Integrity\IntegrityReportLog;
 use Illuminate\Console\Command;
 
 /**
@@ -20,9 +21,13 @@ final class ContentIntegrityGuard extends Command
 
     protected $description = 'Yayındaki tarif ve blog içeriğini bilinen bozulma desenlerine karşı tarar.';
 
-    public function handle(PublishedContentGuard $guard): int
+    public function handle(PublishedContentGuard $guard, IntegrityReportLog $gunluk): int
     {
         $rapor = $guard->scan((bool) $this->option('enforce'));
+
+        // Koşu kaydediliyor: tek bir sayı ancak bir öncekiyle yan yana
+        // konduğunda sitenin iyileşip iyileşmediğini gösteriyor.
+        $gunluk->record('content:integrity-guard', (string) $rapor['status'], isset($rapor['total']) ? (int) $rapor['total'] : null, $rapor);
 
         if ($this->option('json')) {
             $this->line((string) json_encode($rapor, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));

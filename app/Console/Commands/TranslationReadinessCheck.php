@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Services\Integrity\TranslationReadiness;
+use App\Services\Integrity\IntegrityReportLog;
 use Illuminate\Console\Command;
 
 /**
@@ -19,9 +20,13 @@ final class TranslationReadinessCheck extends Command
 
     protected $description = 'Çeviriye hazır tarifleri ve hazır olmayanların engellerini listeler.';
 
-    public function handle(TranslationReadiness $servis): int
+    public function handle(TranslationReadiness $servis, IntegrityReportLog $gunluk): int
     {
         $rapor = $servis->report((int) $this->option('limit'));
+
+        // Koşu kaydediliyor: tek bir sayı ancak bir öncekiyle yan yana
+        // konduğunda sitenin iyileşip iyileşmediğini gösteriyor.
+        $gunluk->record('content:translation-readiness', (string) $rapor['status'], isset($rapor['blocked']) ? (int) $rapor['blocked'] : null, $rapor);
 
         if ($this->option('json')) {
             $this->line((string) json_encode($rapor, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));

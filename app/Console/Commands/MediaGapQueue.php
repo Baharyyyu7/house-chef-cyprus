@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Services\Integrity\MediaGapReport;
+use App\Services\Integrity\IntegrityReportLog;
 use Illuminate\Console\Command;
 
 /**
@@ -19,9 +20,13 @@ final class MediaGapQueue extends Command
 
     protected $description = 'Onaylı görseli olmayan yayındaki tarifleri öncelik sırasıyla listeler.';
 
-    public function handle(MediaGapReport $rapor): int
+    public function handle(MediaGapReport $rapor, IntegrityReportLog $gunluk): int
     {
         $sonuc = $rapor->build((int) $this->option('limit'));
+
+        // Koşu kaydediliyor: tek bir sayı ancak bir öncekiyle yan yana
+        // konduğunda sitenin iyileşip iyileşmediğini gösteriyor.
+        $gunluk->record('media:gap-queue', (string) $sonuc['status'], isset($sonuc['missing_media']) ? (int) $sonuc['missing_media'] : null, $sonuc);
 
         if ($this->option('json')) {
             $this->line((string) json_encode($sonuc, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));

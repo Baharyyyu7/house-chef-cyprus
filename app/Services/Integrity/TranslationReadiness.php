@@ -36,6 +36,9 @@ final class TranslationReadiness
         $engelli = $yayindakiler->reject(fn (Recipe $t): bool => $this->engeller($t) === []);
 
         return [
+            // Diğer muhafızlarla aynı sözleşme: her rapor durumunu söyler,
+            // böylece koşu geçmişi hepsini aynı biçimde kaydedebiliyor.
+            'status' => $engelli->isEmpty() ? 'ready' : 'blocked',
             'checked_at' => now()->toIso8601String(),
             'published' => $yayindakiler->count(),
             'ready' => $hazir->count(),
