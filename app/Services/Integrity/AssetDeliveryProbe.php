@@ -36,6 +36,43 @@ final class AssetDeliveryProbe
         'woff2' => 'font/woff2',
     ];
 
+    /**
+     * Sayfanın gerçekten istediği varlık adreslerini HTML'den çıkarır.
+     *
+     * Adres listesini elle tutmak bir kez yanlış ölçüme yol açtı: şablon
+     * hero AVIF'lerini `?v=2` ile istiyordu, prob çıplak adresi ölçüyordu
+     * ve kimsenin talep etmediği bayat bir kenar kopyasını hata sandı.
+     * Ziyaretçinin aldığı yanıtı ölçmek istiyorsak adres de ziyaretçinin
+     * istediği adres olmalı - o yüzden tek kaynak sayfanın kendisi.
+     *
+     * @return list<string>
+     */
+    public function adresler(string $html, string $taban): array
+    {
+        $bulunan = [];
+
+        // srcset virgülle ayrılır ve her aday "url 900w" biçimindedir.
+        preg_match_all('#(?:src|srcset)="([^"]+)"#i', $html, $eslesme);
+
+        foreach ($eslesme[1] as $oznitelik) {
+            foreach (explode(',', $oznitelik) as $aday) {
+                $adres = trim(explode(' ', trim($aday))[0]);
+
+                if ($adres === '' || ! str_starts_with($adres, $taban)) {
+                    continue;
+                }
+
+                $uzanti = strtolower(pathinfo(parse_url($adres, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION));
+
+                if (isset(self::BEKLENEN[$uzanti])) {
+                    $bulunan[$adres] = true;
+                }
+            }
+        }
+
+        return array_keys($bulunan);
+    }
+
     /** @param list<string> $adresler @return array<string, mixed> */
     public function probe(array $adresler): array
     {

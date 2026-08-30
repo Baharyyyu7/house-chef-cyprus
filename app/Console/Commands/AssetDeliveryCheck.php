@@ -4,90 +4,79 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Models\Media;
 use App\Services\Integrity\AssetDeliveryProbe;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 
 /**
  * Yayındaki varlıkların tarayıcıya doğru içerik türüyle ulaştığını denetler.
  *
- * Örneklem sabit değil: hero dosyaları her zaman, ayrıca yayındaki
- * medyadan birkaç gerçek varyant. Böylece yeni yüklenen görseller de
- * kapsama giriyor.
+ * Örneklem sayfanın kendisinden geliyor: ziyaretçinin gördüğü sayfa
+ * çekiliyor ve istediği varlık adresleri oradan çıkarılıyor. Elle tutulan
+ * bir liste şablondan kayıyor ve kimsenin talep etmediği adresi ölçüyor.
  */
 final class AssetDeliveryCheck extends Command
 {
-    protected $signature = 'assets:delivery-check {--limit=6 : Medya varyantı örneklem sayısı} {--json : Makine okunabilir çıktı}';
+    protected $signature = 'assets:delivery-check {--limit=14 : Denetlenecek en fazla varlık sayısı} {--json : Makine okunabilir çıktı}';
 
     protected $description = 'Yayındaki varlıkların içerik türünü denetler; uzantı tanınmazsa tarayıcı görseli çözümleyemez.';
 
     public function handle(AssetDeliveryProbe $probe): int
     {
-        $adresler = $this->heroDosyalari();
+        $adresler = [];
 
-        foreach ($this->medyaOrneklemi((int) $this->option('limit')) as $adres) {
-            $adresler[] = $adres;
+        foreach ([route('home'), route('recipes.index')] as $sayfa) {
+            $adresler = [...$adresler, ...$this->sayfadanAdresler($probe, $sayfa)];
         }
 
-        $rapor = $probe->probe(array_values(array_unique($adresler)));
+        $adresler = array_slice(array_values(array_unique($adresler)), 0, max(1, (int) $this->option('limit')));
 
-        if ($this->option('json')) {
-            $this->line((string) json_encode($rapor, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-        } elseif ($rapor['failed'] === 0) {
-            $this->info("{$rapor['checked']} varlık doğru içerik türüyle servis ediliyor.");
-        } else {
-            $this->warn("{$rapor['failed']}/{$rapor['checked']} varlık hatalı:");
+        if ($adresler === []) {
+            // Sayfa çekilemediyse "her şey yolunda" demek yanlış olur.
+            $this->cikti(['status' => 'failed', 'checked' => 0, 'failed' => 0, 'reason' => 'NO_ASSETS_DISCOVERED', 'results' => []]);
 
-            foreach ($rapor['results'] as $satir) {
-                if ($satir['status'] === 'failed') {
-                    $this->line('  '.$satir['url'].' -> '.$satir['reason'].' ('.($satir['actual'] ?? '-').')');
-                }
-            }
+            return self::SUCCESS;
         }
 
-        // Çıkış kodu bilinçli olarak başarı: bu bir gözlem, deploy kapısı
-        // değil. Kapı yapılacaksa ayrı ve açık bir karar olmalı.
+        $this->cikti($probe->probe($adresler));
+
         return self::SUCCESS;
     }
 
     /** @return list<string> */
-    private function heroDosyalari(): array
+    private function sayfadanAdresler(AssetDeliveryProbe $probe, string $sayfa): array
     {
-        return collect(['avif', 'webp'])
-            ->crossJoin([900, 1440, 1717])
-            ->map(fn (array $c): string => asset("images/house-chef-hero-v2-{$c[1]}.{$c[0]}"))
-            ->push(asset('images/house-chef-hero-v2.png'))
-            ->all();
+        try {
+            $cevap = Http::timeout(15)->get($sayfa);
+        } catch (\Throwable) {
+            return [];
+        }
+
+        return $cevap->successful() ? $probe->adresler($cevap->body(), rtrim(config('app.url'), '/')) : [];
     }
 
-    /** @return list<string> */
-    private function medyaOrneklemi(int $adet): array
+    /** @param array<string, mixed> $rapor */
+    private function cikti(array $rapor): void
     {
-        return Media::query()
-            ->where('visibility', 'public')
-            ->whereNotNull('responsive_variants')
-            ->latest('id')
-            ->limit(max(1, $adet))
-            ->get()
-            ->flatMap(function (Media $media): array {
-                $yollar = [];
+        if ($this->option('json')) {
+            $this->line((string) json_encode($rapor, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
-                foreach ((array) $media->responsive_variants as $varyant) {
-                    foreach (['avif', 'webp', 'jpeg'] as $bicim) {
-                        $yol = is_array($varyant) ? ($varyant[$bicim] ?? null) : null;
+            return;
+        }
 
-                        if (is_string($yol) && $yol !== '') {
-                            $yollar[] = asset('storage/'.$yol);
-                            break;
-                        }
-                    }
-                }
+        if (($rapor['failed'] ?? 0) === 0) {
+            $this->info("{$rapor['checked']} varlık doğru içerik türüyle servis ediliyor.");
 
-                return $yollar;
-            })
-            ->unique()
-            ->take(max(1, $adet))
-            ->values()
-            ->all();
+            return;
+        }
+
+        $this->warn("{$rapor['failed']}/{$rapor['checked']} varlık hatalı:");
+
+        foreach ($rapor['results'] as $satir) {
+            if ($satir['status'] === 'failed') {
+                $this->line('  '.$satir['url'].' -> '.$satir['reason'].' ('.($satir['actual'] ?? '-').')');
+            }
+        }
     }
+
 }

@@ -86,6 +86,59 @@ final class AssetDeliveryProbeTest extends TestCase
         $this->assertCount(3, $rapor['results']);
     }
 
+    public function test_the_versioned_url_the_page_requests_is_the_one_checked(): void
+    {
+        // Bu testin sebebi gerçek bir yanlış ölçüm: şablon hero AVIF'lerini
+        // `?v=2` ile istiyordu, prob elle tutulan çıplak adresi ölçüyordu.
+        // Kimsenin talep etmediği bayat bir kenar kopyası hata sanıldı.
+        $adresler = $this->adresler('<source srcset="https://ornek.test/hero-900.avif?v=2 900w">');
+
+        $this->assertSame(['https://ornek.test/hero-900.avif?v=2'], $adresler);
+    }
+
+    public function test_a_srcset_with_several_candidates_yields_each_one(): void
+    {
+        $adresler = $this->adresler(
+            '<source srcset="https://ornek.test/a.avif 900w, https://ornek.test/b.avif 1440w">'
+            .'<img src="https://ornek.test/c.png">'
+        );
+
+        $this->assertSame([
+            'https://ornek.test/a.avif',
+            'https://ornek.test/b.avif',
+            'https://ornek.test/c.png',
+        ], $adresler);
+    }
+
+    public function test_external_and_untyped_assets_are_left_out(): void
+    {
+        // Başka bir sunucunun içerik türünden sorumlu değiliz; türünü
+        // bilmediğimiz dosya da yanlış servis edildiğini bildiğimiz dosya
+        // demek değil.
+        $adresler = $this->adresler(
+            '<img src="https://baska.test/uzak.avif">'
+            .'<img src="https://ornek.test/veri.bilinmeyen">'
+            .'<img src="https://ornek.test/gercek.webp">'
+        );
+
+        $this->assertSame(['https://ornek.test/gercek.webp'], $adresler);
+    }
+
+    public function test_the_same_asset_referenced_twice_is_checked_once(): void
+    {
+        $adresler = $this->adresler(
+            '<img src="https://ornek.test/a.webp"><img src="https://ornek.test/a.webp">'
+        );
+
+        $this->assertCount(1, $adresler);
+    }
+
+    /** @return list<string> */
+    private function adresler(string $html): array
+    {
+        return app(AssetDeliveryProbe::class)->adresler($html, 'https://ornek.test');
+    }
+
     /** @param list<string> $adresler @return array<string, mixed> */
     private function probe(array $adresler): array
     {
