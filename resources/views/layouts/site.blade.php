@@ -416,13 +416,13 @@
         <footer class="hc-footer mt-20">
             <div class="hc-container grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-[1.3fr_.75fr_.85fr_.85fr_1fr]">
                 <div><x-brand-logo variant="dark" /><p class="hc-footer-muted mt-5 max-w-sm text-sm leading-7">Kıbrıs sıcaklığını modern mutfak deneyimiyle bir araya getiriyoruz. Her tarif, daha keyifli bir ev sofrası için.</p><p class="hc-footer-muted mt-6 text-xs leading-5">Sosyal kanallar yalnız doğrulanmış kurumsal hesaplar yayına alındığında burada yer alır.</p></div>
-                <div><p class="text-sm font-extrabold text-orange-300">Keşfet</p><div class="hc-footer-muted mt-4 grid gap-3 text-sm"><a class="hover:text-orange-300" href="{{ route('recipes.index') }}">Tarifler</a><a class="hover:text-orange-300" href="{{ route('blog.index') }}">Blog</a><a class="hover:text-orange-300" href="{{ route('cuisines.index') }}">Mutfaklar</a>@auth<a class="hover:text-orange-300" href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a><a class="hover:text-orange-300" href="{{ route('pantry.index') }}">Malzeme Dolabım</a>@endauth</div></div>
+                <div><p class="text-sm font-extrabold text-orange-300">Keşfet</p><div class="hc-footer-muted mt-4 grid gap-3 text-sm [&>a]:inline-flex [&>a]:min-h-[24px] [&>a]:items-center"><a class="hover:text-orange-300" href="{{ route('recipes.index') }}">Tarifler</a><a class="hover:text-orange-300" href="{{ route('blog.index') }}">Blog</a><a class="hover:text-orange-300" href="{{ route('cuisines.index') }}">Mutfaklar</a>@auth<a class="hover:text-orange-300" href="{{ route('ingredients.explore') }}">Ne Pişirebilirim?</a><a class="hover:text-orange-300" href="{{ route('pantry.index') }}">Malzeme Dolabım</a>@endauth</div></div>
                 {{-- On bir baglanti tek dar sutunun icinde iki sutuna sikistirilmisti;
                      "Sik sorulan / sorular" ve "Yasal / bilgilendirme" diye
                      kiriliyordu. Iki ayri baslik, her biri tek sutun. --}}
                 <div>
                     <p class="text-sm font-extrabold text-orange-300">Platform</p>
-                    <div class="hc-footer-muted mt-4 grid gap-3 text-sm">
+                    <div class="hc-footer-muted mt-4 grid gap-3 text-sm [&>a]:inline-flex [&>a]:min-h-[24px] [&>a]:items-center">
                         <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'hakkimizda') }}">Hakkımızda</a>
                         <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'nasil-calisir') }}">Nasıl çalışır?</a>
                         <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'sss') }}">Sıkça sorulanlar</a>
@@ -433,7 +433,7 @@
 
                 <div>
                     <p class="text-sm font-extrabold text-orange-300">Yasal</p>
-                    <div class="hc-footer-muted mt-4 grid gap-3 text-sm">
+                    <div class="hc-footer-muted mt-4 grid gap-3 text-sm [&>a]:inline-flex [&>a]:min-h-[24px] [&>a]:items-center">
                         <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#gizlilik-ve-kisisel-veriler">Gizlilik</a>
                         <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#kullanim-kosullari">Kullanım koşulları</a>
                         <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#cerez-politikasi">Çerezler</a>
