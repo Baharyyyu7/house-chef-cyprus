@@ -21,6 +21,7 @@ final class IntegrityReportLog
         'assets:delivery-check' => ['baslik' => 'Varlık teslimi', 'birim' => 'hatalı varlık'],
         'media:gap-queue' => ['baslik' => 'Görsel eksiği', 'birim' => 'görselsiz tarif'],
         'content:translation-readiness' => ['baslik' => 'Çeviri hazırlığı', 'birim' => 'engelli tarif'],
+        'search:recheck-zero-results' => ['baslik' => 'Karşılanmamış arama', 'birim' => 'karşılanmamış terim'],
     ];
 
     /** @param array<string, mixed> $payload */

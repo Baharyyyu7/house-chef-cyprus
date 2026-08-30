@@ -34,7 +34,7 @@ final class ContentGapService
             $opportunities->push($opportunity);
         }
 
-        ZeroResultSearch::query()->where('search_count', '>=', (int) config('seo.audit.minimum_zero_result_searches', 5))->orderByDesc('search_count')->limit(10)->each(function (ZeroResultSearch $query) use (&$created, &$updated, $opportunities): void {
+        ZeroResultSearch::query()->whereNull('resolved_at')->where('search_count', '>=', (int) config('seo.audit.minimum_zero_result_searches', 5))->orderByDesc('search_count')->limit(10)->each(function (ZeroResultSearch $query) use (&$created, &$updated, $opportunities): void {
             $opportunity = ContentOpportunity::query()->firstOrNew(['normalized_key' => 'zero-'.$query->normalized_query]);
             $wasCreated = ! $opportunity->exists;
             $opportunity->fill(['kind' => 'zero_result_question', 'title' => '"'.$query->normalized_query.'" sorusuna yardımcı içerik', 'search_intent' => 'informational', 'topic_cluster' => 'Kullanıcı Soruları', 'evidence' => $this->editorialEvidence(['anonymous_search_count' => $query->search_count]), 'risk_level' => 'low', 'priority' => min(100, 50 + $query->search_count), 'status' => 'open']);

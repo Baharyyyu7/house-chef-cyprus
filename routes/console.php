@@ -71,6 +71,10 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_gap_queue
 // olduğunu ve baskın engelin ne olduğunu ölçüyor.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('translation_readiness', fn () => Artisan::call('content:translation-readiness')))->name('translation_readiness')->dailyAt('01:17')->withoutOverlapping();
 
+// Kayıtlı sıfır sonuçlu aramalar güncel katalogla yeniden deneniyor:
+// karşılanmış talep, karşılanmamış gibi görünüp içerik görevi üretmesin.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('zero_result_recheck', fn () => Artisan::call('search:recheck-zero-results')))->name('zero_result_recheck')->dailyAt('01:21')->withoutOverlapping();
+
 // Koşu geçmişi trend için tutuluyor, arşiv için değil: üç aylık pencere
 // panelin gösterdiği her şeyi karşılıyor.
 Schedule::call(fn () => app(IntegrityReportLog::class)->prune(90))->name('integrity_report_prune')->weeklyOn(1, '02:10')->withoutOverlapping();
