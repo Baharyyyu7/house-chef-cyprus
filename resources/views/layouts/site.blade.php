@@ -389,14 +389,14 @@
                         <form method="post" action="{{ route('logout') }}">@csrf<button class="mobile-nav-link w-full text-left" type="submit">Çıkış yap</button></form>
                     @else
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('login')]) href="{{ route('login') }}" @click="menuOpen = false" @if(request()->routeIs('login')) aria-current="page" @endif>Giriş Yap</a>
-                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('register'), 'text-gold-700']) href="{{ route('register') }}" @click="menuOpen = false" @if(request()->routeIs('register')) aria-current="page" @endif>Üye Ol</a>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('register'), 'text-gold-700 dark:text-gold-400']) href="{{ route('register') }}" @click="menuOpen = false" @if(request()->routeIs('register')) aria-current="page" @endif>Üye Ol</a>
                     @endauth
                 </div>
 
                 {{-- Cubuktan cikan dil secicinin karsiligi: dar ekranda tek
                      dil kontrolu burasi. --}}
                 <div class="mt-5 border-t pt-5 sm:hidden">
-                    <p class="hc-caption mb-3">Dil</p>
+                    <p class="hc-caption mb-3 text-charcoal-700 dark:text-charcoal-300">Dil</p>
                     <x-locale-switcher />
                 </div>
                 </div>
