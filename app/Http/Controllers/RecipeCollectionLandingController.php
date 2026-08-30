@@ -40,7 +40,7 @@ final class RecipeCollectionLandingController extends Controller
         return $this->goster($request, 'zorluk', $slug, $indexability, $gate, $schema);
     }
 
-    /** @return Collection<int, array{type:string,slug:string,title:string,url:string}> */
+    /** @return Collection<int, array{type:string,slug:string,title:string,url:string,lastmod:?string}> */
     public static function sayfasiOlanlar(): Collection
     {
         $controller = new self;
@@ -57,6 +57,7 @@ final class RecipeCollectionLandingController extends Controller
                         'slug' => $slug,
                         'title' => $tanim['title'],
                         'url' => route('collections.'.$tur, $slug),
+                        'lastmod' => $controller->sonYayinTarihi($tur, $tanim),
                     ];
                 })->filter()->values()->all();
             })->values();
@@ -137,5 +138,13 @@ final class RecipeCollectionLandingController extends Controller
                 fn (Builder $query): Builder => $query->whereRaw('(COALESCE(prep_minutes,0) + COALESCE(cook_minutes,0) + COALESCE(rest_minutes,0)) <= ?', [(int) $tanim['max_minutes']]),
                 fn (Builder $query): Builder => $query->where('difficulty', (string) $tanim['difficulty'])
             );
+    }
+
+    /** @param array<string,int|string> $tanim */
+    private function sonYayinTarihi(string $tur, array $tanim): ?string
+    {
+        $tarih = $this->sorgu($tur, $tanim)->max('published_at');
+
+        return is_string($tarih) && $tarih !== '' ? $tarih : null;
     }
 }

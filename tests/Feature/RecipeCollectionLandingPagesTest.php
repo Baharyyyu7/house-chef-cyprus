@@ -105,6 +105,25 @@ final class RecipeCollectionLandingPagesTest extends TestCase
         $this->assertStringNotContainsString(url('/zorluk/zor'), $xml);
     }
 
+    public function test_collection_sitemap_lastmod_is_the_latest_published_recipe_date(): void
+    {
+        $this->tarifler(4, [
+            'difficulty' => 'easy',
+            'published_at' => '2026-08-20 12:00:00',
+        ]);
+        $this->tarifler(1, [
+            'difficulty' => 'easy',
+            'published_at' => '2026-08-29 12:00:00',
+        ]);
+
+        $xml = (string) $this->get('/sitemaps/pages.xml')->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression(
+            '#<loc>'.preg_quote(url('/zorluk/kolay'), '#').'</loc><lastmod>2026-08-29</lastmod>#',
+            $xml,
+        );
+    }
+
     /** @param array<string, mixed> $attributes */
     private function tarifler(int $adet, array $attributes = []): void
     {

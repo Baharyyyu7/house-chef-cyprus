@@ -58,7 +58,7 @@ final class SitemapController extends Controller
             RecipeCollectionLandingController::sayfasiOlanlar()
                 ->map(fn (array $koleksiyon): array => [
                     'loc' => $koleksiyon['url'],
-                    'lastmod' => null,
+                    'lastmod' => $this->date($koleksiyon['lastmod'] ?? null),
                 ])
         );
 
