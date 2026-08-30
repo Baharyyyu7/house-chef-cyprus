@@ -22,6 +22,7 @@ final class IntegrityReportLog
         'media:gap-queue' => ['baslik' => 'Görsel eksiği', 'birim' => 'görselsiz tarif'],
         'content:translation-readiness' => ['baslik' => 'Çeviri hazırlığı', 'birim' => 'engelli tarif'],
         'search:recheck-zero-results' => ['baslik' => 'Karşılanmamış arama', 'birim' => 'karşılanmamış terim'],
+        'content:link-integrity' => ['baslik' => 'Bağlantı bütünlüğü', 'birim' => 'kusurlu bağlantı'],
     ];
 
     /** @param array<string, mixed> $payload */
