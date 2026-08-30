@@ -43,7 +43,10 @@
 
         <aside class="hc-giris__gorsel" aria-hidden="true">
             <picture>
-                <source type="image/avif" srcset="{{ asset('images/house-chef-hero-v2-1440.avif') }}">
+                {{-- ?v=2: Cloudflare kenarinda `.avif` uzantisi taninmadan once
+                     onbellege alinmis text/plain kopyalar var; surum sorgusu
+                     taze bir girdi acar. Tarifler sayfasi da ayni sekilde. --}}
+                <source type="image/avif" srcset="{{ asset('images/house-chef-hero-v2-1440.avif').'?v=2' }}">
                 <source type="image/webp" srcset="{{ asset('images/house-chef-hero-v2-1440.webp') }}">
                 <img src="{{ asset('images/house-chef-hero-v2-1440.webp') }}" alt="" loading="lazy" decoding="async">
             </picture>
