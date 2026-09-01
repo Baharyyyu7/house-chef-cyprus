@@ -26,6 +26,21 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('personalization
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('health_snapshot', fn () => app(HealthService::class)->snapshot()))->name('health_snapshot')->hourly()->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('backup_cleanup', fn () => Artisan::call('backup:cleanup')))->name('backup_cleanup')->daily()->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('backup_daily', fn () => Artisan::call('backup:create', ['--type' => 'daily'])))->name('backup_daily')->dailyAt('00:20')->withoutOverlapping()->when(fn (): bool => (bool) config('observability.backup_scheduled'));
+
+// Günlük yedek oluşturuluyordu ama hiç doğrulanmıyordu: deploy scripti
+// create'ten sonra verify çağırdığı için yalnız deploy öncesi yedekler
+// doğrulanmış görünüyor, günlük yedek `created` durumunda kalıyor ve
+// yedek sağlığı her gün `degraded`'a düşüyordu.
+//
+// Doğrulama salt okunur: manifest, dosya varlığı, checksum ve sürücüye
+// özgü yapısal kontrol. Doğrulanmamış yedek, yedek sayılmaz - bozuk
+// olduğu ancak ihtiyaç anında anlaşılır.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('backup_verify', fn () => Artisan::call('backup:verify')))->name('backup_verify')->dailyAt('00:35')->withoutOverlapping()->when(fn (): bool => (bool) config('observability.backup_scheduled'));
+
+// Doğrulama checksum'a bakıyor, içeriğe bakmıyor: bir migration yeni tablo
+// eklediğinde ya da döküm bir tabloyu dışladığında checksum yine tutar ve
+// yedek "doğrulanmış" görünür. Eksik olduğu geri yükleme anında anlaşılır.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('backup_completeness', fn () => Artisan::call('backup:completeness')))->name('backup_completeness')->dailyAt('00:45')->withoutOverlapping()->when(fn (): bool => (bool) config('observability.backup_scheduled'));
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('logs_cleanup', fn () => Artisan::call('logs:cleanup')))->name('logs_cleanup')->daily()->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('blog_publish_scheduled', fn () => Artisan::call('blog:publish-scheduled')))->name('blog_publish_scheduled')->everyMinute()->withoutOverlapping();
 // Kuyruk işçisi ayrı bir cron kaydıyla koşuyordu ve Hostinger'ın cron
