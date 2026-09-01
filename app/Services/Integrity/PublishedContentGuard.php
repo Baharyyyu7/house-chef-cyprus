@@ -36,6 +36,9 @@ final class PublishedContentGuard
      * yapılır, "tavuklu kolokas" kuzuyla. Bu yüzden yalnız kökü kısa ve
      * ayırt edici olan, karşılığı doğrudan bir malzeme olan sözcükler var.
      */
+    /** Bir blog yazısının konusunu taşıdığını varsayabileceğimiz alt sınır. */
+    private const ASGARI_BLOG_KARAKTER = 2000;
+
     private const BASLIK_MALZEME = [
         'mercimek', 'nohut', 'patlıcan', 'tavuk', 'balık', 'ıspanak',
         'bulgur', 'patates', 'lahana', 'brokoli', 'karnabahar',
@@ -50,6 +53,7 @@ final class PublishedContentGuard
             'placeholder_steps' => $this->yerTutucuAdimli(),
             'title_ingredient_mismatch' => $this->baslikMalzemeCeliskisi(),
             'blog_missing_editorial_gate' => $this->kapidanGecmeyenBlog(),
+            'thin_blog_posts' => $this->inceBlogYazilari(),
         ];
 
         $alinan = [];
@@ -161,6 +165,40 @@ final class PublishedContentGuard
             ->filter(fn (BlogPost $yazi): bool => $yazi->editorial_status !== 'approved'
                 || $yazi->fact_check_status !== 'passed'
                 || $yazi->originality_status !== 'passed')
+            ->pluck('slug')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Konusunu taşıyamayacak kadar kısa yayındaki blog yazıları.
+     *
+     * Eşik keyfi değil, verinin kendisinden geliyor: 2026-09-01'de yayındaki
+     * 26 yazının 20'si 2.500 karakterin üzerindeydi, kalan 6'sı 879 ile 1.504
+     * arasında. Arada boşluk var; eşik o boşluğa konuyor.
+     *
+     * Neden önemli: bu site bir kez ölçekli ince içerik yüzünden ceza yedi.
+     * Az sayıda zayıf sayfa, güçlü sayfaların sıralamasını da aşağı çeker.
+     *
+     * Alan `body`; `content` diye bir sütun yok. Yanlış alanı okuyan bir
+     * muhafız her yazıyı ince sayar ve hiçbir şey söylemez.
+     *
+     * Muhafız yalnız bildiriyor. Yayından kaldırmak editoryal bir karar ve
+     * indekslenmiş bir sayfayı geri çekmenin kendi bedeli var; o karar
+     * insana ait.
+     *
+     * @return list<string>
+     */
+    private function inceBlogYazilari(): array
+    {
+        return BlogPost::query()
+            ->where('status', 'published')
+            ->get()
+            ->filter(function (BlogPost $yazi): bool {
+                $metin = trim((string) preg_replace('/\s+/u', ' ', strip_tags((string) $yazi->body)));
+
+                return mb_strlen($metin) < self::ASGARI_BLOG_KARAKTER;
+            })
             ->pluck('slug')
             ->values()
             ->all();

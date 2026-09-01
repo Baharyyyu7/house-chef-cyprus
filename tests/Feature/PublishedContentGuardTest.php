@@ -171,4 +171,65 @@ final class PublishedContentGuardTest extends TestCase
 
         return $tarif;
     }
+
+    public function test_a_thin_published_post_is_reported(): void
+    {
+        // Bu site bir kez ölçekli ince içerik yüzünden ceza yedi. Az sayıda
+        // zayıf sayfa güçlü sayfaların sıralamasını da aşağı çeker.
+        BlogPost::query()->create([
+            'title' => 'Kısa Yazı',
+            'slug' => 'kisa-yazi',
+            'body' => str_repeat('kısa metin ', 30),
+            'excerpt' => 'Özet.',
+            'status' => 'published',
+            'editorial_status' => 'approved',
+            'fact_check_status' => 'passed',
+            'originality_status' => 'passed',
+        ]);
+
+        $this->assertContains('kisa-yazi', $this->slugler('thin_blog_posts'));
+    }
+
+    public function test_a_substantial_post_is_not_reported(): void
+    {
+        BlogPost::query()->create([
+            'title' => 'Dolu Yazı',
+            'slug' => 'dolu-yazi',
+            'body' => str_repeat('Bu yazı konusunu gerçekten taşıyor ve yeterince uzun. ', 60),
+            'excerpt' => 'Özet.',
+            'status' => 'published',
+            'editorial_status' => 'approved',
+            'fact_check_status' => 'passed',
+            'originality_status' => 'passed',
+        ]);
+
+        $this->assertNotContains('dolu-yazi', $this->slugler('thin_blog_posts'));
+    }
+
+    public function test_a_draft_post_is_not_reported(): void
+    {
+        // Yayında olmayan yazı ziyaretçiye de arama motoruna da görünmüyor.
+        BlogPost::query()->create([
+            'title' => 'Taslak',
+            'slug' => 'taslak-yazi',
+            'body' => 'Çok kısa.',
+            'excerpt' => 'Özet.',
+            'status' => 'draft',
+            'editorial_status' => 'approved',
+            'fact_check_status' => 'passed',
+            'originality_status' => 'passed',
+        ]);
+
+        $this->assertNotContains('taslak-yazi', $this->slugler('thin_blog_posts'));
+    }
+
+    public function test_the_guard_reads_the_field_that_actually_holds_the_text(): void
+    {
+        // `content` diye bir sütun yok; alan `body`. Yanlış alanı okuyan bir
+        // muhafız her yazıyı ince sayar ve hiçbir şey söylemez.
+        $this->assertStringContainsString(
+            'strip_tags((string) $yazi->body)',
+            (string) file_get_contents(app_path('Services/Integrity/PublishedContentGuard.php'))
+        );
+    }
 }
