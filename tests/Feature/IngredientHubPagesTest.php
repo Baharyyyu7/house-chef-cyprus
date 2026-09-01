@@ -58,6 +58,21 @@ final class IngredientHubPagesTest extends TestCase
         $this->assertStringNotContainsString($zayif->slug, $icerik);
     }
 
+    public function test_the_sitemap_uses_the_latest_published_recipe_as_ingredient_lastmod(): void
+    {
+        $malzeme = $this->malzemeIle(5, 'Hellim');
+        $query = Recipe::query()->whereHas('recipeIngredients', fn ($q) => $q->where('ingredient_id', $malzeme->id));
+        $query->update(['published_at' => '2026-08-01 08:00:00']);
+        (clone $query)->firstOrFail()->update(['published_at' => '2026-08-30 08:00:00']);
+
+        $xml = (string) $this->get('/sitemaps/pages.xml')->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression(
+            '#<loc>'.preg_quote(route('ingredients.hub.show', $malzeme->slug), '#').'</loc><lastmod>2026-08-30</lastmod>#',
+            $xml,
+        );
+    }
+
     public function test_every_sitemap_ingredient_url_actually_resolves(): void
     {
         $this->malzemeIle(5, 'Zeytinyağı');

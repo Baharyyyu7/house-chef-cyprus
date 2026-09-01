@@ -86,6 +86,20 @@ final class CuisineLandingPagesTest extends TestCase
         $this->assertStringNotContainsString(route('cuisines.show', $yok->slug), $xml);
     }
 
+    public function test_the_sitemap_uses_the_latest_published_recipe_as_cuisine_lastmod(): void
+    {
+        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+        $mutfak->recipes()->update(['published_at' => '2026-08-01 12:00:00']);
+        $mutfak->recipes()->firstOrFail()->update(['published_at' => '2026-08-31 12:00:00']);
+
+        $xml = (string) $this->get('/sitemaps/pages.xml')->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression(
+            '#<loc>'.preg_quote(route('cuisines.show', $mutfak->slug), '#').'</loc><lastmod>2026-08-31</lastmod>#',
+            $xml,
+        );
+    }
+
     public function test_the_index_only_links_to_pages_that_exist(): void
     {
         $var = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);

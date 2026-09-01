@@ -76,6 +76,56 @@ final class LinkIntegrityProbe
     }
 
     /**
+     * Sitemap'teki sayfalara hub'lardan kaç ayrı kaynak sayfanın bağlandığı.
+     * Aynı hub'daki tekrarlı bağlantı tek oy sayılır; amaç ham anchor sayısı
+     * değil, sayfanın gezinme omurgasında kaç ayrı giriş noktası olduğudur.
+     *
+     * @param  list<string>  $hublar
+     * @return array{sitemap_count:int,orphaned:int,orphan_urls:list<string>,backlinks:array<string,int>}
+     */
+    public function orphanPages(string $sitemapUrl, array $hublar): array
+    {
+        try {
+            $cevap = Http::timeout(15)->get($sitemapUrl);
+        } catch (\Throwable) {
+            return ['sitemap_count' => 0, 'orphaned' => 0, 'orphan_urls' => [], 'backlinks' => []];
+        }
+
+        if (! $cevap->successful()) {
+            return ['sitemap_count' => 0, 'orphaned' => 0, 'orphan_urls' => [], 'backlinks' => []];
+        }
+
+        preg_match_all('#<loc>([^<]+)</loc>#i', $cevap->body(), $eslesmeler);
+        $adresler = collect($eslesmeler[1] ?? [])->map(fn (string $url): string => html_entity_decode(trim($url), ENT_QUOTES | ENT_HTML5))->filter()->unique()->values();
+        $geriBaglantilar = array_fill_keys($adresler->all(), 0);
+
+        foreach ($hublar as $hub) {
+            $baglantilar = array_fill_keys(array_map([$this, 'normalizeUrl'], $this->baglantilar($hub)), true);
+            foreach ($geriBaglantilar as $adres => $adet) {
+                if (isset($baglantilar[$this->normalizeUrl($adres)])) {
+                    $geriBaglantilar[$adres] = $adet + 1;
+                }
+            }
+        }
+
+        $oksuzler = array_keys(array_filter($geriBaglantilar, fn (int $adet): bool => $adet === 0));
+
+        return [
+            'sitemap_count' => count($geriBaglantilar),
+            'orphaned' => count($oksuzler),
+            'orphan_urls' => $oksuzler,
+            'backlinks' => $geriBaglantilar,
+        ];
+    }
+
+    private function normalizeUrl(string $url): string
+    {
+        $url = strtok($url, '#');
+
+        return rtrim($url, '/') ?: rtrim((string) config('app.url'), '/');
+    }
+
+    /**
      * Bir sayfadaki kendi alan adımıza ait bağlantılar.
      *
      * @return list<string>

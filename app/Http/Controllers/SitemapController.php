@@ -31,7 +31,7 @@ final class SitemapController extends Controller
     public function pages(): Response
     {
         // ne-pisirebilirim üyelik duvarının arkasından çıkarıldı; indekslenebilir bir araç sayfasıdır.
-        $staticPaths = ['', 'tarifler', 'blog', 'malzemeler', 'mutfaklar', 'ne-pisirebilirim', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'iletisim'];
+        $staticPaths = ['', 'tarifler', 'blog', 'malzemeler', 'mutfaklar', 'kategoriler', 'ne-pisirebilirim', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'iletisim'];
         $urls = collect($staticPaths)->map(fn (string $path): array => ['loc' => url($path), 'lastmod' => null]);
 
         // Malzeme sayfaları. Liste ile sitemap aynı eşiği paylaşmak zorunda:
@@ -41,7 +41,7 @@ final class SitemapController extends Controller
             IngredientHubController::sayfasiOlanlar()
                 ->map(fn ($malzeme): array => [
                     'loc' => route('ingredients.hub.show', $malzeme->slug),
-                    'lastmod' => null,
+                    'lastmod' => $this->date($malzeme->latest_published_at),
                 ])
         );
 
@@ -50,8 +50,15 @@ final class SitemapController extends Controller
             CuisineHubController::sayfasiOlanlar()
                 ->map(fn ($mutfak): array => [
                     'loc' => route('cuisines.show', $mutfak->slug),
-                    'lastmod' => null,
+                    'lastmod' => $this->date($mutfak->latest_published_at),
                 ])
+        );
+
+        $urls = $urls->concat(
+            CategoryHubController::sayfasiOlanlar()->map(fn ($kategori): array => [
+                'loc' => route('categories.show', $kategori->slug),
+                'lastmod' => $this->date($kategori->latest_published_at),
+            ])
         );
 
         $urls = $urls->concat(

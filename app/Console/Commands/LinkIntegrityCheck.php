@@ -29,10 +29,12 @@ final class LinkIntegrityCheck extends Command
             ->pluck('url')
             ->all();
         $rapor = $probe->probe($this->hublar(), (int) $this->option('limit'), $koleksiyonlar);
+        $rapor = array_merge($rapor, $probe->orphanPages(route('sitemap.pages'), $this->hublar()));
+        $rapor['status'] = ((int) $rapor['broken'] + (int) $rapor['orphaned']) === 0 ? 'ok' : 'issues_found';
 
         // Koşu kaydediliyor: tek bir sayı ancak bir öncekiyle yan yana
         // konduğunda sitenin iyileşip iyileşmediğini gösteriyor.
-        $gunluk->record('content:link-integrity', (string) $rapor['status'], (int) $rapor['broken'], $rapor);
+        $gunluk->record('content:link-integrity', (string) $rapor['status'], (int) $rapor['broken'] + (int) $rapor['orphaned'], $rapor);
 
         if ($this->option('json')) {
             $this->line((string) json_encode($rapor, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
@@ -62,7 +64,7 @@ final class LinkIntegrityCheck extends Command
     {
         $hublar = [route('home'), route('recipes.index'), route('blog.index')];
 
-        foreach (['cuisines.index', 'ingredients.hub.index'] as $ad) {
+        foreach (['cuisines.index', 'ingredients.hub.index', 'categories.index'] as $ad) {
             if (Route::has($ad)) {
                 $hublar[] = route($ad);
             }

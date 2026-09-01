@@ -81,6 +81,29 @@ final class LinkIntegrityProbeTest extends TestCase
         $this->assertCount(1, app(LinkIntegrityProbe::class)->baglantilar('https://ornek.test/sayfa'));
     }
 
+    public function test_it_reports_sitemap_pages_that_receive_no_link_from_any_hub(): void
+    {
+        $base = rtrim((string) config('app.url'), '/');
+        Http::fake([
+            $base.'/sitemaps/pages.xml' => Http::response(
+                '<urlset><url><loc>'.$base.'/bagli</loc></url><url><loc>'.$base.'/oksuz</loc></url></urlset>',
+                200
+            ),
+            $base.'/hub-a' => Http::response('<a href="'.$base.'/bagli">Bağlı</a>', 200),
+            $base.'/hub-b' => Http::response('<a href="'.$base.'/bagli#tekrar">Bağlı yine</a>', 200),
+        ]);
+
+        $rapor = app(LinkIntegrityProbe::class)->orphanPages(
+            $base.'/sitemaps/pages.xml',
+            [$base.'/hub-a', $base.'/hub-b'],
+        );
+
+        $this->assertSame(2, $rapor['sitemap_count']);
+        $this->assertSame(1, $rapor['orphaned']);
+        $this->assertSame([$base.'/oksuz'], $rapor['orphan_urls']);
+        $this->assertSame(2, $rapor['backlinks'][$base.'/bagli']);
+    }
+
     public function test_the_command_checks_each_existing_duration_and_difficulty_collection_directly(): void
     {
         for ($i = 0; $i < 4; $i++) {

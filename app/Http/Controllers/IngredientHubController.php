@@ -112,13 +112,23 @@ final class IngredientHubController extends Controller
     private function yeterliMalzemeler(): Collection
     {
         $sayilar = $this->yayindakiTarifSayilari();
+        $sonYayinlar = DB::table('recipe_ingredients')
+            ->join('recipes', 'recipes.id', '=', 'recipe_ingredients.recipe_id')
+            ->where('recipes.status', 'published')
+            ->where('recipes.verification_status', 'verified')
+            ->selectRaw('recipe_ingredients.ingredient_id, max(recipes.published_at) as latest_published_at')
+            ->groupBy('recipe_ingredients.ingredient_id')
+            ->pluck('latest_published_at', 'ingredient_id');
 
         return Ingredient::query()
             ->whereIn('id', $sayilar->filter(fn (int $adet): bool => $adet >= self::ASGARI_TARIF)->keys())
             ->whereNotIn('slug', self::KONU_OLMAYANLAR)
             ->orderBy('name')
             ->get()
-            ->each(fn (Ingredient $m) => $m->setAttribute('tarif_sayisi', $sayilar[$m->id] ?? 0));
+            ->each(function (Ingredient $m) use ($sayilar, $sonYayinlar): void {
+                $m->setAttribute('tarif_sayisi', $sayilar[$m->id] ?? 0);
+                $m->setAttribute('latest_published_at', $sonYayinlar[$m->id] ?? null);
+            });
     }
 
     /** @return \Illuminate\Support\Collection<int, int> */

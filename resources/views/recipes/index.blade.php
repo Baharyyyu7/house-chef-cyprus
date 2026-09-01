@@ -195,6 +195,13 @@
             <p class="hc-body-sm" style="color: var(--hc-text-secondary)"><strong style="color: var(--hc-text-primary)">{{ $recipes->total() }}</strong> doğrulanmış tarif bulundu</p>
             <span class="hc-v3-badge hc-v3-badge--success"><span aria-hidden="true">●</span> Türkçe editoryal içerik</span>
         </div>
+        @if($koleksiyonlar !== [])
+            <nav class="mt-5 flex flex-wrap gap-2" aria-label="Tarif seçkileri">
+                @foreach(\App\Http\Controllers\RecipeCollectionLandingController::sayfasiOlanlar() as $koleksiyon)
+                    <a class="hc-v3-badge" href="{{ $koleksiyon['url'] }}">{{ $koleksiyon['title'] }}</a>
+                @endforeach
+            </nav>
+        @endif
         <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-reveal-group>
             @forelse($recipes as $recipe)
                 <x-recipe-card-v3 :recipe="$recipe" />

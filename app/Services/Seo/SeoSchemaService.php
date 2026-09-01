@@ -108,6 +108,21 @@ final class SeoSchemaService
         ], $crumbs);
     }
 
+    /** @param iterable<BlogPost> $posts @param list<array{name:string,url:string}> $crumbs @return array<string,mixed> */
+    public function blogCollectionPage(string $name, string $description, string $url, iterable $posts, array $crumbs): array
+    {
+        $items = collect($posts)->values()->map(fn (BlogPost $post, int $index): array => [
+            '@type' => 'ListItem',
+            'position' => $index + 1,
+            'url' => route('blog.show', $post),
+        ])->all();
+
+        return $this->graph([
+            '@type' => 'CollectionPage', 'name' => $name, 'description' => $description, 'url' => $url,
+            'mainEntity' => ['@type' => 'ItemList', 'numberOfItems' => count($items), 'itemListElement' => $items],
+        ], $crumbs);
+    }
+
     /** @param array<string,mixed> $node @param list<array{name:string,url:string}> $crumbs @return array<string,mixed> */
     private function graph(array $node, array $crumbs): array
     {

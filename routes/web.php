@@ -35,6 +35,7 @@ use App\Http\Controllers\AiKitchenController;
 use App\Http\Controllers\Auth\SocialLoginController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BlogCoverController;
+use App\Http\Controllers\CategoryHubController;
 use App\Http\Controllers\ContactRequestController;
 use App\Http\Controllers\CookingSessionController;
 use App\Http\Controllers\CuisineHubController;
@@ -111,6 +112,8 @@ Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])-
 // olctu ama indekslenebilir tek bir mutfak sayfasi yoktu.
 Route::get('/mutfaklar', [CuisineHubController::class, 'index'])->name('cuisines.index');
 Route::get('/mutfaklar/{slug}', [CuisineHubController::class, 'show'])->name('cuisines.show');
+Route::get('/kategoriler', [CategoryHubController::class, 'index'])->name('categories.index');
+Route::get('/kategoriler/{slug}', [CategoryHubController::class, 'show'])->name('categories.show');
 Route::get('/sure/{slug}', [RecipeCollectionLandingController::class, 'sure'])->name('collections.sure');
 Route::get('/zorluk/{slug}', [RecipeCollectionLandingController::class, 'zorluk'])->name('collections.zorluk');
 Route::get('/malzemeler', [IngredientHubController::class, 'index'])->name('ingredients.hub.index');

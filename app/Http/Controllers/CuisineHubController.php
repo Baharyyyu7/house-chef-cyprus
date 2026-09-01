@@ -104,6 +104,7 @@ final class CuisineHubController extends Controller
         // Mutfak sayısı iki haneli, bunun bir maliyeti yok.
         return Cuisine::query()
             ->withCount(['recipes' => fn ($q) => $q->where('status', 'published')->where('verification_status', 'verified')])
+            ->withMax(['recipes as latest_published_at' => fn ($q) => $q->where('status', 'published')->where('verification_status', 'verified')], 'published_at')
             ->orderByDesc('recipes_count')
             ->get()
             ->filter(fn (Cuisine $m): bool => (int) $m->recipes_count >= self::ASGARI_TARIF)

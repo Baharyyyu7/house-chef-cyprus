@@ -52,6 +52,27 @@ final class BlogPublishingTest extends TestCase
             ->assertSee('genel veya ilgisiz fotoğraf gösterilmez.');
     }
 
+    public function test_blog_index_schema_lists_only_the_visible_page_items_as_plain_urls(): void
+    {
+        $visible = collect(range(1, 13))->map(fn (int $i) => BlogPost::create([
+            'title' => 'Yazı '.$i, 'slug' => 'yazi-'.$i, 'excerpt' => 'Özet', 'body' => 'İçerik',
+            'status' => 'published', 'published_at' => now()->subMinutes($i),
+        ]));
+        BlogPost::create(['title' => 'Taslak', 'slug' => 'taslak', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'draft']);
+
+        $html = (string) $this->get(route('blog.index'))->assertOk()->getContent();
+        preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $html, $matches);
+        $schema = collect($matches[1] ?? [])->map(fn (string $json) => json_decode($json, true))
+            ->first(fn ($json) => collect($json['@graph'] ?? [])->contains('@type', 'CollectionPage'));
+        $collection = collect($schema['@graph'])->firstWhere('@type', 'CollectionPage');
+        $items = $collection['mainEntity']['itemListElement'];
+
+        $this->assertCount(12, $items);
+        $this->assertSame(['@type', 'position', 'url'], array_keys($items[0]));
+        $this->assertSame(route('blog.show', $visible->first()), $items[0]['url']);
+        $this->assertStringNotContainsString(route('blog.show', 'taslak'), json_encode($schema));
+    }
+
     public function test_admin_can_create_and_publish_a_post_while_a_member_is_forbidden(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);

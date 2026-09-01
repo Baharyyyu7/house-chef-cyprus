@@ -41,6 +41,7 @@ Schema::create('zero_result_searches', function (Blueprint $table): void {
 });
 Schema::create('content_factory_batches', function (Blueprint $table): void {
     $table->string('status', 40);
+    $table->string('suggested_action', 255);
 });
 PHP);
         File::put($this->fixtureRoot.'/app/Writer.php', <<<'PHP'
@@ -64,6 +65,7 @@ PHP);
         $this->assertFalse(collect($report['findings'])->contains(
             fn (array $finding): bool => $finding['table'] === 'content_factory_batches',
         ));
+        $this->assertSame([40, 255], $report['column_length_variants'][0]['lengths']);
     }
 
     public function test_it_resolves_model_query_and_typed_model_instance_writes(): void
@@ -101,6 +103,39 @@ PHP);
                 && $writer['observed_length'] === 22
                 && $writer['reason'] === null,
         ));
+    }
+
+    public function test_it_reports_unknown_receivers_and_resolves_typed_model_properties(): void
+    {
+        $this->migration(<<<'PHP'
+<?php
+Schema::create('zero_result_searches', function (Blueprint $table): void {
+    $table->string('suggested_action', 40);
+});
+PHP);
+        File::put($this->fixtureRoot.'/app/Writer.php', <<<'PHP'
+<?php
+final class Writer {
+    public function __construct(private \App\Models\ZeroResultSearch $searches) {}
+
+    public function write($repository): void {
+        $this->searches->update(['suggested_action' => '/sure/20-dakika']);
+        $this->searches->newQuery()->update(['suggested_action' => '/sure/30-dakika']);
+        $repository->update(['suggested_action' => '/zorluk/kolay']);
+    }
+}
+PHP);
+
+        $report = app(SchemaContractProbe::class)->inspect(
+            [$this->fixtureRoot.'/app'],
+            [$this->fixtureRoot.'/migrations'],
+        );
+
+        $this->assertCount(2, $report['writers']);
+        $this->assertSame('zero_result_searches', $report['writers'][0]['table']);
+        $this->assertSame(1, $report['skipped_writer_count']);
+        $this->assertSame('variable_receiver', $report['skipped_writers'][0]['pattern']);
+        $this->assertSame(['suggested_action'], $report['skipped_writers'][0]['columns']);
     }
 
     public function test_it_reports_production_schema_length_missing_and_extra_column_drift(): void

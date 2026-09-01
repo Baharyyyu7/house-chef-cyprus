@@ -33,7 +33,9 @@ final class SchemaContractProbe
             ->filter(fn (array $column): bool => $column['max_length'] !== null && $column['max_length'] <= 64)
             ->values()
             ->all();
-        $writers = $this->writers($sourcePaths, $narrow);
+        $writerScan = $this->writers($sourcePaths, $narrow);
+        $writers = $writerScan['resolved'];
+        $skippedWriters = $writerScan['skipped'];
         $findings = collect($writers)
             ->filter(fn (array $writer): bool => $writer['reason'] !== null)
             ->map(fn (array $writer): array => array_filter([
@@ -48,18 +50,32 @@ final class SchemaContractProbe
             ->values()
             ->all();
         $schemaDrift = $databaseSnapshot === [] ? [] : $this->compare($schema, $databaseSnapshot);
+        $lengthVariants = collect($schema)->filter(fn (array $column): bool => $column['max_length'] !== null)
+            ->groupBy('column')
+            ->map(function ($columns, string $name): ?array {
+                $lengths = $columns->pluck('max_length')->unique()->sort()->values()->all();
+
+                return count($lengths) > 1 ? [
+                    'column' => $name,
+                    'lengths' => $lengths,
+                    'contracts' => $columns->map(fn (array $column): array => ['table' => $column['table'], 'max_length' => $column['max_length']])->values()->all(),
+                ] : null;
+            })->filter()->values()->all();
 
         return [
             'status' => $findings === [] && $schemaDrift === [] ? 'ok' : 'issues_found',
             'checked_at' => now()->toIso8601String(),
             'narrow_columns' => count($narrow),
             'writer_count' => count($writers),
+            'skipped_writer_count' => count($skippedWriters),
             'finding_count' => count($findings),
             'schema_drift_count' => count($schemaDrift),
             'columns' => $narrow,
             'writers' => $writers,
+            'skipped_writers' => $skippedWriters,
             'findings' => $findings,
             'schema_drift' => $schemaDrift,
+            'column_length_variants' => $lengthVariants,
         ];
     }
 
@@ -248,17 +264,19 @@ final class SchemaContractProbe
         };
     }
 
-    /** @param list<string> $paths @param list<array<string,mixed>> $narrow @return list<array<string,mixed>> */
+    /** @param list<string> $paths @param list<array<string,mixed>> $narrow @return array{resolved:list<array<string,mixed>>,skipped:list<array<string,mixed>>} */
     private function writers(array $paths, array $narrow): array
     {
         $byContract = collect($narrow)->keyBy(fn (array $column): string => $column['table'].'.'.$column['column']);
         $writers = [];
+        $skipped = [];
 
         foreach ($this->phpFiles($paths) as $file) {
             $nodes = $this->parse($file);
             $finder = new NodeFinder;
             $imports = $this->imports($nodes);
             $typedVariables = $this->typedVariables($nodes, $imports);
+            $typedProperties = $this->typedProperties($nodes, $imports);
             $calls = array_merge(
                 $finder->findInstanceOf($nodes, Node\Expr\MethodCall::class),
                 $finder->findInstanceOf($nodes, Node\Expr\StaticCall::class),
@@ -269,8 +287,21 @@ final class SchemaContractProbe
                     continue;
                 }
 
-                $table = $this->writeTable($call, $imports, $typedVariables);
+                $columns = $this->writtenColumns($call);
+                if ($columns === []) {
+                    continue;
+                }
+
+                $table = $this->writeTable($call, $imports, $typedVariables, $typedProperties);
                 if ($table === null) {
+                    $skipped[] = [
+                        'method' => $method,
+                        'pattern' => $this->receiverPattern($call),
+                        'columns' => $columns,
+                        'file' => $this->relativePath($file),
+                        'line' => $call->getStartLine(),
+                    ];
+
                     continue;
                 }
 
@@ -310,7 +341,39 @@ final class SchemaContractProbe
             }
         }
 
-        return $writers;
+        return ['resolved' => $writers, 'skipped' => $skipped];
+    }
+
+    /** @param Node\Expr\MethodCall|Node\Expr\StaticCall $call @return list<string> */
+    private function writtenColumns(Node\Expr $call): array
+    {
+        $columns = [];
+        foreach ($call->getArgs() as $argument) {
+            if (! $argument->value instanceof Node\Expr\Array_) {
+                continue;
+            }
+            foreach ($argument->value->items as $item) {
+                if ($item instanceof Node\ArrayItem && $item->key instanceof Node\Scalar\String_) {
+                    $columns[] = $item->key->value;
+                }
+            }
+        }
+
+        return array_values(array_unique($columns));
+    }
+
+    /** @param Node\Expr\MethodCall|Node\Expr\StaticCall $call */
+    private function receiverPattern(Node\Expr $call): string
+    {
+        $receiver = $call instanceof Node\Expr\MethodCall ? $call->var : $call->class;
+
+        return match (true) {
+            $receiver instanceof Node\Expr\Variable => 'variable_receiver',
+            $receiver instanceof Node\Expr\PropertyFetch => 'property_receiver',
+            $receiver instanceof Node\Expr\MethodCall => 'method_chain_receiver',
+            $receiver instanceof Node\Name => 'static_receiver',
+            default => 'other_receiver',
+        };
     }
 
     /** @param list<Node\Stmt> $nodes @return array<string,string> */
@@ -363,6 +426,45 @@ final class SchemaContractProbe
         return $variables;
     }
 
+    /** @param list<Node\Stmt> $nodes @param array<string,string> $imports @return list<array{property:string,class:string,start:int,end:int}> */
+    private function typedProperties(array $nodes, array $imports): array
+    {
+        $properties = [];
+        foreach ((new NodeFinder)->findInstanceOf($nodes, Node\Stmt\Class_::class) as $class) {
+            foreach ($class->getProperties() as $property) {
+                if (! $property->type instanceof Node\Name) {
+                    continue;
+                }
+                foreach ($property->props as $item) {
+                    $properties[] = [
+                        'property' => $item->name->toString(),
+                        'class' => $this->resolvedClass($property->type, $imports),
+                        'start' => $class->getStartLine(),
+                        'end' => $class->getEndLine(),
+                    ];
+                }
+            }
+            foreach ($class->getMethods() as $method) {
+                if ($method->name->toString() !== '__construct') {
+                    continue;
+                }
+                foreach ($method->params as $parameter) {
+                    if ($parameter->flags === 0 || ! $parameter->var instanceof Node\Expr\Variable || ! is_string($parameter->var->name) || ! $parameter->type instanceof Node\Name) {
+                        continue;
+                    }
+                    $properties[] = [
+                        'property' => $parameter->var->name,
+                        'class' => $this->resolvedClass($parameter->type, $imports),
+                        'start' => $class->getStartLine(),
+                        'end' => $class->getEndLine(),
+                    ];
+                }
+            }
+        }
+
+        return $properties;
+    }
+
     /** @param array<string,string> $imports */
     private function modelClassFromExpression(Node\Expr $expression, array $imports): ?string
     {
@@ -379,8 +481,8 @@ final class SchemaContractProbe
         return null;
     }
 
-    /** @param Node\Expr\MethodCall|Node\Expr\StaticCall $call @param array<string,string> $imports @param list<array{variable:string,class:string,start:int,end:int}> $typedVariables */
-    private function writeTable(Node\Expr $call, array $imports, array $typedVariables): ?string
+    /** @param Node\Expr\MethodCall|Node\Expr\StaticCall $call @param array<string,string> $imports @param list<array{variable:string,class:string,start:int,end:int}> $typedVariables @param list<array{property:string,class:string,start:int,end:int}> $typedProperties */
+    private function writeTable(Node\Expr $call, array $imports, array $typedVariables, array $typedProperties): ?string
     {
         $receiver = $call instanceof Node\Expr\MethodCall ? $call->var : $call->class;
 
@@ -396,6 +498,13 @@ final class SchemaContractProbe
             return $this->modelTable($this->resolvedClass($receiver->class, $imports));
         }
 
+        // Model::query()->where(...)->update(...) ve
+        // $this->model->newQuery()->update(...) gibi zincirlerde tablo en dış
+        // çağrıda değil, zincirin kökünde taşınır.
+        if ($receiver instanceof Node\Expr\MethodCall) {
+            return $this->writeTable($receiver, $imports, $typedVariables, $typedProperties);
+        }
+
         if ($call instanceof Node\Expr\StaticCall && $call->class instanceof Node\Name) {
             return $this->modelTable($this->resolvedClass($call->class, $imports));
         }
@@ -406,6 +515,18 @@ final class SchemaContractProbe
                 ->filter(fn (array $candidate): bool => $candidate['variable'] === $receiver->name && $candidate['start'] <= $line && $candidate['end'] >= $line)
                 ->sortByDesc('start')
                 ->first();
+
+            return is_array($match) ? $this->modelTable($match['class']) : null;
+        }
+
+        if ($receiver instanceof Node\Expr\PropertyFetch
+            && $receiver->var instanceof Node\Expr\Variable
+            && $receiver->var->name === 'this'
+            && $receiver->name instanceof Node\Identifier) {
+            $line = $call->getStartLine();
+            $match = collect($typedProperties)->first(fn (array $candidate): bool => $candidate['property'] === $receiver->name->toString()
+                && $candidate['start'] <= $line
+                && $candidate['end'] >= $line);
 
             return is_array($match) ? $this->modelTable($match['class']) : null;
         }

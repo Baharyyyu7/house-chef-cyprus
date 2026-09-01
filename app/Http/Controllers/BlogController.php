@@ -16,7 +16,7 @@ use Illuminate\View\View;
 
 final class BlogController extends Controller
 {
-    public function index(Request $request, SeoIndexabilityService $indexability): View
+    public function index(Request $request, SeoIndexabilityService $indexability, SeoSchemaService $schema): View
     {
         // Çevirisi olmayan yazı o dilin sitesinde yoktur. Listelenseydi
         // /en/blog altında Türkçe başlıklar çıkardı; Google sayfanın dilini
@@ -26,7 +26,17 @@ final class BlogController extends Controller
             ->when($request->filled('q'), fn ($query) => $query->where(fn ($nested) => $nested->where('title', 'like', '%'.$request->string('q')->toString().'%')->orWhere('excerpt', 'like', '%'.$request->string('q')->toString().'%')))
             ->latest('published_at')->paginate(12)->withQueryString();
 
-        return view('blog.index', ['posts' => $posts, 'title' => 'Blog · House Chef Cyprus', 'seoIndexability' => $indexability->forRequest($request, route('blog.index'))]);
+        $description = 'Mutfak teknikleri, malzeme rehberleri ve Kıbrıs mutfağı üzerine editoryal yazılar.';
+
+        return view('blog.index', [
+            'posts' => $posts,
+            'title' => 'Blog · House Chef Cyprus',
+            'seoIndexability' => $indexability->forRequest($request, route('blog.index')),
+            'seoSchema' => $schema->blogCollectionPage('Mutfak rehberi', $description, route('blog.index'), $posts->items(), [
+                ['name' => 'Ana Sayfa', 'url' => route('home')],
+                ['name' => 'Blog', 'url' => route('blog.index')],
+            ]),
+        ]);
     }
 
     public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService, PublicMediaEligibilityService $mediaEligibility): View
