@@ -94,6 +94,10 @@ else
     cp "$ROOT/.env" "$WORKTREE/.env"
     ( cd "$WORKTREE" && composer install --no-interaction --prefer-dist --quiet )
     ( cd "$WORKTREE" && npm ci --silent )
+    # Varliklar da derlenmeli: testler sayfa render ediyor ve Vite manifesti
+    # yoksa 350 test "manifest not found" ile 500 doner. Bu, .env eksikligiyle
+    # birlikte Codex'in deploy'da durmasinin ikinci sebebiydi.
+    ( cd "$WORKTREE" && npm run build --silent >/dev/null )
 fi
 
 temizle() {

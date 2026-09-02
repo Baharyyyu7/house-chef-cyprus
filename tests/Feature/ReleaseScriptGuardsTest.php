@@ -98,6 +98,14 @@ final class ReleaseScriptGuardsTest extends TestCase
         $this->assertStringContainsString('DRY_RUN=false', $kaynak);
     }
 
+    public function test_the_clean_copy_also_builds_its_assets(): void
+    {
+        // Vite manifesti olmadan sayfa render eden her test 500 dönüyor;
+        // ilk denemede 350 test bu yüzden kırmızı verdi. `.env` eksikliğiyle
+        // birlikte Codex'in deploy'da durmasının iki sebebinden biriydi.
+        $this->assertStringContainsString('npm run build', $this->kaynak());
+    }
+
     private function kaynak(): string
     {
         $yol = base_path('scripts/release.sh');
