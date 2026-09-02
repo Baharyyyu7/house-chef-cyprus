@@ -260,7 +260,7 @@
         // Gozcu ogesi bu sinifi tamamen kaldiriyor. Tarayici kesisimi kendisi
         // hesapliyor; olay dinleyicisi, es zamanli yerlesim okumasi ve kare
         // basina is yok. Kaydirma kabinin pencere olup olmamasi da onemsiz.
-        (function () {
+        function gozcuyuKur() {
             var gozcu = document.createElement('div');
             gozcu.setAttribute('aria-hidden', 'true');
             gozcu.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:16px;pointer-events:none';
@@ -285,7 +285,16 @@
             new IntersectionObserver(function (girisler) {
                 basligiGuncelle(!girisler[0].isIntersecting);
             }, { threshold: 0 }).observe(gozcu);
-        })();
+        }
+
+        // Bu betik <head> icinde kosuyor: document.body henuz yok. Ilk
+        // yazisimda bunu atladim ve gozcu hic eklenmedi, baslik da saydam
+        // kaldi.
+        if (document.body) {
+            gozcuyuKur();
+        } else {
+            document.addEventListener('DOMContentLoaded', gozcuyuKur, { once: true });
+        }
     })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])

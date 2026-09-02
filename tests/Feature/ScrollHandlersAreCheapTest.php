@@ -46,6 +46,15 @@ final class ScrollHandlersAreCheapTest extends TestCase
         $this->assertStringContainsString('basligiGuncelle', $icerik);
     }
 
+    public function test_the_sentinel_waits_for_the_body_to_exist(): void
+    {
+        // Bu betik <head> içinde koşuyor; document.body henüz yok. İlk
+        // yazışımda bunu atladım, prepend hata verdi ve gözcü hiç eklenmedi.
+        $icerik = (string) $this->get('/')->assertOk()->getContent();
+
+        $this->assertStringContainsString("addEventListener('DOMContentLoaded', gozcuyuKur", $icerik);
+    }
+
     public function test_the_header_falls_back_to_the_class_before_alpine_starts(): void
     {
         // Alpine geç başlarsa başlık saydam kalmaktansa doğru görünsün.
