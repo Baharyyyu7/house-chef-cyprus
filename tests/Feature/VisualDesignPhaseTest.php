@@ -17,6 +17,17 @@ final class VisualDesignPhaseTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_public_design_has_one_vite_css_source(): void
+    {
+        $vite = (string) file_get_contents(base_path('vite.config.js'));
+        $layout = (string) file_get_contents(resource_path('views/layouts/site.blade.php'));
+
+        $this->assertStringContainsString("'resources/css/app.css'", $vite);
+        $this->assertStringNotContainsString('improvements.css', $vite);
+        $this->assertStringNotContainsString('improvements.css', $layout);
+        $this->assertFileDoesNotExist(resource_path('css/improvements.css'));
+    }
+
     public function test_public_navigation_and_mobile_navigation_are_available(): void
     {
         $this->get(route('home'))
