@@ -807,6 +807,29 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
    edilince degisken 0 olur ve bosluk kaybolur. */
 body { padding-bottom: var(--hc-consent-h, 0px); }
 
+/* Taahhut izgarasi.
+   Onceki hali otomatik kayan yorum karuseliydi: taahhutler blockquote
+   icinde duruyor, akis dongusu icin her madde iki kez basiliyor ve hicbiri
+   kanitina baglanmiyordu. */
+.hc-taahhut { border-block:1px solid var(--hc-line); background:var(--hc-background-subtle); padding-block:4rem; }
+.hc-taahhut__liste { display:grid; gap:1rem; padding:0; list-style:none; grid-template-columns:1fr; }
+@media (min-width:640px) { .hc-taahhut__liste { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (min-width:1024px) { .hc-taahhut__liste { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+.hc-taahhut__oge {
+    display:flex; flex-direction:column; gap:.4rem;
+    padding:1.4rem; border:1px solid var(--hc-line); border-radius:1.25rem;
+    background:var(--hc-surface-default);
+}
+.hc-taahhut__rol { font-size:.75rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--hc-brand-primary); }
+/* Turkce baslik: 1.35 satir yuksekligi g/s/c kuyruklarini kirpmiyor. */
+.hc-taahhut__baslik { font-family:var(--hc-font-display, inherit); font-size:1.0625rem; font-weight:700; line-height:1.35; color:var(--hc-text-primary); }
+.hc-taahhut__metin { font-size:.9375rem; line-height:1.7; color:var(--hc-text-secondary); }
+.hc-taahhut__kanit {
+    margin-top:auto; padding-top:.9rem; display:inline-flex; align-items:center; gap:.35rem;
+    min-height:1.5rem; font-size:.875rem; font-weight:700; color:var(--hc-brand-primary);
+}
+.hc-taahhut__kanit:hover { text-decoration:underline; }
+
 /* Kardes koleksiyon gecisi.
    Koleksiyon sayfalari cikmaz sokakti: ziyaretci bir mutfaktan digerine
    gecemiyor, tarama grafigi de yatay bag kurmuyordu. */

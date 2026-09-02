@@ -20,14 +20,56 @@ final class HomeTestimonialsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_the_section_renders_with_its_animation_controls(): void
+    public function test_the_section_renders_its_commitments(): void
     {
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('Neye güvenebilirsiniz?')
             ->assertSee('Onaysız görsel yayınlanmaz')
-            ->assertSee('Yorum akışını duraklat', false)
             ->assertDontSee('data-testimonial-avatar', false);
+    }
+
+    public function test_the_commitments_are_not_an_auto_scrolling_marquee(): void
+    {
+        // Taahhütler yorum karuselinde duruyordu: akış döngüsü için her
+        // madde iki kez basılıyor ve bölüm anasayfanın en büyük metin bloğu
+        // oluyordu (5.139 karakter, sıfır bağlantı). Biçim içerikle
+        // çelişiyordu - yorum gibi görünen bir şeyin yorum olmadığını
+        // söyleyen bir açıklama satırı gerekmesi de bunun işaretiydi.
+        $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('hc-testimonials-track', $icerik);
+        $this->assertStringNotContainsString('Yorum akışını duraklat', $icerik);
+    }
+
+    public function test_each_commitment_links_to_the_page_that_proves_it(): void
+    {
+        // İddia edip kanıtını göstermemek iddiayı zayıflatır. Bu sayfalar
+        // zaten vardı ama anasayfadan hiçbirine bağlantı yoktu.
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee(route('information.show', 'gorsel-ve-medya-politikasi'), false)
+            ->assertSee(route('information.show', 'besin-degeri-aciklamasi'), false);
+    }
+
+    public function test_every_commitment_carries_a_proof_page(): void
+    {
+        $maddeler = config('testimonials.home', []);
+
+        $this->assertNotEmpty($maddeler);
+
+        foreach ($maddeler as $madde) {
+            $this->assertArrayHasKey('proof', $madde, $madde['name'].' için kanıt sayfası yok.');
+            $this->assertNotEmpty($madde['proof']['page'] ?? null);
+        }
+    }
+
+    public function test_no_commitment_is_printed_twice(): void
+    {
+        // Karusel her maddeyi iki kez basıyordu; ızgarada bir kez basılmalı.
+        $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
+
+        $this->assertSame(1, substr_count($icerik, 'Onaysız görsel yayınlanmaz'));
     }
 
     public function test_the_disclosure_says_these_are_commitments_not_reviews(): void
