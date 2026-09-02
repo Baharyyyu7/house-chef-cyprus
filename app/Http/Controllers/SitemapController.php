@@ -30,15 +30,28 @@ final class SitemapController extends Controller
 
     public function pages(): Response
     {
+        $ingredients = IngredientHubController::sayfasiOlanlar();
+        $cuisines = CuisineHubController::sayfasiOlanlar();
+        $categories = CategoryHubController::sayfasiOlanlar();
+        $latestRecipe = $this->date(Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->max('published_at'));
+        $hubLastmods = [
+            '' => $latestRecipe,
+            'tarifler' => $latestRecipe,
+            'blog' => $this->date(BlogPost::query()->publiclyVisible()->max('published_at')),
+            'malzemeler' => $this->date($ingredients->max('latest_published_at')),
+            'mutfaklar' => $this->date($cuisines->max('latest_published_at')),
+            'kategoriler' => $this->date($categories->max('latest_published_at')),
+        ];
+
         // ne-pisirebilirim üyelik duvarının arkasından çıkarıldı; indekslenebilir bir araç sayfasıdır.
         $staticPaths = ['', 'tarifler', 'blog', 'malzemeler', 'mutfaklar', 'kategoriler', 'ne-pisirebilirim', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'iletisim'];
-        $urls = collect($staticPaths)->map(fn (string $path): array => ['loc' => url($path), 'lastmod' => null]);
+        $urls = collect($staticPaths)->map(fn (string $path): array => ['loc' => url($path), 'lastmod' => $hubLastmods[$path] ?? null]);
 
         // Malzeme sayfaları. Liste ile sitemap aynı eşiği paylaşmak zorunda:
         // ayrışırsa sitemap 404 veren adresleri ilan eder ve tarama bütçesi
         // boşa gider.
         $urls = $urls->concat(
-            IngredientHubController::sayfasiOlanlar()
+            $ingredients
                 ->map(fn ($malzeme): array => [
                     'loc' => route('ingredients.hub.show', $malzeme->slug),
                     'lastmod' => $this->date($malzeme->latest_published_at),
@@ -47,7 +60,7 @@ final class SitemapController extends Controller
 
         // Mutfak sayfalari ayni esigi paylasiyor.
         $urls = $urls->concat(
-            CuisineHubController::sayfasiOlanlar()
+            $cuisines
                 ->map(fn ($mutfak): array => [
                     'loc' => route('cuisines.show', $mutfak->slug),
                     'lastmod' => $this->date($mutfak->latest_published_at),
@@ -55,7 +68,7 @@ final class SitemapController extends Controller
         );
 
         $urls = $urls->concat(
-            CategoryHubController::sayfasiOlanlar()->map(fn ($kategori): array => [
+            $categories->map(fn ($kategori): array => [
                 'loc' => route('categories.show', $kategori->slug),
                 'lastmod' => $this->date($kategori->latest_published_at),
             ])

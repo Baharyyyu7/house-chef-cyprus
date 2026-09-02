@@ -46,6 +46,22 @@ final class CategoryLandingPagesTest extends TestCase
         $this->assertStringNotContainsString('"@type":"Recipe"', $this->collectionSchema($html));
     }
 
+    public function test_category_page_uses_a_meaningful_existing_description_but_hides_the_import_placeholder(): void
+    {
+        $described = $this->category('Ev Yemekleri', 'ev-yemekleri', 4);
+        $described->update(['description' => 'Mevsimlik malzemelerle hazırlanan güvenilir ev yemekleri seçkisi.']);
+
+        $placeholder = $this->category('Kahvaltı', 'kahvalti', 4);
+        $placeholder->update(['description' => 'House Chef Cyprus editoryal içerik kategorisi.']);
+
+        $this->get(route('categories.show', $described->slug))
+            ->assertOk()
+            ->assertSee($described->description);
+        $this->get(route('categories.show', $placeholder->slug))
+            ->assertOk()
+            ->assertDontSee($placeholder->description);
+    }
+
     private function category(string $name, string $slug, int $count): Category
     {
         $category = Category::query()->create(['name' => $name, 'slug' => $slug]);
@@ -70,5 +86,41 @@ final class CategoryLandingPagesTest extends TestCase
         preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $html, $matches);
 
         return collect($matches[1] ?? [])->first(fn (string $json): bool => str_contains($json, 'CollectionPage'), '');
+    }
+
+    public function test_the_placeholder_description_is_never_shown(): void
+    {
+        // Sekiz kategorinin hepsi birebir aynı tohumlama metnini taşıyor ve
+        // hiçbirinin gerçek açıklaması yok. Dolgu metin basmak, içerik
+        // varmış izlenimi verir.
+        $kategori = \App\Models\Category::query()->create([
+            'name' => 'Çorba',
+            'slug' => 'corba-test',
+            'description' => \App\Models\Category::YER_TUTUCU_ACIKLAMA,
+        ]);
+
+        $this->assertFalse($kategori->gercekAciklamasiVar());
+    }
+
+    public function test_a_real_description_is_shown(): void
+    {
+        $kategori = \App\Models\Category::query()->create([
+            'name' => 'Çorba',
+            'slug' => 'corba-gercek',
+            'description' => 'Kıbrıs ve Akdeniz mutfağından sıcak çorbalar.',
+        ]);
+
+        $this->assertTrue($kategori->gercekAciklamasiVar());
+    }
+
+    public function test_an_empty_description_is_not_shown(): void
+    {
+        $kategori = \App\Models\Category::query()->create([
+            'name' => 'Meze',
+            'slug' => 'meze-bos',
+            'description' => '   ',
+        ]);
+
+        $this->assertFalse($kategori->gercekAciklamasiVar());
     }
 }

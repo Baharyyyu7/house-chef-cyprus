@@ -138,6 +138,86 @@ PHP);
         $this->assertSame(['suggested_action'], $report['skipped_writers'][0]['columns']);
     }
 
+    public function test_it_resolves_models_iterated_from_an_eloquent_collection(): void
+    {
+        $this->migration(<<<'PHP'
+<?php
+Schema::create('zero_result_searches', function (Blueprint $table): void {
+    $table->string('suggested_action', 40);
+});
+PHP);
+        File::put($this->fixtureRoot.'/app/Writer.php', <<<'PHP'
+<?php
+$searches = \App\Models\ZeroResultSearch::query()->get();
+foreach ($searches as $search) {
+    $search->update(['suggested_action' => '/sure/20-dakika']);
+}
+PHP);
+
+        $report = app(SchemaContractProbe::class)->inspect(
+            [$this->fixtureRoot.'/app'],
+            [$this->fixtureRoot.'/migrations'],
+        );
+
+        $this->assertSame(1, $report['writer_count']);
+        $this->assertSame(0, $report['skipped_writer_count']);
+        $this->assertSame('zero_result_searches', $report['writers'][0]['table']);
+    }
+
+    public function test_it_resolves_the_related_table_for_eloquent_relationship_writes(): void
+    {
+        $this->migration(<<<'PHP'
+<?php
+Schema::create('content_translations', function (Blueprint $table): void {
+    $table->string('locale', 10);
+    $table->string('field', 40);
+});
+PHP);
+        File::put($this->fixtureRoot.'/app/Writer.php', <<<'PHP'
+<?php
+function translate(\App\Models\BlogPost $post): void {
+    $post->translations()->updateOrCreate(
+        ['locale' => 'tr', 'field' => 'meta_description'],
+        ['field' => 'meta_description']
+    );
+}
+PHP);
+
+        $report = app(SchemaContractProbe::class)->inspect(
+            [$this->fixtureRoot.'/app'],
+            [$this->fixtureRoot.'/migrations'],
+        );
+
+        $this->assertSame(3, $report['writer_count']);
+        $this->assertSame(0, $report['skipped_writer_count']);
+        $this->assertSame(['content_translations'], array_values(array_unique(array_column($report['writers'], 'table'))));
+    }
+
+    public function test_it_resolves_nested_relationship_properties_before_a_relationship_write(): void
+    {
+        $this->migration(<<<'PHP'
+<?php
+Schema::create('media', function (Blueprint $table): void {
+    $table->string('media_status', 40);
+});
+PHP);
+        File::put($this->fixtureRoot.'/app/Writer.php', <<<'PHP'
+<?php
+function store(\App\Models\AiImageGeneration $generation): void {
+    $generation->recipe->media()->create(['media_status' => 'approved_ai_media']);
+}
+PHP);
+
+        $report = app(SchemaContractProbe::class)->inspect(
+            [$this->fixtureRoot.'/app'],
+            [$this->fixtureRoot.'/migrations'],
+        );
+
+        $this->assertSame(1, $report['writer_count']);
+        $this->assertSame(0, $report['skipped_writer_count']);
+        $this->assertSame('media', $report['writers'][0]['table']);
+    }
+
     public function test_it_reports_production_schema_length_missing_and_extra_column_drift(): void
     {
         $this->migration(<<<'PHP'

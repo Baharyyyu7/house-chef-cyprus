@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Integrity;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use PhpParser\Node;
 use PhpParser\NodeFinder;
 use PhpParser\Parser;
@@ -423,6 +424,34 @@ final class SchemaContractProbe
             ];
         }
 
+        // Query sonucunu dolaşan değişken koleksiyonun kendisi değil, tek bir
+        // model örneğidir. Bu bağı taşımazsak `$records as $record` sonrasında
+        // yapılan fill/update çağrıları sessizce kapsam dışında kalır.
+        foreach ((new NodeFinder)->findInstanceOf($nodes, Node\Stmt\Foreach_::class) as $foreach) {
+            if (! $foreach->valueVar instanceof Node\Expr\Variable || ! is_string($foreach->valueVar->name)) {
+                continue;
+            }
+
+            $class = $this->modelClassFromExpression($foreach->expr, $imports);
+            if ($class === null && $foreach->expr instanceof Node\Expr\Variable && is_string($foreach->expr->name)) {
+                $line = $foreach->getStartLine();
+                $source = collect($variables)
+                    ->filter(fn (array $candidate): bool => $candidate['variable'] === $foreach->expr->name && $candidate['start'] <= $line && $candidate['end'] >= $line)
+                    ->sortByDesc('start')
+                    ->first();
+                $class = is_array($source) ? $source['class'] : null;
+            }
+
+            if ($class !== null) {
+                $variables[] = [
+                    'variable' => $foreach->valueVar->name,
+                    'class' => $class,
+                    'start' => $foreach->getStartLine(),
+                    'end' => $foreach->getEndLine(),
+                ];
+            }
+        }
+
         return $variables;
     }
 
@@ -502,6 +531,11 @@ final class SchemaContractProbe
         // $this->model->newQuery()->update(...) gibi zincirlerde tablo en dış
         // çağrıda değil, zincirin kökünde taşınır.
         if ($receiver instanceof Node\Expr\MethodCall) {
+            $related = $this->relationshipTable($receiver, $imports, $typedVariables, $typedProperties);
+            if ($related !== null) {
+                return $related;
+            }
+
             return $this->writeTable($receiver, $imports, $typedVariables, $typedProperties);
         }
 
@@ -532,6 +566,79 @@ final class SchemaContractProbe
         }
 
         return null;
+    }
+
+    /** @param array<string,string> $imports @param list<array{variable:string,class:string,start:int,end:int}> $typedVariables @param list<array{property:string,class:string,start:int,end:int}> $typedProperties */
+    private function relationshipTable(Node\Expr\MethodCall $call, array $imports, array $typedVariables, array $typedProperties): ?string
+    {
+        if (! $call->name instanceof Node\Identifier || $call->args !== []) {
+            return null;
+        }
+
+        $modelClass = $this->receiverModelClass($call->var, $call->getStartLine(), $imports, $typedVariables, $typedProperties);
+        $related = $modelClass === null ? null : $this->relatedModelClass($modelClass, $call->name->toString());
+
+        return $related === null ? null : $this->modelTable($related);
+    }
+
+    /** @param array<string,string> $imports @param list<array{variable:string,class:string,start:int,end:int}> $typedVariables @param list<array{property:string,class:string,start:int,end:int}> $typedProperties */
+    private function receiverModelClass(Node\Expr $receiver, int $line, array $imports, array $typedVariables, array $typedProperties): ?string
+    {
+        if ($receiver instanceof Node\Expr\StaticCall && $receiver->class instanceof Node\Name) {
+            $class = $this->resolvedClass($receiver->class, $imports);
+
+            return $this->modelTable($class) !== null ? $class : null;
+        }
+
+        if ($receiver instanceof Node\Expr\Variable && is_string($receiver->name)) {
+            $match = collect($typedVariables)
+                ->filter(fn (array $candidate): bool => $candidate['variable'] === $receiver->name && $candidate['start'] <= $line && $candidate['end'] >= $line)
+                ->sortByDesc('start')->first();
+
+            return is_array($match) && $this->modelTable($match['class']) !== null ? $match['class'] : null;
+        }
+
+        if ($receiver instanceof Node\Expr\PropertyFetch && $receiver->name instanceof Node\Identifier) {
+            if ($receiver->var instanceof Node\Expr\Variable && $receiver->var->name === 'this') {
+                $match = collect($typedProperties)->first(fn (array $candidate): bool => $candidate['property'] === $receiver->name->toString()
+                    && $candidate['start'] <= $line && $candidate['end'] >= $line);
+
+                return is_array($match) && $this->modelTable($match['class']) !== null ? $match['class'] : null;
+            }
+
+            // Eloquent ilişkisinin property biçimi (`$generation->recipe`)
+            // de yöntem biçimiyle aynı modeli taşır. Sadece dönüş tipi açıkça
+            // Relation olan sıfır argümanlı metotları çalıştırırız; Stripe SDK
+            // gibi keyfi property zincirleri bu yola giremez.
+            $parent = $this->receiverModelClass($receiver->var, $line, $imports, $typedVariables, $typedProperties);
+
+            return $parent === null ? null : $this->relatedModelClass($parent, $receiver->name->toString());
+        }
+
+        return null;
+    }
+
+    private function relatedModelClass(string $modelClass, string $relationship): ?string
+    {
+        if (! method_exists($modelClass, $relationship)) {
+            return null;
+        }
+
+        try {
+            $method = new \ReflectionMethod($modelClass, $relationship);
+            $returnType = $method->getReturnType();
+            if ($method->getNumberOfRequiredParameters() !== 0
+                || ! $returnType instanceof \ReflectionNamedType
+                || ! is_a($returnType->getName(), Relation::class, true)) {
+                return null;
+            }
+
+            $relation = $method->invoke(new $modelClass);
+
+            return $relation instanceof Relation ? $relation->getRelated()::class : null;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /** @param array<string,string> $imports */
