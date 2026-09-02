@@ -7,8 +7,8 @@
     $isSyntheticMedia = (bool) $media?->generated_by_ai;
 @endphp
 
-<article {{ $attributes->merge(['class' => 'hc-v3-card hc-v3-card--interactive group relative flex w-full min-w-0 min-h-[27rem] flex-col overflow-hidden']) }}>
-    <a class="relative block aspect-[1.16] overflow-hidden bg-stone-100 dark:bg-stone-900" tabindex="-1" aria-hidden="true" href="{{ route('recipes.show', $recipe) }}">
+<article {{ $attributes->merge(['class' => 'hc-v3-card hc-v3-card--interactive group relative flex w-full min-w-0 flex-col overflow-hidden']) }}>
+    <a class="relative block aspect-[4/3] overflow-hidden bg-stone-100 dark:bg-stone-900" tabindex="-1" aria-hidden="true" href="{{ route('recipes.show', $recipe) }}">
         @if($hasApprovedMedia)
             <picture>
                 @if($media->responsiveSrcset([400, 800], 'avif'))<source type="image/avif" srcset="{{ $media->responsiveSrcset([400, 800], 'avif') }}" sizes="(min-width: 640px) 400px, 100vw">@endif
@@ -24,15 +24,15 @@
         @endif
         @if($hasApprovedMedia)<span class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent"></span>@endif
         <span class="absolute left-3 top-3 hc-v3-badge {{ $hasApprovedMedia ? 'border-white/20 bg-black/35 text-white backdrop-blur' : '' }}">{{ $recipe->cuisine?->name ?? 'Ev mutfağı' }}</span>
-        @if($hasApprovedMedia && $isSyntheticMedia)<span class="absolute right-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">Yapay zekâ görseli</span>@endif
+        @if($hasApprovedMedia && $isSyntheticMedia)<span class="absolute right-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">YZ görseli</span>@endif
         <span class="absolute bottom-3 left-3 text-xs font-extrabold {{ $hasApprovedMedia ? 'text-white' : 'text-stone-700 dark:text-stone-300' }}">{{ $recipe->totalMinutes() }} dk · {{ $recipe->servings }} porsiyon</span>
     </a>
     <div class="flex flex-1 flex-col p-5">
         <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color: var(--hc-text-muted)"><span>{{ $recipe->category?->name ?? 'Tarif' }}</span><span>{{ $recipe->zorlukEtiketi() }}</span></div>
-        <h2 class="mt-3 hc-heading-3 line-clamp-2"><a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('recipes.show', $recipe) }}">{{ $recipe->title }}</a></h2>
-        <p class="hc-body-sm mt-3 line-clamp-3" style="color: var(--hc-text-secondary)">{{ $recipe->excerpt }}</p>
-        <div class="mt-4 flex flex-wrap gap-2">@foreach($recipe->dietaryTags->take(2) as $tag)<span class="hc-v3-badge hc-v3-badge--success">{{ $tag->name ?? str($tag->code)->replace('_', ' ')->title() }}</span>@endforeach</div>
-        <div class="mt-auto flex items-center justify-between gap-3 pt-5">
+        <h2 class="mt-2 text-base font-extrabold leading-snug line-clamp-2" style="color: var(--hc-text-primary)"><a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('recipes.show', $recipe) }}">{{ $recipe->title }}</a></h2>
+        <p class="hc-body-sm mt-2 line-clamp-2" style="color: var(--hc-text-secondary)">{{ $recipe->excerpt }}</p>
+        <div class="mt-3 flex flex-wrap gap-2">@foreach($recipe->dietaryTags->take(2) as $tag)<span class="hc-v3-badge hc-v3-badge--success">{{ $tag->name ?? str($tag->code)->replace('_', ' ')->title() }}</span>@endforeach</div>
+        <div class="mt-auto flex items-center justify-between gap-3 pt-4">
             <span class="hc-v3-badge {{ $hasApprovedMedia && $recipe->verification_status === 'verified' ? 'hc-v3-badge--success' : 'hc-v3-badge--warning' }}"><span aria-hidden="true">{{ $hasApprovedMedia && $recipe->verification_status === 'verified' ? '✓' : 'ⓘ' }}</span> {{ $hasApprovedMedia && $recipe->verification_status === 'verified' ? 'Doğrulandı' : 'İnceleme sürüyor' }}</span>
             <div class="flex items-center gap-1">
                 @auth
@@ -40,7 +40,7 @@
                         <form method="post" action="{{ route('favorites.toggle', $recipe) }}" class="relative z-10">@csrf<button class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" type="submit" aria-label="{{ $recipe->title }} tarifini favorilere ekle">♡<span class="sr-only">Favorilere ekle</span></button></form>
                     @endif
                 @endauth
-                <a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" href="{{ route('recipes.show', $recipe) }}">İncele <span aria-hidden="true">→</span></a>
+                <a class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm font-bold" href="{{ route('recipes.show', $recipe) }}">Tarife git <span aria-hidden="true">→</span></a>
             </div>
         </div>
     </div>

@@ -1079,3 +1079,8 @@ a.hc-nav-control { padding-inline: 1.1rem; }
     .hc-giris__kart strong { font-size:.92rem; font-weight:800; color:#fff; }
     .hc-giris__kart span { font-size:.8rem; line-height:1.5; color:rgba(255,255,255,.78); }
 }
+
+/* İyileştirme katmanı: animasyonlar, eksik bileşen stilleri ve rafine görünüm.
+   Ayrı dosyada tutulur; git diff'i temiz kalır. */
+@import './improvements.css';
+
