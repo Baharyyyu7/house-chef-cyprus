@@ -747,3 +747,57 @@ html.dark .hc-home-utility--warm {
 
 /* Gelişmiş filtreler details/summary daha belirgin açılsın */
 details > summary { user-select: none; }
+
+/* ═══════════════════════════════════════════════
+   29. BLOG DETAILS (Sık Sorulan Sorular)
+   ═══════════════════════════════════════════════ */
+
+.hc-faq {
+  border: 1px solid var(--hc-border-default);
+  border-radius: var(--hc-radius-lg);
+  background: var(--hc-surface-raised);
+  padding: 1rem 1.25rem;
+  transition: border-color var(--hc-duration-fast) ease, background-color var(--hc-duration-fast) ease;
+}
+
+.hc-faq[open] {
+  border-color: var(--hc-border-strong);
+  background: var(--hc-surface-default);
+}
+
+.hc-faq__question {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--hc-text-primary);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hc-faq__question::-webkit-details-marker {
+  display: none;
+}
+
+.hc-faq__question::after {
+  content: '+';
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--hc-text-muted);
+  transition: transform var(--hc-duration-fast) ease;
+}
+
+.hc-faq[open] .hc-faq__question::after {
+  content: '−';
+  color: var(--hc-brand-primary);
+}
+
+.hc-faq__answer {
+  margin-top: .75rem;
+  font-size: .925rem;
+  line-height: 1.6;
+  color: var(--hc-text-secondary);
+  border-t: 1px solid var(--hc-border-subtle);
+  padding-top: .75rem;
+}
