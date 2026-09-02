@@ -1,6 +1,22 @@
-// Livewire ships and starts Alpine for every layout in this application.
-// Starting a second copy from Vite breaks Livewire's navigate redirect contract.
+// Alpine bu uygulamada iki farkli yerden gelebiliyor.
+//
+// Eskiden her layout Livewire yukluyordu ve Alpine'i Livewire baslatiyordu.
+// Livewire genel sayfalardan kaldirilinca (161 KB, hicbir genel sayfada
+// bilesen yok) Alpine de onunla birlikte gitti: yapiskan baslik is-scrolled
+// alamadi, acilir menuler ve tema dugmesi olduO ve x-cloak tasiyan ogeler
+// kalici olarak gizli kaldi.
+//
+// Iki kopya calistirmak da olmaz - Livewire'in navigate sozlesmesini kirar.
+// Bu yuzden sahibi sunucu soyluyor: layout, Livewire basip basmadigini
+// data-alpine-owner ile bildiriyor ve Alpine yalniz sahipsiz sayfalarda
+// buradan baslatiliyor.
+import Alpine from 'alpinejs';
 import { Chart, registerables } from 'chart.js';
+
+if (document.body?.dataset.alpineOwner === 'app' && !window.Alpine) {
+    window.Alpine = Alpine;
+    Alpine.start();
+}
 
 Chart.register(...registerables);
 

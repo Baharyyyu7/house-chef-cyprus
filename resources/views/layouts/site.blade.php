@@ -227,7 +227,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @unless($isPrivateSurface)<x-google-integrations />@endunless
 </head>
-<body x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, adminSidebarCollapsed: localStorage.hcAdminSidebarCollapsed === 'true', adminSidebarQuery: '', scrolled: false }"
+<body data-alpine-owner="{{ $livewire ? 'livewire' : 'app' }}" x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, adminSidebarCollapsed: localStorage.hcAdminSidebarCollapsed === 'true', adminSidebarQuery: '', scrolled: false }"
     x-init="document.documentElement.classList.toggle('dark', dark); $watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light'; window.dispatchEvent(new CustomEvent('hc-theme-changed')); }); $watch('adminSidebarCollapsed', value => localStorage.hcAdminSidebarCollapsed = value); $watch('adminMenuOpen', value => document.body.classList.toggle('overflow-hidden', value)); $watch('menuOpen', value => document.body.classList.toggle('overflow-hidden', value))"
     @keydown.escape.window="adminMenuOpen = false; menuOpen = false"
     class="min-h-screen antialiased">
