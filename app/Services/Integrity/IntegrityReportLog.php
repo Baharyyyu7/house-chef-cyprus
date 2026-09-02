@@ -104,6 +104,14 @@ final class IntegrityReportLog
                 : null;
         }
 
+        if ($guard === 'search:recheck-zero-results') {
+            $esikAlti = (int) ($payload['below_threshold'] ?? 0);
+
+            return $esikAlti > 0
+                ? $esikAlti." tekil terim daha var; tekrarlanmadıkça talep sayılmıyor"
+                : null;
+        }
+
         $engeller = $payload['blockers'] ?? null;
 
         if (! is_array($engeller) || $engeller === []) {

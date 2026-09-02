@@ -18,9 +18,22 @@ use App\Services\Search\TurkishRecipeQueryParser;
  * sonra "kolay tarifler" 24 tarif dönüyordu ama kayıt hâlâ sıfır diyordu.
  *
  * Bu yüzden kapanma beklemeye bırakılmıyor: site kendi kaydını denetliyor.
+ *
+ * Manşet sayı yalnız tekrarlanmış terimleri sayıyor. Sebebi veride:
+ * 2026-09-02'de açık kalan üç terim "asdfqwer", "functionalities" ve
+ * "search term string" idi - klavye ezmesi, bot ve test dizesi, hepsi
+ * 1-2 aramalı. Gerçekten talep olan üçü ise 19, 24 ve 26 aramayla
+ * gelmişti ve çoktan karşılanmıştı. Aradaki boşluk büyük.
+ *
+ * Üzerine gidilemeyen ve hiç sıfırlanmayacak bir sayı gürültüdür; paneli
+ * okumayı bırakmayı öğretir. Satırlar yine de kaydediliyor - kanıt orada
+ * kalıyor - yalnız manşete girmiyorlar.
  */
 final class ZeroResultRecheck
 {
+    /** Bir terim talep sayılmadan önce kaç kez aranmış olmalı. */
+    private const TALEP_ESIGI = 3;
+
     public function __construct(
         private readonly RecipeSearchInterface $search,
         private readonly ZeroResultSearchService $kayit,
@@ -32,9 +45,10 @@ final class ZeroResultRecheck
     {
         $cozulen = [];
         $acik = 0;
+        $tekil = 0;
 
         ZeroResultSearch::query()->whereNull('resolved_at')->orderByDesc('search_count')->each(
-            function (ZeroResultSearch $satir) use (&$cozulen, &$acik): void {
+            function (ZeroResultSearch $satir) use (&$cozulen, &$acik, &$tekil): void {
                 $adet = $this->search->search(['q' => $satir->normalized_query])->total();
 
                 if ($adet > 0) {
@@ -65,7 +79,13 @@ final class ZeroResultRecheck
                     return;
                 }
 
-                $acik++;
+                if ($satir->search_count >= self::TALEP_ESIGI) {
+                    $acik++;
+
+                    return;
+                }
+
+                $tekil++;
             }
         );
 
@@ -74,6 +94,9 @@ final class ZeroResultRecheck
             'checked_at' => now()->toIso8601String(),
             // Manşet sayı açık kalan talep: azalması iyileşmedir.
             'unmet' => $acik,
+            // Ayrı sayılıyor, gizlenmiyor: eşik bir gün yanlış çıkarsa
+            // bunun kaç satırı sustursduğu görünür olmalı.
+            'below_threshold' => $tekil,
             'resolved' => count($cozulen),
             'resolved_terms' => $cozulen,
         ];
