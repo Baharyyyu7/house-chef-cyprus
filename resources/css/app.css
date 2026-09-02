@@ -814,7 +814,11 @@ body { padding-bottom: var(--hc-consent-h, 0px); }
    basindaki cagriyla ayni yere gidiyordu. */
 .hc-kapanis {
     display:grid; gap:2rem; overflow:hidden;
-    border-radius:2rem; background:#f97316; color:#fff;
+    /* Zemin #f97316 iken bu banttaki hicbir metin AA'yi gecmiyordu: duz
+       turuncu uzerinde beyaz bile 2.8:1. Basliklar buyuk metin sayilip
+       kurtuluyordu, aciklama satiri kurtulmuyordu. #9a3412 ile kart
+       uzerinde beyaz 5.68, aciklama rengi 4.96. */
+    border-radius:2rem; background:#9a3412; color:#fff;
     padding:2.5rem 1.75rem;
 }
 @media (min-width:1024px) { .hc-kapanis { grid-template-columns:1fr 1fr; align-items:center; padding:3.5rem 2.5rem; } }
@@ -827,7 +831,7 @@ body { padding-bottom: var(--hc-consent-h, 0px); }
     background:rgba(255,255,255,.1);
     transition:background-color var(--hc-duration-fast) ease, border-color var(--hc-duration-fast) ease;
 }
-.hc-kapanis__kapilar a:hover { border-color:#fff; background:rgba(255,255,255,.2); }
+.hc-kapanis__kapilar a:hover { border-color:#fff; background:rgba(255,255,255,.18); }
 .hc-kapanis__kapilar a:focus-visible { outline:2px solid #fff; outline-offset:2px; }
 /* Turkce baslik: 1.35 satir yuksekligi g/s/c kuyruklarini kirpmiyor. */
 .hc-kapanis__kapilar strong { font-size:1rem; font-weight:800; line-height:1.35; color:#fff; }

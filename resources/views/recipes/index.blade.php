@@ -161,9 +161,9 @@
     <section data-reveal class="hc-container pb-8" aria-labelledby="home-kapanis-baslik">
         <div class="hc-kapanis">
             <div class="hc-kapanis__giris">
-                <p class="hc-kicker text-orange-100">Aradığınızı bulamadıysanız</p>
+                <p class="hc-kicker" style="color:#ffedd5">Aradığınızı bulamadıysanız</p>
                 <h2 id="home-kapanis-baslik" class="hc-heading-1 mt-3 max-w-xl">Mutfağa girmenin dört ayrı yolu var.</h2>
-                <p class="mt-4 max-w-lg hc-body-md text-orange-50">Tarif aramak tek yol değil. Elinizdeki malzemeden, sevdiğiniz mutfaktan ya da pişirmek istediğiniz yemek türünden de başlayabilirsiniz.</p>
+                <p class="mt-4 max-w-lg hc-body-md" style="color:#ffedd5">Tarif aramak tek yol değil. Elinizdeki malzemeden, sevdiğiniz mutfaktan ya da pişirmek istediğiniz yemek türünden de başlayabilirsiniz.</p>
             </div>
             <ul class="hc-kapanis__kapilar">
                 <li>
