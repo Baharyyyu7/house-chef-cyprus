@@ -114,6 +114,10 @@ Route::get('/mutfaklar', [CuisineHubController::class, 'index'])->name('cuisines
 Route::get('/mutfaklar/{slug}', [CuisineHubController::class, 'show'])->name('cuisines.show');
 Route::get('/kategoriler', [CategoryHubController::class, 'index'])->name('categories.index');
 Route::get('/kategoriler/{slug}', [CategoryHubController::class, 'show'])->name('categories.show');
+// /sure/30-dakika yayindaydi ama /sure 404 donuyordu: alt sayfasi olan ust
+// sayfa eksikti. Diger uc hub index + show ciftiyle duruyor.
+Route::get('/sure', [RecipeCollectionLandingController::class, 'sureler'])->name('collections.sure.index');
+Route::get('/zorluk', [RecipeCollectionLandingController::class, 'zorluklar'])->name('collections.zorluk.index');
 Route::get('/sure/{slug}', [RecipeCollectionLandingController::class, 'sure'])->name('collections.sure');
 Route::get('/zorluk/{slug}', [RecipeCollectionLandingController::class, 'zorluk'])->name('collections.zorluk');
 Route::get('/malzemeler', [IngredientHubController::class, 'index'])->name('ingredients.hub.index');

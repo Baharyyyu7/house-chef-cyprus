@@ -40,7 +40,49 @@ final class RecipeCollectionLandingController extends Controller
         return $this->goster($request, 'zorluk', $slug, $indexability, $gate, $schema);
     }
 
-    /** @return Collection<int, array{type:string,slug:string,title:string,url:string,lastmod:?string}> */
+    /**
+     * Sure ve zorluk ust sayfalari.
+     *
+     * /sure/30-dakika ve /zorluk/kolay yayindaydi ama /sure ve /zorluk 404
+     * donuyordu: alt sayfasi olan iki uste sayfa eksikti. Diger uc hub
+     * (/mutfaklar, /kategoriler, /malzemeler) index + show ciftiyle
+     * duruyordu; bu ikisi tek basina kalmisti. Adresi kisaltan ziyaretci ve
+     * yolu yukari yuruyen tarayici duvara carpiyordu.
+     */
+    public function sureler(Request $request, SeoIndexabilityService $indexability, SeoSchemaService $schema): View
+    {
+        return $this->hub($request, 'sure', 'Süreye göre tarifler', 'Elinizdeki zamana göre doğrulanmış tarifler.', $indexability, $schema);
+    }
+
+    public function zorluklar(Request $request, SeoIndexabilityService $indexability, SeoSchemaService $schema): View
+    {
+        return $this->hub($request, 'zorluk', 'Zorluğa göre tarifler', 'Mutfaktaki deneyiminize göre doğrulanmış tarifler.', $indexability, $schema);
+    }
+
+    private function hub(Request $request, string $tur, string $baslik, string $aciklama, SeoIndexabilityService $indexability, SeoSchemaService $schema): View
+    {
+        $sayfalar = self::sayfasiOlanlar()->where('type', $tur)->values();
+
+        // Bos bir ust sayfa yayinlamak yeni bir bos sayfa uretmek olur; alt
+        // sayfalarin hepsi asgari tarif sayisina takiliyorsa ust sayfa da yok.
+        abort_if($sayfalar->isEmpty(), 404);
+
+        $canonical = route('collections.'.$tur.'.index');
+
+        return view('recipe-collections.hub', [
+            'baslik' => $baslik,
+            'aciklama' => $aciklama,
+            'sayfalar' => $sayfalar,
+            'seoIndexability' => $indexability->forRequest($request, $canonical),
+            'seoSchema' => $schema->hubPage($baslik, $aciklama, $canonical, $sayfalar->pluck('url')->all(), [
+                ['name' => 'Ana Sayfa', 'url' => route('home')],
+                ['name' => 'Tarifler', 'url' => route('recipes.index')],
+                ['name' => $baslik, 'url' => $canonical],
+            ]),
+        ]);
+    }
+
+    /** @return Collection<int, array{type:string,slug:string,title:string,url:string,lastmod:?string,count:int}> */
     public static function sayfasiOlanlar(): Collection
     {
         $controller = new self;
@@ -52,12 +94,15 @@ final class RecipeCollectionLandingController extends Controller
                         return null;
                     }
 
+
                     return [
                         'type' => $tur,
                         'slug' => $slug,
                         'title' => $tanim['title'],
+                        'description' => $tanim['description'],
                         'url' => route('collections.'.$tur, $slug),
                         'lastmod' => $controller->sonYayinTarihi($tur, $tanim),
+                        'count' => $controller->sorgu($tur, $tanim)->count(),
                     ];
                 })->filter()->values()->all();
             })->values();

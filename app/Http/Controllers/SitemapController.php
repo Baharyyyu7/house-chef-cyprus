@@ -75,12 +75,25 @@ final class SitemapController extends Controller
             ])
         );
 
+        $koleksiyonlar = RecipeCollectionLandingController::sayfasiOlanlar();
+
         $urls = $urls->concat(
-            RecipeCollectionLandingController::sayfasiOlanlar()
-                ->map(fn (array $koleksiyon): array => [
-                    'loc' => $koleksiyon['url'],
-                    'lastmod' => $this->date($koleksiyon['lastmod'] ?? null),
+            $koleksiyonlar->map(fn (array $koleksiyon): array => [
+                'loc' => $koleksiyon['url'],
+                'lastmod' => $this->date($koleksiyon['lastmod'] ?? null),
+            ])
+        );
+
+        // Ust sayfalar yalniz alt sayfasi olan tur icin var; bos ust sayfa
+        // yayinlanmiyor, dolayisiyla haritada da yer almamali.
+        $urls = $urls->concat(
+            collect(['sure', 'zorluk'])
+                ->filter(fn (string $tur): bool => $koleksiyonlar->where('type', $tur)->isNotEmpty())
+                ->map(fn (string $tur): array => [
+                    'loc' => route('collections.'.$tur.'.index'),
+                    'lastmod' => $this->date($koleksiyonlar->where('type', $tur)->max('lastmod')),
                 ])
+                ->values()
         );
 
         return $this->urls($urls);

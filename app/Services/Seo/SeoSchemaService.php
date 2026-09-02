@@ -108,6 +108,38 @@ final class SeoSchemaService
         ], $crumbs);
     }
 
+    /**
+     * Alt sayfalarini listeleyen ust sayfa.
+     *
+     * collectionPage() Recipe bekliyor; ust sayfanin ogeleri tarif degil,
+     * kendi alt koleksiyon sayfalari. Bos bir ItemList basmak yerine gercek
+     * ogeleri bildiriyoruz.
+     *
+     * @param  list<string>  $urls
+     * @param  list<array{name:string,url:string}>  $crumbs
+     * @return array<string,mixed>
+     */
+    public function hubPage(string $name, string $description, string $url, array $urls, array $crumbs): array
+    {
+        $items = collect($urls)->values()->map(fn (string $adres, int $sira): array => [
+            '@type' => 'ListItem',
+            'position' => $sira + 1,
+            'url' => $adres,
+        ])->all();
+
+        return $this->graph([
+            '@type' => 'CollectionPage',
+            'name' => $name,
+            'description' => $description,
+            'url' => $url,
+            'mainEntity' => [
+                '@type' => 'ItemList',
+                'numberOfItems' => count($items),
+                'itemListElement' => $items,
+            ],
+        ], $crumbs);
+    }
+
     /** @param iterable<BlogPost> $posts @param list<array{name:string,url:string}> $crumbs @return array<string,mixed> */
     public function blogCollectionPage(string $name, string $description, string $url, iterable $posts, array $crumbs): array
     {
