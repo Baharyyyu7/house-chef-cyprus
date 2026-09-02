@@ -802,6 +802,38 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
 /* Engel değil, alttan gelen bir şerit: sayfa arkasında okunabilir kalır.
    Malzeme, yüzen bir yüzey olduğunu söyler. */
 .hc-consent { pointer-events: none; }
+/* Serit sabitlenmis: panelin kapladigi alandaki baglanti tiklanamiyor.
+   Sayfa altina serit yuksekligi kadar bosluk birakiliyor; serit kabul
+   edilince degisken 0 olur ve bosluk kaybolur. */
+body { padding-bottom: var(--hc-consent-h, 0px); }
+
+/* Hub kartlari (mutfak, kategori, malzeme).
+   Bu sayfalar tamamen metin kartlarindan olusuyordu: bir yemek sitesinde
+   urunun kendisi olan fotograf hicbir koleksiyon sayfasinda gorunmuyordu.
+   Gorsel varsa kart onu tasir; yoksa ayni kart metin olarak calisir. */
+.hc-hub-card {
+    display:flex; align-items:center; gap:1rem;
+    padding:.75rem .9rem;
+    border:1px solid var(--hc-line); border-radius:1.25rem;
+    background:var(--hc-surface-default);
+    transition:transform .25s cubic-bezier(.22,1,.36,1), border-color .25s ease, box-shadow .25s ease;
+}
+.hc-hub-card:hover { transform:translateY(-2px); border-color:var(--hc-brand-primary); box-shadow:0 10px 30px rgba(68,45,28,.10); }
+.hc-hub-card__gorsel { flex:0 0 auto; width:5.25rem; height:4rem; overflow:hidden; border-radius:.9rem; background:var(--hc-background-subtle); }
+.hc-hub-card__gorsel img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .35s cubic-bezier(.22,1,.36,1); }
+.hc-hub-card:hover .hc-hub-card__gorsel img { transform:scale(1.05); }
+.hc-hub-card__govde { display:flex; flex-direction:column; gap:.15rem; min-width:0; flex:1 1 auto; }
+/* Turkce baslik: buyuk govde olcusunde 1.25 satir yuksekligi g/s/c
+   kuyruklarini kirpiyor, 1.35 birakildi. */
+.hc-hub-card__baslik { font-family:var(--hc-font-display, inherit); font-size:1.0625rem; font-weight:700; line-height:1.35; color:var(--hc-text-primary); }
+.hc-hub-card:hover .hc-hub-card__baslik { color:var(--hc-brand-primary); }
+.hc-hub-card__ok { flex:0 0 auto; display:grid; place-items:center; width:2rem; height:2rem; border-radius:.7rem; background:var(--hc-background-subtle); color:var(--hc-text-secondary); transition:transform .25s ease; }
+.hc-hub-card:hover .hc-hub-card__ok { transform:translateX(3px); }
+@media (prefers-reduced-motion: reduce) {
+    .hc-hub-card, .hc-hub-card__gorsel img, .hc-hub-card__ok { transition:none; }
+    .hc-hub-card:hover { transform:none; }
+    .hc-hub-card:hover .hc-hub-card__gorsel img { transform:none; }
+}
 .hc-consent__panel {
     pointer-events: auto;
     background: var(--hc-header-scrolled);

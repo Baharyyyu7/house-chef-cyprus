@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ingredient;
 use App\Models\Recipe;
+use App\Services\Media\HubCoverPicker;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoSchemaService;
@@ -61,6 +62,7 @@ final class IngredientHubController extends Controller
 
         return view('ingredients.hub-index', [
             'malzemeler' => $malzemeler,
+            'kapaklar' => app(HubCoverPicker::class)->malzemeyeGore($malzemeler->pluck('id')->all()),
             'seoIndexability' => $indexability->forRequest($request, route('ingredients.hub.index')),
         ]);
     }

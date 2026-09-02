@@ -5,9 +5,18 @@
         <p class="hc-body-lg mt-4 max-w-2xl text-muted">Yalnız arkasında en az dört doğrulanmış tarif bulunan kategoriler burada yer alır.</p>
         <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             @foreach($kategoriler as $kategori)
-                <a class="hc-v3-card group flex items-center justify-between p-6" href="{{ route('categories.show', $kategori->slug) }}">
-                    <span><strong class="font-display text-xl">{{ $kategori->name }}</strong><small class="mt-1 block text-muted">{{ $kategori->recipes_count }} doğrulanmış tarif</small></span>
-                    <span aria-hidden="true">→</span>
+                @php($kapak = $kapaklar[$kategori->id] ?? null)
+                <a class="hc-hub-card group" href="{{ route('categories.show', $kategori->slug) }}">
+                    @if ($kapak)
+                        <span class="hc-hub-card__gorsel" aria-hidden="true">
+                            <img src="{{ $kapak->responsiveUrl(400) }}" srcset="{{ $kapak->responsiveSrcset([400, 800]) }}" sizes="(min-width: 1024px) 22rem, (min-width: 640px) 45vw, 92vw" width="400" height="300" alt="" loading="lazy" decoding="async">
+                        </span>
+                    @endif
+                    <span class="hc-hub-card__govde">
+                        <span class="hc-hub-card__baslik">{{ $kategori->name }}</span>
+                        <span class="hc-caption">{{ $kategori->recipes_count }} doğrulanmış tarif</span>
+                    </span>
+                    <span class="hc-hub-card__ok" aria-hidden="true">›</span>
                 </a>
             @endforeach
         </div>

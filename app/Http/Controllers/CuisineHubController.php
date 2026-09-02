@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cuisine;
 use App\Models\Recipe;
+use App\Services\Media\HubCoverPicker;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoSchemaService;
@@ -48,8 +49,13 @@ final class CuisineHubController extends Controller
 
     public function index(Request $request, SeoIndexabilityService $indexability): View
     {
+        $mutfaklar = $this->yeterliMutfaklar();
+
         return view('cuisines.index', [
-            'mutfaklar' => $this->yeterliMutfaklar(),
+            'mutfaklar' => $mutfaklar,
+            // Kart gorseli: yeni gorsel uretilmiyor, var olan onaylilardan
+            // seciliyor. Gorseli olmayan mutfak metin karti olarak kaliyor.
+            'kapaklar' => app(HubCoverPicker::class)->sutunaGore('cuisine_id', $mutfaklar->pluck('id')->all()),
             'seoIndexability' => $indexability->forRequest($request, route('cuisines.index')),
         ]);
     }

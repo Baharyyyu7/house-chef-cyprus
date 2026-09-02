@@ -153,6 +153,13 @@
             var header = document.querySelector('.hc-public-header') || document.querySelector('body > header');
             var nav = document.querySelector('.hc-sticky-under-header');
             if (header) { root.style.setProperty('--hc-header-h', Math.round(header.getBoundingClientRect().height) + 'px'); }
+            // Cerez seridi ekranin altina sabitleniyor ve panelin altinda
+            // kalan baglanti gercekten tiklanamiyor. Serit bir engel degil
+            // (sarmalayici pointer-events:none) ama panelin kapladigi alan
+            // engel. Sayfanin altina serit yuksekligi kadar bosluk birakmak,
+            // seridin niyetini bozmadan orten alani sifirliyor.
+            var serit = document.querySelector('.hc-consent__panel');
+            root.style.setProperty('--hc-consent-h', serit ? Math.round(serit.getBoundingClientRect().height) + 24 + 'px' : '0px');
             root.style.setProperty('--hc-section-nav-h', nav ? Math.round(nav.getBoundingClientRect().height) + 'px' : '0px');
         }
         function watch() {

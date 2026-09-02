@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Recipe;
+use App\Services\Media\HubCoverPicker;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoSchemaService;
@@ -19,8 +20,11 @@ final class CategoryHubController extends Controller
 
     public function index(Request $request, SeoIndexabilityService $indexability): View
     {
+        $kategoriler = self::sayfasiOlanlar();
+
         return view('categories.index', [
-            'kategoriler' => self::sayfasiOlanlar(),
+            'kategoriler' => $kategoriler,
+            'kapaklar' => app(HubCoverPicker::class)->sutunaGore('category_id', $kategoriler->pluck('id')->all()),
             'seoIndexability' => $indexability->forRequest($request, route('categories.index')),
         ]);
     }

@@ -17,14 +17,21 @@
 
         <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             @foreach ($mutfaklar as $mutfak)
-                <a class="hc-v3-card group flex items-center justify-between p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--hc-brand-primary)]" href="{{ route('cuisines.show', $mutfak->slug) }}">
-                    <div>
-                        <h2 class="font-display text-xl font-semibold transition-colors group-hover:text-[var(--hc-brand-primary)]">{{ $mutfak->name }}</h2>
-                        <p class="hc-caption mt-1">{{ $mutfak->recipes_count }} doğrulanmış tarif</p>
-                    </div>
-                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-charcoal-100 text-charcoal-700 transition-transform group-hover:translate-x-1 dark:bg-charcoal-800 dark:text-charcoal-200" aria-hidden="true">
-                        ›
+                @php($kapak = $kapaklar[$mutfak->id] ?? null)
+                <a class="hc-hub-card group" href="{{ route('cuisines.show', $mutfak->slug) }}">
+                    {{-- Gorsel varsa kart bir yemek gosterir; yoksa metin
+                         karti olarak kalir. Yer tutucu basmak, bos
+                         birakmaktan kotu. --}}
+                    @if ($kapak)
+                        <span class="hc-hub-card__gorsel" aria-hidden="true">
+                            <img src="{{ $kapak->responsiveUrl(400) }}" srcset="{{ $kapak->responsiveSrcset([400, 800]) }}" sizes="(min-width: 1024px) 22rem, (min-width: 640px) 45vw, 92vw" width="400" height="300" alt="" loading="lazy" decoding="async">
+                        </span>
+                    @endif
+                    <span class="hc-hub-card__govde">
+                        <span class="hc-hub-card__baslik">{{ $mutfak->name }}</span>
+                        <span class="hc-caption">{{ $mutfak->recipes_count }} doğrulanmış tarif</span>
                     </span>
+                    <span class="hc-hub-card__ok" aria-hidden="true">›</span>
                 </a>
             @endforeach
         </div>
