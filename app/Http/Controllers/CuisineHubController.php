@@ -77,6 +77,10 @@ final class CuisineHubController extends Controller
 
         return view('cuisines.show', [
             'mutfak' => $mutfak,
+            // Kardeş koleksiyonlar: sayfa çıkmaz sokak olmasın.
+            'kardesler' => self::sayfasiOlanlar()
+                ->map(fn (Cuisine $m): array => ['title' => $m->name, 'url' => route('cuisines.show', $m->slug)])
+                ->all(),
             'tarifler' => $tarifler,
             'mediaEligibility' => $gate,
             'seoIndexability' => $indexability->forRequest($request, $canonical),

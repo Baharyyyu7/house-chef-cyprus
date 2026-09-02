@@ -30,5 +30,7 @@
             @endforeach
         </div>
 
+
+        <x-collection-siblings baslik="Diğer mutfaklar" :ogeler="$kardesler" :mevcut-url="route('cuisines.show', $mutfak->slug)" />
     </section>
 </x-layouts.site>

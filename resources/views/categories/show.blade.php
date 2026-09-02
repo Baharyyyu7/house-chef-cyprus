@@ -12,5 +12,7 @@
         <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             @foreach($tarifler as $tarif)<x-recipe-card-v3 :recipe="$tarif" :show-favorite="false" />@endforeach
         </div>
+
+        <x-collection-siblings baslik="Diğer kategoriler" :ogeler="$kardesler" :mevcut-url="route('categories.show', $kategori->slug)" />
     </section>
 </x-layouts.site>

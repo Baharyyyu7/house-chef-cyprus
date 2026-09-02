@@ -807,6 +807,22 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
    edilince degisken 0 olur ve bosluk kaybolur. */
 body { padding-bottom: var(--hc-consent-h, 0px); }
 
+/* Kardes koleksiyon gecisi.
+   Koleksiyon sayfalari cikmaz sokakti: ziyaretci bir mutfaktan digerine
+   gecemiyor, tarama grafigi de yatay bag kurmuyordu. */
+.hc-kardes { margin-top:3.5rem; padding-top:2rem; border-top:1px solid var(--hc-line); }
+.hc-kardes__baslik { font-size:.8125rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--hc-text-muted); }
+.hc-kardes__liste { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1rem; padding:0; list-style:none; }
+.hc-kardes__oge {
+    display:inline-flex; align-items:center; min-height:2.25rem;
+    padding:.4rem .9rem; border:1px solid var(--hc-line); border-radius:9999px;
+    font-size:.9375rem; font-weight:600; color:var(--hc-text-secondary);
+    background:var(--hc-surface-default);
+    transition:border-color .2s ease, color .2s ease, transform .2s ease;
+}
+.hc-kardes__oge:hover { border-color:var(--hc-brand-primary); color:var(--hc-brand-primary); transform:translateY(-1px); }
+@media (prefers-reduced-motion: reduce) { .hc-kardes__oge { transition:none; } .hc-kardes__oge:hover { transform:none; } }
+
 /* Hub kartlari (mutfak, kategori, malzeme).
    Bu sayfalar tamamen metin kartlarindan olusuyordu: bir yemek sitesinde
    urunun kendisi olan fotograf hicbir koleksiyon sayfasinda gorunmuyordu.

@@ -41,7 +41,10 @@ final class CategoryHubController extends Controller
         $description = $kategori->name.' kategorisinde '.$tarifler->count().' doğrulanmış tarif: ölçüler, süreler ve adım adım anlatım.';
 
         return view('categories.show', [
-            'kategori' => $kategori, 'tarifler' => $tarifler, 'mediaEligibility' => $gate,
+            'kategori' => $kategori,
+            'kardesler' => self::sayfasiOlanlar()
+                ->map(fn ($k): array => ['title' => $k->name, 'url' => route('categories.show', $k->slug)])
+                ->all(), 'tarifler' => $tarifler, 'mediaEligibility' => $gate,
             'seoIndexability' => $indexability->forRequest($request, $canonical),
             'seoSchema' => $schema->collectionPage($kategori->name.' Tarifleri', $description, $canonical, $tarifler, [
                 ['name' => 'Ana Sayfa', 'url' => route('home')],
