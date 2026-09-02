@@ -18,8 +18,8 @@ final class BlogPublishingTest extends TestCase
 
     public function test_only_published_posts_are_visible_to_guests(): void
     {
-        $published = BlogPost::create(['title' => 'Yayınlanan mutfak notu', 'slug' => 'yayinlanan-mutfak-notu', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'published', 'published_at' => now()]);
-        $draft = BlogPost::create(['title' => 'Taslak mutfak notu', 'slug' => 'taslak-mutfak-notu', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'draft']);
+        $published = BlogPost::create(['title' => 'Yayınlanan mutfak notu', 'slug' => 'yayinlanan-mutfak-notu', 'excerpt' => 'Özet', 'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'published', 'published_at' => now()]);
+        $draft = BlogPost::create(['title' => 'Taslak mutfak notu', 'slug' => 'taslak-mutfak-notu', 'excerpt' => 'Özet', 'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'draft']);
 
         $this->get(route('blog.index'))->assertOk()->assertSee($published->title)->assertDontSee($draft->title);
         $this->get(route('blog.show', $published))->assertOk()->assertSee($published->title);
@@ -34,7 +34,7 @@ final class BlogPublishingTest extends TestCase
             'title' => 'Kaynağı doğrulanan mutfak notu',
             'slug' => 'kaynagi-dogrulanan-mutfak-notu',
             'excerpt' => 'Editoryal görseli henüz onaylanmamış yazı.',
-            'body' => 'Yazının özgün gövde metni.',
+            'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 
             'status' => 'published',
             'published_at' => now(),
         ]);
@@ -55,10 +55,10 @@ final class BlogPublishingTest extends TestCase
     public function test_blog_index_schema_lists_only_the_visible_page_items_as_plain_urls(): void
     {
         $visible = collect(range(1, 13))->map(fn (int $i) => BlogPost::create([
-            'title' => 'Yazı '.$i, 'slug' => 'yazi-'.$i, 'excerpt' => 'Özet', 'body' => 'İçerik',
+            'title' => 'Yazı '.$i, 'slug' => 'yazi-'.$i, 'excerpt' => 'Özet', 'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 
             'status' => 'published', 'published_at' => now()->subMinutes($i),
         ]));
-        BlogPost::create(['title' => 'Taslak', 'slug' => 'taslak', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'draft']);
+        BlogPost::create(['title' => 'Taslak', 'slug' => 'taslak', 'excerpt' => 'Özet', 'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'draft']);
 
         $html = (string) $this->get(route('blog.index'))->assertOk()->getContent();
         preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $html, $matches);
@@ -98,8 +98,8 @@ final class BlogPublishingTest extends TestCase
 
     public function test_scheduled_posts_only_publish_when_their_time_has_arrived(): void
     {
-        $due = BlogPost::create(['title' => 'Zamanı gelen yazı', 'slug' => 'zamani-gelen-yazi', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'scheduled', 'scheduled_at' => now()->subMinute(), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved']);
-        $future = BlogPost::create(['title' => 'Gelecek yazı', 'slug' => 'gelecek-yazi', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'scheduled', 'scheduled_at' => now()->addHour(), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved']);
+        $due = BlogPost::create(['title' => 'Zamanı gelen yazı', 'slug' => 'zamani-gelen-yazi', 'excerpt' => 'Özet', 'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'scheduled', 'scheduled_at' => now()->subMinute(), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved']);
+        $future = BlogPost::create(['title' => 'Gelecek yazı', 'slug' => 'gelecek-yazi', 'excerpt' => 'Özet', 'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'scheduled', 'scheduled_at' => now()->addHour(), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved']);
 
         $this->artisan('blog:publish-scheduled --json')->expectsOutputToContain('"published":1')->assertSuccessful();
         $this->assertSame('published', $due->fresh()->status);

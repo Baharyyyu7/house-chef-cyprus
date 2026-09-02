@@ -61,7 +61,7 @@ final class BlogCoverArtTest extends TestCase
             'title' => 'Taslak',
             'slug' => 'taslak-kapak',
             'excerpt' => 'Özet.',
-            'body' => 'Gövde.',
+            'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 
             'status' => 'draft',
         ]);
 
@@ -93,7 +93,7 @@ final class BlogCoverArtTest extends TestCase
             'title' => $title,
             'slug' => Str::slug($title).'-'.uniqid(),
             'excerpt' => 'Kısa özet.',
-            'body' => 'Gövde metni.',
+            'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 
             'status' => 'published',
             'published_at' => now()->subDay(),
         ]);

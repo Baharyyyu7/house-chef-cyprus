@@ -8,6 +8,7 @@ use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\BlogTag;
 use App\Services\Media\PublicMediaEligibilityService;
+use App\Services\Seo\BlogIndexability;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoMetadataService;
 use App\Services\Seo\SeoSchemaService;
@@ -39,7 +40,7 @@ final class BlogController extends Controller
         ]);
     }
 
-    public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService, PublicMediaEligibilityService $mediaEligibility): View
+    public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService, PublicMediaEligibilityService $mediaEligibility, BlogIndexability $indekslenebilirlik): View
     {
         abort_unless(BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists(), 404);
         // Aynı kural detayda da geçerli: çevirisi olmayan yazının o dildeki
@@ -73,6 +74,12 @@ final class BlogController extends Controller
         $schema = $schemaService->article($post, $sosyalGorsel['url'] ?? '');
 
         $metadata = $seo->for($post, $post->meta_title ?: $post->title.' · House Chef Cyprus', $post->meta_description ?: $post->excerpt, route('blog.show', $post));
+
+        // Editoryal kapılar kayıtta vardı ama indekslemeye etkisi yoktu:
+        // olgu denetimi ve özgünlüğü "pending" olan bir yazı da index,follow
+        // olarak dizine giriyordu. Yazı yayında kalıyor, yalnız kendi
+        // kapılarından geçene kadar aranabilir olmuyor.
+        $metadata['robots'] = $indekslenebilirlik->robots($post);
 
         return view('blog.show', compact('post', 'schema', 'metadata', 'relatedPosts', 'heroMedia'));
     }

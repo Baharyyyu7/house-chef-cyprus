@@ -8,6 +8,7 @@ use App\Models\BlogPost;
 use App\Models\Media;
 use App\Models\Recipe;
 use App\Services\Media\PublicMediaEligibilityService;
+use App\Services\Seo\BlogIndexability;
 use App\Services\Seo\LocaleUrlService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
@@ -100,8 +101,14 @@ final class SitemapController extends Controller
 
     public function blog(): Response
     {
+        // Dizine girmeyen yazı site haritasında durmamalı: harita "bunları
+        // indeksle" demek, sayfanın kendisi "indeksleme" diyor. İkisi
+        // çelişince tarayıcıya karışık sinyal gidiyor.
+        $indekslenebilirlik = app(BlogIndexability::class);
+
         $urls = $this->indexable(BlogPost::query()->publiclyVisible())
-            ->orderBy('updated_at')->get(['id', 'slug', 'updated_at'])
+            ->orderBy('updated_at')->get(['id', 'slug', 'updated_at', 'body', 'fact_check_status', 'originality_status'])
+            ->filter(fn (BlogPost $post): bool => $indekslenebilirlik->indekslenebilir($post))
             ->map(fn (BlogPost $post): array => [
                 'loc' => route('blog.show', $post),
                 'lastmod' => $post->updated_at?->toDateString(),

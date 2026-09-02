@@ -77,7 +77,7 @@ final class SitemapOmitsNoindexPagesTest extends TestCase
             'title' => str($slug)->headline()->value(),
             'slug' => $slug,
             'excerpt' => 'Özet.',
-            'body' => 'Gövde.',
+            'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 
             'status' => 'published',
             'published_at' => now()->subDay(),
         ]);

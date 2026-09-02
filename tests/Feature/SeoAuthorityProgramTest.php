@@ -35,7 +35,7 @@ final class SeoAuthorityProgramTest extends TestCase
     {
         $post = BlogPost::query()->create([
             'title' => 'Kıbrıs mutfağı rehberi', 'slug' => 'kibris-mutfagi-rehberi', 'excerpt' => 'Gerçek editoryal kaynaklara dayalı kısa rehber.',
-            'body' => str_repeat('Özgün editoryal bilgi. ', 30), 'status' => 'published', 'published_at' => now(),
+            'body' => str_repeat('Özgün editoryal bilgi. ', 100), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'published', 'published_at' => now(),
         ]);
 
         $this->get(route('blog.show', $post))
@@ -50,7 +50,7 @@ final class SeoAuthorityProgramTest extends TestCase
         Storage::fake('public');
         $post = BlogPost::query()->create([
             'title' => 'Onaylı görsel rehberi', 'slug' => 'onayli-gorsel-rehberi', 'excerpt' => 'Görsel kaynakları hakkında kısa rehber.',
-            'body' => str_repeat('Özgün editoryal bilgi. ', 30), 'status' => 'published', 'published_at' => now(),
+            'body' => str_repeat('Özgün editoryal bilgi. ', 100), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'published', 'published_at' => now(),
         ]);
         $reviewer = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
         Storage::disk('public')->put('media/blog/approved.jpg', 'source');
@@ -82,7 +82,7 @@ final class SeoAuthorityProgramTest extends TestCase
     {
         $post = BlogPost::query()->create([
             'title' => 'Tarif bağlantısı rehberi', 'slug' => 'tarif-baglantisi-rehberi', 'excerpt' => 'Güvenli ilgili tarif bağlantıları.',
-            'body' => str_repeat('Özgün editoryal bilgi. ', 30), 'status' => 'published', 'published_at' => now(),
+            'body' => str_repeat('Özgün editoryal bilgi. ', 100), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'published', 'published_at' => now(),
         ]);
         $visible = $this->recipe();
         $hidden = Recipe::query()->create([
@@ -101,7 +101,7 @@ final class SeoAuthorityProgramTest extends TestCase
     {
         $post = BlogPost::query()->create([
             'title' => 'Gerçek soru cevap rehberi', 'slug' => 'gercek-soru-cevap-rehberi', 'excerpt' => 'Editoryal soru cevap özeti.',
-            'body' => str_repeat('Özgün editoryal bilgi. ', 30), 'status' => 'published', 'published_at' => now(),
+            'body' => str_repeat('Özgün editoryal bilgi. ', 100), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'published', 'published_at' => now(),
             'faq_blocks' => [['question' => 'Tarif ne zaman hazırlanır?', 'answer' => 'Malzemeler hazır olduğunda.']],
         ]);
 

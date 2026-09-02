@@ -46,7 +46,7 @@ final class DuplicateBlogPostsLeavePublicationTest extends TestCase
 
     public function test_a_post_with_its_own_title_is_never_touched(): void
     {
-        $tekil = $this->publish('Kıbrıs Mutfağına Başlangıç', 'kibris-baslangic', 'Özgün içerik.');
+        $tekil = $this->publish('Kıbrıs Mutfağına Başlangıç', 'kibris-baslangic', str_repeat('Özgün içerik. ', 200));
         $this->publish('Kusursuz Rehberler', 'kusursuz-1', 'Şablon.');
         $this->publish('Kusursuz Rehberler', 'kusursuz-2', 'Şablon.');
 
@@ -68,7 +68,7 @@ final class DuplicateBlogPostsLeavePublicationTest extends TestCase
 
     public function test_an_unpublished_post_leaves_the_sitemap(): void
     {
-        $kalan = $this->publish('Aynı Başlık', 'kalan', str_repeat('Uzun gövde metni. ', 40));
+        $kalan = $this->publish('Aynı Başlık', 'kalan', str_repeat('Uzun gövde metni. ', 150));
         $giden = $this->publish('Aynı Başlık', 'giden', 'Kısa.');
 
         $this->artisan('blog:unpublish-duplicates', ['--apply' => true])->assertSuccessful();
@@ -87,6 +87,8 @@ final class DuplicateBlogPostsLeavePublicationTest extends TestCase
             'slug' => $slug,
             'excerpt' => 'Özet.',
             'body' => $body,
+            'fact_check_status' => 'passed',
+            'originality_status' => 'passed',
             'status' => 'published',
             'published_at' => now()->subDays(2),
         ]);
