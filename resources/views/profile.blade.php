@@ -1,4 +1,4 @@
-<x-layouts.site title="Profilim · House Chef Cyprus">
+<x-layouts.site :livewire="true" title="Profilim · House Chef Cyprus">
     @php
         /**
          * Sayfa üç ayrı sorunu bir arada taşıyordu: başlık bir kapsayıcının

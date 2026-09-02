@@ -1,4 +1,4 @@
-@props(['title' => 'House Chef Cyprus', 'metaDescription' => "Kıbrıs'tan ilham alan tarifler, malzeme dolabı ve dengeli beslenme rehberi.", 'structuredData' => null, 'canonicalUrl' => null, 'socialImage' => null, 'socialImageWidth' => null, 'socialImageHeight' => null, 'socialImageAlt' => null, 'robots' => null])
+@props(['title' => 'House Chef Cyprus', 'metaDescription' => "Kıbrıs'tan ilham alan tarifler, malzeme dolabı ve dengeli beslenme rehberi.", 'structuredData' => null, 'canonicalUrl' => null, 'socialImage' => null, 'socialImageWidth' => null, 'socialImageHeight' => null, 'socialImageAlt' => null, 'robots' => null, 'livewire' => false])
 @php($activeLanguage = config('locales.supported.'.app()->getLocale(), config('locales.supported.'.config('locales.default', 'tr'), [])))
 <!DOCTYPE html>
 <html lang="{{ $activeLanguage['html_locale'] ?? 'tr' }}" dir="{{ $activeLanguage['direction'] ?? 'ltr' }}" class="scroll-smooth">
@@ -460,6 +460,17 @@
         </footer>
         <x-analytics-consent />
     @endif
-    @livewireScripts
+    {{-- @livewireScripts kosulsuzdu: her genel sayfa 161 KB Livewire
+         betigini indirip calistiriyordu, oysa anasayfada, tarif detayinda ve
+         blogda tek bir wire:id yok. Bu layout'u kullanan sayfalardan yalniz
+         profile.blade.php Livewire bileseni bariniyor.
+
+         Ilk denemem @stack/@push'tu ve tam test paketinde sizdi: profil
+         sayfasi yiginına ittigi icerik ayni surecte sonraki isteklerde de
+         basiliyordu. Uretimde LiteSpeed sureci yeniden kullaniyor, yani bu
+         yalniz bir test tuhafligi degildi. Prop paylasilan durum tasimiyor. --}}
+    @if ($livewire)
+        @livewireScripts
+    @endif
 </body>
 </html>
