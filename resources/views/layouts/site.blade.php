@@ -224,7 +224,7 @@
         window.addEventListener('scroll', function () { window.requestAnimationFrame(hepsiniAc); }, { passive: true });
     })();
     </script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/improvements.css', 'resources/js/app.js'])
     @unless($isPrivateSurface)<x-google-integrations />@endunless
 </head>
 <body x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, adminSidebarCollapsed: localStorage.hcAdminSidebarCollapsed === 'true', adminSidebarQuery: '', scrolled: false }"
