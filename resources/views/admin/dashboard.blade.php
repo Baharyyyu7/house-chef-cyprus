@@ -111,7 +111,7 @@
                 <section class="hc-v3-card mt-6 p-5" aria-labelledby="otonom-denetim-baslik">
                     <p class="hc-kicker">OTONOM DENETİMLER</p>
                     <h2 id="otonom-denetim-baslik" class="hc-heading-3 mt-1">Sitenin kendini denetlemesi</h2>
-                    <p class="hc-caption mt-1">Her gece koşuyor. Ok, bir önceki koşuya göre değişimi gösteriyor; dördünde de az iyidir.</p>
+                    <p class="hc-caption mt-1">Her gece koşuyor. Ok, bir önceki koşuya göre değişimi gösteriyor; hepsinde az iyidir.</p>
 
                     <div class="hc-admin-system-grid mt-5">
                         @foreach ($integrity as $denetim)
@@ -137,6 +137,11 @@
                                         @endif
                                         · {{ \Illuminate\Support\Carbon::parse($denetim['kosma_zamani'])->diffForHumans() }}
                                     </small>
+                                    @if (! empty($denetim['sebep']))
+                                        {{-- Sayı tek başına iki ayrı iş yanılsaması
+                                             üretiyordu; sebep zaten kayıttaydı. --}}
+                                        <small class="hc-admin-system-card__sebep">{{ $denetim['sebep'] }}</small>
+                                    @endif
                                 @endif
                             </div>
                         @endforeach

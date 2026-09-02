@@ -258,7 +258,10 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .hc-admin-operation-list dt { min-width:0; color:var(--hc-text-secondary); font-size:.82rem; overflow-wrap:anywhere; }
     .hc-admin-operation-list dd { flex:0 0 auto; margin:0; color:var(--hc-text-primary); font-weight:800; text-align:right; }
     .hc-admin-system-card { display:flex; min-height:6.75rem; flex-direction:column; justify-content:center; gap:.2rem; padding:1rem; border:1px solid var(--hc-border-subtle); border-radius:var(--hc-radius-md); background:var(--hc-background-subtle); }
-    .hc-admin-system-card > span,.hc-admin-system-card small { font-size:.72rem; color:var(--hc-text-muted); }.hc-admin-system-card strong { font-size:.9rem; color:var(--hc-text-primary); }
+    .hc-admin-system-card > span,.hc-admin-system-card small { font-size:.72rem; color:var(--hc-text-muted); }
+    /* Sebep satiri manset sayiyla ayni agirlikta olmamali: sayiyi aciklar,
+       onunla yarismaz. */
+    .hc-admin-system-card__sebep { font-style:italic; color:var(--hc-text-secondary) !important; }.hc-admin-system-card strong { font-size:.9rem; color:var(--hc-text-primary); }
     .hc-admin-quality-grid { display:grid; gap:1rem; }.hc-admin-quality-grid > div { font-size:.82rem; font-weight:700; color:var(--hc-text-secondary); }.hc-admin-quality-grid strong { color:var(--hc-text-primary); }
     .hc-admin-progress { height:.42rem; overflow:hidden; border-radius:999px; background:var(--hc-background-muted); }.hc-admin-progress span { display:block; height:100%; border-radius:inherit; background:var(--hc-brand-primary); transition:width var(--hc-duration-emphasis) var(--hc-ease-enter); }
     .hc-admin-quick-action { display:grid; grid-template-columns:1.6rem minmax(0,1fr) auto; align-items:center; gap:.55rem; padding:.7rem; border-radius:var(--hc-radius-sm); color:var(--hc-text-secondary); font-size:.83rem; font-weight:800; transition:background-color var(--hc-duration-fast) ease,color var(--hc-duration-fast) ease; }.hc-admin-quick-action:hover { background:var(--hc-surface-interactive); color:var(--hc-text-primary); }.hc-admin-quick-action > span:first-child { color:var(--hc-text-accent); }

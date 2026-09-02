@@ -79,10 +79,53 @@ final class IntegrityReportLog
                 'fark' => $son->headline !== null && $onceki?->headline !== null ? $son->headline - $onceki->headline : null,
                 'kosma_zamani' => $son->created_at?->toIso8601String(),
                 'ozet' => $son->payload,
+                'sebep' => $this->sebep($guard, (array) $son->payload),
             ];
         }
 
         return $satirlar;
+    }
+
+    /**
+     * Sayının arkasındaki tek cümle.
+     *
+     * Panel yalnız manşet sayıyı basıyordu ve bu iki ayrı iş yanılsaması
+     * üretiyordu: "47 çeviri engeli" ile "45 görsel eksiği" yan yana
+     * duruyor, oysa 47 engelin 47'si de görsel eksiği. Sebep payload'da
+     * zaten vardı, ekrana çıkmıyordu.
+     */
+    private function sebep(string $guard, array $payload): ?string
+    {
+        if ($guard === 'media:gap-queue') {
+            $bekleyen = (int) ($payload['awaiting_approval'] ?? 0);
+
+            return $bekleyen > 0
+                ? $bekleyen." tanesinin görseli hazır, yalnız onay bekliyor"
+                : null;
+        }
+
+        $engeller = $payload['blockers'] ?? null;
+
+        if (! is_array($engeller) || $engeller === []) {
+            return null;
+        }
+
+        $adlar = [
+            'onayli_gorsel_yok' => 'onaylı görseli yok',
+            'aciklama_ince' => 'açıklaması ince',
+            'malzeme_yok' => 'malzemesi yok',
+            'yer_tutucu_malzeme' => 'yer tutucu malzeme',
+            'adim_yok' => 'adımı yok',
+        ];
+
+        $anahtar = array_key_first($engeller);
+        $sayi = (int) $engeller[$anahtar];
+        $ad = $adlar[$anahtar] ?? $anahtar;
+
+        // Tek sebep her şeyi açıklıyorsa bunu söylemek, listelemekten iyi.
+        return count($engeller) === 1
+            ? "hepsinin sebebi aynı: {$ad}"
+            : "en büyüğü: {$sayi} tanesinin {$ad}";
     }
 
     /** Geçmiş sonsuza kadar büyümemeli; trend için birkaç aylık pencere yeter. */
