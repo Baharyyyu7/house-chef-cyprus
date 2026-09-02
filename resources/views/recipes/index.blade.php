@@ -126,12 +126,18 @@
             @foreach($cuisines->where('recipes_count', '>', 0)->sortByDesc('recipes_count')->take(6) as $cuisine)
                 {{-- Sayfasi olan mutfak indekslenebilir sayfasina, olmayan
                      filtreli goruntusune baglanir. Esik denetleyicide. --}}
-                <a href="{{ \App\Http\Controllers\CuisineHubController::sayfasiVar($cuisine->recipes_count) ? route('cuisines.show', $cuisine->slug) : route('recipes.index', ['cuisine' => $cuisine->slug]) }}" class="hc-card-hover group flex items-center justify-between gap-4 rounded-3xl border p-5" style="border-color: var(--hc-line); background: var(--hc-surface)">
-                    <span class="min-w-0">
-                        <span class="hc-heading-4 block truncate" style="color: var(--hc-text-primary)">{{ $cuisine->name }}</span>
-                        <span class="hc-caption mt-1 block" style="color: var(--hc-text-secondary)">{{ $cuisine->recipes_count }} tarif</span>
+@php($kapak = $mutfakKapaklari[$cuisine->id] ?? null)
+                <a href="{{ \App\Http\Controllers\CuisineHubController::sayfasiVar($cuisine->recipes_count) ? route('cuisines.show', $cuisine->slug) : route('recipes.index', ['cuisine' => $cuisine->slug]) }}" class="hc-hub-card group">
+                    @if ($kapak)
+                        <span class="hc-hub-card__gorsel" aria-hidden="true">
+                            <img src="{{ $kapak->responsiveUrl(400) }}" srcset="{{ $kapak->responsiveSrcset([400, 800]) }}" sizes="(min-width: 1024px) 22rem, (min-width: 640px) 45vw, 92vw" width="400" height="300" alt="" loading="lazy" decoding="async">
+                        </span>
+                    @endif
+                    <span class="hc-hub-card__govde">
+                        <span class="hc-hub-card__baslik">{{ $cuisine->name }}</span>
+                        <span class="hc-caption">{{ $cuisine->recipes_count }} tarif</span>
                     </span>
-                    <span class="shrink-0 text-orange-500 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
+                    <span class="hc-hub-card__ok" aria-hidden="true">›</span>
                 </a>
             @endforeach
         </div></section>

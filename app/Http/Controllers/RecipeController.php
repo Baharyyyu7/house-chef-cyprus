@@ -45,6 +45,10 @@ final class RecipeController extends Controller
             'cuisines' => Cuisine::withCount(['recipes' => fn ($q) => $q->where('status', 'published')])
                 ->orderBy('name')
                 ->get(),
+            // Anasayfadaki mutfak seckisi, /mutfaklar sayfasindaki kartla
+            // ayni gorunmeli: ayni icerik iki sayfada farkli gorunuyordu.
+            'mutfakKapaklari' => app(\App\Services\Media\HubCoverPicker::class)
+                ->sutunaGore('cuisine_id', Cuisine::query()->pluck('id')->all()),
             'categories' => Category::orderBy('name')->get(),
             'dietaryTags' => DietaryTag::orderBy('name')->get(),
             'allergens' => Allergen::orderBy('name')->get(),

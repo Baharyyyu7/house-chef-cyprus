@@ -110,6 +110,21 @@ final class HubCardsShowFoodTest extends TestCase
     }
 
     /** @param array<string, mixed> $alanlar */
+    public function test_the_home_page_cuisine_cards_use_the_same_card_as_the_hub(): void
+    {
+        // Ayni icerik iki sayfada farkli goruniyordu: /mutfaklar kartlari
+        // yemek fotografi tasirken anasayfadaki secki tamamen metindi.
+        $mutfak = Cuisine::query()->create(['name' => 'Kıbrıs Mutfağı', 'slug' => 'kibris-mutfagi']);
+        for ($i = 0; $i < 4; $i++) {
+            $this->gorselliTarif('Kıbrıs Tarifi '.$i, ['cuisine_id' => $mutfak->id]);
+        }
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('hc-hub-card__gorsel', false)
+            ->assertDontSee('hc-card-hover group flex items-center justify-between gap-4 rounded-3xl border p-5', false);
+    }
+
     private function gorselliTarif(string $baslik, array $alanlar = []): Recipe
     {
         $tarif = $this->tarif($baslik, $alanlar);
