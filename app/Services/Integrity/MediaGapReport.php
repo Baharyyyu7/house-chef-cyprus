@@ -38,6 +38,8 @@ final class MediaGapReport
             ->sortByDesc('score')
             ->values();
 
+        $onay = $this->onayBekleyen();
+
         return [
             'status' => $eksikler->isEmpty() ? 'complete' : 'gaps_found',
             'checked_at' => now()->toIso8601String(),
@@ -47,24 +49,74 @@ final class MediaGapReport
             // istiyor ve istemekte haklı; ama onay verilmediği sürece
             // tamamlanan görsel hiçbir yerde görünmüyordu - ne sitede ne
             // panelde. 26 tamamlanmış görsel böyle bekliyordu.
-            'awaiting_approval' => $this->onayBekleyen(),
+            'awaiting_approval' => $onay['actionable'],
+            // Üzerine gidilemeyenler ayrı: sayıya karışırsa iş listesi
+            // yanıltıcı olur.
+            'awaiting_approval_duplicate' => $onay['duplicate'],
+            'awaiting_approval_orphaned' => $onay['orphaned'],
             'queue' => $siralı->take(max(1, $limit))->all(),
         ];
     }
 
     /**
-     * İçe aktarılmış, doğrulanmış, ama insan onayı beklediği için yayında
-     * görünmeyen görsel sayısı.
+     * İnsan onayı bekleyenlerin üzerine gidilebilir olanları.
+     *
+     * Ham sayı yanıltıcıydı: 23 bekleyenin 6'sı silinmiş içeriğe ait, 5'i
+     * aynı tarifin ikinci kopyasıydı. "23 görsel onay bekliyor" diyen bir
+     * gösterge, yarısı üzerine gidilemeyen bir iş listesi sunar ve toplu
+     * onay verildiğinde silinmiş içeriğe ve mükerrer görsele onay verilir.
+     *
+     * @return array{actionable:int, duplicate:int, orphaned:int}
      */
-    private function onayBekleyen(): int
+    private function onayBekleyen(): array
     {
         $kapi = app(\App\Services\Media\PublicMediaEligibilityService::class);
-
-        return \App\Models\Media::query()
+        $bekleyenler = \App\Models\Media::query()
             ->where('media_status', 'approved_real_media')
             ->get()
             ->filter(fn ($medya): bool => $kapi->reason($medya) === 'human_approval_missing')
-            ->count();
+            ->sortBy('id');
+
+        $uzerineGidilebilir = 0;
+        $mukerrer = 0;
+        $sahipsiz = 0;
+        $gorulen = [];
+
+        foreach ($bekleyenler as $medya) {
+            // Silinmiş ya da hiç bulunmayan içeriğin görselini onaylamak
+            // hiçbir şey yayınlamaz.
+            if (! $this->sahibiDuruyor($medya)) {
+                $sahipsiz++;
+
+                continue;
+            }
+
+            $anahtar = $medya->mediable_type.':'.$medya->mediable_id;
+
+            if (isset($gorulen[$anahtar])) {
+                $mukerrer++;
+
+                continue;
+            }
+
+            $gorulen[$anahtar] = true;
+            $uzerineGidilebilir++;
+        }
+
+        return ['actionable' => $uzerineGidilebilir, 'duplicate' => $mukerrer, 'orphaned' => $sahipsiz];
+    }
+
+    private function sahibiDuruyor(\App\Models\Media $medya): bool
+    {
+        $sahip = $medya->mediable_type === Recipe::class
+            ? Recipe::withTrashed()->find($medya->mediable_id)
+            : $medya->mediable;
+
+        if ($sahip === null) {
+            return false;
+        }
+
+        return ! (method_exists($sahip, 'trashed') && $sahip->trashed());
     }
 
     /** @return Collection<int, Recipe> */

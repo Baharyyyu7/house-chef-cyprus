@@ -191,4 +191,50 @@ final class MediaGapReportTest extends TestCase
 
         return $tarif;
     }
+
+    public function test_media_for_deleted_content_is_not_offered_for_approval(): void
+    {
+        // Ham sayı yanıltıcıydı: 23 bekleyenin 6'sı silinmiş içeriğe aitti.
+        // Silinmiş tarifin görselini onaylamak hiçbir şey yayınlamaz.
+        $tarif = $this->tarif('Silinecek Tarif');
+        $this->onayBekleyenGorsel($tarif);
+        $tarif->delete();
+
+        $rapor = $this->rapor();
+
+        $this->assertSame(0, $rapor['awaiting_approval']);
+        $this->assertSame(1, $rapor['awaiting_approval_orphaned']);
+    }
+
+    public function test_a_second_pending_image_for_the_same_recipe_is_counted_separately(): void
+    {
+        // Aynı tarifin iki bekleyen görseli varsa onaylanacak olan bir
+        // tane; ikisini de saymak iş listesini şişirir.
+        $tarif = $this->tarif('Çift Görselli');
+        $this->onayBekleyenGorsel($tarif);
+        $this->onayBekleyenGorsel($tarif);
+
+        $rapor = $this->rapor();
+
+        $this->assertSame(1, $rapor['awaiting_approval']);
+        $this->assertSame(1, $rapor['awaiting_approval_duplicate']);
+    }
+
+    private function onayBekleyenGorsel(Recipe $tarif): void
+    {
+        $tarif->media()->create([
+            'kind' => 'recipe_synthetic',
+            'disk' => 'public',
+            'path' => 'media/approved-synthetic/recipe/'.uniqid().'/source.jpg',
+            'mime_type' => 'image/jpeg',
+            'visibility' => 'public',
+            'media_status' => 'approved_real_media',
+            'verification_status' => 'verified',
+            'fidelity_status' => 'strong_match',
+            'fidelity_confidence' => 100,
+            'license_review_status' => 'approved',
+            'attribution_review_status' => 'approved',
+            'is_placeholder' => false,
+        ]);
+    }
 }
