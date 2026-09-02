@@ -829,10 +829,19 @@ body { padding-bottom: var(--hc-consent-h, 0px); }
     min-height:2.75rem; padding:1rem 1.1rem;
     border:1px solid rgba(255,255,255,.34); border-radius:1rem;
     background:rgba(255,255,255,.1);
-    transition:background-color var(--hc-duration-fast) ease, border-color var(--hc-duration-fast) ease;
+    transition:background-color var(--hc-duration-fast) ease, border-color var(--hc-duration-fast) ease, transform var(--hc-duration-fast) var(--hc-ease-standard);
 }
 .hc-kapanis__kapilar a:hover { border-color:#fff; background:rgba(255,255,255,.18); }
+
+@media (prefers-reduced-motion: reduce) {
+    .hc-kapanis__kapilar a:active,
+    .hc-taahhut__kanit:active { transform:none; }
+}
 .hc-kapanis__kapilar a:focus-visible { outline:2px solid #fff; outline-offset:2px; }
+/* Basma geri bildirimi birakma aninda degil, basildigi anda gelmeli; yoksa
+   oge sayfa degisene kadar olu duruyor. Olcu sitenin kendi konvansiyonu
+   (.hc-v3-btn:active). */
+.hc-kapanis__kapilar a:active { transform:scale(.985); transition-duration:80ms; }
 /* Turkce baslik: 1.35 satir yuksekligi g/s/c kuyruklarini kirpmiyor. */
 .hc-kapanis__kapilar strong { font-size:1rem; font-weight:800; line-height:1.35; color:#fff; }
 .hc-kapanis__kapilar span { font-size:.8125rem; line-height:1.5; color:#ffedd5; }
@@ -857,8 +866,10 @@ body { padding-bottom: var(--hc-consent-h, 0px); }
 .hc-taahhut__kanit {
     margin-top:auto; padding-top:.9rem; display:inline-flex; align-items:center; gap:.35rem;
     min-height:1.5rem; font-size:.875rem; font-weight:700; color:var(--hc-brand-primary);
+    transition:transform var(--hc-duration-fast) var(--hc-ease-standard);
 }
 .hc-taahhut__kanit:hover { text-decoration:underline; }
+.hc-taahhut__kanit:active { transform:scale(.98); transition-duration:80ms; }
 
 /* Kardes koleksiyon gecisi.
    Koleksiyon sayfalari cikmaz sokakti: ziyaretci bir mutfaktan digerine
