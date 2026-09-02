@@ -33,13 +33,22 @@ final class ScrollHandlersAreCheapTest extends TestCase
         $this->get('/')->assertOk()->assertSee("removeEventListener('scroll', kaydirmada)", false);
     }
 
-    public function test_the_header_only_writes_its_state_when_it_changes(): void
+    public function test_the_header_state_does_not_depend_on_a_scroll_listener(): void
     {
-        // Değişmese de her kaydırma olayında atama yapmak, gövde
-        // kapsamındaki bütün Alpine bağlamalarını yeniden değerlendiriyordu.
+        // Başlık durumu her kaydırma olayında bir Alpine ifadesi
+        // çalıştırıyordu ve kaydırmadan sonra pencereye hiç olay ulaşmadığı
+        // durumda başlık hero üstü saydam stilinde kalıyordu: açık zeminin
+        // üstünde beyaz yazı. Gözcü öğesi bu sınıfı tamamen kaldırıyor.
         $icerik = (string) $this->get('/')->assertOk()->getContent();
 
-        $this->assertStringContainsString('@scroll.window.passive', $icerik);
-        $this->assertStringContainsString('!== scrolled', $icerik);
+        $this->assertStringNotContainsString('@scroll.window', $icerik);
+        $this->assertStringContainsString('IntersectionObserver', $icerik);
+        $this->assertStringContainsString('basligiGuncelle', $icerik);
+    }
+
+    public function test_the_header_falls_back_to_the_class_before_alpine_starts(): void
+    {
+        // Alpine geç başlarsa başlık saydam kalmaktansa doğru görünsün.
+        $this->get('/')->assertOk()->assertSee("classList.toggle('is-scrolled'", false);
     }
 }

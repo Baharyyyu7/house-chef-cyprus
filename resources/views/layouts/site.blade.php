@@ -249,6 +249,43 @@
         document.addEventListener('livewire:navigated', kur);
         window.addEventListener('load', function () { setTimeout(hepsiniAc, 1200); });
         window.addEventListener('scroll', kaydirmada, { passive: true });
+
+        // Yapiskan baslik durumu artik kaydirma olayina bagli degil.
+        //
+        // Onceki hali her kaydirma olayinda Alpine ifadesini calistiriyordu.
+        // Otomasyonda sayfa kaydirildiktan sonra pencereye hicbir kaydirma
+        // olayi ulasmiyordu ve baslik hero ustu saydam stilinde kaliyordu:
+        // acik zeminin ustunde beyaz yazi, okunmuyordu.
+        //
+        // Gozcu ogesi bu sinifi tamamen kaldiriyor. Tarayici kesisimi kendisi
+        // hesapliyor; olay dinleyicisi, es zamanli yerlesim okumasi ve kare
+        // basina is yok. Kaydirma kabinin pencere olup olmamasi da onemsiz.
+        (function () {
+            var gozcu = document.createElement('div');
+            gozcu.setAttribute('aria-hidden', 'true');
+            gozcu.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:16px;pointer-events:none';
+            document.body.prepend(gozcu);
+
+            var basligiGuncelle = function (kaydirildi) {
+                var govde = document.body;
+
+                if (window.Alpine && govde._x_dataStack) {
+                    window.Alpine.$data(govde).scrolled = kaydirildi;
+
+                    return;
+                }
+
+                // Alpine henuz baslamadiysa sinifi dogrudan basiyoruz;
+                // baslik saydam kalmaktansa erken dogru gorunsun.
+                var baslik = document.querySelector('header.hc-public-header');
+
+                if (baslik) { baslik.classList.toggle('is-scrolled', kaydirildi); }
+            };
+
+            new IntersectionObserver(function (girisler) {
+                basligiGuncelle(!girisler[0].isIntersecting);
+            }, { threshold: 0 }).observe(gozcu);
+        })();
     })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -310,7 +347,7 @@
         {{-- Koyu açılışı olan sayfalarda hero başlığın altından başlar. Sayfa
              tepesindeyken çubuk kendi zeminini basmaz; görüntünün üstünde
              saydam durur ve içeriğini koyu zemine göre okutur. --}}
-        <header @scroll.window.passive="if ((window.scrollY > 16) !== scrolled) scrolled = window.scrollY > 16" :class="{ 'is-scrolled': scrolled }" @class([
+        <header :class="{ 'is-scrolled': scrolled }" @class([
             'hc-public-header sticky top-0 z-40 transition-all duration-300',
             'hc-header-over-hero' => request()->routeIs('home', 'recipes.show'),
         ])>
