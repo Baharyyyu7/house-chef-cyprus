@@ -108,7 +108,7 @@
         @if($homeHighlights->isNotEmpty())
             <div class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4" data-reveal-group>
                 @foreach($homeHighlights as $recipe)
-                    <x-recipe-card-v3 :recipe="$recipe" :show-favorite="false" />
+                    <x-recipe-card-v3 :recipe="$recipe" :show-favorite="false" heading="h3" />
                 @endforeach
             </div>
         @else

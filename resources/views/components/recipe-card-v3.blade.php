@@ -1,4 +1,10 @@
-@props(['recipe', 'showFavorite' => true])
+@props(['recipe', 'showFavorite' => true, 'heading' => 'h2'])
+
+{{-- Kart basligi h2'ye sabitti. Arsiv sayfasinda dogru (h1'in hemen
+     altinda), ama bir bolumun icinde yanlis: tarif detayindaki "Benzer
+     tarifler" kartlari sayfanin kendi "Malzemeler" ve "Yapim adimlari"
+     basliklariyla ayni duzeyde duruyordu. Basliklarla gezinen biri
+     "Humus"u bu tarifin bir bolumu saniyordu. --}}
 
 @php
     $media = app(\App\Services\Media\PublicMediaEligibilityService::class)->firstEligible($recipe->media);
@@ -29,7 +35,7 @@
     </a>
     <div class="flex flex-1 flex-col p-5">
         <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color: var(--hc-text-muted)"><span>{{ $recipe->category?->name ?? 'Tarif' }}</span><span>{{ $recipe->zorlukEtiketi() }}</span></div>
-        <h2 class="mt-2 text-base font-extrabold leading-snug line-clamp-2" style="color: var(--hc-text-primary)"><a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('recipes.show', $recipe) }}">{{ $recipe->title }}</a></h2>
+        <{{ $heading }} class="mt-2 text-base font-extrabold leading-snug line-clamp-2" style="color: var(--hc-text-primary)"><a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('recipes.show', $recipe) }}">{{ $recipe->title }}</a></{{ $heading }}>
         <p class="hc-body-sm mt-2 line-clamp-2" style="color: var(--hc-text-secondary)">{{ $recipe->excerpt }}</p>
         <div class="mt-3 flex flex-wrap gap-2">@foreach($recipe->dietaryTags->take(2) as $tag)<span class="hc-v3-badge hc-v3-badge--success">{{ $tag->name ?? str($tag->code)->replace('_', ' ')->title() }}</span>@endforeach</div>
         <div class="mt-auto flex items-center justify-between gap-3 pt-4">

@@ -69,8 +69,15 @@
                 <div class="flex items-center justify-between gap-3"><h2 id="household-ingredients" class="hc-heading-3">Malzemeler</h2><span class="hc-v3-badge">{{ count($ingredientLines) }} kalem</span></div>
                 <p class="hc-body-sm mt-2" style="color: var(--hc-text-secondary)">Ev ölçüleri {{ $servings }} porsiyona göre hesaplanır.</p>
                 <form class="mt-5 flex items-end gap-2" method="get"><button class="hc-v3-btn hc-v3-btn--outline !min-h-11 !min-w-11 !px-3" type="submit" name="servings_step" value="-1" aria-label="Porsiyonu azalt" @disabled($servings <= 1)>−</button><div class="min-w-0 flex-1"><label class="hc-v3-field-label" for="servings">Porsiyon</label><input id="servings" class="hc-v3-input text-center" type="number" min="1" max="99" name="servings" value="{{ $servings }}"></div><button class="hc-v3-btn hc-v3-btn--outline !min-h-11 !min-w-11 !px-3" type="submit" name="servings_step" value="1" aria-label="Porsiyonu artır">+</button></form><a class="mt-3 inline-flex min-h-[24px] items-center text-xs font-extrabold" style="color: var(--hc-text-accent)" href="{{ route('recipes.show', $recipe) }}">Varsayılan {{ $recipe->servings }} porsiyona dön</a>
-                @foreach(collect($ingredientLines)->groupBy('group') as $group => $lines)
-                    <h3 class="hc-overline mt-6" style="color: var(--hc-text-muted)">{{ $group }}</h3>
+                @php($malzemeGruplari = collect($ingredientLines)->groupBy('group'))
+                @foreach($malzemeGruplari as $group => $lines)
+                    {{-- Tek grup varsa adini basmak anahati kirletiyor: Cig
+                         Kofte'de grup adi "Malzemeler"di ve bolumun kendi
+                         basligini tekrar ediyordu. Grup basligi ancak birden
+                         fazla grup varken bilgi tasiyor. --}}
+                    @if($malzemeGruplari->count() > 1)
+                        <h3 class="hc-overline mt-6" style="color: var(--hc-text-muted)">{{ $group }}</h3>
+                    @endif
                     <ul class="mt-2 divide-y" style="border-color: var(--hc-border-subtle)">@foreach($lines as $item)<li class="py-3"><label class="flex cursor-pointer items-start gap-3"><input class="mt-1 shrink-0" type="checkbox" aria-label="{{ $item['formatted'] }} malzemesini tamamlandı olarak işaretle"><span><span class="text-sm font-bold" style="color: var(--hc-text-primary)">{{ $item['formatted'] }} @if($item['line']->is_optional)<span class="hc-v3-badge ml-1">isteğe bağlı</span>@endif</span>@if($item['line']->preparation_note)<span class="mt-1 block text-xs" style="color: var(--hc-text-secondary)">{{ $item['line']->preparation_note }}</span>@endif@if($item['canonical_quantity'])<span class="mt-1 block text-xs" style="color: var(--hc-text-muted)">{{ $item['is_approximate'] ? 'yaklaşık ' : '' }}{{ rtrim(rtrim((string) $item['canonical_quantity'], '0'), '.') }} {{ $item['canonical_unit'] }} · {{ $item['line']->conversion_confidence === 'verified' ? 'doğrulanmış ölçü' : 'yaklaşık ölçü' }}</span>@endif@if($item['scaling_note'])<span class="mt-1 block text-xs text-amber-700 dark:text-amber-300">{{ $item['scaling_note'] }}</span>@endif</span></label></li>@endforeach</ul>
                 @endforeach
                 @auth
@@ -128,7 +135,7 @@
             <section class="mt-8 rounded-[1.5rem] bg-charcoal-950 p-5 text-white sm:p-7"><p class="hc-overline text-orange-300">Pişirme rehberi</p><h2 class="hc-heading-3 mt-2">Tarif notları</h2><p class="mt-2 text-sm leading-6 text-stone-300">Bu tarifin püf noktalarını, sürelerini ve alerjen bilgilerini birlikte değerlendirin. Sağlık ve alerji kararları için profesyonel desteğin yerini tutmaz.</p><a class="hc-v3-btn hc-v3-btn--primary mt-5" href="#tips">Püf noktalarına git</a></section>
 
             @if($relatedRecipes->isNotEmpty())
-                <section class="mt-12"><div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">Bir sonraki tarifiniz</p><h2 class="hc-display-lg mt-2">Benzer tarifler</h2></div><a class="hc-v3-btn hc-v3-btn--ghost" href="{{ $cuisineUrl ?: route('recipes.index') }}">Tümünü gör <span aria-hidden="true">→</span></a></div><div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">@foreach($relatedRecipes as $relatedRecipe)<x-recipe-card-v3 :recipe="$relatedRecipe" :show-favorite="false" />@endforeach</div></section>
+                <section class="mt-12"><div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">Bir sonraki tarifiniz</p><h2 class="hc-display-lg mt-2">Benzer tarifler</h2></div><a class="hc-v3-btn hc-v3-btn--ghost" href="{{ $cuisineUrl ?: route('recipes.index') }}">Tümünü gör <span aria-hidden="true">→</span></a></div><div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">@foreach($relatedRecipes as $relatedRecipe)<x-recipe-card-v3 :recipe="$relatedRecipe" :show-favorite="false" heading="h3" />@endforeach</div></section>
             @endif
             {{-- Multiplex birimi içerik önerisi ızgarası; yazının sonunda,
                  benzer tariflerin ardında duruyor. --}}

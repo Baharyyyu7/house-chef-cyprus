@@ -84,7 +84,7 @@
                     <h2 class="hc-heading-3 mb-6">İlgili tarifler</h2>
                     <div class="grid gap-5 sm:grid-cols-2">
                         @foreach($post->recipes as $recipe)
-                            <x-recipe-card-v3 :recipe="$recipe" :show-favorite="false" />
+                            <x-recipe-card-v3 :recipe="$recipe" :show-favorite="false" heading="h3" />
                         @endforeach
                     </div>
                 </section>
