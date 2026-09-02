@@ -212,16 +212,43 @@
 
         // Gözlemci beklenmedik bir nedenle tetiklenmezse içerik görünmez
         // kalmasın: kısa bir süre sonra kalan her blok açılır.
+        //
+        // Bu ağ her kaydırma olayında yeni bir rAF kuyruğa alıyordu ve
+        // hepsiniAc tüm belgeyi sorgulayıp her öğe için getBoundingClientRect
+        // çağırıyordu. 15.000 piksellik anasayfada kaydırma ana iş
+        // parçacığını kilitliyordu: yüzlerce sıraya girmiş çağrı, her biri
+        // zorunlu yeniden yerleşim. Şimdi kare başına en fazla bir çağrı var
+        // ve iş bitince dinleyici kendini söküyor - ağın görevi zaten
+        // gözlemci tetiklenmezse devreye girmek.
+        var kareBekliyor = false;
+
         function hepsiniAc() {
-            document.querySelectorAll('[data-reveal]:not(.is-revealed)').forEach(function (el) {
-                if (el.getBoundingClientRect().top < window.innerHeight * 1.5) { el.classList.add('is-revealed'); }
-            });
+            kareBekliyor = false;
+
+            var kalan = document.querySelectorAll('[data-reveal]:not(.is-revealed)');
+
+            for (var i = 0; i < kalan.length; i++) {
+                if (kalan[i].getBoundingClientRect().top < window.innerHeight * 1.5) {
+                    kalan[i].classList.add('is-revealed');
+                }
+            }
+
+            if (document.querySelector('[data-reveal]:not(.is-revealed)') === null) {
+                window.removeEventListener('scroll', kaydirmada);
+            }
+        }
+
+        function kaydirmada() {
+            if (kareBekliyor) { return; }
+
+            kareBekliyor = true;
+            window.requestAnimationFrame(hepsiniAc);
         }
 
         if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', kur); } else { kur(); }
         document.addEventListener('livewire:navigated', kur);
         window.addEventListener('load', function () { setTimeout(hepsiniAc, 1200); });
-        window.addEventListener('scroll', function () { window.requestAnimationFrame(hepsiniAc); }, { passive: true });
+        window.addEventListener('scroll', kaydirmada, { passive: true });
     })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -283,7 +310,7 @@
         {{-- Koyu açılışı olan sayfalarda hero başlığın altından başlar. Sayfa
              tepesindeyken çubuk kendi zeminini basmaz; görüntünün üstünde
              saydam durur ve içeriğini koyu zemine göre okutur. --}}
-        <header @scroll.window="scrolled = window.scrollY > 16" :class="{ 'is-scrolled': scrolled }" @class([
+        <header @scroll.window.passive="if ((window.scrollY > 16) !== scrolled) scrolled = window.scrollY > 16" :class="{ 'is-scrolled': scrolled }" @class([
             'hc-public-header sticky top-0 z-40 transition-all duration-300',
             'hc-header-over-hero' => request()->routeIs('home', 'recipes.show'),
         ])>
