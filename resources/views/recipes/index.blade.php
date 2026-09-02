@@ -150,7 +150,49 @@
 
     <x-home-testimonials :testimonials="config('testimonials.home', [])" :disclosure="config('testimonials.disclosure')" />
 
-    <section data-reveal class="hc-container pb-8"><div class="overflow-hidden rounded-[2rem] bg-orange-500 px-7 py-10 text-white sm:px-10 sm:py-14"><p class="text-sm font-extrabold uppercase tracking-[.18em] text-orange-100">Mutfağınız için daha akıllı bir başlangıç</p><div class="mt-4 flex flex-col justify-between gap-6 md:flex-row md:items-end"><h2 class="hc-heading-1 max-w-2xl">Tarifleri saklamak değil, gerçekten pişirmek için keşfedin.</h2><a class="hc-btn shrink-0 bg-white px-6 text-charcoal-900 hover:bg-orange-50" href="{{ route('recipes.index') }}">Tarifleri keşfet</a></div></div></section>
+    {{-- Kapanis 280px turuncu bant, tek slogan ve tek dugmeydi; o dugme de
+         sayfanin basindaki cagriyla ayni yere gidiyordu. Dokuz bolum kaydirip
+         hala tiklamamis birine ayni seyi tekrar onermek en zayif teklif.
+
+         Bu arada dort hub sayfasi da yayinda ve 200 donuyor ama anasayfanin
+         icerigi hicbirine baglanmiyordu: ucu yalniz footer'da duruyor,
+         /ne-pisirebilirim hicbir yerde yoktu. Kapanis artik o dort kapiyi
+         acik birakiyor. --}}
+    <section data-reveal class="hc-container pb-8" aria-labelledby="home-kapanis-baslik">
+        <div class="hc-kapanis">
+            <div class="hc-kapanis__giris">
+                <p class="hc-kicker text-orange-100">Aradığınızı bulamadıysanız</p>
+                <h2 id="home-kapanis-baslik" class="hc-heading-1 mt-3 max-w-xl">Mutfağa girmenin dört ayrı yolu var.</h2>
+                <p class="mt-4 max-w-lg hc-body-md text-orange-50">Tarif aramak tek yol değil. Elinizdeki malzemeden, sevdiğiniz mutfaktan ya da pişirmek istediğiniz yemek türünden de başlayabilirsiniz.</p>
+            </div>
+            <ul class="hc-kapanis__kapilar">
+                <li>
+                    <a href="{{ route('ingredients.hub.index') }}">
+                        <strong>Malzemeye göre</strong>
+                        <span>Dolabınızda ne varsa oradan başlayın.</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('cuisines.index') }}">
+                        <strong>Mutfağa göre</strong>
+                        <span>Kıbrıs, Akdeniz ve bölge lezzetleri.</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('categories.index') }}">
+                        <strong>Türüne göre</strong>
+                        <span>Çorba, hamur işi, tatlı, salata.</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('ingredients.explore') }}">
+                        <strong>Elinizdekilerle</strong>
+                        <span>Neyi pişirebileceğinizi hesaplayalım.</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </section>
 @else
     <section class="hc-container hc-page hc-recipe-archive">
         <div class="grid gap-6 border-b pb-8 sm:grid-cols-[1fr_auto] sm:items-end" style="border-color: var(--hc-line)">
