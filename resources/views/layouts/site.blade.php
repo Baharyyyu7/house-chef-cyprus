@@ -308,8 +308,16 @@
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ urlencode((string) config('integrations.google.tag_manager.container_id')) }}" height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe></noscript>
     @endif
     @if (request()->routeIs('admin.*'))
-        <div class="admin-shell min-h-screen lg:grid" :class="adminSidebarCollapsed ? 'lg:grid-cols-[5.25rem_minmax(0,1fr)]' : 'lg:grid-cols-[17.5rem_minmax(0,1fr)]'">
-            <aside class="admin-shell__sidebar fixed inset-y-0 left-0 z-50 hidden lg:block" :class="adminSidebarCollapsed ? 'w-[5.25rem]' : 'w-[17.5rem]'">
+        {{-- Izgara sutunlari ve kenar cubugu genisligi yalniz Alpine
+             baglamasindan geliyordu. Alpine calismadigi anda sutun tanimi hic
+             olusmuyor, sabit konumlu kenar cubugu da icerigin ustune biniyordu:
+             panel okunamaz hale geliyordu. Bunu yasadik.
+
+             Acik hal artik statik siniftan geliyor; Alpine yalnizca daraltilmis
+             hali ekliyor. Alpine gec kalirsa ya da hic gelmezse panel dogru
+             genislikte, kullanilabilir duruyor. --}}
+        <div class="admin-shell min-h-screen lg:grid lg:grid-cols-[17.5rem_minmax(0,1fr)]" :class="adminSidebarCollapsed && 'lg:!grid-cols-[5.25rem_minmax(0,1fr)]'">
+            <aside class="admin-shell__sidebar fixed inset-y-0 left-0 z-50 hidden w-[17.5rem] lg:block" :class="adminSidebarCollapsed && '!w-[5.25rem]'">
                 <x-admin-sidebar />
             </aside>
 
