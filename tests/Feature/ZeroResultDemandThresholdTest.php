@@ -50,6 +50,21 @@ final class ZeroResultDemandThresholdTest extends TestCase
         $this->assertDatabaseHas('zero_result_searches', ['normalized_query' => 'asdfqwer']);
     }
 
+    public function test_the_admin_panel_uses_the_same_threshold_as_the_guard(): void
+    {
+        // Panel "asdfqwer", "search term string" ve "functionalities"i talep
+        // olarak listeliyordu. Muhafız manşeti için eşiği koymuştum ama liste
+        // ondan habersizdi; panel kendi kendisiyle çelişiyordu.
+        $this->terim('asdfqwer', 2);
+        $this->terim('kokorec tarifi', 12);
+
+        $icerik = (string) $this->actingAs(\App\Models\User::factory()->create(['role' => 'admin']))
+            ->get('/yonetim')->assertOk()->getContent();
+
+        $this->assertStringContainsString('kokorec tarifi', $icerik);
+        $this->assertStringNotContainsString('asdfqwer', $icerik);
+    }
+
     private function terim(string $sorgu, int $adet): void
     {
         ZeroResultSearch::query()->create([

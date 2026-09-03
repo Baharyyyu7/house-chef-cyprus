@@ -17,6 +17,7 @@ use App\Models\RecipeNutritionSnapshot;
 use App\Models\RestoreHistory;
 use App\Models\User;
 use App\Models\ZeroResultSearch;
+use App\Services\Seo\ZeroResultRecheck;
 use App\Services\Integrity\IntegrityReportLog;
 use App\Services\Observability\MetricService;
 use Illuminate\Support\Carbon;
@@ -371,8 +372,14 @@ final class AdminDashboardService
         $columns = ['normalized_query', 'search_count', 'suggested_action', 'resolved_at', 'resolved_result_count'];
 
         return [
+            // Panel "asdfqwer", "search term string" ve "functionalities"i
+            // talep olarak listeliyordu: klavye ezmesi, test dizesi ve bot.
+            // Muhafiz manseti icin ayni esik zaten var (ZeroResultRecheck);
+            // liste ondan habersizdi ve panele gurultu basiyordu. Bir terim
+            // talep sayilmadan once tekrarlanmis olmali.
             'open' => ZeroResultSearch::query()
                 ->whereNull('resolved_at')
+                ->where('search_count', '>=', ZeroResultRecheck::TALEP_ESIGI)
                 ->orderByDesc('search_count')
                 ->limit(8)
                 ->get($columns)->toArray(),

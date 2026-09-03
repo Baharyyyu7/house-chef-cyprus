@@ -32,7 +32,9 @@ use App\Services\Search\TurkishRecipeQueryParser;
 final class ZeroResultRecheck
 {
     /** Bir terim talep sayılmadan önce kaç kez aranmış olmalı. */
-    private const TALEP_ESIGI = 3;
+    /** Yönetim paneli listesi de aynı eşiği kullanıyor: liste ile manşet
+     *  ayrı eşiklerle çalışırsa panel kendi kendisiyle çelişir. */
+    public const TALEP_ESIGI = 3;
 
     public function __construct(
         private readonly RecipeSearchInterface $search,

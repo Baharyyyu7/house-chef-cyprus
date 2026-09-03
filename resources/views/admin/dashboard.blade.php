@@ -291,14 +291,19 @@
                         <p class="hc-overline mt-7" style="color: var(--hc-text-muted)">Önce bunlar</p>
                         <div class="hc-admin-quality-grid mt-3">
                             @foreach ($kategoriler as $key => $score)
-                                @php($durum = $score < 40 ? 'is-dusuk' : ($score < 90 ? 'is-orta' : 'is-tamam'))
+                                {{-- Arkasında hiç kontrol olmayan kategori skor bildirmiyor:
+                                     ceza alamadığı için sonsuza kadar %100 görünüyordu ve
+                                     ölçülmeyene tam not vermek, veri yokluğundan olumlu
+                                     sonuç çıkarmaktır. --}}
+                                @php($olculuyor = $score !== null)
+                                @php($durum = ! $olculuyor ? 'is-olculmedi' : ($score < 40 ? 'is-dusuk' : ($score < 90 ? 'is-orta' : 'is-tamam')))
                                 <div>
                                     <div class="flex items-center justify-between gap-3">
                                         <span>{{ $etiket($key) }}</span>
-                                        <strong @class(['hc-quality-score', $durum])>%{{ $score }}</strong>
+                                        <strong @class(['hc-quality-score', $durum])>{{ $olculuyor ? '%'.$score : 'ölçülmedi' }}</strong>
                                     </div>
                                     <div @class(['hc-admin-progress mt-2', $durum]) role="presentation">
-                                        <span style="width: {{ $score }}%"></span>
+                                        @if($olculuyor)<span style="width: {{ $score }}%"></span>@endif
                                     </div>
                                 </div>
                             @endforeach

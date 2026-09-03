@@ -792,6 +792,10 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
 /* Sayının rengi durumu söylüyor: bakan kişi hangisine bakacağını
    listeyi okumadan görüyor. */
 .hc-quality-score.is-dusuk { color: var(--hc-status-danger); }
+    /* Olculmeyen kategori ne iyi ne kotu: notr durmali, yesil rozet gibi
+       okunmamali. */
+    .hc-quality-score.is-olculmedi { font-size:.78rem; font-weight:700; color:var(--hc-text-muted); }
+    .hc-admin-progress.is-olculmedi { background:repeating-linear-gradient(90deg, var(--hc-border-subtle) 0 6px, transparent 6px 12px); }
 .hc-quality-score.is-orta  { color: var(--hc-status-warning); }
 .hc-quality-score.is-tamam { color: var(--hc-status-success); }
 
