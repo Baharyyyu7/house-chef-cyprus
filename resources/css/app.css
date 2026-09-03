@@ -1211,7 +1211,13 @@ a.hc-nav-control { padding-inline: 1.1rem; }
    2. RECIPE CARD
    ═══════════════════════════════════════════════ */
 
-.hc-v3-card {
+/* details bu kuralin disinda.
+   display:flex bir <details> ogesine uygulaninca Chrome'un yerel ac/kapa
+   davranisi bozuluyor: panel kapaliyken de govdesi yerlesiyor. Yonetim
+   panelindeki iki kapali panelin govdesi 507 ve 453 piksel yer kapliyordu
+   ve yalnizca overflow:hidden sayesinde gorunmuyordu - ekran okuyucu icin
+   hala oradaydi. height:100% de kapali panelin yuksekligini bozuyor. */
+.hc-v3-card:not(details) {
   display: flex;
   flex-direction: column;
   height: 100%;
