@@ -81,7 +81,12 @@
             @endforeach
         </section>
 
-        <section class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+        {{-- items-start olmadan izgara satiri en uzun sutuna gore olculuyor ve
+     kisa olan sag rayi da o boya geriyordu: sol sutunda 3.173 karakter
+     varken sag sutunda 470 karakter vardi ama ikisi de 2.829 piksel
+     yuksekligindeydi. Aradaki fark bos beyaz alan olarak duruyordu ve
+     belge 15.871 piksele cikiyordu. Bu tek sinifla 4.322 piksele indi. --}}
+        <section class="mt-8 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
             <div class="space-y-6">
                 <div class="grid gap-6 lg:grid-cols-2">
                     @foreach ($charts as $chart)
