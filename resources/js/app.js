@@ -11,14 +11,7 @@
 // data-alpine-owner ile bildiriyor ve Alpine yalniz sahipsiz sayfalarda
 // buradan baslatiliyor.
 import Alpine from 'alpinejs';
-import { Chart, registerables } from 'chart.js';
-
-if (document.body?.dataset.alpineOwner === 'app' && !window.Alpine) {
-    window.Alpine = Alpine;
-    Alpine.start();
-}
-
-Chart.register(...registerables);
+let chartLibrary;
 
 const chartInstances = new WeakMap();
 
@@ -72,7 +65,13 @@ const chartConfig = (data) => {
     };
 };
 
-const mountCharts = () => {
+const mountCharts = async () => {
+    if (!document.querySelector('[data-admin-chart]')) return;
+    chartLibrary ??= import('chart.js').then(({ Chart, registerables }) => {
+        Chart.register(...registerables);
+        return Chart;
+    });
+    const Chart = await chartLibrary;
     document.querySelectorAll('[data-admin-chart]').forEach((canvas) => {
         let data;
         try {
@@ -525,3 +524,9 @@ document.addEventListener('alpine:init', () => {
         window.addEventListener('load', basla, { once: true });
     }
 })();
+
+// Register every alpine:init listener before start dispatches that event.
+if (document.body?.dataset.alpineOwner === 'app' && !window.Alpine) {
+    window.Alpine = Alpine;
+    Alpine.start();
+}

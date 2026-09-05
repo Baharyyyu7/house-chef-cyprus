@@ -92,7 +92,9 @@ final class RecipeMediaTruthfulnessPresentationTest extends TestCase
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('Ana sayfa görsel kapısı tarifi')
-            ->assertSee('Yapay zekâ görseli')
+            // Assert the card's disclosure, not unrelated homepage commitment copy.
+            ->assertSee('Yapay zekâ ile üretilmiş görsel: Ana sayfa test yemeği')
+            ->assertSee('YZ görseli')
             ->assertDontSee('Yemek fotoğrafı hazırlanıyor');
     }
 

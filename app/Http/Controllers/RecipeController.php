@@ -6,15 +6,16 @@ namespace App\Http\Controllers;
 
 use App\Contracts\Search\RecipeSearchInterface;
 use App\Models\Allergen;
-use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\Cuisine;
 use App\Models\DietaryTag;
+use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Services\AllergenAnalysisService;
 use App\Services\DietaryCompatibilityService;
 use App\Services\IngredientMatchingService;
 use App\Services\Measurements\RecipeIngredientDisplayService;
+use App\Services\Media\HubCoverPicker;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\NutritionService;
 use App\Services\Seo\SeoIndexabilityService;
@@ -47,7 +48,7 @@ final class RecipeController extends Controller
                 ->get(),
             // Anasayfadaki mutfak seckisi, /mutfaklar sayfasindaki kartla
             // ayni gorunmeli: ayni icerik iki sayfada farkli gorunuyordu.
-            'mutfakKapaklari' => app(\App\Services\Media\HubCoverPicker::class)
+            'mutfakKapaklari' => app(HubCoverPicker::class)
                 ->sutunaGore('cuisine_id', Cuisine::query()->pluck('id')->all()),
             'categories' => Category::orderBy('name')->get(),
             'dietaryTags' => DietaryTag::orderBy('name')->get(),
@@ -67,21 +68,11 @@ final class RecipeController extends Controller
                 ->orderByDesc('published_at')
                 ->get();
 
-            $usedRecipeIds = [];
-            $select = function ($matches) use (&$usedRecipeIds) {
-                $selection = $matches->reject(fn (Recipe $recipe): bool => in_array($recipe->id, $usedRecipeIds, true))->take(4)->values();
-                $usedRecipeIds = [...$usedRecipeIds, ...$selection->pluck('id')->all()];
+            // Never cache approval decisions: a revoked image leaves the showcase immediately.
+            $mediaEligibility = app(PublicMediaEligibilityService::class);
+            $viewData['homeHighlights'] = $catalogue->lazy()->filter(fn (Recipe $recipe): bool => $mediaEligibility->firstEligible($recipe->media) !== null)->take(4)->collect();
+            $viewData['homeIngredients'] = cache()->remember('home-ingredients-v2:'.app()->getLocale(), now()->addMinutes(5), fn () => Ingredient::query()->where('is_active', true)->orderBy('name')->get(['public_id', 'name'])->toArray());
 
-                return $selection;
-            };
-            $viewData['homeSections'] = [
-                'quick' => $select($catalogue->filter(fn (Recipe $recipe): bool => $recipe->totalMinutes() <= 30)),
-                'cyprus' => $select($catalogue->filter(fn (Recipe $recipe): bool => str_contains(mb_strtolower((string) $recipe->cuisine?->name), 'kıbrıs') || str_contains(mb_strtolower((string) $recipe->cuisine?->name), 'akdeniz'))),
-                'breakfast' => $select($catalogue->filter(fn (Recipe $recipe): bool => str_contains(mb_strtolower((string) $recipe->category?->name), 'kahvaltı'))),
-                'mains' => $select($catalogue->filter(fn (Recipe $recipe): bool => str_contains(mb_strtolower((string) $recipe->category?->name), 'ana'))),
-                'desserts' => $select($catalogue->filter(fn (Recipe $recipe): bool => str_contains(mb_strtolower((string) $recipe->category?->name), 'tatlı'))),
-            ];
-            $viewData['latestPosts'] = BlogPost::query()->publiclyVisible()->with(['category', 'heroMedia', 'media'])->latest('published_at')->take(3)->get();
         }
 
         return view('recipes.index', $viewData);

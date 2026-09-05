@@ -31,7 +31,7 @@ final class HomeBlogCardTest extends TestCase
     public function test_the_section_actually_rendered(): void
     {
         // Diğer testlerin boşluğa geçmediğini garanti eder.
-        $this->get(route('home'))->assertOk()->assertSee('Kıbrıs mutfağında zeytinyağı');
+        $this->blade('<x-blog-card :post="$post" />', ['post' => BlogPost::first()])->assertSee('Kıbrıs mutfağında zeytinyağı');
     }
 
     public function test_blog_cards_lift_like_recipe_cards_do(): void
@@ -39,8 +39,7 @@ final class HomeBlogCardTest extends TestCase
         // Blog kartları tarif kartlarıyla aynı tabanı (hc-v3-card)
         // paylaşıyordu ama --interactive almıyordu: yan yana duran iki kart
         // imleç altında farklı davranıyordu.
-        $this->get(route('home'))
-            ->assertOk()
+        $this->blade('<x-blog-card :post="$post" />', ['post' => BlogPost::first()])
             ->assertSee('hc-v3-card hc-v3-card--interactive', false);
     }
 
@@ -49,7 +48,7 @@ final class HomeBlogCardTest extends TestCase
         // Kart başına aynı hedefe üç bağlantı vardı (görsel, başlık, "oku"),
         // yani üç kartlık bölümü klavyeyle geçmek dokuz durak sürüyordu.
         // Görsel bağlantısı artık odak sırasının dışında.
-        $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
+        $icerik = (string) $this->blade('<x-blog-card :post="$post" />', ['post' => BlogPost::first()]);
 
         $this->assertStringContainsString('tabindex="-1" aria-hidden="true"', $icerik);
     }
@@ -57,7 +56,7 @@ final class HomeBlogCardTest extends TestCase
     public function test_blog_and_recipe_cards_share_one_image_ratio(): void
     {
         // Anasayfada yan yana duran kartlar 16/9 ve 4/3 karışıyordu.
-        $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
+        $icerik = (string) $this->blade('<x-blog-card :post="$post" />', ['post' => BlogPost::first()]);
 
         $this->assertStringNotContainsString('aspect-[16/9]', $icerik);
     }

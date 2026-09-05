@@ -59,20 +59,20 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('house-chef-hero-v2.png', false)
             // Arama kutusunun kendisi aranıyor, üstündeki başlık değil:
             // başlık metni tasarım turlarında yeniden yazılıyor.
-            ->assertSee('hero-search', false)
+            ->assertSee('hero-ingredient', false)
             ->assertDontSee('∞ ilham')
             ->getContent();
 
         // Arama gerçekten tarif listesine gönderiyor mu.
         $this->assertMatchesRegularExpression(
-            '/<form[^>]*action="[^"]*tarifler[^"]*"/',
+            '/<form[^>]*action="[^"]*ne-pisirebilirim[^"]*"/',
             $icerik,
-            'Ana sayfadaki arama tarif listesine gitmeli.'
+            'Ana sayfadaki malzeme seçimi gerçek eşleştirmeye gitmeli.'
         );
 
         // Birincil çağrı: tarif listesine götüren bir düğme.
         $this->assertMatchesRegularExpression(
-            '/<a[^>]*hc-btn-primary[^>]*href="[^"]*(#kesfet|tarifler)[^"]*"/',
+            '/<a[^>]*hc-btn-primary[^>]*href="[^"]*#hero-ingredient[^"]*"/',
             $icerik,
             'Kahraman bölümünde tariflere götüren birincil çağrı olmalı.'
         );
@@ -80,7 +80,7 @@ final class VisualDesignPhaseTest extends TestCase
         // İkincil çağrı: malzemeden tarife giden yol. Ziyaretçi girişliyse
         // malzeme keşfine, değilse kayda gider.
         $this->assertMatchesRegularExpression(
-            '/<a[^>]*hc-hero-secondary[^>]*href="[^"]*(malzeme|register|ingredient)[^"]*"/i',
+            '/<a[^>]*hc-hero-secondary[^>]*href="[^"]*tarifler[^"]*"/i',
             $icerik,
             'Kahraman bölümünde malzemeden başlatan ikincil çağrı olmalı.'
         );
