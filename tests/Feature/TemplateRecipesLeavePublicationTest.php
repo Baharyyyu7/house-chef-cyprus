@@ -86,12 +86,15 @@ final class TemplateRecipesLeavePublicationTest extends TestCase
 
     private function publish(string $title, string $slug): Recipe
     {
-        return Recipe::query()->create([
+        $recipe = Recipe::query()->create([
             'title' => $title,
             'slug' => $slug,
             'status' => 'published',
             'verification_status' => 'verified',
             'published_at' => now()->subDays(3),
         ]);
+        $this->makeRecipePubliclyEligible($recipe);
+
+        return $recipe;
     }
 }

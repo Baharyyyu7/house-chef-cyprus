@@ -113,6 +113,12 @@ final class RecipeController extends Controller
         // Şema görseli de paylaşım varyantını kullanır; Google zengin sonuç
         // için bu adresi okuyor ve ham kaynak bir tarifte 2,77 MB'tı.
         $schema = $schemaService->recipe($recipe, collect($ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings))->pluck('formatted')->values()->all(), $sosyalGorsel['url'] ?? '', $cuisineUrl);
+        $metadata = $seo->for($recipe, $recipe->title.' · House Chef Cyprus', $recipe->description ?: $recipe->excerpt, route('recipes.show', $recipe), $request->query() === [] ? 'index,follow' : 'noindex,follow');
+        if ($heroMedia === null) {
+            // Onayli ana gorseli olmayan tarifler ziyaret edilebilir; ancak
+            // kalite kapisini gecene kadar arama motoruna aday gosterilmez.
+            $metadata['robots'] = 'noindex,follow';
+        }
 
         return view('recipes.show', [
             'recipe' => $recipe,
@@ -138,7 +144,7 @@ final class RecipeController extends Controller
                 ->limit(4)
                 ->get(),
             'seoSchema' => $schema,
-            'metadata' => $seo->for($recipe, $recipe->title.' · House Chef Cyprus', $recipe->description ?: $recipe->excerpt, route('recipes.show', $recipe), $request->query() === [] ? 'index,follow' : 'noindex,follow'),
+            'metadata' => $metadata,
             // Paylaşım görseli ham kaynağı gösteriyordu; bir tarifte
             // 2,77 MB'lık PNG. Hattın ürettiği 1200x630 varyantı bu iş için.
             'seoImage' => $sosyalGorsel['url'] ?? null,

@@ -41,6 +41,7 @@ final class SitemapOmitsNoindexPagesTest extends TestCase
             'status' => 'published',
             'verification_status' => 'verified',
         ]);
+        $this->makeRecipePubliclyEligible($recipe);
 
         $this->get('/sitemaps/recipes.xml')->assertOk()->assertSee($recipe->slug, false);
     }
@@ -66,6 +67,7 @@ final class SitemapOmitsNoindexPagesTest extends TestCase
         ]);
 
         $recipe->seoMetadata()->create(['robots' => $robots]);
+        $this->makeRecipePubliclyEligible($recipe);
 
         return $recipe;
     }
@@ -77,7 +79,7 @@ final class SitemapOmitsNoindexPagesTest extends TestCase
             'title' => str($slug)->headline()->value(),
             'slug' => $slug,
             'excerpt' => 'Özet.',
-            'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 
+            'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',
             'status' => 'published',
             'published_at' => now()->subDay(),
         ]);

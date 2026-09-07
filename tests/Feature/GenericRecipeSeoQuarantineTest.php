@@ -71,6 +71,7 @@ final class GenericRecipeSeoQuarantineTest extends TestCase
             'published_at' => now()->subWeek(),
         ]);
         $recipe->seoMetadata()->create(['robots' => 'index,follow']);
+        $this->makeRecipePubliclyEligible($recipe);
 
         foreach ($steps as $index => $instruction) {
             $recipe->steps()->create([

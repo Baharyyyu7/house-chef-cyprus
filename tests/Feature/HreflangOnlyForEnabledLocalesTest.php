@@ -98,6 +98,7 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
             'excerpt' => 'Özet.', 'description' => 'Açıklama.',
             'status' => 'published', 'verification_status' => 'verified', 'published_at' => now(),
         ]);
+        $this->makeRecipePubliclyEligible($cevirisiz);
 
         $icerik = (string) $this->get(route('sitemap.recipes'))->assertOk()->getContent();
 
@@ -114,6 +115,7 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
             'excerpt' => 'Özet.', 'description' => 'Açıklama.',
             'status' => 'published', 'verification_status' => 'verified', 'published_at' => now(),
         ]);
+        $this->makeRecipePubliclyEligible($tarif);
 
         foreach (['title' => 'Translated', 'excerpt' => 'Summary.', 'description' => 'Description.'] as $alan => $deger) {
             $tarif->translations()->create(['locale' => 'en', 'field' => $alan, 'value' => $deger]);

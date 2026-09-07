@@ -20,6 +20,7 @@ final class SeoAuthorityProgramTest extends TestCase
     public function test_public_recipe_emits_recipe_and_breadcrumb_schema_without_ratings_or_reviews(): void
     {
         $recipe = $this->recipe();
+        $this->makeRecipePubliclyEligible($recipe);
 
         $this->get(route('recipes.show', $recipe))
             ->assertOk()

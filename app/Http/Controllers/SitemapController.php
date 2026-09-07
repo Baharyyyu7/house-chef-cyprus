@@ -101,8 +101,11 @@ final class SitemapController extends Controller
 
     public function recipes(): Response
     {
+        $mediaEligibility = app(PublicMediaEligibilityService::class);
         $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified'))
+            ->with(['media' => fn ($query) => $query->where('visibility', 'public')->orderBy('sort_order')])
             ->orderBy('updated_at')->get(['id', 'slug', 'updated_at'])
+            ->filter(fn (Recipe $recipe): bool => $mediaEligibility->firstEligible($recipe->media) !== null)
             ->map(fn (Recipe $recipe): array => [
                 'loc' => route('recipes.show', $recipe->slug),
                 'lastmod' => $recipe->updated_at?->toDateString(),

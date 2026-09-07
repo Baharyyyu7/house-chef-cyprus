@@ -24,7 +24,12 @@ final class SeoSchemaService
             'prepTime' => 'PT'.$recipe->prep_minutes.'M', 'cookTime' => 'PT'.$recipe->cook_minutes.'M',
             'totalTime' => 'PT'.$recipe->totalMinutes().'M', 'recipeYield' => $recipe->servings.' porsiyon',
             'recipeIngredient' => $ingredients,
-            'recipeInstructions' => $recipe->steps->map(fn ($step): array => ['@type' => 'HowToStep', 'name' => $step->title, 'text' => $step->instruction])->values()->all(),
+            'recipeInstructions' => $recipe->steps->values()->map(fn ($step, int $index): array => [
+                '@type' => 'HowToStep',
+                'name' => $step->title,
+                'text' => $step->instruction,
+                'url' => route('recipes.show', $recipe).'#step-'.($step->position ?: $index + 1),
+            ])->all(),
             // author ve datePublished hiçbir tarifte yoktu. İkisi de Google'ın
             // önerdiği alanlar ve author E-E-A-T tarafında doğrudan sayılıyor -
             // sitenin bütün konumlanması "doğrulanmış tarifler" üzerine ama
@@ -36,10 +41,6 @@ final class SeoSchemaService
             ],
             'datePublished' => $recipe->published_at?->toAtomString(),
         ];
-        if ($imageUrl !== '') {
-            $recipeNode['image'] = [$imageUrl];
-        }
-
         $crumbs = [['name' => 'Ana Sayfa', 'url' => route('home')]];
         if ($recipe->cuisine !== null && $cuisineUrl !== null) {
             $crumbs[] = ['name' => 'Mutfaklar', 'url' => route('cuisines.index')];
@@ -48,6 +49,15 @@ final class SeoSchemaService
             $crumbs[] = ['name' => 'Tarifler', 'url' => route('recipes.index')];
         }
         $crumbs[] = ['name' => $recipe->title, 'url' => route('recipes.show', $recipe)];
+
+        // Google Recipe zengin sonucu icin image zorunludur. Onayli bir ana
+        // gorsel yokken eksik/gecersiz bir Recipe nesnesi ilan etmek yerine
+        // sayfanin gercek breadcrumb bilgisini koruyup Recipe nesnesini basma.
+        if ($imageUrl === '') {
+            return $this->graph(null, $crumbs);
+        }
+
+        $recipeNode['image'] = [$imageUrl];
 
         return $this->graph($recipeNode, $crumbs);
     }
@@ -155,12 +165,15 @@ final class SeoSchemaService
         ], $crumbs);
     }
 
-    /** @param array<string,mixed> $node @param list<array{name:string,url:string}> $crumbs @return array<string,mixed> */
-    private function graph(array $node, array $crumbs): array
+    /** @param array<string,mixed>|null $node @param list<array{name:string,url:string}> $crumbs @return array<string,mixed> */
+    private function graph(?array $node, array $crumbs): array
     {
-        return ['@context' => 'https://schema.org', '@graph' => [$node, [
+        $graph = $node === null ? [] : [$node];
+        $graph[] = [
             '@type' => 'BreadcrumbList',
             'itemListElement' => collect($crumbs)->values()->map(fn (array $crumb, int $index): array => ['@type' => 'ListItem', 'position' => $index + 1, 'name' => $crumb['name'], 'item' => $crumb['url']])->all(),
-        ]]];
+        ];
+
+        return ['@context' => 'https://schema.org', '@graph' => $graph];
     }
 }

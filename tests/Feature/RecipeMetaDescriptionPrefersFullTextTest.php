@@ -23,6 +23,7 @@ final class RecipeMetaDescriptionPrefersFullTextTest extends TestCase
         // Denetim (SeoAuditService) zaten ters sırayı kullanıyordu, yani iki
         // taraf birbiriyle çelişiyordu.
         $tarif = $this->tarif(['excerpt' => 'Kısa teaser.', 'description' => self::DOLGUN]);
+        $this->makeRecipePubliclyEligible($tarif);
 
         $icerik = (string) $this->get(route('recipes.show', $tarif))->assertOk()->getContent();
 
@@ -46,6 +47,7 @@ final class RecipeMetaDescriptionPrefersFullTextTest extends TestCase
         // JSON-LD ile sayfanın meta etiketi ayrışırsa Google iki farklı
         // açıklama görür; ikisi de aynı kaynaktan gelmeli.
         $tarif = $this->tarif(['excerpt' => 'Kısa teaser.', 'description' => self::DOLGUN]);
+        $this->makeRecipePubliclyEligible($tarif);
 
         $icerik = (string) $this->get(route('recipes.show', $tarif))->assertOk()->getContent();
 

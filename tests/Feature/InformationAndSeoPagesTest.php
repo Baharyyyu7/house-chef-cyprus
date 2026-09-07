@@ -60,6 +60,7 @@ final class InformationAndSeoPagesTest extends TestCase
     {
         $this->seed(HouseChefSeeder::class);
         $public = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->firstOrFail();
+        $this->makeRecipePubliclyEligible($public);
 
         $this->get('/robots.txt')->assertOk()->assertSee('Disallow: /yonetim/')->assertSee('Sitemap:');
         $this->get('/sitemap.xml')

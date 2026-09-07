@@ -6,7 +6,6 @@ namespace Tests\Feature;
 
 use App\Models\Recipe;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
@@ -28,6 +27,7 @@ final class RecipeSchemaCarriesAuthorshipTest extends TestCase
     public function test_the_schema_names_an_author(): void
     {
         $tarif = $this->tarif();
+        $this->makeRecipePubliclyEligible($tarif);
 
         $düğüm = $this->recipeNode($tarif);
 
@@ -38,37 +38,58 @@ final class RecipeSchemaCarriesAuthorshipTest extends TestCase
     public function test_the_schema_carries_the_publication_date(): void
     {
         $tarif = $this->tarif();
+        $this->makeRecipePubliclyEligible($tarif);
 
         $this->assertNotEmpty($this->recipeNode($tarif)['datePublished']);
     }
 
-    public function test_a_recipe_without_an_approved_photo_claims_no_image(): void
+    public function test_a_recipe_without_an_approved_photo_emits_no_invalid_recipe_schema(): void
     {
-        // image zorunlu alan; olmayan görseli uydurmak yerine alan hiç
-        // basılmıyor. Bu, zengin sonuca girememek demek - görsel eksiğinin
-        // görünür olmayan ikinci bedeli.
         $tarif = $this->tarif();
+        $icerik = (string) $this->get(route('recipes.show', $tarif))->assertOk()->getContent();
 
-        $this->assertArrayNotHasKey('image', $this->recipeNode($tarif));
+        $this->assertStringContainsString('name="robots" content="noindex,follow"', $icerik);
+        $this->assertNull($this->findRecipeNode($icerik));
     }
 
     public function test_an_approved_photo_is_declared(): void
     {
         $tarif = $this->tarif();
-        $tarif->media()->create([
-            'kind' => 'recipe_synthetic',
-            'disk' => 'public',
-            'path' => 'media/approved-synthetic/recipe/ABC/source.jpg',
-            'mime_type' => 'image/jpeg',
-            'visibility' => 'public',
-            'media_status' => 'approved_real_media',
-            'verification_status' => 'verified',
-            'approved_at' => now(),
-        ]);
+        $this->makeRecipePubliclyEligible($tarif);
 
         $icerik = (string) $this->get(route('recipes.show', $tarif->fresh()))->assertOk()->getContent();
+        $node = $this->findRecipeNode($icerik);
 
-        $this->assertStringContainsString('"recipeIngredient"', $icerik);
+        $this->assertNotNull($node);
+        $this->assertNotEmpty($node['image'] ?? []);
+        $this->assertStringContainsString('name="robots" content="index,follow"', $icerik);
+    }
+
+    public function test_recipe_sitemap_only_lists_recipes_with_eligible_media(): void
+    {
+        $hazir = $this->tarif();
+        $hazir->update(['slug' => 'gorselli-tarif']);
+        $this->makeRecipePubliclyEligible($hazir);
+        $eksik = $this->tarif();
+        $eksik->update(['slug' => 'gorselsiz-tarif']);
+
+        $this->get(route('sitemap.recipes'))
+            ->assertOk()
+            ->assertSee('gorselli-tarif', false)
+            ->assertDontSee('gorselsiz-tarif', false);
+    }
+
+    public function test_how_to_step_urls_point_to_real_visible_anchors(): void
+    {
+        $tarif = $this->tarif();
+        $this->makeRecipePubliclyEligible($tarif);
+        $tarif->steps()->create(['position' => 1, 'title' => 'Karıştırın', 'instruction' => 'Malzemeleri karıştırın.']);
+
+        $icerik = (string) $this->get(route('recipes.show', $tarif->fresh()))->assertOk()->getContent();
+        $node = $this->findRecipeNode($icerik);
+
+        $this->assertSame(route('recipes.show', $tarif).'#step-1', $node['recipeInstructions'][0]['url'] ?? null);
+        $this->assertStringContainsString('id="step-1"', $icerik);
     }
 
     /** @return array<string, mixed> */
@@ -89,6 +110,23 @@ final class RecipeSchemaCarriesAuthorshipTest extends TestCase
         }
 
         $this->fail('Sayfada Recipe işaretlemesi bulunamadı.');
+    }
+
+    /** @return array<string, mixed>|null */
+    private function findRecipeNode(string $icerik): ?array
+    {
+        preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $icerik, $eslesme);
+
+        foreach ($eslesme[1] as $ham) {
+            $veri = json_decode(trim($ham), true);
+            foreach ($veri['@graph'] ?? [$veri] as $dugum) {
+                if (($dugum['@type'] ?? null) === 'Recipe') {
+                    return $dugum;
+                }
+            }
+        }
+
+        return null;
     }
 
     private function tarif(): Recipe
