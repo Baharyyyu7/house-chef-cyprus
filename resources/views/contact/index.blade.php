@@ -18,7 +18,7 @@
         <div class="mx-auto mt-10 grid max-w-5xl gap-8 lg:grid-cols-[1fr_.62fr] lg:items-start">
             <form class="hc-v3-card p-6 sm:p-8" method="post" action="{{ route('legal.center.contact.store') }}">
                 @csrf
-                <input type="hidden" name="source_page" value="iletisim">
+                <input type="hidden" name="source_page" value="{{ route('contact.index') }}">
                 
                 {{-- Honeypot --}}
                 <div class="hidden" aria-hidden="true">
@@ -54,7 +54,7 @@
                     <label class="hc-v3-field-label" for="subject">Konu</label>
                     <select id="subject" class="hc-v3-input" name="subject" required>
                         @foreach(config('contact-requests.subjects') as $anahtar => $tanim)
-                            <option value="{{ $anahtar }}" @selected(old('subject') === $anahtar)>{{ is_array($tanim) ? ($tanim['label'] ?? $anahtar) : $tanim }}</option>
+                            <option value="{{ $anahtar }}" @selected(old('subject', request()->query('subject')) === $anahtar)>{{ is_array($tanim) ? ($tanim['label'] ?? $anahtar) : $tanim }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -75,6 +75,12 @@
                 </label>
                 @error('privacy_consent')<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
 
+                @if(config('contact-requests.captcha.enabled') && config('contact-requests.captcha.site_key'))
+                    <div class="cf-turnstile mt-5" data-sitekey="{{ config('contact-requests.captcha.site_key') }}" data-response-field-name="captcha_token"></div>
+                    @once<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>@endonce
+                @endif
+                @error('captcha_token')<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
+
                 <div class="mt-8 flex flex-wrap items-center gap-4">
                     <button class="hc-v3-btn hc-v3-btn--primary px-8" type="submit">Mesajı gönder</button>
                     <span class="text-xs" style="color: var(--hc-text-muted)">Talep numaranız gönderimden sonra gösterilir.</span>
@@ -82,6 +88,16 @@
             </form>
 
             <aside class="space-y-5">
+                <div class="hc-v3-card p-6">
+                    <h2 class="hc-heading-3">Birlikte çalışalım</h2>
+                    <p class="hc-body-sm mt-2" style="color: var(--hc-text-secondary)">Sponsorluk, restoran ve şef yönlendirmesi, satış ortaklığı veya işletme profili için bize yazın. Otel, villa ve menü içeriği iş birliklerini de değerlendirebiliriz. Mesajınızda kapsamı, hedef kitlenizi ve istediğiniz tarihi belirtin. Uygunluk ve koşullar değerlendirme sonrasında netleştirilir.</p>
+                    <div class="mt-4 space-y-3">
+                        @foreach(config('contact-requests.commercial_subjects') as $subject)
+                            <a class="block text-sm font-bold hover:underline" href="{{ route('contact.index', ['subject' => $subject]) }}#subject">{{ config('contact-requests.subjects.'.$subject) }}</a>
+                        @endforeach
+                    </div>
+                    <p class="hc-body-sm mt-4" style="color: var(--hc-text-muted)">Form göndermek ödeme veya rezervasyon oluşturmaz.</p>
+                </div>
                 <div class="hc-v3-card p-6">
                     <p class="hc-overline" style="color: var(--hc-text-muted)">Doğrudan e-posta</p>
                     <a class="hc-heading-3 mt-2 block break-all font-extrabold text-orange-700 dark:text-orange-400" href="mailto:info@housechefcyprus.com">info@housechefcyprus.com</a>

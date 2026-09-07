@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Monetization;
 
 use App\Models\AffiliateLink;
+use App\Models\ContactRequest;
 use App\Models\DigitalOrder;
 use App\Models\TipContribution;
 use App\Models\UserSubscription;
@@ -33,6 +34,7 @@ final class RevenueOperationsReport
             'generated_at' => now()->toIso8601String(),
             'scope' => 'verified_operational_state',
             'accounting_note' => 'Bu görünüm muhasebe ekstresi değildir; abonelik yenileme geçmişi ayrı bir ödeme defteri olmadan hesaplanamaz.',
+            'commercial_demand' => $this->commercialDemand(),
             'currencies' => $currencies->mapWithKeys(
                 fn (string $currency): array => [$currency => $this->currencyMetrics($currency)],
             )->all(),
@@ -52,6 +54,30 @@ final class RevenueOperationsReport
                 'subscriptions_active' => $verifiedActiveSubscriptions->count(),
                 'subscriptions_at_risk' => UserSubscription::query()->whereIn('status', ['past_due', 'disputed'])->count(),
             ],
+        ];
+    }
+
+    private function commercialDemand(): array
+    {
+        $subjects = config('contact-requests.commercial_subjects', []);
+        $counts = ContactRequest::query()
+            ->whereIn('subject', $subjects)
+            ->whereNotIn('status', ['spam', 'archived'])
+            ->selectRaw('subject, status, COUNT(*) as total')
+            ->groupBy('subject', 'status')
+            ->get();
+
+        return [
+            'scope' => 'non_deleted_non_spam_non_archived_all_time',
+            'by_subject' => collect($subjects)->mapWithKeys(fn (string $subject): array => [
+                $subject => [
+                    'total' => (int) $counts->where('subject', $subject)->sum('total'),
+                    'open' => (int) $counts->where('subject', $subject)
+                        ->whereIn('status', ['new', 'in_review', 'waiting_reply'])->sum('total'),
+                ],
+            ])->all(),
+            'recognized_revenue_minor' => null,
+            'note' => 'Talep veya çözüldü durumu satış değildir; doğrulanmış ödeme bağlantısı olmadan gelir hesaplanmaz.',
         ];
     }
 

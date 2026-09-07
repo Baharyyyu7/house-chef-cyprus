@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\AffiliateLink;
+use App\Models\ContactRequest;
 use App\Models\DigitalOrder;
 use App\Models\DigitalProduct;
 use App\Models\TipContribution;
@@ -18,6 +19,23 @@ use Tests\TestCase;
 final class MonetizationRevenueReportTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_commercial_demand_excludes_spam_and_does_not_recognize_resolved_requests_as_revenue(): void
+    {
+        foreach (['new', 'resolved', 'spam', 'archived'] as $status) {
+            ContactRequest::create([
+                'first_name' => 'Test', 'last_name' => 'User', 'email' => 'private@example.com',
+                'subject' => 'menu_content', 'message' => 'Private proposal message',
+                'status' => $status, 'priority' => 'normal', 'submitted_at' => now(),
+                'privacy_consent_at' => now(),
+            ]);
+        }
+        $report = app(RevenueOperationsReport::class)->build();
+        $this->assertSame(['total' => 2, 'open' => 1], $report['commercial_demand']['by_subject']['menu_content']);
+        $this->assertNull($report['commercial_demand']['recognized_revenue_minor']);
+        $this->assertStringNotContainsString('private@example.com', json_encode($report));
+        $this->assertSame([], $report['currencies']);
+    }
 
     public function test_it_reports_verified_operational_revenue_without_inventing_affiliate_income(): void
     {
