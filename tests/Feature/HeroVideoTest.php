@@ -5,30 +5,18 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 final class HeroVideoTest extends TestCase
 {
     use RefreshDatabase;
 
-    private string $klasor;
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->klasor = public_path('videos');
-    }
-
-    protected function tearDown(): void
-    {
-        foreach (['hero-loop.mp4', 'hero-loop.webm'] as $ad) {
-            @unlink($this->klasor.'/'.$ad);
-        }
-
-        @rmdir($this->klasor);
-
-        parent::tearDown();
+        Storage::fake('public');
     }
 
     public function test_no_video_markup_at_all_until_the_file_is_delivered(): void
@@ -92,12 +80,18 @@ final class HeroVideoTest extends TestCase
             ->assertSee('house-chef-hero-v2-1717.avif', false);
     }
 
+    public function test_the_web_root_serves_hero_video_with_video_mime_and_cache_rules(): void
+    {
+        $htaccess = (string) file_get_contents(public_path('.htaccess'));
+
+        $this->assertStringContainsString('AddType video/webm .webm', $htaccess);
+        $this->assertStringContainsString('ExpiresByType video/mp4 "access plus 30 days"', $htaccess);
+        $this->assertStringContainsString('ExpiresByType video/webm "access plus 30 days"', $htaccess);
+        $this->assertMatchesRegularExpression('/FilesMatch "[^\"]*mp4\|webm[^\"]*"/', $htaccess);
+    }
+
     private function videoYaz(string $ad): void
     {
-        if (! is_dir($this->klasor)) {
-            mkdir($this->klasor, 0755, true);
-        }
-
-        file_put_contents($this->klasor.'/'.$ad, 'sahte-video');
+        Storage::disk('public')->put('videos/'.$ad, 'sahte-video');
     }
 }

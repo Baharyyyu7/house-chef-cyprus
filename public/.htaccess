@@ -35,6 +35,7 @@
 <IfModule mod_mime.c>
     AddType image/avif .avif
     AddType image/avif-sequence .avifs
+    AddType video/webm .webm
 </IfModule>
 
 <IfModule mod_expires.c>
@@ -42,6 +43,8 @@
     ExpiresByType image/avif "access plus 30 days"
     ExpiresByType image/webp "access plus 30 days"
     ExpiresByType image/svg+xml "access plus 7 days"
+    ExpiresByType video/mp4 "access plus 30 days"
+    ExpiresByType video/webm "access plus 30 days"
     ExpiresByType text/css "access plus 1 year"
     ExpiresByType application/javascript "access plus 1 year"
 </IfModule>
@@ -49,7 +52,7 @@
 <IfModule mod_headers.c>
     SetEnvIf Request_URI "^/build/" immutable_asset
     Header set Cache-Control "public, max-age=31536000, immutable" env=immutable_asset
-    <FilesMatch "\.(?:avif|webp|svg)$">
+    <FilesMatch "\.(?:avif|webp|svg|mp4|webm)$">
         Header set Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
     </FilesMatch>
     <FilesMatch "\.woff2$">

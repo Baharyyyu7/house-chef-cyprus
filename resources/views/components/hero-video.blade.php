@@ -11,11 +11,14 @@
      * Dosya sunucuda yoksa hiçbir şey basılmaz: video gelene kadar sayfa
      * bugünkü hâliyle çalışır, boş bir istek bile gitmez.
      */
+    use Illuminate\Support\Facades\Storage;
+
+    $disk = Storage::disk('public');
     $mp4 = 'videos/hero-loop.mp4';
     $webm = 'videos/hero-loop.webm';
 
-    $mp4Var = is_file(public_path($mp4));
-    $webmVar = is_file(public_path($webm));
+    $mp4Var = $disk->exists($mp4);
+    $webmVar = $disk->exists($webm);
 @endphp
 
 @if ($mp4Var || $webmVar)
@@ -24,8 +27,8 @@
     <video
         class="hc-hero-video"
         data-hero-video
-        @if ($mp4Var) data-mp4="{{ asset($mp4) }}" @endif
-        @if ($webmVar) data-webm="{{ asset($webm) }}" @endif
+        @if ($mp4Var) data-mp4="{{ $disk->url($mp4) }}" @endif
+        @if ($webmVar) data-webm="{{ $disk->url($webm) }}" @endif
         muted
         loop
         playsinline
