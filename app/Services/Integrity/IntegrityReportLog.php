@@ -17,6 +17,7 @@ final class IntegrityReportLog
 {
     /** Her muhafızın manşet sayısının ne anlama geldiği. Dördünde de az iyidir. */
     public const MUHAFIZLAR = [
+        'seo:morning-brief' => ['baslik' => 'Organik büyüme denetimi', 'birim' => 'açık SEO sorunu'],
         'content:integrity-guard' => ['baslik' => 'İçerik bütünlüğü', 'birim' => 'bulgu'],
         'assets:delivery-check' => ['baslik' => 'Varlık teslimi', 'birim' => 'hatalı varlık'],
         'media:gap-queue' => ['baslik' => 'Görsel eksiği', 'birim' => 'görselsiz tarif'],
@@ -96,11 +97,15 @@ final class IntegrityReportLog
      */
     private function sebep(string $guard, array $payload): ?string
     {
+        if ($guard === 'seo:morning-brief') {
+            return $payload['organic_metrics']['note'] ?? null;
+        }
+
         if ($guard === 'media:gap-queue') {
             $bekleyen = (int) ($payload['awaiting_approval'] ?? 0);
 
             return $bekleyen > 0
-                ? $bekleyen." tanesinin görseli hazır, yalnız onay bekliyor"
+                ? $bekleyen.' tanesinin görseli hazır, yalnız onay bekliyor'
                 : null;
         }
 
@@ -108,7 +113,7 @@ final class IntegrityReportLog
             $esikAlti = (int) ($payload['below_threshold'] ?? 0);
 
             return $esikAlti > 0
-                ? $esikAlti." tekil terim daha var; tekrarlanmadıkça talep sayılmıyor"
+                ? $esikAlti.' tekil terim daha var; tekrarlanmadıkça talep sayılmıyor'
                 : null;
         }
 
