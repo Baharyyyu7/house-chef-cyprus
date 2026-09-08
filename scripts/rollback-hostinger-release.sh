@@ -12,6 +12,7 @@ WEB_ROOT="$APP_HOME/public_html"
 run() { if "$DRY_RUN"; then printf '[dry-run] '; printf '%q ' "$@"; printf '\n'; else "$@"; fi; }
 fail() { printf '[hostinger-rollback] ERROR: %s\n' "$*" >&2; exit 1; }
 sync_physical_web_root() {
+    local release_root
     if "$DRY_RUN"; then
         printf '[hostinger-rollback] Would sync %s/public into physical %s and rewrite the stable index.\n' "$CURRENT_LINK" "$WEB_ROOT"
         return 0
@@ -19,18 +20,20 @@ sync_physical_web_root() {
     [[ ! -L "$WEB_ROOT" ]] || rm -f "$WEB_ROOT"
     mkdir -p "$WEB_ROOT"
     (cd "$CURRENT_LINK/public" && tar --exclude='./storage' -cf - .) | (cd "$WEB_ROOT" && tar -xf -)
-    cat > "$WEB_ROOT/index.php" <<'PHP'
+    release_root="$(readlink -f "$CURRENT_LINK")"
+    [[ "$release_root" == "$APP_HOME"/releases/* && -f "$release_root/artisan" ]] || fail 'Invalid active release target.'
+    cat > "$WEB_ROOT/index.php" <<PHP
 <?php
 
 declare(strict_types=1);
 
 use Illuminate\Http\Request;
 
-require __DIR__.'/../current/vendor/autoload.php';
+require '$release_root/vendor/autoload.php';
 
-$app = require_once __DIR__.'/../current/bootstrap/app.php';
+\$app = require_once '$release_root/bootstrap/app.php';
 
-$app->handleRequest(Request::capture());
+\$app->handleRequest(Request::capture());
 PHP
     if [[ -e "$WEB_ROOT/storage" && ! -L "$WEB_ROOT/storage" ]]; then
         fail 'public_html/storage is not a symlink; preserve it before rollback.'

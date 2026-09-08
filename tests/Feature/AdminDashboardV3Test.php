@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\AuditLog;
 use App\Models\BlogPost;
 use App\Models\ContactRequest;
+use App\Models\Cuisine;
 use App\Models\Ingredient;
 use App\Models\PersonalizationExportRequest;
 use App\Models\Recipe;
@@ -110,6 +111,48 @@ final class AdminDashboardV3Test extends TestCase
         $this->assertSame('available', $available['charts'][1]['data_status']);
         $this->assertNotEmpty($available['charts'][1]['labels']);
         $this->assertNotEmpty($available['charts'][1]['summary']);
+    }
+
+    public function test_cuisine_distribution_excludes_deleted_recipes_like_the_catalog_totals(): void
+    {
+        $cuisine = Cuisine::create(['name' => 'Kıbrıs Mutfağı', 'slug' => 'kibris-mutfagi']);
+        Recipe::create(['title' => 'Aktif tarif', 'slug' => 'aktif-tarif', 'cuisine_id' => $cuisine->id]);
+        $deleted = Recipe::create(['title' => 'Silinen tarif', 'slug' => 'silinen-tarif', 'cuisine_id' => $cuisine->id]);
+        $deleted->delete();
+        Cache::flush();
+
+        $dashboard = app(AdminDashboardService::class)->dashboard(7);
+        $chart = $dashboard['charts'][1];
+
+        $this->assertSame(['Kıbrıs Mutfağı'], $chart['labels']);
+        $this->assertSame([1], $chart['values']);
+        $this->assertSame(collect($dashboard['cards'])->keyBy('key')['toplam_tarif']['current_value'], array_sum($chart['values']));
+    }
+
+    public function test_period_comparison_reports_a_decrease_when_new_records_fall(): void
+    {
+        User::factory()->count(4)->create(['created_at' => now()->subDays(10)]);
+        User::factory()->count(2)->create(['created_at' => now()->subDay()]);
+        Cache::flush();
+
+        $card = collect(app(AdminDashboardService::class)->dashboard(7)['cards'])->keyBy('key')['kullanicilar'];
+
+        $this->assertSame(6, $card['current_value']);
+        $this->assertSame(-2, $card['absolute_change']);
+        $this->assertSame(-50.0, $card['percentage_change']);
+        $this->assertSame('down', $card['trend_direction']);
+    }
+
+    public function test_period_comparison_is_neutral_for_equal_counts_and_unknown_without_a_baseline(): void
+    {
+        User::factory()->count(2)->create(['created_at' => now()->subDays(10)]);
+        User::factory()->count(2)->create(['created_at' => now()->subDay()]);
+        Cache::flush();
+        $cards = collect(app(AdminDashboardService::class)->dashboard(7)['cards'])->keyBy('key');
+
+        $this->assertSame(0.0, $cards['kullanicilar']['percentage_change']);
+        $this->assertSame('neutral', $cards['kullanicilar']['trend_direction']);
+        $this->assertNull($cards['toplam_tarif']['percentage_change']);
     }
 
     public function test_dashboard_uses_only_aggregate_active_member_country_profiles_for_the_world_activity_map(): void

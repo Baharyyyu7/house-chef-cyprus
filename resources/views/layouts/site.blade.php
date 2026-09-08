@@ -308,6 +308,7 @@
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ urlencode((string) config('integrations.google.tag_manager.container_id')) }}" height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe></noscript>
     @endif
     @if (request()->routeIs('admin.*'))
+        <a href="#admin-main-content" class="hc-skip-link">İçeriğe geç</a>
         {{-- Izgara sutunlari ve kenar cubugu genisligi yalniz Alpine
              baglamasindan geliyordu. Alpine calismadigi anda sutun tanimi hic
              olusmuyor, sabit konumlu kenar cubugu da icerigin ustune biniyordu:
@@ -324,7 +325,7 @@
             <div class="admin-shell__content min-w-0 lg:col-start-2">
                 <header class="admin-topbar sticky top-0 z-30">
                     <div class="flex min-h-[4.5rem] items-center justify-between gap-3 px-4 sm:px-7">
-                        <button @click="adminMenuOpen = true" class="hc-v3-btn hc-v3-btn--outline px-3 py-2 lg:hidden" aria-label="Yönetim menüsünü aç"><x-ui.icon name="menu" size="20" /></button>
+                        <button x-ref="adminMenuTrigger" @click="adminMenuOpen = true" :aria-expanded="adminMenuOpen" aria-controls="admin-mobile-menu" class="hc-v3-btn hc-v3-btn--outline px-3 py-2 lg:hidden" aria-label="Yönetim menüsünü aç"><x-ui.icon name="menu" size="20" /></button>
                         <div class="min-w-0 flex-1">
                             <nav aria-label="Breadcrumb" class="hc-admin-breadcrumb"><span>Yönetim</span><span aria-hidden="true">/</span><span aria-current="page">{{ $title ?? 'Genel Bakış' }}</span></nav>
                             <p class="truncate text-sm font-extrabold" style="color:var(--hc-text-primary)">{{ $title ?? 'Genel Bakış' }}</p>
@@ -340,15 +341,15 @@
                     </div>
                 </header>
 
-                <div x-cloak x-show="adminMenuOpen" x-transition.opacity class="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Yönetim menüsü" @click.self="adminMenuOpen = false">
-                    <div class="absolute inset-0 bg-black/60" aria-hidden="true"></div>
-                    <aside x-ref="adminDrawer" x-show="adminMenuOpen" x-transition:enter="transition ease-out duration-220" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-160" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" x-init="$watch('adminMenuOpen', open => { if (open) { $nextTick(() => $refs.adminDrawer.querySelector('[data-drawer-close]')?.focus()) } })" @keydown.tab.prevent="const items = [...$el.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex=\'-1\'])')].filter(item => !item.hidden); const current = items.indexOf(document.activeElement); const next = $event.shiftKey ? (current <= 0 ? items.length - 1 : current - 1) : (current === items.length - 1 ? 0 : current + 1); items[next]?.focus()" class="admin-shell__sidebar relative h-full w-[18rem] max-w-[86vw] shadow-2xl">
+                <div id="admin-mobile-menu" x-cloak x-show="adminMenuOpen" x-transition.opacity class="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Yönetim menüsü" @click.self="adminMenuOpen = false">
+                    <div class="absolute inset-0 bg-black/60" @click="adminMenuOpen = false" aria-hidden="true"></div>
+                    <aside x-data="{ adminSidebarCollapsed: false }" x-ref="adminDrawer" x-show="adminMenuOpen" x-transition:enter="transition ease-out duration-220" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-160" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" x-init="$watch('adminMenuOpen', open => { $nextTick(() => open ? $refs.adminDrawer.querySelector('[data-drawer-close]')?.focus() : $refs.adminMenuTrigger?.focus()) })" @keydown.tab.prevent="const items = [...$el.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex=\'-1\'])')].filter(item => item.getClientRects().length > 0 && getComputedStyle(item).visibility !== 'hidden'); const current = items.indexOf(document.activeElement); const next = $event.shiftKey ? (current <= 0 ? items.length - 1 : current - 1) : (current === items.length - 1 ? 0 : current + 1); items[next]?.focus()" class="admin-shell__sidebar relative h-full w-[18rem] max-w-[86vw] shadow-2xl">
                         <button data-drawer-close @click="adminMenuOpen = false" class="absolute right-3 top-3 rounded-lg p-2 text-white hover:bg-white/10" aria-label="Menüyü kapat"><x-ui.icon name="close" size="20" /></button>
-                        <x-admin-sidebar />
+                        <x-admin-sidebar mobile />
                     </aside>
                 </div>
 
-                <main class="hc-page">
+                <main id="admin-main-content" tabindex="-1" class="hc-page">
                     @if (session('status'))
                         <div class="hc-alert hc-alert-success mb-6" role="status">{{ session('status') }}</div>
                     @endif

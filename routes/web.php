@@ -295,6 +295,11 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('blog/{post}/yayinla', [AdminBlogPostController::class, 'publish'])->name('blog.publish');
     Route::post('blog/{post}/arsivle', [AdminBlogPostController::class, 'archive'])->name('blog.archive');
     Route::get('seo', [SeoOperationsController::class, 'index'])->name('seo.index');
+    Route::get('seo/buyume', [SeoOperationsController::class, 'growth'])->name('seo.growth');
+    Route::post('seo/buyume/yenile', [SeoOperationsController::class, 'refreshGrowth'])->name('seo.growth.refresh');
+    Route::post('seo/buyume/csv', [SeoOperationsController::class, 'importBacklinks'])->name('seo.growth.import');
+    Route::post('seo/buyume/{candidate:public_id}/incele', [SeoOperationsController::class, 'reviewBacklink'])->name('seo.growth.review');
+    Route::post('seo/firsatlar/{opportunity:public_id}/incele', [SeoOperationsController::class, 'reviewOpportunity'])->name('seo.opportunities.review');
     Route::get('seo/sorunlar', [SeoOperationsController::class, 'issues'])->name('seo.issues');
     Route::get('seo/firsatlar', [SeoOperationsController::class, 'opportunities'])->name('seo.opportunities');
     Route::post('seo/denetle', [SeoOperationsController::class, 'runAudit'])->name('seo.audit');

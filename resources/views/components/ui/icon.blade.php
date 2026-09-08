@@ -3,6 +3,8 @@
 @php($decorative = blank($label))
 <svg {{ $attributes->class('shrink-0')->merge(['width' => $size, 'height' => $size, 'viewBox' => '0 0 24 24', 'fill' => 'none', 'stroke' => 'currentColor', 'stroke-width' => '1.9', 'stroke-linecap' => 'round', 'stroke-linejoin' => 'round']) }} @if($decorative) aria-hidden="true" @else role="img" aria-label="{{ $label }}" @endif>
     @switch($name)
+        @case('plus')<path d="M12 5v14M5 12h14"/>@break
+        @case('log-out')<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>@break
         @case('heart')<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/>@break
         @case('menu')<path d="M4 7h16M4 12h16M4 17h16"/>@break
         @case('close')<path d="m6 6 12 12M18 6 6 18"/>@break

@@ -17,9 +17,9 @@ use App\Models\RecipeNutritionSnapshot;
 use App\Models\RestoreHistory;
 use App\Models\User;
 use App\Models\ZeroResultSearch;
-use App\Services\Seo\ZeroResultRecheck;
 use App\Services\Integrity\IntegrityReportLog;
 use App\Services\Observability\MetricService;
+use App\Services\Seo\ZeroResultRecheck;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -315,8 +315,14 @@ final class AdminDashboardService
                 'cards' => $cards,
                 'charts' => [
                     $this->recipeTrend($from, $period),
-                    $this->distributionChart('Mutfak dağılımı', 'Tariflerin mutfaklara göre gerçek dağılımı.', 'bar', DB::table('recipes')->leftJoin('cuisines', 'recipes.cuisine_id', '=', 'cuisines.id')->selectRaw("COALESCE(cuisines.name, 'Belirsiz') as label, COUNT(recipes.id) as total")->groupBy('label')->orderByDesc('total')->limit(8)->pluck('total', 'label')->all()),
-                    $this->distributionChart('Doğrulama durumu', 'Tariflerin editoryal doğrulama görünümü.', 'doughnut', Recipe::query()->selectRaw("COALESCE(verification_status, 'Belirsiz') as label, COUNT(*) as total")->groupBy('label')->orderByDesc('total')->pluck('total', 'label')->all()),
+                    $this->distributionChart('Mutfak dağılımı', 'Mevcut katalogdaki en çok tarif içeren 8 mutfak.', 'bar', Recipe::query()->leftJoin('cuisines', 'recipes.cuisine_id', '=', 'cuisines.id')->selectRaw("COALESCE(cuisines.name, 'Belirsiz') as label, COUNT(recipes.id) as total")->groupBy('label')->orderByDesc('total')->limit(8)->pluck('total', 'label')->all()),
+                    $this->distributionChart('Doğrulama durumu', 'Mevcut kataloğun editoryal doğrulama durumu.', 'doughnut', Recipe::query()->selectRaw("COALESCE(verification_status, 'Belirsiz') as label, COUNT(*) as total")->groupBy('label')->orderByDesc('total')->pluck('total', 'label')->mapWithKeys(fn ($total, $label): array => [match ($label) {
+                        'verified' => 'Doğrulandı',
+                        'needs_review' => 'İnceleme bekliyor',
+                        'partially_verified' => 'Kısmen doğrulandı',
+                        'unreviewed' => 'İncelenmedi',
+                        default => $label,
+                    } => $total])->all()),
                 ],
                 'audienceMap' => $this->audienceMap($from),
                 'qualityScores' => $qualityScores,
@@ -482,8 +488,9 @@ final class AdminDashboardService
     }
 
     /** @return array<string, mixed> */
-    private function metric(string $key, string $label, int|float|null $current, ?int $previous, ?int $absoluteChange, string $description, bool $inverse = false, string $suffix = ''): array
+    private function metric(string $key, string $label, int|float|null $current, ?int $previous, ?int $periodCount, string $description, bool $inverse = false, string $suffix = ''): array
     {
+        $absoluteChange = $previous !== null && $periodCount !== null ? $periodCount - $previous : null;
         $percentage = $previous !== null && $previous > 0 && $absoluteChange !== null ? round(($absoluteChange / $previous) * 100, 1) : null;
         $direction = $absoluteChange === null || $absoluteChange === 0 ? 'neutral' : ($absoluteChange > 0 ? 'up' : 'down');
 
@@ -510,7 +517,7 @@ final class AdminDashboardService
         $values = [];
         for ($offset = $period - 1; $offset >= 0; $offset--) {
             $date = now()->subDays($offset)->toDateString();
-            $labels[] = now()->subDays($offset)->format('d M');
+            $labels[] = now()->subDays($offset)->translatedFormat('d M');
             $values[] = (int) ($rows[$date] ?? 0);
         }
 

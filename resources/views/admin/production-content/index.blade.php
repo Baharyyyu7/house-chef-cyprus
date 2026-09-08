@@ -1,4 +1,4 @@
-<x-admin-layout title="Production İçerik Merkezi">
+<x-admin-layout title="Canlı İçerik Merkezi">
     @php
         $statusLabel = static fn (string $status): string => match ($status) {
             'passed_automated_checks' => 'Otomatik kontroller geçti',
@@ -20,7 +20,7 @@
     <div class="hc-admin-crud-page space-y-6">
         <section class="hc-admin-hero">
             <p class="hc-eyebrow">İçerik operasyonları</p>
-            <h1 class="hc-heading-1">Production İçerik Merkezi</h1>
+            <h1 class="hc-heading-1">Canlı İçerik Merkezi</h1>
             <p class="mt-2 text-muted">Bu görünüm gerçek kalite profillerini gösterir. Readiness skoru doğrulama veya yayın garantisi değildir; insan onayı olmadan yayın yapılmaz.</p>
             @can('rescan-production-content')<form class="mt-4" method="post" action="{{ route('admin.production-content.rescan') }}">@csrf<button class="hc-v3-btn hc-v3-btn--secondary">Kalite taramasını yenile</button></form>@endcan
         </section>

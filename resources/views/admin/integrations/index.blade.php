@@ -1,6 +1,6 @@
 <x-layouts.site title="Operasyonlar ve Entegrasyonlar · House Chef Cyprus" robots="noindex,nofollow">
     <section class="hc-section hc-container">
-        <x-admin.page-header eyebrow="Operasyon Merkezi" title="Entegrasyonlar ve sahip aksiyonları" description="Harici servisler kapalıyken site çalışmaya devam eder. Secret değerleri bu ekranda hiçbir zaman gösterilmez." />
+        <x-admin.page-header eyebrow="Sistem" title="Entegrasyonlar" />
         <div class="mt-8 grid gap-4 lg:grid-cols-2">
             @foreach($integrations as $integration)
                 @php($connected = $integration['status'] === 'CONNECTED_VERIFIED')

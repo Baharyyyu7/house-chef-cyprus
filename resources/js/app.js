@@ -31,6 +31,7 @@ const chartConfig = (data) => {
     const grid = cssVariable('--hc-border-subtle');
     const colors = palette();
     const isDonut = data.type === 'doughnut';
+    const fontFamily = getComputedStyle(document.body).fontFamily;
 
     return {
         type: data.type,
@@ -54,12 +55,12 @@ const chartConfig = (data) => {
             maintainAspectRatio: false,
             animation: reducedMotion ? false : { duration: 420, easing: 'easeOutQuart' },
             plugins: {
-                legend: { display: isDonut, position: 'bottom', labels: { color: text, boxWidth: 10, padding: 14, font: { family: 'Inter' } } },
+                legend: { display: isDonut, position: 'bottom', labels: { color: text, boxWidth: 10, padding: 14, font: { family: fontFamily } } },
                 tooltip: { backgroundColor: cssVariable('--hc-surface-overlay'), titleColor: cssVariable('--hc-text-primary'), bodyColor: cssVariable('--hc-text-secondary'), borderColor: cssVariable('--hc-border-default'), borderWidth: 1, padding: 11, cornerRadius: 10 },
             },
             scales: isDonut ? {} : {
-                x: { grid: { display: false }, ticks: { color: text, maxRotation: 0, autoSkipPadding: 14, font: { family: 'Inter' } } },
-                y: { beginAtZero: true, grid: { color: grid }, border: { display: false }, ticks: { color: text, precision: 0, font: { family: 'Inter' } } },
+                x: { grid: { display: false }, ticks: { color: text, maxRotation: 0, autoSkipPadding: 14, font: { family: fontFamily } } },
+                y: { beginAtZero: true, grid: { color: grid }, border: { display: false }, ticks: { color: text, precision: 0, font: { family: fontFamily } } },
             },
         },
     };
