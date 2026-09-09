@@ -39,6 +39,7 @@ final class SearchConsoleMeasurementTest extends TestCase
         $this->assertNull($metrics['ranking_queries']);
         $this->assertNull($metrics['external_referring_domains']);
         $this->assertSame('ui_import', $metrics['source']);
+        $this->assertSame('https://housechefcyprus.com/', $metrics['property']);
         $this->artisan('seo:morning-brief --json')->assertSuccessful();
         $this->assertSame(5, IntegrityReport::where('guard', 'seo:morning-brief')->sole()->payload['organic_metrics']['google_clicks']);
         Http::assertNothingSent();

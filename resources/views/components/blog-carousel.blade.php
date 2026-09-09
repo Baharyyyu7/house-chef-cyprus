@@ -46,8 +46,8 @@
                     x-bind:tabindex="gorunur({{ $sira }}) ? 0 : -1"
                 >
                     <span class="hc-karusel__etiket">{{ $post->category?->name ?? 'Mutfak notu' }}</span>
-                    <span class="hc-karusel__baslik"><span>{{ $post->title }}</span></span>
-                    <span class="hc-karusel__ozet"><span>{{ \Illuminate\Support\Str::limit((string) $post->excerpt, 105) }}</span></span>
+                    <span class="hc-karusel__baslik"><span>{{ $post->translated('title') }}</span></span>
+                    <span class="hc-karusel__ozet"><span>{{ \Illuminate\Support\Str::limit((string) $post->translated('excerpt'), 105) }}</span></span>
                     <span class="hc-karusel__tarih">{{ $post->published_at?->format('d.m.Y') }}</span>
                 </a>
             @endforeach
@@ -67,7 +67,7 @@
                         x-bind:class="{{ $sira }} === etkin ? 'is-etkin' : ''"
                         x-bind:aria-selected="{{ $sira }} === etkin"
                         @click="git({{ $sira }})"
-                        aria-label="{{ $post->title }}"
+                        aria-label="{{ $post->translated('title') }}"
                     ></button>
                 @endforeach
             </div>

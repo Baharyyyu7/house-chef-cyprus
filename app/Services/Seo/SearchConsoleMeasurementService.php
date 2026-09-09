@@ -94,7 +94,7 @@ final class SearchConsoleMeasurementService
         }
         $stale = Carbon::parse($data['observed_at'])->lt(now()->subDays(7)) || Carbon::parse($data['end_date'])->lt(now()->subDays(10));
 
-        return [...$unknown, 'status' => $stale ? 'stale' : 'measured', 'source' => $data['source'], 'api_connected' => ! $stale && $data['source'] === 'api_import',
+        return [...$unknown, 'status' => $stale ? 'stale' : 'measured', 'property' => $data['property'], 'source' => $data['source'], 'api_connected' => ! $stale && $data['source'] === 'api_import',
             'google_clicks' => (int) $data['clicks'], 'google_impressions' => (int) $data['impressions'], 'average_position' => $data['position'],
             'ctr' => $data['impressions'] > 0 ? $data['clicks'] / $data['impressions'] * 100 : 0,
             'query_sample_count' => count($data['queries']), 'start_date' => $data['start_date'], 'end_date' => $data['end_date'], 'observed_at' => $data['observed_at'],

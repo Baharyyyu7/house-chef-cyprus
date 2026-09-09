@@ -16,6 +16,7 @@
         <section class="border-b py-6" style="border-color:var(--hc-border-default)">
             <h2>Google arama performansı</h2>
             <p class="hc-caption mt-2">{{ $metrics['note'] }}</p>
+            @if(isset($metrics['property']))<p class="hc-caption mt-1">{{ $metrics['property'] }}</p>@endif
             @if($metrics['google_clicks'] !== null)
                 <dl class="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
                     <div><dt>Tıklama</dt><dd class="text-2xl font-bold">{{ $metrics['google_clicks'] }}</dd></div>

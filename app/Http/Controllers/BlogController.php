@@ -58,6 +58,7 @@ final class BlogController extends Controller
             'recipes' => fn ($query) => $query
                 ->where('status', 'published')
                 ->where('verification_status', 'verified')
+                ->translatedInto()
                 ->with(['media' => fn ($media) => $media->where('visibility', 'public')]),
         ]);
         $relatedPosts = BlogPost::query()->publiclyVisible()->translatedInto()
@@ -86,11 +87,11 @@ final class BlogController extends Controller
 
     public function category(BlogCategory $category): View
     {
-        return view('blog.index', ['posts' => $category->posts()->publiclyVisible()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12), 'title' => $category->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.category', $category), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
+        return view('blog.index', ['posts' => $category->posts()->publiclyVisible()->translatedInto()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12), 'title' => $category->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.category', $category), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
     }
 
     public function tag(BlogTag $tag): View
     {
-        return view('blog.index', ['posts' => $tag->posts()->publiclyVisible()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12), 'title' => '#'.$tag->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.tag', $tag), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
+        return view('blog.index', ['posts' => $tag->posts()->publiclyVisible()->translatedInto()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12), 'title' => '#'.$tag->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.tag', $tag), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
     }
 }

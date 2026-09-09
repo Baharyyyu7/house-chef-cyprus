@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetLocale
@@ -19,6 +20,7 @@ class SetLocale
     {
         $supported = config('locales.supported', []);
         $default = (string) config('locales.default', config('app.locale', 'tr'));
+        $publicPage = ! $request->is('yonetim', 'yonetim/*', 'dil', 'api/*');
 
         $locale = $this->firstEnabledLocale([
             // URL'deki dil öneki her şeyin önünde gelir: adres neyi
@@ -27,6 +29,7 @@ class SetLocale
             // farklı ziyaretçilere farklı dil gösterirdi ve arama motoru
             // hangisini indeksleyeceğini bilemezdi.
             $request->attributes->get('hc_url_locale'),
+            $publicPage ? $default : null,
             $request->hasSession() ? $request->session()->get('hc_locale') : null,
             $request->user()?->preferred_language,
             $request->cookie('hc_locale'),
@@ -36,7 +39,20 @@ class SetLocale
         app()->setLocale($locale);
         $request->setLocale($locale);
 
-        return $next($request);
+        $previousFormatter = URL::pathFormatter();
+        URL::formatPathUsing(function ($path, $route) use ($locale, $default, $previousFormatter) {
+            $path = $previousFormatter($path, $route);
+            if ($locale !== $default && $route?->named('home', 'recipes.*', 'blog.*', 'cuisines.*', 'categories.*', 'ingredients.explore', 'ingredients.hub.*', 'collections.sure*', 'collections.zorluk*', 'login', 'register', 'pricing')) {
+                return '/'.$locale.($path === '/' ? '' : $path);
+            }
+
+            return $path;
+        });
+        try {
+            return $next($request);
+        } finally {
+            URL::formatPathUsing($previousFormatter);
+        }
     }
 
     /**

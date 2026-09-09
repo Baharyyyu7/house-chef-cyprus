@@ -63,8 +63,22 @@ final class LocalePagesOnlyShowTranslatedContentTest extends TestCase
             $yazi->translations()->create(['locale' => 'en', 'field' => $alan, 'value' => $deger]);
         }
 
-        $this->get('/en/blog/'.$yazi->slug)->assertOk();
-        $this->get('/en/blog')->assertOk();
+        $this->get('/en/blog/'.$yazi->slug)->assertOk()
+            ->assertSee('Translated Post')->assertSee('Body text.')
+            ->assertDontSee('Çevirisiz Yazı Başlığı')->assertDontSee('Gövde.');
+        $this->get('/en/blog')->assertOk()->assertSee('Translated Post')->assertDontSee('Çevirisiz Yazı Başlığı');
+        $this->assertSame('Çevirisiz Yazı Başlığı', $yazi->fresh()->title);
+    }
+
+    public function test_recipe_search_uses_translated_titles_and_excludes_untranslated_records(): void
+    {
+        $translated = $this->tarif();
+        $hidden = $this->tarif();
+        foreach (['title' => 'Grilled Halloumi', 'excerpt' => 'Crisp cheese.', 'description' => 'Cook until golden.'] as $field => $value) {
+            $translated->translations()->create(['locale' => 'en', 'field' => $field, 'value' => $value]);
+        }
+        $this->get('/en/tarifler?q=Halloumi')->assertOk()->assertSee('Grilled Halloumi')
+            ->assertDontSee($hidden->slug)->assertDontSee('Hellim Izgara');
     }
 
     private function tarif(): Recipe

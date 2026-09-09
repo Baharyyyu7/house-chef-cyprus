@@ -32,11 +32,11 @@ class LocaleInfrastructureTest extends TestCase
         config()->set('locales.supported.en.enabled', true);
 
         $this->post(route('locale.update'), ['locale' => 'en', 'return_to' => '/'])
-            ->assertRedirect('/')
+            ->assertRedirect('/en')
             ->assertSessionHas('hc_locale', 'en');
 
         $this->withSession(['hc_locale' => 'en'])
-            ->get('/')
+            ->get('/en')
             ->assertOk()
             ->assertSee('<html lang="en" dir="ltr"', false)
             ->assertSee('content="en_US"', false);
@@ -47,7 +47,7 @@ class LocaleInfrastructureTest extends TestCase
         config()->set('locales.supported.fa.enabled', true);
 
         $this->withSession(['hc_locale' => 'fa'])
-            ->get('/')
+            ->get('/fa')
             ->assertOk()
             ->assertSee('<html lang="fa" dir="rtl"', false)
             ->assertSee('content="fa_IR"', false);
@@ -60,7 +60,7 @@ class LocaleInfrastructureTest extends TestCase
 
         $this->actingAs($user)
             ->post(route('locale.update'), ['locale' => 'en', 'return_to' => '/'])
-            ->assertRedirect('/');
+            ->assertRedirect('/en');
 
         $this->assertDatabaseHas('users', ['id' => $user->id, 'preferred_language' => 'en']);
     }

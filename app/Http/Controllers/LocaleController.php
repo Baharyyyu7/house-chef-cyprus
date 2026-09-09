@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Seo\LocaleUrlService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -29,14 +30,14 @@ class LocaleController extends Controller
 
         $returnTo = $this->safeReturnPath($validated['return_to'] ?? '/');
 
-        return redirect($returnTo)
+        return redirect(app(LocaleUrlService::class)->urlFor($locale, $returnTo))
             ->with('status', __('language.changed', ['language' => config("locales.supported.{$locale}.native_label", $locale)]))
             ->withCookie(cookie('hc_locale', $locale, 60 * 24 * 365, '/', null, $request->isSecure(), true, false, 'lax'));
     }
 
     private function safeReturnPath(string $returnTo): string
     {
-        return str_starts_with($returnTo, '/') && ! str_starts_with($returnTo, '//')
+        return str_starts_with($returnTo, '/') && ! str_starts_with($returnTo, '//') && ! preg_match('/[\\\\\x00-\x1f]/', rawurldecode($returnTo))
             ? $returnTo
             : '/';
     }

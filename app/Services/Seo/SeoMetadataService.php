@@ -19,6 +19,15 @@ final class SeoMetadataService
 
         $candidateCanonical = is_string($metadata?->canonical_override) ? $metadata->canonical_override : null;
 
+        if (app()->getLocale() !== config('locales.default', 'tr')) {
+            return [
+                'title' => Str::limit((string) $entity->translated('title').' · House Chef Cyprus', 70, ''),
+                'description' => Str::limit((string) $entity->translated('excerpt'), 160, ''),
+                'canonical' => app(LocaleUrlService::class)->urlFor(app()->getLocale(), $canonical),
+                'robots' => config('seo.indexing_enabled') ? ($metadata?->robots ?: $defaultRobots) : 'noindex,nofollow',
+            ];
+        }
+
         return [
             'title' => Str::limit((string) ($metadata?->meta_title ?: $fallbackTitle), 70, ''),
             'description' => Str::limit((string) ($metadata?->meta_description ?: $fallbackDescription ?: ''), 160, ''),
