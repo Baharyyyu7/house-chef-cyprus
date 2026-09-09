@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
  */
 final class LinkIntegrityCheck extends Command
 {
-    protected $signature = 'content:link-integrity {--limit=60 : Denetlenecek en fazla bağlantı} {--json : Makine okunabilir çıktı}';
+    protected $signature = 'content:link-integrity {--limit=20 : Denetlenecek en fazla bağlantı} {--json : Makine okunabilir çıktı}';
 
     protected $description = 'İç bağlantılar 404 veriyor mu, katalog filtreleri boş mu döndürüyor - ikisini de denetler.';
 
@@ -30,11 +30,12 @@ final class LinkIntegrityCheck extends Command
             ->all();
         $rapor = $probe->probe($this->hublar(), (int) $this->option('limit'), $koleksiyonlar);
         $rapor = array_merge($rapor, $probe->orphanPages(route('sitemap.pages'), $this->hublar()));
-        $rapor['status'] = ((int) $rapor['broken'] + (int) $rapor['orphaned']) === 0 ? 'ok' : 'issues_found';
+        $incomplete = $rapor['status'] === 'incomplete' || ! $rapor['sitemap_complete'];
+        $rapor['status'] = $incomplete ? 'incomplete' : (((int) $rapor['broken'] + (int) $rapor['orphaned']) === 0 ? 'ok' : 'issues_found');
 
         // Koşu kaydediliyor: tek bir sayı ancak bir öncekiyle yan yana
         // konduğunda sitenin iyileşip iyileşmediğini gösteriyor.
-        $gunluk->record('content:link-integrity', (string) $rapor['status'], (int) $rapor['broken'] + (int) $rapor['orphaned'], $rapor);
+        $gunluk->record('content:link-integrity', (string) $rapor['status'], $incomplete ? null : (int) $rapor['broken'] + (int) $rapor['orphaned'], $rapor);
 
         if ($this->option('json')) {
             $this->line((string) json_encode($rapor, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
@@ -42,6 +43,11 @@ final class LinkIntegrityCheck extends Command
             return self::SUCCESS;
         }
 
+        if ($incomplete) {
+            $this->warn('Denetim tamamlanamadı; hız sınırı veya erişim nedeniyle eksik ölçüm.');
+
+            return self::SUCCESS;
+        }
         if ($rapor['broken'] === 0) {
             $this->info("{$rapor['checked']} bağlantının hepsi bir yere götürüyor.");
 

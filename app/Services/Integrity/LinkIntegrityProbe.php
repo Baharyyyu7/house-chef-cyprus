@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Services\Integrity;
 
 use App\Contracts\Search\RecipeSearchInterface;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Sleep;
 
 /**
  * Sitenin kendi iç bağlantıları gerçekten bir yere götürüyor mu?
@@ -29,6 +32,16 @@ use Illuminate\Support\Facades\Http;
  */
 final class LinkIntegrityProbe
 {
+    private array $responses = [];
+
+    private ?string $deferredReason = null;
+
+    private ?float $lastRequestAt = null;
+
+    private ?float $startedAt = null;
+
+    private int $requests = 0;
+
     /** Katalogda anlamlı olan filtre anahtarları; kontrol bunlara bakar. */
     private const FILTRE_ANAHTARLARI = [
         'q', 'cuisine', 'category', 'difficulty', 'dietary_tag', 'exclude_allergens',
@@ -57,8 +70,13 @@ final class LinkIntegrityProbe
         $adresler = array_slice(array_keys($adresler), 0, max(1, $sinir));
         $bulgular = [];
 
+        $checked = 0;
         foreach ($adresler as $adres) {
+            if ($this->deferredReason !== null) {
+                break;
+            }
             $bulgu = $this->tekBaglanti($adres);
+            $checked++;
 
             if ($bulgu !== null) {
                 $bulgular[] = $bulgu;
@@ -66,9 +84,12 @@ final class LinkIntegrityProbe
         }
 
         return [
-            'status' => $bulgular === [] ? 'ok' : 'issues_found',
+            'status' => $this->deferredReason !== null ? 'incomplete' : ($bulgular === [] ? 'ok' : 'issues_found'),
             'checked_at' => now()->toIso8601String(),
-            'checked' => count($adresler),
+            'checked' => $checked,
+            'deferred' => count($adresler) - $checked,
+            'deferred_reason' => $this->deferredReason,
+            'http_requests' => $this->requests,
             // Manşet sayı: azalması iyileşmedir.
             'broken' => count($bulgular),
             'findings' => $bulgular,
@@ -81,22 +102,18 @@ final class LinkIntegrityProbe
      * değil, sayfanın gezinme omurgasında kaç ayrı giriş noktası olduğudur.
      *
      * @param  list<string>  $hublar
-     * @return array{sitemap_count:int,orphaned:int,orphan_urls:list<string>,backlinks:array<string,int>}
+     * @return array{sitemap_complete:bool,sitemap_count:?int,orphaned:?int,orphan_urls:list<string>,backlinks:array<string,int>}
      */
     public function orphanPages(string $sitemapUrl, array $hublar): array
     {
-        try {
-            $cevap = Http::timeout(15)->get($sitemapUrl);
-        } catch (\Throwable) {
-            return ['sitemap_count' => 0, 'orphaned' => 0, 'orphan_urls' => [], 'backlinks' => []];
-        }
-
-        if (! $cevap->successful()) {
-            return ['sitemap_count' => 0, 'orphaned' => 0, 'orphan_urls' => [], 'backlinks' => []];
+        $cevap = $this->request($sitemapUrl);
+        $unknown = ['sitemap_complete' => false, 'sitemap_count' => null, 'orphaned' => null, 'orphan_urls' => [], 'backlinks' => []];
+        if ($cevap === null || ! $cevap->successful() || ! str_contains($cevap->body(), '<urlset')) {
+            return $unknown;
         }
 
         preg_match_all('#<loc>([^<]+)</loc>#i', $cevap->body(), $eslesmeler);
-        $adresler = collect($eslesmeler[1] ?? [])->map(fn (string $url): string => html_entity_decode(trim($url), ENT_QUOTES | ENT_HTML5))->filter()->unique()->values();
+        $adresler = collect($eslesmeler[1])->map(fn (string $url): string => html_entity_decode(trim($url), ENT_QUOTES | ENT_HTML5))->filter()->unique()->values();
         $geriBaglantilar = array_fill_keys($adresler->all(), 0);
 
         foreach ($hublar as $hub) {
@@ -108,9 +125,14 @@ final class LinkIntegrityProbe
             }
         }
 
+        if ($this->deferredReason !== null) {
+            return $unknown;
+        }
+
         $oksuzler = array_keys(array_filter($geriBaglantilar, fn (int $adet): bool => $adet === 0));
 
         return [
+            'sitemap_complete' => true,
             'sitemap_count' => count($geriBaglantilar),
             'orphaned' => count($oksuzler),
             'orphan_urls' => $oksuzler,
@@ -132,13 +154,8 @@ final class LinkIntegrityProbe
      */
     public function baglantilar(string $sayfa): array
     {
-        try {
-            $cevap = Http::timeout(15)->get($sayfa);
-        } catch (\Throwable) {
-            return [];
-        }
-
-        if (! $cevap->successful()) {
+        $cevap = $this->request($sayfa);
+        if ($cevap === null || ! $cevap->successful()) {
             return [];
         }
 
@@ -179,16 +196,56 @@ final class LinkIntegrityProbe
             }
         }
 
-        try {
-            $cevap = Http::timeout(15)->get($adres);
-        } catch (\Throwable $hata) {
-            return ['url' => $adres, 'reason' => 'UNREACHABLE', 'detail' => $hata->getMessage()];
+        $cevap = $this->request($adres);
+        if ($cevap === null) {
+            return null;
         }
-
         if (! $cevap->successful()) {
             return ['url' => $adres, 'reason' => 'HTTP_'.$cevap->status()];
         }
 
         return null;
+    }
+
+    private function request(string $url): ?Response
+    {
+        if (array_key_exists($url, $this->responses)) {
+            return $this->responses[$url];
+        }
+        $key = 'integrity:http:retry:'.hash('sha256', (string) parse_url($url, PHP_URL_HOST));
+        if ($this->deferredReason !== null || Cache::has($key)) {
+            $this->deferredReason ??= 'RETRY_AFTER';
+
+            return null;
+        }
+        $this->startedAt ??= microtime(true);
+        if ($this->requests >= 80 || microtime(true) - $this->startedAt > 25) {
+            $this->deferredReason = 'RUN_BUDGET';
+
+            return null;
+        }
+        if ($this->lastRequestAt !== null && ! app()->runningUnitTests()) {
+            $delay = max(0, 500 - (int) ((microtime(true) - $this->lastRequestAt) * 1000));
+            Sleep::for($delay)->milliseconds();
+        }
+        $this->lastRequestAt = microtime(true);
+        $this->requests++;
+        try {
+            $response = Http::withUserAgent('HouseChefIntegrity/1.0 (+'.config('app.url').')')->connectTimeout(2)->timeout(5)->get($url);
+        } catch (\Throwable) {
+            $this->deferredReason = 'NETWORK_UNAVAILABLE';
+
+            return null;
+        }
+        if (in_array($response->status(), [429, 503], true)) {
+            $retry = $response->header('Retry-After');
+            $seconds = is_numeric($retry) ? (int) $retry : max(300, (int) strtotime($retry) - time());
+            Cache::put($key, true, now()->addSeconds(max(60, min(86400, $seconds))));
+            $this->deferredReason = 'HTTP_'.$response->status();
+
+            return null;
+        }
+
+        return $this->responses[$url] = $response;
     }
 }

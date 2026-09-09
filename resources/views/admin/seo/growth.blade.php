@@ -10,12 +10,27 @@
             <div><dt class="hc-caption">Açık inceleme işi</dt><dd class="mt-1 text-2xl font-bold"><a href="{{ route('admin.seo.opportunities') }}">{{ number_format($growth['open_opportunities'], 0, ',', '.') }}</a></dd></div>
             <div><dt class="hc-caption">Araştırma adayı</dt><dd class="mt-1 text-2xl font-bold">{{ number_format($growth['research_candidates'], 0, ',', '.') }}</dd></div>
             <div><dt class="hc-caption">Editörün gözlemlediği bağlantı</dt><dd class="mt-1 text-2xl font-bold">{{ number_format($growth['observed_links'], 0, ',', '.') }}</dd></div>
-            <div><dt class="hc-caption">Search Console</dt><dd class="mt-2 text-sm font-semibold">Yetkilendirme bekleniyor</dd></div>
+            <div><dt class="hc-caption">Son 7 günde doğrulanan bağlantı</dt><dd class="mt-1 text-2xl font-bold">{{ $growth['machine_verified_links'] }}</dd></div>
         </dl>
+        @php($metrics = $growth['organic_metrics'])
+        <section class="border-b py-6" style="border-color:var(--hc-border-default)">
+            <h2>Google arama performansı</h2>
+            <p class="hc-caption mt-2">{{ $metrics['note'] }}</p>
+            @if($metrics['google_clicks'] !== null)
+                <dl class="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+                    <div><dt>Tıklama</dt><dd class="text-2xl font-bold">{{ $metrics['google_clicks'] }}</dd></div>
+                    <div><dt>Gösterim</dt><dd class="text-2xl font-bold">{{ $metrics['google_impressions'] }}</dd></div>
+                    <div><dt>Tıklama oranı</dt><dd class="text-2xl font-bold">%{{ number_format($metrics['ctr'], 1, ',', '.') }}</dd></div>
+                    <div><dt>Ortalama konum</dt><dd class="text-2xl font-bold">{{ number_format($metrics['average_position'], 1, ',', '.') }}</dd></div>
+                </dl>
+                <p class="hc-caption mt-3">{{ $metrics['query_sample_count'] }} sorguluk örneklem · {{ $metrics['status'] === 'stale' ? 'Ölçüm güncellenmeli' : 'Dönem ölçümü' }}</p>
+            @endif
+        </section>
         <div class="grid gap-6 border-b py-6 lg:grid-cols-2" style="border-color:var(--hc-border-default)">
             <section>
                 <h2>Otomasyon</h2>
                 <p class="hc-caption mt-2">Günlük 01:49 ({{ config('app.timezone') }}). Koşu başına en fazla 1.000 inceleme işi ve 1.000 kaynak taraması.</p>
+                <p class="hc-caption mt-2">Bağlantı doğrulama: 02:17, en fazla 3 kaynak. Google API: 06:47, yalnız yetki yapılandırıldıysa. Yönlendirme ve erişim engeli bağlantı yokluğu sayılmaz.</p>
                 <p class="hc-caption mt-2">Yayın, medya onayı ve dış sitelere gönderim kapalı. Araştırma adayı backlink değildir; editör gözlemleri bağımsız doğrulanmış sayılmaz.</p>
                 <dl class="mt-3 divide-y">
                     @forelse($runs as $run)
@@ -51,6 +66,8 @@
                                 <td class="max-w-sm whitespace-normal"><strong>{{ $candidate->source_host }}</strong><p class="mt-1 text-xs">{{ $candidate->source_url }}</p><p class="mt-2 text-xs text-muted">Hedef: {{ $candidate->target_url }}</p></td>
                                 <td class="max-w-xs whitespace-normal"><span class="text-xs">{{ ['admin_csv' => 'Yönetici CSV aktarımı', 'recipe_source' => 'Tarif kaynağı', 'recipe_provenance' => 'Tarif kaynak kaydı'][$candidate->evidence['source'] ?? ''] ?? 'Kaynak kaydı' }}</span><p class="mt-1 text-sm">{{ $candidate->evidence['note'] ?? '' }}</p>@if($candidate->review_note)<p class="mt-2 text-sm">{{ $candidate->review_note }}</p>@endif</td>
                                 <td class="min-w-[250px] whitespace-normal">
+                                    <p class="mb-2 text-xs">{{ \App\Services\Seo\BacklinkVerificationService::LABELS[$candidate->check_status] ?? 'Kontrol tamamlanamadı' }}@if($candidate->checked_at) · {{ $candidate->checked_at->format('d.m.Y H:i') }}@endif</p>
+                                    @if($candidate->check_status === 'present')<p class="mb-2 text-xs">Bağlantı niteliği: {{ $candidate->link_rel ?: 'rel niteliği yok' }}</p>@endif
                                     <p class="mb-2 text-xs font-semibold">{{ $statuses[$candidate->status] }}</p>
                                     <form class="grid gap-2" method="post" action="{{ route('admin.seo.growth.review', $candidate->public_id) }}">
                                         @csrf

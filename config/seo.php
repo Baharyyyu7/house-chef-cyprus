@@ -27,6 +27,9 @@ return [
         'minimum_zero_result_searches' => (int) env('SEO_MINIMUM_ZERO_RESULT_SEARCHES', 5),
     ],
     'search_console' => [
+        'client_id' => env('GOOGLE_SEARCH_CONSOLE_CLIENT_ID', env('GOOGLE_CLIENT_ID')),
+        'client_secret' => env('GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET', env('GOOGLE_CLIENT_SECRET')),
+        'refresh_token' => env('GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN'),
         'enabled' => (bool) env('GOOGLE_SEARCH_CONSOLE_ENABLED', env('SEARCH_CONSOLE_ENABLED', false)),
         'site_url' => env('GOOGLE_SEARCH_CONSOLE_SITE_URL', env('SEARCH_CONSOLE_SITE_URL')),
         'timezone' => env('GOOGLE_SEARCH_CONSOLE_TIMEZONE', env('SEARCH_CONSOLE_TIMEZONE', 'Europe/Nicosia')),

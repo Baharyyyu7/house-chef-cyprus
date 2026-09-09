@@ -78,10 +78,11 @@ final class OrganicGrowthService
             'research_candidates' => $counts['candidate'] + $counts['reviewing'] + $counts['contacted'],
             'observed_links' => SeoBacklinkCandidate::query()->where('status', 'observed')
                 ->whereNotNull('reviewed_at')->where('source_url', '<>', '')->where('review_note', '<>', '')->count(),
+            'machine_verified_links' => SeoBacklinkCandidate::query()->where('status', '<>', 'rejected')->where('check_status', 'present')->where('checked_at', '>=', now()->subDays(7))->count(),
             'open_issues' => SeoIssue::query()->whereNull('resolved_at')->count(),
             'open_opportunities' => ContentOpportunity::query()->where('status', 'open')->count(),
             'latest_run' => IntegrityReport::query()->where('guard', 'seo:growth-refresh')->latest('id')->first(),
-            'organic_metrics' => ['status' => 'not_connected', 'google_clicks' => null, 'ranking_queries' => null, 'external_referring_domains' => null],
+            'organic_metrics' => app(SearchConsoleMeasurementService::class)->snapshot(),
         ];
     }
 

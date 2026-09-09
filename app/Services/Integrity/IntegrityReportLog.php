@@ -97,6 +97,9 @@ final class IntegrityReportLog
      */
     private function sebep(string $guard, array $payload): ?string
     {
+        if ($guard === 'content:link-integrity' && ($payload['status'] ?? '') === 'incomplete') {
+            return 'Ölçüm tamamlanamadı; hız sınırı veya erişim engeli kırık bağlantı sayılmaz.';
+        }
         if ($guard === 'seo:morning-brief') {
             return $payload['organic_metrics']['note'] ?? null;
         }

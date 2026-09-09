@@ -26,6 +26,27 @@ final class LinkIntegrityProbeTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_rate_limit_stops_probe_and_does_not_mark_unchecked_pages_broken(): void
+    {
+        Http::fake(['*' => Http::response('', 429, ['Retry-After' => '600'])]);
+        $probe = app(LinkIntegrityProbe::class);
+        $report = $probe->probe([], 60, [url('/a'), url('/b')]);
+        $this->assertSame('incomplete', $report['status']);
+        $this->assertSame(0, $report['broken']);
+        $this->assertSame(1, $report['checked']);
+        $this->assertSame(1, $report['deferred']);
+        $this->assertNull($probe->orphanPages(url('/sitemap.xml'), [])['orphaned']);
+        Http::assertSentCount(1);
+    }
+
+    public function test_missing_sitemap_is_unknown_not_zero_orphans(): void
+    {
+        Http::fake(['*' => Http::response('', 503)]);
+        $report = app(LinkIntegrityProbe::class)->orphanPages(url('/sitemap.xml'), []);
+        $this->assertNull($report['orphaned']);
+        $this->assertFalse($report['sitemap_complete']);
+    }
+
     public function test_a_filter_that_lists_nothing_is_a_finding(): void
     {
         // Asıl yakalanmak istenen kusur bu: 200 dönen ama boş olan sayfa.

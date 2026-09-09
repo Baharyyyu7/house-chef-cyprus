@@ -104,6 +104,8 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_audit', fn 
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_sitemap_audit', fn () => Artisan::call('seo:sitemap-audit')))->name('seo_sitemap_audit')->dailyAt('01:25')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_opportunities', fn () => Artisan::call('seo:content-opportunities')))->name('seo_content_opportunities')->dailyAt('01:43')->withoutOverlapping();
 Schedule::command('seo:growth-refresh', ['--limit' => 1000])->name('seo_growth_refresh')->dailyAt('01:49')->withoutOverlapping();
+Schedule::command('seo:backlinks-verify', ['--limit' => 3])->name('seo_backlinks_verify')->dailyAt('02:17')->withoutOverlapping();
+Schedule::command('seo:search-console-import')->name('seo_search_console_import')->dailyAt('06:47')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_refresh', fn () => Artisan::call('seo:content-refresh')))->name('seo_content_refresh')->dailyAt('02:11')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_internal_links', fn () => Artisan::call('seo:internal-links')))->name('seo_internal_links')->dailyAt('05:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_social_drafts', fn () => Artisan::call('seo:social-drafts')))->name('seo_social_drafts')->dailyAt('05:43')->withoutOverlapping();
