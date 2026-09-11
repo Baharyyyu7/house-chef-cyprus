@@ -56,6 +56,22 @@
                     <span class="hc-arama__ok" aria-hidden="true">→</span>
                 </button>
             </form>
+            <form id="home-search" class="hc-arama__kutu mt-3" action="{{ route('recipes.index') }}" method="get">
+                <label class="sr-only" for="hero-search-input">{{ __('archive.search_recipes') }}</label>
+                <span class="hc-arama__ikon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span>
+                <input
+                    id="hero-search-input"
+                    class="hc-arama__girdi"
+                    type="search"
+                    name="q"
+                    placeholder="Veya doğrudan tarif ara... (örn: Kıbrıs köftesi, mercimek, hellim)"
+                    autocomplete="off"
+                >
+                <button class="hc-arama__dugme" type="submit">
+                    <span>{{ __('archive.show_recipes') }}</span>
+                    <span class="hc-arama__ok" aria-hidden="true">→</span>
+                </button>
+            </form>
             <div class="hc-arama__oneriler">
                 <span class="hc-arama__etiket">{{ __('home.quick_links') }}</span>
                 <a class="hc-arama__cip !border-orange-500/40 !bg-orange-500/10 !text-orange-700 dark:!text-orange-300 font-extrabold" href="{{ route('ingredients.explore') }}">🥕 Ne Pişirebilirim?</a>
