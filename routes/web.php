@@ -146,6 +146,8 @@ Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
 
         return redirect()->route('recipes.show', $adaylar->first(), 301);
     });
+Route::get('/embed/recipes/{recipe:slug}', [RecipeController::class, 'embed'])->name('recipes.embed');
+Route::get('/embed/tarif/{recipe:slug}', [RecipeController::class, 'embed'])->name('recipes.embed.tr');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/kategori/{category}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/blog/etiket/{tag}', [BlogController::class, 'tag'])->name('blog.tag');

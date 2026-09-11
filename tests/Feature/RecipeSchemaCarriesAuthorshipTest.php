@@ -92,6 +92,21 @@ final class RecipeSchemaCarriesAuthorshipTest extends TestCase
         $this->assertStringContainsString('id="step-1"', $icerik);
     }
 
+    public function test_cypriot_heritage_recipe_emits_knowledge_graph_entities_and_same_as(): void
+    {
+        $tarif = $this->tarif();
+        $tarif->update(['slug' => 'kibris-seftali-kebabi']);
+        $this->makeRecipePubliclyEligible($tarif);
+
+        $node = $this->recipeNode($tarif);
+
+        $this->assertArrayHasKey('sameAs', $node);
+        $this->assertContains('https://en.wikipedia.org/wiki/Sheftalia', $node['sameAs']);
+        $this->assertContains('https://www.wikidata.org/wiki/Q1225501', $node['sameAs']);
+        $this->assertSame('Sheftalia', $node['about']['name'] ?? null);
+        $this->assertArrayHasKey('keywords', $node);
+    }
+
     /** @return array<string, mixed> */
     private function recipeNode(Recipe $tarif): array
     {

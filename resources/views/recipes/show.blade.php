@@ -27,6 +27,23 @@
                 <div class="mt-7 flex flex-wrap gap-2">@foreach([[__('recipe.prep'), $recipe->prep_minutes.' '.__('recipe.min')], [__('recipe.cook'), $recipe->cook_minutes.' '.__('recipe.min')], [__('recipe.total'), $recipe->totalMinutes().' '.__('recipe.min')], [__('recipe.servings'), $recipe->servings], [__('recipe.difficulty'), $recipe->zorlukEtiketi()]] as [$label, $value])<span class="hc-v3-badge border-white/20 bg-white/10 text-white backdrop-blur"><strong class="text-orange-200">{{ $label }}</strong> {{ $value }}</span>@endforeach</div>
                 <div class="mt-6 flex flex-wrap items-center gap-3"><span class="text-xs text-stone-300">{{ __('recipe.last_editorial_review') }}: {{ $recipe->editorial_reviewed_at?->format('d.m.Y') ?: __('recipe.not_recorded') }}</span>@auth<form method="post" action="{{ route('favorites.toggle', $recipe) }}">@csrf<button class="hc-v3-btn hc-v3-btn--outline border-white/20 bg-white/10 text-white hover:bg-white/20" type="submit" aria-label="{{ $recipe->title }} tarifini favorilere ekle">{{ $isFavorited ? __('recipe.in_favorites') : __('recipe.add_to_favorites') }}</button></form>@endauth</div>
                 <div class="mt-2"><x-social-share :title="$recipe->title" :description="$recipe->excerpt" :image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : null" /></div>
+                <div class="mt-3 flex flex-col items-start" x-data="{ openEmbed: false, copied: false }">
+                    <button type="button" @click="openEmbed = !openEmbed" class="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-300 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                        <span>{{ app()->getLocale() === 'en' ? 'Embed Recipe Badge' : 'Tarifi Sitene Ekle' }}</span>
+                    </button>
+                    <div x-show="openEmbed" x-cloak class="mt-2 w-full max-w-lg rounded-xl bg-charcoal-900/95 border border-white/20 p-4 text-xs text-stone-200 backdrop-blur shadow-xl">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-bold text-orange-300">{{ app()->getLocale() === 'en' ? 'Embed Code (HTML)' : 'Gömme Kodu (HTML)' }}</span>
+                            <button type="button" @click="openEmbed = false" class="text-stone-400 hover:text-white text-base">&times;</button>
+                        </div>
+                        <p class="text-stone-400 mb-2">{{ app()->getLocale() === 'en' ? 'Copy and paste this snippet into your blog or website:' : 'Bu kodu sitenize veya blogunuza ekleyerek doğrulanmış tarif kartını gösterebilirsiniz:' }}</p>
+                        <textarea readonly class="w-full bg-black/50 border border-white/10 rounded p-2 font-mono text-[11px] text-amber-200 h-20 select-all" x-ref="embedInput"><iframe src="{{ route('recipes.embed', $recipe) }}" width="100%" height="340" frameborder="0" style="border:none; border-radius:12px; max-width:540px;"></iframe></textarea>
+                        <button type="button" @click="navigator.clipboard.writeText($refs.embedInput.value); copied = true; setTimeout(() => copied = false, 2000)" class="mt-2 bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1.5 rounded text-xs transition flex items-center gap-1">
+                            <span x-text="copied ? '{{ app()->getLocale() === 'en' ? '✓ Copied' : '✓ Kopyalandı' }}' : '{{ app()->getLocale() === 'en' ? 'Copy Embed Code' : 'Kodu Kopyala' }}'"></span>
+                        </button>
+                    </div>
+                </div>
                 @auth<div class="mt-3 flex flex-wrap gap-2" aria-label="{{ __('recipe.show.collect_manage') }}">@foreach($recipeCollections as $collection)<form method="post" action="{{ route('collections.recipes.add', ['recipeCollection' => $collection, 'recipe' => $recipe->slug]) }}">@csrf<button class="rounded-full border border-white/20 bg-white/10 px-3 py-2 text-xs font-bold text-white hover:bg-white/20">+ {{ $collection->name }}</button></form>@endforeach<a class="rounded-full border border-white/20 px-3 py-2 text-xs font-bold text-white" href="{{ route('collections.index') }}">{{ __('recipe.show.collect_manage') }}</a></div>@endauth
                 @if($heroMedia?->unsplashAttribution())
                     @php($unsplashCredit = $heroMedia->unsplashAttribution())

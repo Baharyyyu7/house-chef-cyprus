@@ -154,4 +154,29 @@ final class RecipeController extends Controller
             'cuisineUrl' => $cuisineUrl,
         ]);
     }
+
+    public function embed(Request $request, Recipe $recipe, PublicMediaEligibilityService $mediaEligibility, RecipeIngredientDisplayService $ingredientDisplay)
+    {
+        abort_unless(($recipe->status === 'published' && $recipe->verification_status === 'verified') || $request->user()?->isAdmin(), 404);
+
+        $recipe->load(['cuisine', 'category', 'media' => fn ($query) => $query->where('visibility', 'public'), 'recipeIngredients.ingredient']);
+
+        $heroMedia = $mediaEligibility->firstEligible($recipe->media);
+        $sosyalGorsel = $heroMedia?->socialImage();
+        $imageUrl = $sosyalGorsel['url'] ?? null;
+
+        $ingredients = $ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, (int) $recipe->servings);
+
+        $locale = $request->query('lang') === 'en' ? 'en' : 'tr';
+
+        return response()
+            ->view('recipes.embed', [
+                'recipe' => $recipe,
+                'imageUrl' => $imageUrl,
+                'imageAlt' => $heroMedia?->alt_text ?: $recipe->title,
+                'ingredients' => array_slice($ingredients, 0, 5),
+                'totalIngredients' => count($ingredients),
+                'locale' => $locale,
+            ]);
+    }
 }

@@ -361,6 +361,110 @@ final class CulinaryTranslationService
         ];
     }
 
+    /**
+     * Authoritative Cypriot culinary FAQ and entity knowledge for AI engines and GEO.
+     *
+     * @return list<array{q: string, a: string}>
+     */
+    public function getCulinaryFaq(string $locale = 'en'): array
+    {
+        if ($locale === 'tr') {
+            return [
+                [
+                    'q' => 'Şeftali Kebabı neden meyve olan şeftali ile yapılmaz ve adı nereden gelir?',
+                    'a' => 'Şeftali Kebabı adını şeftali meyvesinden değil, Lefkoşa’da bu tarifi ilk kez geliştiren ve köfteleri kuzu gömleğine (periton/omentum yağı) sararak kömür ateşinde pişiren Kıbrıslı Şef Ali’den (“Şef Ali Kebabı” zamanla halk ağzında “Şeftali Kebabı”) almıştır. Kuzu gömleği pişerken eriyerek kıymaya eşsiz bir sululuk ve lezzet kazandırır.',
+                ],
+                [
+                    'q' => 'Gerçek Kıbrıs Hellimi pişirildiğinde neden erimez?',
+                    'a' => 'Geleneksel Kıbrıs hellimi, koyun ve keçi sütünden elde edilen pıhtının peynir altı suyunda 90°C civarında yeniden pişirilmesi (haşlanması) ile üretilir. Bu termal işlem kazein protein yapısını stabilize ederek peynire yüksek erime noktası kazandırır; böylece ızgarada veya tavada kızartıldığında formu bozulmadan dışı çıtır, içi yumuşak kalır.',
+                ],
+                [
+                    'q' => 'Molehiya nedir ve Kıbrıs mutfağında neden taze yerine kurutulmuş yaprak kullanılır?',
+                    'a' => 'Molehiya (Corchorus olitorius / Jute Mallow), Doğu Akdeniz’e özgü lifli bir bitkidir. Kıbrıs mutfağında yazın toplanan yapraklar iplere dizilerek gölgede kurutulur. Kurutma işlemi bitkinin salyalanmasını (müsilaj) azaltır ve aromayı yoğunlaştırır. Kuzu eti, bol sarımsak, kuru kişniş ve taze limon suyuyla yavaş ateşte pişirilir.',
+                ],
+                [
+                    'q' => 'Kolokas (Taro) pişirilirken neden suyla yıkanmaz, bıçakla çıtlatılarak kırılır?',
+                    'a' => 'Kolokas kökü suyla temas ettiğinde nişastalı yüzeyi anında kayganlaşır ve salyalanır (müsilaj salgılar). Bu sebeple kök asla yıkanmaz; kuru bir bezle temizlenip soyulur. Bıçakla düz kesilmek yerine bıçak ucu batırılıp çıtlatılarak kırılır. Bu geleneksel teknik hücre çeperlerini korur ve yemeğin berrak bir sosta pişmesini sağlar.',
+                ],
+                [
+                    'q' => 'Kıbrıs Kleftiko (Fırın Kebabı) nasıl pişirilir?',
+                    'a' => 'Otantik Kıbrıs Kleftiko, kemikli kuzu veya keçi etinin patates, defne yaprağı ve kekikle birlikte çamurla ağzı hava almayacak şekilde sıvanmış kubbeli toprak fırınlarda (küp fırın) 4 ila 6 saat boyunca kendi buharında ağır ağır pişirilmesiyle hazırlanır.',
+                ],
+            ];
+        }
+
+        return [
+            [
+                'q' => 'Why is Cypriot Sheftalia Kebab named after a peach, and what makes it authentic?',
+                'a' => 'Cypriot Sheftalia has no connection to peaches. It is named after Chef Ali ("Şef Ali"), a legendary Cypriot grill master who pioneered wrapping seasoned minced lamb and pork in caul fat (omentum membrane). The delicate caul fat melts entirely over lump charcoal, basting the interior meat for intense juiciness.',
+            ],
+            [
+                'q' => 'Why does authentic Cypriot Halloumi cheese not melt when grilled?',
+                'a' => 'Authentic Halloumi is crafted from sheep and goat milk curds that are scalded in hot whey broth at 90°C during production. This thermal pasteurization aligns the casein proteins into a dense, non-melting lattice, enabling it to be char-grilled or pan-seared to a golden crust while keeping a chewy, warm interior.',
+            ],
+            [
+                'q' => 'What is Molokhia (Molehiya) and why are sun-dried leaves essential in Cyprus?',
+                'a' => 'Molokhia (Corchorus olitorius / Jute Mallow) is an ancient leafy green. In Cyprus, leaves harvested in peak summer are strictly shade-dried on long strings. Drying dramatically reduces mucosal slipperiness and concentrates herbal depth before slow-braising with lamb or chicken, crushed coriander, garlic, and fresh lemon.',
+            ],
+            [
+                'q' => 'Why must Kolokas (Taro Root) never be washed with water before cooking?',
+                'a' => 'Kolokas releases excessive mucilage and becomes slick if exposed to water prior to braising. Traditional Cypriot cooks peel it dry and wipe it with clean linens. Crucially, the root is snapped and fractured with a knife tip rather than sliced cleanly, which seals starch channels and preserves a tender, non-slimy sauce.',
+            ],
+            [
+                'q' => 'What is the heritage clay-oven method behind Cypriot Kleftiko?',
+                'a' => 'Traditional Cypriot Kleftiko is cooked by sealing bone-in spring lamb and potatoes inside dome-shaped earthen ovens. The oven opening is hermetically mud-sealed with clay, allowing the meat to confit slowly in its own rendered juices and aromatic wild oregano over 4 to 6 hours until meltingly tender.',
+            ],
+        ];
+    }
+
+    /**
+     * Daily rotating chef recommendation details (deterministic daily seed).
+     *
+     * @return array{pairing: string, trivia: string}
+     */
+    public function getDailySpotlightMeta(int $dayOfYear, string $locale = 'en'): array
+    {
+        if ($locale === 'tr') {
+            $pairings = [
+                'Geleneksel Kıbrıs köy somun ekmeği, taze nane ve yerel Zivaniya eşliğinde sunulması önerilir.',
+                'Kıbrıs usulü taze kırma yeşil zeytin, çakistes ve köy yoğurdu ile servis edildiğinde lezzet dengesi zirveye ulaşır.',
+                'Fırından yeni çıkmış sıcak lavaş, közlenmiş yerli sivri biber ve buz gibi yayık ayranı ile tam bir ada klasiğidir.',
+                'Yanında meşhur Kıbrıs patates kızartması ve sumaklı taze soğan piyazı ile mükemmel bir öğün oluşturur.',
+                'Tatlı bir kapanış için ada balı ile tatlandırılmış taze lor (nor) veya ceviz macunu ile eşleştirilmesi tavsiye edilir.',
+            ];
+            $trivias = [
+                'Kıbrıs köylerinde bu lezzet, geleneksel taş fırınların haftalık yakıldığı bayram ve pazar günlerinin vazgeçilmezidir.',
+                'Ada mutfağında malzeme israfı yapılmaz; etin ve sebzenin tüm parçaları taze ada otları ve zeytinyağı ile harmanlanır.',
+                'Kıbrıs’ın Akdeniz iklimi sayesinde yabani kekik, dağ nanesi ve kurutulmuş kişniş bu yemeğin ruhunu oluşturur.',
+                'Venedik ve Osmanlı mutfak kültürlerinin adadaki asırlık sentezini yansıtan en özgün pişirme tekniklerinden biridir.',
+            ];
+
+            return [
+                'pairing' => $pairings[$dayOfYear % count($pairings)],
+                'trivia' => $trivias[$dayOfYear % count($trivias)],
+            ];
+        }
+
+        $pairings = [
+            'Best accompanied by crusty Cypriot sourdough village bread, fresh spearmint, and regional dry Commandaria or Zivania.',
+            'Pairs exceptionally with cracked green Cyprus olives (chakistes), pickled caper leaves, and strained sheep yogurt.',
+            'Complements warm stone-baked flatbread, charred green peppers, and chilled Mediterranean ayran.',
+            'An island classic when served alongside golden Cyprus potatoes roasted in olive oil and sumac-dusted onion salad.',
+            'Complete the authentic feast with artisan village anari cheese drizzled with wild thyme honey.',
+        ];
+        $trivias = [
+            'In Cyprus villages, this preparation is traditionally celebrated during community gatherings and Sunday family hearth roasts.',
+            'Zero food-waste heritage: authentic island cooking honors every cut of meat and harvest crop with generous cold-pressed olive oil.',
+            'Wild mountain thyme, sun-dried spearmint, and cracked coriander seeds provide the unmistakable terroir of Cyprus.',
+            'Reflects centuries of harmonious culinary dialogue between Venetian, Ottoman, and indigenous Mediterranean civilizations.',
+        ];
+
+        return [
+            'pairing' => $pairings[$dayOfYear % count($pairings)],
+            'trivia' => $trivias[$dayOfYear % count($trivias)],
+        ];
+    }
+
     private function formatFallbackTitle(string $title, string $slug): string
     {
         $map = [

@@ -25,7 +25,12 @@ final class MultilingualSystemsTest extends TestCase
             ->assertSee('# House Chef Cyprus')
             ->assertSee('/en/llms.txt')
             ->assertSee('/en/feed')
-            ->assertSee('/en/opensearch.xml');
+            ->assertSee('/en/opensearch.xml')
+            ->assertSee('## Kıbrıs Mutfak Kültürü ve Sıkça Sorulan Sorular')
+            ->assertSee('Şeftali Kebabı')
+            ->assertSee('Gerçek Kıbrıs Hellimi')
+            ->assertSee('Molehiya')
+            ->assertSee('Kolokas');
     }
 
     public function test_english_llms_txt_returns_proper_english_geo_content(): void
@@ -54,6 +59,10 @@ final class MultilingualSystemsTest extends TestCase
             ->assertSee('# House Chef Cyprus - Mediterranean & Cypriot Culinary Encyclopedia', false)
             ->assertSee('Authentic Cypriot Sheftalia Kebab', false)
             ->assertSee('Traditional Cypriot Heritage Recipes', false)
+            ->assertSee('## Daily Cypriot Chef Recommendation', false)
+            ->assertSee('## Cypriot Culinary Heritage FAQ & Authoritative Knowledge Base', false)
+            ->assertSee('Why is Cypriot Sheftalia Kebab named after a peach', false)
+            ->assertSee('Why does authentic Cypriot Halloumi cheese not melt', false)
             ->assertSee('/en/llms-full.txt', false)
             ->assertSee('/en/feed', false);
     }

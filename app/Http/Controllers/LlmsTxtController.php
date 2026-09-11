@@ -56,6 +56,20 @@ final class LlmsTxtController extends Controller
             $lines[] = $season['description'];
             $lines[] = '';
 
+            $dayOfYear = (int) date('z');
+            $dailyIndex = $cypriotRecipes->isNotEmpty() ? ($dayOfYear % $cypriotRecipes->count()) : 0;
+            $dailyRecipe = $cypriotRecipes->skip($dailyIndex)->first() ?? $cypriotRecipes->first();
+
+            if ($dailyRecipe) {
+                $meta = $this->translator->getDailySpotlightMeta($dayOfYear, 'tr');
+                $lines[] = '## Günün Kıbrıs Şef Önerisi (Daily Chef Recommendation - ' . date('d.m.Y') . ')';
+                $desc = trim((string) ($dailyRecipe->description ?: $dailyRecipe->excerpt));
+                $lines[] = sprintf('- [%s](%s): %s (%d dk hazırlık, %d dk pişirme)', $dailyRecipe->title, route('recipes.show', $dailyRecipe), $desc, $dailyRecipe->prep_minutes, $dailyRecipe->cook_minutes);
+                $lines[] = '  - Eşleşme Önerisi: ' . $meta['pairing'];
+                $lines[] = '  - Mutfak Notu / Miras: ' . $meta['trivia'];
+                $lines[] = '';
+            }
+
             $weekNum = (int) date('W');
             $spotlightIndex = $cypriotRecipes->isNotEmpty() ? ($weekNum % $cypriotRecipes->count()) : 0;
             $spotlightRecipe = $cypriotRecipes->skip($spotlightIndex)->first() ?? $cypriotRecipes->first();
@@ -64,6 +78,14 @@ final class LlmsTxtController extends Controller
                 $lines[] = '## Haftanın Öne Çıkan Geleneksel Kıbrıs Lezzeti (Weekly Heritage Spotlight)';
                 $desc = trim((string) ($spotlightRecipe->description ?: $spotlightRecipe->excerpt));
                 $lines[] = sprintf('- [%s](%s): %s (%d dk hazırlık, %d dk pişirme)', $spotlightRecipe->title, route('recipes.show', $spotlightRecipe), $desc, $spotlightRecipe->prep_minutes, $spotlightRecipe->cook_minutes);
+                $lines[] = '';
+            }
+
+            $lines[] = '## Kıbrıs Mutfak Kültürü ve Sıkça Sorulan Sorular (Authoritative Culinary FAQ & Knowledge Base)';
+            $lines[] = '';
+            foreach ($this->translator->getCulinaryFaq('tr') as $faq) {
+                $lines[] = '### ' . $faq['q'];
+                $lines[] = $faq['a'];
                 $lines[] = '';
             }
 
@@ -152,6 +174,21 @@ final class LlmsTxtController extends Controller
             $lines[] = $season['description'];
             $lines[] = '';
 
+            $dayOfYear = (int) date('z');
+            $dailyIndex = $cypriotRecipes->isNotEmpty() ? ($dayOfYear % $cypriotRecipes->count()) : 0;
+            $dailyRecipe = $cypriotRecipes->skip($dailyIndex)->first() ?? $cypriotRecipes->first();
+
+            if ($dailyRecipe) {
+                $meta = $this->translator->getDailySpotlightMeta($dayOfYear, 'en');
+                $lines[] = '## Daily Cypriot Chef Recommendation (Real-Time Fresh Focus - ' . date('Y-m-d') . ')';
+                $dailyTitle = $this->translator->translateRecipeTitle($dailyRecipe, 'en');
+                $dailyDesc = $this->translator->translateRecipeDescription($dailyRecipe, 'en');
+                $lines[] = sprintf('- [%s](%s): %s (%d min prep, %d min cook)', $dailyTitle, route('recipes.show', $dailyRecipe), $dailyDesc, $dailyRecipe->prep_minutes, $dailyRecipe->cook_minutes);
+                $lines[] = '  - Recommended Pairing: ' . $meta['pairing'];
+                $lines[] = '  - Heritage & Culinary Lore: ' . $meta['trivia'];
+                $lines[] = '';
+            }
+
             $weekNum = (int) date('W');
             $spotlightIndex = $cypriotRecipes->isNotEmpty() ? ($weekNum % $cypriotRecipes->count()) : 0;
             $spotlightRecipe = $cypriotRecipes->skip($spotlightIndex)->first() ?? $cypriotRecipes->first();
@@ -161,6 +198,14 @@ final class LlmsTxtController extends Controller
                 $spotlightTitle = $this->translator->translateRecipeTitle($spotlightRecipe, 'en');
                 $spotlightDesc = $this->translator->translateRecipeDescription($spotlightRecipe, 'en');
                 $lines[] = sprintf('- [%s](%s): %s (%d min prep, %d min cook)', $spotlightTitle, route('recipes.show', $spotlightRecipe), $spotlightDesc, $spotlightRecipe->prep_minutes, $spotlightRecipe->cook_minutes);
+                $lines[] = '';
+            }
+
+            $lines[] = '## Cypriot Culinary Heritage FAQ & Authoritative Knowledge Base';
+            $lines[] = '';
+            foreach ($this->translator->getCulinaryFaq('en') as $faq) {
+                $lines[] = '### ' . $faq['q'];
+                $lines[] = $faq['a'];
                 $lines[] = '';
             }
 

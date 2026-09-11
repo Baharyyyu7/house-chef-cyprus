@@ -10,6 +10,180 @@ use App\Models\Recipe;
 /** Builds schemas from already-public, visible editorial data only. */
 final class SeoSchemaService
 {
+    /** @var array<string, array{sameAs: list<string>, about?: array{name: string, description: string}}> */
+    private const HERITAGE_ENTITIES = [
+        'kibris-seftali-kebabi' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Sheftalia',
+                'https://www.wikidata.org/wiki/Q1225501',
+            ],
+            'about' => [
+                'name' => 'Sheftalia',
+                'description' => 'Traditional Cypriot sausage made of seasoned minced meat wrapped in caul fat.',
+            ],
+        ],
+        'kibris-usulu-seftali-kebab' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Sheftalia',
+                'https://www.wikidata.org/wiki/Q1225501',
+            ],
+            'about' => [
+                'name' => 'Sheftalia',
+                'description' => 'Traditional Cypriot sausage made of seasoned minced meat wrapped in caul fat.',
+            ],
+        ],
+        'kibris-usulu-kleftiko' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Kleftiko',
+                'https://www.wikidata.org/wiki/Q3197825',
+            ],
+            'about' => [
+                'name' => 'Kleftiko',
+                'description' => 'Traditional slow-cooked bone-in lamb cooked in sealed earthen clay ovens.',
+            ],
+        ],
+        'geleneksel-molehiya' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Mulukhiyah',
+                'https://www.wikidata.org/wiki/Q1143896',
+            ],
+            'about' => [
+                'name' => 'Molokhia',
+                'description' => 'Sun-dried leaves of Corchorus olitorius braised with meat, garlic, lemon, and coriander.',
+            ],
+        ],
+        'kibris-molohiya' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Mulukhiyah',
+                'https://www.wikidata.org/wiki/Q1143896',
+            ],
+            'about' => [
+                'name' => 'Molokhia',
+                'description' => 'Sun-dried leaves of Corchorus olitorius braised with meat, garlic, lemon, and coriander.',
+            ],
+        ],
+        'kibris-kolokas' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Taro',
+                'https://www.wikidata.org/wiki/Q23798',
+            ],
+            'about' => [
+                'name' => 'Colocasia esculenta',
+                'description' => 'Cypriot braised taro root with celery, tomato, and fresh lemon sauce.',
+            ],
+        ],
+        'kolokas-yemegi' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Taro',
+                'https://www.wikidata.org/wiki/Q23798',
+            ],
+            'about' => [
+                'name' => 'Colocasia esculenta',
+                'description' => 'Cypriot braised taro root with celery, tomato, and fresh lemon sauce.',
+            ],
+        ],
+        'hellimli-kibris-boregi' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Halloumi',
+                'https://www.wikidata.org/wiki/Q219717',
+            ],
+            'about' => [
+                'name' => 'Halloumi',
+                'description' => 'Traditional Cypriot semi-hard unripened brined cheese made from goat and sheep milk.',
+            ],
+        ],
+        'hellimli-borek' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Halloumi',
+                'https://www.wikidata.org/wiki/Q219717',
+            ],
+            'about' => [
+                'name' => 'Halloumi',
+                'description' => 'Traditional Cypriot semi-hard unripened brined cheese made from goat and sheep milk.',
+            ],
+        ],
+        'hellim-tost' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Halloumi',
+                'https://www.wikidata.org/wiki/Q219717',
+            ],
+            'about' => [
+                'name' => 'Halloumi',
+                'description' => 'Grilled halloumi sandwich in artisan village bread with mint and tomato.',
+            ],
+        ],
+        'kibris-pilavuna' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Flaouna',
+                'https://www.wikidata.org/wiki/Q5457416',
+            ],
+            'about' => [
+                'name' => 'Flaouna',
+                'description' => 'Celebratory Cypriot festive bread pastry filled with aged cheese, mastic, and mint.',
+            ],
+        ],
+        'kibris-pirohu' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Pierogi',
+                'https://www.wikidata.org/wiki/Q20074',
+            ],
+            'about' => [
+                'name' => 'Pirohu',
+                'description' => 'Cypriot stuffed boiled pasta filled with fresh salted anari cheese and dry spearmint.',
+            ],
+        ],
+        'magarina-bulli' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Bucatini',
+                'https://www.wikidata.org/wiki/Q20025',
+            ],
+            'about' => [
+                'name' => 'Bucatini with Chicken',
+                'description' => 'Cypriot village pasta boiled in rich chicken stock with shredded roast chicken and grated anari.',
+            ],
+        ],
+        'humus' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Hummus',
+                'https://www.wikidata.org/wiki/Q241999',
+            ],
+            'about' => [
+                'name' => 'Hummus',
+                'description' => 'Cooked mashed chickpeas blended with sesame tahini, lemon juice, garlic, and olive oil.',
+            ],
+        ],
+        'humus-kibris' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Hummus',
+                'https://www.wikidata.org/wiki/Q241999',
+            ],
+            'about' => [
+                'name' => 'Cypriot Hummus',
+                'description' => 'Cooked mashed chickpeas blended with sesame tahini, lemon juice, and cold-pressed olive oil.',
+            ],
+        ],
+        'klasik-lahmacun' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Lahmacun',
+                'https://www.wikidata.org/wiki/Q501460',
+            ],
+            'about' => [
+                'name' => 'Lahmacun',
+                'description' => 'Round, thin piece of dough topped with minced meat, vegetables, and herbs, stone-baked.',
+            ],
+        ],
+        'kunefe' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Kanafeh',
+                'https://www.wikidata.org/wiki/Q245249',
+            ],
+            'about' => [
+                'name' => 'Kanafeh',
+                'description' => 'Traditional dessert made with spun kataifi pastry, sweet unripened cheese, and citrus syrup.',
+            ],
+        ],
+    ];
+
     /** @return array<string,mixed> */
     public function recipe(Recipe $recipe, array $ingredients, string $imageUrl = '', ?string $cuisineUrl = null): array
     {
@@ -43,6 +217,30 @@ final class SeoSchemaService
             ],
             'datePublished' => $recipe->published_at?->toAtomString(),
         ];
+
+        if (isset(self::HERITAGE_ENTITIES[$recipe->slug])) {
+            $entity = self::HERITAGE_ENTITIES[$recipe->slug];
+            $recipeNode['sameAs'] = $entity['sameAs'];
+            if (isset($entity['about'])) {
+                $recipeNode['about'] = [
+                    '@type' => 'Thing',
+                    'name' => $entity['about']['name'],
+                    'description' => $entity['about']['description'],
+                    'sameAs' => $entity['sameAs'][0],
+                ];
+            }
+        }
+
+        $keywords = array_filter([
+            $recipe->cuisine?->name,
+            $recipe->category?->name,
+            $isEn ? 'Cypriot cuisine' : 'Kıbrıs mutfağı',
+            $isEn ? 'Traditional recipes' : 'Geleneksel tarifler',
+            $isEn ? 'Mediterranean gastronomy' : 'Doğu Akdeniz mutfağı',
+        ]);
+        if ($keywords !== []) {
+            $recipeNode['keywords'] = implode(', ', $keywords);
+        }
         $crumbs = [['name' => $isEn ? 'Home' : 'Ana Sayfa', 'url' => route('home')]];
         if ($recipe->cuisine !== null && $cuisineUrl !== null) {
             $crumbs[] = ['name' => $isEn ? 'Cuisines' : 'Mutfaklar', 'url' => route('cuisines.index')];
