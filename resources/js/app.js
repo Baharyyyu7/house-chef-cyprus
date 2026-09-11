@@ -526,8 +526,38 @@ Alpine.data('hcBlogKaruseli', (adet) => ({
             && ! ['slow-2g', '2g'].includes(baglanti.effectiveType);
     };
 
-    video.addEventListener('playing', () => video.setAttribute('data-hazir', ''), { once: true });
-    video.addEventListener('error', () => { video.dataset.kapali = 'medya-hatasi'; }, { once: true });
+    let kaynakTakildi = false;
+
+    const kaynaklariTak = () => {
+        if (kaynakTakildi) {
+            return;
+        }
+
+        kaynakTakildi = true;
+
+        // Kaynak sırası önemli: tarayıcı ilk oynatabildiğini alır ve WebM
+        // aynı kareyi MP4'ten küçük veriyor.
+        for (const [tur, alan] of [['video/webm', 'webm'], ['video/mp4', 'mp4']]) {
+            const adres = video.dataset[alan];
+
+            if (adres) {
+                const kaynak = document.createElement('source');
+                kaynak.type = tur;
+                kaynak.src = adres;
+                video.append(kaynak);
+            }
+        }
+
+        // Görünür olmak için gerçekten kare basmış olması gerekiyor. canplay
+        // yetmez; dosya düştüğünde boş siyah bir kare açılıyordu.
+        video.addEventListener('playing', () => video.setAttribute('data-hazir', ''), { once: true });
+
+        // Kalıcı olarak vazgeçilen tek durum: dosya oynatılamıyor. Katman
+        // görünmez kalır, altındaki görsel olduğu gibi durur.
+        video.addEventListener('error', () => { video.dataset.kapali = 'medya-hatasi'; }, { once: true });
+
+        video.load();
+    };
 
     /**
      * Oynatma denemesi.
@@ -537,6 +567,8 @@ Alpine.data('hcBlogKaruseli', (adet) => ({
             return;
         }
 
+        kaynaklariTak();
+
         const sozu = video.play();
 
         if (sozu && typeof sozu.catch === 'function') {
@@ -545,7 +577,9 @@ Alpine.data('hcBlogKaruseli', (adet) => ({
     };
 
     const durdur = () => {
-        video.pause();
+        if (kaynakTakildi) {
+            video.pause();
+        }
     };
 
     const basla = () => {

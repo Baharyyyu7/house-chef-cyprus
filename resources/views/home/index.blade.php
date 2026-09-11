@@ -22,13 +22,13 @@
                 <h1 class="hc-display-xl mt-5 max-w-3xl text-white">{{ __('home.hero_title') }}</h1>
                 <p class="hc-hero-muted hc-body-lg mt-6 max-w-2xl">{{ __('home.hero_subtitle') }}</p>
                 <div class="mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-                    <a class="hc-btn hc-btn-primary px-7" href="#hero-search-input">{{ __('home.hero_cta') }} <span class="ml-1" aria-hidden="true">→</span></a>
+                    <a class="hc-btn hc-btn-primary px-7" href="#hero-ingredient">{{ __('home.hero_cta') }} <span class="ml-1" aria-hidden="true">→</span></a>
                     <a class="hc-btn hc-btn-outline px-6 text-white border-white/30 hover:bg-white/10" href="{{ route('ingredients.explore') }}">🥕 Ne Pişirebilirim?</a>
                     <a class="hc-hero-secondary text-sm font-semibold text-white/80 underline-offset-4 transition hover:text-white hover:underline sm:ml-2" href="{{ route('recipes.index') }}">{{ __('home.browse_archive') }}</a>
                 </div>
             </div>
         </div>
-        {{-- Arama kutusu sayfanın ilk eylemi; doğrudan klavye ile yazılabilir ve aranabilir --}}
+        {{-- Arama kutusu sayfanın ilk eylemi; malzeme seçerek ne pişirebileceğini doğrudan bulur --}}
     <div id="kesfet" class="hc-container relative z-20 mt-8">
         <div class="hc-arama hc-home-search">
             <div class="flex flex-wrap items-end justify-between gap-3">
@@ -42,19 +42,17 @@
                     <a class="hc-text-link text-sm font-extrabold" href="{{ route('recipes.index') }}">{{ __('home.all_archive') }}</a>
                 </div>
             </div>
-            <form id="home-search" class="hc-arama__kutu mt-5" action="{{ route('recipes.index') }}" method="get">
-                <label class="sr-only" for="hero-search-input">{{ __('archive.search_recipes') }}</label>
+            <form id="home-ingredients" class="hc-arama__kutu mt-5" action="{{ route('ingredients.explore') }}" method="get">
+                <label class="sr-only" for="hero-ingredient">Elindeki malzemeyi seç</label>
                 <span class="hc-arama__ikon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span>
-                <input
-                    id="hero-search-input"
-                    class="hc-arama__girdi"
-                    type="search"
-                    name="q"
-                    placeholder="Tarif, malzeme veya mutfak ara... (örn: Kıbrıs köftesi, mercimek, hellim)"
-                    autocomplete="off"
-                >
+                <select id="hero-ingredient" class="hc-arama__girdi" name="ingredients[]" required>
+                    <option value="">Elinde hangi malzeme var?</option>
+                    @foreach($homeIngredients as $ingredient)
+                        <option value="{{ $ingredient['public_id'] }}">{{ $ingredient['name'] }}</option>
+                    @endforeach
+                </select>
                 <button class="hc-arama__dugme" type="submit">
-                    <span>{{ __('archive.show_recipes') }}</span>
+                    <span>Ne pişirebilirim?</span>
                     <span class="hc-arama__ok" aria-hidden="true">→</span>
                 </button>
             </form>
