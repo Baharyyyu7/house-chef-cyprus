@@ -261,6 +261,7 @@ document.addEventListener('alpine:init', () => {
                 ? this.checked.filter((v) => v !== sid)
                 : [...this.checked, sid];
             this.persist();
+            window.dispatchEvent(new CustomEvent('hc-ingredient-checked'));
         },
         reset() {
             this.checked = [];
@@ -275,6 +276,7 @@ document.addEventListener('alpine:init', () => {
         wakeLock: null,
         active: false,
         supported: 'wakeLock' in navigator,
+        autoTriggered: false,
         async toggle() {
             if (!this.supported) return;
             if (this.active) {
@@ -306,6 +308,20 @@ document.addEventListener('alpine:init', () => {
             this.active = false;
         },
         init() {
+            const autoStart = () => {
+                if (!this.autoTriggered && this.supported && !this.active) {
+                    this.autoTriggered = true;
+                    this.request();
+                }
+            };
+
+            // Kullanıcı sayfada adımlara/malzemelere kaydırdığında ekran açık tutma modu otomatik başlar
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 200) autoStart();
+            }, { once: true, passive: true });
+
+            window.addEventListener('hc-ingredient-checked', () => autoStart());
+
             document.addEventListener('visibilitychange', async () => {
                 if (this.active && document.visibilityState === 'visible') {
                     await this.request();

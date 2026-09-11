@@ -1,11 +1,36 @@
 {
   "name": "House Chef Cyprus",
   "short_name": "House Chef",
-  "icons": [
-    { "src": "/brand/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/brand/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
-  ],
+  "description": "Doğrulanmış Kıbrıs ve Akdeniz yemek tarifleri, mutfak rehberleri ve gastronomi ansiklopedisi.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
   "theme_color": "#ff6b00",
   "background_color": "#111111",
-  "display": "standalone"
+  "categories": ["food", "lifestyle", "utilities"],
+  "icons": [
+    { "src": "/brand/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/brand/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Kıbrıs Tarifleri",
+      "short_name": "Kıbrıs",
+      "description": "Geleneksel Kıbrıs Mutfağı Tarifleri",
+      "url": "/mutfaklar/kibris-mutfagi"
+    },
+    {
+      "name": "Tüm Tarifler",
+      "short_name": "Tarifler",
+      "description": "Doğrulanmış Yemek Tarifleri Kataloğu",
+      "url": "/tarifler"
+    },
+    {
+      "name": "Mutfak Rehberleri",
+      "short_name": "Blog",
+      "description": "Gastronomi ve Pişirme Rehberleri",
+      "url": "/blog"
+    }
+  ]
 }

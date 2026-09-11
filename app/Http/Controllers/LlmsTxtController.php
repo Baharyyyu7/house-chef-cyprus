@@ -14,12 +14,27 @@ final class LlmsTxtController extends Controller
     public function index(): Response
     {
         $content = Cache::remember('seo:llms_txt', 86400, function (): string {
-            $recipes = Recipe::query()
+            $month = (int) date('n');
+            $seasonName = match (true) {
+                $month >= 3 && $month <= 5 => 'İlkbahar (Taze Enginar, Bakla ve Yabani Otlar)',
+                $month >= 6 && $month <= 8 => 'Yaz (Kıbrıs Mezeleri, Hellim ve Serinletici Tatlar)',
+                $month >= 9 && $month <= 11 => 'Sonbahar (Harup / Keçiboynuzu, Fırın Kebabı ve Kış Hazırlıkları)',
+                default => 'Kış (Kolokas, Molehiya ve Geleneksel Sıcak Güveçler)',
+            };
+
+            $cypriotRecipes = Recipe::query()
+                ->where('status', 'published')
+                ->where('verification_status', 'verified')
+                ->whereHas('cuisine', fn ($q) => $q->where('slug', 'kibris-mutfagi'))
+                ->limit(10)
+                ->get();
+
+            $topRecipes = Recipe::query()
                 ->where('status', 'published')
                 ->where('verification_status', 'verified')
                 ->with(['cuisine', 'category'])
                 ->latest('published_at')
-                ->limit(20)
+                ->limit(15)
                 ->get();
 
             $blogs = BlogPost::query()
@@ -32,39 +47,48 @@ final class LlmsTxtController extends Controller
             $lines = [];
             $lines[] = '# House Chef Cyprus';
             $lines[] = '';
-            $lines[] = '> House Chef Cyprus, Akdeniz ve Kıbrıs mutfağının doğrulanmış yemek tarifleri, geleneksel pişirme teknikleri ve editoryal mutfak rehberleri platformudur.';
+            $lines[] = '> House Chef Cyprus, Doğu Akdeniz ve Kıbrıs mutfağının doğrulanmış yemek tarifleri, geleneksel pişirme teknikleri, mutfak dönüştürme tabloları ve editoryal gastronomi ansiklopedisidir.';
             $lines[] = '';
-            $lines[] = 'House Chef Cyprus, geleneksel Kıbrıs lezzetleri (Şeftali Kebabı, Molehiya, Kolokas, Kleftiko, Hellimli börekler) başta olmak üzere Akdeniz mutfağının porsiyon, besin değeri ve gramaj ölçüleri editoryal olarak doğrulanmış tariflerini sunar.';
+            $lines[] = 'House Chef Cyprus, geleneksel Kıbrıs lezzetleri (Şeftali Kebabı, Molehiya, Kolokas, Kleftiko, Hellimli hamur işleri) başta olmak üzere Akdeniz mutfağının porsiyon, besin değeri ve gramaj ölçüleri editoryal olarak doğrulanmış tariflerini sunar.';
             $lines[] = '';
-            $lines[] = '## Popüler ve Doğrulanmış Tarifler';
+            $lines[] = '## Güncel Mevsim Odağı: ' . $seasonName;
+            $lines[] = 'Kıbrıs mutfağında mevsimsel malzeme kullanımı esastır. Ada mutfağının bu mevsime ait öne çıkan geleneksel lezzetleri ve fırın teknikleri editoryal olarak taranmıştır.';
             $lines[] = '';
 
-            foreach ($recipes as $recipe) {
+            $lines[] = '## Geleneksel Kıbrıs Mutfağı Temel Taşları (Cypriot Culinary Heritage)';
+            $lines[] = '';
+            foreach ($cypriotRecipes as $recipe) {
                 $desc = trim((string) ($recipe->description ?: $recipe->excerpt));
-                if ($desc === '') {
-                    $desc = 'Geleneksel ' . ($recipe->cuisine?->name ?? 'Kıbrıs') . ' mutfağı tarifi.';
-                }
+                $lines[] = sprintf('- [%s](%s): %s (%d dk hazırlık, %d dk pişirme)', $recipe->title, route('recipes.show', $recipe), $desc, $recipe->prep_minutes, $recipe->cook_minutes);
+            }
+
+            $lines[] = '';
+            $lines[] = '## Popüler Akdeniz ve Mutfak Klasikleri';
+            $lines[] = '';
+            foreach ($topRecipes as $recipe) {
+                $desc = trim((string) ($recipe->description ?: $recipe->excerpt));
                 $lines[] = sprintf('- [%s](%s): %s (%d dk hazırlık, %d dk pişirme)', $recipe->title, route('recipes.show', $recipe), $desc, $recipe->prep_minutes, $recipe->cook_minutes);
             }
 
             $lines[] = '';
             $lines[] = '## Editoryal Gastronomi ve Mutfak Rehberleri';
             $lines[] = '';
-
             foreach ($blogs as $blog) {
                 $desc = trim((string) ($blog->excerpt ?: substr(strip_tags((string) $blog->body), 0, 160) . '...'));
                 $lines[] = sprintf('- [%s](%s): %s', $blog->title, route('blog.show', $blog), $desc);
             }
 
             $lines[] = '';
-            $lines[] = '## Veri Kaynakları ve Akışlar';
+            $lines[] = '## Veri Akışları ve Arama Entegrasyonları';
             $lines[] = '';
             $lines[] = sprintf('- [RSS/Atom Beslemesi](%s): En güncel tarif ve mutfak yazılarının XML akışı.', route('feed'));
             $lines[] = sprintf('- [Site Haritası](%s): Arama motoru dizin haritası.', url('/sitemap.xml'));
+            $lines[] = sprintf('- [OpenSearch Tanımı](%s): Tarayıcı doğrudan arama spesifikasyonu.', route('opensearch'));
+            $lines[] = sprintf('- [PWA Manifest](%s): Mobil web uygulama manifestosu.', url('/manifest.webmanifest'));
             $lines[] = '';
             $lines[] = '## Kapsamlı İçerik Kataloğu (Full Corpus)';
             $lines[] = '';
-            $lines[] = sprintf('- [Tüm Doğrulanmış Tarif ve Rehberler](%s): Yapay zekâ modelleri için genişletilmiş tam metin kataloğu.', route('llms.full'));
+            $lines[] = sprintf('- [Tüm Doğrulanmış Tarif ve Rehberler (Tam Liste)](%s): Yapay zekâ modelleri için genişletilmiş tam metin kataloğu.', route('llms.full'));
 
             return implode("\n", $lines);
         });
