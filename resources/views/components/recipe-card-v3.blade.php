@@ -35,15 +35,15 @@
     </a>
     <div class="flex flex-1 flex-col p-5">
         <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color: var(--hc-text-muted)"><span>{{ $recipe->category?->name ?? __('recipe.recipe') }}</span><span>{{ $recipe->zorlukEtiketi() }}</span></div>
-        <{{ $heading }} class="mt-2 text-base font-extrabold leading-snug line-clamp-2" style="color: var(--hc-text-primary)"><a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('recipes.show', $recipe) }}">{{ $recipe->title }}</a></{{ $heading }}>
-        <p class="hc-body-sm mt-2 line-clamp-2" style="color: var(--hc-text-secondary)">{{ $recipe->excerpt }}</p>
+        <{{ $heading }} class="mt-2 text-base font-extrabold leading-snug line-clamp-2" style="color: var(--hc-text-primary)"><a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('recipes.show', $recipe) }}">{{ $recipe->translated('title') }}</a></{{ $heading }}>
+        <p class="hc-body-sm mt-2 line-clamp-2" style="color: var(--hc-text-secondary)">{{ $recipe->translated('excerpt') }}</p>
         <div class="mt-3 flex flex-wrap gap-2">@foreach($recipe->dietaryTags->take(2) as $tag)<span class="hc-v3-badge hc-v3-badge--success">{{ $tag->name ?? str($tag->code)->replace('_', ' ')->title() }}</span>@endforeach</div>
         <div class="mt-auto flex items-center justify-between gap-3 pt-4">
             <span class="hc-v3-badge {{ $hasApprovedMedia && $recipe->verification_status === 'verified' ? 'hc-v3-badge--success' : 'hc-v3-badge--warning' }}"><span aria-hidden="true">{{ $hasApprovedMedia && $recipe->verification_status === 'verified' ? '✓' : 'ⓘ' }}</span> {{ $hasApprovedMedia && $recipe->verification_status === 'verified' ? __('card.verified') : __('card.under_review') }}</span>
             <div class="flex items-center gap-1">
                 @auth
                     @if($showFavorite)
-                        <form method="post" action="{{ route('favorites.toggle', $recipe) }}" class="relative z-10">@csrf<button class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" type="submit" aria-label="{{ __('card.add_to_favorites_aria', ['title' => $recipe->title]) }}">♡<span class="sr-only">{{ __('card.add_to_favorites') }}</span></button></form>
+                        <form method="post" action="{{ route('favorites.toggle', $recipe) }}" class="relative z-10">@csrf<button class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" type="submit" aria-label="{{ __('card.add_to_favorites_aria', ['title' => $recipe->translated('title')]) }}">♡<span class="sr-only">{{ __('card.add_to_favorites') }}</span></button></form>
                     @endif
                 @endauth
                 <a class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm font-bold" href="{{ route('recipes.show', $recipe) }}">{{ __('card.view_recipe') }} <span aria-hidden="true">→</span></a>

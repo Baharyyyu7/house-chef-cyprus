@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasPublicId;
 use App\Models\Concerns\HasTranslations;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,9 +12,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $public_id
+ * @property Carbon|null $published_at
  * @property array<string, float|int|string>|null $nutrition
  */
 class Recipe extends Model
@@ -86,9 +89,9 @@ class Recipe extends Model
     }
 
     /** Yazarken normalleştir ki karışım bir daha oluşmasın. */
-    protected function difficulty(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function difficulty(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+        return Attribute::make(
             set: fn (?string $deger): ?string => self::zorlukKanonik($deger) ?? $deger,
         );
     }

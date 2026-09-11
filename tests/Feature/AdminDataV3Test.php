@@ -23,7 +23,7 @@ final class AdminDataV3Test extends TestCase
         $admin = $this->admin();
         Unit::create(['public_id' => '01J00000000000000000000001', 'code' => 'v3_kase', 'name' => 'Kase', 'singular_name' => 'Kase', 'unit_type' => 'household', 'precision' => 2, 'supports_fractions' => true, 'is_active' => true, 'is_user_visible' => true]);
 
-        $this->actingAs($admin)->get(route('admin.measurements.units', ['q' => 'Kase', 'fractions' => '1']))->assertOk()->assertSee('Household ölçü birimleri')->assertSee('v3_kase');
+        $this->actingAs($admin)->get(route('admin.measurements.units', ['q' => 'Kase', 'fractions' => '1']))->assertOk()->assertSee('Mutfak ölçü birimleri')->assertSee('v3_kase');
         $this->actingAs($admin)->post(route('admin.measurements.units.store'), ['code' => 'v3_fincan', 'singular_name' => 'Fincan', 'plural_name' => 'Fincan', 'short_label' => 'fincan', 'unit_type' => 'household', 'precision' => 2, 'sort_order' => 1, 'is_active' => '1', 'is_user_visible' => '1'])->assertRedirect();
         $this->assertDatabaseHas('units', ['code' => 'v3_fincan', 'singular_name' => 'Fincan']);
         $this->actingAs($admin)->post(route('admin.measurements.units.store'), ['code' => 'v3_fincan', 'singular_name' => 'Tekrar', 'unit_type' => 'household', 'precision' => 2])->assertSessionHasErrors('code');

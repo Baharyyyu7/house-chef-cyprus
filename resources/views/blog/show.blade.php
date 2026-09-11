@@ -1,4 +1,4 @@
-<x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : route('blog.cover', $post)" :social-image-width="$heroMedia?->publicUrl() ? $heroMedia->width : 1200" :social-image-height="$heroMedia?->publicUrl() ? $heroMedia->height : 630" :social-image-alt="$heroMedia?->alt_text ?: $post->title" :structured-data="$schema">
+<x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : route('blog.cover', $post)" :social-image-width="$heroMedia?->publicUrl() ? $heroMedia->width : 1200" :social-image-height="$heroMedia?->publicUrl() ? $heroMedia->height : 630" :social-image-alt="$heroMedia?->alt_text ?: $post->translated('title')" :structured-data="$schema">
     <section class="hc-container py-10 sm:py-16">
         <article class="mx-auto max-w-3xl">
             <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider" style="color: var(--hc-text-muted)" aria-label="Breadcrumb">
@@ -9,8 +9,8 @@
                 @endif
             </nav>
 
-            <h1 class="hc-display-xl mt-4 leading-tight">{{ $post->title }}</h1>
-            <p class="hc-body-lg mt-5 font-medium leading-relaxed" style="color: var(--hc-text-secondary)">{{ $post->excerpt }}</p>
+            <h1 class="hc-display-xl mt-4 leading-tight">{{ $post->translated('title') }}</h1>
+            <p class="hc-body-lg mt-5 font-medium leading-relaxed" style="color: var(--hc-text-secondary)">{{ $post->translated('excerpt') }}</p>
 
             <div class="mt-6 flex flex-wrap items-center justify-between gap-4 border-b border-t py-4 text-xs font-semibold" style="border-color: var(--hc-border-subtle); color: var(--hc-text-muted)">
                 <div class="flex items-center gap-3">
@@ -22,7 +22,7 @@
                         <time datetime="{{ $post->published_at?->toIso8601String() }}">{{ $post->published_at?->format('d F Y') }}</time>
                     </div>
                 </div>
-                <span class="hc-v3-badge">{{ __('blog.show.reading_time', ['minutes' => max(1, (int) ceil(str_word_count(strip_tags($post->body)) / 180))]) }}</span>
+                <span class="hc-v3-badge">{{ __('blog.show.reading_time', ['minutes' => max(1, (int) ceil(str_word_count(strip_tags($post->translated('body'))) / 180))]) }}</span>
             </div>
 
             @if($heroMedia?->publicUrl())
@@ -102,7 +102,7 @@
                             <article class="hc-v3-card hc-v3-card--interactive flex flex-col p-5 rounded-2xl border" style="border-color: var(--hc-border-default)">
                                 <span class="hc-kicker text-xs mb-2">{{ $relatedPost->category?->name ?? __('blog.show.kitchen_note') }}</span>
                                 <h3 class="font-bold text-sm leading-snug line-clamp-2 mb-4" style="color: var(--hc-text-primary)">
-                                    <a href="{{ route('blog.show', $relatedPost) }}" class="before:absolute before:inset-0">{{ $relatedPost->title }}</a>
+                                    <a href="{{ route('blog.show', $relatedPost) }}" class="before:absolute before:inset-0">{{ $relatedPost->translated('title') }}</a>
                                 </h3>
                                 <span class="mt-auto text-xs font-bold text-orange-600">{{ __('blog.show.read_more') }} &rarr;</span>
                             </article>

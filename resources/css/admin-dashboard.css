@@ -16,6 +16,66 @@
     --hc-radius-md: .5rem;
     --hc-radius-lg: .5rem;
 }
+/* Shared admin rhythm covers legacy operations pages as well as CRUD screens. */
+.admin-shell :is(h1,h2,h3,h4,button,label,th,.hc-kicker,.hc-overline,.hc-admin-eyebrow,.hc-admin-back,.hc-admin-breadcrumb) { letter-spacing: 0; }
+.admin-shell .hc-page :is(h1,.hc-heading-1) { font-size: 1.625rem; line-height: 1.3; font-weight: 750; overflow-wrap: anywhere; }
+.admin-shell .hc-page :is(h2,.hc-heading-2) { font-size: 1.125rem; line-height: 1.45; font-weight: 650; }
+.admin-shell .hc-page :is(h3,.hc-heading-3) { font-size: 1rem; line-height: 1.5; }
+.admin-shell .hc-page :is(h4,.hc-heading-4) { font-size: .9375rem; line-height: 1.5; }
+.admin-shell .hc-page { padding-block: 1.75rem 3rem; }
+.admin-shell .hc-page > :is(section,.hc-admin-crud-page,.hc-admin-page) { max-width: 92rem; width: 100%; padding: 0; margin-inline: auto; }
+.admin-shell .hc-page :is(section,article,aside,form,fieldset,header,div) { min-width: 0; }
+.admin-shell .hc-page :is(p,dt,dd,code,strong,a) { overflow-wrap: anywhere; }
+.admin-shell .hc-page :is(input,textarea,select) { max-width: 100%; min-width: 0; }
+.admin-shell :is(.hc-input,.hc-v3-btn,.hc-v3-card,.hc-admin-form-card,.hc-admin-detail-card,.hc-admin-table-shell,.hc-admin-filter-bar,.hc-admin-tabs,.hc-admin-avatar,.admin-topbar__user) { border-radius: .5rem; }
+.admin-shell .hc-v3-btn { min-height: 2.5rem; font-size: .8125rem; padding: .6rem .9rem; line-height: 1.4; gap: .4rem; white-space: normal; }
+.admin-shell .hc-v3-btn svg { flex: none; }
+.admin-shell .hc-admin-crud-header { align-items: center; flex-wrap: wrap; gap: 1rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--hc-border-default); }
+.admin-shell .hc-admin-crud-header p { font-size: .8125rem; line-height: 1.6; }
+.admin-shell .hc-admin-crud-header .hc-admin-eyebrow { margin: 0; font-size: .6875rem; color: var(--hc-text-muted); }
+.admin-shell .hc-admin-back { display: inline-flex; gap: .3rem; align-items: center; margin-bottom: .5rem; font-size: .75rem; text-transform: none; }
+.admin-shell .hc-admin-page-actions { align-items: center; }
+.admin-shell .hc-page :is(section.hc-v3-card,.hc-admin-table-shell,.hc-admin-form-card,.hc-admin-filter-bar) { border: 0; border-block: 1px solid var(--hc-border-default); border-radius: 0; background: transparent; box-shadow: none; padding-inline: 0; }
+.admin-shell .hc-page .hc-v3-card .hc-v3-card { background: transparent; border: 0; border-radius: 0; box-shadow: none; padding-inline: 0; }
+.admin-shell .hc-page :is(.overflow-x-auto,.hc-admin-table-shell) { max-width: 100%; }
+.admin-shell .hc-admin-table-shell { overflow-x: auto; }
+.admin-shell .hc-table-wrap { border-radius: .5rem; box-shadow: none; }
+.admin-shell .hc-table { width: 100%; }
+.admin-shell .hc-page form.flex > select { width: auto; }
+.admin-shell .hc-v3-reveal { animation: none; }
+.admin-shell :is(.hc-admin-data-table,.hc-table) :is(th,td) { padding: .8rem .75rem; font-size: .8125rem; }
+.admin-shell :is(.hc-admin-stat,.hc-admin-metric-card) > strong { font-size: 1.75rem; line-height: 1.2; letter-spacing: 0; }
+.admin-shell :is(.hc-admin-stat,.hc-admin-metric-card) > span { font-size: .6875rem; letter-spacing: 0; }
+.admin-shell .hc-admin-form-section { padding: 1.25rem 0; }
+.admin-shell .hc-admin-detail-grid > div { background: transparent; border: 0; border-bottom: 1px solid var(--hc-border-default); border-radius: 0; padding: .75rem 0; }
+.admin-shell .hc-admin-detail-card { background: transparent; border: 0; border-bottom: 1px solid var(--hc-border-default); border-radius: 0; padding-inline: 0; }
+.admin-shell .admin-sidebar :is(a,button,input) { border-radius: .375rem; }
+.admin-shell .admin-sidebar a { font-size: .8125rem; }
+.admin-shell .admin-sidebar [data-admin-section-toggle] { letter-spacing: 0; min-height: 2.5rem; }
+.admin-shell .admin-sidebar [data-admin-menu-label] { line-height: 1.4; }
+.admin-shell .hc-admin-breadcrumb { font-size: .6875rem; }
+.hc-media-preview { display: grid; place-items: center; gap: .5rem; padding: 1rem; text-align: center; color: var(--hc-text-muted); font-size: .75rem; background: var(--hc-background-subtle); }
+.hc-media-preview > span { display: grid; justify-items: center; gap: .6rem; }
+.hc-media-tabs { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; border-bottom: 1px solid var(--hc-border-default); }
+.hc-media-tabs a { display: inline-flex; align-items: center; gap: .4rem; padding-block: .75rem; font-size: .8125rem; color: var(--hc-text-secondary); border-bottom: 2px solid transparent; }
+.hc-media-tabs a[aria-current="page"] { color: var(--hc-text-primary); border-color: var(--hc-text-accent); font-weight: 700; }
+.hc-media-tabs a span { font-size: .6875rem; background: var(--hc-background-muted); padding: .1rem .4rem; border-radius: .25rem; }
+.admin-shell .hc-world-map__svg { min-height: 0; aspect-ratio: 960 / 344; }
+.admin-shell .hc-world-map__ipucu { transform: none; width: 11rem; max-width: calc(100% - 16px); white-space: normal; border-radius: .375rem; background: var(--hc-surface-raised); border-color: var(--hc-border-default); box-shadow: 0 4px 12px #00000014; }
+.admin-shell .hc-world-map__ipucu strong { overflow-wrap: anywhere; }
+.hc-world-map__empty { display: flex; align-items: center; gap: .75rem; padding: 1rem 0; font-size: .8125rem; color: var(--hc-text-secondary); }
+.hc-world-map__empty svg { flex: none; }
+.admin-shell .hc-world-map__countries li { border: 0; border-bottom: 1px solid var(--hc-border-default); }
+.admin-shell .hc-world-map__countries span:nth-child(2) { white-space: normal; }
+@media (max-width: 767px) {
+    .admin-shell .hc-page :is(h1,.hc-heading-1) { font-size: 1.375rem; }
+    .admin-shell .hc-page { padding-top: 1.25rem; }
+    .admin-shell .hc-admin-page-actions { width: 100%; }
+    .admin-shell .hc-admin-page-actions .hc-v3-btn { width: auto; }
+    .admin-shell .hc-admin-crud-header { align-items: stretch; }
+    .admin-shell .hc-admin-breadcrumb { display: none; }
+    .admin-shell .admin-topbar .hc-v3-btn { padding: .6rem; }
+}
 .admin-shell .hc-admin-dashboard { padding-inline: .75rem; }
 .admin-shell .hc-admin-dashboard :is(h1,h2,h3,.hc-kicker,.hc-overline) { letter-spacing: 0; }
 .admin-shell .hc-admin-dashboard .hc-heading-1 { font-size: 1.625rem; line-height: 1.3; font-weight: 750; }

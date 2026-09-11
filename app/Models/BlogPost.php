@@ -55,7 +55,7 @@ final class BlogPost extends Model
      */
     public function renderedBody(): string
     {
-        return Str::markdown((string) $this->body, [
+        return Str::markdown((string) $this->translated('body'), [
             'html_input' => 'strip',
             'allow_unsafe_links' => false,
         ]);

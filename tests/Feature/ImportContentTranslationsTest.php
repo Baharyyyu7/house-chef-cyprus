@@ -107,6 +107,7 @@ final class ImportContentTranslationsTest extends TestCase
 
     public function test_importing_a_translation_never_enables_the_locale(): void
     {
+        config()->set('locales.supported.en.enabled', false);
         // Dil etkinleştirmesi ayrı ve insana ait bir karar.
         $this->tarif();
         $this->dosyaYaz('recipe-hellim-izgara.json', $this->tamCeviri());

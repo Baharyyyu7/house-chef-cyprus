@@ -9,6 +9,7 @@ use App\Models\Recipe;
 use App\Services\AllergenAnalysisService;
 use App\Services\DietaryCompatibilityService;
 use App\Services\NutritionService;
+use App\Services\Seo\LocaleUrlService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 
@@ -57,11 +58,19 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
         }
 
         $query = Recipe::query()
+            ->translatedInto()
             ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'verification_status', 'completeness_score', 'completeness_status', 'editorial_reviewed_at', 'is_featured', 'created_at'])
             ->with($relations)
             ->where('status', 'published')
             ->where('verification_status', 'verified')
             ->when($filters['q'] ?? null, function ($query) use ($searchPlan): void {
+                if (app()->getLocale() !== config('locales.default', 'tr')) {
+                    $query->whereHas('translations', fn ($translations) => $translations
+                        ->where('locale', app()->getLocale())->whereIn('field', ['title', 'excerpt'])
+                        ->where('value', 'like', '%'.$searchPlan['original_query'].'%'));
+
+                    return;
+                }
                 // Sorgu yapısal filtrelere çözülüyorsa ham metni başlıkta
                 // aramak sonucu öldürüyordu: "kıbrıs mutfağı" doğru biçimde
                 // cuisine=kıbrıs'a çözülüyor ama hiçbir tarifin başlığında o
@@ -113,7 +122,8 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
         }
 
         if (! $requiresInMemoryAnalysis) {
-            return $query->paginate($perPage, ['*'], 'page', $page)->withQueryString();
+            return $query->paginate($perPage, ['*'], 'page', $page)
+                ->withPath(app(LocaleUrlService::class)->urlFor(app()->getLocale(), request()->url()))->withQueryString();
         }
 
         $recipes = $query->get()->filter(function (Recipe $recipe) use ($filters): bool {
@@ -149,6 +159,6 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
             return true;
         })->values();
 
-        return new Paginator($recipes->forPage($page, $perPage)->values(), $recipes->count(), $perPage, $page, ['path' => request()->url(), 'query' => request()->query()]);
+        return new Paginator($recipes->forPage($page, $perPage)->values(), $recipes->count(), $perPage, $page, ['path' => app(LocaleUrlService::class)->urlFor(app()->getLocale(), request()->url()), 'query' => request()->query()]);
     }
 }

@@ -8,6 +8,13 @@ use Tests\TestCase;
 
 final class HostingerDeployScriptTest extends TestCase
 {
+    public function test_code_deployment_does_not_import_or_approve_media_by_default(): void
+    {
+        $script = $this->script();
+        $this->assertStringContainsString('IMPORT_APPROVED_MEDIA="${IMPORT_APPROVED_MEDIA:-0}"', $script);
+        $this->assertSame(2, substr_count($script, 'if [[ "$IMPORT_APPROVED_MEDIA" == 1 &&'));
+    }
+
     public function test_live_http_smoke_runs_only_after_the_new_release_leaves_maintenance_mode(): void
     {
         $script = $this->script();

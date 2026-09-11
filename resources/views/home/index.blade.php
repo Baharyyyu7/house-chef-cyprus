@@ -149,7 +149,7 @@
                         </span>
                     @endif
                     <span class="hc-hub-card__govde">
-                        <span class="hc-hub-card__baslik">{{ $cuisine->name }}</span>
+                        <span class="hc-hub-card__baslik">{{ __($cuisine->name) }}</span>
                         <span class="hc-caption">{{ __('home.recipes_count', ['count' => $cuisine->recipes_count]) }}</span>
                     </span>
                     <span class="hc-hub-card__ok" aria-hidden="true">›</span>

@@ -13,6 +13,7 @@ final class LocaleUrlPrefixTest extends TestCase
 
     public function test_a_disabled_locale_prefix_is_not_served(): void
     {
+        config()->set('locales.supported.en.enabled', false);
         // Kapalı dile sayfa açmak, Türkçe içeriği yabancı dil sayfası gibi
         // sunmak olurdu; zayıf dil sayfaları site geneli kalite sinyalini
         // aşağı çeker.

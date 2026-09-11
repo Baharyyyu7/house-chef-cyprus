@@ -120,10 +120,10 @@ trait HasTranslations
 
         foreach ($this->translatableFields() as $alan) {
             $query->whereHas('translations', function (Builder $inner) use ($locale, $alan): void {
-                $inner->where('locale', $locale)->where('field', $alan)->whereNotNull('value')->where('value', '!=', '');
+                $inner->where('locale', $locale)->where('field', $alan)->whereNotNull('value')->whereRaw('TRIM(value) <> ?', ['']);
             });
         }
 
-        return $query;
+        return $query->with(['translations' => fn ($translations) => $translations->where('locale', $locale)]);
     }
 }

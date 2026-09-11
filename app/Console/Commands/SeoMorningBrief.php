@@ -7,6 +7,7 @@ namespace App\Console\Commands;
 use App\Models\ContentOpportunity;
 use App\Models\SeoIssue;
 use App\Services\Integrity\IntegrityReportLog;
+use App\Services\Seo\SearchConsoleMeasurementService;
 use App\Services\Seo\SeoProviderHealthService;
 use Illuminate\Console\Command;
 
@@ -24,13 +25,7 @@ final class SeoMorningBrief extends Command
             'generated_at' => now()->toIso8601String(),
             'external_delivery' => 'disabled',
             // Catalogue health is not Google traffic or third-party backlink coverage.
-            'organic_metrics' => [
-                'status' => 'not_connected',
-                'google_clicks' => null,
-                'ranking_queries' => null,
-                'external_referring_domains' => null,
-                'note' => 'Search Console performans ve bağlantı verisi henüz içe alınmıyor. Bilinmeyen değer sıfır değildir.',
-            ],
+            'organic_metrics' => app(SearchConsoleMeasurementService::class)->snapshot(),
             'providers' => app(SeoProviderHealthService::class)->snapshot(),
             'priority_issues' => SeoIssue::query()->whereNull('resolved_at')
                 ->orderByRaw("CASE severity WHEN 'critical' THEN 0 WHEN 'error' THEN 1 WHEN 'warning' THEN 2 ELSE 3 END")

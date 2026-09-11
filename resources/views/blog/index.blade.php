@@ -25,10 +25,10 @@
                 <article class="hc-v3-card hc-v3-card--interactive group relative flex w-full min-w-0 flex-col overflow-hidden" data-reveal>
                     <div class="flex flex-1 flex-col p-6">
                         <p class="hc-kicker">{{ $post->category?->name ?? 'Mutfak notu' }}</p>
-                        <h2 class="mt-2 text-lg font-extrabold leading-snug line-clamp-2" style="color: var(--hc-text-primary)"><a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('blog.show', $post) }}">{{ $post->title }}</a></h2>
-                        <p class="mt-3 line-clamp-3 hc-body-sm" style="color: var(--hc-text-secondary)">{{ $post->excerpt }}</p>
+                        <h2 class="mt-2 text-lg font-extrabold leading-snug line-clamp-2" style="color: var(--hc-text-primary)"><a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('blog.show', $post) }}">{{ $post->translated('title') }}</a></h2>
+                        <p class="mt-3 line-clamp-3 hc-body-sm" style="color: var(--hc-text-secondary)">{{ $post->translated('excerpt') }}</p>
                         <div class="mt-auto flex items-center justify-between gap-3 pt-5">
-                            <p class="text-xs font-bold" style="color: var(--hc-text-muted)">{{ $post->published_at?->format('d.m.Y') }} · {{ max(1, (int) ceil(str_word_count(strip_tags($post->body)) / 180)) }} dk okuma</p>
+                            <p class="text-xs font-bold" style="color: var(--hc-text-muted)">{{ $post->published_at?->format('d.m.Y') }} · {{ max(1, (int) ceil(str_word_count(strip_tags($post->translated('body'))) / 180)) }} dk okuma</p>
                             <a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm font-bold text-orange-700 dark:text-orange-300" href="{{ route('blog.show', $post) }}">Oku <span aria-hidden="true">→</span></a>
                         </div>
                     </div>

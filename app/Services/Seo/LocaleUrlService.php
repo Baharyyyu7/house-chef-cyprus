@@ -43,6 +43,9 @@ final class LocaleUrlService
      */
     public function urlFor(string $locale, string $path): string
     {
+        $parts = parse_url($path);
+        $suffix = (isset($parts['query']) ? '?'.$parts['query'] : '').(isset($parts['fragment']) ? '#'.$parts['fragment'] : '');
+        $path = $parts['path'] ?? '/';
         $path = '/'.ltrim($path, '/');
 
         // Yol zaten bir dil öneki taşıyorsa önce onu çıkar, yoksa /en/en/... olur.
@@ -54,10 +57,10 @@ final class LocaleUrlService
         }
 
         if ($locale === $this->defaultLocale()) {
-            return rtrim(url($path), '/') ?: url('/');
+            return (rtrim(url($path), '/') ?: url('/')).$suffix;
         }
 
-        return rtrim(url('/'.$locale.rtrim($path, '/')), '/');
+        return rtrim(url('/'.$locale.rtrim($path, '/')), '/').$suffix;
     }
 
     /**

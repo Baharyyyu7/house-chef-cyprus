@@ -3,7 +3,7 @@
 <header class="hc-admin-crud-header hc-v3-reveal">
     <div>
         @if($back)
-            <a class="hc-admin-back" href="{{ $back['url'] }}">← {{ $back['label'] }}</a>
+            <a class="hc-admin-back" href="{{ $back['url'] }}"><x-ui.icon name="arrow-right" size="14" class="rotate-180" /> {{ $back['label'] }}</a>
         @endif
         <p class="hc-admin-eyebrow">{{ $eyebrow }}</p>
         <h1>{{ $title }}</h1>

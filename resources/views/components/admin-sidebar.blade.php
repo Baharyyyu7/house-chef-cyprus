@@ -1,3 +1,4 @@
+@props(['mobile' => false])
 @php
     /**
      * Menü altı başlık ve 28 madde ile hep açık duruyordu; ekranda kalan liste
@@ -23,7 +24,7 @@
             ['route' => 'admin.media-operations.index', 'label' => 'Medya Operasyonları', 'icon' => 'sliders'],
             ['route' => 'admin.editorial-operations.index', 'label' => 'Editoryal Operasyonlar', 'icon' => 'check'],
             ['route' => 'admin.content-factory.index', 'label' => 'İçerik Fabrikası', 'icon' => 'server'],
-            ['route' => 'admin.production-content.index', 'label' => 'Production İçerik Merkezi', 'icon' => 'archive'],
+            ['route' => 'admin.production-content.index', 'label' => 'Canlı İçerik Merkezi', 'icon' => 'archive'],
         ],
         'Veri ve SEO' => [
             ['route' => 'admin.ingredients.index', 'label' => 'Malzemeler', 'icon' => 'tag'],
@@ -32,6 +33,7 @@
             ['route' => 'admin.nutrition.index', 'label' => 'Beslenme', 'icon' => 'heart'],
             ['route' => 'admin.data-quality.index', 'label' => 'Veri Kalitesi', 'icon' => 'database'],
             ['route' => 'admin.seo.index', 'label' => 'SEO Operasyonları', 'icon' => 'search'],
+            ['route' => 'admin.seo.growth', 'label' => 'Organik Büyüme', 'icon' => 'gauge'],
             ['route' => 'admin.seo.issues', 'label' => 'SEO Sağlığı', 'icon' => 'warning'],
             ['route' => 'admin.product-experience.index', 'label' => 'Ürün Deneyimi', 'icon' => 'gauge'],
             ['route' => 'admin.personalization.index', 'label' => 'Kişiselleştirme', 'icon' => 'sliders'],
@@ -50,7 +52,7 @@
     ];
 @endphp
 
-<nav aria-label="Yönetim menüsü" class="admin-sidebar flex h-full flex-col">
+<nav aria-label="Yönetim menüsü" class="admin-sidebar flex h-full flex-col" x-data="{ eslesir(metin) { return metin.toLocaleLowerCase('tr-TR').includes(adminSidebarQuery.trim().toLocaleLowerCase('tr-TR')) } }">
     <div class="border-b border-white/10 px-4 py-5">
         <div class="flex items-center justify-between gap-2">
             <x-brand-logo variant="dark" context="admin" size="sm" x-show="!adminSidebarCollapsed" />
@@ -61,15 +63,16 @@
     </div>
 
     <div class="border-b border-white/10 px-3 py-3" x-show="!adminSidebarCollapsed">
-        <label class="sr-only" for="admin-sidebar-search">Yönetim menüsünde ara</label>
-        <div class="relative"><x-ui.icon name="search" size="16" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" /><input id="admin-sidebar-search" x-model="adminSidebarQuery" type="search" class="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-xs font-semibold text-white placeholder:text-stone-400 focus:border-orange-300 focus:ring-orange-200" placeholder="Menüde ara" /></div>
+        <label class="sr-only" for="admin-sidebar-search{{ $mobile ? '-mobile' : '' }}">Yönetim menüsünde ara</label>
+        <div class="relative"><x-ui.icon name="search" size="16" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" /><input id="admin-sidebar-search{{ $mobile ? '-mobile' : '' }}" x-model="adminSidebarQuery" type="search" class="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-xs font-semibold text-white placeholder:text-stone-400 focus:border-orange-300 focus:ring-orange-200" placeholder="Menüde ara" /></div>
     </div>
 
     <div class="flex-1 space-y-4 overflow-y-auto px-3 py-5">
         {{-- Genel Bakış her oturumun başladığı yer; bir grubun içine gömülmez. --}}
         @php($dashboardActive = request()->routeIs('admin.dashboard'))
         <a href="{{ route('admin.dashboard') }}" :title="adminSidebarCollapsed ? 'Genel Bakış' : null"
-           x-show="!adminSidebarQuery || 'genel bakış'.includes(adminSidebarQuery.toLocaleLowerCase('tr-TR'))" @class([
+           aria-label="Genel Bakış" @if($dashboardActive) aria-current="page" @endif
+           x-show="eslesir('Genel Bakış')" @class([
             'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition focus-visible:ring-orange-200',
             'bg-orange-400/18 text-white shadow-sm ring-1 ring-orange-300/20' => $dashboardActive,
             'text-stone-300 hover:bg-white/8 hover:text-white' => ! $dashboardActive,
@@ -87,7 +90,7 @@
             @php($groupActive = collect($items)->contains(fn ($item) => request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route'])))
             @php($groupSearch = mb_strtolower($group.' '.collect($items)->pluck('label')->join(' '), 'UTF-8'))
             @php($gunluk = $group === 'Her gün')
-            <section aria-label="{{ $group }}" x-show="!adminSidebarQuery || '{{ $groupSearch }}'.includes(adminSidebarQuery.toLocaleLowerCase('tr-TR'))">
+            <section aria-label="{{ $group }}" x-show="eslesir(@js($group.' '.collect($items)->pluck('label')->join(' ')))">
                 {{-- "Her gün" akordeon değil: her oturumda kullanılan yerler
                      bir tıklama arkasında durmamalı. Diğer üç grup kapalı
                      kalır, derin işler bir kat aşağıda. --}}
@@ -106,9 +109,9 @@
                      x-show="{{ $gunluk ? 'true' : "acik === '".$group."'" }} || adminSidebarCollapsed || adminSidebarQuery"
                      @unless($gunluk) x-collapse.duration.250ms @endunless>
                     @foreach ($items as $item)
-                        @php($active = request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route']))
+                        @php($active = $item['route'] === 'admin.seo.index' ? request()->routeIs('admin.seo.index') : request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route']))
                         @php($itemSearch = mb_strtolower($item['label'], 'UTF-8'))
-                        <a href="{{ route($item['route']) }}" :title="adminSidebarCollapsed ? '{{ $item['label'] }}' : null" x-show="!adminSidebarQuery || '{{ $itemSearch }}'.includes(adminSidebarQuery.toLocaleLowerCase('tr-TR'))" @class([
+                        <a href="{{ route($item['route']) }}" aria-label="{{ $item['label'] }}" @if($active) aria-current="page" @endif :title="adminSidebarCollapsed ? '{{ $item['label'] }}' : null" x-show="eslesir(@js($item['label'])) || (adminSidebarQuery.trim() && eslesir(@js($group)))" @class([
                             'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:ring-orange-200',
                             'bg-orange-400/18 text-white shadow-sm ring-1 ring-orange-300/20' => $active,
                             'text-stone-300 hover:translate-x-0.5 hover:bg-white/8 hover:text-white' => ! $active,
@@ -125,13 +128,14 @@
             </section>
         @endforeach
         </div>
+        <p x-cloak x-show="adminSidebarQuery.trim() && !eslesir(@js('Genel Bakış '.collect($groups)->flatten(1)->pluck('label')->join(' ').' '.implode(' ', array_keys($groups))))" role="status" class="px-3 py-4 text-xs text-stone-300">Eşleşen bölüm bulunamadı.</p>
     </div>
 
     <div class="border-t border-white/10 p-4">
         <div class="flex items-center gap-3">
             <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-orange-400 font-bold text-stone-950">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</span>
             <div x-show="!adminSidebarCollapsed" class="min-w-0 flex-1"><p class="truncate text-xs font-semibold text-white">{{ auth()->user()->name }}</p><p class="text-[11px] text-stone-400">Yönetici</p></div>
-            <form x-show="!adminSidebarCollapsed" method="post" action="{{ route('logout') }}">@csrf<button class="rounded-lg p-2 text-stone-300 hover:bg-white/10 hover:text-white" aria-label="Çıkış yap"><x-ui.icon name="close" size="16" /></button></form>
+            <form x-show="!adminSidebarCollapsed" method="post" action="{{ route('logout') }}">@csrf<button class="rounded-lg p-2 text-stone-300 hover:bg-white/10 hover:text-white" aria-label="Çıkış yap" title="Çıkış yap"><x-ui.icon name="log-out" size="16" /></button></form>
         </div>
         <a x-show="!adminSidebarCollapsed" class="mt-3 inline-flex text-xs font-bold text-orange-300 hover:text-orange-200" href="{{ route('home') }}">Siteye dön →</a>
     </div>

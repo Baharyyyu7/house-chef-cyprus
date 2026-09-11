@@ -1,7 +1,7 @@
 <?php
 
-use App\Services\Integrity\IntegrityReportLog;
 use App\Services\HealthService;
+use App\Services\Integrity\IntegrityReportLog;
 use App\Services\SchedulerHealthService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -103,11 +103,14 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('database_schema
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_audit', fn () => Artisan::call('seo:audit')))->name('seo_audit')->dailyAt('01:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_sitemap_audit', fn () => Artisan::call('seo:sitemap-audit')))->name('seo_sitemap_audit')->dailyAt('01:25')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_opportunities', fn () => Artisan::call('seo:content-opportunities')))->name('seo_content_opportunities')->dailyAt('01:43')->withoutOverlapping();
+Schedule::command('seo:growth-refresh', ['--limit' => 1000])->name('seo_growth_refresh')->dailyAt('01:49')->withoutOverlapping();
+Schedule::command('seo:backlinks-verify', ['--limit' => 3])->name('seo_backlinks_verify')->dailyAt('02:17')->withoutOverlapping();
+Schedule::command('seo:search-console-import')->name('seo_search_console_import')->dailyAt('06:47')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_refresh', fn () => Artisan::call('seo:content-refresh')))->name('seo_content_refresh')->dailyAt('02:11')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_internal_links', fn () => Artisan::call('seo:internal-links')))->name('seo_internal_links')->dailyAt('05:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_social_drafts', fn () => Artisan::call('seo:social-drafts')))->name('seo_social_drafts')->dailyAt('05:43')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_morning_brief', fn () => Artisan::call('seo:morning-brief')))->name('seo_morning_brief')->dailyAt('06:59')->withoutOverlapping();
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_autonomous_growth', fn () => Artisan::call('seo:autonomous-growth')))->name('seo_autonomous_growth')->everyTwoHours()->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_autonomous_growth', fn () => Artisan::call('seo:autonomous-growth')))->name('seo_autonomous_growth')->everyMinute()->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_autonomous_growth_morning', fn () => Artisan::call('seo:autonomous-growth', ['--force' => true])))->name('seo_autonomous_growth_morning')->dailyAt('06:00')->withoutOverlapping();
 // Draft-only content operations: limits are encoded in the command/config and auto-publish is permanently disabled.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_factory_recipe_drafts', fn () => Artisan::call('content:factory-seed', ['--type' => 'recipe', '--daily' => true])))->name('content_factory_recipe_drafts')->dailyAt('03:00')->withoutOverlapping();

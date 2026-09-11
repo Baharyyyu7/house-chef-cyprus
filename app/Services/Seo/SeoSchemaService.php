@@ -199,8 +199,8 @@ final class SeoSchemaService
     {
         $isEn = app()->getLocale() === 'en';
         $recipeNode = [
-            '@type' => 'Recipe', 'name' => $recipe->title,
-            'description' => $recipe->description ?: $recipe->excerpt,
+            '@type' => 'Recipe', 'name' => $recipe->translated('title'),
+            'description' => $recipe->translated('description') ?: $recipe->translated('excerpt'),
             'url' => route('recipes.show', $recipe),
             'mainEntityOfPage' => route('recipes.show', $recipe),
             'inLanguage' => app()->getLocale(),
@@ -263,7 +263,7 @@ final class SeoSchemaService
         } else {
             $crumbs[] = ['name' => $isEn ? 'Recipes' : 'Tarifler', 'url' => route('recipes.index')];
         }
-        $crumbs[] = ['name' => $recipe->title, 'url' => route('recipes.show', $recipe)];
+        $crumbs[] = ['name' => $recipe->translated('title'), 'url' => route('recipes.show', $recipe)];
 
         // Google Recipe zengin sonucu icin image zorunludur. Onayli bir ana
         // gorsel yokken eksik/gecersiz bir Recipe nesnesi ilan etmek yerine
@@ -287,14 +287,14 @@ final class SeoSchemaService
         ];
 
         $isEn = app()->getLocale() === 'en';
-        $article = ['@type' => 'BlogPosting', 'headline' => $post->title, 'description' => $post->excerpt, 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => $publisher, 'publisher' => $publisher, 'inLanguage' => app()->getLocale()];
+        $article = ['@type' => 'BlogPosting', 'headline' => $post->translated('title'), 'description' => $post->translated('excerpt'), 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => $publisher, 'publisher' => $publisher, 'inLanguage' => app()->getLocale()];
         if ($imageUrl !== '') {
             $article['image'] = [$imageUrl];
         }
         $graph = $this->graph($article, [
             ['name' => $isEn ? 'Home' : 'Ana Sayfa', 'url' => route('home')],
             ['name' => 'Blog', 'url' => route('blog.index')],
-            ['name' => $post->title, 'url' => route('blog.show', $post)],
+            ['name' => $post->translated('title'), 'url' => route('blog.show', $post)],
         ]);
         $faqBlocks = $post->getAttribute('faq_blocks');
         $questions = collect(is_array($faqBlocks) ? $faqBlocks : [])->filter(fn (mixed $faq): bool => is_array($faq) && filled($faq['question'] ?? null) && filled($faq['answer'] ?? null))->map(fn (array $faq): array => ['@type' => 'Question', 'name' => $faq['question'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq['answer']]])->values()->all();

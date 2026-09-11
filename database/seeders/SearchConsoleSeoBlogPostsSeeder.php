@@ -231,6 +231,132 @@ MARKDOWN,
                     ['question' => 'Peynirli kraker kaç derecede pişer?', 'answer' => 'Önceden ısıtılmış 180°C fırında 12-15 dakika pişirmek yeterlidir.'],
                 ],
             ],
+            [
+                'title' => 'Orijinal Lokanta Usulü Mercimek Çorbası Tarifi: İpeksi Kıvamın Sırrı',
+                'slug' => 'orijinal-lokanta-usulu-mercimek-corbasi-tarifi-ipeksi-kivamin-sirri',
+                'primary_keyword' => 'lokanta usulü mercimek çorbası',
+                'secondary_keywords' => ['süzme mercimek çorbası', 'ipeksi mercimek çorbası', 'mercimek çorbası püf noktaları', 'lokanta çorbası tarifi'],
+                'excerpt' => 'Lokantalardaki pürüzsüz ve ipeksi mercimek çorbası evde nasıl yapılır? Un kavurma tekniği, terbiye dengesi, süzme incelikleri ve yağ yakma püf noktaları.',
+                'body' => <<<'MARKDOWN'
+# 🥣 Orijinal Lokanta Usulü Mercimek Çorbası Tarifi
+
+Lokantalarda içtiğiniz mercimek çorbasının evde yapılanlardan en büyük farkı, pürüzsüz ipeksi dokusu ve un-tereyağı dengesidir. Çoğu ev tarifinde mercimek doğrudan sebzelerle haşlanıp blenderdan geçirilir; oysa lokanta usulü çorbanın sırrı doğru kavurma tekniği ve geleneksel süzme aşamasında saklıdır.
+
+---
+
+## 🍲 İpeksi Kıvamı Veren Dört Temel Adım
+
+1. **Unu Kokusu Çıkana Kadar Kavurmak:** Tereyağı ve zeytinyağı karışımında 1 yemek kaşığı unun hafif fındık kokusu verene kadar kavrulması, çorbaya kadife gibi bir bağlayıcılık katar.
+2. **Kırmızı Mercimeğin Nişastasından Arındırılması:** Mercimekler berrak su çıkana kadar en az 3-4 kez soğuk suyla yıkanmalıdır. Fazla nişasta çorbanın berraklığını bozar.
+3. **Doğal Et veya Tavuk Suyu:** Yalnızca su yerine yarı yarıya süzülmüş kemik veya tavuk suyu kullanmak lokanta lezzetinin temel taşıdır.
+4. **Tel Süzgeçten Geçirme:** Blender hava kabarcıkları oluşturup çorbanın rengini açabilir. Gerçek lokanta usulünde çorba kepçeyle tel süzgeçten geçirilerek pürüzsüzleştirilir.
+
+---
+
+## 🌶️ Servis ve Yağ Yakma Püf Noktaları
+
+Çorba kaselere alındıktan sonra üzerine kızdırılmış tereyağı, tatlı toz kırmızı biber ve kuru nane gezdirilir. Yanında mutlaka çeyrek limon ve taze sıcak pide dilimleri servis edilir.
+
+Mutfakta hemen denemek için [Klasik Kırmızı Mercimek Çorbası](/tarifler/klasik-kirmizi-mercimek-corbasi) ve [Ezogelin Çorbası](/tarifler/ezogelin-corbasi) tariflerimize göz atabilirsiniz.
+MARKDOWN,
+                'faq' => [
+                    ['question' => 'Lokanta usulü mercimek çorbasına un konur mu?', 'answer' => 'Evet, 1 yemek kaşığı un yağda hafif kavrularak eklenir. Un, çorbaya lokantalara özgü kadifemsi ipeksi kıvamı verir.'],
+                    ['question' => 'Mercimek çorbası neden blender yerine süzgeçten geçirilir?', 'answer' => 'Blender çorbanın içine hava basarak rengini matlaştırabilir ve köpürtebilir. Tel süzgeç ise mercimeğin saf liflerini ayırarak ipeksi bir doku bırakır.'],
+                    ['question' => 'Mercimek çorbasının rengi nasıl parlak sarı kalır?', 'answer' => 'Çok az zerdeçal veya rendelenip kavrulmuş havuç eklemek ve pişme sırasında kapağı aralık tutmak çorbanın canlı rengini korur.'],
+                ],
+            ],
+            [
+                'title' => 'Kıbrıs Şeftali Kebabı Nasıl Yapılır? Orijinal Ev Yapımı Tarif ve Püf Noktaları',
+                'slug' => 'kibris-seftali-kebabi-nasil-yapilir-orijinal-tarif-ve-puf-noktalari',
+                'primary_keyword' => 'kıbrıs şeftali kebabı',
+                'secondary_keywords' => ['şeftali kebabı nasıl yapılır', 'şeftali kebabı tarifi', 'kuzu gömleği sarma', 'kıbrıs ızgara lezzetleri', 'kıbrıs yemekleri'],
+                'excerpt' => 'Kıbrıs\'ın dünyaca meşhur Şeftali Kebabı evde nasıl yapılır? Kuzu tülbent gömlek yağı hazırlığı, kıyma yoğurma püf noktaları ve mangal / döküm tava pişirme süreleri.',
+                'body' => <<<'MARKDOWN'
+# 🍢 Kıbrıs Şeftali Kebabı Nasıl Yapılır? Orijinal Ada Reçetesi
+
+Kıbrıs sofralarının tartışmasız en ünlü ve karakteristik et lezzeti olan **Şeftali Kebabı**, adını bir dönem Lefkoşa'da bu kebabı ilk kez hazırlayıp ün kazandıran "Şef Ali" ustadan alır. Zamanla halk ağzında Şeftali Kebabı'na dönüşen bu nefis lezzetin sırrı, kuzu tülbent gömlek yağına (banna/terbiyeli zar) sarılarak ızgara edilmesidir.
+
+---
+
+## 🛒 Gerekli Malzemeler (4-6 Kişilik)
+
+*   **Kıyma:** 600g kuzu ve dana döş karışımı orta yağlı çift çekim kıyma
+*   **Gömlek Yağı:** 1 adet taze kuzu gömlek yağı (kasabınızdan temizlenmiş isteyin)
+*   **Soğan:** 2 orta boy kuru soğan (incecik rendelenmiş ve suyu iyice sıkılmış)
+*   **Maydanoz:** 1 demet taze maydanoz (yalnızca yaprakları, çok ince kıyılmış)
+*   **Baharatlar:** 1 tatlı kaşığı kaya tuzu, 1 tatlı kaşığı taze çekilmiş karabiber, yarım tatlı kaşığı kimyon, 1 çay kaşığı tarçın (isteğe bağlı Kıbrıs dokunuşu)
+*   **Servis İçin:** Taze sıcak Kıbrıs pidesi, sumaklı soğan salatası, ızgara domates ve yeşil biber
+
+---
+
+## 👨‍🍳 Adım Adım Hazırlanış ve Pişirme
+
+1.  **Gömlek Yağının Yumuşatılması:** Kuzu gömlek yağını geniş bir kaba alın. Üzerine ılık su ve 2 yemek kaşığı sirke ekleyip 20 dakika bekletin. Zar şeffaflaşıp esneyince süzüp temiz bir bez üzerinde kurulayın.
+2.  **Köfte Harcının Yoğrulması:** Kıyma, rendelenmiş ve suyu sıkılmış soğan, kıyılmış maydanoz ve baharatları derin bir yoğurma kabında en az 10-12 dakika özleşene kadar yoğurun. Harcı buzdolabında 30 dakika dinlendirin.
+3.  **Şekillendirme ve Sarma:** Dinlenen köfte harcından cevizden biraz büyük oval köfteler yuvarlayın. Gömlek yağını düz bir zemine serin, köfte boyutunda kareler kesin ve her köfteyi bir tur sararak kenarlarını kapatın.
+4.  **Izgara Aşaması:** Kor haline gelmiş kömür ızgarasında veya iyice ısıtılmış döküm ızgara tavada orta ateşte çevirerek pişirin. Gömlek yağı eriyip şeffaflaşacak, köftenin kendi suyunu hapsederek nar gibi çıtır bir kabuk oluşturacaktır.
+
+---
+
+## 💡 Usta Tavsiyeleri
+
+*   Köfte harcına asla ekmek içi veya galeta unu eklemeyin; orijinal ada tarifinde yalnızca saf et, soğan ve bol maydanoz yer alır.
+*   Soğanın acı suyunu sıkmak köftenin ekşimesini önler ve saf lezzet sağlar.
+
+Kıbrıs mutfağının diğer eşsiz tatları için [Geleneksel Kıbrıs Tarifleri Arşivimize](/kategoriler/kibris-mutfagi) ve [Kıbrıs Mezeleri](/blog/kibris-mezeleriyle-pratik-N3C1V) rehberimize göz atabilirsiniz.
+MARKDOWN,
+                'faq' => [
+                    ['question' => 'Şeftali kebabı adını nereden almıştır?', 'answer' => 'Lefkoşa\'da bu kebabı ilk kez hazırlayan "Şef Ali" ustadan almıştır. Zamanla halk arasında ses benzeşmesiyle Şeftali Kebabı olarak yerleşmiştir.'],
+                    ['question' => 'Şeftali kebabı fırında yapılabilir mi?', 'answer' => 'Evet, yağlı kağıt serili tepside 200°C önceden ısıtılmış fırında yaklaşık 25-30 dakika nar gibi kızarana kadar pişirilebilir.'],
+                    ['question' => 'Kuzu gömlek yağı nereden bulunur?', 'answer' => 'Kasaplardan taze kuzu gömleği veya zar yağı olarak temin edilebilir. Kullanılmadan önce mutlaka sirkeli ılık suda bekletilmelidir.'],
+                ],
+            ],
+            [
+                'title' => 'Kıbrıs Hellim Peyniri Nasıl Kızartılır ve Saklanır? Köy Usulü Rehber',
+                'slug' => 'kibris-hellim-peyniri-nasil-kizartilir-ve-saklanir-koy-usulu-rehber',
+                'primary_keyword' => 'hellim nasıl kızartılır',
+                'secondary_keywords' => ['hellim peyniri saklama', 'hellim kızartma püf noktaları', 'hellim dağılmadan kızartma', 'kıbrıs hellimi', 'karpuz hellim'],
+                'excerpt' => 'Hellim peyniri tavada dağılmadan, lastikleşmeden nasıl kızartılır? Salamura hellim saklama yöntemleri, dondurucu kuralları ve ada usulü karpuz-hellim eşleşmesi.',
+                'body' => <<<'MARKDOWN'
+# 🧀 Kıbrıs Hellim Peyniri Nasıl Kızartılır ve Saklanır?
+
+Kıbrıs adasının tescilli kültürel mirası ve dünya çapında gastronomi simgesi olan **Hellim (Halloumi)**, yüksek erime noktası sayesinde ızgara ve tavada şeklini koruyabilen nadir peynirlerdendir. Geleneksel olarak keçi ve koyun sütünden taze nane yaprakları ile üretilen gerçek ada hellimini doğru pişirmek ve saklamak mutfakta büyük fark yaratır.
+
+---
+
+## 🍳 Dağılmadan ve Lastikleşmeden Hellim Kızartmanın Sırrı
+
+Çoğu zaman tavada yapılan hata, hellimi yağ dolu bir tavada düşük ısıda pişirmektir. Bu durum peynirin suyunu salıp süngerleşmesine ve lezzetini kaybetmesine yol açar.
+
+### İdeal Pişirme Adımları:
+
+1.  **Doğru Dilimleme:** Hellimi yaklaşık **8-10 mm (yaklaşık 1 cm)** kalınlığında dilimleyin. Çok ince dilimler kurur, çok kalın dilimlerin ise içi ısınmaz.
+2.  **Yüzeyin Kurulanması:** Salamurasından çıkan hellim dilimlerini kağıt havlu yardımıyla iyice kurulayın. Yüzeydeki ıslaklık çıtırlaşmayı engeller.
+3.  **Kuru ve Sıcak Tava:** Döküm veya yapışmaz tabanlı tavayı orta-yüksek ateşte önceden iyice ısıtın. **Tavaya hiç sıvı yağ eklemeyin.** Hellim kendi doğal süt yağı ile mükemmel şekilde kızarır.
+4.  **Hızlı Pişirme Süresi:** Dilimleri sıcak tavaya yerleştirin. Her bir yüzeyi altın sarısı kabuk bağlayana kadar **1.5 - 2 dakika** pişirip hemen ocaktan alın.
+
+---
+
+## 🧊 Hellim Peyniri Nasıl Saklanır?
+
+*   **Salamura İçinde Saklama:** Geleneksel hellim, tuzlu peynir altı suyu salamurasında cam kavanozda buzdolabında **1 yıla kadar** tazeliğini ve diriliğini korur.
+*   **Vakumlu Pakette:** Açılmamış vakumlu ambalajında buzdolabında son kullanma tarihine kadar saklanabilir.
+*   **Dondurucuda (Buzlukta) Saklama:** Hellimi dilimleyip aralarına fırın kağıdı koyarak buzdolabı poşetinde dondurabilirsiniz. Çözdürmeden doğrudan sıcak tavaya atıp kızartabilirsiniz.
+
+---
+
+## 🍉 Ada Geleneği: Karpuz ve Sıcak Hellim İkilisi
+
+Kıbrıs yaz sofralarında öğle veya akşam saatlerinde buz gibi sulu Akdeniz karpuzu ile sıcak tavada kızarmış taze naneli hellim eşleştirmesi, tuzlu ve tatlının mükemmel dengesini sunar.
+
+Hellimli diğer özel tariflerimizi keşfetmek için [Hellimli Kıbrıs Böreği](/tarifler) ve [Kıbrıs Kahvaltılıkları](/kategoriler/kahvalti) sayfalarımızı ziyaret edebilirsiniz.
+MARKDOWN,
+                'faq' => [
+                    ['question' => 'Hellim kızartırken tavaya yağ konur mu?', 'answer' => 'Hayır. Gerçek hellim yeterli doğal süt yağına sahiptir; yapışmaz tavada yağsız kızartıldığında çok daha çıtır ve lezzetli olur.'],
+                    ['question' => 'Hellim neden lastikleşir?', 'answer' => 'Tava yeterince sıcak değilken pişirilirse veya tavada gereğinden uzun süre tutulursa peynir suyunu kaybedip lastikleşir.'],
+                    ['question' => 'Tuzlu hellimin tuzu nasıl azaltılır?', 'answer' => 'Kızartmadan önce dilimlenmiş hellimi ılık suda 10-15 dakika bekletip kurulayarak fazla tuzunu alabilirsiniz.'],
+                ],
+            ],
         ];
 
         $addedCount = 0;

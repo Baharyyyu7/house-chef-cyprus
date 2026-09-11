@@ -22,6 +22,7 @@ ASSET_ARTIFACT="${ASSET_ARTIFACT:?ASSET_ARTIFACT must point to a prebuilt releas
 ASSET_CHECKSUM_FILE="${ASSET_CHECKSUM_FILE:-$ASSET_ARTIFACT.sha256}"
 BRANCH="${BRANCH:-visual-redesign-v2}"
 PHP_BIN="${PHP_BIN:-/usr/bin/php}"
+IMPORT_APPROVED_MEDIA="${IMPORT_APPROVED_MEDIA:-0}"
 RELEASES_DIR="$APP_HOME/releases"
 SHARED_DIR="$APP_HOME/shared"
 CURRENT_LINK="$APP_HOME/current"
@@ -314,11 +315,11 @@ fi
 
 log 'Running forward-only production migration, caches and candidate-only checks.'
 artisan migrate --force --no-interaction
-if [[ -d "$RELEASE_DIR/resources/editorial/blog-synthetic" ]]; then
+if [[ "$IMPORT_APPROVED_MEDIA" == 1 && -d "$RELEASE_DIR/resources/editorial/blog-synthetic" ]]; then
     log 'Importing the versioned, production-approved synthetic blog illustrations.'
     artisan content:import-approved-synthetic-blog-media --source-directory="$RELEASE_DIR/resources/editorial/blog-synthetic" --json
 fi
-if [[ -f "$RELEASE_DIR/storage/app/media-import/approved-media-manifest.json" ]]; then
+if [[ "$IMPORT_APPROVED_MEDIA" == 1 && -f "$RELEASE_DIR/storage/app/media-import/approved-media-manifest.json" ]]; then
     log 'Importing the manifest-approved private recipe or blog media.'
     artisan media:import-approved --replace-fallbacks --json
 fi
