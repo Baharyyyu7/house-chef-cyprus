@@ -32,6 +32,16 @@ final class SeoSchemaService
                 'description' => 'Traditional Cypriot sausage made of seasoned minced meat wrapped in caul fat.',
             ],
         ],
+        'kibris-usulu-seftali-kebabi' => [
+            'sameAs' => [
+                'https://en.wikipedia.org/wiki/Sheftalia',
+                'https://www.wikidata.org/wiki/Q1225501',
+            ],
+            'about' => [
+                'name' => 'Sheftalia',
+                'description' => 'Traditional Cypriot sausage made of seasoned minced meat wrapped in caul fat.',
+            ],
+        ],
         'kibris-usulu-kleftiko' => [
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Kleftiko',
@@ -218,8 +228,13 @@ final class SeoSchemaService
             'datePublished' => $recipe->published_at?->toAtomString(),
         ];
 
-        if (isset(self::HERITAGE_ENTITIES[$recipe->slug])) {
-            $entity = self::HERITAGE_ENTITIES[$recipe->slug];
+        $baseSlug = preg_replace('/-[A-Za-z0-9]{5}$/', '', $recipe->slug);
+        $entity = self::HERITAGE_ENTITIES[$recipe->slug]
+            ?? self::HERITAGE_ENTITIES[$baseSlug]
+            ?? (str_ends_with($baseSlug, 'i') ? (self::HERITAGE_ENTITIES[substr($baseSlug, 0, -1)] ?? null) : null)
+            ?? (self::HERITAGE_ENTITIES[$baseSlug.'i'] ?? null);
+
+        if ($entity !== null) {
             $recipeNode['sameAs'] = $entity['sameAs'];
             if (isset($entity['about'])) {
                 $recipeNode['about'] = [
