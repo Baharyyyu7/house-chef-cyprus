@@ -69,11 +69,71 @@ final class SeoOperationsController extends Controller
     {
         $this->admin();
 
-        $request->validate(['status' => ['nullable', Rule::in(['open', 'reviewing', 'completed', 'dismissed', 'all'])]]);
+        $tab = $request->query('tab', 'backlinks');
+        $status = $request->query('status');
+        $search = $request->query('q');
 
-        return view('admin.seo.opportunities', ['opportunities' => ContentOpportunity::query()
-            ->when($request->input('status') !== 'all', fn ($query) => $query->where('status', $request->input('status') ?: 'open'))
-            ->orderByDesc('priority')->orderBy('id')->paginate(30)->withQueryString()]);
+        $query = ContentOpportunity::query();
+
+        if ($tab === 'backlinks') {
+            $query->where('kind', 'backlink_prospect');
+        } elseif ($tab === 'gaps') {
+            $query->where('kind', '!=', 'backlink_prospect');
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search): void {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('normalized_key', 'like', "%{$search}%");
+            });
+        }
+
+        $opportunities = $query->orderByDesc('priority')->orderBy('id')->paginate(30)->withQueryString();
+
+        $stats = [
+            'total_backlinks' => ContentOpportunity::query()->where('kind', 'backlink_prospect')->count(),
+            'contacted_backlinks' => ContentOpportunity::query()->where('kind', 'backlink_prospect')->where('status', 'contacted')->count(),
+            'won_backlinks' => ContentOpportunity::query()->where('kind', 'backlink_prospect')->where('status', 'won')->count(),
+            'open_backlinks' => ContentOpportunity::query()->where('kind', 'backlink_prospect')->where('status', 'open')->count(),
+            'total_gaps' => ContentOpportunity::query()->where('kind', '!=', 'backlink_prospect')->count(),
+        ];
+
+        $dailyTargets = app(\App\Services\Seo\AutonomousGrowthEngine::class)->getDailyTargetsSnapshot();
+
+        return view('admin.seo.opportunities', compact('opportunities', 'stats', 'tab', 'dailyTargets'));
+    }
+
+    public function updateOpportunityStatus(Request $request, ContentOpportunity $opportunity): RedirectResponse
+    {
+        $this->admin();
+
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:open,contacted,won,declined,resolved,reviewing,completed,dismissed'],
+        ]);
+
+        $opportunity->update([
+            'status' => $validated['status'],
+            'reviewed_at' => now(),
+        ]);
+
+        $statusLabels = [
+            'open' => 'Açık',
+            'contacted' => 'İletişime Geçildi',
+            'won' => 'Kazanıldı (Backlink Aktif)',
+            'declined' => 'Reddedildi',
+            'resolved' => 'Tamamlandı',
+            'reviewing' => 'İnceleniyor',
+            'completed' => 'Tamamlandı',
+            'dismissed' => 'Reddedildi',
+        ];
+
+        $label = $statusLabels[$validated['status']] ?? $validated['status'];
+
+        return back()->with('status', "Fırsat durumu güncellendi: {$label}");
     }
 
     public function growth(Request $request, OrganicGrowthService $service): View
