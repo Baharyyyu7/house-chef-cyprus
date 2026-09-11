@@ -27,6 +27,10 @@
         <meta name="robots" content="{{ $robots ?: 'noindex,nofollow' }}">
     @endif
     @unless ($isPrivateSurface || str_contains((string) $robots, 'noindex'))
+        <meta name="geo.region" content="CY">
+        <meta name="geo.placename" content="Cyprus">
+        <meta name="geo.position" content="35.1856;33.3823">
+        <meta name="ICBM" content="35.1856, 33.3823">
         <meta property="og:type" content="{{ request()->routeIs('blog.show') ? 'article' : 'website' }}">
         <meta property="og:locale" content="{{ $activeLanguage['og_locale'] ?? 'tr_TR' }}">
         @include('partials.hreflang')
@@ -50,7 +54,7 @@
     @endunless
     @if($structuredData)<script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>@endif
     @if(!request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
-        <script type="application/ld+json">{"\u0040context":"https://schema.org","\u0040graph":[{"\u0040type":"Organization","name":"House Chef Cyprus","url":"{{ url('/') }}","logo":"{{ url(config('brand.assets.mark_light')) }}"},{"\u0040type":"WebSite","name":"House Chef Cyprus","url":"{{ url('/') }}","inLanguage":"{{ $activeLanguage['html_locale'] ?? 'tr' }}","publisher":{"\u0040type":"Organization","name":"House Chef Cyprus","logo":"{{ url(config('brand.assets.mark_light')) }}"},"potentialAction":{"\u0040type":"SearchAction","target":"{{ route('recipes.index') }}?q={search_term_string}","query-input":"required name=search_term_string"}}]}</script>
+        <script type="application/ld+json">{"\u0040context":"https://schema.org","\u0040graph":[{"\u0040type":"Organization","name":"House Chef Cyprus","url":"{{ url('/') }}","logo":"{{ url(config('brand.assets.mark_light')) }}","areaServed":["Cyprus","Northern Cyprus","TR","EU","Global"],"knowsAbout":["Cypriot Cuisine","Mediterranean Diet","Hellim / Halloumi Cheese","Traditional Turkish Recipes","Metric Kitchen Measurement Conversions","Pantry Recipe Recommendations"],"address":{"\u0040type":"PostalAddress","addressCountry":"CY","addressLocality":"Lefkoşa"},"geo":{"\u0040type":"GeoCoordinates","latitude":"35.1856","longitude":"33.3823"}},{"\u0040type":"WebSite","name":"House Chef Cyprus","url":"{{ url('/') }}","inLanguage":"{{ $activeLanguage['html_locale'] ?? 'tr' }}","publisher":{"\u0040type":"Organization","name":"House Chef Cyprus","logo":"{{ url(config('brand.assets.mark_light')) }}"},"potentialAction":{"\u0040type":"SearchAction","target":"{{ route('recipes.index') }}?q={search_term_string}","query-input":"required name=search_term_string"}}]}</script>
     @endif
     {{-- favicon.svg 77 KB'lık bir kabuktu: içinde gömülü PNG vardı ve
          tarayıcı onu 16 pikselde göstermek için indiriyordu. --}}

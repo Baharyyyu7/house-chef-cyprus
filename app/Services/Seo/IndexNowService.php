@@ -93,19 +93,33 @@ final class IndexNowService
             ->where('status', 'published')
             ->where('verification_status', 'verified')
             ->latest('updated_at')
-            ->limit(50)
+            ->limit(150)
             ->get();
 
         $blogs = BlogPost::query()
             ->publiclyVisible()
             ->latest('updated_at')
-            ->limit(20)
+            ->limit(50)
             ->get();
 
         $urls = [
             route('home'),
             route('recipes.index'),
+            route('ingredients.explore'),
             route('blog.index'),
+            route('cuisines.index'),
+            route('categories.index'),
+            route('cuisines.show', 'kibris-mutfagi'),
+            route('cuisines.show', 'turk-mutfagi'),
+            route('cuisines.show', 'akdeniz-mutfagi'),
+            route('categories.show', 'corba'),
+            route('categories.show', 'ana-yemek'),
+            route('categories.show', 'zeytinyagli-sebze'),
+            route('categories.show', 'salata-meze'),
+            route('categories.show', 'hamur-isi'),
+            route('categories.show', 'tatli'),
+            url('/sure/20-dakika'),
+            url('/zorluk/kolay'),
             route('llms.txt'),
             route('llms.full'),
             route('llms.txt.en'),
@@ -117,6 +131,11 @@ final class IndexNowService
             url('/manifest.webmanifest'),
             route('manifest.en'),
             url('/sitemap.xml'),
+            url('/sitemap-recipes.xml'),
+            url('/sitemap-blog.xml'),
+            url('/sitemap-cuisines.xml'),
+            url('/sitemap-categories.xml'),
+            url('/sitemap-ingredients.xml'),
         ];
 
         foreach ($recipes as $recipe) {
@@ -127,6 +146,6 @@ final class IndexNowService
             $urls[] = route('blog.show', $blog);
         }
 
-        return $urls;
+        return array_values(array_unique($urls));
     }
 }

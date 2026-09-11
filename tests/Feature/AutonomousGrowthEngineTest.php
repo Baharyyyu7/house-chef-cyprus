@@ -23,7 +23,7 @@ final class AutonomousGrowthEngineTest extends TestCase
         $this->assertArrayHasKey('indexnow', $report);
         $this->assertArrayHasKey('backlinks', $report);
         $this->assertArrayHasKey('content_gaps', $report);
-        $this->assertGreaterThanOrEqual(20, $report['backlinks']['total_prospects']);
+        $this->assertGreaterThanOrEqual(100, $report['backlinks']['total_prospects']);
 
         $backlinkProspect = ContentOpportunity::query()
             ->where('kind', 'backlink_prospect')

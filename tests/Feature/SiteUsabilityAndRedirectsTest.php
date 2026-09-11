@@ -62,4 +62,17 @@ final class SiteUsabilityAndRedirectsTest extends TestCase
 
         $this->assertGreaterThanOrEqual(2, substr_count((string) $response->getContent(), route('ingredients.explore')));
     }
+
+    public function test_homepage_carries_geo_meta_tags_and_enhanced_organization_schema(): void
+    {
+        $response = $this->get('/');
+        $response->assertOk();
+
+        $response->assertSee('<meta name="geo.region" content="CY">', false);
+        $response->assertSee('<meta name="geo.placename" content="Cyprus">', false);
+        $response->assertSee('<meta name="geo.position" content="35.1856;33.3823">', false);
+        $response->assertSee('<meta name="ICBM" content="35.1856, 33.3823">', false);
+        $response->assertSee('areaServed', false);
+        $response->assertSee('knowsAbout', false);
+    }
 }
