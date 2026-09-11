@@ -11,7 +11,8 @@
 // data-alpine-owner ile bildiriyor ve Alpine yalniz sahipsiz sayfalarda
 // buradan baslatiliyor.
 import Alpine from 'alpinejs';
-window.__HC_VERSION__ = '2026.09.11.2';
+window.Alpine = Alpine;
+window.__HC_VERSION__ = '2026.09.11.3';
 let chartLibrary;
 
 const chartInstances = new WeakMap();
@@ -184,8 +185,7 @@ window.addEventListener('hc-theme-changed', () => window.setTimeout(mountCharts,
 
 // Tarif adımlarını pişirirken işaretlemek için. Giriş gerektirmez; ilerleme
 // yalnız kullanıcının cihazında, tarif başına ayrı bir anahtarda saklanır.
-document.addEventListener('alpine:init', () => {
-    window.Alpine.data('hcRecipeSteps', (slug, total) => ({
+Alpine.data('hcRecipeSteps', (slug, total) => ({
         key: `hc-steps-${slug}`,
         total,
         done: [],
@@ -232,7 +232,7 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 
-    window.Alpine.data('hcRecipeIngredients', (slug) => ({
+    Alpine.data('hcRecipeIngredients', (slug) => ({
         key: `hc-ing-${slug}`,
         checked: [],
         init() {
@@ -273,7 +273,7 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 
-    window.Alpine.data('hcCookMode', () => ({
+    Alpine.data('hcCookMode', () => ({
         wakeLock: null,
         active: false,
         supported: 'wakeLock' in navigator,
@@ -330,7 +330,6 @@ document.addEventListener('alpine:init', () => {
             });
         },
     }));
-});
 
 // Malzeme seçimi: "Cmd/Ctrl ile çoklu seçim" yerine aranabilir çip listesi.
 // Türkçe karakterler normalize edilir; "sogan" da "Soğan" da eşleşir.
@@ -343,8 +342,7 @@ const hcNormalize = (value) => (value ?? '')
     .replace(/\s+/g, ' ')
     .trim();
 
-document.addEventListener('alpine:init', () => {
-    window.Alpine.data('hcIngredientPicker', (options, preselected) => ({
+Alpine.data('hcIngredientPicker', (options, preselected) => ({
         options,
         selected: Array.isArray(preselected) ? preselected.filter((id) => options.some((o) => o.id === id)) : [],
         query: '',
@@ -396,7 +394,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
     }));
-});
 
 /**
  * Blog karuseli.
@@ -408,8 +405,7 @@ document.addEventListener('alpine:init', () => {
  * Hareket kısıtlıysa hiçbir şey dönmez ve otomatik ilerleme çalışmaz;
  * kartlar okunabilir bir sırada durur.
  */
-document.addEventListener('alpine:init', () => {
-    window.Alpine.data('hcBlogKaruseli', (adet) => ({
+Alpine.data('hcBlogKaruseli', (adet) => ({
         etkin: 0,
         duraklat: false,
         zamanlayici: null,
@@ -487,7 +483,6 @@ document.addEventListener('alpine:init', () => {
             return `transform: translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${olcek}); opacity:${saydam}; z-index:${10 - uzaklik}`;
         },
     }));
-});
 
 /**
  * Kahraman döngü videosu.
@@ -531,54 +526,16 @@ document.addEventListener('alpine:init', () => {
             && ! ['slow-2g', '2g'].includes(baglanti.effectiveType);
     };
 
-    let kaynakTakildi = false;
-
-    const kaynaklariTak = () => {
-        if (kaynakTakildi) {
-            return;
-        }
-
-        kaynakTakildi = true;
-
-        // Kaynak sırası önemli: tarayıcı ilk oynatabildiğini alır ve WebM
-        // aynı kareyi MP4'ten küçük veriyor.
-        for (const [tur, alan] of [['video/webm', 'webm'], ['video/mp4', 'mp4']]) {
-            const adres = video.dataset[alan];
-
-            if (adres) {
-                const kaynak = document.createElement('source');
-                kaynak.type = tur;
-                kaynak.src = adres;
-                video.append(kaynak);
-            }
-        }
-
-        // Görünür olmak için gerçekten kare basmış olması gerekiyor. canplay
-        // yetmez; dosya düştüğünde boş siyah bir kare açılıyordu.
-        video.addEventListener('playing', () => video.setAttribute('data-hazir', ''), { once: true });
-
-        // Kalıcı olarak vazgeçilen tek durum: dosya oynatılamıyor. Katman
-        // görünmez kalır, altındaki görsel olduğu gibi durur.
-        video.addEventListener('error', () => { video.dataset.kapali = 'medya-hatasi'; }, { once: true });
-
-        video.load();
-    };
+    video.addEventListener('playing', () => video.setAttribute('data-hazir', ''), { once: true });
+    video.addEventListener('error', () => { video.dataset.kapali = 'medya-hatasi'; }, { once: true });
 
     /**
      * Oynatma denemesi.
-     *
-     * Chrome sekme arka plandayken sessiz videoyu güç tasarrufu için
-     * duraklatıyor ve play() AbortError ile reddediliyor. Bu geçici: reddi
-     * kalıcı saymak, arka planda açılan sekmede videonun hiç görünmemesine
-     * yol açıyordu. Reddedilirse hiçbir şey yapılmaz, sekme öne geldiğinde
-     * yeniden denenir.
      */
     const oynat = () => {
         if (video.dataset.kapali || document.visibilityState !== 'visible' || ! kapilarAcik()) {
             return;
         }
-
-        kaynaklariTak();
 
         const sozu = video.play();
 
@@ -588,9 +545,7 @@ document.addEventListener('alpine:init', () => {
     };
 
     const durdur = () => {
-        if (kaynakTakildi) {
-            video.pause();
-        }
+        video.pause();
     };
 
     const basla = () => {
@@ -602,8 +557,7 @@ document.addEventListener('alpine:init', () => {
         genisEkran.addEventListener('change', () => (genisEkran.matches ? oynat() : durdur()));
         hareketKisitli.addEventListener('change', () => (hareketKisitli.matches ? durdur() : oynat()));
 
-        // Hero ekrandan çıkınca oynatmanın sürmesi için sebep yok: görünmeyen
-        // bir videoyu döndürmek pil ve işlemci harcar.
+        // Hero ekrandan çıkınca oynatmanın sürmesi için sebep yok.
         if ('IntersectionObserver' in window) {
             new IntersectionObserver((kayitlar) => {
                 for (const kayit of kayitlar) {
@@ -617,7 +571,6 @@ document.addEventListener('alpine:init', () => {
         oynat();
     };
 
-    // Sayfanın kendi yüklenmesi bitmeden başlamaz.
     if (document.readyState === 'complete') {
         basla();
     } else {
@@ -625,8 +578,24 @@ document.addEventListener('alpine:init', () => {
     }
 })();
 
-// Register every alpine:init listener before start dispatches that event.
-if (document.body?.dataset.alpineOwner === 'app' && !window.Alpine) {
-    window.Alpine = Alpine;
-    Alpine.start();
+// Güvenli Alpine başlatıcı:
+// DOM yüklenirken çalışırsa DOMContentLoaded'ı bekler; böylece document.body
+// ve data-alpine-owner garantili olarak okunur, Alpine hiçbir sayfada ıskalanmaz.
+const startAlpine = () => {
+    if (window._alpineStarted) {
+        return;
+    }
+
+    const owner = document.body?.dataset.alpineOwner;
+
+    if (owner === 'app') {
+        window._alpineStarted = true;
+        Alpine.start();
+    }
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startAlpine, { once: true });
+} else {
+    startAlpine();
 }

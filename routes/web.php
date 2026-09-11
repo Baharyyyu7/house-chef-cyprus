@@ -466,7 +466,27 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
 
 require __DIR__.'/auth.php';
 
-// Yönetim ve giriş URL kolaylığı ve uyumluluk yönlendirmeleri
+// Yönetim, üyelik ve kullanıcı dostu URL uyumluluk yönlendirmeleri
 Route::redirect('/admin', '/yonetim', 301);
 Route::redirect('/admin/{path}', '/yonetim/{path}', 301)->where('path', '.*');
 Route::redirect('/giris', '/login', 301);
+Route::redirect('/oturum-ac', '/login', 301);
+Route::redirect('/kayit', '/register', 301);
+Route::redirect('/uye-ol', '/register', 301);
+Route::redirect('/panel', '/dashboard', 301);
+Route::redirect('/profil', '/profile', 301);
+Route::redirect('/hesabim', '/profile', 301);
+Route::redirect('/yasal', '/yasal-bilgilendirme', 301);
+Route::redirect('/contact', '/iletisim', 301);
+Route::redirect('/recipes', '/tarifler', 301);
+Route::redirect('/about', '/hakkimizda', 301);
+Route::redirect('/privacy', '/gizlilik', 301);
+Route::redirect('/terms', '/kullanim-kosullari', 301);
+Route::redirect('/cookies', '/cerezler', 301);
+Route::redirect('/faq', '/sss', 301);
+Route::redirect('/pantry', '/dolabim', 301);
+Route::redirect('/dolap', '/dolabim', 301);
+Route::redirect('/favorites', '/favoriler', 301);
+Route::redirect('/koleksiyonlarim', '/koleksiyonlar', 301);
+Route::redirect('/pricing', '/fiyatlandirma', 301);
+Route::redirect('/shop', '/magaza', 301);

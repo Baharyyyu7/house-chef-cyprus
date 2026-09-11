@@ -1,71 +1,72 @@
 {{-- Hero sayfanın kendisidir, sayfanın üstünde duran bir kart değil.
          Tam genişlikte açılır ve alt kenarı sayfa zeminine karışır; böylece
          yüzen başlık çubuğu gerçekten içeriğin üstünden geçer. --}}
-    <section class="hc-home-hero hc-home-hero--master relative isolate -mt-[var(--hc-header-h)] flex flex-col justify-end min-h-[82svh] items-stretch overflow-hidden pb-16 pt-[calc(var(--hc-header-h)+3rem)] sm:pb-20">
-        <picture>
-            <source type="image/avif" sizes="100vw" srcset="{{ asset('images/house-chef-hero-v2-900.avif').'?v=2' }} 900w, {{ asset('images/house-chef-hero-v2-1440.avif').'?v=2' }} 1440w, {{ asset('images/house-chef-hero-v2-1717.avif').'?v=2' }} 1717w">
-            <source type="image/webp" sizes="100vw" srcset="{{ asset('images/house-chef-hero-v2-900.webp') }} 900w, {{ asset('images/house-chef-hero-v2-1440.webp') }} 1440w, {{ asset('images/house-chef-hero-v2-1717.webp') }} 1717w">
-            <img class="v2-hero-image absolute inset-0 -z-30 h-full w-full object-cover object-[64%_center]" src="{{ asset('images/house-chef-hero-v2.png') }}" width="1717" height="916" alt="Halloumi, domates ve zeytinli Kıbrıs esintili Akdeniz tabağı" fetchpriority="high" decoding="async">
-        </picture>
-        {{-- Yüksek kaliteli ana video: Kullanıcı talebi doğrultusunda kristal netliğinde Akdeniz mutfak videosu doğrudan açılışta kesintisiz başlar. --}}
-        <x-hero-video />
+    <section class="hc-home-hero hc-home-hero--master relative isolate -mt-[var(--hc-header-h)] flex flex-col justify-center min-h-[75svh] items-stretch pb-16 pt-[calc(var(--hc-header-h)+3rem)] sm:pb-20">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none -z-30">
+            <picture>
+                <source type="image/avif" sizes="100vw" srcset="{{ asset('images/house-chef-hero-v2-900.avif').'?v=2' }} 900w, {{ asset('images/house-chef-hero-v2-1440.avif').'?v=2' }} 1440w, {{ asset('images/house-chef-hero-v2-1717.avif').'?v=2' }} 1717w">
+                <source type="image/webp" sizes="100vw" srcset="{{ asset('images/house-chef-hero-v2-900.webp') }} 900w, {{ asset('images/house-chef-hero-v2-1440.webp') }} 1440w, {{ asset('images/house-chef-hero-v2-1717.webp') }} 1717w">
+                <img class="v2-hero-image absolute inset-0 -z-30 h-full w-full object-cover object-[64%_center]" src="{{ asset('images/house-chef-hero-v2.png') }}" width="1717" height="916" alt="Halloumi, domates ve zeytinli Kıbrıs esintili Akdeniz tabağı" fetchpriority="high" decoding="async">
+            </picture>
+            {{-- Yüksek kaliteli ana video: Kullanıcı talebi doğrultusunda kristal netliğinde Akdeniz mutfak videosu doğrudan açılışta kesintisiz başlar. --}}
+            <x-hero-video />
+        </div>
         {{-- İki katman: yatay olan metne okunur bir zemin verir, dikey olan
-             hem çubuğu hem de alt kenarı sayfa zeminine bağlar.
-             Perde metnin bittiği yerde açılıyor: önceki eğri sağ tarafı da
-             karartıyordu ve tabak neredeyse görünmüyordu. Metnin durduğu
-             %54'e kadar koyu kalıyor (beyaz yazı orada ~7:1 kontrast
-             görüyor), sonra hızla siliniyor. --}}
-        <div class="absolute inset-0 -z-10 bg-[linear-gradient(96deg,rgba(9,9,9,.94)_0%,rgba(9,9,9,.88)_34%,rgba(9,9,9,.58)_54%,rgba(9,9,9,.14)_72%,rgba(9,9,9,0)_100%)]"></div>
-        {{-- Dar ekranda metin tüm genişliğe yayıldığı için yatay perde yetmez;
-             ağırlık alt yarıya verilir. --}}
-        <div class="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(9,9,9,.50)_0%,rgba(9,9,9,.04)_22%,rgba(9,9,9,.10)_52%,rgba(9,9,9,.62)_100%)]"></div>
-        {{-- Kahraman görselin altı sayfa zeminine kesilerek değil, eriyerek
-             bağlanır: koyu kareden beyaz kağıda tek pikselde geçmek, iki ayrı
-             sayfa yapıştırılmış gibi duruyordu. --}}
-        <div class="hc-home-hero__eritme" aria-hidden="true"></div>
+             hem çubuğu hem de alt kenarı sayfa zeminine bağlar. --}}
+        <div class="absolute inset-0 -z-10 bg-[linear-gradient(96deg,rgba(9,9,9,.94)_0%,rgba(9,9,9,.88)_34%,rgba(9,9,9,.58)_54%,rgba(9,9,9,.14)_72%,rgba(9,9,9,0)_100%)] pointer-events-none"></div>
+        <div class="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(9,9,9,.50)_0%,rgba(9,9,9,.04)_22%,rgba(9,9,9,.10)_52%,rgba(9,9,9,.62)_100%)] pointer-events-none"></div>
+        <div class="hc-home-hero__eritme pointer-events-none" aria-hidden="true"></div>
         <div class="hc-container">
             <div class="max-w-4xl">
                 <p class="hc-kicker text-orange-300">{{ __('home.kicker') }}</p>
                 <h1 class="hc-display-xl mt-5 max-w-3xl text-white">{{ __('home.hero_title') }}</h1>
                 <p class="hc-hero-muted hc-body-lg mt-6 max-w-2xl">{{ __('home.hero_subtitle') }}</p>
-                {{-- Tek bir birincil eylem. İkincil eylem onunla yarışmaz. --}}
                 <div class="mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-                    <a class="hc-btn hc-btn-primary px-7" href="#hero-ingredient">{{ __('home.hero_cta') }} <span class="ml-1" aria-hidden="true">→</span></a>
-                    <a class="hc-hero-secondary text-sm font-semibold text-white/80 underline-offset-4 transition hover:text-white hover:underline" href="{{ route('recipes.index') }}">{{ __('home.browse_archive') }}</a>
+                    <a class="hc-btn hc-btn-primary px-7" href="#hero-search-input">{{ __('home.hero_cta') }} <span class="ml-1" aria-hidden="true">→</span></a>
+                    <a class="hc-btn hc-btn-outline px-6 text-white border-white/30 hover:bg-white/10" href="{{ route('ingredients.explore') }}">🥕 Ne Pişirebilirim?</a>
+                    <a class="hc-hero-secondary text-sm font-semibold text-white/80 underline-offset-4 transition hover:text-white hover:underline sm:ml-2" href="{{ route('recipes.index') }}">{{ __('home.browse_archive') }}</a>
                 </div>
             </div>
         </div>
-        {{-- Arama kutusu sayfanın ilk eylemi; öyle de görünmeli. Girdi ile
-         düğme tek bir yüzeyin parçası, ikon içeride, öneriler altında. --}}
-    <div id="kesfet" class="hc-container relative z-10 mt-8">
-        <div class="hc-arama hc-home-search ">
-            <div class="flex flex-wrap items-end justify-between gap-3"><div><p class="hc-kicker">{{ __('home.search_kicker') }}</p><h2 class="hc-heading-3 mt-2" style="color:var(--hc-text-primary)">{{ __('home.search_title') }}</h2></div><a class="hc-text-link text-sm font-extrabold" href="{{ route('recipes.index') }}">{{ __('home.all_archive') }}</a></div>
-            <form id="home-ingredients" class="hc-arama__kutu mt-5" action="{{ route('ingredients.explore') }}" method="get">
-                <label class="sr-only" for="hero-ingredient">{{ __('home.select_ingredient_label') }}</label>
+        {{-- Arama kutusu sayfanın ilk eylemi; doğrudan klavye ile yazılabilir ve aranabilir --}}
+    <div id="kesfet" class="hc-container relative z-20 mt-8">
+        <div class="hc-arama hc-home-search">
+            <div class="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                    <p class="hc-kicker">{{ __('home.search_kicker') }}</p>
+                    <h2 class="hc-heading-3 mt-2" style="color:var(--hc-text-primary)">{{ __('home.search_title') }}</h2>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a class="hc-text-link text-sm font-extrabold text-orange-600 dark:text-orange-400" href="{{ route('ingredients.explore') }}">🥕 Ne Pişirebilirim?</a>
+                    <span class="text-stone-300 dark:text-stone-700">·</span>
+                    <a class="hc-text-link text-sm font-extrabold" href="{{ route('recipes.index') }}">{{ __('home.all_archive') }}</a>
+                </div>
+            </div>
+            <form id="home-search" class="hc-arama__kutu mt-5" action="{{ route('recipes.index') }}" method="get">
+                <label class="sr-only" for="hero-search-input">{{ __('archive.search_recipes') }}</label>
                 <span class="hc-arama__ikon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span>
-                <select id="hero-ingredient" class="hc-arama__girdi" name="ingredients[]" required>
-                    <option value="">{{ __('home.select_ingredient_placeholder') }}</option>
-                    @foreach($homeIngredients as $ingredient)
-                        <option value="{{ $ingredient['public_id'] }}">{{ $ingredient['name'] }}</option>
-                    @endforeach
-                </select>
+                <input
+                    id="hero-search-input"
+                    class="hc-arama__girdi"
+                    type="search"
+                    name="q"
+                    placeholder="Tarif, malzeme veya mutfak ara... (örn: Kıbrıs köftesi, mercimek, hellim)"
+                    autocomplete="off"
+                >
                 <button class="hc-arama__dugme" type="submit">
-                    <span>{{ __('home.what_can_i_cook') }}</span>
+                    <span>{{ __('archive.show_recipes') }}</span>
                     <span class="hc-arama__ok" aria-hidden="true">→</span>
                 </button>
             </form>
             <div class="hc-arama__oneriler">
                 <span class="hc-arama__etiket">{{ __('home.quick_links') }}</span>
-                {{-- 'kibris' hicbir mutfaga karsilik gelmiyordu: cip sifir sonuc
-                     donuyordu. Artik indekslenebilir mutfak sayfasina gidiyor. --}}
+                <a class="hc-arama__cip !border-orange-500/40 !bg-orange-500/10 !text-orange-700 dark:!text-orange-300 font-extrabold" href="{{ route('ingredients.explore') }}">🥕 Ne Pişirebilirim?</a>
                 <a class="hc-arama__cip" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">{{ __('home.cypriot_cuisine') }}</a>
-                {{-- Sure ve zorluk koleksiyonlarinin artik indekslenebilir
-                     sayfasi var; cip filtreli (noindex) goruntuye degil oraya
-                     gidiyor. Sayfa esigi gecmiyorsa filtreye dusuluyor:
-                     anasayfadan 404'e baglanmak, filtreye baglanmaktan kotu. --}}
                 @foreach([['home.under_20_min', 'sure', '20-dakika', ['max_minutes' => 20]], ['home.easy_recipes', 'zorluk', 'kolay', ['difficulty' => 'easy']]] as [$chipKey, $tur, $slug, $params])
                     <a href="{{ $koleksiyonBaglantisi($tur, $slug) ?? route('recipes.index', $params) }}" class="hc-arama__cip">{{ __($chipKey) }}</a>
                 @endforeach
+                <a class="hc-arama__cip" href="{{ route('categories.show', 'corba') }}">🥣 Çorbalar</a>
+                <a class="hc-arama__cip" href="{{ route('categories.show', 'tatli') }}">🍯 Tatlılar</a>
             </div>
         </div>
     </div>

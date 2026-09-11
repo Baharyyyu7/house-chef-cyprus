@@ -11,6 +11,7 @@
                      "Ana Sayfa" kalktı çünkü logo zaten oraya götürüyor. --}}
                 <div class="hidden items-center gap-7 text-sm font-bold xl:flex">
                     <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>{{ __('nav.recipes') }}</a>
+                    <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>{{ __('nav.explore') }}</a>
                     <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif>{{ __('nav.blog') }}</a>
 
                     @auth
@@ -92,6 +93,7 @@
                 <div class="grid gap-2 text-sm font-semibold">
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}" @click="menuOpen = false" @if(request()->routeIs('home')) aria-current="page" @endif>{{ __('nav.home') }}</a>
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}" @click="menuOpen = false" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>{{ __('nav.recipes') }}</a>
+                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}" @click="menuOpen = false" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>🥕 {{ __('nav.explore') }}</a>
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}" @click="menuOpen = false" @if(request()->routeIs('blog.*')) aria-current="page" @endif>{{ __('nav.blog') }}</a>
                     @if (Route::has('pricing'))
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('pricing'), 'text-amber-600 dark:text-amber-400']) href="{{ route('pricing') }}" @click="menuOpen = false" @if(request()->routeIs('pricing')) aria-current="page" @endif>👑 {{ __('nav.premium') }}</a>
