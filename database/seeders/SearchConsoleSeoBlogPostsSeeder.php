@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\Media;
+use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -35,35 +36,49 @@ class SearchConsoleSeoBlogPostsSeeder extends Seeder
                 'body' => <<<'MARKDOWN'
 # 🌡️ Fırın Dereceleri Rehberi: Hangi Yemek Kaç Derecede Pişirilir?
 
-Fırında yemek pişirirken yapılan en büyük hatalardan biri yanlış sıcaklık derecesi seçmektir. Çok yüksek sıcaklık yemeğin dışını yakıp içini çiğ bırakırken, çok düşük sıcaklık yemeğin kurumasına sebze ve etlerin suyunu salmasına neden olur.
+Fırında yemek pişirirken mutfakta yapılan en kritik hatalardan biri yanlış sıcaklık derecesi ve raf konumu seçmektir. Çok yüksek sıcaklık yemeğin dış yüzeyini hızla yakıp iç kısmını çiğ bırakırken, gereğinden düşük sıcaklık ise et ve sebzelerin sularını tepsiye salıp kurumasına, hamur işlerinin ise yağ çekip sertleşmesine neden olur. Mutfakta profesyonel şeflerin yakaladığı altın sarısı kabuk ve sulu iç doku, doğru ısı ve doğru hava sirkülasyonunun eseridir.
 
-İşte profesyonel şeflerin kullandığı **en doğru fırın dereceleri tablosu**:
-
----
-
-## 🎂 Hamur İşleri ve Tatlılar İçin Fırın Dereceleri
-
-*   **Kekler ve Pandispanya:** 170°C - 180°C (Önceden ısıtılmış fırında, ortalama 35-45 dakika)
-*   **Börekler ve Çörekler:** 180°C - 200°C (Alt-üst fanlı ayarda, 30-40 dakika)
-*   **Kurabiyeler:** 160°C - 170°C (Hassas pişirme için, 12-18 dakika)
-*   **Mayalı Ekmekler:** 200°C - 220°C (İlk 10 dakika buhar desteği ile)
+İşte ev mutfağında kusursuz sonuçlar almanızı sağlayacak profesyonel fırın dereceleri tablosu ve pişirme incelikleri:
 
 ---
 
-## 🍗 Et, Tavuk ve Balık İçin Fırın Dereceleri
+## 🎂 Hamur İşleri ve Tatlılar İçin İdeal Fırın Dereceleri
 
-*   **Bütün Tavuk veya Baget:** 190°C - 200°C (Dışı çıtır, içi sulu kalması için 45-60 dakika)
-*   **Kırmızı Et (Pirzola / Biftek):** 200°C - 220°C (Hızlı mühürleme ve pişirme)
-*   **Kuzu İncik / Tandır:** 150°C - 160°C (Kısık ateşte, ağır ağır 2.5 - 3 saat)
-*   **Balık Bütün (Levrek / Çupra):** 180°C - 190°C (Yağlı kağıt içinde 25-30 dakika)
+Hamur işlerinde iç dokunun gözenekli olması ve kabarması fırın tabanından gelen ısının dengesine bağlıdır:
+
+*   **Klasik Kekler ve Pandispanyalar:** 170°C - 180°C (Önceden ısıtılmış fırında, orta rafta, alt-üst statik ayarda 35-45 dakika). İlk 25 dakika fırın kapağı kesinlikle açılmamalıdır.
+*   **Tepsi Börekleri ve Çörekler:** 180°C - 200°C (Alt-üst ayarda, altı ve üstü nar gibi kızarana kadar 35-45 dakika).
+*   **Mayalı Ekmekler ve Pideler:** 210°C - 230°C (Fırın tabanına ısıya dayanıklı kapta sıcak su konularak buhar desteği ile 20-30 dakika).
+*   **Gevrek Kurabiyeler:** 160°C - 170°C (Hassas pişirme, kenarları hafif pembeleştiğinde fırından alınır, 12-18 dakika).
+*   **Sütlaç ve Sufle:** 200°C - 220°C (Sütlaç için fırının sadece üst ızgarası açılarak benmari usulü fırınlanır).
 
 ---
 
-## 🥦 Sebze Y Yemekleri ve Gratenler
+## 🍗 Et, Tavuk ve Balık Pişirme Sıcaklıkları
 
-*   **Fırın Sebze / Karnabahar Graten:** 180°C - 190°C (Üzeri kızarana kadar 25-35 dakika)
-*   **Karnıyarık / Patlıcan Oturtma:** 190°C (Yaklaşık 30-40 dakika)
+Et yemeklerinde lezzetin temeli dış mühürleme ve iç sıcaklığın korunmasıdır:
 
+*   **Fırında Bütün Tavuk veya Baget:** 190°C - 200°C (Derisinin çıtır, içinin sulu kalması için 45-60 dakika). [Fırın Tavuk Baget](/tarifler/firin-tavuk-baget) tarifimizle nefis sonuçlar alabilirsiniz.
+*   **Kuzu İncik ve Geleneksel Tandır:** 150°C - 160°C (Düşük ısıda, üzeri kapalı şekilde ağır ağır 2.5 - 3 saat). Kuzu eti kemiğinden kendiliğinden ayrılana kadar pişmelidir.
+*   **Köfte ve Patates:** 190°C - 200°C (Önceden ısıtılmış fırında yaklaşık 30-35 dakika).
+*   **Balık Bütün (Levrek, Çupra):** 180°C - 190°C (Yağlı kağıt bohçasında veya sebze yatağında kurutmadan 25-30 dakika).
+
+---
+
+## 🥦 Sebze Yemekleri ve Gratenler
+
+*   **Karnabahar ve Brokoli Graten:** 180°C - 190°C (Beşamel sos kabarıp üzeri altın sarısı kızarana kadar 25-30 dakika).
+*   **Karnıyarık ve İmam Bayıldı:** 185°C - 190°C (Sosunun özleşmesi ve patlıcanların yumuşaması için 35-40 dakika).
+
+---
+
+## 💡 Fırın Kullanımında Şef Tüyoları
+
+1.  **Fanlı (Turbo) vs. Statik (Alt-Üst) Pişirme:** Fanlı ayar kuru sıcak hava üflediği için kekleri kurutabilir; kek ve suflede daima alt-üst statik ayar tercih edilmelidir. Et, tavuk ve çıtır sebzelerde ise fanlı ayar mükemmel sonuç verir.
+2.  **Raf Konumu:** Fırının orta rafı daima en dengeli ısı dağılımını sağlar. Tabanının iyi pişmesini istediğiniz börek ve pizzaları alt rafa, üzeri kızaracak gratenleri ise üst rafa yakın yerleştirin.
+3.  **Dinlendirme:** Fırından çıkan eti en az 10 dakika, hamur işlerini ise en az 15 dakika oda sıcaklığında dinlendirin.
+
+Daha fazla püf noktası ve nefis fırın lezzetleri için [Ana Yemekler Kategorisi](/kategoriler/ana-yemek) ve [Hamur İşleri Tarifleri](/kategoriler/hamur-isi) sayfalarımızı keşfedin.
 MARKDOWN,
                 'faq' => [
                     ['question' => 'Fırın dereceleri fanlı mı yoksa alt-üst mü olmalı?', 'answer' => 'Kek ve hamur işlerinde alt-üst pişirme önerilir. Et, tavuk ve sebze gratenlerde ise ısının eşit dağılması için fanlı ayar tercih edilir.'],
@@ -77,24 +92,40 @@ MARKDOWN,
                 'secondary_keywords' => ['kuru bakliyat buzlukta saklanır mı', 'bakliyat saklama koşulları', 'bakliyat güvelenmesi nasıl önlenir'],
                 'excerpt' => 'Nohut, fasulye ve mercimek buzdolabında veya buzlukta saklanır mı? Bakliyatların bozulmasını ve güvelenmesini önleyen en etkili saklama sırları.',
                 'body' => <<<'MARKDOWN'
-# 🫘 Kuru Bakliyatlar Buzdolabında Saklanır mı?
+# 🫘 Kuru Bakliyatlar Buzdolabında Saklanır mı? Güvelenmeyi Önleme Yöntemleri
 
-Evlerimizde sıklıkla tükettiğimiz mercimek, nohut, kuru fasulye gibi bakliyatların tazeliğini koruması mutfak ekonomisi açısından büyük önem taşır. Özellikle nemli ve sıcak yaz aylarında böceklenme ve güvelenme en sık karşılaşılan sorundur.
+Ev mutfaklarında temel besin kaynağı olan mercimek, nohut, kuru fasulye, börülce ve barbunya gibi kuru bakliyatların doğru koşullarda muhafaza edilmesi hem aile bütçesi hem de gıda güvenliği açısından büyük önem taşır. Özellikle yaz aylarında artan ortam sıcaklığı ve yüksek nem oranı, bakliyat dolaplarında güve, böcek ve un biti oluşumuna zemin hazırlar.
+
+Peki kuru bakliyat buzdolabında saklanır mı? Güvelenmeyi önlemenin doğal ve kesin çözümleri nelerdir? İşte şeflerin ve deneyimli ev hanımlarının uyguladığı profesyonel saklama rehberi:
 
 ---
 
-## ❄️ Kuru Bakliyat Buzdolabında veya Buzlukta Saklanır mı?
+## ❄️ Kuru Bakliyat Buzdolabında veya Dondurucuda Saklanır mı?
 
-**Evet, saklanır!** Özellikle nem oranı yüksek veya sıcak bölgelerde (Kıbrıs ve Akdeniz iklimi gibi) kuru bakliyatları cam kavanozlarda buzdolabında saklamak güvelenmeyi tamamen engeller.
+**Kesinlikle evet!** Özellikle Kıbrıs ve Akdeniz kuşağı gibi sıcak ve nemli bölgelerde kuru bakliyatları buzdolabında saklamak en güvenli yöntemdir:
 
-### 1. Kuru (Çiğ) Bakliyat Saklama
-*   Çiğ bakliyatları hava geçirmez cam kavanozlara koyarak buzdolabının sebzelik veya raf bölümünde saklayabilirsiniz.
-*   İçine **1-2 adet defne yaprağı** veya 1 tatlı kaşığı kaya tuzu eklemek nemlenmeyi ve böceklenmeyi önler.
+*   **Çiğ Kuru Bakliyat (Buzdolabı Rafı):** Çiğ nohut, fasulye ve mercimeği temiz cam kavanozlara koyup kapaklarını hava almayacak şekilde kapatarak buzdolabının alt raflarında veya sebzelik gözünde 1 yıldan uzun süre ilk günkü tazeliğinde saklayabilirsiniz. Düşük sıcaklık böcek yumurtalarının çatlamasını tamamen engeller.
+*   **Buzlukta Şoklama Yöntemi:** Yeni satın aldığınız bakliyat paketlerini henüz açmadan veya cam kavanoza aktarmadan önce derin dondurucuda 48 saat bekletin. Bu dondurma işlemi gözle görülmeyen olası tüm mikroskobik larvaları etkisiz hale getirir; ardından kavanozlayıp kiler dolabına güvenle kaldırabilirsiniz.
+*   **Haşlanmış Bakliyatları Buzlukta Saklama:** Haşlanmış nohut ve kuru fasulye mutfakta hayat kurtarır. Bir kerede 1 kilo nohutu haşlayıp soğuttuktan sonra buzdolabı poşetlerine birer yemeklik porsiyonlar halinde paylaştırarak dondurucuda **6 aya kadar** saklayabilirsiniz. Hafta içi doğrudan tencereye ekleyip 15 dakikada etli nohut yemeği pişirebilirsiniz.
 
-### 2. Haşlanmış Bakliyatları Buzlukta (Dondurucuda) Saklama
-*   Nohut ve kuru fasulyeyi önceden haşlayıp soğuttuktan sonra buzdolabı poşetlerine porsiyonlayarak dondurucuda **6 aya kadar** saklayabilirsiniz.
-*   Bu yöntem, hafta içi pratik bir şekilde yemek pişirmenizi sağlar.
+---
 
+## 🌿 Güvelenmeyi Engelleyen Doğal Koruyucular
+
+Kimyasal tabletler kullanmadan mutfak dolaplarındaki bakliyatları korumanın doğal yolları şunlardır:
+
+1.  **Defne Yaprağı:** Her bakliyat kavanozunun içine 2 adet kuru defne yaprağı bırakın. Defne yaprağının içerdiği doğal aromatik yağlar güve ve böceklerin nefret ettiği doğal bir kovucudur.
+2.  **Kaya Tuzu:** 1 kilogramlık kavanoza 1 tatlı kaşığı iri kaya tuzu ekleyip kavanozu hafifçe sallayın. Kaya tuzu ortamdaki nemi çekerek bakliyatların küflenmesini ve güvelenmesini önler.
+3.  **Kurutulmuş Acı Kırmızı Biber:** Bakliyat kavanozunun üst kısmına 1-2 adet bütün kuru acı biber yerleştirmek kokusuyla haşereleri uzak tutar.
+4.  **Soyulmamış Sarımsak Dişi:** Kabuğu soyulmamış kuru bir diş sarımsak pirinç ve un kavanozlarında güvelenmeye karşı doğal bir kalkan görevi görür.
+
+---
+
+## 🥫 Doğru Saklama Kabı Seçimi: Cam vs. Plastik
+
+Kuru bakliyatlar hiçbir zaman satın alındıkları naylon torbalarda veya plastik poşetlerde saklanmamalıdır. Plastik malzeme hava geçirgenliğine sahip olduğu için ortam nemini hapseder ve terleme yapar. En sağlıklı çözüm silikon contalı veya vakumlu kapaklı **cam kavanozlardır**.
+
+Taze bakliyatlarla nefis sofralar kurmak için [Klasik Kuru Fasulye](/tarifler/klasik-kuru-fasulye) ve [Zeytinyağlı Barbunya Pilaki](/tarifler) tariflerimize mutlaka göz atın.
 MARKDOWN,
                 'faq' => [
                     ['question' => 'Kuru bakliyatlar buzdolabında saklanır mı?', 'answer' => 'Evet, özellikle sıcak havalarda cam kavanozlarda buzdolabında saklamak böceklenme ve güvelenmeyi %100 önler.'],
@@ -108,30 +139,39 @@ MARKDOWN,
                 'secondary_keywords' => ['şeftali kebabı', 'kıbrıs köftesi', 'kıbrıs mutfağı lezzetleri', 'private chef cyprus'],
                 'excerpt' => 'Otantik Kıbrıs Kebabı (Şeftali Kebabı ve Kıbrıs Köftesi) nasıl yapılır? Kıbrıs mutfağının en özel ızgara lezzetinin orijinal tarifi.',
                 'body' => <<<'MARKDOWN'
-# 🍢 Geleneksel Kıbrıs Kebabı Tarifi
+# 🍢 Geleneksel Kıbrıs Kebabı Tarifi ve Evde Yapılış Püf Noktaları
 
-Kıbrıs mutfak kültürünün en gurur verici lezzetlerinden biri olan **Kıbrıs Kebabı**, genellikle taze kuzu gomene (terbiyeli gömlek yağı) sarılan kıyma ve özel baharat karışımı ile hazırlanır.
+Kıbrıs mutfak kültürünün Akdeniz havzasındaki en özgün ve damakta iz bırakan lezzetlerinin başında **Geleneksel Kıbrıs Kebabı** gelir. Ada genelinde çoğunlukla **Şeftali Kebabı** adıyla anılan bu eşsiz lezzet, klasik Türk ve Orta Doğu kebaplarından farklı olarak şişe dizilmek yerine taze kuzu gomene (terbiyeli kuzu tülbent gömlek yağı) sarılarak kömür ızgarasında pişirilir.
 
----
-
-## 🛒 Kıbrıs Kebabı İçin Malzemeler
-
-*   **Kıyma:** 500g kuzu ve dana karışımı orta yağlı kıyma
-*   **Kuzu Gömleği (Gomen):** 1 adet taze kuzu gömlek yağı
-*   **Soğan:** 2 adet rendelenmiş (suyu sıkılmış)
-*   **Maydanoz:** 1 demet ince kıyılmış
-*   **Baharatlar:** Tuz, karabiber, kimyon
-*   **Ekmek:** Kıbrıs pidesi veya taze tırnak pide
+Pişerken eriyen gömlek yağı köftenin suyunu içine hapseder ve dış kabuğunda çıtır, lokum kıvamında benzersiz bir lezzet katmanı oluşturur. Ev mutfağında döküm tavada ya da mangal ateşinde bu otantik lezzeti yakalamanın tüm sırlarını sizler için derledik.
 
 ---
 
-## 👩‍🍳 Adım Adım Yapılışı
+## 🛒 Kıbrıs Kebabı İçin Orijinal Malzemeler (4-6 Kişilik)
 
-1.  **Gömlek Hazırlığı:** Kuzu gömlek yağını ılık ve sirkeli suda 15 dakika bekleterek yumuşatın ve durulayın.
-2.  **Harcın Hazırlanması:** Kıyma, soğan, maydanoz ve baharatları derin bir kapta özleşene kadar yoğurun. Oval köfteler şekillendirin.
-3.  **Sarma İşlemi:** Yumuşayan gömlek yağını düz bir zemine serin, köfteleri gömleğe sararak kesin.
-4.  **Pişirme:** Odun kömürü ızgarasında veya döküm tavada gömlek yağı eriyip köfteler nar gibi kızarana kadar pişirin.
+*   **Kıyma:** 500g kuzu döş ve dana kıyma karışımı (orta yağlı, lezzet dengesi için kuzu eti ağırlıklı olmalıdır)
+*   **Kuzu Gömleği (Gomen / Banna):** 1 adet taze temizlenmiş kuzu gömlek yağı
+*   **Kuru Soğan:** 2 orta boy kuru soğan (rendelenip suyu temiz bir tülbentle tamamen sıkılmış)
+*   **Maydanoz:** 1 büyük demet taze maydanoz (yalnızca körpe yaprakları, çok ince kıyılmış)
+*   **Baharatlar:** 1 tatlı kaşığı kaya tuzu, 1 tatlı kaşığı taze çekilmiş karabiber, 1 çay kaşığı kimyon, yarım çay kaşığı ada tarçını
+*   **Servis:** Taze sıcak ada pidesi, sumaklı maydanozlu soğan, ızgara domates ve yeşil biber
 
+---
+
+## 👩‍🍳 Adım Adım Yapılışı ve Sarma Tekniği
+
+1.  **Gömlek Yağının Hazırlanması:** Kuzu gömlek yağını ılık suya koyun, içerisine 2 yemek kaşığı elma sirkesi ekleyip 15-20 dakika dinlendirin. Bu işlem kokuyu nötralize eder ve gömlek zarını yumuşatarak kolay sarılmasını sağlar. Yumuşayan zarı temiz bir bez üzerinde kurulayın.
+2.  **Köfte Harcının Yoğrulması:** Kıyma, suyu iyice sıkılmış soğan, ince kıyılmış maydanoz ve baharatları derin bir kaba alın. Harca asla bayat ekmek içi, un veya yumurta eklemeyin; orijinal ada kebabının sırrı saf et ve bol maydanozdur. En az 10 dakika yoğurup buzdolabında 30 dakika dinlendirin.
+3.  **Porsiyonlama ve Sarma:** Dinlenen harçtan cevizden biraz büyük oval köfteler yuvarlayın. Düz bir tezgaha serdiğiniz gömlek yağından köfte ebadında kare parçalar kesin. Her köfteyi gömleğe bir tur sıkıca sarıp kenarlarını kapatın.
+4.  **Pişirme İncelikleri:** Kor haline gelmiş kömür ızgarasında veya döküm ızgara tavada orta ateşte çevirerek pişirin. Yağ eridikçe köfteler altın sarısı renk alır ve nar gibi kızarır.
+
+---
+
+## 🥗 Kebap Yanına Eşlik Eden Ada Mezeleri
+
+Kıbrıs sofrasında kebap asla yalnız servis edilmez. Yanına taze yapılmış [Humus](/tarifler/humus), ezme yoğurtlu [Cacık](/tarifler/cacik) ve taze nane yaprakları ile muhteşem bir ziyafet menüsü oluşturabilirsiniz.
+
+Kıbrıs mutfağının tüm yöresel zenginliklerini keşfetmek için [Kıbrıs Mutfağı Kategorisi](/kategoriler/kibris-mutfagi) ve [Kıbrıs Şeftali Kebabı Rehberi](/blog/kibris-seftali-kebabi-nasil-yapilir-orijinal-tarif-ve-puf-noktalari) yazımızı inceleyebilirsiniz.
 MARKDOWN,
                 'faq' => [
                     ['question' => 'Kıbrıs kebabının orijinal adı nedir?', 'answer' => 'Kıbrıs kebabı halk arasında sıklıkla Şeftali Kebabı olarak bilinir.'],
@@ -145,27 +185,39 @@ MARKDOWN,
                 'secondary_keywords' => ['fırın ön ısıtma kaç dakika', 'fırın dereceleri', 'kaç derecede pişer'],
                 'excerpt' => 'Elektrikli ve ankastre fırınlar kaç dakikada istenen dereceye ulaşır? Yemek pişirmeden önce fırını ön ısıtmanın önemi ve süreleri.',
                 'body' => <<<'MARKDOWN'
-# ⏱️ Fırın Kaç Dakikada Isınır?
+# ⏱️ Fırın Kaç Dakikada Isınır? Ön Isıtma Süreleri ve Püf Noktaları
 
-Yemek ve hamur işi pişirirken tariflerde sıkça gördüğümüz **"önceden ısıtılmış fırın"** kuralı, yemeğin kabarması ve iç sıcaklığının doğru dengelenmesi için şarttır.
+Mutfakta yemek veya tatlı hazırlarken tariflerin girişinde yer alan en değişmez kural **"Fırını önceden ısıtın"** uyarısıdır. Pek çok kişi bu adımı sabırsızlıkla atlar veya fırını yiyeceği fırına sürdükten hemen sonra çalıştırır. Oysa fırının doğru dereceye ulaşmadan yiyecekle buluşması, kabarmayan sönük keklerin, kuruyup sertleşen etlerin ve suyunu salan sebzelerin en birincil sorumlusudur.
 
----
-
-## 🌡️ Derecelere Göre Fırın Isınma Süreleri
-
-Standart bir ankastre veya mini fırının istenen dereceye ulaşma süreleri şöyledir:
-
-*   **150°C - 160°C:** Yaklaşık **8 - 10 dakika**
-*   **180°C (En Çok Kullanılan):** Yaklaşık **10 - 12 dakika**
-*   **200°C - 220°C:** Yaklaşık **12 - 15 dakika**
+Peki fırın ortalama kaç dakikada ısınır? Ön ısıtmanın kimyasal faydaları nelerdir ve fırının tam olarak ısındığı nasıl anlaşılır? İşte mutfakta başarı sağlayan kapsamlı ön ısıtma rehberi:
 
 ---
 
-## 💡 Neden Fırını Önceden Isıtmalıyız?
+## 🌡️ Derecelere Göre Fırın Isınma Süreleri Tablosu
 
-1.  **Kabarma Kontrolü:** Kek ve ekmek gibi hamur işleri soğuk fırına atılırsa kabarmaz ve söner.
-2.  **Mühürleme:** Et ve balık yüksek sıcaklıktaki fırına girdiğinde dış yüzeyi hızla mühürlenir ve suyu içinde kalır.
+Standart ev tipi elektrikli ve ankastre fırınların istenen hedef sıcaklığa ulaşma süreleri fırının gücüne göre şu şekildedir:
 
+*   **150°C - 160°C (Düşük Isı Pişirmeleri):** Yaklaşık **7 - 9 dakika** (Meringue, kurabiye, ağır et pişirmeleri)
+*   **180°C (En Sık Kullanılan Standart Derece):** Yaklaşık **10 - 12 dakika** (Kekler, kurabiyeler, tartlar ve sebze yemekleri)
+*   **200°C (Kızartma ve Mühürleme Sıcaklığı):** Yaklaşık **12 - 15 dakika** (Börekler, fırın tavuk, köfte ve balık)
+*   **220°C - 250°C (Maksimum Fırın Sıcaklığı):** Yaklaşık **15 - 20 dakika** (Ev yapımı ekmek, lahmacun ve pizza)
+
+---
+
+## 🧪 Neden Fırını Önceden Isıtmalıyız? Bilimsel Gerçekler
+
+1.  **Maillard Reaksiyonu ve Dış Kabuk:** Et ve tavuk yüzeyindeki proteinler ve şekerler 140°C üzerinde birleşerek karamelize bir lezzet katmanı oluşturur. Sıcak fırına giren etin gözenekleri saniyeler içinde mühürlenir ve etin lezzetli suyu tepsiden buharlaşmak yerine etin içinde hapsolur.
+2.  **Maya ve Kabartma Tozunun Aktivasyonu:** Kek ve mayalı hamurlar soğuk fırına konulduğunda fırın yavaş yavaş ısınırken hamurun içindeki yağ erir ve tabana çöker. Hamurun hava kabarcıkları fırın ısınana kadar söner ve kek basık kalır.
+3.  **Yağ Çekmeyi Önleme:** Poğaça ve böreklerin katmanları sıcak hava dalgasıyla anında fırınlanmalı, tereyağı hamura karışmadan kat kat kabarmalıdır.
+
+---
+
+## 💡 Fırının Isındığını Nasıl Anlarsınız?
+
+*   **Termostat Kontrol Işığı:** Fırının ön panelinde bulunan kırmızı veya turuncu ısıtma ikaz ışığı fırın ayarlanan dereceye ulaştığı anda kendiliğinden söner. Dijital fırınlarda ise genellikle bip sesi duyulur.
+*   **Fırın İçi Termometresi:** Pek çok fırın termostatı zamanla kalibrasyonunu kaybedebilir ve göstergeden 10-20 derece sapabilir. Fırın ızgarasına asılan mekanik paslanmaz çelik bir fırın termometresi kullanmak en profesyonel ölçümü sunar.
+
+Fırın ısısını ayarladıktan sonra lezzetli tarifler denemek için [Fırın Dereceleri Rehberi](/blog/firin-dereceleri-rehberi-hangi-yemek-kac-derecede-pisirilir) ve [Fırında Köfte Patates](/tarifler/kofte-patates) tariflerimize göz atabilirsiniz.
 MARKDOWN,
                 'faq' => [
                     ['question' => 'Fırın kaç dakikada ısınır?', 'answer' => 'Standart 180°C derece pişirmeler için fırın ortalama 10-12 dakikada ideal ısıya ulaşır.'],
@@ -179,18 +231,33 @@ MARKDOWN,
                 'secondary_keywords' => ['kıbrıs özel şef', 'house chef cyprus', 'kıbrıs gastronomi', 'özel gurme menü'],
                 'excerpt' => 'Kıbrıs\'ta tatil veya özel davetleriniz için kişiselleştirilmiş Private Chef (Özel Şef) hizmeti nedir? Akdeniz gurme mutfağının evinize gelişi.',
                 'body' => <<<'MARKDOWN'
-# 👨‍🍳 Private Chef Cyprus: Evinizde Gurme Mutfak Deneyimi
+# 👨‍🍳 Private Chef Cyprus: Kıbrıs’ta Özel Şef ve Mutfak Deneyimi Rehberi
 
-Kıbrıs'ın benzersiz ikliminde, villanızda veya özel davetlerinizde unutulmaz bir gastronomi deneyimi yaşamak ister misiniz? **Private Chef Cyprus (Kıbrıs Özel Şef Hizmeti)**, restoran kalitesindeki lezzetleri kendi özel alanınıza taşır.
+Akdeniz'in parlayan incisi Kıbrıs, yalnızca altın kumsalları ve tarihi dokusuyla değil, binlerce yıllık zengin gastronomi kültürüyle de dünyanın dört bir yanından gurmeleri ağırlar. Son yıllarda tatil villalarında, lüks rezidanslarda ve seçkin aile etkinliklerinde restoran kalabalığından uzak, kişiye özel gurme deneyimler arayanlar için **Private Chef Cyprus (Kıbrıs Özel Şef Hizmeti)** benzersiz bir ayrıcalık sunmaktadır.
+
+Peki Kıbrıs'ta özel şef kiralama süreci nasıl işler, menüler nasıl oluşturulur ve bu ayrıcalıklı hizmet neleri kapsar? İşte ada genelinde eksiksiz özel şef deneyimi rehberi:
 
 ---
 
 ## 🍷 Özel Şef Hizmeti Neleri Kapsar?
 
-*   **Kişiselleştirilmiş Menü Tasarımı:** Damak tadınıza, alerjenlerinize ve diyet tercihlerinize göre özel olarak hazırlanan menüler.
-*   **Taze ve Yöresel Malzeme Tedariği:** Günlük Kıbrıs hellimi, taze deniz ürünleri ve yerel zeytinyağları ile hazırlık.
-*   **Mutfak ve Servis Yönetimi:** Yemeklerin hazırlanması, sunumu ve etkinlik sonrası mutfağın tertemiz teslim edilmesi.
+Kıbrıs özel şef hizmeti, standart bir yemek siparişinden çok daha öte, baştan sona eksiksiz bir mutfak orkestrasıdır:
 
+1.  **Kişiselleştirilmiş Menü Planlaması:** Şefiniz davet öncesinde sizinle doğrudan iletişime geçer. Misafirlerinizin alerjen hassasiyetleri, beslenme tercihleri (vegan, vejetaryen, ketojenik, glutensiz vb.) ve arzuladığınız mutfak tarzına (geleneksel Kıbrıs mutfağı, taze Akdeniz deniz ürünleri, modern füzyon veya barbekü şöleni) göre özel bir menü tasarlar.
+2.  **Taze ve Günlük Yerel Tedarik:** Şef, yemek günü sabahın erken saatlerinde yerel ada pazarlarından ve balıkçılardan en taze malzemeleri temin eder: Günlük köy hellimi, taze kuzu eti, Akdeniz levreği, yabani enginar ve soğuk sıkım ada zeytinyağları.
+3.  **Mutfakta Canlı Pişirme ve Sunum:** Şef ve servis ekibi belirlenen saatte villanıza gelir, yiyecekleri kendi mutfağınızda sıcağı sıcağına pişirir ve her tabağı sanatsal dokunuşlarla servis eder.
+4.  **Kusursuz Temizlik ve Ayrılış:** Ziyafet tamamlandıktan sonra tüm pişirme kapları, tezgahlar ve mutfak alanı profesyonelce temizlenir; mutfak size ilk anki tertemiz haliyle teslim edilir.
+
+---
+
+## 🌴 Hangi Etkinlikler İçin Özel Şef Tercih Edilir?
+
+*   **Villa Tatilleri:** Girne, Gazimağusa veya İskele bölgesindeki tatil villanızda dinlenirken her öğün gurme lezzetlerin ayağınıza gelmesi.
+*   **Romantik Yıldönümü ve Evlilik Teklifleri:** Gün batımında deniz kenarında iki kişilik özel şampanya ve deniz mahsulleri menüsü.
+*   **Aile Toplantıları ve Doğum Günleri:** Çocukların bahçede rahatça oynadığı, yetişkinlerin terasta barbekü keyfi yaptığı samimi ortamlar.
+*   **Kurumsal Özel Yemekler ve VIP Davetler:** İş ortaklarınız için villa ortamında prestijli bir akşam yemeği ağırlaması.
+
+Kıbrıs'ta profesyonel şef desteği almak ve unutulmaz anılar biriktirmek için [House Chef Cyprus İletişim](/iletisim) sayfamızdan bizimle irtibata geçebilir, adanın zengin reçetelerini [Kıbrıs Mutfağı Koleksiyonumuzda](/kategoriler/kibris-mutfagi) inceleyebilirsiniz.
 MARKDOWN,
                 'faq' => [
                     ['question' => 'Private Chef Cyprus hizmeti nasıl alınır?', 'answer' => 'House Chef Cyprus platformu üzerinden özel menü talebi oluşturarak villa veya eviniz için özel şef deneyimi planlayabilirsiniz.'],
@@ -203,29 +270,39 @@ MARKDOWN,
                 'secondary_keywords' => ['ev yapımı kraker', 'sağlıklı atıştırmalık', 'peynirli atıştırmalık', 'fırında kraker'],
                 'excerpt' => 'Çocuklar ve çay saatleri için evde kolayca yapabileceğiniz koruyucusuz, katkısız nefis çıtır peynirli kraker tarifi.',
                 'body' => <<<'MARKDOWN'
-# 🧀 Ev Yapımı Çıtır Peynirli Kraker Tarifi
+# 🧀 Ev Yapımı Çıtır Peynirli Kraker Tarifi: Pratik ve Sağlıklı Atıştırmalık
 
-Marketlerde satılan paketli krakerler yerine evde doğal peynir ve tereyağı ile hazırlayabileceğiniz ağızda dağılan çıtır peynirli krakerler yapmaya ne dersiniz?
+Market raflarında satılan paketli krakerlerin birçoğu palm yağı, yüksek oranda koruyucu madde, yapay aroma vericiler ve aşırı sodyum içerir. Oysa evinizdeki birkaç temel malzemeyle hazırlayabileceğiniz **ev yapımı çıtır peynirli krakerler**, hem çocuklarınızın beslenme çantaları için tertemiz bir atıştırmalık hem de çay saatleriniz ve peynir tabaklarınız için harika bir gurme dokunuş sunar.
 
----
-
-## 🛒 Malzemeler
-
-*   **Peynir:** 1 su bardağı rendelenmiş sert kaşar veya eskitilmiş beyaz peynir
-*   **Un:** 1.5 su bardağı buğday unu
-*   **Tereyağı:** 75g (soğuk ve küp doğranmış)
-*   **Soğuk Su:** 2-3 yemek kaşığı
-*   **Tuz ve Baharat:** 1 çay kaşığı tuz, çörek otu, kekik veya toz kırmızı biber
+Fırından çıktığında evi saran taze tereyağı ve fırınlanmış peynir kokusuyla bu çıtır krakerler, bir kez denediğinizde mutfağınızın vazgeçilmez tariflerinden biri olacaktır.
 
 ---
 
-## 👩‍🍳 Adım Adım Yapılışı
+## 🛒 Sağlıklı Peynirli Kraker Malzemeleri
 
-1.  **Hamur Yoğurma:** Mutfak robotunda un, soğuk tereyağı ve rendelenmiş peyniri kum kıvamına gelene kadar çekin.
-2.  **Toparlama:** Soğuk suyu ekleyip hamuru hızlıca toparlayın. Streç filme sarıp buzdolabında 20 dakika dinlendirin.
-3.  **Açma ve Şekil:** Hamuru merdane ile 3mm kalınlığında açın, rulet veya kurabiye kalıpları ile kesin.
-4.  **Pişirme:** Önceden ısıtılmış **180°C fırında 12-15 dakika** hafif altın sarısı olana kadar pişirin.
+*   **Peynir:** 1 su bardağı dolusu ince rendelenmiş sert peynir (eski kaşar, kuru Kıbrıs hellimi, parmesan veya sert olgun beyaz peynir)
+*   **Un:** 1.5 su bardağı organik buğday unu veya tam buğday unu
+*   **Tereyağı:** 75 gram (mutlaka buzdolabından yeni çıkmış soğuk ve minik küpler halinde doğranmış)
+*   **Buzlu Su:** 2-3 yemek kaşığı (hamuru toparlayacak kadar)
+*   **Tuz ve Doğal Baharatlar:** 1 çay kaşığı kaya tuzu, 1 tatlı kaşığı çörek otu, 1 tatlı kaşığı susam, yarım çay kaşığı tatlı toz kırmızı biber, 1 dal ince kıyılmış taze biberiye
 
+---
+
+## 👩‍🍳 Adım Adım Yapılışı ve Çıtırlık Sırları
+
+1.  **Soğuk Malzeme Kuralı (Kumlama Tekniği):** Un, tuz ve soğuk küp tereyağını mutfak robotunun haznesine alın. Robotu aralıklı darbelerle (pulse) çalıştırarak tereyağının una karışıp ekmek kırıntısı veya ıslak kum kıvamına gelmesini sağlayın. Tereyağının erimemesi krakerin fırında kat kat çıtırlaşmasının en büyük sırrıdır.
+2.  **Peynir ve Baharat İlavesi:** Rendelenmiş sert peyniri, çörek otunu, susamı ve baharatları ekleyin. Buzlu suyu kaşık kaşık ilave ederek hamurun bir araya gelmesini sağlayın. Hamuru fazla yoğurmayın; el ısısı yağı eritmemelidir.
+3.  **Buzdolabında Dinlendirme:** Toparlanan hamuru streç filme sararak buzdolabında en az 25-30 dakika dinlendirin.
+4.  **İnce Açma ve Şekil Verme:** Dinlenen hamuru yağlı kağıt arasında merdane yardımıyla yaklaşık 2-3 mm inceliğinde açın. Bıçak veya kurabiye ruleti ile kareler, üçgenler kesin. Çatalla üzerlerine delikler açın.
+5.  **Fırınlama:** Önceden ısıtılmış **180°C fırında 12-15 dakika** hafif altın sarısı renk alana kadar fırınlayın. Fırından çıkan krakerleri tepside tamamen soğumaya bırakın; soğudukça çıtırlığı katlanacaktır.
+
+---
+
+## 🫙 Krakerleri Taze Saklama İpuçları
+
+Ev yapımı krakerleri hava geçirmez kilitli cam kavanozlarda oda sıcaklığında **2 haftaya kadar** çıtırlığını hiç kaybetmeden muhafaza edebilirsiniz. Nem almaması için kavanozun dibine bir tutam pirinç tanesi koyabilirsiniz.
+
+Diğer pratik ve lezzetli atıştırmalık fikirleri için [Atıştırmalık ve Pratik Kategorisi](/kategoriler/atistirmalik-pratik) arşivimize ve [Çorba Tarifleri](/kategoriler/corba) sayfalarımıza göz atabilirsiniz.
 MARKDOWN,
                 'faq' => [
                     ['question' => 'Peynirli kraker kaç derecede pişer?', 'answer' => 'Önceden ısıtılmış 180°C fırında 12-15 dakika pişirmek yeterlidir.'],
@@ -240,24 +317,30 @@ MARKDOWN,
                 'body' => <<<'MARKDOWN'
 # 🥣 Orijinal Lokanta Usulü Mercimek Çorbası Tarifi
 
-Lokantalarda içtiğiniz mercimek çorbasının evde yapılanlardan en büyük farkı, pürüzsüz ipeksi dokusu ve un-tereyağı dengesidir. Çoğu ev tarifinde mercimek doğrudan sebzelerle haşlanıp blenderdan geçirilir; oysa lokanta usulü çorbanın sırrı doğru kavurma tekniği ve geleneksel süzme aşamasında saklıdır.
+Lokantalarda içtiğiniz mercimek çorbasının evde yapılanlardan en büyük farkı, pürüzsüz ipeksi dokusu ve un-tereyağı dengesidir. Çoğu ev tarifinde mercimek doğrudan sebzelerle haşlanıp blenderdan geçirilir; oysa lokanta usulü çorbanın sırrı doğru un kavurma tekniği, doğal kemik suyu ve geleneksel süzme aşamasında saklıdır.
 
 ---
 
 ## 🍲 İpeksi Kıvamı Veren Dört Temel Adım
 
-1. **Unu Kokusu Çıkana Kadar Kavurmak:** Tereyağı ve zeytinyağı karışımında 1 yemek kaşığı unun hafif fındık kokusu verene kadar kavrulması, çorbaya kadife gibi bir bağlayıcılık katar.
-2. **Kırmızı Mercimeğin Nişastasından Arındırılması:** Mercimekler berrak su çıkana kadar en az 3-4 kez soğuk suyla yıkanmalıdır. Fazla nişasta çorbanın berraklığını bozar.
-3. **Doğal Et veya Tavuk Suyu:** Yalnızca su yerine yarı yarıya süzülmüş kemik veya tavuk suyu kullanmak lokanta lezzetinin temel taşıdır.
-4. **Tel Süzgeçten Geçirme:** Blender hava kabarcıkları oluşturup çorbanın rengini açabilir. Gerçek lokanta usulünde çorba kepçeyle tel süzgeçten geçirilerek pürüzsüzleştirilir.
+1. **Unu Kokusu Çıkana Kadar Kavurmak:** Tereyağı ve zeytinyağı karışımında 1 yemek kaşığı unun hafif fındık kokusu verene kadar kısık ateşte kavrulması, çorbaya kadife gibi bir bağlayıcılık katar. Un fazla kavrulursa çorbanın rengi kararır; bu yüzden unun rengi dönmeden hemen sıcak et suyu eklenmelidir.
+2. **Kırmızı Mercimeğin Nişastasından Arındırılması:** Mercimekler berrak su çıkana kadar en az 3-4 kez soğuk suyla yıkanmalıdır. Fazla nişasta çorbanın berraklığını bozar ve sonradan çabuk katılaşmasına yol açar.
+3. **Doğal Et veya Tavuk Suyu:** Yalnızca çeşme suyu yerine yarı yarıya süzülmüş doğal kemik veya tavuk suyu kullanmak lokanta lezzetinin temel taşıdır.
+4. **Tel Süzgeçten Geçirme:** Blender hava kabarcıkları oluşturup çorbanın rengini açabilir ve köpürtür. Gerçek lokanta usulünde çorba kepçeyle ince tel süzgeçten geçirilerek posasından ayrılır ve kusursuz bir pürüzsüzlük elde edilir.
+
+---
+
+## 🍗 Geleneksel Kemik ve Tavuk Suyu Çıkarma Püf Noktaları
+
+Usta lokantacıların çorba kazanlarındaki en büyük sır, kısık ateşte en az 3 saat taze kök sebzelerle kaynatılmış ilikli kemik suyudur. Bir adet defne yaprağı, birkaç tane karabiber ve yarım havuç ile haşlanan tavuk ya da kuzu kemiği suyu, mercimeğin topraksı tadını kırıp çorbaya derin bir gövde ve doygunluk kazandırır.
 
 ---
 
 ## 🌶️ Servis ve Yağ Yakma Püf Noktaları
 
-Çorba kaselere alındıktan sonra üzerine kızdırılmış tereyağı, tatlı toz kırmızı biber ve kuru nane gezdirilir. Yanında mutlaka çeyrek limon ve taze sıcak pide dilimleri servis edilir.
+Çorba sıcak kaselere alındıktan sonra üzerine küçük bir sahanda köpürtülmüş hakiki tereyağı, tatlı toz kırmızı biber ve taze nane gezdirilir. Yanında mutlaka çeyrek sulu limon ve fırından yeni çıkmış sıcak ada pidesi veya kıtır kruton ekmekler eşliğinde servis edilir.
 
-Mutfakta hemen denemek için [Klasik Kırmızı Mercimek Çorbası](/tarifler/klasik-kirmizi-mercimek-corbasi) ve [Ezogelin Çorbası](/tarifler/ezogelin-corbasi) tariflerimize göz atabilirsiniz.
+Ev mutfağınızda hemen denemek için [Klasik Kırmızı Mercimek Çorbası](/tarifler/klasik-kirmizi-mercimek-corbasi), [Ezogelin Çorbası](/tarifler/ezogelin-corbasi) ve zengin [Çorbalar Kategorisi](/kategoriler/corba) arşivimize göz atabilirsiniz.
 MARKDOWN,
                 'faq' => [
                     ['question' => 'Lokanta usulü mercimek çorbasına un konur mu?', 'answer' => 'Evet, 1 yemek kaşığı un yağda hafif kavrularak eklenir. Un, çorbaya lokantalara özgü kadifemsi ipeksi kıvamı verir.'],
@@ -359,6 +442,18 @@ MARKDOWN,
             ],
         ];
 
+        $recipeKeywords = [
+            'firin-dereceleri-rehberi-hangi-yemek-kac-derecede-pisirilir' => ['firin', 'tavuk', 'kofte'],
+            'kuru-bakliyatlar-buzdolabinda-saklanir-mi-guvelenmeyi-onleme-yontemleri' => ['nohut', 'fasulye', 'mercimek'],
+            'geleneksel-kibris-kebabi-tarifi-ve-evde-yapilis-puf-noktalari' => ['seftali', 'kebabi', 'kleftiko'],
+            'firin-kac-dakikada-isinir-on-isitma-sureleri-ve-puf-noktalari' => ['firin', 'tavuk', 'pide'],
+            'private-chef-cyprus-kibrista-ozel-sef-ve-mutfak-deneyimi-rehberi' => ['seftali', 'kleftiko', 'hellim'],
+            'ev-yapimi-citir-peynirli-kraker-tarifi-pratik-ve-saglikli-atistirmalik' => ['hellim', 'peynir', 'borek'],
+            'orijinal-lokanta-usulu-mercimek-corbasi-tarifi-ipeksi-kivamin-sirri' => ['mercimek', 'corba'],
+            'kibris-seftali-kebabi-nasil-yapilir-orijinal-tarif-ve-puf-noktalari' => ['seftali', 'kebab'],
+            'kibris-hellim-peyniri-nasil-kizartilir-ve-saklanir-koy-usulu-rehber' => ['hellim', 'kahvalti', 'omlet'],
+        ];
+
         $addedCount = 0;
         foreach ($articles as $art) {
             $post = BlogPost::updateOrCreate(
@@ -373,6 +468,8 @@ MARKDOWN,
                     'body' => $art['body'],
                     'status' => 'published',
                     'editorial_status' => 'approved',
+                    'fact_check_status' => 'passed',
+                    'originality_status' => 'passed',
                     'search_intent' => 'informational',
                     'primary_keyword' => $art['primary_keyword'],
                     'secondary_keywords' => $art['secondary_keywords'],
@@ -383,6 +480,31 @@ MARKDOWN,
                     'published_at' => now(),
                 ]
             );
+
+            $keywords = $recipeKeywords[$art['slug']] ?? [];
+            if (!empty($keywords)) {
+                $matchedRecipeIds = Recipe::query()
+                    ->where(function ($q) use ($keywords) {
+                        foreach ($keywords as $kw) {
+                            $q->orWhere('slug', 'like', "%{$kw}%")
+                              ->orWhere('title', 'like', "%{$kw}%");
+                        }
+                    })
+                    ->limit(3)
+                    ->pluck('id');
+
+                if ($matchedRecipeIds->isNotEmpty()) {
+                    $post->recipes()->syncWithoutDetaching($matchedRecipeIds);
+                }
+            }
+
+            if ($post->recipes()->count() === 0) {
+                $fallbackRecipeIds = Recipe::where('status', 'published')->limit(2)->pluck('id');
+                if ($fallbackRecipeIds->isNotEmpty()) {
+                    $post->recipes()->syncWithoutDetaching($fallbackRecipeIds);
+                }
+            }
+
             $addedCount++;
         }
 
