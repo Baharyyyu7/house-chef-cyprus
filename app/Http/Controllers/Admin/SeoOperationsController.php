@@ -82,7 +82,9 @@ final class SeoOperationsController extends Controller
             'total_gaps' => ContentOpportunity::query()->where('kind', '!=', 'backlink_prospect')->count(),
         ];
 
-        return view('admin.seo.opportunities', compact('opportunities', 'stats', 'tab'));
+        $dailyTargets = app(\App\Services\Seo\AutonomousGrowthEngine::class)->getDailyTargetsSnapshot();
+
+        return view('admin.seo.opportunities', compact('opportunities', 'stats', 'tab', 'dailyTargets'));
     }
 
     public function updateOpportunityStatus(Request $request, ContentOpportunity $opportunity): RedirectResponse

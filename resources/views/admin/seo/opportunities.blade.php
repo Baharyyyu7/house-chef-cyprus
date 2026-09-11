@@ -16,6 +16,35 @@
         </x-slot:actions>
     </x-admin.page-header>
 
+    @if(isset($dailyTargets))
+        <div class="mt-6 rounded-2xl border p-5 bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-emerald-500/10 border-orange-500/30">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-orange-400">⚡ Otonom Büyüme & Besleme Motoru</span>
+                    <h3 class="text-lg font-extrabold text-white mt-1">Günlük 100 SEO · 100 GEO · 100 Backlink Hedefi</h3>
+                    <p class="text-xs text-stone-400 mt-0.5">Arka planda 2 saatte bir ve her sabah 06:00'da otonom olarak yenilenir ve beslenir.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="rounded-xl px-3.5 py-2 bg-charcoal-900/80 border border-white/10 text-center">
+                        <span class="block text-[11px] text-stone-400 font-semibold">Günlük SEO Hedefi</span>
+                        <strong class="text-sm font-extrabold text-orange-400">{{ $dailyTargets['seo']['achieved'] }}/{{ $dailyTargets['seo']['target'] }}</strong>
+                        <span class="text-[10px] ml-1 text-emerald-400">✓ %{{ $dailyTargets['seo']['progress_percent'] }}</span>
+                    </div>
+                    <div class="rounded-xl px-3.5 py-2 bg-charcoal-900/80 border border-white/10 text-center">
+                        <span class="block text-[11px] text-stone-400 font-semibold">Günlük GEO Hedefi</span>
+                        <strong class="text-sm font-extrabold text-amber-400">{{ $dailyTargets['geo']['achieved'] }}/{{ $dailyTargets['geo']['target'] }}</strong>
+                        <span class="text-[10px] ml-1 text-emerald-400">✓ %{{ $dailyTargets['geo']['progress_percent'] }}</span>
+                    </div>
+                    <div class="rounded-xl px-3.5 py-2 bg-charcoal-900/80 border border-white/10 text-center">
+                        <span class="block text-[11px] text-stone-400 font-semibold">Günlük Backlink Hedefi</span>
+                        <strong class="text-sm font-extrabold text-indigo-400">{{ $dailyTargets['backlinks']['achieved'] }}/{{ $dailyTargets['backlinks']['target'] }}</strong>
+                        <span class="text-[10px] ml-1 text-emerald-400">✓ %{{ $dailyTargets['backlinks']['progress_percent'] }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Üst İstatistik Sayaçları --}}
     <div class="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div class="hc-admin-stat">

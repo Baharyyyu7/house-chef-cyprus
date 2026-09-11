@@ -47,6 +47,14 @@ final class SeoAutonomousGrowth extends Command
         $this->info("✓ İçerik Boşlukları: {$report['content_gaps']['created']} yeni, {$report['content_gaps']['updated']} güncellenen fırsat (Toplam {$report['content_gaps']['total_opportunities']}).");
         $this->info("✓ Aktif Katalog: {$report['catalogue']['verified_recipes']} doğrulanmış tarif, {$report['catalogue']['public_blogs']} editoryal rehber yayında.");
 
+        if (isset($report['daily_targets'])) {
+            $targets = $report['daily_targets'];
+            $this->info('🎯 Günlük Büyüme Hedefleri (100 SEO · 100 GEO · 100 Backlink):');
+            $this->line("   - SEO Hedefi: {$targets['seo']['achieved']}/{$targets['seo']['target']} (%{$targets['seo']['progress_percent']}) " . ($targets['seo']['target_met'] ? '✓ Başarıldı' : '… Devam ediyor'));
+            $this->line("   - GEO Hedefi: {$targets['geo']['achieved']}/{$targets['geo']['target']} (%{$targets['geo']['progress_percent']}) " . ($targets['geo']['target_met'] ? '✓ Başarıldı' : '… Devam ediyor'));
+            $this->line("   - Backlink Hedefi: {$targets['backlinks']['achieved']}/{$targets['backlinks']['target']} (%{$targets['backlinks']['progress_percent']}) " . ($targets['backlinks']['target_met'] ? '✓ Başarıldı' : '… Devam ediyor'));
+        }
+
         return self::SUCCESS;
     }
 }

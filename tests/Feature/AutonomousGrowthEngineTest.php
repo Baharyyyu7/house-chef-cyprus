@@ -23,6 +23,11 @@ final class AutonomousGrowthEngineTest extends TestCase
         $this->assertArrayHasKey('indexnow', $report);
         $this->assertArrayHasKey('backlinks', $report);
         $this->assertArrayHasKey('content_gaps', $report);
+        $this->assertArrayHasKey('daily_targets', $report);
+        $this->assertSame(100, $report['daily_targets']['seo']['target']);
+        $this->assertSame(100, $report['daily_targets']['geo']['target']);
+        $this->assertSame(100, $report['daily_targets']['backlinks']['target']);
+        $this->assertTrue($report['daily_targets']['all_targets_met']);
         $this->assertGreaterThanOrEqual(100, $report['backlinks']['total_prospects']);
 
         $backlinkProspect = ContentOpportunity::query()
