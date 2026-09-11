@@ -1,0 +1,36 @@
+{
+  "name": "House Chef Cyprus",
+  "short_name": "House Chef",
+  "description": "Verified Cypriot and Mediterranean recipes, culinary guides and gastronomy encyclopedia.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#ff6b00",
+  "background_color": "#111111",
+  "categories": ["food", "lifestyle", "utilities"],
+  "icons": [
+    { "src": "/brand/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/brand/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Cypriot Recipes",
+      "short_name": "Cyprus",
+      "description": "Traditional Cypriot Cuisine Recipes",
+      "url": "/mutfaklar/kibris-mutfagi"
+    },
+    {
+      "name": "All Recipes",
+      "short_name": "Recipes",
+      "description": "Verified Recipe Catalog",
+      "url": "/tarifler"
+    },
+    {
+      "name": "Cooking Guides",
+      "short_name": "Guides",
+      "description": "Gastronomy & Cooking Guides",
+      "url": "/blog"
+    }
+  ]
+}

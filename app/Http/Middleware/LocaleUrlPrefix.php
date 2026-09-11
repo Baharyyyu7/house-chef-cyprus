@@ -40,6 +40,15 @@ final class LocaleUrlPrefix
             return $next($request);
         }
 
+        // Bağımsız makine keşif, AI ve besleme uçları dil öneki soyulmasına girmez.
+        $tamYol = trim((string) $request->path(), '/');
+        if (in_array($tamYol, [
+            'en/llms.txt', 'en/llms-full.txt', 'en/feed', 'en/feed.xml', 'en/rss.xml',
+            'en/opensearch.xml', 'en/manifest.webmanifest', 'en/site.webmanifest'
+        ], true)) {
+            return $next($request);
+        }
+
         // Varsayılan dil kökte yaşar. /tr/... ayrı bir adres olarak durursa
         // aynı içerik iki adreste görünür; kökteki sürüme kalıcı yönlendirilir.
         if ($ilkParca === (string) config('locales.default', 'tr')) {

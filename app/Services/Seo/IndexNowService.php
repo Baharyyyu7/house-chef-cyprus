@@ -106,6 +106,17 @@ final class IndexNowService
             route('home'),
             route('recipes.index'),
             route('blog.index'),
+            route('llms.txt'),
+            route('llms.full'),
+            route('llms.txt.en'),
+            route('llms.full.en'),
+            route('feed'),
+            route('feed.en'),
+            route('opensearch'),
+            route('opensearch.en'),
+            url('/manifest.webmanifest'),
+            route('manifest.en'),
+            url('/sitemap.xml'),
         ];
 
         foreach ($recipes as $recipe) {

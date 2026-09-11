@@ -42,9 +42,10 @@
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="{{ $title }}">
         <meta name="twitter:description" content="{{ $metaDescription }}">
-        <meta name="twitter:image" content="{{ $socialImage ?: url(config('brand.assets.og_default')) }}">
-        <link rel="alternate" type="application/rss+xml" title="House Chef Cyprus" href="{{ route('feed') }}">
-        <link rel="search" type="application/opensearchdescription+xml" title="House Chef Cyprus" href="{{ route('opensearch') }}">
+        <link rel="alternate" type="application/rss+xml" title="House Chef Cyprus (Türkçe)" href="{{ route('feed') }}">
+        <link rel="alternate" type="application/rss+xml" title="House Chef Cyprus (English)" href="{{ route('feed.en') }}">
+        <link rel="search" type="application/opensearchdescription+xml" title="House Chef Cyprus (TR)" href="{{ route('opensearch') }}">
+        <link rel="search" type="application/opensearchdescription+xml" title="House Chef Cyprus (EN)" href="{{ route('opensearch.en') }}">
         @if($socialImageAlt)<meta name="twitter:image:alt" content="{{ $socialImageAlt }}">@endif
     @endunless
     @if($structuredData)<script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>@endif

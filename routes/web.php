@@ -177,10 +177,21 @@ Route::get('/sitemaps/images.xml', [SitemapController::class, 'images'])->name('
 Route::get('/feed', [RssFeedController::class, 'index'])->name('feed');
 Route::get('/feed.xml', [RssFeedController::class, 'index']);
 Route::get('/rss.xml', [RssFeedController::class, 'index']);
+Route::get('/en/feed', [RssFeedController::class, 'en'])->name('feed.en');
+Route::get('/en/feed.xml', [RssFeedController::class, 'en']);
+Route::get('/en/rss.xml', [RssFeedController::class, 'en']);
+
 Route::get('/llms.txt', [LlmsTxtController::class, 'index'])->name('llms.txt');
 Route::get('/llms-full.txt', [LlmsTxtController::class, 'full'])->name('llms.full');
-Route::get('/opensearch.xml', fn () => response()->view('opensearch')->header('Content-Type', 'application/opensearchdescription+xml; charset=UTF-8')->header('Cache-Control', 'public, max-age=86400'))->name('opensearch');
+Route::get('/en/llms.txt', [LlmsTxtController::class, 'en'])->name('llms.txt.en');
+Route::get('/en/llms-full.txt', [LlmsTxtController::class, 'enFull'])->name('llms.full.en');
+
+Route::get('/opensearch.xml', fn () => response()->view('opensearch', ['locale' => 'tr'])->header('Content-Type', 'application/opensearchdescription+xml; charset=UTF-8')->header('Cache-Control', 'public, max-age=86400'))->name('opensearch');
+Route::get('/en/opensearch.xml', fn () => response()->view('opensearch', ['locale' => 'en'])->header('Content-Type', 'application/opensearchdescription+xml; charset=UTF-8')->header('Cache-Control', 'public, max-age=86400'))->name('opensearch.en');
+
 Route::get('/manifest.webmanifest', fn () => response(file_get_contents(public_path('brand/site.webmanifest')), 200, ['Content-Type' => 'application/manifest+json; charset=UTF-8']));
+Route::get('/en/manifest.webmanifest', fn () => response(file_get_contents(public_path('brand/site-en.webmanifest')), 200, ['Content-Type' => 'application/manifest+json; charset=UTF-8']))->name('manifest.en');
+Route::get('/en/site.webmanifest', fn () => response(file_get_contents(public_path('brand/site-en.webmanifest')), 200, ['Content-Type' => 'application/manifest+json; charset=UTF-8']));
 Route::get('/c032a1e8e8214371b658ef9c7e0b57e1.txt', fn () => response(config('services.indexnow.key', 'c032a1e8e8214371b658ef9c7e0b57e1'), 200, ['Content-Type' => 'text/plain; charset=UTF-8']));
 Route::view('/robots.txt', 'robots')->name('robots');
 
