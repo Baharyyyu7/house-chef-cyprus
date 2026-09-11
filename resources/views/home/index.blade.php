@@ -23,64 +23,96 @@
                 <p class="hc-hero-muted hc-body-lg mt-6 max-w-2xl">{{ __('home.hero_subtitle') }}</p>
                 <div class="mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
                     <a class="hc-btn hc-btn-primary px-7" href="#hero-ingredient">{{ __('home.hero_cta') }} <span class="ml-1" aria-hidden="true">→</span></a>
-                    <a class="hc-btn hc-btn-outline px-6 text-white border-white/30 hover:bg-white/10" href="{{ route('ingredients.explore') }}">🥕 Ne Pişirebilirim?</a>
-                    <a class="hc-hero-secondary text-sm font-semibold text-white/80 underline-offset-4 transition hover:text-white hover:underline sm:ml-2" href="{{ route('recipes.index') }}">{{ __('home.browse_archive') }}</a>
+                    <a class="hc-btn border border-white/40 bg-black/25 text-white backdrop-blur-md hover:bg-white hover:!text-stone-900 shadow-sm transition-all duration-200 px-6 font-semibold" href="{{ route('ingredients.explore') }}">🥕 Ne Pişirebilirim?</a>
+                    <a class="hc-hero-secondary text-sm font-semibold text-white/90 underline-offset-4 transition hover:text-white hover:underline sm:ml-2" href="{{ route('recipes.index') }}">{{ __('home.browse_archive') }}</a>
                 </div>
             </div>
         </div>
-        {{-- Arama kutusu sayfanın ilk eylemi; malzeme seçerek ne pişirebileceğini doğrudan bulur --}}
+        {{-- Arama kutusu sayfanın ilk eylemi; malzeme seçimi ve tarif aramasını şık sekmelerle tek alanda sunar --}}
     <div id="kesfet" class="hc-container relative z-20 mt-8">
-        <div class="hc-arama hc-home-search">
-            <div class="flex flex-wrap items-end justify-between gap-3">
+        <div class="hc-arama hc-home-search" x-data="{ activeSearchTab: 'ingredients' }">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-1">
                 <div>
                     <p class="hc-kicker">{{ __('home.search_kicker') }}</p>
-                    <h2 class="hc-heading-3 mt-2" style="color:var(--hc-text-primary)">{{ __('home.search_title') }}</h2>
+                    <h2 class="hc-heading-3 mt-1.5" style="color:var(--hc-text-primary)">
+                        <span x-show="activeSearchTab === 'ingredients'">{{ __('home.search_title') }}</span>
+                        <span x-show="activeSearchTab === 'recipes'" x-cloak>Tarif, mutfak veya lezzet arayın.</span>
+                    </h2>
                 </div>
-                <div class="flex items-center gap-3">
-                    <a class="hc-text-link text-sm font-extrabold text-orange-600 dark:text-orange-400" href="{{ route('ingredients.explore') }}">🥕 Ne Pişirebilirim?</a>
-                    <span class="text-stone-300 dark:text-stone-700">·</span>
-                    <a class="hc-text-link text-sm font-extrabold" href="{{ route('recipes.index') }}">{{ __('home.all_archive') }}</a>
+
+                {{-- Segmented Mode Switcher --}}
+                <div class="inline-flex rounded-2xl p-1 bg-stone-100 dark:bg-stone-800/90 border border-stone-200/80 dark:border-stone-700/80 text-xs font-bold shrink-0 self-start sm:self-center shadow-inner" role="tablist" aria-label="Arama Modu">
+                    <button
+                        type="button"
+                        role="tab"
+                        @click="activeSearchTab = 'ingredients'"
+                        :class="activeSearchTab === 'ingredients' ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-sm' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-200"
+                        :aria-selected="activeSearchTab === 'ingredients'"
+                    >
+                        <span>🥕 Malzemeyle Eşleştir</span>
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        @click="activeSearchTab = 'recipes'"
+                        :class="activeSearchTab === 'recipes' ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-sm' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-200"
+                        :aria-selected="activeSearchTab === 'recipes'"
+                    >
+                        <span>🔍 Tarif Ara</span>
+                    </button>
                 </div>
             </div>
-            <form id="home-ingredients" class="hc-arama__kutu mt-5" action="{{ route('ingredients.explore') }}" method="get">
-                <label class="sr-only" for="hero-ingredient">Elindeki malzemeyi seç</label>
-                <span class="hc-arama__ikon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span>
-                <select id="hero-ingredient" class="hc-arama__girdi" name="ingredients[]" required>
-                    <option value="">Elinde hangi malzeme var?</option>
-                    @foreach($homeIngredients as $ingredient)
-                        <option value="{{ $ingredient['public_id'] }}">{{ $ingredient['name'] }}</option>
-                    @endforeach
-                </select>
-                <button class="hc-arama__dugme" type="submit">
-                    <span>Ne pişirebilirim?</span>
-                    <span class="hc-arama__ok" aria-hidden="true">→</span>
-                </button>
-            </form>
-            <form id="home-search" class="hc-arama__kutu mt-3" action="{{ route('recipes.index') }}" method="get">
-                <label class="sr-only" for="hero-search-input">{{ __('archive.search_recipes') }}</label>
-                <span class="hc-arama__ikon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span>
-                <input
-                    id="hero-search-input"
-                    class="hc-arama__girdi"
-                    type="search"
-                    name="q"
-                    placeholder="Veya doğrudan tarif ara... (örn: Kıbrıs köftesi, mercimek, hellim)"
-                    autocomplete="off"
-                >
-                <button class="hc-arama__dugme" type="submit">
-                    <span>{{ __('archive.show_recipes') }}</span>
-                    <span class="hc-arama__ok" aria-hidden="true">→</span>
-                </button>
-            </form>
-            <div class="hc-arama__oneriler">
+
+            {{-- Form 1: Malzeme Arama --}}
+            <div x-show="activeSearchTab === 'ingredients'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
+                <form id="home-ingredients" class="hc-arama__kutu mt-4" action="{{ route('ingredients.explore') }}" method="get">
+                    <label class="sr-only" for="hero-ingredient">Elindeki malzemeyi seç</label>
+                    <span class="hc-arama__ikon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span>
+                    <select id="hero-ingredient" class="hc-arama__girdi" name="ingredients[]" required>
+                        <option value="">Elinde hangi malzeme var? (örn: Hellim, domates, mercimek...)</option>
+                        @foreach($homeIngredients as $ingredient)
+                            <option value="{{ $ingredient['public_id'] }}">{{ $ingredient['name'] }}</option>
+                        @endforeach
+                    </select>
+                    <button class="hc-arama__dugme" type="submit">
+                        <span>Ne pişirebilirim?</span>
+                        <span class="hc-arama__ok" aria-hidden="true">→</span>
+                    </button>
+                </form>
+            </div>
+
+            {{-- Form 2: Doğrudan Tarif Arama --}}
+            <div x-cloak x-show="activeSearchTab === 'recipes'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
+                <form id="home-search" class="hc-arama__kutu mt-4" action="{{ route('recipes.index') }}" method="get">
+                    <label class="sr-only" for="hero-search-input">{{ __('archive.search_recipes') }}</label>
+                    <span class="hc-arama__ikon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span>
+                    <input
+                        id="hero-search-input"
+                        class="hc-arama__girdi"
+                        type="search"
+                        name="q"
+                        placeholder="Tarif, mutfak veya lezzet ara... (örn: Şeftali kebabı, humus, enginar)"
+                        autocomplete="off"
+                    >
+                    <button class="hc-arama__dugme" type="submit">
+                        <span>{{ __('archive.show_recipes') }}</span>
+                        <span class="hc-arama__ok" aria-hidden="true">→</span>
+                    </button>
+                </form>
+            </div>
+
+            {{-- Hızlı Filtre Çipleri --}}
+            <div class="hc-arama__oneriler mt-5">
                 <span class="hc-arama__etiket">{{ __('home.quick_links') }}</span>
-                <a class="hc-arama__cip !border-orange-500/40 !bg-orange-500/10 !text-orange-700 dark:!text-orange-300 font-extrabold" href="{{ route('ingredients.explore') }}">🥕 Ne Pişirebilirim?</a>
                 <a class="hc-arama__cip" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">{{ __('home.cypriot_cuisine') }}</a>
                 @foreach([['home.under_20_min', 'sure', '20-dakika', ['max_minutes' => 20]], ['home.easy_recipes', 'zorluk', 'kolay', ['difficulty' => 'easy']]] as [$chipKey, $tur, $slug, $params])
                     <a href="{{ $koleksiyonBaglantisi($tur, $slug) ?? route('recipes.index', $params) }}" class="hc-arama__cip">{{ __($chipKey) }}</a>
                 @endforeach
                 <a class="hc-arama__cip" href="{{ route('categories.show', 'corba') }}">🥣 Çorbalar</a>
                 <a class="hc-arama__cip" href="{{ route('categories.show', 'tatli') }}">🍯 Tatlılar</a>
+                <a class="hc-arama__cip !border-orange-500/30 !bg-orange-500/10 !text-orange-700 dark:!text-orange-300 font-bold" href="{{ route('recipes.index') }}">Tüm arşiv →</a>
             </div>
         </div>
     </div>
