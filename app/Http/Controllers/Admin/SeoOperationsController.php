@@ -45,11 +45,70 @@ final class SeoOperationsController extends Controller
         return view('admin.seo.issues', compact('issues'));
     }
 
-    public function opportunities(): View
+    public function opportunities(Request $request): View
     {
         $this->admin();
 
-        return view('admin.seo.opportunities', ['opportunities' => ContentOpportunity::query()->orderByDesc('priority')->paginate(30)]);
+        $tab = $request->query('tab', 'backlinks');
+        $status = $request->query('status');
+        $search = $request->query('q');
+
+        $query = ContentOpportunity::query();
+
+        if ($tab === 'backlinks') {
+            $query->where('kind', 'backlink_prospect');
+        } elseif ($tab === 'gaps') {
+            $query->where('kind', '!=', 'backlink_prospect');
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search): void {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('normalized_key', 'like', "%{$search}%");
+            });
+        }
+
+        $opportunities = $query->orderByDesc('priority')->paginate(30)->withQueryString();
+
+        $stats = [
+            'total_backlinks' => ContentOpportunity::query()->where('kind', 'backlink_prospect')->count(),
+            'contacted_backlinks' => ContentOpportunity::query()->where('kind', 'backlink_prospect')->where('status', 'contacted')->count(),
+            'won_backlinks' => ContentOpportunity::query()->where('kind', 'backlink_prospect')->where('status', 'won')->count(),
+            'open_backlinks' => ContentOpportunity::query()->where('kind', 'backlink_prospect')->where('status', 'open')->count(),
+            'total_gaps' => ContentOpportunity::query()->where('kind', '!=', 'backlink_prospect')->count(),
+        ];
+
+        return view('admin.seo.opportunities', compact('opportunities', 'stats', 'tab'));
+    }
+
+    public function updateOpportunityStatus(Request $request, ContentOpportunity $opportunity): RedirectResponse
+    {
+        $this->admin();
+
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:open,contacted,won,declined,resolved'],
+        ]);
+
+        $opportunity->update([
+            'status' => $validated['status'],
+            'reviewed_at' => now(),
+        ]);
+
+        $statusLabels = [
+            'open' => 'Açık',
+            'contacted' => 'İletişime Geçildi',
+            'won' => 'Kazanıldı (Backlink Aktif)',
+            'declined' => 'Reddedildi',
+            'resolved' => 'Tamamlandı',
+        ];
+
+        $label = $statusLabels[$validated['status']] ?? $validated['status'];
+
+        return back()->with('status', "Fırsat durumu güncellendi: {$label}");
     }
 
     public function runAudit(SeoAuditService $service): RedirectResponse

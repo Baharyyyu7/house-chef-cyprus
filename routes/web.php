@@ -324,6 +324,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('seo/firsatlari-yenile', [SeoOperationsController::class, 'refreshOpportunities'])->name('seo.opportunities.refresh');
     Route::post('seo/sorunlar/{issue}/coz', [SeoOperationsController::class, 'resolve'])->name('seo.issues.resolve');
     Route::post('seo/sorunlar/{issue}/yeniden-ac', [SeoOperationsController::class, 'reopen'])->name('seo.issues.reopen');
+    Route::post('seo/firsatlar/{opportunity}/durum', [SeoOperationsController::class, 'updateOpportunityStatus'])->name('seo.opportunities.update-status');
     Route::get('gorsel-talepleri', [ImageRequestController::class, 'index'])->name('image-requests.index');
     Route::get('ai-gorsel-studyosu', [AiImageStudioController::class, 'index'])->name('ai-image-studio.index');
     Route::get('ai-gorsel-studyosu/{generation}', [AiImageStudioController::class, 'show'])->name('ai-image-studio.show');
@@ -464,3 +465,8 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
 });
 
 require __DIR__.'/auth.php';
+
+// Yönetim ve giriş URL kolaylığı ve uyumluluk yönlendirmeleri
+Route::redirect('/admin', '/yonetim', 301);
+Route::redirect('/admin/{path}', '/yonetim/{path}', 301)->where('path', '.*');
+Route::redirect('/giris', '/login', 301);

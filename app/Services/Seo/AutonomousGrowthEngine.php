@@ -8,6 +8,7 @@ use App\Http\Controllers\LlmsTxtController;
 use App\Models\BlogPost;
 use App\Models\ContentOpportunity;
 use App\Models\Recipe;
+use App\Services\Media\AutonomousMediaGateService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -17,7 +18,9 @@ final class AutonomousGrowthEngine
         private readonly IndexNowService $indexNow,
         private readonly BacklinkGrowthService $backlinks,
         private readonly ContentGapService $contentGaps,
-        private readonly LlmsTxtController $llmsTxt
+        private readonly LlmsTxtController $llmsTxt,
+        private readonly AutonomousMediaGateService $mediaGate,
+        private readonly AutonomousPublishingGateService $publishingGate
     ) {
     }
 
@@ -69,7 +72,13 @@ final class AutonomousGrowthEngine
         // 5. Zero-Result Search & Content Gap Mining
         $gapResult = $this->contentGaps->refresh();
 
-        // 6. Catalogue Metrics
+        // 6. Autonomous Media Approval Gate
+        $mediaResult = $this->mediaGate->processEligibleCandidates(10);
+
+        // 7. Autonomous Quality Gate & Drip-Feed Publishing
+        $publishingResult = $this->publishingGate->run(2, 3);
+
+        // 8. Catalogue Metrics
         $publishedRecipes = Recipe::query()->where('status', 'published')->count();
         $verifiedRecipes = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->count();
         $publicBlogs = BlogPost::query()->publiclyVisible()->count();
@@ -102,6 +111,15 @@ final class AutonomousGrowthEngine
             'syndication' => [
                 'pinged' => $syndicationResult['pinged'],
                 'hub_status' => $syndicationResult['hub_status'],
+            ],
+            'autonomous_media' => [
+                'approved' => $mediaResult['approved'],
+                'rejected' => $mediaResult['rejected'],
+                'skipped' => $mediaResult['skipped'],
+            ],
+            'autonomous_publishing' => [
+                'published_blogs' => $publishingResult['published_blogs'],
+                'published_recipes' => $publishingResult['published_recipes'],
             ],
             'catalogue' => [
                 'published_recipes' => $publishedRecipes,

@@ -2,18 +2,12 @@
          Tam genişlikte açılır ve alt kenarı sayfa zeminine karışır; böylece
          yüzen başlık çubuğu gerçekten içeriğin üstünden geçer. --}}
     <section class="hc-home-hero hc-home-hero--master relative isolate -mt-[var(--hc-header-h)] flex flex-col justify-end min-h-[82svh] items-stretch overflow-hidden pb-16 pt-[calc(var(--hc-header-h)+3rem)] sm:pb-20">
-        {{-- Bu görsel sayfanın LCP öğesi. Kaynak PNG 2.9 MB'tı; fotoğraf için
-             yanlış format. Aynı kare AVIF olarak 222 KB, WebP olarak 294 KB;
-             dar ekranda 61 KB. PNG en sonda, eski tarayıcılar için duruyor. --}}
         <picture>
             <source type="image/avif" sizes="100vw" srcset="{{ asset('images/house-chef-hero-v2-900.avif').'?v=2' }} 900w, {{ asset('images/house-chef-hero-v2-1440.avif').'?v=2' }} 1440w, {{ asset('images/house-chef-hero-v2-1717.avif').'?v=2' }} 1717w">
             <source type="image/webp" sizes="100vw" srcset="{{ asset('images/house-chef-hero-v2-900.webp') }} 900w, {{ asset('images/house-chef-hero-v2-1440.webp') }} 1440w, {{ asset('images/house-chef-hero-v2-1717.webp') }} 1717w">
-            <img class="v2-hero-image absolute inset-0 -z-20 h-full w-full object-cover object-[64%_center]" src="{{ asset('images/house-chef-hero-v2.png') }}" width="1717" height="916" alt="Halloumi, domates ve zeytinli Kıbrıs esintili Akdeniz tabağı" fetchpriority="high" decoding="async">
+            <img class="v2-hero-image absolute inset-0 -z-30 h-full w-full object-cover object-[64%_center]" src="{{ asset('images/house-chef-hero-v2.png') }}" width="1717" height="916" alt="Halloumi, domates ve zeytinli Kıbrıs esintili Akdeniz tabağı" fetchpriority="high" decoding="async">
         </picture>
-        {{-- Görselin üstünde duran döngü videosu. Görselin yerine geçmez:
-             LCP hâlâ yukarıdaki karedir, video sayfa yüklendikten sonra
-             açılır ve yalnız geniş ekranda, hareket kısıtlı değilse yüklenir.
-             Dosya yoksa bileşen hiçbir şey basmaz. --}}
+        {{-- Yüksek kaliteli ana video: Kullanıcı talebi doğrultusunda kristal netliğinde Akdeniz mutfak videosu doğrudan açılışta kesintisiz başlar. --}}
         <x-hero-video />
         {{-- İki katman: yatay olan metne okunur bir zemin verir, dikey olan
              hem çubuğu hem de alt kenarı sayfa zeminine bağlar.

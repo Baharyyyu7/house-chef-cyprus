@@ -525,10 +525,9 @@ document.addEventListener('alpine:init', () => {
     const kapilarAcik = () => {
         const baglanti = navigator.connection || {};
 
-        return genisEkran.matches
-            && ! hareketKisitli.matches
+        return ! hareketKisitli.matches
             && baglanti.saveData !== true
-            && ! ['slow-2g', '2g', '3g'].includes(baglanti.effectiveType);
+            && ! ['slow-2g', '2g'].includes(baglanti.effectiveType);
     };
 
     let kaynakTakildi = false;
