@@ -13,16 +13,18 @@ final class SeoSchemaService
     /** @return array<string,mixed> */
     public function recipe(Recipe $recipe, array $ingredients, string $imageUrl = '', ?string $cuisineUrl = null): array
     {
+        $isEn = app()->getLocale() === 'en';
         $recipeNode = [
             '@type' => 'Recipe', 'name' => $recipe->title,
             'description' => $recipe->description ?: $recipe->excerpt,
             'url' => route('recipes.show', $recipe),
             'mainEntityOfPage' => route('recipes.show', $recipe),
+            'inLanguage' => app()->getLocale(),
             'dateModified' => $recipe->updated_at?->toAtomString(),
             'recipeCuisine' => $recipe->cuisine?->name,
             'recipeCategory' => $recipe->category?->name,
             'prepTime' => 'PT'.$recipe->prep_minutes.'M', 'cookTime' => 'PT'.$recipe->cook_minutes.'M',
-            'totalTime' => 'PT'.$recipe->totalMinutes().'M', 'recipeYield' => $recipe->servings.' porsiyon',
+            'totalTime' => 'PT'.$recipe->totalMinutes().'M', 'recipeYield' => $recipe->servings.' '.($isEn ? 'servings' : 'porsiyon'),
             'recipeIngredient' => $ingredients,
             'recipeInstructions' => $recipe->steps->values()->map(fn ($step, int $index): array => [
                 '@type' => 'HowToStep',
@@ -41,12 +43,12 @@ final class SeoSchemaService
             ],
             'datePublished' => $recipe->published_at?->toAtomString(),
         ];
-        $crumbs = [['name' => 'Ana Sayfa', 'url' => route('home')]];
+        $crumbs = [['name' => $isEn ? 'Home' : 'Ana Sayfa', 'url' => route('home')]];
         if ($recipe->cuisine !== null && $cuisineUrl !== null) {
-            $crumbs[] = ['name' => 'Mutfaklar', 'url' => route('cuisines.index')];
+            $crumbs[] = ['name' => $isEn ? 'Cuisines' : 'Mutfaklar', 'url' => route('cuisines.index')];
             $crumbs[] = ['name' => $recipe->cuisine->name, 'url' => $cuisineUrl];
         } else {
-            $crumbs[] = ['name' => 'Tarifler', 'url' => route('recipes.index')];
+            $crumbs[] = ['name' => $isEn ? 'Recipes' : 'Tarifler', 'url' => route('recipes.index')];
         }
         $crumbs[] = ['name' => $recipe->title, 'url' => route('recipes.show', $recipe)];
 
@@ -71,12 +73,13 @@ final class SeoSchemaService
             'logo' => url(config('brand.assets.mark_light')),
         ];
 
-        $article = ['@type' => 'BlogPosting', 'headline' => $post->title, 'description' => $post->excerpt, 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => $publisher, 'publisher' => $publisher, 'inLanguage' => 'tr'];
+        $isEn = app()->getLocale() === 'en';
+        $article = ['@type' => 'BlogPosting', 'headline' => $post->title, 'description' => $post->excerpt, 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => $publisher, 'publisher' => $publisher, 'inLanguage' => app()->getLocale()];
         if ($imageUrl !== '') {
             $article['image'] = [$imageUrl];
         }
         $graph = $this->graph($article, [
-            ['name' => 'Ana Sayfa', 'url' => route('home')],
+            ['name' => $isEn ? 'Home' : 'Ana Sayfa', 'url' => route('home')],
             ['name' => 'Blog', 'url' => route('blog.index')],
             ['name' => $post->title, 'url' => route('blog.show', $post)],
         ]);

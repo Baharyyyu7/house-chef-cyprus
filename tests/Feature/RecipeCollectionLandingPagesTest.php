@@ -80,6 +80,7 @@ final class RecipeCollectionLandingPagesTest extends TestCase
 
     public function test_collection_pages_emit_no_hreflang_while_only_turkish_is_enabled(): void
     {
+        config(['locales.supported.en.enabled' => false]);
         $this->tarifler(4, ['difficulty' => 'easy']);
 
         $this->get('/zorluk/kolay')->assertOk()->assertDontSee('rel="alternate" hreflang', false);

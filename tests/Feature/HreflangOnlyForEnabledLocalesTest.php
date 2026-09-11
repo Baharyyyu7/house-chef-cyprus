@@ -15,8 +15,8 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
 
     public function test_no_hreflang_while_only_one_locale_is_enabled(): void
     {
-        // Şu an yalnız Türkçe etkin. Tek dil varken hreflang'in bağlayacağı
-        // alternatif yok; boş yere etiket basmak hata raporu üretir.
+        config()->set('locales.supported.en.enabled', false);
+        // Tek dil etkinken hreflang'in bağlayacağı alternatif yok.
         $this->get(route('home'))
             ->assertOk()
             ->assertDontSee('rel="alternate" hreflang', false);

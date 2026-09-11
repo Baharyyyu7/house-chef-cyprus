@@ -1,3 +1,5 @@
+@import './admin-dashboard.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -714,7 +716,7 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
     .hc-card, .hc-panel { border-color: var(--hc-text-primary); }
 }
 
-@media print { .hc-public-header, .hc-mobile-drawer, .hc-footer, .hc-recipe-detail-hero nav, .hc-theme-button, .hc-icon-button, form, button, .hc-skip-link { display:none !important; } body { background:#fff; color:#111; } .hc-v3-card, .hc-panel { break-inside:avoid; box-shadow:none; } [data-legal-center] { background:#fff !important; padding:0 !important; } [data-legal-document] { max-width:none !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; padding:0 !important; } [data-legal-section] { break-inside:auto; } }
+@media print { .hc-public-header, .hc-mobile-drawer, .hc-footer, .hc-recipe-detail-hero nav, .hc-theme-button, .hc-icon-button, form, button, .hc-skip-link, [data-social-share], [data-ad-slot], .hc-ad-slot { display:none !important; } body { background:#fff; color:#111; } .hc-v3-card, .hc-panel { break-inside:avoid; box-shadow:none; } [data-legal-center] { background:#fff !important; padding:0 !important; } [data-legal-document] { max-width:none !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; padding:0 !important; } [data-legal-section] { break-inside:auto; } }
 
 /* =====================================================================
    Yönetim paneli düzeltmeleri

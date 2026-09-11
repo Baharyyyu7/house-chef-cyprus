@@ -45,6 +45,7 @@ use App\Http\Controllers\InformationPageController;
 use App\Http\Controllers\IngredientExplorerController;
 use App\Http\Controllers\IngredientHubController;
 use App\Http\Controllers\LegalInformationCenterController;
+use App\Http\Controllers\LlmsTxtController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PantryController;
 use App\Http\Controllers\PersonalizationController;
@@ -52,6 +53,7 @@ use App\Http\Controllers\PolicyPageController;
 use App\Http\Controllers\RecipeCollectionController;
 use App\Http\Controllers\RecipeCollectionLandingController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\RssFeedController;
 use App\Http\Controllers\SchedulerTriggerController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SitemapController;
@@ -172,6 +174,14 @@ Route::get('/sitemaps/pages.xml', [SitemapController::class, 'pages'])->name('si
 Route::get('/sitemaps/recipes.xml', [SitemapController::class, 'recipes'])->name('sitemap.recipes');
 Route::get('/sitemaps/blog.xml', [SitemapController::class, 'blog'])->name('sitemap.blog');
 Route::get('/sitemaps/images.xml', [SitemapController::class, 'images'])->name('sitemap.images');
+Route::get('/feed', [RssFeedController::class, 'index'])->name('feed');
+Route::get('/feed.xml', [RssFeedController::class, 'index']);
+Route::get('/rss.xml', [RssFeedController::class, 'index']);
+Route::get('/llms.txt', [LlmsTxtController::class, 'index'])->name('llms.txt');
+Route::get('/llms-full.txt', [LlmsTxtController::class, 'full'])->name('llms.full');
+Route::get('/opensearch.xml', fn () => response()->view('opensearch')->header('Content-Type', 'application/opensearchdescription+xml; charset=UTF-8')->header('Cache-Control', 'public, max-age=86400'))->name('opensearch');
+Route::get('/manifest.webmanifest', fn () => response(file_get_contents(public_path('brand/site.webmanifest')), 200, ['Content-Type' => 'application/manifest+json; charset=UTF-8']));
+Route::get('/c032a1e8e8214371b658ef9c7e0b57e1.txt', fn () => response(config('services.indexnow.key', 'c032a1e8e8214371b658ef9c7e0b57e1'), 200, ['Content-Type' => 'text/plain; charset=UTF-8']));
 Route::view('/robots.txt', 'robots')->name('robots');
 
 // Zamanlayıcı tetikleme ucu. Hostinger cron'u 2 Ağustos 2026'dan beri

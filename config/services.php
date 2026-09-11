@@ -58,4 +58,8 @@ return [
         'require_terms_consent' => env('STRIPE_REQUIRE_TERMS_CONSENT', true),
     ],
 
+    'indexnow' => [
+        'key' => env('INDEXNOW_KEY', 'c032a1e8e8214371b658ef9c7e0b57e1'),
+    ],
+
 ];

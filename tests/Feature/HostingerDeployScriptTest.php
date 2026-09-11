@@ -45,9 +45,25 @@ final class HostingerDeployScriptTest extends TestCase
         $this->assertLessThan($switch, $migration);
         $this->assertStringContainsString('ensure_physical_web_root()', $script);
         $this->assertStringContainsString('tar --exclude=\'./storage\' -cf - .', $script);
-        $this->assertStringContainsString("__DIR__.'/../current/vendor/autoload.php'", $script);
-        $this->assertStringContainsString("__DIR__.'/../current/bootstrap/app.php'", $script);
+        $this->assertStringContainsString('release_root="$(readlink -f "$CURRENT_LINK")"', $script);
+        $this->assertStringContainsString("require '\$release_root/vendor/autoload.php';", $script);
+        $this->assertStringContainsString("\$app = require_once '\$release_root/bootstrap/app.php';", $script);
+        $this->assertStringNotContainsString("__DIR__.'/../current/vendor/autoload.php'", $script);
         $this->assertStringContainsString('HOSTINGER_WEB_ROOT_DIAGNOSTIC', $script);
+    }
+
+    public function test_web_root_bootstraps_the_immutable_release_to_avoid_stale_fpm_realpath_cache(): void
+    {
+        $deploy = $this->script();
+        $rollback = (string) file_get_contents(base_path('scripts/rollback-hostinger-release.sh'));
+
+        foreach ([$deploy, $rollback] as $script) {
+            $this->assertStringContainsString('release_root="$(readlink -f "$CURRENT_LINK")"', $script);
+            $this->assertStringContainsString("require '\$release_root/vendor/autoload.php';", $script);
+            $this->assertStringContainsString("\$app = require_once '\$release_root/bootstrap/app.php';", $script);
+            $this->assertStringNotContainsString("__DIR__.'/../current/vendor/autoload.php'", $script);
+            $this->assertStringNotContainsString("__DIR__.'/../current/bootstrap/app.php'", $script);
+        }
     }
 
     public function test_public_html_sync_recreates_storage_without_deleting_hostinger_hidden_files(): void

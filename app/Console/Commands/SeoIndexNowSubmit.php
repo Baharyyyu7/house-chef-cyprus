@@ -4,21 +4,41 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Models\IndexingEvent;
+use App\Services\Seo\IndexNowService;
 use Illuminate\Console\Command;
 
 final class SeoIndexNowSubmit extends Command
 {
-    protected $signature = 'seo:indexnow-submit {--json}';
+    protected $signature = 'seo:indexnow-submit {--dry-run : Sadece gönderilecek URL listesini görüntüler}';
 
-    protected $description = 'IndexNow gönderim durumunu güvenli biçimde kontrol eder; kapalı sağlayıcıya istek göndermez.';
+    protected $description = 'Son güncellenen tarif ve blog yazılarını IndexNow (Bing/Yandex) arama motorlarına anında bildirir.';
 
-    public function handle(): int
+    public function handle(IndexNowService $service): int
     {
-        $enabled = (bool) config('seo.indexnow.enabled');
-        $payload = ['provider' => 'indexnow', 'enabled' => $enabled, 'submitted' => 0, 'reason' => $enabled ? 'manual_approval_required' : 'provider_disabled'];
-        IndexingEvent::query()->create(['url' => route('sitemap'), 'event_type' => 'sitemap_check', 'provider' => 'indexnow', 'status' => $enabled ? 'pending_approval' : 'disabled']);
-        $this->option('json') ? $this->line((string) json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) : $this->warn('IndexNow otomatik gönderimi kapalıdır; hiçbir dış istekte bulunulmadı.');
+        $urls = $service->collectRecentUrls();
+        $this->line(sprintf('IndexNow kuyruğu: %d adres tespit edildi.', count($urls)));
+
+        if ($this->option('dry-run')) {
+            foreach (array_slice($urls, 0, 10) as $url) {
+                $this->line('  - ' . $url);
+            }
+            if (count($urls) > 10) {
+                $this->line(sprintf('  ... ve %d adres daha.', count($urls) - 10));
+            }
+            $this->info('[DRY-RUN] İstek gönderilmedi.');
+
+            return self::SUCCESS;
+        }
+
+        $result = $service->submit($urls);
+
+        if ($result['success'] || in_array($result['status'], [200, 202], true)) {
+            $this->info(sprintf('✓ %d adres IndexNow protokolü ile arama motorlarına başarıyla bildirildi (HTTP %d).', $result['count'], $result['status']));
+
+            return self::SUCCESS;
+        }
+
+        $this->warn(sprintf('IndexNow yanıtı: HTTP %d (Kuyruktaki %d adres)', $result['status'], $result['count']));
 
         return self::SUCCESS;
     }

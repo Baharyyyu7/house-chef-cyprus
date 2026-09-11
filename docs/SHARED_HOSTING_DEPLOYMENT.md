@@ -12,7 +12,7 @@ This runbook uses immutable releases and never runs Node/npm on Hostinger. Build
   shared/logs/
   current -> releases/<commit-sha>
   public_html/                 # physical Hostinger web root
-    index.php                  # stable bootstrap into ../current
+    index.php                  # bootstrap into the immutable active release
     .htaccess
     build/
     storage -> shared/storage/app/public
@@ -21,8 +21,10 @@ This runbook uses immutable releases and never runs Node/npm on Hostinger. Build
 Hostinger may not follow a `public_html -> current/public` symlink across the
 domain root. Therefore `public_html` is kept as a physical, stable directory.
 Each deploy synchronizes the active release's `public/` files without deleting
-Hostinger-owned hidden files, then writes a stable `index.php` that loads
-`../current/vendor/autoload.php` and `../current/bootstrap/app.php`. The
+Hostinger-owned hidden files, then writes `index.php` with the resolved,
+immutable active release paths for `vendor/autoload.php` and `bootstrap/app.php`.
+This avoids PHP-FPM realpath/OPcache continuing to execute the prior release
+after the `current` symlink changes. The
 `current` release link remains the only atomic release switch. `public_html/storage`
 is recreated as a shell-created link to `shared/storage/app/public`.
 

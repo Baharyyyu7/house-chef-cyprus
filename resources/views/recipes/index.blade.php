@@ -18,11 +18,11 @@
 
     $koleksiyonBaglantisi = fn (string $tur, string $slug): ?string => $koleksiyonlar[$tur.':'.$slug] ?? null;
     $sayfaBasligi = $anaSayfa
-        ? 'House Chef Cyprus — Kıbrıs ve Akdeniz Mutfağı Tarifleri'
-        : 'Tarifler — Kıbrıs ve Akdeniz Mutfağı · House Chef Cyprus';
+        ? __('archive.page_title_home')
+        : __('archive.page_title_recipes');
     $sayfaAciklamasi = $anaSayfa
-        ? 'Kıbrıs ve Akdeniz mutfağından ölçüleri doğrulanmış tarifler. Dolabınızdaki malzemeye göre ne pişirebileceğinizi bulun, adım adım pişirin.'
-        : 'Kıbrıs ve Akdeniz mutfağından '.$recipes->total().' doğrulanmış tarif. Süreye, mutfağa, kategoriye ve alerjene göre filtreleyin; her tarifte ölçüler ve besin değerleri görünür.';
+        ? __('archive.meta_desc_home')
+        : __('archive.meta_desc_recipes', ['total' => $recipes->total()]);
 @endphp
 <x-layouts.site :title="$sayfaBasligi" :meta-description="$sayfaAciklamasi" :canonical-url="$seoIndexability['canonical']" :robots="$seoIndexability['robots']">
 @if (request()->routeIs('home'))
@@ -31,51 +31,51 @@
     <section class="hc-container hc-page hc-recipe-archive">
         <div class="grid gap-6 border-b pb-8 sm:grid-cols-[1fr_auto] sm:items-end" style="border-color: var(--hc-line)">
             <div class="max-w-3xl">
-                <p class="hc-kicker">Doğrulanmış tarif koleksiyonu</p>
-                <h1 class="hc-display-lg mt-3">Tarifleri keşfedin.</h1>
-                <p class="hc-body-lg mt-4" style="color: var(--hc-text-secondary)">Kıbrıs ve Akdeniz mutfağından, ölçüleri ve editoryal bilgileri görünür {{ $recipes->total() }} özgün tarif.</p>
+                <p class="hc-kicker">{{ __('archive.kicker') }}</p>
+                <h1 class="hc-display-lg mt-3">{{ __('archive.title') }}</h1>
+                <p class="hc-body-lg mt-4" style="color: var(--hc-text-secondary)">{{ __('archive.subtitle', ['total' => $recipes->total()]) }}</p>
             </div>
-            <a href="{{ route('ingredients.explore') }}" class="hc-v3-btn hc-v3-btn--outline">Malzemelerimle eşleştir <span aria-hidden="true">→</span></a>
+            <a href="{{ route('ingredients.explore') }}" class="hc-v3-btn hc-v3-btn--outline">{{ __('archive.match_with_ingredients') }} <span aria-hidden="true">→</span></a>
         </div>
 
-        <form class="hc-v3-card mt-7 grid gap-4 p-4 sm:p-5" action="{{ route('recipes.index') }}" aria-label="Tarif filtreleri">
+        <form class="hc-v3-card mt-7 grid gap-4 p-4 sm:p-5" action="{{ route('recipes.index') }}" aria-label="{{ __('archive.search_recipes') }}">
             <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_12rem_12rem_auto]">
             <div>
-                <label class="hc-v3-field-label" for="recipe-search">Tarif ara</label>
-                <input id="recipe-search" class="hc-v3-input" name="q" value="{{ request('q') }}" placeholder="Tarif, malzeme veya mutfak ara">
+                <label class="hc-v3-field-label" for="recipe-search">{{ __('archive.search_recipes') }}</label>
+                <input id="recipe-search" class="hc-v3-input" name="q" value="{{ request('q') }}" placeholder="{{ __('archive.search_placeholder') }}">
             </div>
             <div>
-                <label class="hc-v3-field-label" for="cuisine">Mutfak</label>
-                <select id="cuisine" class="hc-v3-input" name="cuisine"><option value="">Tüm mutfaklar</option>@foreach($cuisines as $cuisine)<option value="{{ $cuisine->slug }}" @selected(request('cuisine') === $cuisine->slug)>{{ $cuisine->name }}</option>@endforeach</select>
+                <label class="hc-v3-field-label" for="cuisine">{{ __('archive.cuisine') }}</label>
+                <select id="cuisine" class="hc-v3-input" name="cuisine"><option value="">{{ __('archive.all_cuisines') }}</option>@foreach($cuisines as $cuisine)<option value="{{ $cuisine->slug }}" @selected(request('cuisine') === $cuisine->slug)>{{ $cuisine->name }}</option>@endforeach</select>
             </div>
             <div>
-                <label class="hc-v3-field-label" for="max_minutes">En fazla süre</label>
-                <select id="max_minutes" class="hc-v3-input" name="max_minutes"><option value="">Her süre</option><option value="20" @selected(request('max_minutes') === '20')>20 dk altında</option><option value="40" @selected(request('max_minutes') === '40')>40 dk altında</option><option value="60" @selected(request('max_minutes') === '60')>60 dk altında</option></select>
+                <label class="hc-v3-field-label" for="max_minutes">{{ __('archive.max_time') }}</label>
+                <select id="max_minutes" class="hc-v3-input" name="max_minutes"><option value="">{{ __('archive.any_time') }}</option><option value="20" @selected(request('max_minutes') === '20')>{{ __('archive.under_20_min') }}</option><option value="40" @selected(request('max_minutes') === '40')>{{ __('archive.under_40_min') }}</option><option value="60" @selected(request('max_minutes') === '60')>{{ __('archive.under_60_min') }}</option></select>
             </div>
-                <button class="hc-v3-btn hc-v3-btn--primary self-end" type="submit">Tarifleri göster</button>
+                <button class="hc-v3-btn hc-v3-btn--primary self-end" type="submit">{{ __('archive.show_recipes') }}</button>
             </div>
             <details class="group border-t pt-4" style="border-color: var(--hc-border-subtle)">
-                <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-extrabold"><span>Gelişmiş filtreler</span><span class="transition group-open:rotate-45" aria-hidden="true">+</span></summary>
+                <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-extrabold"><span>{{ __('archive.advanced_filters') }}</span><span class="transition group-open:rotate-45" aria-hidden="true">+</span></summary>
                 <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div><label class="hc-v3-field-label" for="category">Kategori</label><select id="category" class="hc-v3-input" name="category"><option value="">Tüm kategoriler</option>@foreach($categories as $category)<option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>{{ $category->name }}</option>@endforeach</select></div>
-                    <div><label class="hc-v3-field-label" for="difficulty">Zorluk</label><select id="difficulty" class="hc-v3-input" name="difficulty"><option value="">Her seviye</option>@foreach(\App\Models\Recipe::ZORLUKLAR as $difficultyValue => $difficultyLabel)<option value="{{ $difficultyValue }}" @selected(\App\Models\Recipe::zorlukKanonik(request('difficulty')) === $difficultyValue)>{{ $difficultyLabel }}</option>@endforeach</select></div>
-                    <div><label class="hc-v3-field-label" for="dietary_tag">Beslenme tercihi</label><select id="dietary_tag" class="hc-v3-input" name="dietary_tag"><option value="">Tümü</option>@foreach($dietaryTags as $tag)<option value="{{ $tag->code }}" @selected(request('dietary_tag') === $tag->code)>{{ $tag->name }}</option>@endforeach</select></div>
-                    <div><label class="hc-v3-field-label" for="sort">Sıralama</label><select id="sort" class="hc-v3-input" name="sort"><option value="">Öne çıkanlar</option><option value="time" @selected(request('sort') === 'time')>En kısa süre</option></select></div>
-                    <div><label class="hc-v3-field-label" for="min_protein">En az protein (g)</label><input id="min_protein" class="hc-v3-input" type="number" min="0" step="0.1" name="min_protein" value="{{ request('min_protein') }}" placeholder="Örn. 15"></div>
-                    <div><label class="hc-v3-field-label" for="max_calories">En fazla kalori</label><input id="max_calories" class="hc-v3-input" type="number" min="0" step="1" name="max_calories" value="{{ request('max_calories') }}" placeholder="Örn. 500"></div>
-                    <div class="sm:col-span-2"><label class="hc-v3-field-label" for="exclude_allergens">Kesin alerjenleri hariç tut</label><select id="exclude_allergens" class="hc-v3-input min-h-24" name="exclude_allergens[]" multiple aria-describedby="allergen-filter-help">@foreach($allergens as $allergen)<option value="{{ $allergen->public_id }}" @selected(in_array($allergen->public_id, (array) request('exclude_allergens', []), true))>{{ $allergen->name }}</option>@endforeach</select><p id="allergen-filter-help" class="hc-v3-field-help">Yalnız kesin “içerir” bilgisi sonuçları hariç tutar.</p></div>
+                    <div><label class="hc-v3-field-label" for="category">{{ __('archive.category') }}</label><select id="category" class="hc-v3-input" name="category"><option value="">{{ __('archive.all_categories') }}</option>@foreach($categories as $category)<option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>{{ $category->name }}</option>@endforeach</select></div>
+                    <div><label class="hc-v3-field-label" for="difficulty">{{ __('archive.difficulty') }}</label><select id="difficulty" class="hc-v3-input" name="difficulty"><option value="">{{ __('archive.any_difficulty') }}</option>@foreach(\App\Models\Recipe::ZORLUKLAR as $difficultyValue => $difficultyLabel)<option value="{{ $difficultyValue }}" @selected(\App\Models\Recipe::zorlukKanonik(request('difficulty')) === $difficultyValue)>{{ __('recipe.difficulty_'.$difficultyValue) }}</option>@endforeach</select></div>
+                    <div><label class="hc-v3-field-label" for="dietary_tag">{{ __('archive.dietary_preference') }}</label><select id="dietary_tag" class="hc-v3-input" name="dietary_tag"><option value="">{{ __('archive.all_preferences') }}</option>@foreach($dietaryTags as $tag)<option value="{{ $tag->code }}" @selected(request('dietary_tag') === $tag->code)>{{ $tag->name }}</option>@endforeach</select></div>
+                    <div><label class="hc-v3-field-label" for="sort">{{ __('archive.sort') }}</label><select id="sort" class="hc-v3-input" name="sort"><option value="">{{ __('archive.sort_featured') }}</option><option value="time" @selected(request('sort') === 'time')>{{ __('archive.sort_time') }}</option></select></div>
+                    <div><label class="hc-v3-field-label" for="min_protein">{{ __('archive.min_protein') }}</label><input id="min_protein" class="hc-v3-input" type="number" min="0" step="0.1" name="min_protein" value="{{ request('min_protein') }}" placeholder="15"></div>
+                    <div><label class="hc-v3-field-label" for="max_calories">{{ __('archive.max_calories') }}</label><input id="max_calories" class="hc-v3-input" type="number" min="0" step="1" name="max_calories" value="{{ request('max_calories') }}" placeholder="500"></div>
+                    <div class="sm:col-span-2"><label class="hc-v3-field-label" for="exclude_allergens">{{ __('archive.exclude_allergens') }}</label><select id="exclude_allergens" class="hc-v3-input min-h-24" name="exclude_allergens[]" multiple aria-describedby="allergen-filter-help">@foreach($allergens as $allergen)<option value="{{ $allergen->public_id }}" @selected(in_array($allergen->public_id, (array) request('exclude_allergens', []), true))>{{ $allergen->name }}</option>@endforeach</select><p id="allergen-filter-help" class="hc-v3-field-help">{{ __('archive.allergen_help') }}</p></div>
                 </div>
             </details>
         </form>
 
         @php($activeFilters = collect(request()->except(['page']))->filter(fn ($value) => filled($value) || is_array($value) && $value !== []))
         @if($activeFilters->isNotEmpty())
-            <div class="mt-4 flex flex-wrap items-center gap-2" aria-live="polite"><span class="hc-v3-badge hc-v3-badge--accent">{{ $activeFilters->count() }} filtre uygulandı</span>@foreach($activeFilters as $key => $value)@if($key === 'exclude_allergens')@foreach((array) $value as $allergenId)@php($allergen = $allergens->firstWhere('public_id', $allergenId))<a class="hc-v3-badge" href="{{ route('recipes.index', array_merge(request()->except(['page', 'exclude_allergens']), ['exclude_allergens' => array_values(array_filter((array) request('exclude_allergens', []), fn ($id) => $id !== $allergenId))])) }}">{{ $allergen?->name ?? 'Alerjen' }} <span aria-hidden="true">×</span><span class="sr-only"> filtresini kaldır</span></a>@endforeach@else<a class="hc-v3-badge" href="{{ route('recipes.index', request()->except(['page', $key])) }}">{{ match($key) {'q' => 'Arama: '.$value, 'cuisine' => 'Mutfak', 'category' => 'Kategori', 'difficulty' => 'Zorluk: '.$value, 'dietary_tag' => 'Beslenme tercihi', 'max_minutes' => 'Süre: '.$value.' dk', 'min_protein' => 'Protein: '.$value.' g', 'max_calories' => 'Kalori: '.$value, 'sort' => 'En kısa süre', default => 'Filtre'} }} <span aria-hidden="true">×</span><span class="sr-only"> filtresini kaldır</span></a>@endif@endforeach<a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" href="{{ route('recipes.index') }}">Tümünü temizle</a></div>
+            <div class="mt-4 flex flex-wrap items-center gap-2" aria-live="polite"><span class="hc-v3-badge hc-v3-badge--accent">{{ __('archive.filters_applied', ['count' => $activeFilters->count()]) }}</span>@foreach($activeFilters as $key => $value)@if($key === 'exclude_allergens')@foreach((array) $value as $allergenId)@php($allergen = $allergens->firstWhere('public_id', $allergenId))<a class="hc-v3-badge" href="{{ route('recipes.index', array_merge(request()->except(['page', 'exclude_allergens']), ['exclude_allergens' => array_values(array_filter((array) request('exclude_allergens', []), fn ($id) => $id !== $allergenId))])) }}">{{ $allergen?->name ?? 'Alerjen' }} <span aria-hidden="true">×</span><span class="sr-only"> {{ __('archive.remove_filter') }}</span></a>@endforeach@else<a class="hc-v3-badge" href="{{ route('recipes.index', request()->except(['page', $key])) }}">{{ match($key) {'q' => $value, 'cuisine' => __('archive.cuisine'), 'category' => __('archive.category'), 'difficulty' => __('archive.difficulty').': '.$value, 'dietary_tag' => __('archive.dietary_preference'), 'max_minutes' => $value.' '.__('card.min'), 'min_protein' => $value.' g', 'max_calories' => $value.' kcal', 'sort' => __('archive.sort_time'), default => 'Filter'} }} <span aria-hidden="true">×</span><span class="sr-only"> {{ __('archive.remove_filter') }}</span></a>@endif@endforeach<a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" href="{{ route('recipes.index') }}">{{ __('archive.clear_all') }}</a></div>
         @endif
 
         <div class="mt-10 flex flex-wrap items-center justify-between gap-3">
-            <p class="hc-body-sm" style="color: var(--hc-text-secondary)"><strong style="color: var(--hc-text-primary)">{{ $recipes->total() }}</strong> doğrulanmış tarif bulundu</p>
-            <span class="hc-v3-badge hc-v3-badge--success"><span aria-hidden="true">●</span> Türkçe editoryal içerik</span>
+            <p class="hc-body-sm" style="color: var(--hc-text-secondary)">{!! __('archive.total_found', ['total' => $recipes->total()]) !!}</p>
+            <span class="hc-v3-badge hc-v3-badge--success"><span aria-hidden="true">●</span> {{ __('archive.editorial_badge') }}</span>
         </div>
         @if($koleksiyonlar !== [])
             <nav class="mt-5 flex flex-wrap gap-2" aria-label="Tarif seçkileri">
@@ -93,7 +93,7 @@
                     <x-ad-slot slot-name="in_feed" class="col-span-full my-2" />
                 @endif
             @empty
-                <div class="hc-v3-empty col-span-full"><p class="hc-heading-3">Bu ölçütlere uygun tarif yok.</p><p class="hc-body-sm mt-2">Arama ifadenizi veya filtreleri değiştirip tekrar deneyin.</p><div class="mt-5 flex flex-wrap justify-center gap-3"><a class="hc-v3-btn hc-v3-btn--outline" href="{{ route('recipes.index') }}">Tüm tarifleri göster</a><a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('ingredients.explore') }}">Elindekilerle tarif bul</a></div></div>
+                <div class="hc-v3-empty col-span-full"><p class="hc-heading-3">{{ __('archive.empty_title') }}</p><p class="hc-body-sm mt-2">{{ __('archive.empty_subtitle') }}</p><div class="mt-5 flex flex-wrap justify-center gap-3"><a class="hc-v3-btn hc-v3-btn--outline" href="{{ route('recipes.index') }}">{{ __('archive.show_all_recipes') }}</a><a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('ingredients.explore') }}">{{ __('archive.find_with_pantry') }}</a></div></div>
             @endforelse
         </div>
         <div class="mt-10">{{ $recipes->withQueryString()->links() }}</div>

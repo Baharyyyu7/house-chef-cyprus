@@ -71,7 +71,18 @@ class Recipe extends Model
     /** Gösterim etiketi. */
     public function zorlukEtiketi(): ?string
     {
-        return self::ZORLUKLAR[self::zorlukKanonik($this->difficulty)] ?? null;
+        $kanonik = self::zorlukKanonik($this->difficulty);
+        if ($kanonik === null) {
+            return null;
+        }
+
+        $transKey = 'recipe.difficulty_'.$kanonik;
+        $translated = __($transKey);
+        if ($translated !== $transKey) {
+            return $translated;
+        }
+
+        return self::ZORLUKLAR[$kanonik] ?? null;
     }
 
     /** Yazarken normalleştir ki karışım bir daha oluşmasın. */

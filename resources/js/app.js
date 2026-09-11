@@ -31,6 +31,7 @@ const chartConfig = (data) => {
     const grid = cssVariable('--hc-border-subtle');
     const colors = palette();
     const isDonut = data.type === 'doughnut';
+    const fontFamily = getComputedStyle(document.body).fontFamily;
 
     return {
         type: data.type,
@@ -54,12 +55,12 @@ const chartConfig = (data) => {
             maintainAspectRatio: false,
             animation: reducedMotion ? false : { duration: 420, easing: 'easeOutQuart' },
             plugins: {
-                legend: { display: isDonut, position: 'bottom', labels: { color: text, boxWidth: 10, padding: 14, font: { family: 'Inter' } } },
+                legend: { display: isDonut, position: 'bottom', labels: { color: text, boxWidth: 10, padding: 14, font: { family: fontFamily } } },
                 tooltip: { backgroundColor: cssVariable('--hc-surface-overlay'), titleColor: cssVariable('--hc-text-primary'), bodyColor: cssVariable('--hc-text-secondary'), borderColor: cssVariable('--hc-border-default'), borderWidth: 1, padding: 11, cornerRadius: 10 },
             },
             scales: isDonut ? {} : {
-                x: { grid: { display: false }, ticks: { color: text, maxRotation: 0, autoSkipPadding: 14, font: { family: 'Inter' } } },
-                y: { beginAtZero: true, grid: { color: grid }, border: { display: false }, ticks: { color: text, precision: 0, font: { family: 'Inter' } } },
+                x: { grid: { display: false }, ticks: { color: text, maxRotation: 0, autoSkipPadding: 14, font: { family: fontFamily } } },
+                y: { beginAtZero: true, grid: { color: grid }, border: { display: false }, ticks: { color: text, precision: 0, font: { family: fontFamily } } },
             },
         },
     };
@@ -227,6 +228,89 @@ document.addEventListener('alpine:init', () => {
         },
         get label() {
             return this.completed > 0 ? `${this.completed} / ${this.total} adım` : `${this.total} adım`;
+        },
+    }));
+
+    window.Alpine.data('hcRecipeIngredients', (slug) => ({
+        key: `hc-ing-${slug}`,
+        checked: [],
+        init() {
+            this.checked = this.read();
+        },
+        read() {
+            try {
+                const stored = JSON.parse(window.localStorage.getItem(this.key) ?? '[]');
+                return Array.isArray(stored) ? stored : [];
+            } catch {
+                return [];
+            }
+        },
+        persist() {
+            try {
+                window.localStorage.setItem(this.key, JSON.stringify(this.checked));
+            } catch {
+                // Depolama kapalıysa oturum boyunca çalışır.
+            }
+        },
+        isChecked(id) {
+            return this.checked.includes(String(id));
+        },
+        toggle(id) {
+            const sid = String(id);
+            this.checked = this.isChecked(sid)
+                ? this.checked.filter((v) => v !== sid)
+                : [...this.checked, sid];
+            this.persist();
+        },
+        reset() {
+            this.checked = [];
+            this.persist();
+        },
+        get count() {
+            return this.checked.length;
+        },
+    }));
+
+    window.Alpine.data('hcCookMode', () => ({
+        wakeLock: null,
+        active: false,
+        supported: 'wakeLock' in navigator,
+        async toggle() {
+            if (!this.supported) return;
+            if (this.active) {
+                await this.release();
+            } else {
+                await this.request();
+            }
+        },
+        async request() {
+            try {
+                this.wakeLock = await navigator.wakeLock.request('screen');
+                this.active = true;
+                this.wakeLock.addEventListener('release', () => {
+                    this.active = false;
+                    this.wakeLock = null;
+                });
+            } catch (err) {
+                this.active = false;
+                this.wakeLock = null;
+            }
+        },
+        async release() {
+            if (this.wakeLock) {
+                try {
+                    await this.wakeLock.release();
+                } catch {}
+                this.wakeLock = null;
+            }
+            this.active = false;
+        },
+        init() {
+            document.addEventListener('visibilitychange', async () => {
+                if (this.active && document.visibilityState === 'visible') {
+                    await this.request();
+                }
+            });
         },
     }));
 });

@@ -89,23 +89,27 @@ sync_hostinger_web_root() {
 }
 
 write_hostinger_web_root_index() {
+    local release_root
     if "$DRY_RUN"; then
-        log "Would write stable Hostinger bootstrap index at $(web_root_index)."
+        log "Would write immutable-release Hostinger bootstrap index at $(web_root_index)."
         return 0
     fi
 
-    cat > "$(web_root_index)" <<'PHP'
+    release_root="$(readlink -f "$CURRENT_LINK")"
+    [[ "$release_root" == "$RELEASES_DIR/"* && -f "$release_root/artisan" ]] || fail 'HOSTINGER_WEB_ROOT_RELEASE_TARGET_INVALID'
+
+    cat > "$(web_root_index)" <<PHP
 <?php
 
 declare(strict_types=1);
 
 use Illuminate\Http\Request;
 
-require __DIR__.'/../current/vendor/autoload.php';
+require '$release_root/vendor/autoload.php';
 
-$app = require_once __DIR__.'/../current/bootstrap/app.php';
+\$app = require_once '$release_root/bootstrap/app.php';
 
-$app->handleRequest(Request::capture());
+\$app->handleRequest(Request::capture());
 PHP
 }
 
@@ -135,8 +139,8 @@ verify_hostinger_web_root() {
 
     test -f "$(web_root_index)" || fail 'HOSTINGER_WEB_ROOT_INDEX_MISSING'
     test -f "$CURRENT_LINK/public/index.php" || fail 'HOSTINGER_RELEASE_PUBLIC_INDEX_MISSING'
-    grep -Fq "__DIR__.'/../current/vendor/autoload.php'" "$(web_root_index)" || fail 'HOSTINGER_WEB_ROOT_AUTOLOAD_PATH_INVALID'
-    grep -Fq "__DIR__.'/../current/bootstrap/app.php'" "$(web_root_index)" || fail 'HOSTINGER_WEB_ROOT_BOOTSTRAP_PATH_INVALID'
+    grep -Fq "$(readlink -f "$CURRENT_LINK")/vendor/autoload.php" "$(web_root_index)" || fail 'HOSTINGER_WEB_ROOT_AUTOLOAD_PATH_INVALID'
+    grep -Fq "$(readlink -f "$CURRENT_LINK")/bootstrap/app.php" "$(web_root_index)" || fail 'HOSTINGER_WEB_ROOT_BOOTSTRAP_PATH_INVALID'
     test -f "$WEB_ROOT/.htaccess" || fail 'HOSTINGER_WEB_ROOT_HTACCESS_MISSING'
     test -f "$WEB_ROOT/build/manifest.json" || fail 'HOSTINGER_WEB_ROOT_BUILD_MANIFEST_MISSING'
     test -L "$(web_root_storage)" || fail 'HOSTINGER_WEB_ROOT_STORAGE_LINK_MISSING'
@@ -155,7 +159,7 @@ hostinger_404_diagnostic() {
     log "HOSTINGER_WEB_ROOT_DIAGNOSTIC public_html=$WEB_ROOT current_target=$(readlink -f "$CURRENT_LINK" 2>/dev/null || printf unavailable)"
     log "HOSTINGER_WEB_ROOT_DIAGNOSTIC index_exists=$([[ -f "$(web_root_index)" ]] && printf yes || printf no) htaccess_exists=$([[ -f "$WEB_ROOT/.htaccess" ]] && printf yes || printf no) build_manifest_exists=$([[ -f "$WEB_ROOT/build/manifest.json" ]] && printf yes || printf no) storage_link=$([[ -L "$(web_root_storage)" ]] && printf yes || printf no)"
     if [[ -f "$(web_root_index)" ]]; then
-        log "HOSTINGER_WEB_ROOT_DIAGNOSTIC autoload_path=$([[ $(grep -Fc "__DIR__.'/../current/vendor/autoload.php'" "$(web_root_index)") -gt 0 ]] && printf current || printf invalid) bootstrap_path=$([[ $(grep -Fc "__DIR__.'/../current/bootstrap/app.php'" "$(web_root_index)") -gt 0 ]] && printf current || printf invalid)"
+        log "HOSTINGER_WEB_ROOT_DIAGNOSTIC autoload_path=$([[ $(grep -Fc "$(readlink -f "$CURRENT_LINK")/vendor/autoload.php" "$(web_root_index)") -gt 0 ]] && printf immutable || printf invalid) bootstrap_path=$([[ $(grep -Fc "$(readlink -f "$CURRENT_LINK")/bootstrap/app.php" "$(web_root_index)") -gt 0 ]] && printf immutable || printf invalid)"
     fi
 }
 

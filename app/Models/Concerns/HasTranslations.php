@@ -34,6 +34,29 @@ trait HasTranslations
     }
 
     /**
+     * Otomatik çeviri erişimcisi.
+     *
+     * Çevrilebilir bir alan ($recipe->title gibi) doğrudan okunduğunda,
+     * eğer varsayılan dil dışındaysak ve çevirisi varsa çevrilmiş değeri
+     * döndürür. Çeviri yoksa veya varsayılan dildeysek Eloquent'in orijinal
+     * özniteliğine düşer.
+     */
+    public function getAttribute($key)
+    {
+        if (in_array($key, $this->translatableFields(), true)) {
+            $locale = app()->getLocale();
+            if ($locale !== (string) config('locales.default', 'tr')) {
+                $translated = $this->translated($key, $locale);
+                if ($translated !== null) {
+                    return $translated;
+                }
+            }
+        }
+
+        return parent::getAttribute($key);
+    }
+
+    /**
      * Bir alanın istenen dildeki değeri.
      *
      * Varsayılan dilde kaydın kendi sütunu kaynaktır; çeviri tablosuna
@@ -45,7 +68,7 @@ trait HasTranslations
         $locale ??= app()->getLocale();
 
         if ($locale === (string) config('locales.default', 'tr')) {
-            return $this->getAttribute($field);
+            return parent::getAttribute($field);
         }
 
         $ceviri = $this->relationLoaded('translations')

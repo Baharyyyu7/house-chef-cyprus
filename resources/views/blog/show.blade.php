@@ -18,11 +18,11 @@
                         {{ strtoupper(substr($post->author?->name ?? 'H', 0, 1)) }}
                     </span>
                     <div>
-                        <span class="block font-bold text-sm" style="color: var(--hc-text-primary)">{{ $post->author?->name ?? 'House Chef Cyprus Editoryal Ekibi' }}</span>
+                        <span class="block font-bold text-sm" style="color: var(--hc-text-primary)">{{ $post->author?->name ?? __('blog.show.author_default') }}</span>
                         <time datetime="{{ $post->published_at?->toIso8601String() }}">{{ $post->published_at?->format('d F Y') }}</time>
                     </div>
                 </div>
-                <span class="hc-v3-badge">{{ max(1, (int) ceil(str_word_count(strip_tags($post->body)) / 180)) }} dk okuma süresi</span>
+                <span class="hc-v3-badge">{{ __('blog.show.reading_time', ['minutes' => max(1, (int) ceil(str_word_count(strip_tags($post->body)) / 180))]) }}</span>
             </div>
 
             @if($heroMedia?->publicUrl())
@@ -30,13 +30,13 @@
                     <img class="aspect-[16/9] w-full rounded-3xl object-cover shadow-sm" src="{{ $heroMedia->responsiveUrl(1280) }}" @if($heroMedia->isApprovedUnsplash()) srcset="{{ $heroMedia->responsiveUrl(768) }} 768w, {{ $heroMedia->responsiveUrl(1280) }} 1280w" sizes="(min-width: 768px) 768px, 100vw" width="{{ $heroMedia->width }}" height="{{ $heroMedia->height }}" @endif alt="{{ $heroMedia->generated_by_ai ? 'Yapay zekâ ile üretilmiş editoryal illüstrasyon: ' : '' }}{{ $heroMedia->alt_text }}" loading="lazy">
                     @if($heroMedia->generated_by_ai)
                         <figcaption class="mt-3 flex items-center gap-2 text-xs" style="color: var(--hc-text-muted)">
-                            <span class="hc-v3-badge">Yapay zekâ görseli</span>
-                            <span>Yapay zekâ ile üretilmiş, editoryal olarak onaylanmış görsel. Gerçek fotoğraf olarak sunulmaz.</span>
+                            <span class="hc-v3-badge">{{ __('blog.show.ai_image_badge') }}</span>
+                            <span>{{ __('blog.show.ai_image_note') }}</span>
                         </figcaption>
                     @elseif($heroMedia->unsplashAttribution())
                         @php($unsplashCredit = $heroMedia->unsplashAttribution())
                         <figcaption class="mt-2 text-xs" style="color: var(--hc-text-muted)">
-                            Fotoğraf: @if($unsplashCredit['photographer_url'])<a class="underline hover:text-orange-600" href="{{ $unsplashCredit['photographer_url'] }}" rel="noopener noreferrer" target="_blank">{{ $unsplashCredit['photographer'] }}</a>@else{{ $unsplashCredit['photographer'] }}@endif / Unsplash
+                            {{ __('blog.show.photo_credit') }} @if($unsplashCredit['photographer_url'])<a class="underline hover:text-orange-600" href="{{ $unsplashCredit['photographer_url'] }}" rel="noopener noreferrer" target="_blank">{{ $unsplashCredit['photographer'] }}</a>@else{{ $unsplashCredit['photographer'] }}@endif / Unsplash
                         </figcaption>
                     @elseif($heroMedia->attribution)
                         <figcaption class="mt-2 text-xs" style="color: var(--hc-text-muted)">{{ $heroMedia->attribution }}</figcaption>
@@ -45,8 +45,8 @@
             @else
                 <div class="mt-8 flex aspect-[16/9] flex-col items-center justify-center gap-3 rounded-3xl border border-dashed p-8 text-center" style="border-color:var(--hc-border-subtle); background: var(--hc-surface-subtle)">
                     <span class="grid h-12 w-12 place-items-center rounded-full bg-orange-100 text-xl text-orange-800 dark:bg-orange-500/15 dark:text-orange-200">▤</span>
-                    <strong class="font-extrabold" style="color: var(--hc-text-primary)">Bu yazı için onaylı görsel bekleniyor</strong>
-                    <p class="max-w-md text-xs leading-5" style="color: var(--hc-text-muted)">Konuya özel, lisansı ve kaynağı doğrulanmış bir görsel onaylanana kadar genel veya ilgisiz fotoğraf gösterilmez.</p>
+                    <strong class="font-extrabold" style="color: var(--hc-text-primary)">{{ __('blog.show.pending_image_title') }}</strong>
+                    <p class="max-w-md text-xs leading-5" style="color: var(--hc-text-muted)">{{ __('blog.show.pending_image_body') }}</p>
                 </div>
             @endif
 
@@ -54,11 +54,15 @@
                 {!! $post->renderedBody() !!}
             </div>
 
+            <div class="mt-8 border-t pt-4" style="border-color: var(--hc-border-subtle)">
+                <x-social-share :title="$post->title" :description="$post->excerpt" :image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : null" />
+            </div>
+
             <x-ad-slot slot-name="in_article" class="my-8" />
 
             @if(!empty($post->faq_blocks))
                 <section class="mt-12 pt-8 border-t" style="border-color: var(--hc-border-subtle)" aria-labelledby="sss-basligi">
-                    <h2 id="sss-basligi" class="hc-heading-3">Sık sorulan sorular</h2>
+                    <h2 id="sss-basligi" class="hc-heading-3">{{ __('blog.show.faq_title') }}</h2>
                     <div class="mt-6 grid gap-4">
                         @foreach($post->faq_blocks as $faq)
                             @if(filled(data_get($faq, 'question')) && filled(data_get($faq, 'answer')))
@@ -74,14 +78,14 @@
 
             @if(!empty($post->source_notes))
                 <aside class="mt-10 rounded-2xl border p-6 text-sm" style="border-color: var(--hc-border-subtle); background: var(--hc-surface-muted)">
-                    <h2 class="font-extrabold text-base mb-2" style="color: var(--hc-text-primary)">İçerik ve kaynak notu</h2>
-                    <p class="leading-relaxed" style="color: var(--hc-text-secondary)">Bu yazı House Chef Cyprus Editoryal Ekibi tarafından hazırlanmıştır. Sağlık ve gıda güvenliğiyle ilgili noktalar genel bilgilendirme içindir.</p>
+                    <h2 class="font-extrabold text-base mb-2" style="color: var(--hc-text-primary)">{{ __('blog.show.source_title') }}</h2>
+                    <p class="leading-relaxed" style="color: var(--hc-text-secondary)">{{ __('blog.show.source_body') }}</p>
                 </aside>
             @endif
 
             @if($post->recipes->isNotEmpty())
                 <section class="mt-12 pt-8 border-t" style="border-color: var(--hc-border-subtle)">
-                    <h2 class="hc-heading-3 mb-6">İlgili tarifler</h2>
+                    <h2 class="hc-heading-3 mb-6">{{ __('blog.show.related_recipes') }}</h2>
                     <div class="grid gap-5 sm:grid-cols-2">
                         @foreach($post->recipes as $recipe)
                             <x-recipe-card-v3 :recipe="$recipe" :show-favorite="false" heading="h3" />
@@ -92,15 +96,15 @@
 
             @if($relatedPosts->isNotEmpty())
                 <section class="mt-12 pt-8 border-t" style="border-color: var(--hc-border-subtle)">
-                    <h2 class="hc-heading-3 mb-6">İlgili rehberler</h2>
+                    <h2 class="hc-heading-3 mb-6">{{ __('blog.show.related_guides') }}</h2>
                     <div class="grid gap-5 sm:grid-cols-3">
                         @foreach($relatedPosts as $relatedPost)
                             <article class="hc-v3-card hc-v3-card--interactive flex flex-col p-5 rounded-2xl border" style="border-color: var(--hc-border-default)">
-                                <span class="hc-kicker text-xs mb-2">{{ $relatedPost->category?->name ?? 'Mutfak notu' }}</span>
+                                <span class="hc-kicker text-xs mb-2">{{ $relatedPost->category?->name ?? __('blog.show.kitchen_note') }}</span>
                                 <h3 class="font-bold text-sm leading-snug line-clamp-2 mb-4" style="color: var(--hc-text-primary)">
                                     <a href="{{ route('blog.show', $relatedPost) }}" class="before:absolute before:inset-0">{{ $relatedPost->title }}</a>
                                 </h3>
-                                <span class="mt-auto text-xs font-bold text-orange-600">Devamını oku →</span>
+                                <span class="mt-auto text-xs font-bold text-orange-600">{{ __('blog.show.read_more') }} &rarr;</span>
                             </article>
                         @endforeach
                     </div>
