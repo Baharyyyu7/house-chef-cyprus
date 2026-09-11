@@ -57,6 +57,12 @@ final class IndexNowTest extends TestCase
 
     public function test_indexnow_command_runs_dry_run_successfully(): void
     {
+        // Sağlayıcı yapılandırmada kapalıyken komut erken dönüp "kapalı"
+        // uyarısı basıyor - doğru davranış, çünkü kapalı bir entegrasyon
+        // kuru çalıştırmada bile kuyruk raporlamamalı. Test kuyruk çıktısını
+        // ölçüyor, dolayısıyla sağlayıcıyı açması gerekiyor.
+        config()->set('seo.indexnow.enabled', true);
+
         $this->artisan('seo:indexnow-submit --dry-run')
             ->expectsOutputToContain('IndexNow kuyruğu')
             ->expectsOutputToContain('[DRY-RUN] İstek gönderilmedi.')

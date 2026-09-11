@@ -46,7 +46,10 @@ final class ProductCoreAuditTest extends TestCase
 
         $this->actingAs($member)->get(route('recipes.show', $recipe))
             ->assertOk()
-            ->assertSee('♥ Favorilerden çıkar');
+            // Birebir metin yerine çeviri anahtarı: kopya i18n çalışmasıyla
+            // "♥ Favorilerden çıkar"dan "♥ Favoride"ye taşındı ve test kırıldı.
+            // Testin konusu favori durumunun görünmesi, metnin kendisi değil.
+            ->assertSee(__('recipe.in_favorites'));
 
         $this->post(route('favorites.toggle', $recipe))->assertRedirect();
         $this->assertDatabaseMissing('favorites', ['user_id' => $member->id, 'recipe_id' => $recipe->id]);
