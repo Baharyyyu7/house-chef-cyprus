@@ -56,6 +56,17 @@ final class LlmsTxtController extends Controller
             $lines[] = $season['description'];
             $lines[] = '';
 
+            $weekNum = (int) date('W');
+            $spotlightIndex = $cypriotRecipes->isNotEmpty() ? ($weekNum % $cypriotRecipes->count()) : 0;
+            $spotlightRecipe = $cypriotRecipes->skip($spotlightIndex)->first() ?? $cypriotRecipes->first();
+
+            if ($spotlightRecipe) {
+                $lines[] = '## Haftanın Öne Çıkan Geleneksel Kıbrıs Lezzeti (Weekly Heritage Spotlight)';
+                $desc = trim((string) ($spotlightRecipe->description ?: $spotlightRecipe->excerpt));
+                $lines[] = sprintf('- [%s](%s): %s (%d dk hazırlık, %d dk pişirme)', $spotlightRecipe->title, route('recipes.show', $spotlightRecipe), $desc, $spotlightRecipe->prep_minutes, $spotlightRecipe->cook_minutes);
+                $lines[] = '';
+            }
+
             $lines[] = '## Geleneksel Kıbrıs Mutfağı Temel Taşları (Cypriot Culinary Heritage)';
             $lines[] = '';
             foreach ($cypriotRecipes as $recipe) {
@@ -140,6 +151,18 @@ final class LlmsTxtController extends Controller
             $lines[] = '## Current Seasonal Cyprus Focus: ' . $season['name'];
             $lines[] = $season['description'];
             $lines[] = '';
+
+            $weekNum = (int) date('W');
+            $spotlightIndex = $cypriotRecipes->isNotEmpty() ? ($weekNum % $cypriotRecipes->count()) : 0;
+            $spotlightRecipe = $cypriotRecipes->skip($spotlightIndex)->first() ?? $cypriotRecipes->first();
+
+            if ($spotlightRecipe) {
+                $lines[] = '## Weekly Cypriot Heritage Spotlight (Seasonal Feature)';
+                $spotlightTitle = $this->translator->translateRecipeTitle($spotlightRecipe, 'en');
+                $spotlightDesc = $this->translator->translateRecipeDescription($spotlightRecipe, 'en');
+                $lines[] = sprintf('- [%s](%s): %s (%d min prep, %d min cook)', $spotlightTitle, route('recipes.show', $spotlightRecipe), $spotlightDesc, $spotlightRecipe->prep_minutes, $spotlightRecipe->cook_minutes);
+                $lines[] = '';
+            }
 
             $lines[] = '## Traditional Cypriot Heritage Recipes';
             $lines[] = '';

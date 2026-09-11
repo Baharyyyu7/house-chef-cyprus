@@ -108,6 +108,7 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_internal_li
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_social_drafts', fn () => Artisan::call('seo:social-drafts')))->name('seo_social_drafts')->dailyAt('05:43')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_morning_brief', fn () => Artisan::call('seo:morning-brief')))->name('seo_morning_brief')->dailyAt('06:59')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_indexnow_submit', fn () => Artisan::call('seo:indexnow-submit')))->name('seo_indexnow_submit')->dailyAt('03:45')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_autonomous_growth', fn () => Artisan::call('seo:autonomous-growth')))->name('seo_autonomous_growth')->everyFourHours()->withoutOverlapping();
 // Draft-only content operations: limits are encoded in the command/config and auto-publish is permanently disabled.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_factory_recipe_drafts', fn () => Artisan::call('content:factory-seed', ['--type' => 'recipe', '--daily' => true])))->name('content_factory_recipe_drafts')->dailyAt('03:00')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_factory_blog_drafts', fn () => Artisan::call('content:factory-seed', ['--type' => 'blog', '--daily' => true])))->name('content_factory_blog_drafts')->dailyAt('04:30')->withoutOverlapping();
