@@ -1,3 +1,4 @@
+/* cache-bust: 2026-09-11-v2 */
 @import './admin-dashboard.css';
 
 @tailwind base;
@@ -10,6 +11,7 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
 @layer base {
     [x-cloak] { display: none !important; }
     :root {
+        --hc-release-tag:"v2026.09.11.2";
         --hc-background-page:#fff8f0; --hc-background-subtle:#fdf1e6; --hc-background-muted:#f5ede5; --hc-background-inverse:#171717;
         --hc-surface-default:#fffdfc; --hc-surface-raised:#fff; --hc-surface-overlay:rgba(255,253,252,.96); --hc-surface-interactive:#fff4ed; --hc-surface-selected:#ffead9;
         --hc-text-primary:#171717; --hc-text-secondary:#62564f; --hc-text-muted:#71645b; --hc-text-inverse:#fff8f0; --hc-text-accent:#c2410c; --hc-text-danger:#b42318; --hc-text-warning:#9a6700; --hc-text-success:#087443; --hc-text-info:#175cd3;

@@ -11,6 +11,7 @@
 // data-alpine-owner ile bildiriyor ve Alpine yalniz sahipsiz sayfalarda
 // buradan baslatiliyor.
 import Alpine from 'alpinejs';
+window.__HC_VERSION__ = '2026.09.11.2';
 let chartLibrary;
 
 const chartInstances = new WeakMap();
