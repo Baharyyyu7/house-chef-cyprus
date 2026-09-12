@@ -31,7 +31,7 @@ return [
             'html_locale' => 'en',
             'og_locale' => 'en_US',
             'direction' => 'ltr',
-            'enabled' => false,
+            'enabled' => true,
         ],
         'de' => [
             'flag' => '🇩🇪',
