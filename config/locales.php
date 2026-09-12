@@ -49,7 +49,7 @@ return [
             'html_locale' => 'fa',
             'og_locale' => 'fa_IR',
             'direction' => 'rtl',
-            'enabled' => false,
+            'enabled' => true,
         ],
         'pl' => [
             'flag' => '🇵🇱',

@@ -61,7 +61,7 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
 
         $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
 
-        foreach (['pl', 'fa'] as $kapali) {
+        foreach (['pl'] as $kapali) {
             $this->assertStringNotContainsString('hreflang="'.$kapali.'"', $icerik);
         }
     }

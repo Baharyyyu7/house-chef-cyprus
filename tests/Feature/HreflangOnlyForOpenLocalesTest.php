@@ -41,9 +41,9 @@ final class HreflangOnlyForOpenLocalesTest extends TestCase
     {
         config()->set('locales.supported.en.enabled', true);
 
-        // Farsça kapalı kalır.
+        // Lehçe kapalı kalır.
         $this->get(route('recipes.index'))
             ->assertOk()
-            ->assertDontSee('hreflang="fa"', false);
+            ->assertDontSee('hreflang="pl"', false);
     }
 }
