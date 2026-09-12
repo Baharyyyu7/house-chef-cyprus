@@ -265,14 +265,28 @@ testin 4'ü kırıktı ve dördü de bu commit'ten geliyordu:
 
 | Kusur | Sebep | Düzeltme |
 | --- | --- | --- |
-| Tarif şemasından `sameAs` düştü | `$recipeNode['sameAs'] = ...` satırı silinmiş | Geri kondu, gerekçesi yorumlandı |
+| Tarif şemasından `sameAs` düştü | `$recipeNode['sameAs'] = ...` satırı silinmiş | Koşullu geri kondu (aşağıya bak) |
 | 404 sayfası testi | "Ana Sayfaya Dön" → "Ana sayfaya dön" | Test çeviri anahtarına bağlandı |
 | Hata sayfaları testi | 500 başlığı yeniden yazılmış | Test çeviri anahtarına bağlandı |
 | Giriş sayfası testi | "Giriş yapın" → "Giriş yap" | Test çeviri anahtarına bağlandı |
 
-`sameAs` kaybı ciddiydi: Wikipedia ve Wikidata bağlantıları tarifi bilinen bir
-yemekle eşleştiren tek sinyaldir ve yabancı dilli okuyucu için asıl değerli
-olan da odur. Küresel açılımın ortasında silinecek son şeydi.
+**`sameAs` meselesi ilk göründüğünden inceydi.** Satırı geri koyunca başka bir
+test kırıldı: `GlobalSeoMetadataTest`, hellim tost tarifinin Halloumi'nin
+ansiklopedi maddesi olduğunu iddia etmemesini şart koşuyordu. İkisi de haklıydı.
+
+Düğümdeki `sameAs` bir **kimlik** iddiasıdır: "bu sayfa o varlığın ta
+kendisidir". `about` içindeki `sameAs` ise "bu sayfa o varlık **hakkındadır**"
+der. Şeftali kebabı tarifi gerçekten Sheftalia'dır - kimlik doğru. Hellim tost
+ise Halloumi değildir; hellim onun malzemesidir.
+
+Veride bu ayrım yoktu: 18 kaydın bir kısmı yemeğe (Sheftalia, Kleftiko,
+Kanafeh), bir kısmı malzemeye (Halloumi, Bucatini, Colocasia esculenta) işaret
+ediyordu ve hepsi aynı muameleyi görüyordu. `is_dish` bayrağı eklendi; düğüm
+seviyesindeki bağlantı yalnız yemek kayıtlarında basılıyor. Malzemeye işaret
+edenlerde bağlantı kaybolmuyor, doğru yerde - `about` içinde - kalıyor.
+
+Yani ne Codex'in silmesi ne benim geri koymam tek başına doğruydu. Nöbetçi
+test: `RecipeIdentityClaimsOnlyDishesTest`.
 
 Kopya testleri artık sabit metin değil `__('ux.*')` anahtarı denetliyor:
 korunmak istenen şey metnin kendisi değil, sayfanın Türkçe olması ve teknik

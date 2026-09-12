@@ -54,7 +54,11 @@ final class HreflangSetIsEmittedOnceTest extends TestCase
 
     public function test_tek_dil_acikken_hreflang_basilmaz(): void
     {
-        config(['locales.supported.en.enabled' => false]);
+        foreach (array_keys(config('locales.supported', [])) as $loc) {
+            if ($loc !== config('locales.default', 'tr')) {
+                config(["locales.supported.{$loc}.enabled" => false]);
+            }
+        }
 
         $this->assertSame([], $this->hreflangCiftleri($this->get('/')->getContent()));
     }

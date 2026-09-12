@@ -13,7 +13,11 @@ final class HreflangOnlyForOpenLocalesTest extends TestCase
 
     public function test_no_hreflang_is_emitted_while_only_one_language_is_open(): void
     {
-        config()->set('locales.supported.en.enabled', false);
+        foreach (array_keys(config('locales.supported', [])) as $loc) {
+            if ($loc !== 'tr') {
+                config()->set("locales.supported.{$loc}.enabled", false);
+            }
+        }
         // Henüz yayına girmemiş bir dili hreflang ile bildirmek, olmayan bir
         // sayfayı vaat etmek olur: Google adresi tarar, 404 alır.
         $this->get(route('recipes.index'))

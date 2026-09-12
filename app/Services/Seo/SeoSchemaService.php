@@ -10,9 +10,10 @@ use App\Models\Recipe;
 /** Builds schemas from already-public, visible editorial data only. */
 final class SeoSchemaService
 {
-    /** @var array<string, array{sameAs: list<string>, about?: array{name: string, description: string}}> */
+    /** @var array<string, array{sameAs: list<string>, is_dish?: bool, about?: array{name: string, description: string}}> */
     private const HERITAGE_ENTITIES = [
         'kibris-seftali-kebabi' => [
+            'is_dish' => true,
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Sheftalia',
                 'https://www.wikidata.org/wiki/Q1225501',
@@ -23,6 +24,7 @@ final class SeoSchemaService
             ],
         ],
         'kibris-usulu-seftali-kebab' => [
+            'is_dish' => true,
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Sheftalia',
                 'https://www.wikidata.org/wiki/Q1225501',
@@ -33,6 +35,7 @@ final class SeoSchemaService
             ],
         ],
         'kibris-usulu-seftali-kebabi' => [
+            'is_dish' => true,
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Sheftalia',
                 'https://www.wikidata.org/wiki/Q1225501',
@@ -43,6 +46,7 @@ final class SeoSchemaService
             ],
         ],
         'kibris-usulu-kleftiko' => [
+            'is_dish' => true,
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Kleftiko',
                 'https://www.wikidata.org/wiki/Q3197825',
@@ -53,6 +57,7 @@ final class SeoSchemaService
             ],
         ],
         'geleneksel-molehiya' => [
+            'is_dish' => true,
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Mulukhiyah',
                 'https://www.wikidata.org/wiki/Q1143896',
@@ -63,6 +68,7 @@ final class SeoSchemaService
             ],
         ],
         'kibris-molohiya' => [
+            'is_dish' => true,
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Mulukhiyah',
                 'https://www.wikidata.org/wiki/Q1143896',
@@ -123,6 +129,7 @@ final class SeoSchemaService
             ],
         ],
         'kibris-pilavuna' => [
+            'is_dish' => true,
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Flaouna',
                 'https://www.wikidata.org/wiki/Q5457416',
@@ -133,6 +140,7 @@ final class SeoSchemaService
             ],
         ],
         'kibris-pirohu' => [
+            'is_dish' => true,
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Pierogi',
                 'https://www.wikidata.org/wiki/Q20074',
@@ -153,6 +161,7 @@ final class SeoSchemaService
             ],
         ],
         'humus' => [
+            'is_dish' => true,
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Hummus',
                 'https://www.wikidata.org/wiki/Q241999',
@@ -163,6 +172,7 @@ final class SeoSchemaService
             ],
         ],
         'humus-kibris' => [
+            'is_dish' => true,
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Hummus',
                 'https://www.wikidata.org/wiki/Q241999',
@@ -173,6 +183,7 @@ final class SeoSchemaService
             ],
         ],
         'klasik-lahmacun' => [
+            'is_dish' => true,
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Lahmacun',
                 'https://www.wikidata.org/wiki/Q501460',
@@ -183,6 +194,7 @@ final class SeoSchemaService
             ],
         ],
         'kunefe' => [
+            'is_dish' => true,
             'sameAs' => [
                 'https://en.wikipedia.org/wiki/Kanafeh',
                 'https://www.wikidata.org/wiki/Q245249',
@@ -235,12 +247,22 @@ final class SeoSchemaService
             ?? (self::HERITAGE_ENTITIES[$baseSlug.'i'] ?? null);
 
         if ($entity !== null) {
-            // Wikipedia ve Wikidata bağlantıları tarif düğümünün kendisinde
-            // durur. Bunlar tarifi bilinen bir yemekle eşleştiren tek sinyal;
-            // yabancı dilli bir okuyucu "sheftalia" diye aradığında sayfanın
-            // o varlığa ait olduğunu Google buradan anlar. Küresel açılımın
-            // tam ortasında silinecek son şey.
-            $recipeNode['sameAs'] = $entity['sameAs'];
+            // Düğümün kendisindeki sameAs "bu sayfa o varlığın ta kendisi"
+            // demektir; about içindeki sameAs ise "bu sayfa o varlık HAKKINDA"
+            // der. İkisi aynı şey değil ve karıştırmanın bedeli ağır.
+            //
+            // Şeftali kebabı tarifi gerçekten Sheftalia'dır: kimlik iddiası
+            // doğru ve yabancı dilli okuyucu "sheftalia" aradığında sayfayı
+            // o varlığa bağlayan tek sinyal budur. Ama hellim tost, Halloumi
+            // DEĞİLDİR - hellim onun malzemesidir. Oraya kimlik iddiası
+            // koymak, tarif sayfasını peynirin ansiklopedi maddesi ilan eder.
+            //
+            // Bu yüzden düğüm seviyesindeki bağlantı yalnız varlığın yemeğin
+            // kendisi olduğu kayıtlarda basılır. Malzemeye işaret edenlerde
+            // bağlantı kaybolmaz, doğru yerde - about içinde - kalır.
+            if (($entity['is_dish'] ?? false) === true) {
+                $recipeNode['sameAs'] = $entity['sameAs'];
+            }
 
             if (isset($entity['about'])) {
                 $recipeNode['about'] = [

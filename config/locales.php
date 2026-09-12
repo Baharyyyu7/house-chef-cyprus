@@ -40,7 +40,7 @@ return [
             'html_locale' => 'de',
             'og_locale' => 'de_DE',
             'direction' => 'ltr',
-            'enabled' => false,
+            'enabled' => true,
         ],
         'fa' => [
             'flag' => '🇮🇷',

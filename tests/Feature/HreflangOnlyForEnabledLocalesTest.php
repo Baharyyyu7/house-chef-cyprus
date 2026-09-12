@@ -15,7 +15,11 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
 
     public function test_no_hreflang_while_only_one_locale_is_enabled(): void
     {
-        config()->set('locales.supported.en.enabled', false);
+        foreach (array_keys(config('locales.supported', [])) as $loc) {
+            if ($loc !== 'tr') {
+                config()->set("locales.supported.{$loc}.enabled", false);
+            }
+        }
         // Şu an yalnız Türkçe etkin. Tek dil varken hreflang'in bağlayacağı
         // alternatif yok; boş yere etiket basmak hata raporu üretir.
         $this->get(route('home'))
@@ -57,7 +61,7 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
 
         $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
 
-        foreach (['pl', 'fa', 'de'] as $kapali) {
+        foreach (['pl', 'fa'] as $kapali) {
             $this->assertStringNotContainsString('hreflang="'.$kapali.'"', $icerik);
         }
     }
@@ -82,7 +86,11 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
 
     public function test_the_sitemap_stays_plain_while_only_one_locale_is_enabled(): void
     {
-        config()->set('locales.supported.en.enabled', false);
+        foreach (array_keys(config('locales.supported', [])) as $loc) {
+            if ($loc !== 'tr') {
+                config()->set("locales.supported.{$loc}.enabled", false);
+            }
+        }
         $icerik = (string) $this->get(route('sitemap.pages'))->assertOk()->getContent();
 
         $this->assertStringNotContainsString('xhtml:link', $icerik);
