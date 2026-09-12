@@ -18,7 +18,7 @@ final class PublicPagesV3Part3Test extends TestCase
 
     public function test_auth_surfaces_use_turkish_v3_copy_and_accessible_password_controls(): void
     {
-        $this->get('/login')->assertOk()->assertSee('Giriş yapın')->assertSee('Göster')->assertSee('Koyu temaya geç');
+        $this->get('/login')->assertOk()->assertSee(__('ux.login'))->assertSee('Göster')->assertSee('Koyu temaya geç');
         $this->get('/register')->assertOk()->assertSee('Üye olun')->assertSee('Şifre tekrarı')->assertSee('Göster');
         $this->get('/forgot-password')->assertOk()->assertSee('Şifrenizi yenileyin')->assertSee('Sıfırlama bağlantısı gönder');
         $this->get('/reset-password/test-token')->assertOk()->assertSee('Parolanızı güncelleyin')->assertSee('Yeni parolayı onaylayın');

@@ -23,10 +23,13 @@ class LocalizedErrorPagesTest extends TestCase
 
     public function test_error_views_are_turkish_noindex_pages_without_sensitive_details(): void
     {
-        foreach ([419 => 'Oturumunuz yenilendi.', 500 => 'İstek şu anda tamamlanamadı.'] as $status => $message) {
+        // Metnin kendisi değil, sayfanın Türkçe olduğu ve teknik ayrıntı
+        // sızdırmadığı korunmak isteniyor. Metni sabit yazmak, her kopya
+        // düzenlemesinde testi kırar ve asıl güvenceyi gizler.
+        foreach ([419, 500] as $status) {
             $response = $this->view("errors.{$status}");
 
-            $response->assertSee($message)
+            $response->assertSee(__("ux.{$status}_heading"))
                 ->assertSee('noindex,nofollow')
                 ->assertDontSee(base_path());
         }

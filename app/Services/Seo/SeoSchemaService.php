@@ -235,6 +235,13 @@ final class SeoSchemaService
             ?? (self::HERITAGE_ENTITIES[$baseSlug.'i'] ?? null);
 
         if ($entity !== null) {
+            // Wikipedia ve Wikidata bağlantıları tarif düğümünün kendisinde
+            // durur. Bunlar tarifi bilinen bir yemekle eşleştiren tek sinyal;
+            // yabancı dilli bir okuyucu "sheftalia" diye aradığında sayfanın
+            // o varlığa ait olduğunu Google buradan anlar. Küresel açılımın
+            // tam ortasında silinecek son şey.
+            $recipeNode['sameAs'] = $entity['sameAs'];
+
             if (isset($entity['about'])) {
                 $recipeNode['about'] = [
                     '@type' => 'Thing',

@@ -239,3 +239,52 @@ Tahmin yazılmaz; ölçülmeyen bulgu bulgu değildir.
 
 Sonra tek satır: `config/locales.php` içinde `en.enabled => true`.
 Altyapı hazır; açılış bir yapılandırma değişikliğidir, bir proje değil.
+
+---
+
+## 6. Durum defteri
+
+Bu bölüm iş ilerledikçe güncellenir. "devam et" denince buradan bakılır.
+
+### 13 Eylül 2026, gece
+
+Bu belge yazılırken Codex aynı anda çalışıyordu ve `codex/global-readiness-20260913`
+dalını açıp `ca3543e` commit'ini attı. Commit, o sırada çalışma ağacında duran
+**benim kaydedilmemiş değişikliklerimi de içine aldı** (gövde çeviri kapısı,
+hreflang çift basımı, üç nöbetçi test). İş kaybolmadı, ama bu tam olarak
+`git add -A` tuzağının ta kendisi - bu kez ters yönden. Kural hâlâ geçerli:
+kimse `-A` ile eklemesin.
+
+Codex'in teslim ettiği (GLOB-002…008): yönetim panelinin `tr`'ye sabitlenmesi,
+mutfak ve koleksiyon sayfalarının `translatedInto()` kullanması, sitemap'in
+çevrilebilir alanları yüklemesi, backlink URI normalizasyonu, arayüz
+metinlerinin `lang/{tr,en}/ux.php` dosyalarına taşınması.
+
+**Commit "34 test geçti, hepsi yeşil" diyor; tam paket yeşil değildi.** 1.201
+testin 4'ü kırıktı ve dördü de bu commit'ten geliyordu:
+
+| Kusur | Sebep | Düzeltme |
+| --- | --- | --- |
+| Tarif şemasından `sameAs` düştü | `$recipeNode['sameAs'] = ...` satırı silinmiş | Geri kondu, gerekçesi yorumlandı |
+| 404 sayfası testi | "Ana Sayfaya Dön" → "Ana sayfaya dön" | Test çeviri anahtarına bağlandı |
+| Hata sayfaları testi | 500 başlığı yeniden yazılmış | Test çeviri anahtarına bağlandı |
+| Giriş sayfası testi | "Giriş yapın" → "Giriş yap" | Test çeviri anahtarına bağlandı |
+
+`sameAs` kaybı ciddiydi: Wikipedia ve Wikidata bağlantıları tarifi bilinen bir
+yemekle eşleştiren tek sinyaldir ve yabancı dilli okuyucu için asıl değerli
+olan da odur. Küresel açılımın ortasında silinecek son şeydi.
+
+Kopya testleri artık sabit metin değil `__('ux.*')` anahtarı denetliyor:
+korunmak istenen şey metnin kendisi değil, sayfanın Türkçe olması ve teknik
+ayrıntı sızdırmaması. Sabit metin her kopya düzenlemesinde kırılır ve asıl
+güvenceyi gizler.
+
+**Ders (üç ajan için de):** kendi testlerinin geçmesi yeşil demek değildir.
+Rapordan önce `php artisan test` - tamamı.
+
+### Sırada ne var
+
+İçerik hâlâ sıfır: `content_translations` tablosunda 0 satır. Codex'in commit
+mesajı "10 EN blog translations applied" diyor ama yerel veritabanında karşılığı
+yok; nereye uygulandığı doğrulanmalı. Bir sonraki adım Bölüm 3.1/A: **187
+malzeme**, tek teslim.
