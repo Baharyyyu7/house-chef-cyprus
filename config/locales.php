@@ -58,7 +58,7 @@ return [
             'html_locale' => 'pl',
             'og_locale' => 'pl_PL',
             'direction' => 'ltr',
-            'enabled' => false,
+            'enabled' => true,
         ],
     ],
 

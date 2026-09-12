@@ -40,8 +40,9 @@ final class HreflangOnlyForOpenLocalesTest extends TestCase
     public function test_a_closed_language_never_appears_in_hreflang(): void
     {
         config()->set('locales.supported.en.enabled', true);
+        config()->set('locales.supported.pl.enabled', false);
 
-        // Lehçe kapalı kalır.
+        // Lehçe kapalı kaldığında hreflang kümesinde yer almaz.
         $this->get(route('recipes.index'))
             ->assertOk()
             ->assertDontSee('hreflang="pl"', false);

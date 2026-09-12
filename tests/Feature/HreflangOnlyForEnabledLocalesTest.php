@@ -58,6 +58,7 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
         // sunmak olurdu. Zayıf dil sayfaları site geneli kalite sinyalini
         // aşağı çeker.
         config()->set('locales.supported.en.enabled', true);
+        config()->set('locales.supported.pl.enabled', false);
 
         $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
 
@@ -141,6 +142,6 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
     public function test_polish_is_available_as_a_supported_locale(): void
     {
         $this->assertArrayHasKey('pl', (array) config('locales.supported'));
-        $this->assertFalse(config('locales.supported.pl.enabled'), 'İçerik hazır olmadan dil açılmamalı.');
+        $this->assertTrue(config('locales.supported.pl.enabled'), 'İçerik hazır olduğunda dil açılmış olmalı.');
     }
 }
