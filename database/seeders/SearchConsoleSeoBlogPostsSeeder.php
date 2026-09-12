@@ -512,6 +512,7 @@ MARKDOWN,
 
         $this->call(SearchConsoleSeoBlogPostsBatch2Seeder::class);
         $this->call(SearchConsoleSeoBlogPostsBatch3Seeder::class);
+        $this->call(SearchConsoleSeoBlogPostsBatch4Seeder::class);
     }
 }
 
