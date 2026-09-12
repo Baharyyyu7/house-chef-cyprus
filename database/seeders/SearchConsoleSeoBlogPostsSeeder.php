@@ -511,5 +511,7 @@ MARKDOWN,
         $this->command->info("✓ Toplam {$addedCount} adet Google Search Console hedefli yeni SEO makalesi başarıyla eklendi ve yayınlandı!");
 
         $this->call(SearchConsoleSeoBlogPostsBatch2Seeder::class);
+        $this->call(SearchConsoleSeoBlogPostsBatch3Seeder::class);
     }
 }
+

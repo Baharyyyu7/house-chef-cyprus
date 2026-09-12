@@ -18,7 +18,12 @@
         @endif
         <p class="hc-body-lg mt-4 max-w-2xl text-muted">{{ __('category.body_count', ['count' => $tarifler->count()]) }}</p>
         <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-            @foreach($tarifler as $tarif)<x-recipe-card-v3 :recipe="$tarif" :show-favorite="false" />@endforeach
+            @foreach($tarifler as $tarif)
+                <x-recipe-card-v3 :recipe="$tarif" :show-favorite="false" />
+                @if($loop->iteration === 4 && ! $loop->last)
+                    <x-ad-slot slot-name="in_feed" class="col-span-full my-2" />
+                @endif
+            @endforeach
         </div>
 
         <x-collection-siblings :baslik="__('category.siblings_title')" :ogeler="$kardesler" :mevcut-url="route('categories.show', $kategori->slug)" />
