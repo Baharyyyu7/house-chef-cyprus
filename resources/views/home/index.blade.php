@@ -131,6 +131,14 @@
         @endif
     </section>
 
+    {{-- Anasayfada hic reklam yuvasi yoktu: en cok goruntulenen sayfa hicbir
+         gelir uretmiyordu. AD_SLOT_DISPLAY yapilandirmada tanimliydi ama hicbir
+         sayfada kullanilmiyordu.
+
+         Konum kasitli: one cikan tarifler bittikten sonra, dolap bandindan
+         once. Ilk ekranda reklam yok - hero ve arama once gelir. --}}
+    <x-ad-slot slot-name="display" class="hc-container my-10" />
+
     <section data-reveal class="hc-home-pantry-band"><div class="hc-container grid gap-8 py-14 lg:grid-cols-[1.18fr_.82fr] lg:items-end"><div><p class="hc-kicker text-orange-300">{{ __('home.pantry_kicker') }}</p><h2 class="hc-display-lg mt-3 max-w-2xl text-white">{{ __('home.pantry_title') }}</h2><p class="mt-5 max-w-xl hc-body-md text-stone-300">{{ __('home.pantry_subtitle') }}</p><a class="hc-btn mt-7 bg-white text-charcoal-900 hover:bg-orange-50" href="{{ route('ingredients.explore') }}">{{ __('home.pantry_cta') }} <span aria-hidden="true">→</span></a></div><ol class="hc-home-steps"><li><span>01</span><p>{{ __('home.step_1') }}</p></li><li><span>02</span><p>{{ __('home.step_2') }}</p></li><li><span>03</span><p>{{ __('home.step_3') }}</p></li></ol></div></section>
 
     <section data-reveal class="hc-container py-16"><div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">{{ __('home.cuisines_kicker') }}</p><h2 class="hc-heading-2 mt-3">{{ __('home.cuisines_title') }}</h2></div><a class="hidden text-sm font-extrabold text-orange-700 sm:inline" href="{{ route('recipes.index') }}">{{ __('home.go_to_archive') }} →</a></div>{{-- Kutular eskiden bir yıldız ve bir addan ibaretti; yüksekti ve boştu.
