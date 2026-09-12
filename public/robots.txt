@@ -18,6 +18,9 @@
 # değiştirmek için Cloudflare panelindeki "Managed robots.txt" ayarı
 # kapatılmalı. Kapatılmadan burada yazılan hiçbir şey geçerli olmaz.
 
+User-agent: Mediapartners-Google
+Allow: /
+
 User-agent: *
 Allow: /
 

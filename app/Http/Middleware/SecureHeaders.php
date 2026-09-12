@@ -32,9 +32,9 @@ final class SecureHeaders
         $cmpConnect = $googleCmp ? ' https://fundingchoicesmessages.google.com' : '';
         $cmpFrame = $googleCmp ? ' https://fundingchoicesmessages.google.com' : '';
 
-        $adsenseScript = $adsenseEnabled ? ' https://pagead2.googlesyndication.com https://tpc.googlesyndication.com'.$cmpScript : '';
-        $adsenseConnect = $adsenseEnabled ? ' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net'.$cmpConnect : '';
-        $adsenseFrame = $adsenseEnabled ? ' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com'.$cmpFrame : '';
+        $adsenseScript = $adsenseEnabled ? ' https://pagead2.googlesyndication.com https://tpc.googlesyndication.com https://adservice.google.com https://partner.googleadservices.com https://www.googletagservices.com https://securepubads.g.doubleclick.net'.$cmpScript : '';
+        $adsenseConnect = $adsenseEnabled ? ' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://adservice.google.com https://tpc.googlesyndication.com'.$cmpConnect : '';
+        $adsenseFrame = $adsenseEnabled ? ' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com'.$cmpFrame : '';
         $scriptPolicy = "script-src 'self' 'unsafe-inline' 'unsafe-eval'{$googleScript}{$adsenseScript}";
         if ($request->is('embed/*')) {
             $response->headers->remove('X-Frame-Options');
