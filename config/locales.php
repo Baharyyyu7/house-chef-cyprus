@@ -69,6 +69,15 @@ return [
             'direction' => 'ltr',
             'enabled' => true,
         ],
+        'pt' => [
+            'flag' => '🇵🇹',
+            'label' => 'Portuguese',
+            'native_label' => 'Português',
+            'html_locale' => 'pt',
+            'og_locale' => 'pt_PT',
+            'direction' => 'ltr',
+            'enabled' => true,
+        ],
     ],
 
     /*
