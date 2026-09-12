@@ -20,7 +20,15 @@ class SetLocale
     {
         $supported = config('locales.supported', []);
         $default = (string) config('locales.default', config('app.locale', 'tr'));
-        $publicPage = ! $request->is('yonetim', 'yonetim/*', 'dil', 'api/*');
+
+        if ($request->is('yonetim', 'yonetim/*')) {
+            app()->setLocale($default);
+            $request->setLocale($default);
+
+            return $next($request);
+        }
+
+        $publicPage = ! $request->is('dil', 'api/*');
 
         $locale = $this->firstEnabledLocale([
             // URL'deki dil öneki her şeyin önünde gelir: adres neyi
@@ -42,7 +50,7 @@ class SetLocale
         $previousFormatter = URL::pathFormatter();
         URL::formatPathUsing(function ($path, $route) use ($locale, $default, $previousFormatter) {
             $path = $previousFormatter($path, $route);
-            if ($locale !== $default && $route?->named('home', 'recipes.*', 'blog.*', 'cuisines.*', 'categories.*', 'ingredients.explore', 'ingredients.hub.*', 'collections.sure*', 'collections.zorluk*', 'login', 'register', 'pricing')) {
+            if ($locale !== $default && $route?->named('home', 'recipes.*', 'blog.*', 'cuisines.*', 'categories.*', 'ingredients.explore', 'ingredients.hub.*', 'collections.sure*', 'collections.zorluk*', 'login', 'register', 'password.request', 'password.reset', 'password.confirm', 'verification.notice', 'pricing')) {
                 return '/'.$locale.($path === '/' ? '' : $path);
             }
 

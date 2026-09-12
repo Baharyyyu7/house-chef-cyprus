@@ -56,11 +56,25 @@ final class SearchConsoleMeasurementService
                 throw ValidationException::withMessages(['queries' => 'Sorgu ölçümleri rapor toplamlarıyla tutarsız.']);
             }
         }
-        $fingerprint = hash('sha256', json_encode(collect($data)->except('observed_at')->all(), JSON_THROW_ON_ERROR));
+        $data['clicks'] = (int) $data['clicks'];
+        $data['impressions'] = (int) $data['impressions'];
+        $data['position'] = (float) $data['position'];
+        $data['queries'] = array_map(static fn (array $row): array => [
+            'query' => $row['query'], 'clicks' => (int) $row['clicks'],
+            'impressions' => (int) $row['impressions'], 'position' => (float) $row['position'],
+        ], $data['queries']);
+        usort($data['queries'], static fn (array $a, array $b): int => strcmp($a['query'], $b['query']));
+        $canonical = collect($data)->except('observed_at')->all();
+        ksort($canonical);
+        $fingerprint = hash('sha256', json_encode($canonical, JSON_THROW_ON_ERROR));
 
         return Cache::lock('seo:search-console-import', 60)->block(3, fn (): array => DB::transaction(function () use ($data, $fingerprint): array {
             $existing = IntegrityReport::query()->where('guard', 'seo:search-console-measurement')->where('payload->fingerprint', $fingerprint)->first();
             if ($existing !== null) {
+                if (Carbon::parse($data['observed_at'])->gt(Carbon::parse($existing->payload['observed_at']))) {
+                    $existing->update(['payload' => [...$existing->payload, 'observed_at' => $data['observed_at']]]);
+                }
+
                 return ['status' => 'unchanged', 'imported' => 0];
             }
             IntegrityReport::query()->create(['guard' => 'seo:search-console-measurement', 'status' => 'success', 'headline' => $data['clicks'], 'payload' => [...$data, 'fingerprint' => $fingerprint, 'queries_are_sample' => true]]);
@@ -69,10 +83,17 @@ final class SearchConsoleMeasurementService
                 if ($row['impressions'] < 2 || $row['position'] < 4 || preg_match('/[@\x00-\x1f]|https?:\/\//i', $row['query'])) {
                     continue;
                 }
-                $opportunity = ContentOpportunity::query()->firstOrCreate(['normalized_key' => 'gsc-'.hash('sha256', mb_strtolower(trim($row['query'])))], [
+                $queryKey = mb_strtolower(trim($row['query']));
+                $legacy = ContentOpportunity::query()->where('normalized_key', 'gsc-'.hash('sha256', $queryKey))->first();
+                if ($legacy !== null && IntegrityReport::query()->where('guard', 'seo:search-console-measurement')
+                    ->where('payload->property', $data['property'])
+                    ->where('payload->fingerprint', $legacy->evidence['measurement_fingerprint'] ?? '')->exists()) {
+                    continue;
+                }
+                $opportunity = ContentOpportunity::query()->firstOrCreate(['normalized_key' => 'gsc-'.hash('sha256', $data['property']."\n".$queryKey)], [
                     'kind' => 'search_console_review', 'title' => $row['query'].' için mevcut sayfa ve içerik incelemesi',
                     'search_intent' => 'informational', 'topic_cluster' => 'Search Console', 'priority' => 80, 'risk_level' => 'low', 'status' => 'open',
-                    'evidence' => ['source' => 'search_console', 'measurement_fingerprint' => $fingerprint, 'query' => $row['query'], 'impressions' => $row['impressions'], 'clicks' => $row['clicks'], 'position' => $row['position'], 'start_date' => $data['start_date'], 'end_date' => $data['end_date'], 'delivery_policy' => 'draft_only', 'publication_requires_human_review' => true, 'cannibalization_check_required' => true],
+                    'evidence' => ['source' => 'search_console', 'property' => $data['property'], 'measurement_fingerprint' => $fingerprint, 'query' => $row['query'], 'impressions' => $row['impressions'], 'clicks' => $row['clicks'], 'position' => $row['position'], 'start_date' => $data['start_date'], 'end_date' => $data['end_date'], 'delivery_policy' => 'draft_only', 'publication_requires_human_review' => true, 'cannibalization_check_required' => true],
                 ]);
                 $created += (int) $opportunity->wasRecentlyCreated;
             }
@@ -83,7 +104,9 @@ final class SearchConsoleMeasurementService
 
     public function snapshot(): array
     {
-        $report = IntegrityReport::query()->where('guard', 'seo:search-console-measurement')->latest('id')->limit(30)->get()->sortByDesc(fn ($r) => data_get($r, 'payload.end_date').' '.data_get($r, 'payload.observed_at'))->first();
+        $report = IntegrityReport::query()->where('guard', 'seo:search-console-measurement')->where('status', 'success')
+            ->where('payload->property', $this->property())->where('payload->search_type', 'web')
+            ->orderByDesc('payload->end_date')->orderByDesc('payload->observed_at')->latest('id')->first();
         $unknown = ['status' => 'not_connected', 'google_clicks' => null, 'google_impressions' => null, 'ranking_queries' => null, 'external_referring_domains' => null, 'api_connected' => false, 'note' => 'Search Console ölçümü henüz içe alınmadı. Bilinmeyen değer sıfır değildir.'];
         if ($report === null) {
             return $unknown;
@@ -93,8 +116,11 @@ final class SearchConsoleMeasurementService
             return $unknown;
         }
         $stale = Carbon::parse($data['observed_at'])->lt(now()->subDays(7)) || Carbon::parse($data['end_date'])->lt(now()->subDays(10));
+        $lastFailure = IntegrityReport::query()->where('guard', 'seo:search-console-api')->where('status', 'failed')
+            ->where('payload->property', $this->property())->latest('id')->first();
+        $failedSinceObservation = $lastFailure !== null && $lastFailure->created_at->gte(Carbon::parse($data['observed_at']));
 
-        return [...$unknown, 'status' => $stale ? 'stale' : 'measured', 'property' => $data['property'], 'source' => $data['source'], 'api_connected' => ! $stale && $data['source'] === 'api_import',
+        return [...$unknown, 'status' => $stale ? 'stale' : 'measured', 'property' => $data['property'], 'source' => $data['source'], 'api_connected' => ! $stale && ! $failedSinceObservation && (bool) config('seo.search_console.enabled') && $this->configured() && $data['source'] === 'api_import',
             'google_clicks' => (int) $data['clicks'], 'google_impressions' => (int) $data['impressions'], 'average_position' => $data['position'],
             'ctr' => $data['impressions'] > 0 ? $data['clicks'] / $data['impressions'] * 100 : 0,
             'query_sample_count' => count($data['queries']), 'start_date' => $data['start_date'], 'end_date' => $data['end_date'], 'observed_at' => $data['observed_at'],
@@ -142,7 +168,7 @@ final class SearchConsoleMeasurementService
             return $this->import(['property' => $this->property(), 'source' => 'api_import', 'search_type' => 'web', 'start_date' => $params['startDate'], 'end_date' => $params['endDate'], 'observed_at' => now()->toIso8601String(), 'clicks' => $total['clicks'], 'impressions' => $total['impressions'], 'position' => $total['position'],
                 'queries' => array_map(fn ($row) => ['query' => $row['keys'][0] ?? '', 'clicks' => $row['clicks'] ?? -1, 'impressions' => $row['impressions'] ?? -1, 'position' => $row['position'] ?? -1], $rows->json('rows', []))], true);
         } catch (Throwable) {
-            IntegrityReport::query()->create(['guard' => 'seo:search-console-api', 'status' => 'failed', 'payload' => ['reason' => 'API_IMPORT_FAILED', 'credentials_logged' => false, 'previous_measurement_preserved' => true]]);
+            IntegrityReport::query()->create(['guard' => 'seo:search-console-api', 'status' => 'failed', 'payload' => ['property' => $this->property(), 'reason' => 'API_IMPORT_FAILED', 'credentials_logged' => false, 'previous_measurement_preserved' => true]]);
 
             return ['status' => 'failed', 'imported' => 0, 'reason' => 'API_IMPORT_FAILED'];
         } finally {
@@ -153,7 +179,9 @@ final class SearchConsoleMeasurementService
     private function requireSuccess(Response $response): void
     {
         if (in_array($response->status(), [429, 503], true)) {
-            $delay = is_numeric($response->header('Retry-After')) ? (int) $response->header('Retry-After') : 3600;
+            $retry = $response->header('Retry-After');
+            $date = strtotime($retry);
+            $delay = is_numeric($retry) ? (int) $retry : ($date === false ? 3600 : $date - now()->timestamp);
             $until = now()->addSeconds(max(60, min(86400, $delay)));
             Cache::put('seo:gsc:retry-after', $until->toIso8601String(), $until);
         }

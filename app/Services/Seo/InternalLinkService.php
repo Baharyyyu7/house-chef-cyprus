@@ -14,6 +14,6 @@ final class InternalLinkService
     {
         $linkedIds = $post->recipes()->pluck('recipes.id')->all();
 
-        return Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->when($linkedIds !== [], fn ($query) => $query->whereNotIn('id', $linkedIds))->orderByDesc('is_featured')->limit((int) config('seo.audit.max_internal_links_per_document', 8))->get(['title', 'slug'])->map(fn (Recipe $recipe): array => ['label' => $recipe->title, 'url' => route('recipes.show', $recipe), 'kind' => 'recipe'])->all();
+        return Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->translatedInto()->when($linkedIds !== [], fn ($query) => $query->whereNotIn('id', $linkedIds))->orderByDesc('is_featured')->limit((int) config('seo.audit.max_internal_links_per_document', 8))->get(['id', 'title', 'slug'])->map(fn (Recipe $recipe): array => ['label' => $recipe->title, 'url' => route('recipes.show', $recipe), 'kind' => 'recipe'])->all();
     }
 }

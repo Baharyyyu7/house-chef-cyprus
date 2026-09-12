@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ config('locales.supported.'.app()->getLocale().'.direction', 'ltr') }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,7 +11,7 @@
     <link rel="manifest" href="{{ asset('brand/site.webmanifest') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&family=inter:400,500,600,700&display=swap" rel="stylesheet" />
-    <title>House Chef Cyprus · Güvenli Giriş</title>
+    <title>House Chef Cyprus · {{ __('ux.secure_login') }}</title>
     <script>if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -31,11 +31,11 @@
                     {{ $slot }}
                 </section>
                 <div class="mt-8 flex flex-col items-center gap-2 text-center text-xs text-[var(--hc-text-muted)]">
-                    <span>© {{ date('Y') }} House Chef Cyprus · Kıbrıs ve Akdeniz Lezzetleri</span>
+                    <span>© {{ date('Y') }} House Chef Cyprus · {{ __('ux.flavors') }}</span>
                     <div class="flex items-center gap-3">
-                        <a href="{{ route('home') }}" class="hover:text-orange-600 dark:hover:text-orange-300">Ana Sayfa</a>
+                        <a href="{{ route('home') }}" class="hover:text-orange-600 dark:hover:text-orange-300">{{ __('nav.home') }}</a>
                         <span>·</span>
-                        <a href="{{ route('legal.center') }}" class="hover:text-orange-600 dark:hover:text-orange-300">Gizlilik &amp; Koşullar</a>
+                        <a href="{{ route('legal.center') }}" class="hover:text-orange-600 dark:hover:text-orange-300">{{ __('ux.privacy_terms') }}</a>
                     </div>
                 </div>
             </div>
@@ -53,8 +53,8 @@
             <div class="hc-giris__perde"></div>
             <div class="hc-giris__kartlar">
                 @foreach ([
-                    ['Dolabınızdakiyle eşleştirin', 'Evdeki malzemeleri girin, bugün ne pişirebileceğinizi görün.'],
-                    ['Ölçüleri doğrulanmış tarifler', 'Her tarifte ev ölçüsü, gram karşılığı ve besin değeri görünür.'],
+                    [__('ux.pantry_title'), __('ux.pantry_intro')],
+                    [__('ux.measure_title'), __('ux.measure_intro')],
                 ] as [$baslik, $metin])
                     <div class="hc-giris__kart">
                         <strong>{{ $baslik }}</strong>

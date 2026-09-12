@@ -174,6 +174,7 @@ final class RecipeCollectionLandingController extends Controller
         return Recipe::query()
             ->where('status', 'published')
             ->where('verification_status', 'verified')
+            ->translatedInto()
             ->when(
                 $tur === 'sure',
                 // COALESCE: sürelerden biri NULL ise toplam da NULL olur ve

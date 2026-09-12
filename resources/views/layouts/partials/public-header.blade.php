@@ -2,7 +2,7 @@
             'hc-public-header sticky top-0 z-40 transition-all duration-300',
             'hc-header-over-hero' => request()->routeIs('home', 'recipes.show'),
         ])>
-            <nav :class="scrolled ? 'h-[4.25rem]' : 'h-[5.25rem]'" class="hc-container flex items-center justify-between gap-4 transition-all duration-300" aria-label="Ana menü">
+            <nav :class="scrolled ? 'h-[4.25rem]' : 'h-[5.25rem]'" class="hc-container flex items-center justify-between gap-4 transition-all duration-300" aria-label="{{ __('ux.menu') }}">
                 <x-brand-logo class="scale-105" />
                 {{-- Menüde sekiz üst düzey bağlantı vardı ve sığmadığı için
                      "Ana / Sayfa", "Ne / Pişirebilirim?", "AI / Mutfak" diye
@@ -16,11 +16,11 @@
 
                     @auth
                         @php($mutfakRotalari = collect([
-                            ['ingredients.explore', __('nav.explore'), 'Elindekilerle eşleştir'],
-                            ['ai-kitchen.index', __('nav.ai_kitchen'), 'Menü planla, artanları değerlendir'],
-                            ['pantry.index', __('nav.pantry'), 'Malzemelerini güncel tut'],
-                            ['favorites.index', __('nav.favorites'), 'Beğendiğin tarifler'],
-                            ['collections.index', 'Koleksiyonlarım', 'Kendi gruplarını kur'],
+                            ['ingredients.explore', __('nav.explore'), __('ux.match')],
+                            ['ai-kitchen.index', __('nav.ai_kitchen'), __('ux.plan')],
+                            ['pantry.index', __('nav.pantry'), __('ux.pantry')],
+                            ['favorites.index', __('nav.favorites'), __('ux.favorites')],
+                            ['collections.index', __('ux.collections'), __('ux.organize')],
                         ])->filter(fn ($r) => Route::has($r[0])))
 
                         <div class="relative" x-data="{ acik: false }" @keydown.escape.window="acik = false">
@@ -40,7 +40,7 @@
                                  x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                                  x-transition:leave-end="opacity-0 -translate-y-1 scale-[.97]"
                                  class="hc-user-menu absolute left-1/2 z-50 mt-3 w-[20rem] -translate-x-1/2 origin-top overflow-hidden rounded-3xl p-1.5"
-                                 role="menu" aria-label="Mutfağım">
+                                 role="menu" aria-label="{{ __('nav.my_kitchen') }}">
                                 @foreach ($mutfakRotalari as [$rota, $etiket, $aciklama])
                                     <a href="{{ route($rota) }}" class="hc-user-menu__item !items-start" role="menuitem">
                                         <span class="min-w-0">
@@ -80,16 +80,16 @@
                          secici cubuktan cikip cekmeceye giriyor. --}}
                     <div class="hidden sm:block"><x-locale-switcher /></div>
                     <x-theme-switch class="hc-nav-control" />
-                    <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="Menüyü aç"><x-ui.icon name="menu" size="20" /></button>
+                    <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="{{ __('ux.open_menu') }}"><x-ui.icon name="menu" size="20" /></button>
                 </div>
             </nav>
             {{-- Çekmece kendini modal ilan ediyor; o hâlde arkası gerçekten
                  kararmalı ve sayfa altında kaymamalı. Perdeye dokunmak kapatır. --}}
             <div x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="menuOpen = false" class="hc-drawer-scrim fixed inset-0 -z-10 xl:hidden" aria-hidden="true"></div>
             {{-- Giriş aşağı kayarak olur; çıkış aynı yolu geri izler. --}}
-            <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-y-3 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0 opacity-100" x-transition:leave-end="-translate-y-3 opacity-0" @keydown.escape.window="menuOpen = false" x-init="$watch('menuOpen', open => { if (open) { $nextTick(() => $refs.publicDrawer.querySelector('[data-public-drawer-close]')?.focus()) } })" @keydown.tab.prevent="const items = [...$el.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex=\'-1\'])')].filter(item => !item.hidden); const current = items.indexOf(document.activeElement); const next = $event.shiftKey ? (current <= 0 ? items.length - 1 : current - 1) : (current === items.length - 1 ? 0 : current + 1); items[next]?.focus()" class="hc-mobile-drawer border-t px-5 py-5 shadow-xl xl:hidden" role="dialog" aria-modal="true" aria-label="Ana menü">
+            <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-y-3 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0 opacity-100" x-transition:leave-end="-translate-y-3 opacity-0" @keydown.escape.window="menuOpen = false" x-init="$watch('menuOpen', open => { if (open) { $nextTick(() => $refs.publicDrawer.querySelector('[data-public-drawer-close]')?.focus()) } })" @keydown.tab.prevent="const items = [...$el.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex=\'-1\'])')].filter(item => !item.hidden); const current = items.indexOf(document.activeElement); const next = $event.shiftKey ? (current <= 0 ? items.length - 1 : current - 1) : (current === items.length - 1 ? 0 : current + 1); items[next]?.focus()" class="hc-mobile-drawer border-t px-5 py-5 shadow-xl xl:hidden" role="dialog" aria-modal="true" aria-label="{{ __('ux.menu') }}">
                 <div x-ref="publicDrawer" class="mx-auto max-w-7xl">
-                    <div class="mb-3 flex justify-end"><button data-public-drawer-close @click="menuOpen = false" class="hc-icon-button !h-10 !w-10 !rounded-xl" aria-label="Menüyü kapat"><x-ui.icon name="close" size="18" /></button></div>
+                    <div class="mb-3 flex justify-end"><button data-public-drawer-close @click="menuOpen = false" class="hc-icon-button !h-10 !w-10 !rounded-xl" aria-label="{{ __('ux.close_menu') }}"><x-ui.icon name="close" size="18" /></button></div>
                 <div class="grid gap-2 text-sm font-semibold">
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}" @click="menuOpen = false" @if(request()->routeIs('home')) aria-current="page" @endif>{{ __('nav.home') }}</a>
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}" @click="menuOpen = false" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>{{ __('nav.recipes') }}</a>
@@ -120,7 +120,7 @@
                 {{-- Cubuktan cikan dil secicinin karsiligi: dar ekranda tek
                      dil kontrolu burasi. --}}
                 <div class="mt-5 border-t pt-5 sm:hidden">
-                    <p class="hc-caption mb-3 text-charcoal-700 dark:text-charcoal-300">Dil</p>
+                    <p class="hc-caption mb-3 text-charcoal-700 dark:text-charcoal-300">{{ __('ux.language') }}</p>
                     <x-locale-switcher />
                 </div>
                 </div>

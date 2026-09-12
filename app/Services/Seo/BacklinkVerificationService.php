@@ -30,7 +30,7 @@ final class BacklinkVerificationService
             return ['status' => 'busy', 'checked' => 0];
         }
         try {
-            $result = ['status' => 'success', 'checked' => 0, 'present' => 0, 'deferred' => 0, 'outreach_sent' => 0];
+            $result = ['status' => 'success', 'checked' => 0, 'present' => 0, 'unresolved' => 0, 'deferred' => 0, 'outreach_sent' => 0];
             $started = microtime(true);
             $hosts = [];
             $candidates = SeoBacklinkCandidate::query()->where('status', '<>', 'rejected')
@@ -58,6 +58,10 @@ final class BacklinkVerificationService
                 $candidate->update([...$check, 'checked_at' => now(), 'next_check_at' => now()->addSeconds($delay)]);
                 $result['checked']++;
                 $result['present'] += (int) ($check['check_status'] === 'present');
+                if (! in_array($check['check_status'], ['present', 'not_found'], true)) {
+                    $result['unresolved']++;
+                    $result['status'] = 'incomplete';
+                }
                 Cache::put($hostKey, true, now()->addSeconds(max(86400, $check['check_status'] === 'rate_limited' ? $delay : 86400)));
                 if ($check['check_status'] === 'rate_limited') {
                     $result['status'] = 'incomplete';
@@ -104,9 +108,9 @@ final class BacklinkVerificationService
             $result['last_http_status'] = $response->status();
             if ($response->status() === 429 || $response->status() === 503) {
                 $retry = $response->header('Retry-After');
-                $seconds = is_numeric($retry) ? (int) $retry : (int) strtotime($retry) - time();
+                $seconds = is_numeric($retry) ? (int) $retry : (int) strtotime($retry) - now()->timestamp;
 
-                return [...$result, 'check_status' => 'rate_limited', 'retry_after_seconds' => max(86400, $seconds)];
+                return [...$result, 'check_status' => 'rate_limited', 'retry_after_seconds' => max(86400, min(604800, $seconds))];
             }
             if ($response->redirect()) {
                 return [...$result, 'check_status' => 'redirect'];

@@ -41,7 +41,7 @@ new #[Layout('layouts.guest')] class extends Component
         $throttleKey = 'registration|'.request()->ip();
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             throw ValidationException::withMessages([
-                'email' => 'Çok fazla kayıt denemesi yapıldı. Lütfen daha sonra tekrar deneyin.',
+                'email' => __('ux.registration_throttle'),
             ]);
         }
         RateLimiter::hit($throttleKey, 3600);
@@ -105,19 +105,19 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
-    <p class="hc-kicker">House Chef ailesi</p>
-    <h1 class="mt-2 hc-display-lg">Üye olun</h1>
-    <p class="mt-2 text-sm leading-6 text-muted">Malzeme dolabınızı, favorilerinizi ve pişirme akışınızı kişiselleştirin.</p>
+    <p class="hc-kicker">{{ __('ux.family') }}</p>
+    <h1 class="mt-2 hc-display-lg">{{ __('ux.register') }}</h1>
+    <p class="mt-2 text-sm leading-6 text-muted">{{ __('ux.register_intro') }}</p>
 
     {{-- Üyelikle açılan dolap, koleksiyon ve pişirme akışı tek bir cümlenin
          içinde kalıyordu; ziyaretçi neye kaydolduğunu bilmeden form dolduruyordu.
          Bunlar sitenin zaten çalışan özellikleri, vaat değil. --}}
     <ul class="mt-6 grid gap-3 sm:grid-cols-2">
         @foreach ([
-            ['tag', 'Malzeme dolabı', 'Evdekileri gir, yapabileceğin tarifleri gör.'],
-            ['heart', 'Favoriler ve koleksiyonlar', 'Beğendiklerini kendi listelerinde topla.'],
-            ['book', 'Pişirme modu', 'Adım adım ilerle, zamanlayıcılar seninle.'],
-            ['sliders', 'Sana göre öneri', 'Diyet ve alerjen tercihlerine uyan tarifler.'],
+            ['tag', __('ux.ingredient_pantry'), __('ux.pantry_benefit')],
+            ['heart', __('ux.favorites_collections'), __('ux.favorites_benefit')],
+            ['book', __('ux.cooking_mode'), __('ux.cooking_benefit')],
+            ['sliders', __('ux.recommendations'), __('ux.recommendations_benefit')],
         ] as [$ikon, $baslik, $aciklama])
             <li class="flex gap-3 rounded-2xl border p-3" style="border-color: var(--hc-line)">
                 <span class="mt-0.5 shrink-0 text-orange-600"><x-ui.icon :name="$ikon" size="18" /></span>
@@ -132,12 +132,12 @@ new #[Layout('layouts.guest')] class extends Component
     <form wire:submit="register" class="mt-7" x-data="{ passwordVisible: false, confirmationVisible: false }">
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
-                <x-input-label for="first_name" value="Ad" />
+                <x-input-label for="first_name" :value="__('ux.first_name')" />
                 <x-text-input wire:model="first_name" id="first_name" class="block mt-1 w-full" type="text" name="first_name" required autofocus autocomplete="given-name" />
                 <x-input-error :messages="$errors->get('first_name')" class="mt-2" />
             </div>
             <div>
-                <x-input-label for="last_name" value="Soyad" />
+                <x-input-label for="last_name" :value="__('ux.last_name')" />
                 <x-text-input wire:model="last_name" id="last_name" class="block mt-1 w-full" type="text" name="last_name" required autocomplete="family-name" />
                 <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
             </div>
@@ -145,27 +145,27 @@ new #[Layout('layouts.guest')] class extends Component
 
         <!-- Email Address -->
         <div class="mt-4">
-            <x-input-label for="email" value="E-posta adresi" />
+            <x-input-label for="email" :value="__('ux.email')" />
             <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <details class="mt-4 rounded-xl border border-forest-100 p-4 dark:border-forest-700">
-            <summary class="cursor-pointer text-sm font-semibold text-forest-900 dark:text-forest-50">İsteğe bağlı iletişim ve konum bilgileri</summary>
-            <p class="mt-2 text-xs leading-5 text-muted">Bu bilgiler yalnız hesap desteğini ve bölgesel tercihlerinizi kolaylaştırmak için, sizin açıkça girmeniz halinde saklanır. IP üzerinden konum çıkarılmaz.</p>
+            <summary class="cursor-pointer text-sm font-semibold text-forest-900 dark:text-forest-50">{{ __('ux.optional_contact') }}</summary>
+            <p class="mt-2 text-xs leading-5 text-muted">{{ __('ux.optional_intro') }}</p>
             <div class="mt-4 grid gap-4 sm:grid-cols-2">
                 <div class="sm:col-span-2">
-                    <x-input-label for="phone" value="Telefon (isteğe bağlı)" />
+                    <x-input-label for="phone" :value="__('ux.phone')" />
                     <x-text-input wire:model="phone" id="phone" class="block mt-1 w-full" type="tel" name="phone" autocomplete="tel" />
                     <x-input-error :messages="$errors->get('phone')" class="mt-2" />
                 </div>
                 <div>
-                    <x-input-label for="country" value="Ülke (isteğe bağlı)" />
+                    <x-input-label for="country" :value="__('ux.country')" />
                     <x-text-input wire:model="country" id="country" class="block mt-1 w-full" type="text" name="country" autocomplete="country-name" />
                     <x-input-error :messages="$errors->get('country')" class="mt-2" />
                 </div>
                 <div>
-                    <x-input-label for="city_or_region" value="Şehir / bölge (isteğe bağlı)" />
+                    <x-input-label for="city_or_region" :value="__('ux.city')" />
                     <x-text-input wire:model="city_or_region" id="city_or_region" class="block mt-1 w-full" type="text" name="city_or_region" autocomplete="address-level2" />
                     <x-input-error :messages="$errors->get('city_or_region')" class="mt-2" />
                 </div>
@@ -174,14 +174,14 @@ new #[Layout('layouts.guest')] class extends Component
 
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="password" value="Şifre" />
+            <x-input-label for="password" :value="__('ux.password')" />
 
             <div class="relative mt-1">
                 <x-text-input wire:model="password" id="password" class="block w-full pr-20"
                                 x-bind:type="passwordVisible ? 'text' : 'password'"
                                 name="password"
                                 required autocomplete="new-password" />
-                <button type="button" class="absolute inset-y-0 right-2 my-1 rounded-md px-3 text-xs font-semibold text-gold-700 outline-none transition hover:bg-gold-50 focus-visible:ring-2 focus-visible:ring-gold-500 dark:hover:bg-forest-800" @click="passwordVisible = !passwordVisible" x-text="passwordVisible ? 'Gizle' : 'Göster'"></button>
+                <button type="button" class="absolute inset-y-0 right-2 my-1 rounded-md px-3 text-xs font-semibold text-gold-700 outline-none transition hover:bg-gold-50 focus-visible:ring-2 focus-visible:ring-gold-500 dark:hover:bg-forest-800" @click="passwordVisible = !passwordVisible" x-text="passwordVisible ? @js(__('ux.hide')) : @js(__('ux.show'))"></button>
             </div>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
@@ -189,13 +189,13 @@ new #[Layout('layouts.guest')] class extends Component
 
         <!-- Confirm Password -->
         <div class="mt-4">
-            <x-input-label for="password_confirmation" value="Şifre tekrarı" />
+            <x-input-label for="password_confirmation" :value="__('ux.confirm_password')" />
 
             <div class="relative mt-1">
                 <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block w-full pr-20"
                                 x-bind:type="confirmationVisible ? 'text' : 'password'"
                                 name="password_confirmation" required autocomplete="new-password" />
-                <button type="button" class="absolute inset-y-0 right-2 my-1 rounded-md px-3 text-xs font-semibold text-gold-700 outline-none transition hover:bg-gold-50 focus-visible:ring-2 focus-visible:ring-gold-500 dark:hover:bg-forest-800" @click="confirmationVisible = !confirmationVisible" x-text="confirmationVisible ? 'Gizle' : 'Göster'"></button>
+                <button type="button" class="absolute inset-y-0 right-2 my-1 rounded-md px-3 text-xs font-semibold text-gold-700 outline-none transition hover:bg-gold-50 focus-visible:ring-2 focus-visible:ring-gold-500 dark:hover:bg-forest-800" @click="confirmationVisible = !confirmationVisible" x-text="confirmationVisible ? @js(__('ux.hide')) : @js(__('ux.show'))"></button>
             </div>
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
@@ -204,20 +204,20 @@ new #[Layout('layouts.guest')] class extends Component
         <div class="mt-5">
             <label for="terms_and_privacy_acceptance" class="flex items-start gap-3 text-sm leading-6 text-muted">
                 <input wire:model="terms_and_privacy_acceptance" id="terms_and_privacy_acceptance" type="checkbox" class="mt-1 rounded border-forest-300 text-gold-600 focus:ring-gold-500" required>
-                <span><a class="font-semibold text-gold-700 underline" href="{{ route('legal.center') }}#kullanim-kosullari">Kullanım Koşulları</a> ve <a class="font-semibold text-gold-700 underline" href="{{ route('legal.center') }}#gizlilik-ve-kisisel-veriler">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum. Bu onay pazarlama izni değildir.</span>
+                <span><a class="font-semibold text-gold-700 underline" href="{{ route('legal.center') }}#kullanim-kosullari">{{ __('ux.terms') }}</a> {{ __('ux.and') }} <a class="font-semibold text-gold-700 underline" href="{{ route('legal.center') }}#gizlilik-ve-kisisel-veriler">{{ __('ux.privacy') }}</a>{{ __('ux.consent') }}</span>
             </label>
             <x-input-error :messages="$errors->get('terms_and_privacy_acceptance')" class="mt-2" />
         </div>
 
-        <x-social-login class="mt-7" label="veya hesabınızla devam edin" />
+        <x-social-login class="mt-7" :label="__('ux.social_account')" />
 
         <div class="mt-6 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
             <a class="text-sm font-semibold text-gold-700 hover:text-gold-600" href="{{ route('login') }}">
-                Zaten üyeyim
+                {{ __('ux.already_member') }}
             </a>
 
             <x-primary-button>
-                Hesap oluştur
+                {{ __('ux.create_account') }}
             </x-primary-button>
         </div>
     </form>

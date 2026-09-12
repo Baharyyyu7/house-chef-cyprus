@@ -38,7 +38,9 @@ final class BlogIndexability
 
     public function robots(BlogPost $yazi): string
     {
-        return $this->indekslenebilir($yazi) ? 'index,follow' : 'noindex,follow';
+        $metadata = $yazi->relationLoaded('seoMetadata') ? $yazi->getRelation('seoMetadata') : $yazi->seoMetadata()->first();
+
+        return app(SeoMetadataService::class)->robots($metadata?->robots, $this->indekslenebilir($yazi) ? 'index,follow' : 'noindex,follow');
     }
 
     /** @return list<string> */
@@ -46,7 +48,7 @@ final class BlogIndexability
     {
         $engeller = [];
 
-        if (mb_strlen(trim((string) $yazi->body)) < self::ASGARI_KARAKTER) {
+        if (mb_strlen(trim(strip_tags((string) $yazi->translated('body')))) < self::ASGARI_KARAKTER) {
             $engeller[] = 'ince';
         }
 

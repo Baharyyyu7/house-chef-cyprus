@@ -235,7 +235,6 @@ final class SeoSchemaService
             ?? (self::HERITAGE_ENTITIES[$baseSlug.'i'] ?? null);
 
         if ($entity !== null) {
-            $recipeNode['sameAs'] = $entity['sameAs'];
             if (isset($entity['about'])) {
                 $recipeNode['about'] = [
                     '@type' => 'Thing',
@@ -288,6 +287,9 @@ final class SeoSchemaService
 
         $isEn = app()->getLocale() === 'en';
         $article = ['@type' => 'BlogPosting', 'headline' => $post->translated('title'), 'description' => $post->translated('excerpt'), 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => $publisher, 'publisher' => $publisher, 'inLanguage' => app()->getLocale()];
+        if (filled($post->author?->name)) {
+            $article['author'] = ['@type' => 'Person', 'name' => $post->author->name];
+        }
         if ($imageUrl !== '') {
             $article['image'] = [$imageUrl];
         }

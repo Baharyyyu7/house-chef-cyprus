@@ -16,7 +16,7 @@ final class SeoProviderHealthService
         $metrics = $measurement->snapshot();
 
         return [
-            'search_console' => ['enabled' => (bool) ($searchConsole['enabled'] ?? false), 'configured' => $measurement->configured(), 'ready' => $metrics['api_connected'], 'safe_message' => $metrics['note']],
+            'search_console' => ['enabled' => (bool) ($searchConsole['enabled'] ?? false), 'configured' => $measurement->configured(), 'ready' => (bool) ($searchConsole['enabled'] ?? false) && $measurement->configured() && $metrics['api_connected'], 'safe_message' => $metrics['note']],
             'indexnow' => ['enabled' => (bool) ($indexNow['enabled'] ?? false), 'configured' => filled(config('app.url')), 'ready' => false, 'safe_message' => 'Domain ve public key dosyası doğrulaması bekleniyor.'],
             'x_distribution' => ['enabled' => (bool) ($social['x_enabled'] ?? false), 'configured' => false, 'ready' => false, 'safe_message' => 'Yalnız taslak modu kullanılabilir; gerçek paylaşım kapalı.'],
         ];

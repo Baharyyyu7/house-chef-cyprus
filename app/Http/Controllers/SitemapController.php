@@ -104,7 +104,7 @@ final class SitemapController extends Controller
         $mediaEligibility = app(PublicMediaEligibilityService::class);
         $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified'))
             ->with(['media' => fn ($query) => $query->where('visibility', 'public')->orderBy('sort_order')])
-            ->orderBy('updated_at')->get(['id', 'slug', 'updated_at'])
+            ->orderBy('updated_at')->get(['id', 'slug', 'title', 'excerpt', 'description', 'updated_at'])
             ->filter(fn (Recipe $recipe): bool => $mediaEligibility->firstEligible($recipe->media) !== null)
             ->map(fn (Recipe $recipe): array => [
                 'loc' => route('recipes.show', $recipe->slug),
@@ -123,7 +123,7 @@ final class SitemapController extends Controller
         $indekslenebilirlik = app(BlogIndexability::class);
 
         $urls = $this->indexable(BlogPost::query()->publiclyVisible())
-            ->orderBy('updated_at')->get(['id', 'slug', 'updated_at', 'body', 'fact_check_status', 'originality_status'])
+            ->orderBy('updated_at')->get(['id', 'slug', 'title', 'excerpt', 'updated_at', 'body', 'fact_check_status', 'originality_status'])
             ->filter(fn (BlogPost $post): bool => $indekslenebilirlik->indekslenebilir($post))
             ->map(fn (BlogPost $post): array => [
                 'loc' => route('blog.show', $post),

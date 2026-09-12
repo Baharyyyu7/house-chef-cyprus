@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasPublicId;
 use App\Models\Concerns\HasTranslations;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,7 +22,11 @@ use Illuminate\Support\Carbon;
  */
 class Recipe extends Model
 {
-    use HasPublicId, HasTranslations, SoftDeletes;
+    use HasPublicId, SoftDeletes;
+    use HasTranslations {
+        hasTranslation as private kendiAlanlariCevrildi;
+        scopeTranslatedInto as private kendiAlanlariIcinSuz;
+    }
 
     /**
      * Bir tarif sayfasını taşıyan alanlar. Kısmi çeviri yeterli değil:
@@ -33,6 +38,82 @@ class Recipe extends Model
     public function translatableFields(): array
     {
         return ['title', 'excerpt', 'description'];
+    }
+
+    /**
+     * Bir tarif yalnız kendi metin alanları çevrildiğinde çevrilmiş sayılmaz.
+     *
+     * Tarifin gövdesi kendi sütunlarında değil, adımlarında ve malzemelerinde
+     * durur. Yalnız başlık/özet/açıklama çevrilirse ortaya İngilizce başlıklı
+     * ama Türkçe yönergeli bir sayfa çıkar - kapının tam olarak engellemek
+     * için var olduğu şey. 680 tarif için bu, /en/ altında 680 yarı Türkçe
+     * sayfa demekti.
+     */
+    public function hasTranslation(?string $locale = null): bool
+    {
+        $locale ??= app()->getLocale();
+
+        if (! $this->kendiAlanlariCevrildi($locale)) {
+            return false;
+        }
+
+        if ($locale === (string) config('locales.default', 'tr')) {
+            return true;
+        }
+
+        foreach ($this->steps as $adim) {
+            if (! $adim->hasTranslation($locale)) {
+                return false;
+            }
+        }
+
+        foreach ($this->ingredients as $malzeme) {
+            if (! $malzeme->hasTranslation($locale)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Listeleme, sitemap ve hreflang aynı tanımı paylaşmak zorunda.
+     *
+     * hasTranslation() adımlara ve malzemelere bakıyorsa bu kapsam da
+     * bakmalı; ayrışırlarsa hreflang listede olmayan bir sayfayı gösterir ve
+     * Google kümenin tamamını atar.
+     */
+    public function scopeTranslatedInto(Builder $query, ?string $locale = null): Builder
+    {
+        $locale ??= app()->getLocale();
+
+        $query = $this->kendiAlanlariIcinSuz($query, $locale);
+
+        if ($locale === (string) config('locales.default', 'tr')) {
+            return $query;
+        }
+
+        // "Çevrilmemiş çocuğu olmayan tarif": çocuk başına tek tek bakmak
+        // yerine eksikliği aramak, N+1 sorgu doğurmadan aynı sonucu verir.
+        foreach ([
+            ['steps', (new RecipeStep)->translatableFields()],
+            ['ingredients', (new Ingredient)->translatableFields()],
+        ] as [$iliski, $alanlar]) {
+            foreach ($alanlar as $alan) {
+                $query->whereDoesntHave($iliski, function (Builder $cocuk) use ($locale, $alan): void {
+                    $cocuk->whereNotNull($alan)
+                        ->whereRaw('TRIM('.$alan.') <> ?', [''])
+                        ->whereDoesntHave('translations', function (Builder $ceviri) use ($locale, $alan): void {
+                            $ceviri->where('locale', $locale)
+                                ->where('field', $alan)
+                                ->whereNotNull('value')
+                                ->whereRaw('TRIM(value) <> ?', ['']);
+                        });
+                });
+            }
+        }
+
+        return $query;
     }
 
     protected $fillable = ['cuisine_id', 'category_id', 'content_factory_batch_id', 'data_source_id', 'external_id', 'content_origin', 'original_hash', 'first_imported_at', 'last_verified_at', 'title', 'slug', 'excerpt', 'description', 'country', 'region', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'dietary_tags', 'allergens', 'nutrition', 'storage_notes', 'source_name', 'source_url', 'reliability_score', 'status', 'is_featured', 'verification_status', 'editorial_status', 'content_factory_state', 'fact_check_required', 'completeness_score', 'completeness_status', 'content_factory_readiness_score', 'content_factory_rule_version', 'content_factory_checked_at', 'content_factory_metadata', 'editorial_reviewed_at', 'editorial_reviewed_by_user_id', 'human_approved_by_user_id', 'human_approved_at', 'published_at', 'equipment', 'tips', 'common_mistakes', 'serving_suggestions', 'reheating_notes', 'freezing_notes', 'cultural_notes', 'seasonality', 'image_status', 'image_license', 'image_attribution', 'image_reviewed_at'];

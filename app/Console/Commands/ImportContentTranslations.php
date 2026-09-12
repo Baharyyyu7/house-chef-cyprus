@@ -123,6 +123,21 @@ final class ImportContentTranslations extends Command
                     continue;
                 }
 
+                // Tarifin gövdesi kendi sütunlarında değil, adımlarında ve
+                // malzemelerinde durur. Başlığı İngilizce, yönergesi Türkçe
+                // bir sayfa çevrilmemiş sayfanın kendisidir; dosya da öyle.
+                $cocukIsleri = [];
+
+                if ($tur === 'recipe') {
+                    $cocukSorun = $this->tarifGovdesi($kayit, $veri, $cocukIsleri);
+
+                    if ($cocukSorun !== null) {
+                        $atlanan[$cocukSorun][] = $ad;
+
+                        continue;
+                    }
+                }
+
                 if (! $yaz) {
                     $alinan++;
 
@@ -133,6 +148,13 @@ final class ImportContentTranslations extends Command
                     $kayit->translations()->updateOrCreate(
                         ['locale' => $locale, 'field' => $alan],
                         ['value' => trim((string) $alanlar[$alan])]
+                    );
+                }
+
+                foreach ($cocukIsleri as [$cocuk, $cocukAlan, $cocukDeger]) {
+                    $cocuk->translations()->updateOrCreate(
+                        ['locale' => $locale, 'field' => $cocukAlan],
+                        ['value' => $cocukDeger]
                     );
                 }
 
@@ -159,5 +181,91 @@ final class ImportContentTranslations extends Command
         $this->line('Çeviri içeri girmek dili açmaz; dil etkinleştirmesi ayrı ve insana ait bir karardır.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Tarifin adım ve malzeme çevirilerini denetler.
+     *
+     * Yazmaz; yalnız yapılacak işleri toplar. Böylece bir eksik bulunduğunda
+     * dosyanın yarısı yazılmış olmaz - yarım yazılmış tarif, kapıdan geçen
+     * ama gövdesi Türkçe kalan sayfa demektir.
+     *
+     * @param  array<string, mixed>  $veri
+     * @param  list<array{0: object, 1: string, 2: string}>  $isler
+     * @return string|null  Sorun varsa atlanma sebebi, yoksa null
+     */
+    private function tarifGovdesi(Recipe $tarif, array $veri, array &$isler): ?string
+    {
+        $adimCevirileri = is_array($veri['steps'] ?? null) ? $veri['steps'] : [];
+        $malzemeCevirileri = is_array($veri['ingredients'] ?? null) ? $veri['ingredients'] : [];
+
+        foreach ($tarif->steps as $adim) {
+            $gelen = null;
+            foreach ($adimCevirileri as $aday) {
+                if (is_array($aday) && (int) ($aday['position'] ?? 0) === (int) $adim->position) {
+                    $gelen = $aday;
+                    break;
+                }
+            }
+
+            $sorun = $this->cocukAlanlari($adim, $gelen, 'adım '.$adim->position, $isler);
+
+            if ($sorun !== null) {
+                return $sorun;
+            }
+        }
+
+        foreach ($tarif->ingredients as $malzeme) {
+            $gelen = null;
+            foreach ($malzemeCevirileri as $aday) {
+                if (is_array($aday) && (string) ($aday['slug'] ?? '') === (string) $malzeme->slug) {
+                    $gelen = $aday;
+                    break;
+                }
+            }
+
+            $sorun = $this->cocukAlanlari($malzeme, $gelen, 'malzeme '.$malzeme->slug, $isler);
+
+            if ($sorun !== null) {
+                return $sorun;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Bir çocuk kaydın çevrilebilir alanlarını denetler.
+     *
+     * Kaynakta boş olan alan istenmez: Türkçesi boş bir ipucunun İngilizcesini
+     * şart koşmak, çevirisi tamam olan tarifi asla açılmayacak bir eksikle
+     * kilitlerdi.
+     *
+     * @param  array<string, mixed>|null  $gelen
+     * @param  list<array{0: object, 1: string, 2: string}>  $isler
+     */
+    private function cocukAlanlari(object $kayit, ?array $gelen, string $etiket, array &$isler): ?string
+    {
+        foreach ($kayit->translatableFields() as $alan) {
+            $kaynak = trim((string) $kayit->getRawOriginal($alan));
+
+            if ($kaynak === '') {
+                continue;
+            }
+
+            $deger = is_string($gelen[$alan] ?? null) ? trim((string) $gelen[$alan]) : '';
+
+            if ($deger === '') {
+                return 'gövde çevrilmemiş ('.$etiket.': '.$alan.')';
+            }
+
+            if ($deger === $kaynak) {
+                return 'gövdede kaynak metnin kopyası ('.$etiket.': '.$alan.')';
+            }
+
+            $isler[] = [$kayit, $alan, $deger];
+        }
+
+        return null;
     }
 }

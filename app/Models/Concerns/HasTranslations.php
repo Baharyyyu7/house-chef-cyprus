@@ -44,6 +44,10 @@ trait HasTranslations
     public function getAttribute($key)
     {
         if (in_array($key, $this->translatableFields(), true)) {
+            if (app()->bound('request') && request()->is('yonetim', 'yonetim/*')) {
+                return parent::getAttribute($key);
+            }
+
             $locale = app()->getLocale();
             if ($locale !== (string) config('locales.default', 'tr')) {
                 $translated = $this->translated($key, $locale);
@@ -95,6 +99,14 @@ trait HasTranslations
         }
 
         foreach ($this->translatableFields() as $alan) {
+            // Kaynakta boş olan alan çeviride istenmez. Türkçesi boş bir
+            // başlığın İngilizcesini şart koşmak, çevirisi tamam olan kaydı
+            // asla açılmayacak bir eksikle kilitler. Ancak alan veritabanından
+            // yüklenmemişse (ör. kısmi SELECT) boş sayılamaz.
+            if (array_key_exists($alan, $this->attributes) && trim((string) parent::getAttribute($alan)) === '') {
+                continue;
+            }
+
             if ($this->translated($alan, $locale) === null) {
                 return false;
             }
@@ -119,8 +131,13 @@ trait HasTranslations
         }
 
         foreach ($this->translatableFields() as $alan) {
-            $query->whereHas('translations', function (Builder $inner) use ($locale, $alan): void {
-                $inner->where('locale', $locale)->where('field', $alan)->whereNotNull('value')->whereRaw('TRIM(value) <> ?', ['']);
+            // hasTranslation() ile aynı tanım: kaynakta boş olan alan
+            // aranmaz. İkisi ayrışırsa hreflang listede olmayan bir sayfayı
+            // gösterir ve küme tamamen geçersiz olur.
+            $query->where(function (Builder $dis) use ($locale, $alan): void {
+                $dis->whereHas('translations', function (Builder $inner) use ($locale, $alan): void {
+                    $inner->where('locale', $locale)->where('field', $alan)->whereNotNull('value')->whereRaw('TRIM(value) <> ?', ['']);
+                })->orWhereNull($alan)->orWhereRaw('TRIM('.$alan.') = ?', ['']);
             });
         }
 

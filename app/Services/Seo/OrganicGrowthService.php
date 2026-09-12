@@ -11,6 +11,7 @@ use App\Models\SeoIssue;
 use App\Models\ZeroResultSearch;
 use App\Services\Integrity\IntegrityReportLog;
 use App\Services\Security\SafeUrlValidator;
+use GuzzleHttp\Psr7\UriResolver;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -198,7 +199,12 @@ final class OrganicGrowthService
         $scheme = strtolower($parts['scheme']);
         $port = $parts['port'] ?? ($scheme === 'https' ? 443 : 80);
         $origin = $scheme.'://'.$host.($port === ($scheme === 'https' ? 443 : 80) ? '' : ':'.$port);
-        $normalized = $origin.($parts['path'] ?? '/').(isset($parts['query']) ? '?'.$parts['query'] : '');
+        $path = preg_replace_callback('/%[0-9a-f]{2}/i', static function (array $match): string {
+            $character = rawurldecode($match[0]);
+
+            return preg_match('/[a-z0-9._~-]/i', $character) ? $character : strtoupper($match[0]);
+        }, $parts['path'] ?? '/');
+        $normalized = $origin.UriResolver::removeDotSegments($path).(isset($parts['query']) ? '?'.$parts['query'] : '');
 
         return ['url' => $normalized, 'host' => $host, 'origin' => $origin];
     }

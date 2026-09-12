@@ -15,8 +15,9 @@ final class SeoBacklinksVerify extends Command
 
     public function handle(BacklinkVerificationService $service): int
     {
-        $this->line(json_encode($service->run((int) $this->option('limit')), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        $result = $service->run((int) $this->option('limit'));
+        $this->line(json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
-        return self::SUCCESS;
+        return $result['status'] === 'incomplete' ? self::FAILURE : self::SUCCESS;
     }
 }

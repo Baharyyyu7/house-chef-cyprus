@@ -127,6 +127,7 @@ final class CuisineHubController extends Controller
         return Recipe::query()
             ->where('status', 'published')
             ->where('verification_status', 'verified')
+            ->translatedInto()
             ->where('cuisine_id', $mutfak->id)
             ->with(['media' => fn ($q) => $q->where('visibility', 'public'), 'category'])
             ->orderByDesc('published_at')
