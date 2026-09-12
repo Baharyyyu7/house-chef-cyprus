@@ -60,6 +60,15 @@ return [
             'direction' => 'ltr',
             'enabled' => true,
         ],
+        'ru' => [
+            'flag' => '🇷🇺',
+            'label' => 'Russian',
+            'native_label' => 'Русский',
+            'html_locale' => 'ru',
+            'og_locale' => 'ru_RU',
+            'direction' => 'ltr',
+            'enabled' => true,
+        ],
     ],
 
     /*
