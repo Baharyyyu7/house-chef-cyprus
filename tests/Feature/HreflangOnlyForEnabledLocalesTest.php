@@ -139,9 +139,21 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
         $this->assertStringContainsString('hreflang="x-default"', $icerik);
     }
 
+    /**
+     * Lehçe yapılandırmada tanımlı ve açılmaya hazır.
+     *
+     * Testin adı "supported" diyor; iddiası ise "enabled" idi. İkisi aynı şey
+     * değil: desteklenmek yapılandırmada durmak, açık olmak sayfa servis
+     * etmektir. 13 Eylül 2026'da `pl` açıldı ve canlıda anasayfa
+     * `home.hero_title` bastı - `lang/pl` dosyalarında 359 metin eksikti.
+     *
+     * Açılma şartı burada değil, EnabledLocalesHaveCompleteUiStringsTest'te
+     * duruyor: açık her dil varsayılan dilin bütün anahtarlarını taşımalı.
+     * Bayrağı test etmek yerine ziyaretçinin göreceği şeyi test etmek gerek.
+     */
     public function test_polish_is_available_as_a_supported_locale(): void
     {
         $this->assertArrayHasKey('pl', (array) config('locales.supported'));
-        $this->assertTrue(config('locales.supported.pl.enabled'), 'İçerik hazır olduğunda dil açılmış olmalı.');
+        $this->assertArrayHasKey('enabled', (array) config('locales.supported.pl'));
     }
 }

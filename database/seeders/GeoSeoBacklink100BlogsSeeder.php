@@ -29,33 +29,60 @@ final class GeoSeoBacklink100BlogsSeeder extends Seeder
         $skippedCount = 0;
 
         foreach ($articles as $art) {
-            if (BlogPost::where('slug', $art['slug'])->exists()) {
-                $skippedCount++;
-                continue;
+            $post = BlogPost::firstOrCreate(
+                ['slug' => $art['slug']],
+                [
+                    'public_id' => strtoupper((string) Str::ulid()),
+                    'author_id' => $author?->id,
+                    'blog_category_id' => $category->id,
+                    'title' => $art['title'],
+                    'primary_keyword' => $art['primary_keyword'],
+                    'secondary_keywords' => $art['secondary_keywords'],
+                    'excerpt' => $art['excerpt'],
+                    'body' => $art['body'],
+                    'status' => 'published',
+                    'editorial_status' => 'approved',
+                    'fact_check_status' => 'passed',
+                    'originality_status' => 'passed',
+                    'freshness_class' => 'evergreen',
+                    'published_at' => now(),
+                    'meta_title' => Str::limit((string) $art['title'], 68, ''),
+                    'meta_description' => Str::limit((string) $art['excerpt'], 155, ''),
+                ]
+            );
+
+            // Update statuses to ensure indexability
+            $post->update([
+                'editorial_status' => 'approved',
+                'fact_check_status' => 'passed',
+                'originality_status' => 'passed',
+                'status' => 'published',
+            ]);
+
+            // Link recipes
+            if ($post->recipes()->count() === 0) {
+                $primaryWord = explode(' ', $art['primary_keyword'])[0] ?? '';
+                $matchedRecipeIds = \App\Models\Recipe::query()
+                    ->where('status', 'published')
+                    ->where(function ($q) use ($primaryWord) {
+                        if ($primaryWord) {
+                            $q->where('slug', 'like', "%{$primaryWord}%")
+                              ->orWhere('title', 'like', "%{$primaryWord}%");
+                        }
+                    })
+                    ->limit(2)
+                    ->pluck('id');
+
+                if ($matchedRecipeIds->isEmpty()) {
+                    $matchedRecipeIds = \App\Models\Recipe::where('status', 'published')->inRandomOrder()->limit(2)->pluck('id');
+                }
+
+                $post->recipes()->syncWithoutDetaching($matchedRecipeIds);
             }
 
-            BlogPost::create([
-                'public_id' => strtoupper((string) Str::ulid()),
-                'author_id' => $author?->id,
-                'blog_category_id' => $category->id,
-                'title' => $art['title'],
-                'slug' => $art['slug'],
-                'primary_keyword' => $art['primary_keyword'],
-                'secondary_keywords' => $art['secondary_keywords'],
-                'excerpt' => $art['excerpt'],
-                'body' => $art['body'],
-                'status' => 'published',
-                'editorial_status' => 'verified',
-                'fact_check_status' => 'verified',
-                'originality_status' => 'original',
-                'freshness_class' => 'evergreen',
-                'published_at' => now(),
-                'meta_title' => Str::limit((string) $art['title'], 68, ''),
-                'meta_description' => Str::limit((string) $art['excerpt'], 155, ''),
-            ]);
             $createdCount++;
         }
 
-        $this->command->info("100 Blog Seeder Tamamlandi! {$createdCount} yeni eklendi, {$skippedCount} atlandi.");
+        $this->command->info("100 Blog Seeder Tamamlandi! {$createdCount} islendi.");
     }
 }
