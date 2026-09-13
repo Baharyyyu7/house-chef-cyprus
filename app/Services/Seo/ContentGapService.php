@@ -43,7 +43,7 @@ final class ContentGapService
                 return;
             }
             $wasCreated = ! $opportunity->exists;
-            $opportunity->fill(['kind' => 'zero_result_question', 'title' => '"'.$query->normalized_query.'" sorusuna yardımcı içerik', 'search_intent' => 'informational', 'topic_cluster' => 'Kullanıcı Soruları', 'evidence' => $this->editorialEvidence(['anonymous_search_count' => $query->search_count]), 'risk_level' => 'low', 'priority' => min(100, 50 + $query->search_count), 'status' => 'open']);
+            $opportunity->fill(['kind' => 'zero_result_question', 'title' => '"'.$query->normalized_query.'" sorusuna yardımcı içerik', 'search_intent' => 'informational', 'topic_cluster' => 'Kullanıcı Soruları', 'evidence' => $this->editorialEvidence(['anonymous_search_count' => $query->search_count, 'locale' => $query->locale ?? 'tr']), 'risk_level' => 'low', 'priority' => min(100, 50 + $query->search_count), 'status' => 'open']);
             $opportunity->save();
             $wasCreated ? $created++ : $updated++;
             $opportunities->push($opportunity);
@@ -56,8 +56,8 @@ final class ContentGapService
     private function editorialEvidence(array $evidence): array
     {
         return [
-            ...$evidence,
             'locale' => (string) config('seo.locale', 'tr'),
+            ...$evidence,
             'collected_at' => now()->toIso8601String(),
             'publication_requires_human_review' => true,
             'delivery_policy' => 'draft_only',

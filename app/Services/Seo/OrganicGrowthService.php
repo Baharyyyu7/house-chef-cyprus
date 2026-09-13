@@ -238,7 +238,8 @@ final class OrganicGrowthService
         if ($created >= $limit) {
             return $created;
         }
-        $searches = ZeroResultSearch::query()->whereNull('resolved_at')->where('locale', config('seo.locale', 'tr'))
+        $enabledLocales = array_keys(app(LocaleUrlService::class)->enabledLocales());
+        $searches = ZeroResultSearch::query()->whereNull('resolved_at')->whereIn('locale', $enabledLocales)
             ->where('search_count', '>=', max(1, (int) config('seo.audit.minimum_zero_result_searches', 5)))
             ->whereNotIn('normalized_query', ContentOpportunity::query()->where('normalized_key', 'like', 'zero-%')->selectRaw('SUBSTR(normalized_key, 6)'))
             ->orderByDesc('search_count')->orderBy('id')->limit($limit - $created)->get();
