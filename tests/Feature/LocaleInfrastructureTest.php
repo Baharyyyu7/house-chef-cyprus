@@ -19,6 +19,11 @@ class LocaleInfrastructureTest extends TestCase
 
     public function test_a_locale_that_has_not_been_editorially_enabled_cannot_be_selected(): void
     {
+        // Hangi dilin kapalı olduğu zamanla değişir; kural değişmez. O yüzden
+        // dili testin kendisi kapatıyor, yapılandırmanın o günkü haline
+        // güvenmiyor.
+        config()->set('locales.supported.de.enabled', false);
+
         $this->from('/')
             ->post(route('locale.update'), ['locale' => 'de', 'return_to' => '/'])
             ->assertRedirect('/')

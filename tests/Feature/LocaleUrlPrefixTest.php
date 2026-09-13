@@ -13,10 +13,17 @@ final class LocaleUrlPrefixTest extends TestCase
 
     public function test_a_disabled_locale_prefix_is_not_served(): void
     {
-        config()->set('locales.supported.en.enabled', false);
         // Kapalı dile sayfa açmak, Türkçe içeriği yabancı dil sayfası gibi
         // sunmak olurdu; zayıf dil sayfaları site geneli kalite sinyalini
         // aşağı çeker.
+        //
+        // Hangi dilin kapalı olduğu zamanla değişir - 13 Eylül 2026'da dördü
+        // birden açıldı ve bu test "de kapalıdır" varsaydığı için kırıldı.
+        // Kural dile bağlı değil, o yüzden dilleri testin kendisi kapatıyor.
+        foreach (['en', 'de', 'fa', 'pl'] as $dil) {
+            config()->set('locales.supported.'.$dil.'.enabled', false);
+        }
+
         foreach (['/en', '/pl', '/fa', '/de'] as $adres) {
             $this->get($adres)->assertNotFound();
         }

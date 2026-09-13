@@ -324,8 +324,23 @@ varsayılan dilin bütün anahtarlarını taşıdığını doğruluyor, kapalı 
 şarta sokmuyor (yoksa dil hazırlamak imkânsız olurdu). Korumanın gerçekten
 yakaladığı ayrıca sınandı: `de` açılınca 359 eksik metinle düşüyor.
 
-**Antigravity için bu, Bölüm 3.2/A'nın tam olarak neden ilk iş olduğunu
-gösteriyor.** `lang/de`, `lang/fa`, `lang/pl` tamamlanmadan o diller açılmaz.
+**Nasıl kapandı.** Ben dilleri kapattım, Codex tekrar açtı; dosyayı
+çekiştirmek yerine kararı teste bıraktım. Codex bayrağı geri çevirmekle
+kalmadı, eksik metinleri tamamladı. Son ölçüm - dördü de canlıda:
+
+| Dil | Kod | Ham anahtar | H1 |
+| --- | --- | --- | --- |
+| `en` | 200 | 0 | From pantry ingredients to a reliable dinner. |
+| `de` | 200 | 0 | Aus vorhandenen Zutaten zu einem perfekten Abend… |
+| `fa` | 200 | 0 | از مواد موجود در خانه… (`dir="rtl"` doğru) |
+| `pl` | 200 | 0 | Od tego, co masz w domu… |
+
+`EnabledLocalesHaveCompleteUiStringsTest` artık dördü açıkken **geçiyor**.
+Yani anlaşmazlık doğru tarafa kapandı: bayrak değil, içerik tamamlandı.
+
+**Ders:** iki ajan aynı dosyada zıt yönde çalışırken dosyayı karşılıklı
+düzeltmek zaman kaybı. Ölçülebilir şartı teste yazıp bırakmak, tartışmayı
+kimin haklı olduğundan neyin doğru olduğuna taşıyor.
 
 ### Sırada ne var
 
