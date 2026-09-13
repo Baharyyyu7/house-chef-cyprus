@@ -96,4 +96,5 @@ return [
     'resend' => 'Resend link',
     'logout' => 'Log out',
     'verification_throttle' => 'Too many verification links requested. Please try again later.',
+    'locale_switched' => 'Your language preference has been updated to :language.',
 ];

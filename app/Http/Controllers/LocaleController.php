@@ -30,7 +30,19 @@ class LocaleController extends Controller
 
         $returnTo = $this->safeReturnPath($validated['return_to'] ?? '/');
 
+        // Onay mesajı HEDEF dilde yazılır.
+        //
+        // Kullanıcı İngilizceye geçtiyse Türkçe bir onay okumak, geçişin
+        // çalışmadığı izlenimi verir: kişi zaten Türkçe okuyamadığı için
+        // dili değiştirmiştir. Dil adı da o dilin kendi yazımıyla geçer
+        // ("Türkçe", "Deutsch"), çünkü diller kendi adlarını her dilde aynı
+        // taşımaz ve insanlar kendi dillerini kendi adıyla tanır.
+        $dilAdi = (string) (config('locales.supported.'.$locale.'.native_label')
+            ?: config('locales.supported.'.$locale.'.label')
+            ?: $locale);
+
         return redirect(app(LocaleUrlService::class)->urlFor($locale, $returnTo))
+            ->with('status', trans('ux.locale_switched', ['language' => $dilAdi], $locale))
             ->withCookie(cookie('hc_locale', $locale, 60 * 24 * 365, '/', null, $request->isSecure(), true, false, 'lax'));
     }
 

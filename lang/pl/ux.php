@@ -96,4 +96,5 @@ return [
     'resend' => 'Wyślij ponownie',
     'logout' => 'Wyloguj się',
     'verification_throttle' => 'Zbyt wiele żądań. Odczekaj chwilę przed ponowną próbą.',
+    'locale_switched' => 'Twoje preferencje językowe zostały zmienione na :language.',
 ];

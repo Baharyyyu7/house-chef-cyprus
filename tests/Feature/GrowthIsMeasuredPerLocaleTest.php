@@ -96,7 +96,10 @@ final class GrowthIsMeasuredPerLocaleTest extends TestCase
 
         $tablo = app(LocaleGrowthService::class)->tablo();
 
-        // İngilizcede sayfa var ama hiç gösterim yok: bu indeksleme sorunu.
+        // İngilizcede sayfa var ama o dile ait hiç ölçüm satırı yok. Bu
+        // "indekslenmedi" DEĞİL: indekslenmediğini söyleyebilmek için önce
+        // ölçmüş olmak gerekir. İkisini ayırmazsak Search Console bağlı
+        // olmadığı her gün sahte bir indeksleme alarmı üretirdik.
         $this->assertSame(1, $tablo['en']['recipes']);
         $this->assertStringContainsString('ölçüm yok', $tablo['en']['darbogaz']);
         $this->assertFalse($tablo['en']['measurement_available']);
@@ -104,6 +107,58 @@ final class GrowthIsMeasuredPerLocaleTest extends TestCase
         // Almancada hiç sayfa yok: bu içerik sorunu, ayrı bir iş.
         $this->assertSame(0, $tablo['de']['recipes']);
         $this->assertStringContainsString('içerik yok', $tablo['de']['darbogaz']);
+    }
+
+    public function test_olcum_var_ama_gosterim_yoksa_iddia_edilmez_dogrulanmasi_istenir(): void
+    {
+        // Üç durum üst üste biniyor ve teşhis her adımda biraz daha
+        // temkinli olmak zorunda:
+        //   1. dile ait hiç ölçüm satırı yok  -> hiçbir şey söylenemez
+        //   2. satır var ama gösterim sıfır   -> indeksleme ŞÜPHESİ
+        //   3. gösterim var, tıklama yok      -> başlık/sıralama işi
+        //
+        // İkinci durumda "indekslenmemiş" demek bir iddiadır ve sıfır
+        // gösterim bunu kanıtlamaz: sayfa indekslenmiş ama hiç sorguyla
+        // eşleşmemiş de olabilir. Teşhis yerine doğrulama istiyor.
+        $tarif = Recipe::query()->create([
+            'title' => 'Hellim', 'slug' => 'hellim-z', 'excerpt' => 'Ö.', 'description' => 'A.',
+            'status' => 'published', 'verification_status' => 'verified', 'published_at' => now(),
+        ]);
+        foreach (['title' => 'Halloumi', 'excerpt' => 'S.', 'description' => 'D.'] as $a => $d) {
+            $tarif->translations()->create(['locale' => 'en', 'field' => $a, 'value' => $d]);
+        }
+
+        // Aynı dile ait, gösterimi sıfır olan bir ölçüm satırı.
+        $this->olcum('https://x.test/en/tarifler/baska-sayfa', 0, 0);
+
+        $tablo = app(LocaleGrowthService::class)->tablo();
+
+        $this->assertTrue($tablo['en']['measurement_available']);
+        $this->assertStringContainsString('doğrulanmalı', $tablo['en']['darbogaz']);
+        $this->assertStringNotContainsString(
+            'indekslenmemiş',
+            $tablo['en']['darbogaz'],
+            'Sıfır gösterim indekslenmediğini kanıtlamaz; teşhis iddia etmemeli.'
+        );
+    }
+
+    public function test_gosterim_varsa_darbogaz_artik_olcume_dayanir(): void
+    {
+        $tarif = Recipe::query()->create([
+            'title' => 'Hellim', 'slug' => 'hellim-w', 'excerpt' => 'Ö.', 'description' => 'A.',
+            'status' => 'published', 'verification_status' => 'verified', 'published_at' => now(),
+        ]);
+        foreach (['title' => 'Halloumi', 'excerpt' => 'S.', 'description' => 'D.'] as $a => $d) {
+            $tarif->translations()->create(['locale' => 'en', 'field' => $a, 'value' => $d]);
+        }
+
+        $this->olcum('https://x.test/en/tarifler/hellim-w', 12, 400, 4.0);
+
+        $tablo = app(LocaleGrowthService::class)->tablo();
+
+        $this->assertSame(12, $tablo['en']['clicks']);
+        $this->assertSame(3.0, $tablo['en']['ctr']);
+        $this->assertStringContainsString('ölçüm var', $tablo['en']['darbogaz']);
     }
 
     public function test_gosterim_varken_tiklama_yoksa_baslik_sorunu_denir(): void

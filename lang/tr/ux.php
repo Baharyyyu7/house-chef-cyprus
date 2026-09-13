@@ -96,4 +96,5 @@ return [
     'resend' => 'Bağlantıyı yeniden gönder',
     'logout' => 'Çıkış yap',
     'verification_throttle' => 'Çok fazla doğrulama bağlantısı istendi. Lütfen daha sonra tekrar deneyin.',
+    'locale_switched' => 'Dil tercihiniz :language olarak güncellendi.',
 ];

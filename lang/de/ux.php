@@ -96,4 +96,5 @@ return [
     'resend' => 'Link erneut senden',
     'logout' => 'Abmelden',
     'verification_throttle' => 'Zu viele Bestätigungslinks angefordert. Bitte warten Sie einen Moment.',
+    'locale_switched' => 'Ihre Spracheinstellung wurde auf :language aktualisiert.',
 ];

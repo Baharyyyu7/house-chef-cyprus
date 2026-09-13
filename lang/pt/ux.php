@@ -96,4 +96,5 @@ return [
     'resend' => 'Reenviar ligação',
     'logout' => 'Terminar sessão',
     'verification_throttle' => 'Demasiados pedidos. Por favor, aguarde antes de tentar novamente.',
+    'locale_switched' => 'A sua preferência de idioma foi atualizada para :language.',
 ];

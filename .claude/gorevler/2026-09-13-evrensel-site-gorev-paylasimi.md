@@ -348,3 +348,108 @@ kimin haklı olduğundan neyin doğru olduğuna taşıyor.
 mesajı "10 EN blog translations applied" diyor ama yerel veritabanında karşılığı
 yok; nereye uygulandığı doğrulanmalı. Bir sonraki adım Bölüm 3.1/A: **187
 malzeme**, tek teslim.
+
+---
+
+## 7. Çok dilli büyüme altyapısı
+
+Site artık yedi dilde açık. Ama büyüme motoru - 25 servis, 17 komut, ~15
+zamanlanmış iş - tamamen tek dilliydi. Ölçtüm:
+
+| Bileşen | Dil izi |
+| --- | --- |
+| `IndexNowService` | **0** |
+| `AutonomousGrowthEngine` | **0** |
+| `SearchConsoleMeasurementService` | **0** |
+| `BacklinkVerificationService` | **0** |
+| `SitemapController` | 4 (hreflang işi) |
+
+Yani çeviri yapılıyor, sayfa yayına giriyor ve büyüme motorunun hiçbir
+parçası bundan haberdar olmuyordu.
+
+### Kapatılan dört boşluk
+
+**1. IndexNow dilleri bildirmiyordu.** Bing ve Yandex'e "şu adres değişti"
+diyen kanal yalnız Türkçe adres gönderiyordu. Bir tarif İngilizceye çevrilip
+yayına girdiğinde arama motoruna giden tek adres Türkçe sürümüydü; `/en/`
+sayfası kendiliğinden taranmayı bekliyordu. Çeviri emeğinin karşılığını
+geciktiren nokta buydu. Artık her açık dilin çevrilmiş adresleri de
+bildiriliyor - **yalnız tam çevirisi olanlar**, çünkü 404 veren bir adresi
+IndexNow'a bildirmek arama motoruna olmayan sayfa vaat etmektir.
+Nöbetçi: `IndexNowCoversEveryLocaleTest`.
+
+**2. IndexNow hiç zamanlanmamıştı.** Komutun açıklamasında "anında bildirir"
+yazıyordu ve zamanlayıcıda hiç yoktu. Yazılmış ama çağrılmayan komut
+çalışmayan komuttur; hata vermez, test kırmaz, sadece hiç olmaz. Zamanlandı,
+`INDEXNOW_ENABLED` yapılandırmasına bağlı. Dış servise istek gitmesi bir
+yapılandırma kararı, kod kararı değil - bayrağı **siz** çevireceksiniz.
+Nöbetçi: `GrowthLoopRunsOnAScheduleTest`.
+
+**3. AI korpusu (GEO) yalnız iki dildeydi.** `llms.txt` - Perplexity, ChatGPT
+ve Claude'un siteyi tanıdığı dosya - `tr` ve `en` için elle yazılmış dört
+metottu. Yeni dil eklemek 150 satır daha yazmak demekti; yani dil açmak bir
+satır, o dilin üretken arama motorlarına görünmesi ayrı ve unutulabilir bir
+işti. Artık `/{dil}/llms.txt` her açık dil için **kod yazmadan** üretiliyor.
+Yalnız tam çevrilmiş içerik listeleniyor; içerik yoksa dosya bunu açıkça
+söylüyor, Türkçeye düşmüyor. Nöbetçi: `EveryOpenLocaleHasAnAiCorpusTest`.
+
+Aynı kalıbın bir örneği daha temizlendi: `LocaleUrlPrefix` içindeki makine
+uçları listesi `'en/llms.txt'` gibi sabit satırlardı ve her dil için elle
+büyümesi gerekiyordu. Artık dosya adı listeleniyor, dil değil.
+
+**4. Büyüme tek yığın halinde ölçülüyordu.** Beş dilli bir sitede toplam
+tıklama, dördünün ne yaptığını gizler. `LocaleGrowthService` adresten dili
+türetiyor (`/de/...` → `de`) - sütun eklemeden, geçmiş veriye de işleyerek.
+Her dil için tek cümlelik bir teşhis üretiyor ve bu teşhis kasten temkinli:
+
+| Durum | Teşhis |
+| --- | --- |
+| O dilde tek sayfa yok | içerik işi |
+| Sayfa var, o dile ait ölçüm satırı yok | hiçbir şey iddia edilmez |
+| Satır var, gösterim sıfır | indeksleme **şüphesi**, doğrulanmalı |
+| Gösterim var, tıklama yok | başlık ve sıralama işi |
+
+İlk taslağımda ikinci ve üçüncü durumu birleştirmiştim; Search Console bağlı
+olmadığı her gün sahte indeksleme alarmı üretecekti. Codex ayrımı ekledi,
+haklıydı. Sıfır gösterimin indekslenmediği kanıtlamadığı inceliğini de o
+ekledi. Teşhis artık ölçemediği şeyi iddia etmiyor.
+
+Sıra ortalaması gösterimle ağırlıklandırılıyor: düz ortalama, bir kez
+gösterilen 1. sırayı 99 kez gösterilen 11. sırayla eşit sayar ve tabloyu
+kimsenin görmediği sayfalar belirler.
+
+**5. Backlink adayları pazarını bilmiyordu.** 435 aday tek havuzdaydı:
+Kıbrıs'taki bir üniversite ile Almanya'daki bir yemek blogu yan yana ve
+ikisine de aynı Türkçe sayfa öneriliyordu. Alman bir editöre Türkçe tarif
+göndermek bağlantı kazandırmaz, e-postayı okunmadan sildirtir.
+`BacklinkMarketService` pazarı alan adı uzantısından türetiyor (yine sütun
+eklemeden, 435 adayın hepsini bir anda sınıflandırarak) ve o pazarın dilinde
+sayfa yoksa **Türkçeye düşmüyor, null dönüyor**. Sessizce düşmek "Almanca 40
+aday var" diye rapor verirken hepsine Türkçe sayfa göndermek olurdu: sayı
+doğru, iş yanlış. Nöbetçi: `BacklinkProspectsKnowTheirMarketTest`.
+
+### Günlük tablo
+
+`seo:locale-growth` her sabah 06:53'te çalışıyor - sabah brifingden altı
+dakika önce, ki brifing taze tabloyu okusun. İlk çalıştırmanın söylediği:
+
+| Dil | Tarif | Yazı | Aday | Hazır | Darboğaz |
+| --- | --- | --- | --- | --- | --- |
+| tr | 680 | 2390 | 51 | 16 | ölçüm yok |
+| en | 0 | 0 | **384** | **0** | içerik yok |
+| de, fa, pl, ru, pt | 0 | 0 | 0 | 0 | içerik yok |
+
+(Yerel veritabanı rakamları; üretimde `en` için 24 tarif ve 12 yazı var.)
+
+**En keskin bulgu burada: 435 backlink adayının 384'ü İngilizce pazara ait ve
+hiçbirine gösterecek İngilizce sayfamız yok.** Yani backlink çalışmasının
+tamamı, henüz var olmayan sayfalar için yapılmış. Çeviri emeğinin nereye
+gideceğini söyleyen sinyal bu: aday listesi hangi sayfaları istiyorsa önce
+onlar çevrilmeli.
+
+### Sırada
+
+`de`, `fa`, `pl`, `ru`, `pt` için aday listesi **boş**. Beş dil açık ve o
+pazarlarda tek bir bağlantı hedefi yok. Bölüm 3.1'deki içerik sırası ile
+aday listesinin birlikte büyümesi gerekiyor: dil açmak, o dilde içerik ve o
+pazarda aday olmadan tek başına bir şey getirmiyor.
