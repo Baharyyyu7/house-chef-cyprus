@@ -377,11 +377,22 @@
         @include('layouts.partials.public-header')
 
         <main id="main-content" tabindex="-1">
+            @php($isHeroPage = request()->routeIs('home', 'recipes.show'))
             @if (session('status'))
-                <div class="hc-container pt-5"><div class="hc-alert hc-alert-success" role="status">{{ session('status') }}</div></div>
+                <div @class([
+                    'hc-container pt-5' => ! $isHeroPage,
+                    'hc-container pointer-events-none fixed inset-x-0 top-[var(--hc-header-h)] z-50 pt-4' => $isHeroPage,
+                ])>
+                    <div class="hc-alert hc-alert-success pointer-events-auto shadow-lg" role="status">{{ session('status') }}</div>
+                </div>
             @endif
             @if (isset($errors) && $errors->any())
-                <div class="hc-container pt-5"><div class="hc-alert hc-alert-error" role="alert">{{ $errors->first() }}</div></div>
+                <div @class([
+                    'hc-container pt-5' => ! $isHeroPage,
+                    'hc-container pointer-events-none fixed inset-x-0 top-[var(--hc-header-h)] z-50 pt-4' => $isHeroPage,
+                ])>
+                    <div class="hc-alert hc-alert-error pointer-events-auto shadow-lg" role="alert">{{ $errors->first() }}</div>
+                </div>
             @endif
             {{ $slot }}
         </main>

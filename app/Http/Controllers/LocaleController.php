@@ -31,7 +31,6 @@ class LocaleController extends Controller
         $returnTo = $this->safeReturnPath($validated['return_to'] ?? '/');
 
         return redirect(app(LocaleUrlService::class)->urlFor($locale, $returnTo))
-            ->with('status', __('language.changed', ['language' => config("locales.supported.{$locale}.native_label", $locale)], $locale))
             ->withCookie(cookie('hc_locale', $locale, 60 * 24 * 365, '/', null, $request->isSecure(), true, false, 'lax'));
     }
 
