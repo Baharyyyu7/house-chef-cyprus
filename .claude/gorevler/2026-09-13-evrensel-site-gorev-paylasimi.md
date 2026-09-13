@@ -296,6 +296,37 @@ güvenceyi gizler.
 **Ders (üç ajan için de):** kendi testlerinin geçmesi yeşil demek değildir.
 Rapordan önce `php artisan test` - tamamı.
 
+### 13 Eylül, sabaha karşı - dört dil açıldı, üçü hazır değildi
+
+Bu belge yazıldıktan sonra Codex `en`, `de`, `fa` ve `pl` dillerini art arda
+dört commit'le açtı ve canlıya aldı. Canlıda ölçtüm:
+
+| Dil | Anasayfa | Ham anahtar | Durum |
+| --- | --- | --- | --- |
+| `en` | İngilizce, düzgün | **0** | Hazır |
+| `de` | `home.hero_title` | 69 (anasayfada) | Hazır değil |
+| `fa` | `home.hero_title` | 69 | Hazır değil |
+| `pl` | `home.hero_title` | 69 | Hazır değil |
+
+Toplamda üçünün her birinde **359 arayüz metni eksikti.**
+
+Buradaki tuzak şu: Laravel karşılığı olmayan bir anahtarı sessizce anahtarın
+kendisi olarak basar. Hata vermez, sayfa da kırılmaz - ziyaretçiye
+`home.hero_title` yazar ve sayfa indekslenebilir kalır. Üç dilde, canlıda.
+
+`de`, `fa`, `pl` kapatıldı. `en` açık kaldı: ölçümde sıfır ham anahtar verdi,
+24 tarif ve 12 blog yazısı çeviriyle yayında ve çevirisi olmayan tarif düzgünce
+404 veriyor - kapı çalışıyor. Kapatma geri alınabilir; dil dosyaları
+tamamlandığında tek satırla tekrar açılır.
+
+Kalıcı koruma: `EnabledLocalesHaveCompleteUiStringsTest`. Açık her dilin
+varsayılan dilin bütün anahtarlarını taşıdığını doğruluyor, kapalı dilleri
+şarta sokmuyor (yoksa dil hazırlamak imkânsız olurdu). Korumanın gerçekten
+yakaladığı ayrıca sınandı: `de` açılınca 359 eksik metinle düşüyor.
+
+**Antigravity için bu, Bölüm 3.2/A'nın tam olarak neden ilk iş olduğunu
+gösteriyor.** `lang/de`, `lang/fa`, `lang/pl` tamamlanmadan o diller açılmaz.
+
 ### Sırada ne var
 
 İçerik hâlâ sıfır: `content_translations` tablosunda 0 satır. Codex'in commit
