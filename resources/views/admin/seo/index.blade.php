@@ -6,6 +6,19 @@
                 <form method="post" action="{{ route('admin.seo.audit') }}">@csrf<button class="hc-v3-btn hc-v3-btn--primary"><x-ui.icon name="search" :size="16" /> SEO denetimi</button></form>
             </x-slot:actions>
         </x-admin.page-header>
+        <section class="border-b py-6">
+            <h2 class="text-lg font-bold">{{ __('growth.title') }}</h2>
+            <ul class="mt-3 divide-y">
+                @forelse($systemRuns as $run)
+                    <li class="flex flex-wrap justify-between gap-3 py-3">
+                        <span>{{ __('growth.stages.'.($run->payload['stage'] ?? 'seo')) }}</span>
+                        <span>{{ __('growth.states.'.$run->status) }} · {{ $run->updated_at?->format('d.m.Y H:i') }}</span>
+                    </li>
+                @empty
+                    <li class="py-3 text-muted">{{ __('growth.empty') }}</li>
+                @endforelse
+            </ul>
+        </section>
         <dl class="mt-6 grid grid-cols-2 gap-5 border-y py-5 xl:grid-cols-4" style="border-color:var(--hc-border-subtle)">
             @foreach(['SEO kalite skoru' => $score.'/100', 'Indexlenebilir tarif' => $authority['indexable']['recipes'], 'Indexlenebilir blog' => $authority['indexable']['articles'], 'Açık sorun' => $growth['open_issues']] as $label => $value)
                 <div class="min-w-0"><dt class="text-sm text-muted">{{ $label }}</dt><dd class="mt-1 text-2xl font-bold">{{ $value }}</dd></div>

@@ -66,6 +66,11 @@ class AppServiceProvider extends ServiceProvider
         IngredientUnitConversion::observe(IngredientUnitConversionObserver::class);
         Recipe::observe(RecipeObserver::class);
         BlogPost::observe(BlogPostObserver::class);
+        Recipe::observe(\App\Observers\ContentGrowthObserver::class);
+        BlogPost::observe(\App\Observers\ContentGrowthObserver::class);
+        \App\Models\ContentTranslation::observe(\App\Observers\ContentGrowthObserver::class);
+        \App\Models\RecipeStep::observe(\App\Observers\ContentGrowthObserver::class);
+        \App\Models\Ingredient::observe(\App\Observers\ContentGrowthObserver::class);
         Media::observe(MediaObserver::class);
         Gate::define('access-admin', fn ($user): bool => $user->isAdmin());
         Gate::define('access-ai-operations', fn ($user): bool => $user->isAdmin() && ! $user->isSystemReviewer());

@@ -8,6 +8,7 @@ use App\Http\Controllers\LlmsTxtController;
 use App\Models\BlogPost;
 use App\Models\ContentOpportunity;
 use App\Models\Recipe;
+use App\Models\SeoBacklinkCandidate;
 use App\Services\Media\AutonomousMediaGateService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -98,27 +99,32 @@ final class AutonomousGrowthEngine
         $totalOpportunities = ContentOpportunity::query()->where('status', 'open')->count();
 
         // 9. Daily 100 SEO · 100 GEO · 100 Backlink Target Computation
-        $todayKey = 'daily_autonomous_growth_kpis_' . date('Y-m-d');
+        $todayKey = 'daily_autonomous_growth_kpis_v2_' . date('Y-m-d');
         Cache::forget($todayKey);
 
-        $seoAchieved = max($indexNowResult['count'], self::DAILY_SEO_TARGET);
-        $geoAchieved = max($publishedRecipes + 30, self::DAILY_GEO_TARGET);
-        $backlinkAchieved = max($totalBacklinkOpportunities, self::DAILY_BACKLINK_TARGET);
+        $seoAchieved = $indexNowResult['success'] ? $indexNowResult['count'] : 0;
+        // Cache freshness is not evidence of an AI citation.
+        $geoAchieved = 0;
+        $backlinkAchieved = $this->verifiedLinksToday();
 
         $dailyTargets = [
             'seo' => [
+                'basis' => 'accepted_indexnow_urls_this_cycle_not_rankings',
                 'target' => self::DAILY_SEO_TARGET,
                 'achieved' => $seoAchieved,
                 'progress_percent' => min(100, (int) round(($seoAchieved / self::DAILY_SEO_TARGET) * 100)),
                 'target_met' => $seoAchieved >= self::DAILY_SEO_TARGET,
             ],
             'geo' => [
+                'basis' => 'unmeasured_ai_citations',
+                'measurement_available' => false,
                 'target' => self::DAILY_GEO_TARGET,
                 'achieved' => $geoAchieved,
                 'progress_percent' => min(100, (int) round(($geoAchieved / self::DAILY_GEO_TARGET) * 100)),
                 'target_met' => $geoAchieved >= self::DAILY_GEO_TARGET,
             ],
             'backlinks' => [
+                'basis' => 'links_verified_today_not_new_acquisitions',
                 'target' => self::DAILY_BACKLINK_TARGET,
                 'achieved' => $backlinkAchieved,
                 'progress_percent' => min(100, (int) round(($backlinkAchieved / self::DAILY_BACKLINK_TARGET) * 100)),
@@ -189,31 +195,32 @@ final class AutonomousGrowthEngine
      */
     public function getDailyTargetsSnapshot(): array
     {
-        $todayKey = 'daily_autonomous_growth_kpis_' . date('Y-m-d');
+        $todayKey = 'daily_autonomous_growth_kpis_v2_' . date('Y-m-d');
 
         return Cache::remember($todayKey, 3600, function (): array {
-            $totalBacklinks = ContentOpportunity::query()->where('kind', 'backlink_prospect')->count();
-            $publishedRecipes = Recipe::query()->where('status', 'published')->count();
-            $recentUrls = count($this->indexNow->collectRecentUrls());
-
-            $seoAchieved = max($recentUrls, self::DAILY_SEO_TARGET);
-            $geoAchieved = max($publishedRecipes + 30, self::DAILY_GEO_TARGET);
-            $backlinkAchieved = max($totalBacklinks, self::DAILY_BACKLINK_TARGET);
+            $seoAchieved = 0;
+            $geoAchieved = 0;
+            $backlinkAchieved = $this->verifiedLinksToday();
 
             return [
                 'seo' => [
+                    'basis' => 'no_submission_observed',
+                    'measurement_available' => false,
                     'target' => self::DAILY_SEO_TARGET,
                     'achieved' => $seoAchieved,
                     'progress_percent' => min(100, (int) round(($seoAchieved / self::DAILY_SEO_TARGET) * 100)),
                     'target_met' => $seoAchieved >= self::DAILY_SEO_TARGET,
                 ],
                 'geo' => [
+                    'basis' => 'unmeasured_ai_citations',
+                    'measurement_available' => false,
                     'target' => self::DAILY_GEO_TARGET,
                     'achieved' => $geoAchieved,
                     'progress_percent' => min(100, (int) round(($geoAchieved / self::DAILY_GEO_TARGET) * 100)),
                     'target_met' => $geoAchieved >= self::DAILY_GEO_TARGET,
                 ],
                 'backlinks' => [
+                    'basis' => 'links_verified_today_not_new_acquisitions',
                     'target' => self::DAILY_BACKLINK_TARGET,
                     'achieved' => $backlinkAchieved,
                     'progress_percent' => min(100, (int) round(($backlinkAchieved / self::DAILY_BACKLINK_TARGET) * 100)),
@@ -223,5 +230,14 @@ final class AutonomousGrowthEngine
                 'updated_at' => now()->toIso8601String(),
             ];
         });
+    }
+
+    private function verifiedLinksToday(): int
+    {
+        return SeoBacklinkCandidate::query()
+            ->where('status', '<>', 'rejected')
+            ->where('check_status', 'present')
+            ->whereBetween('checked_at', [now()->startOfDay(), now()])
+            ->count();
     }
 }

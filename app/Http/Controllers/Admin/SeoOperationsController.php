@@ -42,6 +42,7 @@ final class SeoOperationsController extends Controller
             'score' => $olcum['score'],
             'authority' => $olcum,
             'growth' => $growth->snapshot(),
+            'systemRuns' => IntegrityReport::query()->where('guard', 'like', 'seo:system:%')->latest('id')->limit(21)->get(),
         ]);
     }
 

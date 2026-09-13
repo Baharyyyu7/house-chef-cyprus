@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\BlogPost;
 use App\Models\Recipe;
 use App\Services\Localization\CulinaryTranslationService;
+use App\Services\Seo\LocaleUrlService;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
@@ -407,5 +408,96 @@ final class LlmsTxtController extends Controller
             'Content-Type' => 'text/plain; charset=UTF-8',
             'Cache-Control' => 'public, max-age=86400',
         ]);
+    }
+
+    /**
+     * Herhangi bir açık dil için AI korpusu.
+     *
+     * Türkçe ve İngilizce sürümler elle yazılmış ve daha zengin; onlar kendi
+     * metotlarında duruyor. Bu metot geri kalan her dil için çalışır ve yeni
+     * bir dil açıldığında **kod yazmadan** o dilin korpusu ortaya çıkar.
+     *
+     * Eskiden her dil için ayrı bir metot yazmak gerekiyordu. Bu, altyapının
+     * kendi kendine büyümediği anlamına gelir: dil açmak kolay, korpus yazmak
+     * unutulacak bir iş olur ve o dil üretken arama motorlarına görünmez
+     * kalırdı. Perplexity, ChatGPT ve Claude siteyi buradan tanıyor.
+     *
+     * Yalnız o dilde TAM çevirisi olan içerik listelenir. AI'a Türkçe başlık
+     * göstermek, o dilin korpusunu kirletmekten başka bir şey değil.
+     */
+    public function locale(string $locale): Response
+    {
+        $diller = app(LocaleUrlService::class);
+        $desteklenen = $diller->enabledLocales();
+
+        abort_unless(array_key_exists($locale, $desteklenen), 404);
+
+        $content = Cache::remember('seo:llms_txt_'.$locale, 86400, function () use ($locale, $diller): string {
+            app()->setLocale($locale);
+
+            $tarifler = Recipe::query()
+                ->where('status', 'published')
+                ->where('verification_status', 'verified')
+                ->translatedInto($locale)
+                ->latest('published_at')
+                ->limit(25)
+                ->get();
+
+            $yazilar = BlogPost::query()
+                ->publiclyVisible()
+                ->translatedInto($locale)
+                ->latest('published_at')
+                ->limit(15)
+                ->get();
+
+            $ad = (string) (config('locales.supported.'.$locale.'.label') ?: $locale);
+
+            $satirlar = [];
+            $satirlar[] = '# House Chef Cyprus - Cypriot & Eastern Mediterranean Culinary Encyclopaedia ('.$ad.')';
+            $satirlar[] = '';
+            $satirlar[] = '> Editorially verified Cypriot and Eastern Mediterranean recipes with measured portions, grammage and nutrition data.';
+            $satirlar[] = '> This file lists only content fully translated into '.$ad.'. The Turkish corpus is the source of record: '.route('llms.txt');
+            $satirlar[] = '';
+            $satirlar[] = 'Site: '.$diller->urlFor($locale, '/');
+            $satirlar[] = 'Language: '.$locale;
+            $satirlar[] = 'Updated: '.now()->toDateString();
+            $satirlar[] = '';
+
+            $satirlar[] = '## Recipes ('.$tarifler->count().')';
+            $satirlar[] = '';
+
+            if ($tarifler->isEmpty()) {
+                // Boş bölüm yazmak, korpusu okuyan modele "burada içerik yok"
+                // demenin dürüst yolu. Türkçeye düşmek yanlış bilgi olurdu.
+                $satirlar[] = '_No recipe has been fully translated into '.$ad.' yet._';
+            }
+
+            foreach ($tarifler as $tarif) {
+                $satirlar[] = '- ['.$tarif->title.']('.$diller->urlFor($locale, '/tarifler/'.$tarif->slug).'): '.trim((string) $tarif->excerpt);
+            }
+
+            $satirlar[] = '';
+            $satirlar[] = '## Articles ('.$yazilar->count().')';
+            $satirlar[] = '';
+
+            if ($yazilar->isEmpty()) {
+                $satirlar[] = '_No article has been fully translated into '.$ad.' yet._';
+            }
+
+            foreach ($yazilar as $yazi) {
+                $satirlar[] = '- ['.$yazi->title.']('.$diller->urlFor($locale, '/blog/'.$yazi->slug).'): '.trim((string) $yazi->excerpt);
+            }
+
+            $satirlar[] = '';
+            $satirlar[] = '## Editorial policy';
+            $satirlar[] = '';
+            $satirlar[] = 'Every recipe is reviewed by a human editor before publication. A page appears in this corpus only when its title, summary, description, every preparation step and every ingredient exist in '.$ad.'; partially translated pages are withheld rather than filled in from Turkish.';
+
+            return implode(PHP_EOL, $satirlar).PHP_EOL;
+        });
+
+        return response($content, 200)
+            ->header('Content-Type', 'text/plain; charset=UTF-8')
+            ->header('Cache-Control', 'public, max-age=86400');
     }
 }

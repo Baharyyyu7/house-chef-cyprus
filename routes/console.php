@@ -109,9 +109,20 @@ Schedule::command('seo:search-console-import')->name('seo_search_console_import'
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_refresh', fn () => Artisan::call('seo:content-refresh')))->name('seo_content_refresh')->dailyAt('02:11')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_internal_links', fn () => Artisan::call('seo:internal-links')))->name('seo_internal_links')->dailyAt('05:17')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_social_drafts', fn () => Artisan::call('seo:social-drafts')))->name('seo_social_drafts')->dailyAt('05:43')->withoutOverlapping();
+// IndexNow: Bing ve Yandex'e "şu adresler değişti" der. Komut vardı ama
+// hiç zamanlanmamıştı; yani "anında bildirir" diyen bir araç kimse
+// çağırmadığı için hiç çalışmıyordu.
+//
+// Yapılandırma kapalıyken sessizce atlanır. Dış servise istek gitmesi
+// yapılandırma kararı, kod kararı değil: INDEXNOW_ENABLED=true yeter.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_indexnow_submit', fn () => Artisan::call('seo:indexnow-submit')))->name('seo_indexnow_submit')->dailyAt('02:31')->withoutOverlapping()->when(fn (): bool => (bool) config('seo.indexnow.enabled'));
+
+// Dil dil büyüme. Sabah brifingden hemen önce çalışır ki brifing taze
+// tabloyu görsün. Açık ama içeriği olmayan bir dil toplamların içinde
+// kaybolur; burada kaybolmuyor.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_locale_growth', fn () => Artisan::call('seo:locale-growth')))->name('seo_locale_growth')->dailyAt('06:53')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_morning_brief', fn () => Artisan::call('seo:morning-brief')))->name('seo_morning_brief')->dailyAt('06:59')->withoutOverlapping();
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_autonomous_growth', fn () => Artisan::call('seo:autonomous-growth')))->name('seo_autonomous_growth')->everyMinute()->withoutOverlapping();
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_autonomous_growth_morning', fn () => Artisan::call('seo:autonomous-growth', ['--force' => true])))->name('seo_autonomous_growth_morning')->dailyAt('06:00')->withoutOverlapping();
+Schedule::call(fn () => app(\App\Services\Seo\GrowthSystem::class)->dispatch())->name('seo_growth_system')->hourly()->withoutOverlapping();
 // Draft-only content operations: limits are encoded in the command/config and auto-publish is permanently disabled.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_factory_recipe_drafts', fn () => Artisan::call('content:factory-seed', ['--type' => 'recipe', '--daily' => true])))->name('content_factory_recipe_drafts')->dailyAt('03:00')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_factory_blog_drafts', fn () => Artisan::call('content:factory-seed', ['--type' => 'blog', '--daily' => true])))->name('content_factory_blog_drafts')->dailyAt('04:30')->withoutOverlapping();

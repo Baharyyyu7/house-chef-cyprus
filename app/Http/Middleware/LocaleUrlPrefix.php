@@ -40,13 +40,23 @@ final class LocaleUrlPrefix
             return $next($request);
         }
 
-        // Bağımsız makine keşif, AI ve besleme uçları dil öneki soyulmasına girmez.
+        // Bağımsız makine keşif, AI ve besleme uçları dil öneki soyulmasına
+        // girmez: bunlar rotalarını dil önekiyle birlikte kendileri tanımlar.
+        //
+        // Bu liste eskiden 'en/llms.txt' gibi sabit satırlardı ve her yeni dil
+        // için elle büyütülmesi gerekiyordu. Dil eklemenin bir yerde elle
+        // satır yazmayı gerektirmesi, o dilin sessizce eksik kalmasının en
+        // olası yolu - o yüzden dosya adı listeleniyor, dil değil.
         $tamYol = trim((string) $request->path(), '/');
-        if (in_array($tamYol, [
-            'en/llms.txt', 'en/llms-full.txt', 'en/feed', 'en/feed.xml', 'en/rss.xml',
-            'en/opensearch.xml', 'en/manifest.webmanifest', 'en/site.webmanifest'
-        ], true)) {
-            return $next($request);
+        $makineUclari = [
+            'llms.txt', 'llms-full.txt', 'feed', 'feed.xml', 'rss.xml',
+            'opensearch.xml', 'manifest.webmanifest', 'site.webmanifest',
+        ];
+
+        foreach ($makineUclari as $uc) {
+            if ($tamYol === $ilkParca.'/'.$uc) {
+                return $next($request);
+            }
         }
 
         // Varsayılan dil kökte yaşar. /tr/... ayrı bir adres olarak durursa

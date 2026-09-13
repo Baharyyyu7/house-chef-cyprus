@@ -7,11 +7,18 @@ namespace Tests\Feature;
 use App\Models\ContentOpportunity;
 use App\Services\Seo\AutonomousGrowthEngine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 final class AutonomousGrowthEngineTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Http::fake(['*' => Http::response('', 200)]);
+    }
 
     public function test_autonomous_growth_engine_runs_cycle_and_populates_backlinks(): void
     {
@@ -27,7 +34,9 @@ final class AutonomousGrowthEngineTest extends TestCase
         $this->assertSame(100, $report['daily_targets']['seo']['target']);
         $this->assertSame(100, $report['daily_targets']['geo']['target']);
         $this->assertSame(100, $report['daily_targets']['backlinks']['target']);
-        $this->assertTrue($report['daily_targets']['all_targets_met']);
+        $this->assertFalse($report['daily_targets']['all_targets_met']);
+        $this->assertSame(0, $report['daily_targets']['backlinks']['achieved']);
+        $this->assertFalse($report['daily_targets']['geo']['measurement_available']);
         $this->assertGreaterThanOrEqual(100, $report['backlinks']['total_prospects']);
 
         $backlinkProspect = ContentOpportunity::query()

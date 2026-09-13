@@ -187,6 +187,12 @@ Route::get('/llms.txt', [LlmsTxtController::class, 'index'])->name('llms.txt');
 Route::get('/llms-full.txt', [LlmsTxtController::class, 'full'])->name('llms.full');
 Route::get('/en/llms.txt', [LlmsTxtController::class, 'en'])->name('llms.txt.en');
 Route::get('/en/llms-full.txt', [LlmsTxtController::class, 'enFull'])->name('llms.full.en');
+// Türkçe ve İngilizce korpusları elle yazıldı ve daha zengin; geri kalan her
+// açık dil buradan otomatik korpus alır. Yeni bir dil açıldığında burada
+// yapılacak bir iş yok - altyapının kendi kendine büyümesi bu demek.
+Route::get('/{locale}/llms.txt', [LlmsTxtController::class, 'locale'])
+    ->where('locale', '[a-z]{2}')
+    ->name('llms.txt.locale');
 
 Route::get('/opensearch.xml', fn () => response()->view('opensearch', ['locale' => 'tr'])->header('Content-Type', 'application/opensearchdescription+xml; charset=UTF-8')->header('Cache-Control', 'public, max-age=86400'))->name('opensearch');
 Route::get('/en/opensearch.xml', fn () => response()->view('opensearch', ['locale' => 'en'])->header('Content-Type', 'application/opensearchdescription+xml; charset=UTF-8')->header('Cache-Control', 'public, max-age=86400'))->name('opensearch.en');

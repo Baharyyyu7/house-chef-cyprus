@@ -6,6 +6,7 @@ namespace App\Services\Seo;
 
 use App\Models\BlogPost;
 use App\Models\Recipe;
+use App\Services\Seo\LocaleUrlService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -146,6 +147,62 @@ final class IndexNowService
             $urls[] = route('blog.show', $blog);
         }
 
-        return array_values(array_unique($urls));
+        return array_values(array_unique(array_merge($urls, $this->cevrilmisAdresler())));
+    }
+
+    /**
+     * Varsayılan dil dışındaki dillerin adresleri.
+     *
+     * Bu olmadan IndexNow yalnız Türkçe adres bildiriyordu: bir tarif
+     * İngilizceye çevrilip yayına girdiğinde arama motoruna haber giden tek
+     * adres Türkçe sürümüydü ve /en/ sayfası kendiliğinden taranmayı
+     * bekliyordu. Çeviri emeğinin karşılığını geciktiren nokta tam burasıydı.
+     *
+     * Yalnız o dilde TAM çevirisi olan kayıt bildirilir. Çevirisi olmayan
+     * kaydın dil adresi zaten 404 verir; 404'ü IndexNow'a bildirmek, arama
+     * motoruna olmayan sayfa vaat etmektir ve güveni düşürür.
+     *
+     * @return list<string>
+     */
+    private function cevrilmisAdresler(): array
+    {
+        $diller = app(LocaleUrlService::class);
+        $varsayilan = $diller->defaultLocale();
+        $adresler = [];
+
+        foreach (array_keys($diller->enabledLocales()) as $dil) {
+            if ($dil === $varsayilan) {
+                continue;
+            }
+
+            // Listeleme sayfaları her açık dilde vardır; içerik kapısına
+            // takılmazlar çünkü kendi metinleri dil dosyalarından gelir.
+            foreach (['/', '/tarifler', '/blog', '/mutfaklar', '/kategoriler'] as $yol) {
+                $adresler[] = $diller->urlFor($dil, $yol);
+            }
+
+            Recipe::query()
+                ->where('status', 'published')
+                ->where('verification_status', 'verified')
+                ->translatedInto($dil)
+                ->latest('updated_at')
+                ->limit(150)
+                ->get()
+                ->each(function (Recipe $tarif) use (&$adresler, $diller, $dil): void {
+                    $adresler[] = $diller->urlFor($dil, '/tarifler/'.$tarif->slug);
+                });
+
+            BlogPost::query()
+                ->publiclyVisible()
+                ->translatedInto($dil)
+                ->latest('updated_at')
+                ->limit(50)
+                ->get()
+                ->each(function (BlogPost $yazi) use (&$adresler, $diller, $dil): void {
+                    $adresler[] = $diller->urlFor($dil, '/blog/'.$yazi->slug);
+                });
+        }
+
+        return $adresler;
     }
 }
