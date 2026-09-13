@@ -38,7 +38,12 @@ final class OrganicGrowthOperationsTest extends TestCase
         $this->get(route('admin.seo.growth'))->assertForbidden();
         $this->post(route('admin.seo.growth.refresh'))->assertForbidden();
         $this->post(route('admin.seo.growth.import'))->assertForbidden();
-        $this->actingAs($this->admin())->get(route('admin.seo.growth'))->assertOk()->assertSee('Araştırma adayı');
+        $this->actingAs($this->admin())
+            ->get(route('admin.seo.growth'))
+            ->assertOk()
+            ->assertSee('Araştırma adayı')
+            ->assertSee('7 Dilde Otonom Büyüme')
+            ->assertSee('GEO Korpusları');
     }
 
     public function test_refresh_is_bounded_idempotent_and_preserves_review_decisions(): void

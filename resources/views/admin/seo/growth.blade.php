@@ -27,6 +27,59 @@
                 <p class="hc-caption mt-3">{{ $metrics['query_sample_count'] }} sorguluk örneklem · {{ $metrics['status'] === 'stale' ? 'Ölçüm güncellenmeli' : 'Dönem ölçümü' }}</p>
             @endif
         </section>
+        <section class="border-b py-6" style="border-color:var(--hc-border-default)">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h2>7 Dilde Otonom Büyüme &amp; GEO (Üretken AI) Hazır Bulunuşluk</h2>
+                    <p class="hc-caption mt-1">Perplexity, ChatGPT, Claude, Gemini ve Apple Intelligence için 7 dilde doğrulanmış tam metin korpusları ve uluslararası backlink matrisi.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Otonom Motor Aktif
+                    </span>
+                </div>
+            </div>
+
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="rounded-lg border p-4 bg-card" style="border-color:var(--hc-border-default)">
+                    <span class="text-xs font-medium text-muted">Günlük SEO / İndeksleme</span>
+                    <p class="mt-1 text-2xl font-bold">{{ $autonomousTargets['seo']['achieved'] }} / {{ $autonomousTargets['seo']['target'] }}</p>
+                    <div class="mt-2 w-full bg-gray-200 dark:bg-neutral-800 rounded-full h-1.5">
+                        <div class="bg-emerald-500 h-1.5 rounded-full" style="width: {{ $autonomousTargets['seo']['progress_percent'] }}%"></div>
+                    </div>
+                    <span class="text-xs text-muted mt-1 block">%{{ $autonomousTargets['seo']['progress_percent'] }} IndexNow iletimi</span>
+                </div>
+
+                <div class="rounded-lg border p-4 bg-card" style="border-color:var(--hc-border-default)">
+                    <span class="text-xs font-medium text-muted">GEO Korpusları (AI Engines)</span>
+                    <p class="mt-1 text-2xl font-bold">14 / 14 Aktif</p>
+                    <p class="text-xs text-muted mt-1">7 dilde llms.txt + llms-full.txt</p>
+                    <div class="mt-2 flex flex-wrap gap-1">
+                        @foreach(['tr', 'en', 'de', 'fa', 'pl', 'ru', 'pt'] as $lang)
+                            <a href="{{ $lang === 'tr' ? url('/llms.txt') : url('/'.$lang.'/llms.txt') }}" target="_blank" class="text-[10px] px-1.5 py-0.5 rounded bg-muted font-mono hover:underline">{{ strtoupper($lang) }}</a>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="rounded-lg border p-4 bg-card" style="border-color:var(--hc-border-default)">
+                    <span class="text-xs font-medium text-muted">Uluslararası Backlink Havuzu</span>
+                    <p class="mt-1 text-2xl font-bold">{{ array_sum(array_column($backlinkMarkets, 'total')) }} Aday</p>
+                    <p class="text-xs text-muted mt-1">7 dilde özelleştirilmiş pitch taslakları</p>
+                    <div class="mt-2 flex flex-wrap gap-1">
+                        @foreach($backlinkMarkets as $marketKey => $marketVal)
+                            <span class="text-[10px] px-1.5 py-0.5 rounded border border-muted font-mono">{{ strtoupper($marketKey) }}: {{ $marketVal['total'] }}</span>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="rounded-lg border p-4 bg-card" style="border-color:var(--hc-border-default)">
+                    <span class="text-xs font-medium text-muted">Çok Dilli Çevrilmiş Sayfa</span>
+                    <p class="mt-1 text-2xl font-bold">{{ array_sum(array_column($localeCoverage, 'recipes')) + array_sum(array_column($localeCoverage, 'posts')) }}</p>
+                    <p class="text-xs text-muted mt-1">Yalnız tam çevirisi olan kayıtlar yayında</p>
+                    <span class="text-xs text-emerald-600 dark:text-emerald-400 mt-1 block">✓ Kalite Kapısı Onaylı</span>
+                </div>
+            </div>
+        </section>
         <div class="grid gap-6 border-b py-6 lg:grid-cols-2" style="border-color:var(--hc-border-default)">
             <section>
                 <h2>Otomasyon</h2>

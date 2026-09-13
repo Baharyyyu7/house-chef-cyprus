@@ -150,6 +150,9 @@ final class SeoOperationsController extends Controller
             'candidates' => SeoBacklinkCandidate::query()
                 ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
                 ->latest('id')->paginate(30)->withQueryString(),
+            'autonomousTargets' => app(\App\Services\Seo\AutonomousGrowthEngine::class)->getDailyTargetsSnapshot(),
+            'backlinkMarkets' => app(\App\Services\Seo\BacklinkMarketService::class)->pazarDagilimi(app(\App\Services\Seo\BacklinkGrowthService::class)->prospects()),
+            'localeCoverage' => app(\App\Services\Seo\LocaleGrowthService::class)->icerikKapsami(),
         ]);
     }
 
