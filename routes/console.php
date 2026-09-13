@@ -121,6 +121,7 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_indexnow_su
 // tabloyu görsün. Açık ama içeriği olmayan bir dil toplamların içinde
 // kaybolur; burada kaybolmuyor.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_locale_growth', fn () => Artisan::call('seo:locale-growth')))->name('seo_locale_growth')->dailyAt('06:53')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_autonomous_growth', fn () => Artisan::call('seo:autonomous-growth')))->name('seo_autonomous_growth')->dailyAt('02:45')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_morning_brief', fn () => Artisan::call('seo:morning-brief')))->name('seo_morning_brief')->dailyAt('06:59')->withoutOverlapping();
 Schedule::call(fn () => app(\App\Services\Seo\GrowthSystem::class)->dispatch())->name('seo_growth_system')->hourly()->withoutOverlapping();
 // Draft-only content operations: limits are encoded in the command/config and auto-publish is permanently disabled.

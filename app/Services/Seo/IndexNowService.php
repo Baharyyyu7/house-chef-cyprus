@@ -175,9 +175,9 @@ final class IndexNowService
                 continue;
             }
 
-            // Listeleme sayfaları her açık dilde vardır; içerik kapısına
-            // takılmazlar çünkü kendi metinleri dil dosyalarından gelir.
-            foreach (['/', '/tarifler', '/blog', '/mutfaklar', '/kategoriler'] as $yol) {
+            // Listeleme sayfaları ve AI keşif korpusları her açık dilde vardır; içerik kapısına
+            // takılmazlar çünkü kendi metinleri dil dosyalarından veya çeviri motorundan gelir.
+            foreach (['/', '/tarifler', '/blog', '/mutfaklar', '/kategoriler', '/llms.txt', '/llms-full.txt'] as $yol) {
                 $adresler[] = $diller->urlFor($dil, $yol);
             }
 

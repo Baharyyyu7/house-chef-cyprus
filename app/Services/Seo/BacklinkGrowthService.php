@@ -3930,6 +3930,365 @@ final class BacklinkGrowthService
             'rationale' => 'High quality food blog covering Mediterranean cuisine.',
             'authority_score' => 94,
         ],
+        // --- DEUTSCHLAND / ÖSTERREICH / SCHWEIZ (de) ---
+        [
+            'domain' => 'essen-und-trinken.de',
+            'topic' => 'Essen & Trinken Zypriotische Küche & Halloumi',
+            'target_url' => 'https://www.essen-und-trinken.de/mediterrane-kueche',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'hellimli',
+            'locale' => 'de',
+            'rationale' => 'Führendes deutsches Gastronomie-Magazin für mediterrane Rezepte und verifizierte Zutatenlisten.',
+            'authority_score' => 78,
+        ],
+        [
+            'domain' => 'chefkoch.de',
+            'topic' => 'Chefkoch Magazin Mediterrane Spezialitäten',
+            'target_url' => 'https://www.chefkoch.de/magazin/mediterran',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'seftali',
+            'locale' => 'de',
+            'rationale' => 'Größte deutschsprachige Koch-Community; idealer Partner für authentisches Kleftiko und Sheftalia.',
+            'authority_score' => 86,
+        ],
+        [
+            'domain' => 'falstaff.com',
+            'topic' => 'Falstaff Gourmet & Zypern Weine',
+            'target_url' => 'https://www.falstaff.com/de/lifestyle',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'kibris-sarap-kulturu',
+            'locale' => 'de',
+            'rationale' => 'Exklusives Gourmetmagazin für Weinbegleitung, Meze-Traditionen und Terroir des östlichen Mittelmeers.',
+            'authority_score' => 74,
+        ],
+        [
+            'domain' => 'kuechengoetter.de',
+            'topic' => 'Küchengötter Authentische Inselküche',
+            'target_url' => 'https://www.kuechengoetter.de/rezepte/laender/zypern',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'kleftiko',
+            'locale' => 'de',
+            'rationale' => 'Deutsche Plattform für traditionsreiche Spezialitäten und langsame Ofengerichte.',
+            'authority_score' => 68,
+        ],
+        [
+            'domain' => 'gutekueche.at',
+            'topic' => 'GuteKueche Österreich Zypriotische Meze',
+            'target_url' => 'https://www.gutekueche.at/zyprische-rezepte',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'meze',
+            'locale' => 'de',
+            'rationale' => 'Österreichisches Portal für kulinarische Länderküchen und Meze-Kultur.',
+            'authority_score' => 72,
+        ],
+        [
+            'domain' => 'lecker.de',
+            'topic' => 'Lecker Magazin Sommerküche Zypern',
+            'target_url' => 'https://www.lecker.de/mediterran-geniessen',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'zeytinyagli',
+            'locale' => 'de',
+            'rationale' => 'Deutsches Food- und Lifestyle-Portal für Olivenölkunde und gesunde Sommergerichte.',
+            'authority_score' => 76,
+        ],
+        [
+            'domain' => 'zypern.travel',
+            'topic' => 'Zypern Tourismus & Regionale Produkte',
+            'target_url' => 'https://zypern.travel/kulinarik',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'kibris-mutfagi',
+            'locale' => 'de',
+            'rationale' => 'Deutschsprachiger Zypern-Reiseführer mit Fokus auf Dorfgastronomie und Gastfreundschaft.',
+            'authority_score' => 62,
+        ],
+        [
+            'domain' => 'feinschmecker.de',
+            'topic' => 'Der Feinschmecker Mittelmeer-Reisen',
+            'target_url' => 'https://www.feinschmecker.de/reisen/europa',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'private-chef-cyprus',
+            'locale' => 'de',
+            'rationale' => 'Renommiertes deutsches Magazin für gehobene Gastronomie und private Kulinarik auf Zypern.',
+            'authority_score' => 69,
+        ],
+
+        // --- POLSKA (pl) ---
+        [
+            'domain' => 'kwestiasmaku.com',
+            'topic' => 'Kwestia Smaku Kuchnia Cypryjska i Ser Halloumi',
+            'target_url' => 'https://www.kwestiasmaku.com/przepisy/kuchnia-srodziemnomorska',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'hellimli',
+            'locale' => 'pl',
+            'rationale' => 'Najpopularniejszy polski portal kulinarny; idealny do promocji autentycznego sera halloumi.',
+            'authority_score' => 75,
+        ],
+        [
+            'domain' => 'aniagotuje.pl',
+            'topic' => 'Ania Gotuje Przepisy Śródziemnomorskie',
+            'target_url' => 'https://aniagotuje.pl/przepisy/dania-glowne',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'kleftiko',
+            'locale' => 'pl',
+            'rationale' => 'Autorytatywny polski blog kulinarny z precyzyjnymi proporcjami i tradycyjnymi pieczeniami.',
+            'authority_score' => 71,
+        ],
+        [
+            'domain' => 'smaker.pl',
+            'topic' => 'Smaker Polska Odkrywanie Smaków Cypru',
+            'target_url' => 'https://smaker.pl/kuchnia-swiata',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'meze',
+            'locale' => 'pl',
+            'rationale' => 'Polska społeczność gastronomiczna poszukująca autentycznych tradycji meze z Cypru.',
+            'authority_score' => 69,
+        ],
+        [
+            'domain' => 'przyslijprzepis.pl',
+            'topic' => 'Przyślij Przepis Tradycja Kulinarna Cypru',
+            'target_url' => 'https://www.przyslijprzepis.pl/kuchnie-swiata',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'seftali',
+            'locale' => 'pl',
+            'rationale' => 'Wiodący magazyn kulinarny o tradycyjnych potrawach mięsnych i grillu śródziemnomorskim.',
+            'authority_score' => 67,
+        ],
+        [
+            'domain' => 'cypr24.eu',
+            'topic' => 'Cypr24 Portal Polaków na Cyprze',
+            'target_url' => 'https://cypr24.eu/gastronomia',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'kibris-mutfagi',
+            'locale' => 'pl',
+            'rationale' => 'Główny portal polskiej społeczności na Cyprze opisujący lokalne restauracje i przepisy.',
+            'authority_score' => 55,
+        ],
+        [
+            'domain' => 'wakacje.pl',
+            'topic' => 'Wakacje.pl Przewodnik po Smakach Cypru',
+            'target_url' => 'https://www.wakacje.pl/przewodnik/cypr',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'kibris-sofralarinda-temel-malzemeler',
+            'locale' => 'pl',
+            'rationale' => 'Największy polski portal turystyczny z obszerną sekcją o diecie śródziemnomorskiej na Cyprze.',
+            'authority_score' => 72,
+        ],
+        [
+            'domain' => 'doradcasmaku.pl',
+            'topic' => 'Doradca Smaku Kuchnie Basenu Morza Śródziemnego',
+            'target_url' => 'https://www.doradcasmaku.pl/przepisy/kuchnia-grecka-i-cypryjska',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'humus',
+            'locale' => 'pl',
+            'rationale' => 'Portal kulinarny skupiający się na autentycznych pastach meze, tahini i oliwie z oliwek.',
+            'authority_score' => 66,
+        ],
+
+        // --- РОССИЯ / КИПРСКАЯ ДИАСПОРА (ru) ---
+        [
+            'domain' => 'eda.ru',
+            'topic' => 'Афиша Еда Кипрская и Средиземноморская Кухня',
+            'target_url' => 'https://eda.ru/recepty/kiprskaya-kuhnya',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'kleftiko',
+            'locale' => 'ru',
+            'rationale' => 'Главная российская гастрономическая энциклопедия с высокой точностью граммовок.',
+            'authority_score' => 82,
+        ],
+        [
+            'domain' => 'gastronom.ru',
+            'topic' => 'Гастрономъ Традиции Сыроварения Халлуми',
+            'target_url' => 'https://www.gastronom.ru/recipe/group/sredi-zemnomorye',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'hellimli',
+            'locale' => 'ru',
+            'rationale' => 'Премиальный кулинарный журнал России о средиземноморской диете и сырах.',
+            'authority_score' => 78,
+        ],
+        [
+            'domain' => 'vkcyprus.com',
+            'topic' => 'Вестник Кипра Гастрономический Гид по Острову',
+            'target_url' => 'https://vkcyprus.com/life-in-cyprus',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'kibris-mutfagina-baslangic-rehberi',
+            'locale' => 'ru',
+            'rationale' => 'Старейшее и наиболее авторитетное русскоязычное издание на Кипре для экспатов.',
+            'authority_score' => 64,
+        ],
+        [
+            'domain' => 'cyprusbutterfly.com.cy',
+            'topic' => 'Cyprus Butterfly Авторские Рецепты Кипра',
+            'target_url' => 'https://cyprusbutterfly.com.cy/article/eda-na-kipre',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'kibris-meze-kulturu',
+            'locale' => 'ru',
+            'rationale' => 'Популярный русскоязычный интернет-журнал о жизни, традициях и тавернах острова.',
+            'authority_score' => 58,
+        ],
+        [
+            'domain' => 'povarenok.ru',
+            'topic' => 'Поварёнок.ру Кипрские Мясные Шедевры',
+            'target_url' => 'https://www.povarenok.ru/recipes/dishes/other/',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'seftali',
+            'locale' => 'ru',
+            'rationale' => 'Многомиллионное сообщество кулинаров, заинтересованное в аутентичном Шефталья кебабе.',
+            'authority_score' => 79,
+        ],
+        [
+            'domain' => 'russiancyprus.news',
+            'topic' => 'Русский Кипр Новости и Кулинарные Традиции',
+            'target_url' => 'https://russiancyprus.news/food',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'kibris-mutfagi',
+            'locale' => 'ru',
+            'rationale' => 'Новостной портал русскоязычной диаспоры Кипра с обзорами традиционной кухни.',
+            'authority_score' => 59,
+        ],
+        [
+            'domain' => 'iamcook.ru',
+            'topic' => 'Аймкук Пошаговые Рецепты Острова Кипр',
+            'target_url' => 'https://www.iamcook.ru/country/cyprus',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'kolokas',
+            'locale' => 'ru',
+            'rationale' => 'Авторитетный портал пошаговых фоторецептов для традиционного колокаси и молехии.',
+            'authority_score' => 72,
+        ],
+
+        // --- IRAN / FARSI DIASPORA (fa) ---
+        [
+            'domain' => 'chishi.ir',
+            'topic' => 'چی شی آشپزی مدیترانه‌ای و کباب‌های سنتی قبرس',
+            'target_url' => 'https://chishi.ir/category/cooking/',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'seftali',
+            'locale' => 'fa',
+            'rationale' => 'یکی از برترین وب‌سایت‌های آشپزی فارسی‌زبان برای معرفی شفتالیا کباب و تکنیک‌های باربیکیو.',
+            'authority_score' => 68,
+        ],
+        [
+            'domain' => 'parsiday.com',
+            'topic' => 'پارسی دی پنیر حلومی و مزه‌های سنتی مدیترانه',
+            'target_url' => 'https://parsiday.com/food/',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'hellimli',
+            'locale' => 'fa',
+            'rationale' => 'مرجع معتبر رسپی‌های خانگی برای دستور پخت انواع خوراک با پنیر اصیل هالومی.',
+            'authority_score' => 64,
+        ],
+        [
+            'domain' => 'panamag.ir',
+            'topic' => 'پانا مگ پخت سنتی گوشت و کفتیکو آرام‌پز',
+            'target_url' => 'https://panamag.ir/cooking/',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'kleftiko',
+            'locale' => 'fa',
+            'rationale' => 'مجله آشپزی فارسی با تمرکز بر تکنیک‌های پخت گوشت بره و غذاهای تنوری باستانی.',
+            'authority_score' => 62,
+        ],
+        [
+            'domain' => 'irancook.ir',
+            'topic' => 'ایران کوک فرهنگ غذایی شرق مدیترانه و پیش‌غذاها',
+            'target_url' => 'https://irancook.ir/world-recipes/',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'meze',
+            'locale' => 'fa',
+            'rationale' => 'دانشنامه جامع تغذیه و دستورهای غذایی جهان با تاکید بر اشتراکات طعم‌های خاورمیانه و قبرس.',
+            'authority_score' => 66,
+        ],
+        [
+            'domain' => 'beytoote.com',
+            'topic' => 'بیتوته آشپزی قبرس و روغن زیتون بکر',
+            'target_url' => 'https://www.beytoote.com/cookery/',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'zeytinyagli',
+            'locale' => 'fa',
+            'rationale' => 'پورتال جامع فارسی‌زبان با بخش پربازدید آموزش غذاهای سلامت‌محور مدیترانه‌ای.',
+            'authority_score' => 79,
+        ],
+        [
+            'domain' => 'namnak.com',
+            'topic' => 'نمناک خوراک‌های گیاهی و تاهینی اصیل',
+            'target_url' => 'https://namnak.com/c-cookery',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'kibris-kolokasi',
+            'locale' => 'fa',
+            'rationale' => 'سایت مرجع سبک زندگی با میلیون‌ها مخاطب علاقه‌مند به غذاهای محلی مدیترانه.',
+            'authority_score' => 77,
+        ],
+
+        // --- PORTUGAL / BRASIL (pt) ---
+        [
+            'domain' => 'tudogostoso.com.br',
+            'topic' => 'TudoGostoso Queijo Halloumi e Sabores do Mediterrâneo',
+            'target_url' => 'https://www.tudogostoso.com.br/categorias/mediterranea',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'hellimli',
+            'locale' => 'pt',
+            'rationale' => 'O maior portal de culinária em língua portuguesa, com enorme busca por queijos artesanais grelhados.',
+            'authority_score' => 85,
+        ],
+        [
+            'domain' => 'pingodoce.pt',
+            'topic' => 'Pingo Doce Cozinha Tradicional Mediterrânica',
+            'target_url' => 'https://www.pingodoce.pt/receitas/',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'kleftiko',
+            'locale' => 'pt',
+            'rationale' => 'Plataforma líder em Portugal para gastronomia saudável e receitas de forno lento.',
+            'authority_score' => 72,
+        ],
+        [
+            'domain' => 'teleculinaria.pt',
+            'topic' => 'TeleCulinária Sabores Tradicionais de Chipre',
+            'target_url' => 'https://www.teleculinaria.pt/receitas/',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'kibris-meze-kulturu',
+            'locale' => 'pt',
+            'rationale' => 'Revista de referência em Portugal para cultura gastronómica, azeite e partilha à mesa.',
+            'authority_score' => 65,
+        ],
+        [
+            'domain' => 'sabores.sapo.pt',
+            'topic' => 'SAPO Sabores Gastronomia Cipriota e Ervas Frescas',
+            'target_url' => 'https://sabores.sapo.pt/receitas',
+            'asset_type' => 'recipe',
+            'asset_keyword' => 'seftali',
+            'locale' => 'pt',
+            'rationale' => 'Portal agregador de gastronomia com forte alcance em Portugal e comunidades lusófonas.',
+            'authority_score' => 76,
+        ],
+        [
+            'domain' => 'panelinha.com.br',
+            'topic' => 'Panelinha Rita Lobo Comida Mediterrânea de Verdade',
+            'target_url' => 'https://www.panelinha.com.br/receitas',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'zeytinyagli',
+            'locale' => 'pt',
+            'rationale' => 'Plataforma aclamada de gastronomia que valoriza ingredientes naturais e azeites nobres.',
+            'authority_score' => 71,
+        ],
+        [
+            'domain' => 'revistagosto.pt',
+            'topic' => 'Revista Gosto Gastronomia de Chipre e Vinho',
+            'target_url' => 'https://revistagosto.pt/viagens-gastronomicas/',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'kibris-sarap-kulturu',
+            'locale' => 'pt',
+            'rationale' => 'Revista de topo para viagens gastronómicas, harmonização de pratos e vinhos mediterrânicos.',
+            'authority_score' => 58,
+        ],
+        [
+            'domain' => 'publico.pt',
+            'topic' => 'Público Fugas Viagem e Gastronomia em Chipre',
+            'target_url' => 'https://www.publico.pt/fugas/gastronomia',
+            'asset_type' => 'blog',
+            'asset_keyword' => 'kibris-mutfagina-baslangic-rehberi',
+            'locale' => 'pt',
+            'rationale' => 'Jornal de referência com suplemento semanal de viagens e reportagens culinárias aprofundadas.',
+            'authority_score' => 89,
+        ],
 ];
 
     /**
@@ -3937,11 +4296,27 @@ final class BacklinkGrowthService
      *
      * @return array{created: int, updated: int, prospects: list<array<string, mixed>>}
      */
-        public function discoverAndEnrich(): array
+    /**
+     * Aday listesi, dışarıdan okunabilir hâli.
+     *
+     * Liste private bir sabitti; dolayısıyla "bu adayların kaçı Almanca
+     * pazara ait" gibi bir soruyu kimse soramıyordu. Pazar dağılımını
+     * ölçebilmek için okunur olması gerekiyor - ölçülemeyen şey
+     * büyütülemez.
+     *
+     * @return list<array{domain: string, topic: string, target_url: string, asset_type: string, asset_keyword: string, rationale: string, authority_score: int}>
+     */
+    public function prospects(): array
+    {
+        return self::TARGET_PROSPECTS;
+    }
+
+    public function discoverAndEnrich(): array
     {
         $created = 0;
         $updated = 0;
         $results = [];
+        $marketService = app(BacklinkMarketService::class);
 
         foreach (self::TARGET_PROSPECTS as $prospect) {
             $key = Str::slug('backlink-' . $prospect['domain'] . '-' . $prospect['asset_keyword']);
@@ -3952,9 +4327,20 @@ final class BacklinkGrowthService
                 continue;
             }
 
+            $explicitLocale = $prospect['locale'] ?? null;
+            $targetLocale = $marketService->pazar($prospect['domain'], $explicitLocale);
+
             $matchedAsset = $this->resolveMatchedAsset($prospect['asset_type'], $prospect['asset_keyword']);
             $assetUrl = $matchedAsset['url'];
             $assetTitle = $matchedAsset['title'];
+
+            $localizedAsset = $marketService->varlikAdresi(
+                $prospect['domain'],
+                $prospect['asset_type'],
+                $prospect['asset_keyword'],
+                $explicitLocale
+            );
+            $bestAssetUrl = $localizedAsset['url'] ?? $assetUrl;
 
             $pitchTr = sprintf(
                 "Merhaba, %s sitenizde %s üzerine yayınlanan yazınızı ilgiyle inceledik. " .
@@ -3963,7 +4349,7 @@ final class BacklinkGrowthService
                 $prospect['domain'],
                 $prospect['topic'],
                 $assetTitle,
-                $assetUrl
+                $bestAssetUrl
             );
 
             $pitchEn = sprintf(
@@ -3974,19 +4360,79 @@ final class BacklinkGrowthService
                 $prospect['domain'],
                 $prospect['topic'],
                 $assetTitle,
-                $assetUrl
+                $bestAssetUrl
+            );
+
+            $pitchDe = sprintf(
+                "Sehr geehrte Redaktion von %s, wir haben Ihren Beitrag zu %s mit großem Interesse gelesen. " .
+                "Auf House Chef Cyprus hat unsere kulinarische Redaktion eine verifizierte Referenz veröffentlicht: '%s' (%s), " .
+                "mit authentischen Grammangaben, Nährwerten und traditionellen zypriotischen Zubereitungstechniken. " .
+                "Wir freuen uns, wenn Sie diese Ressource als vertiefenden Link für Ihre Leser aufnehmen möchten.",
+                $prospect['domain'],
+                $prospect['topic'],
+                $assetTitle,
+                $bestAssetUrl
+            );
+
+            $pitchPl = sprintf(
+                "Dzień dobry, z dużym zainteresowaniem zapoznaliśmy się z artykułem o %s w serwisie %s. " .
+                "Na platformie House Chef Cyprus przygotowaliśmy zweryfikowany przewodnik kulinarny: '%s' (%s), " .
+                "zawierający tradycyjne cypryjskie proporcje, wartości odżywcze i techniki śródziemnomorskie. " .
+                "Wierzymy, że stanowi on wartościowe źródło wiedzy dla Państwa czytelników.",
+                $prospect['topic'],
+                $prospect['domain'],
+                $assetTitle,
+                $bestAssetUrl
+            );
+
+            $pitchRu = sprintf(
+                "Здравствуйте, редакция %s! С интересом ознакомились с вашим материалом о %s. " .
+                "На House Chef Cyprus опубликован верифицированный гастрономический гид: '%s' (%s) " .
+                "с точными граммовками, пищевой ценностью и традициями кипрской и средиземноморской кухни. " .
+                "Будем рады, если вы используете наш материал в качестве полезного первоисточника для читателей.",
+                $prospect['domain'],
+                $prospect['topic'],
+                $assetTitle,
+                $bestAssetUrl
+            );
+
+            $pitchFa = sprintf(
+                "با سلام و احترام خدمت تیم تحریریه %s، مقاله شما درباره %s را با علاقه مطالعه کردیم. " .
+                "در وبسایت House Chef Cyprus، مرجع مستند و دقیق '%s' (%s) شامل مقادیر گرمی، ارزش غذایی و فنون پخت سنتی قبرس شرقی در دسترس است. " .
+                "خوشحال می‌شویم این منبع را برای علاقه‌مندان به فرهنگ غذایی مدیترانه‌ای پیشنهاد دهید.",
+                $prospect['domain'],
+                $prospect['topic'],
+                $assetTitle,
+                $bestAssetUrl
+            );
+
+            $pitchPt = sprintf(
+                "Olá equipa editorial do %s, lemos com grande apreço o vosso artigo sobre %s. " .
+                "No House Chef Cyprus, disponibilizamos uma referência gastronómica verificada: '%s' (%s), " .
+                "com medições em gramas, informação nutricional e técnicas autênticas da culinária cipriota e mediterrânica. " .
+                "Acreditamos que seja uma fonte enriquecedora para os vossos leitores.",
+                $prospect['domain'],
+                $prospect['topic'],
+                $assetTitle,
+                $bestAssetUrl
             );
 
             $evidence = [
                 'target_domain' => $prospect['domain'],
                 'target_url' => $prospect['target_url'],
+                'target_locale' => $targetLocale,
                 'topic' => $prospect['topic'],
                 'authority_score' => $prospect['authority_score'],
                 'rationale' => $prospect['rationale'],
                 'matched_asset_title' => $assetTitle,
-                'matched_asset_url' => $assetUrl,
+                'matched_asset_url' => $bestAssetUrl,
                 'pitch_draft_tr' => $pitchTr,
                 'pitch_draft_en' => $pitchEn,
+                'pitch_draft_de' => $pitchDe,
+                'pitch_draft_pl' => $pitchPl,
+                'pitch_draft_ru' => $pitchRu,
+                'pitch_draft_fa' => $pitchFa,
+                'pitch_draft_pt' => $pitchPt,
                 'outreach_status' => 'draft_pending_human_review',
                 'delivery_policy' => 'draft_only',
                 'publication_requires_human_review' => true,
@@ -4013,7 +4459,8 @@ final class BacklinkGrowthService
             $results[] = [
                 'domain' => $prospect['domain'],
                 'asset_title' => $assetTitle,
-                'asset_url' => $assetUrl,
+                'asset_url' => $bestAssetUrl,
+                'target_locale' => $targetLocale,
                 'priority' => $prospect['authority_score'],
             ];
         }

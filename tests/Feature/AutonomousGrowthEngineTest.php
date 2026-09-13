@@ -49,7 +49,30 @@ final class AutonomousGrowthEngineTest extends TestCase
         $this->assertArrayHasKey('target_domain', $backlinkProspect->evidence);
         $this->assertArrayHasKey('pitch_draft_tr', $backlinkProspect->evidence);
         $this->assertArrayHasKey('pitch_draft_en', $backlinkProspect->evidence);
+        $this->assertArrayHasKey('pitch_draft_de', $backlinkProspect->evidence);
+        $this->assertArrayHasKey('pitch_draft_pl', $backlinkProspect->evidence);
+        $this->assertArrayHasKey('pitch_draft_ru', $backlinkProspect->evidence);
+        $this->assertArrayHasKey('pitch_draft_fa', $backlinkProspect->evidence);
+        $this->assertArrayHasKey('pitch_draft_pt', $backlinkProspect->evidence);
         $this->assertTrue($backlinkProspect->evidence['publication_requires_human_review']);
+        $this->assertArrayHasKey('markets', $report['backlinks']);
+        $this->assertArrayHasKey('locales', $report['geo']);
+    }
+
+    public function test_multilingual_llms_endpoints_return_successful_responses(): void
+    {
+        config()->set('locales.supported.de.enabled', true);
+
+        $responseDe = $this->get('/de/llms.txt');
+        $responseDe->assertOk();
+        $responseDe->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $responseDe->assertSee('GEO Knowledge Graph');
+        $responseDe->assertSee('AI Citation Directive');
+
+        $responseDeFull = $this->get('/de/llms-full.txt');
+        $responseDeFull->assertOk();
+        $responseDeFull->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $responseDeFull->assertSee('Full Knowledge Corpus');
     }
 
     public function test_seo_autonomous_growth_command_executes_successfully(): void

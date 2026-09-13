@@ -41,9 +41,19 @@ final class SeoAutonomousGrowth extends Command
             return self::SUCCESS;
         }
 
-        $this->info('✓ GEO Korpusu: Önbellekler temizlendi ve en güncel mevsimsel verilerle ısıtıldı.');
+        $geoLocales = isset($report['geo']['locales']) ? implode(', ', $report['geo']['locales']) : 'tr, en';
+        $geoCount = $report['geo']['corpora_count'] ?? 4;
+        $this->info("✓ GEO Korpusu: {$geoCount} AI korpusu ({$geoLocales}) temizlendi ve en güncel verilerle ısıtıldı.");
         $this->info("✓ IndexNow: {$report['indexnow']['submitted']} URL arama motorlarına bildirildi (HTTP {$report['indexnow']['http_status']}).");
-        $this->info("✓ Backlink Havuzu: {$report['backlinks']['created']} yeni, {$report['backlinks']['updated']} güncellenen aday (Toplam {$report['backlinks']['total_prospects']}).");
+
+        $marketSummary = [];
+        if (! empty($report['backlinks']['markets'])) {
+            foreach ($report['backlinks']['markets'] as $pazar => $stat) {
+                $marketSummary[] = strtoupper($pazar) . ": {$stat['total']}";
+            }
+        }
+        $marketStr = ! empty($marketSummary) ? ' [' . implode(' · ', $marketSummary) . ']' : '';
+        $this->info("✓ Backlink Havuzu: {$report['backlinks']['created']} yeni, {$report['backlinks']['updated']} güncellenen aday (Toplam {$report['backlinks']['total_prospects']}){$marketStr}.");
         $this->info("✓ İçerik Boşlukları: {$report['content_gaps']['created']} yeni, {$report['content_gaps']['updated']} güncellenen fırsat (Toplam {$report['content_gaps']['total_opportunities']}).");
         $this->info("✓ Aktif Katalog: {$report['catalogue']['verified_recipes']} doğrulanmış tarif, {$report['catalogue']['public_blogs']} editoryal rehber yayında.");
 

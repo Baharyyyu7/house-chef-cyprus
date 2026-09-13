@@ -193,6 +193,9 @@ Route::get('/en/llms-full.txt', [LlmsTxtController::class, 'enFull'])->name('llm
 Route::get('/{locale}/llms.txt', [LlmsTxtController::class, 'locale'])
     ->where('locale', '[a-z]{2}')
     ->name('llms.txt.locale');
+Route::get('/{locale}/llms-full.txt', [LlmsTxtController::class, 'localeFull'])
+    ->where('locale', '[a-z]{2}')
+    ->name('llms.full.locale');
 
 Route::get('/opensearch.xml', fn () => response()->view('opensearch', ['locale' => 'tr'])->header('Content-Type', 'application/opensearchdescription+xml; charset=UTF-8')->header('Cache-Control', 'public, max-age=86400'))->name('opensearch');
 Route::get('/en/opensearch.xml', fn () => response()->view('opensearch', ['locale' => 'en'])->header('Content-Type', 'application/opensearchdescription+xml; charset=UTF-8')->header('Cache-Control', 'public, max-age=86400'))->name('opensearch.en');

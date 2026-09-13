@@ -54,23 +54,30 @@ final class AutonomousGrowthEngine
     {
         Log::info('Starting Autonomous Growth Engine background cycle...');
 
-        // 1. GEO & LLMs Cache Freshness
-        $cacheKeys = [
-            'seo:llms_txt_tr',
-            'seo:llms_txt_en',
-            'seo:llms_full_txt_tr',
-            'seo:llms_full_txt_en',
-        ];
+        // 1. GEO & LLMs Cache Freshness across ALL enabled languages
+        $enabledLocales = array_keys(app(LocaleUrlService::class)->enabledLocales());
+        $cacheKeys = [];
+        foreach ($enabledLocales as $loc) {
+            $cacheKeys[] = 'seo:llms_txt_' . $loc;
+            $cacheKeys[] = 'seo:llms_full_txt_' . $loc;
+        }
 
         foreach ($cacheKeys as $key) {
             Cache::forget($key);
         }
 
-        // Prime the caches with fresh seasonal and recipe intelligence
+        // Prime the caches with fresh seasonal, terroir and recipe intelligence
         $this->llmsTxt->index();
         $this->llmsTxt->en();
         $this->llmsTxt->full();
         $this->llmsTxt->enFull();
+
+        foreach ($enabledLocales as $loc) {
+            if ($loc !== 'tr' && $loc !== 'en') {
+                $this->llmsTxt->locale($loc);
+                $this->llmsTxt->localeFull($loc);
+            }
+        }
 
         // 2. Continuous IndexNow Protocol Submissions
         $indexNowResult = $this->indexNow->submit();
@@ -143,6 +150,8 @@ final class AutonomousGrowthEngine
             'geo' => [
                 'cleared_caches' => $cacheKeys,
                 'warmed' => true,
+                'locales' => $enabledLocales,
+                'corpora_count' => count($cacheKeys),
             ],
             'indexnow' => [
                 'submitted' => $indexNowResult['count'],
@@ -153,6 +162,7 @@ final class AutonomousGrowthEngine
                 'created' => $backlinkResult['created'],
                 'updated' => $backlinkResult['updated'],
                 'total_prospects' => $totalBacklinkOpportunities,
+                'markets' => app(BacklinkMarketService::class)->pazarDagilimi($this->backlinks->prospects()),
             ],
             'content_gaps' => [
                 'created' => $gapResult['created'],

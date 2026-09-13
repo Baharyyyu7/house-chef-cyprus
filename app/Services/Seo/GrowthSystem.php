@@ -64,11 +64,17 @@ final class GrowthSystem
         try {
             foreach ($locales as $locale) {
                 Cache::forget('seo:llms_txt_'.$locale);
+                Cache::forget('seo:llms_full_txt_'.$locale);
                 $controller = app(LlmsTxtController::class);
                 match ($locale) {
                     'tr' => $controller->index(),
                     'en' => $controller->en(),
                     default => $controller->locale($locale),
+                };
+                match ($locale) {
+                    'tr' => $controller->full(),
+                    'en' => $controller->enFull(),
+                    default => $controller->localeFull($locale),
                 };
             }
         } finally {
