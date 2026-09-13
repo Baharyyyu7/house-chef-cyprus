@@ -25,6 +25,7 @@ return [
 
     'home' => [
         [
+            'key' => 'unverified_images',
             'name' => 'Onaysız görsel yayınlanmaz',
             'role' => 'Görsel bütünlüğü',
             'proof' => ['page' => 'gorsel-ve-medya-politikasi', 'label' => 'Görsel ve medya politikası'],
@@ -32,6 +33,7 @@ return [
             'image' => null,
         ],
         [
+            'key' => 'ai_images',
             'name' => 'Yapay zekâ görseli olduğu yazar',
             'role' => 'Görsel bütünlüğü',
             'proof' => ['page' => 'gorsel-ve-medya-politikasi', 'label' => 'Görsel ve medya politikası'],
@@ -39,6 +41,7 @@ return [
             'image' => null,
         ],
         [
+            'key' => 'editorial_date',
             'name' => 'Editoryal kontrol tarihi görünür',
             'role' => 'İçerik',
             'proof' => ['page' => 'editorial-ilkeler', 'label' => 'Editoryal ilkeler'],
@@ -46,6 +49,7 @@ return [
             'image' => null,
         ],
         [
+            'key' => 'allergen_info',
             'name' => 'Alerjen bilgisi ayrı gösterilir',
             'role' => 'Beslenme',
             'proof' => ['page' => 'besin-degeri-aciklamasi', 'label' => 'Besin değeri açıklaması'],
@@ -53,6 +57,7 @@ return [
             'image' => null,
         ],
         [
+            'key' => 'estimated_nutrition',
             'name' => 'Besin değerleri tahminse söylenir',
             'role' => 'Beslenme',
             'proof' => ['page' => 'besin-degeri-aciklamasi', 'label' => 'Besin değeri açıklaması'],
@@ -60,6 +65,7 @@ return [
             'image' => null,
         ],
         [
+            'key' => 'home_measurements',
             'name' => 'Ölçüler ev ölçüsüne çevrilir',
             'role' => 'Mutfak',
             'proof' => ['page' => 'tarif-dogrulama-politikasi', 'label' => 'Tarif doğrulama politikası'],
@@ -67,6 +73,7 @@ return [
             'image' => null,
         ],
         [
+            'key' => 'pantry_matching',
             'name' => 'Elinizdekilerle eşleştirme',
             'role' => 'Mutfak',
             'proof' => ['page' => 'tarif-dogrulama-politikasi', 'label' => 'Tarif doğrulama politikası'],
@@ -74,6 +81,7 @@ return [
             'image' => null,
         ],
         [
+            'key' => 'ad_consent_separation',
             'name' => 'Reklam izni ölçüm izninden ayrıdır',
             'role' => 'Gizlilik',
             'proof' => ['page' => 'gizlilik', 'label' => 'Gizlilik'],
@@ -81,6 +89,7 @@ return [
             'image' => null,
         ],
         [
+            'key' => 'ad_free_premium',
             'name' => 'Premium üyeye reklam gösterilmez',
             'role' => 'Gizlilik',
             'proof' => ['page' => 'gizlilik', 'label' => 'Gizlilik'],

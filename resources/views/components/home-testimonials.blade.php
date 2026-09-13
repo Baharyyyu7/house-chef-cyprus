@@ -18,23 +18,31 @@
     <section class="hc-taahhut" aria-labelledby="home-taahhut-title">
         <div class="hc-container">
             <div class="mx-auto flex max-w-2xl flex-col items-center text-center" data-reveal>
-                <p class="hc-kicker">Şeffaflık</p>
-                <h2 id="home-taahhut-title" class="hc-title mt-4">Neye güvenebilirsiniz?</h2>
+                <p class="hc-kicker">{{ __('home.trust_kicker') }}</p>
+                <h2 id="home-taahhut-title" class="hc-title mt-4">{{ __('home.trust_title') }}</h2>
                 @if(filled($disclosure))
-                    <p class="hc-body-lg mt-4 text-muted">{{ $disclosure }}</p>
+                    <p class="hc-body-lg mt-4 text-muted">{{ __('home.trust_disclosure') }}</p>
                 @endif
             </div>
 
             <ul class="hc-taahhut__liste mt-10" data-reveal-group>
                 @foreach($maddeler as $madde)
-                    @php($kanit = $madde['proof'] ?? null)
+                    @php
+                        $kanit = $madde['proof'] ?? null;
+                        $key = $madde['key'] ?? null;
+                        $role = $key ? __("home.trust_{$key}_role") : $madde['role'];
+                        $name = $key ? __("home.trust_{$key}_name") : $madde['name'];
+                        $text = $key ? __("home.trust_{$key}_text") : $madde['text'];
+                        $label = $kanit ? ($key ? __("home.trust_{$key}_label") : $kanit['label']) : null;
+                        $proofUrl = $kanit ? app(\App\Services\Seo\LocaleUrlService::class)->urlFor(app()->getLocale(), route('information.show', $kanit['page'], false)) : null;
+                    @endphp
                     <li class="hc-taahhut__oge">
-                        <p class="hc-taahhut__rol">{{ $madde['role'] }}</p>
-                        <p class="hc-taahhut__baslik">{{ $madde['name'] }}</p>
-                        <p class="hc-taahhut__metin">{{ $madde['text'] }}</p>
-                        @if($kanit)
-                            <a class="hc-taahhut__kanit" href="{{ route('information.show', $kanit['page']) }}">
-                                {{ $kanit['label'] }} <span aria-hidden="true">→</span>
+                        <p class="hc-taahhut__rol">{{ $role }}</p>
+                        <p class="hc-taahhut__baslik">{{ $name }}</p>
+                        <p class="hc-taahhut__metin">{{ $text }}</p>
+                        @if($kanit && $proofUrl)
+                            <a class="hc-taahhut__kanit" href="{{ $proofUrl }}">
+                                {{ $label }} <span aria-hidden="true">→</span>
                             </a>
                         @endif
                     </li>

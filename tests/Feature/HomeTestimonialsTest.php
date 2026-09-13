@@ -104,4 +104,26 @@ final class HomeTestimonialsTest extends TestCase
             );
         });
     }
+
+    public function test_the_commitments_section_is_translated_for_all_enabled_locales(): void
+    {
+        $locales = config('locales.supported', []);
+        $localeUrlService = app(\App\Services\Seo\LocaleUrlService::class);
+
+        foreach ($locales as $code => $config) {
+            if (($config['enabled'] ?? false) !== true) {
+                continue;
+            }
+
+            $url = $localeUrlService->urlFor((string) $code, '/');
+            $expectedTitle = __('home.trust_title', [], (string) $code);
+            $expectedKicker = __('home.trust_kicker', [], (string) $code);
+
+            $this->get($url)
+                ->assertOk()
+                ->assertSee($expectedTitle)
+                ->assertSee($expectedKicker);
+        }
+    }
 }
+
