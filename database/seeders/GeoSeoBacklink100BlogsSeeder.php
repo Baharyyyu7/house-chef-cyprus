@@ -50,8 +50,8 @@ final class GeoSeoBacklink100BlogsSeeder extends Seeder
                 'originality_status' => 'original',
                 'freshness_class' => 'evergreen',
                 'published_at' => now(),
-                'meta_title' => $art['title'] . ' · House Chef Cyprus',
-                'meta_description' => $art['excerpt'],
+                'meta_title' => Str::limit((string) $art['title'], 68, ''),
+                'meta_description' => Str::limit((string) $art['excerpt'], 155, ''),
             ]);
             $createdCount++;
         }
