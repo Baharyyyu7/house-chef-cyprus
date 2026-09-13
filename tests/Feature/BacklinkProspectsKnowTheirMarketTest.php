@@ -74,6 +74,17 @@ final class BacklinkProspectsKnowTheirMarketTest extends TestCase
         $this->assertSame('de', $adres['locale']);
     }
 
+    public function test_kismi_slug_ile_varlik_adresi_ve_gercek_slug_cozulur(): void
+    {
+        $this->tarif('hellimli-kibris-boregi', ['de']);
+
+        $adres = app(BacklinkMarketService::class)->varlikAdresi('essen-und-trinken.de', 'recipe', 'hellimli');
+
+        $this->assertNotNull($adres);
+        $this->assertSame(url('/de/tarifler/hellimli-kibris-boregi'), $adres['url']);
+        $this->assertSame('de', $adres['locale']);
+    }
+
     public function test_pazarin_dilinde_sayfa_yoksa_turkceye_dusulmez(): void
     {
         // Sessizce Türkçeye düşmek "Almanca 40 aday var" diye rapor verirken

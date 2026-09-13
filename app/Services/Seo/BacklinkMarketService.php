@@ -90,8 +90,10 @@ final class BacklinkMarketService
         $dil = $this->pazar($alanAdi, $explicitLocale);
 
         $kayit = match ($tur) {
-            'recipe' => Recipe::query()->where('slug', $slug)->first(),
-            'blog' => BlogPost::query()->where('slug', $slug)->first(),
+            'recipe' => Recipe::query()->where('slug', $slug)->first()
+                ?? Recipe::query()->where('slug', 'like', "%{$slug}%")->first(),
+            'blog' => BlogPost::query()->where('slug', $slug)->first()
+                ?? BlogPost::query()->where('slug', 'like', "%{$slug}%")->first(),
             default => null,
         };
 
@@ -99,9 +101,10 @@ final class BacklinkMarketService
             return null;
         }
 
-        $yol = ($tur === 'recipe' ? '/tarifler/' : '/blog/').$slug;
+        $yol = ($tur === 'recipe' ? '/tarifler/' : '/blog/').$kayit->slug;
+        $baslik = (string) ($kayit->translated('title', $dil) ?: $kayit->getRawOriginal('title'));
 
-        return ['url' => $this->diller->urlFor($dil, $yol), 'locale' => $dil];
+        return ['url' => $this->diller->urlFor($dil, $yol), 'locale' => $dil, 'title' => $baslik];
     }
 
     /**

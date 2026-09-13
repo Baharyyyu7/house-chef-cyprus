@@ -345,6 +345,46 @@ final class CulinaryTranslationService
                 default => 'Kış (Kolokas, Molehiya ve Geleneksel Sıcak Güveçler)',
             };
             $desc = 'Kıbrıs mutfağında mevsimsel malzeme kullanımı esastır. Ada mutfağının bu mevsime ait öne çıkan geleneksel lezzetleri ve fırın teknikleri editoryal olarak taranmıştır.';
+        } elseif ($locale === 'de') {
+            $seasonName = match (true) {
+                $month >= 3 && $month <= 5 => 'Frühling (Frische Artischocken, Ackerbohnen, Weinblätter & Wildkräuter)',
+                $month >= 6 && $month <= 8 => 'Sommer (Zypriotische kalte Meze, gegrillter Halloumi, Minze & Wassermelone)',
+                $month >= 9 && $month <= 11 => 'Herbst (Johannisbroternte \'Schwarzes Gold\', Lehmofen-Kleftiko & Schmortöpfe)',
+                default => 'Winter (Kolokas-Wurzel, wärmende Hülsenfrüchte & Molehiya-Eintopf)',
+            };
+            $desc = 'Saisonale Authentizität prägt die zypriotische Gastronomie. Aktuelle Schwerpunkte umfassen Lehmofengerichte, aromatische Wildkräuter und traditionelle Ernteerzeugnisse.';
+        } elseif ($locale === 'pl') {
+            $seasonName = match (true) {
+                $month >= 3 && $month <= 5 => 'Wiosna (Świeże karczochy, dzikie zioła, bób i liście winogron)',
+                $month >= 6 && $month <= 8 => 'Lato (Cypryjskie meze na zimno, grillowany ser halloumi, mięta i arbuz)',
+                $month >= 9 && $month <= 11 => 'Jesień (Zbiory chleba świętojańskiego, Kleftiko z pieca glinianego i gulasze)',
+                default => 'Zima (Taro Kolokas, rozgrzewające dania z roślin strączkowych i Molehiya)',
+            };
+            $desc = 'Sezonowa autentyczność definiuje gastronomię Cypru. Tradycyjne dania z pieca glinianego, dzikie zioła górskie oraz lokalne zbiory tworzą fundament obecnego sezonu.';
+        } elseif ($locale === 'ru') {
+            $seasonName = match (true) {
+                $month >= 3 && $month <= 5 => 'Весна (Свежие артишоки, дикие травы, бобы и виноградные листья)',
+                $month >= 6 && $month <= 8 => 'Лето (Кипрские холодные мезе, жареный халлуми, мята и арбуз)',
+                $month >= 9 && $month <= 11 => 'Осень (Сбор кэроба, клефтико в глиняной печи и медленно тушеные рагу)',
+                default => 'Зима (Корень колокаси, согревающие блюда из бобовых и молехия)',
+            };
+            $desc = 'Сезонная аутентичность лежит в основе кипрской гастрономии. Текущие акценты включают томление в глиняных печах, горные травы и традиционные фермерские продукты.';
+        } elseif ($locale === 'fa') {
+            $seasonName = match (true) {
+                $month >= 3 && $month <= 5 => 'بهار (کنگر فرنگی تازه، سبزی‌های وحشی کوهی، باقلا و برگ مو)',
+                $month >= 6 && $month <= 8 => 'تابستان (مزه‌های خنک مدیترانه‌ای، پنیر هالومی کبابی، نعناع و هندوانه)',
+                $month >= 9 && $month <= 11 => 'پاییز (برداشت خرنوب طلای سیاه، کفتیکو در تنور سفالی و خورش‌های سنتی)',
+                default => 'زمستان (ریشه کولوکاس، خورش‌های گرم حبوبات و ملوخیه سنتی)',
+            };
+            $desc = 'اصالت فصلی نماد برجسته هنر آشپزی قبرس است. پخت آرام در تنورهای گلی باستانی، گیاهان معطر کوهستان و محصولات برداشت ارگانیک جزیره ویژگی‌های این فصل هستند.';
+        } elseif ($locale === 'pt') {
+            $seasonName = match (true) {
+                $month >= 3 && $month <= 5 => 'Primavera (Alcachofras frescas, ervas silvestres, favas e folhas de videira)',
+                $month >= 6 && $month <= 8 => 'Verão (Mezes frios de Chipre, queijo halloumi grelhado, hortelã e melancia)',
+                $month >= 9 && $month <= 11 => 'Outono (Colheita da alfarroba \'ouro negro\', Kleftiko em forno de barro e estufados)',
+                default => 'Inverno (Raiz de taro Kolokas, ensopados reconfortantes de leguminosas e Molehiya)',
+            };
+            $desc = 'A autenticidade sazonal define a gastronomia cipriota. O método tradicional de forno de barro, ervas selvagens e colheitas históricas compõem o menu da estação.';
         } else {
             $seasonName = match (true) {
                 $month >= 3 && $month <= 5 => 'Spring (Fresh Artichokes, Wild Herbs, Broad Beans & Vine Leaves)',
@@ -389,6 +429,131 @@ final class CulinaryTranslationService
                 [
                     'q' => 'Kıbrıs Kleftiko (Fırın Kebabı) nasıl pişirilir?',
                     'a' => 'Otantik Kıbrıs Kleftiko, kemikli kuzu veya keçi etinin patates, defne yaprağı ve kekikle birlikte çamurla ağzı hava almayacak şekilde sıvanmış kubbeli toprak fırınlarda (küp fırın) 4 ila 6 saat boyunca kendi buharında ağır ağır pişirilmesiyle hazırlanır.',
+                ],
+            ];
+        }
+
+        if ($locale === 'de') {
+            return [
+                [
+                    'q' => 'Warum heißt zypriotisches Sheftalia-Kebab nicht nach einem Pfirsich und was zeichnet es aus?',
+                    'a' => 'Sheftalia hat keine Verbindung zum Pfirsich. Das Gericht ist nach Chefkoch Ali (\"Şef Ali\") benannt, einem legendären zypriotischen Grillmeister. Er wickelte gewürztes Hackfleisch in zartes Lammnierenfett (Netzfett / Caul Fat), das beim Grillen über Holzkohle schmilzt und dem Fleisch unvergleichliche Saftigkeit verleiht.',
+                ],
+                [
+                    'q' => 'Warum schmilzt echter zypriotischer Halloumi beim Grillen nicht?',
+                    'a' => 'Traditioneller Halloumi wird aus Schaf- und Ziegenmilch hergestellt. Die Käsebruchmasse wird während der Produktion in heißer Molke bei ca. 90°C pochiert. Diese Erhitzung stabilisiert das Kasein-Netzwerk und verleiht dem Käse einen sehr hohen Schmelzpunkt – er wird außen knusprig-golden, behält aber seine Form.',
+                ],
+                [
+                    'q' => 'Was ist Molehiya und warum werden auf Zypern nur getrocknete Blätter verwendet?',
+                    'a' => 'Molehiya (Corchorus olitorius / Langkapselige Jute) ist eine uralte Blattgemüsepflanze. Auf Zypern werden die Sommerblätter im Schatten auf Fäden getrocknet. Das Trocknen baut die Schleimstoffe (Mucilage) ab und konzentriert die Aromen vor dem langsamen Schmoren mit Lammfleisch, Knoblauch, Koriander und Zitrone.',
+                ],
+                [
+                    'q' => 'Warum darf Kolokas (Taro-Wurzel) vor dem Kochen niemals mit Wasser gewaschen werden?',
+                    'a' => 'Kolokas sondert bei Wasserkontakt sofort zähe Schleimstoffe ab. Traditionelle zypriotische Köche schälen die Knolle trocken und wischen sie mit Tüchern ab. Wichtig: Die Wurzel wird mit der Messerspitze angebrochen und gebrochen statt glatt geschnitten, um Stärkekanäle zu versiegeln.',
+                ],
+                [
+                    'q' => 'Was ist das Geheimnis des zypriotischen Kleftiko aus dem Lehmofen?',
+                    'a' => 'Echtes zypriotisches Kleftiko wird zubereitet, indem Lammfleisch mit Kartoffeln und Wildkräutern in kuppelförmigen Lehmöfen gegart wird. Die Ofenöffnung wird luftdicht mit feuchtem Lehm versiegelt, sodass das Fleisch 4 bis 6 Stunden im eigenen Dampf butterweich schmort.',
+                ],
+            ];
+        }
+
+        if ($locale === 'pl') {
+            return [
+                [
+                    'q' => 'Dlaczego cypryjski kebab Sheftalia nie ma nic wspólnego z brzoskwinią?',
+                    'a' => 'Nazwa Sheftalia pochodzi od legendarnego cypryjskiego mistrza kuchni Aliego (\"Şef Ali\"), który owijał doprawione mięso mielone w cienką sieć tłuszczową (otokę tłuszczową). Podczas grillowania na węglu drzewnym tłuszcz topi się, nadając mięsu niesamowitą soczystość.',
+                ],
+                [
+                    'q' => 'Dlaczego tradycyjny cypryjski ser Halloumi nie topi się na grillu?',
+                    'a' => 'Oryginalny Halloumi z mleka owczego i koziego jest parzony w gorącej serwatce w temperaturze ok. 90°C. Ta obróbka termiczna stabilizuje strukturę kazeiny, dzięki czemu ser zyskuje chrupiącą złocistą skórkę, zachowując sprężyste, zwarte wnętrze bez rozpływania się.',
+                ],
+                [
+                    'q' => 'Czym jest Molehiya i dlaczego na Cyprze używa się wyłącznie suszonych liści?',
+                    'a' => 'Molehiya (juta warzywna) to śródziemnomorska roślina zielna. Na Cyprze liście zbierane latem są starannie suszone w cieniu, co eliminuje nadmierną śluzowatość i intensyfikuje ziołowy aromat przed powolnym duszeniem z jagnięciną, czosnkiem, kolendrą i sokiem z cytryny.',
+                ],
+                [
+                    'q' => 'Dlaczego taro Kolokas nie może być myte wodą przed gotowaniem?',
+                    'a' => 'Bulwa Kolokas w kontakcie z wodą natychmiast uwalnia śluz. Cypryjscy kucharze obierają ją na sucho, przecierając ściereczką. Tradycyjnie bulwę łamie się czubkiem noża zamiast gładko kroić, co chroni sos przed zmetnieniem.',
+                ],
+                [
+                    'q' => 'Na czym polega tradycyjne pieczenie Kleftiko w piecu glinianym?',
+                    'a' => 'Prawdziwe Kleftiko piecze się w szczelnie zalepionym gliną piecu kopułowym. Jagnięcina z kością i ziemniakami dusi się we własnych sokach przez 4 do 6 godzin, aż mięso samo odchodzi od kości.',
+                ],
+            ];
+        }
+
+        if ($locale === 'ru') {
+            return [
+                [
+                    'q' => 'Почему кипрский кебаб Шефталья не имеет отношения к персику?',
+                    'a' => 'Название Шефталья происходит от имени шеф-повара Али (\"Шеф Али\"), придумавшего заворачивать пряный фарш из баранины в жировую сальниковую сетку. На углях сальник полностью растапливается, обеспечивая исключительную сочность кебаба.',
+                ],
+                [
+                    'q' => 'Почему настоящий кипрский сыр Халлуми не плавится при жарке?',
+                    'a' => 'Традиционный Халлуми из овечьего и козьего молока пастеризуется в горячей сыворотке при температуре около 90°C. Это термически фиксирует белковую решетку казеина, позволяя обжаривать сыр до золотистой корочки без деформации формы.',
+                ],
+                [
+                    'q' => 'Что такое Молехия и почему на Кипре используют сушеные листья?',
+                    'a' => 'Молехия (джут длинноплодный) — древняя листовая культура. На Кипре листья сушат в тени на шпагате: сушка снижает слизистость и концентрирует вкус перед длительным томлением с бараниной, чесноком, кориандром и лимоном.',
+                ],
+                [
+                    'q' => 'Почему корень колокаси (таро) нельзя мыть водой перед готовкой?',
+                    'a' => 'При контакте с водой колокаси мгновенно выделяет липкую слизь. Кулинары очищают его исключительно всухую, протирая тканью. Корнеплод не режут ножом, а надламывают кончиком лезвия, запечатывая крахмальные каналы.',
+                ],
+                [
+                    'q' => 'В чем секрет приготовления традиционного кипрского клефтико?',
+                    'a' => 'Аутентичный клефтико запекается в купольных глиняных печах, устье которых герметично замазывается сырой глиной. Баранина с картофелем медленно томится в собственном соку 4–6 часов до нежнейшего состояния.',
+                ],
+            ];
+        }
+
+        if ($locale === 'fa') {
+            return [
+                [
+                    'q' => 'چرا شفتالیا کباب قبرسی نام میوه شلو را ندارد و ریشه نام آن چیست؟',
+                    'a' => 'شفتالیا کباب ربطی به میوه هلو ندارد، بلکه به نام ابداع‌کننده آن، سرآشپز علی (شف علی) در نیکوزیا نام‌گذاری شده است. او گوشت چرخ‌کرده ادویه‌دار را در چادرپیه (پرده چربی شکمبه گوسفند) می‌پیچید که روی زغال آب شده و طعم آبدار بی‌نظیری ایجاد می‌کند.',
+                ],
+                [
+                    'q' => 'چرا پنیر اصیل هالومی قبرسی هنگام کباب شدن ذوب نمی‌شود؟',
+                    'a' => 'پنیر سنتی حلومی از شیر گوسفند و بز تهیه شده و در آب‌پنیر داغ با دمای حدود ۹۰ درجه سانتیگراد پخته می‌شود. این فرایند ساختار پروتئین کازئین را تثبیت کرده و نقطه ذوب را بالا می‌برد تا روی گریل بدون وا رفتن برشته و طلایی شود.',
+                ],
+                [
+                    'q' => 'ملوخیه چیست و چرا در قبرس تنها از برگ‌های خشک آن استفاده می‌شود؟',
+                    'a' => 'ملوخیه گیاهی بومی در شرق مدیترانه است. در قبرس برگ‌های برداشت‌شده در تابستان را در سایه خشک می‌کنند تا حالت لزج آن کاسته شده و عطر گیاهی آن برای پخت آرام با گوشت بره، سیر، گشنیز و لیمو غلیظ شود.',
+                ],
+                [
+                    'q' => 'چرا ریشه کولوکاس (تارو) نباید قبل از پخت با آب شسته شود؟',
+                    'a' => 'کولوکاس با آب واکنش داده و ماده لزج ترشح می‌کند. به همین دلیل ریشه با دستمال تمیز و خشک پوست کنده می‌شود. همچنین به‌جای برش صاف، با نوک چاقو خرد و شکسته می‌شود تا نشاسته آن سس غذا را کدر نکند.',
+                ],
+                [
+                    'q' => 'روش سنتی پخت کلفتیکو قبرسی در تنور گلی چگونه است؟',
+                    'a' => 'کلفتیکو با قرار دادن گوشت بره استخوان‌دار همراه سیب‌زمینی و سبزیجات معطر در تنورهای گلی باستانی پخته می‌شود. دهانه تنور با گل مسدود می‌شود تا گوشت ۴ تا ۶ ساعت در بخار و چربی خود مغزپخت شود.',
+                ],
+            ];
+        }
+
+        if ($locale === 'pt') {
+            return [
+                [
+                    'q' => 'Por que a Sheftalia cipriota tem esse nome e o que a torna autêntica?',
+                    'a' => 'A Sheftalia não tem ligação com pêssegos. O prato foi batizado em honra do Chef Ali (\"Şef Ali\"), lendário mestre churrasqueiro cipriota que envolveu carne picada temperada na rede de gordura (rêdo / crepinette), que derrete sobre as brasas garantindo uma suculência incomparável.',
+                ],
+                [
+                    'q' => 'Por que o autêntico queijo Halloumi de Chipre não derrete ao ser grelhado?',
+                    'a' => 'O Halloumi artesanal é produzido com leite de ovelha e cabra e escaldado em soro a cerca de 90°C. Esse choque térmico alinha as proteínas de caseína, criando uma estrutura resistente ao calor que permite grelhar até formar uma crosta estaladiça sem perder a forma.',
+                ],
+                [
+                    'q' => 'O que é a Molehiya e por que são usadas folhas secas em Chipre?',
+                    'a' => 'A Molehiya (Corchorus olitorius / juta da horta) é uma verdura tradicional do Mediterrâneo Oriental. Em Chipre, as folhas colhidas no verão são secas à sombra para eliminar a viscosidade mucilaginosa e concentrar o aroma antes do estufado lento com borrego, alho, coentros e limão fresco.',
+                ],
+                [
+                    'q' => 'Por que a raiz de Kolokas (taro) nunca deve ser lavada com água antes de cozinhar?',
+                    'a' => 'O Kolokas liberta excesso de mucilagem ao contacto com a água. Os cozinheiros tradicionais descascam a raiz a seco e limpam-na com panos. Além disso, a raiz é quebrada com a ponta da faca em vez de fatiada, selando os canais de amido para um molho límpido e aveludado.',
+                ],
+                [
+                    'q' => 'Qual é o segredo do Kleftiko tradicional em forno de barro?',
+                    'a' => 'O autêntico Kleftiko é preparado selando pedaços de borrego e batatas em fornos de barro cupulares. A entrada do forno é hermeticamente vedada com lama fresca, deixando a carne confitar nos seus próprios sucos e orégãos selvagens durante 4 a 6 horas.',
                 ],
             ];
         }

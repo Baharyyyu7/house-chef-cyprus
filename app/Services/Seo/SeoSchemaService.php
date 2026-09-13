@@ -209,18 +209,18 @@ final class SeoSchemaService
     /** @return array<string,mixed> */
     public function recipe(Recipe $recipe, array $ingredients, string $imageUrl = '', ?string $cuisineUrl = null): array
     {
-        $isEn = app()->getLocale() === 'en';
+        $locale = app()->getLocale();
         $recipeNode = [
             '@type' => 'Recipe', 'name' => $recipe->translated('title'),
             'description' => $recipe->translated('description') ?: $recipe->translated('excerpt'),
             'url' => route('recipes.show', $recipe),
             'mainEntityOfPage' => route('recipes.show', $recipe),
-            'inLanguage' => app()->getLocale(),
+            'inLanguage' => $locale,
             'dateModified' => $recipe->updated_at?->toAtomString(),
             'recipeCuisine' => $recipe->cuisine?->name,
             'recipeCategory' => $recipe->category?->name,
             'prepTime' => 'PT'.$recipe->prep_minutes.'M', 'cookTime' => 'PT'.$recipe->cook_minutes.'M',
-            'totalTime' => 'PT'.$recipe->totalMinutes().'M', 'recipeYield' => $recipe->servings.' '.($isEn ? 'servings' : 'porsiyon'),
+            'totalTime' => 'PT'.$recipe->totalMinutes().'M', 'recipeYield' => $recipe->servings.' '.$this->yieldUnit($locale),
             'recipeIngredient' => $ingredients,
             'recipeInstructions' => $recipe->steps->values()->map(fn ($step, int $index): array => [
                 '@type' => 'HowToStep',
@@ -274,22 +274,19 @@ final class SeoSchemaService
             }
         }
 
-        $keywords = array_filter([
+        $keywords = array_filter(array_merge([
             $recipe->cuisine?->name,
             $recipe->category?->name,
-            $isEn ? 'Cypriot cuisine' : 'Kıbrıs mutfağı',
-            $isEn ? 'Traditional recipes' : 'Geleneksel tarifler',
-            $isEn ? 'Mediterranean gastronomy' : 'Doğu Akdeniz mutfağı',
-        ]);
+        ], $this->localizedKeywords($locale)));
         if ($keywords !== []) {
             $recipeNode['keywords'] = implode(', ', $keywords);
         }
-        $crumbs = [['name' => $isEn ? 'Home' : 'Ana Sayfa', 'url' => route('home')]];
+        $crumbs = [['name' => $this->crumbName('home', $locale), 'url' => route('home')]];
         if ($recipe->cuisine !== null && $cuisineUrl !== null) {
-            $crumbs[] = ['name' => $isEn ? 'Cuisines' : 'Mutfaklar', 'url' => route('cuisines.index')];
+            $crumbs[] = ['name' => $this->crumbName('cuisines', $locale), 'url' => route('cuisines.index')];
             $crumbs[] = ['name' => $recipe->cuisine->name, 'url' => $cuisineUrl];
         } else {
-            $crumbs[] = ['name' => $isEn ? 'Recipes' : 'Tarifler', 'url' => route('recipes.index')];
+            $crumbs[] = ['name' => $this->crumbName('recipes', $locale), 'url' => route('recipes.index')];
         }
         $crumbs[] = ['name' => $recipe->translated('title'), 'url' => route('recipes.show', $recipe)];
 
@@ -314,8 +311,8 @@ final class SeoSchemaService
             'logo' => url(config('brand.assets.mark_light')),
         ];
 
-        $isEn = app()->getLocale() === 'en';
-        $article = ['@type' => 'BlogPosting', 'headline' => $post->translated('title'), 'description' => $post->translated('excerpt'), 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => $publisher, 'publisher' => $publisher, 'inLanguage' => app()->getLocale()];
+        $locale = app()->getLocale();
+        $article = ['@type' => 'BlogPosting', 'headline' => $post->translated('title'), 'description' => $post->translated('excerpt'), 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => $publisher, 'publisher' => $publisher, 'inLanguage' => $locale];
         if (filled($post->author?->name)) {
             $article['author'] = ['@type' => 'Person', 'name' => $post->author->name];
         }
@@ -323,7 +320,7 @@ final class SeoSchemaService
             $article['image'] = [$imageUrl];
         }
         $graph = $this->graph($article, [
-            ['name' => $isEn ? 'Home' : 'Ana Sayfa', 'url' => route('home')],
+            ['name' => $this->crumbName('home', $locale), 'url' => route('home')],
             ['name' => 'Blog', 'url' => route('blog.index')],
             ['name' => $post->translated('title'), 'url' => route('blog.show', $post)],
         ]);
@@ -410,6 +407,68 @@ final class SeoSchemaService
             '@type' => 'CollectionPage', 'name' => $name, 'description' => $description, 'url' => $url,
             'mainEntity' => ['@type' => 'ItemList', 'numberOfItems' => count($items), 'itemListElement' => $items],
         ], $crumbs);
+    }
+
+    private function yieldUnit(string $locale): string
+    {
+        return match ($locale) {
+            'en' => 'servings',
+            'de' => 'Portionen',
+            'pl' => 'porcje',
+            'ru' => 'порций',
+            'fa' => 'پرس',
+            'pt' => 'porções',
+            default => 'porsiyon',
+        };
+    }
+
+    private function crumbName(string $type, string $locale): string
+    {
+        return match ($type) {
+            'home' => match ($locale) {
+                'en' => 'Home',
+                'de' => 'Startseite',
+                'pl' => 'Strona główna',
+                'ru' => 'Главная',
+                'fa' => 'صفحه اصلی',
+                'pt' => 'Início',
+                default => 'Ana Sayfa',
+            },
+            'recipes' => match ($locale) {
+                'en' => 'Recipes',
+                'de' => 'Rezepte',
+                'pl' => 'Przepisy',
+                'ru' => 'Рецепты',
+                'fa' => 'دستور پخت‌ها',
+                'pt' => 'Receitas',
+                default => 'Tarifler',
+            },
+            'cuisines' => match ($locale) {
+                'en' => 'Cuisines',
+                'de' => 'Küchen',
+                'pl' => 'Kuchnie',
+                'ru' => 'Кухни',
+                'fa' => 'سبک‌های آشپزی',
+                'pt' => 'Culinárias',
+                default => 'Mutfaklar',
+            },
+            'blog' => 'Blog',
+            default => $type,
+        };
+    }
+
+    /** @return list<string> */
+    private function localizedKeywords(string $locale): array
+    {
+        return match ($locale) {
+            'en' => ['Cypriot cuisine', 'Traditional recipes', 'Mediterranean gastronomy'],
+            'de' => ['Zypriotische Küche', 'Traditionelle Rezepte', 'Mediterrane Gastronomie'],
+            'pl' => ['Kuchnia cypryjska', 'Tradycyjne przepisy', 'Gastronomia śródziemnomorska'],
+            'ru' => ['Кипрская кухня', 'Традиционные рецепты', 'Средиземноморская гастрономия'],
+            'fa' => ['آشپزی قبرسی', 'دستورهای سنتی', 'غذاهای مدیترانه‌ای'],
+            'pt' => ['Culinária cipriota', 'Receitas tradicionais', 'Gastronomia mediterrânica'],
+            default => ['Kıbrıs mutfağı', 'Geleneksel tarifler', 'Doğu Akdeniz mutfağı'],
+        };
     }
 
     /** @param array<string,mixed>|null $node @param list<array{name:string,url:string}> $crumbs @return array<string,mixed> */
