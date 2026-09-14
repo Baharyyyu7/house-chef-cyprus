@@ -268,3 +268,10 @@
     .hc-world-map__kontroller button { width: 2rem; height: 2rem; font-size: 1rem; }
     .hc-admin-dashboard .hc-world-map__donemler { width: 100%; }
 }
+
+/* İpucu: görünürlük yalnız opaklıkla. İçerik son ülkede kalır; kapanırken
+   metni silinmiş boş bir kutu ekranda kalamaz. Alpine yüklenmeden önce de
+   görünmez (opacity 0), x-cloak'a ihtiyaç yok. */
+.hc-world-map__ipucu { opacity: 0; visibility: hidden; transition: opacity .15s ease-out, visibility 0s linear .15s; }
+.hc-world-map__ipucu.is-acik { opacity: 1; visibility: visible; transition: opacity .15s ease-out, visibility 0s; }
+@media (prefers-reduced-motion: reduce) { .hc-world-map__ipucu, .hc-world-map__ipucu.is-acik { transition: none; } }

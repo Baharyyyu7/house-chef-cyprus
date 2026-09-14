@@ -85,26 +85,29 @@ const takma = {
     'guernsey': 'GG', 'vatican': 'VA', 'aland': 'AX', 'saint lucia': 'LC',
 };
 
-// Equal Earth (Šavrič, Patterson, Jenny 2018). Eşit alanlı: ülkelerin
-// birbirine göre büyüklükleri doğru, kutuplara doğru şişme yok.
-const A1 = 1.340264, A2 = -0.081106, A3 = 0.000893, A4 = 0.003796, M = Math.sqrt(3) / 2;
+// Miller silindirik projeksiyonu. Önce Equal Earth kullanıldı: alanlar doğruydu
+// ama kenar meridyenleri büküldüğü için Kuzey Amerika ve Rusya sola yatık,
+// basık görünüyordu ve harita "kayık" okundu (14 Eylül 2026, kullanıcı
+// geri bildirimi). Google Analytics gibi alışılmış haritalar düz meridyenli
+// silindirik projeksiyon kullanır; Miller, Mercator'un kutup şişmesini
+// yumuşatır ve Grönland'ı Afrika büyüklüğüne çıkarmaz.
 const derece = Math.PI / 180;
-const projekte = ([lng, lat]) => {
-    const l = lng * derece;
-    const t = Math.asin(M * Math.sin(lat * derece));
-    const t2 = t * t, t6 = t2 * t2 * t2;
-    return [
-        (2 * Math.sqrt(3) * l * Math.cos(t)) / (3 * (9 * A4 * t6 * t2 + 7 * A3 * t6 + 3 * A2 * t2 + A1)),
-        -(A4 * t * t6 * t2 + A3 * t * t6 + A2 * t * t2 + A1 * t),
-    ];
-};
+const projekte = ([lng, lat]) => [
+    lng * derece,
+    -1.25 * Math.log(Math.tan(Math.PI / 4 + 0.4 * lat * derece)),
+];
 
-// Ölçek: 180. meridyenin ekvatordaki genişliği tuvali doldursun.
-const OLCEK = GENISLIK / (2 * projekte([180, 0])[0]);
+// Ölçek: 360 derece boylam tuvali doldursun.
+const OLCEK = GENISLIK / (2 * Math.PI);
 const nokta = (lnglat) => {
     const [px, py] = projekte(lnglat);
     return [px * OLCEK + GENISLIK / 2, py * OLCEK];
 };
+
+// Dikey görüş: 83° kuzey (Grönland'ın ucu) ile 57° güney (Ateş Toprakları).
+// Antarktika zaten çıkarılıyor; daha güneyde ziyaretçi ülkesi yok.
+const KUZEY = 83;
+const GUNEY = -57;
 
 const alan = (halka) => {
     let a = 0;
@@ -179,6 +182,7 @@ const yol = (halka) => {
 
 const yollar = [];
 const ulkeler = new Map();
+const ulkeParcalari = new Map();
 const eslesmeyen = [];
 let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
@@ -227,17 +231,40 @@ for (const f of dunya.features) {
 
     if (d === '' || parcalar.length === 0) continue;
 
+    // Natural Earth bazı ülkeleri iki kayıt olarak veriyor (Kıbrıs + Kuzey
+    // Kıbrıs, Somali + Somaliland). Önceden ikisi de aynı id ile ayrı <path>
+    // basılıyordu; <use href="#ulke-CY"> yalnız İLK öğeyi boyadığı için
+    // Kıbrıs'ın yarısı hiç boyanmıyordu. Artık parçalar tek yolda birleşir.
+    const birikim = ulkeParcalari.get(kod) ?? { ad, d: '', parcalar: [] };
+    birikim.d += d;
+    birikim.parcalar.push(...parcalar);
+    ulkeParcalari.set(kod, birikim);
+}
+
+for (const [kod, { ad, d, parcalar }] of ulkeParcalari) {
     // Çizgi kalınlığı yakınlaştırmayla büyümesin. Öznitelik yolun kendisinde
     // duruyor çünkü <use> kopyası belge stil kurallarını her tarayıcıda
     // aynı biçimde almıyor; öznitelik kopyayla birlikte taşınır.
     yollar.push(`<path id="ulke-${kod}" vector-effect="non-scaling-stroke" d="${d}"/>`);
 
-    // İşaret ve yakınlaştırma ANAKARAYA göre. En büyük parçanın dörtte biri
-    // kadar olan parçalar kutuya dahil edilir: Japonya'da Hokkaido girer,
-    // ABD'de Alaska girmez (ABD'ye yakınlaşan kişi 48 eyaleti görmek ister).
+    // İşaret ve yakınlaştırma ANAKARAYA göre. Kutuya yalnız ana parçaya
+    // KOMŞU büyük parçalar girer: Japonya'da Hokkaido girer, ABD'de Alaska
+    // girmez (ABD'ye yakınlaşan kişi 48 eyaleti görmek ister).
+    //
+    // Önce alan oranı kullanılıyordu (ana parçanın dörtte biri). Miller
+    // projeksiyonu kuzeyi büyüttüğü için Alaska bu eşiği geçti ve ABD'ye
+    // yakınlaşınca kutunun yarısı Pasifik'ti. Mesafe projeksiyondan
+    // bağımsız: ana kutuya kendi boyutunun %15i kadar yakın parça. Yarısı
+    // denendi; ABD kutusu (x 147-301) ile Alaska (x 32-96) yine birleşti.
     parcalar.sort((a, b) => b.alan - a.alan);
     const ana = parcalar[0];
-    const kutuParcalari = parcalar.filter((p) => p.alan >= ana.alan * 0.25);
+    const [ax1, ay1, ax2, ay2] = ana.kutu;
+    const payX = (ax2 - ax1) * 0.15, payY = (ay2 - ay1) * 0.15;
+    const kutuParcalari = parcalar.filter((p) => p === ana || (
+        p.alan >= ana.alan * 0.1
+        && p.kutu[0] <= ax2 + payX && p.kutu[2] >= ax1 - payX
+        && p.kutu[1] <= ay2 + payY && p.kutu[3] >= ay1 - payY
+    ));
     const kutu = [
         Math.min(...kutuParcalari.map((p) => p.kutu[0])),
         Math.min(...kutuParcalari.map((p) => p.kutu[1])),
@@ -245,20 +272,22 @@ for (const f of dunya.features) {
         Math.max(...kutuParcalari.map((p) => p.kutu[3])),
     ];
 
-    if (! ulkeler.has(kod)) {
-        ulkeler.set(kod, {
-            kod,
-            ad: turkce.of(kod) ?? ad,
-            x: bir(ana.merkez[0]),
-            y: bir(ana.merkez[1]),
-            kutu: [bir(kutu[0]), bir(kutu[1]), bir(kutu[2] - kutu[0]), bir(kutu[3] - kutu[1])],
-        });
-    }
+    ulkeler.set(kod, {
+        kod,
+        ad: turkce.of(kod) ?? ad,
+        x: bir(ana.merkez[0]),
+        y: bir(ana.merkez[1]),
+        kutu: [bir(kutu[0]), bir(kutu[1]), bir(kutu[2] - kutu[0]), bir(kutu[3] - kutu[1])],
+    });
 }
 
-// Görüş kutusu gerçek geometriden hesaplanır; sabit bir oran uydurulmaz.
-const PAY = 6;
-const gorus = [bir(minX - PAY), bir(minY - PAY), bir(maxX - minX + PAY * 2), bir(maxY - minY + PAY * 2)];
+// Görüş kutusu: yatayda gerçek geometri, dikeyde sabit enlemler. Miller'da
+// kuzey adaları çok yükseğe çıkar; geometriden hesaplamak haritanın üstünde
+// geniş bir buz bandı bırakırdı.
+const PAY = 4;
+const ust = nokta([0, KUZEY])[1];
+const alt = nokta([0, GUNEY])[1];
+const gorus = [bir(minX - PAY), bir(ust), bir(maxX - minX + PAY * 2), bir(alt - ust)];
 
 for (const kod of ulkeler.keys()) {
     if (eskiKodlar.has(kod)) throw new Error(`Kaldırılmış ISO kodu üretildi: ${kod}`);
@@ -266,7 +295,7 @@ for (const kod of ulkeler.keys()) {
 
 writeFileSync(
     'resources/views/components/admin/world-map-countries.blade.php',
-    `{{-- Bu dosya üretilmiştir: scripts/build-world-map-countries.mjs\n     Kaynak: Natural Earth ${COZUNURLUK} (kamu malı), world-atlas paketi; Equal Earth projeksiyonu.\n     Elle düzenlemeyin; değiştirmek için betiği çalıştırın. --}}\n<g class="hc-world-map__ulkeler" aria-hidden="true">${yollar.join('')}</g>\n`
+    `{{-- Bu dosya üretilmiştir: scripts/build-world-map-countries.mjs\n     Kaynak: Natural Earth ${COZUNURLUK} (kamu malı), world-atlas paketi; Miller projeksiyonu.\n     Elle düzenlemeyin; değiştirmek için betiği çalıştırın. --}}\n<g class="hc-world-map__ulkeler" aria-hidden="true">${yollar.join('')}</g>\n`
 );
 
 const satirlar = [...ulkeler.values()]
@@ -286,7 +315,7 @@ namespace App\\Support;
  * Yönetim haritasının ülke tablosu.
  *
  * Bu dosya üretilmiştir: scripts/build-world-map-countries.mjs
- * Elle düzenlemeyin. Koordinatlar Equal Earth projeksiyonunda, VIEWBOX ile
+ * Elle düzenlemeyin. Koordinatlar Miller projeksiyonunda, VIEWBOX ile
  * aynı uzaydadır; x/y ana parçanın alan ağırlıklı merkezi, box yakınlaştırma
  * kutusudur [x, y, genişlik, yükseklik].
  */

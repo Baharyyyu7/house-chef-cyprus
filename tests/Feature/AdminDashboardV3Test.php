@@ -213,8 +213,14 @@ final class AdminDashboardV3Test extends TestCase
             'user_id' => $admin->id,
             'action' => 'recipe.updated',
             'auditable_type' => Recipe::class,
-            'auditable_id' => 987,
-            'metadata' => ['authorization' => 'hidden-value', 'internal_id' => 987, 'recipe_public_id' => '01JSAFEACTIVITY000000000000'],
+            // Dahili numara, sayfadaki başka hiçbir şeyde rastgele geçemeyecek
+            // kadar uzun seçildi. 987 idi; panel dünya haritasının SVG yol
+            // verisini içeriyor ve Miller projeksiyonuna geçince "598.7" gibi
+            // koordinatlarda "987" alt dizisi belirdi. Test sızıntı yokken
+            // kırmızıya döndü; kırmızı olması gereken tek durum numaranın
+            // metin olarak basılmasıdır.
+            'auditable_id' => 987654321,
+            'metadata' => ['authorization' => 'hidden-value', 'internal_id' => 987654321, 'recipe_public_id' => '01JSAFEACTIVITY000000000000'],
         ]);
         Cache::flush();
 
@@ -224,7 +230,7 @@ final class AdminDashboardV3Test extends TestCase
             ->assertSee('01JSAFEACTIVITY000000000000')
             ->assertDontSee('hidden-value')
             ->assertDontSee('internal_id')
-            ->assertDontSee('987');
+            ->assertDontSee('987654321');
     }
 
     public function test_dashboard_operational_refreshes_create_a_safe_audit_event(): void

@@ -70,7 +70,7 @@
     <div
         class="mt-5"
         x-data="{
-            ulke: null, x: 0, y: 0,
+            ulke: null, sonUlke: null, x: 0, y: 0,
             taban: @js($gorus),
             vb: @js($gorus),
             kutular: @js($kutular),
@@ -169,6 +169,7 @@
             },
         }"
         x-effect="$refs.svg.setAttribute('viewBox', vb.join(' '))"
+        x-init="$watch('ulke', (deger) => { if (deger) sonUlke = deger })"
     >
         <div
             x-ref="tuval"
@@ -244,19 +245,23 @@
             </div>
 
             {{-- İpucu imlecin yanında durur; Google Analytics'te olduğu gibi
-                 ülkeye yaklaşınca adı ve sayısı okunur. --}}
+                 ülkeye yaklaşınca adı ve sayısı okunur.
+
+                 Görünürlük ve içerik ayrı tutulur. Önceden ikisi de `ulke`
+                 değişkenine bağlıydı: imleç ayrılınca `ulke` null oluyor,
+                 metin anında siliniyor ama x-show/x-transition kutuyu bir
+                 kare daha ekranda tutuyordu. Kullanıcı ekranında içi boş
+                 beyaz bir kutu kaldı (iki ayrı ekran görüntüsünde). Artık
+                 içerik son gösterilen ülkede kalır, yalnız opaklık değişir;
+                 görünen kutunun içi hiçbir koşulda boş olamaz. --}}
             <div
-                x-cloak
-                x-show="ulke"
                 class="hc-world-map__ipucu"
+                :class="{ 'is-acik': ulke }"
                 :style="`left:${x}px; top:${y}px`"
-                x-transition:enter="transition ease-out duration-150"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
                 aria-hidden="true"
             >
-                <strong x-text="ulke?.ad"></strong>
-                <span x-text="ulke ? new Intl.NumberFormat('tr-TR').format(ulke.sayi) + @js(' '.$unit) + (ulke.pay ? ' · %' + new Intl.NumberFormat('tr-TR').format(ulke.pay) : '') : ''"></span>
+                <strong x-text="sonUlke?.ad"></strong>
+                <span x-text="sonUlke ? new Intl.NumberFormat('tr-TR').format(sonUlke.sayi) + @js(' '.$unit) + (sonUlke.pay ? ' · %' + new Intl.NumberFormat('tr-TR').format(sonUlke.pay) : '') : ''"></span>
             </div>
         </div>
 
@@ -265,7 +270,7 @@
 
             <div class="hc-world-map__summary mt-4">
                 <p><strong>{{ number_format($map['total_members'], 0, ',', '.') }}</strong> {{ $unit }} · <strong>{{ count($countries) }}</strong> ülke</p>
-                <p>Equal Earth eşit alanlı projeksiyon · sınırlar Natural Earth 1:50m</p>
+                <p>Miller projeksiyonu · sınırlar Natural Earth 1:50m</p>
             </div>
             <ul class="hc-world-map__countries mt-4" aria-label="Ülke bazlı toplamlar">
                 @foreach ($listelenen as $country)

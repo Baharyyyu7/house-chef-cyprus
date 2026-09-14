@@ -74,6 +74,20 @@ final class AdminWorldMapIsGeographicallyHonestTest extends TestCase
         $this->assertSame($tablo, $yollar);
     }
 
+    public function test_her_ulke_kimligi_haritada_bir_kez_gecer(): void
+    {
+        // Natural Earth Kıbrıs ile Kuzey Kıbrıs'ı, Somali ile Somaliland'i
+        // ayrı kayıt olarak veriyor; ikisi de aynı koda eşleniyor. Aynı id
+        // iki <path>'te geçince <use href="#ulke-CY"> yalnız ilkini boyuyor
+        // ve Kıbrıs'ın yarısı ziyaret gelse de gri kalıyordu (canlıda ölçüldü).
+        $svg = (string) file_get_contents(resource_path('views/components/admin/world-map-countries.blade.php'));
+        preg_match_all('/id="(ulke-[A-Z]{2})"/', $svg, $eslesme);
+
+        $tekrar = array_keys(array_filter(array_count_values($eslesme[1]), static fn (int $adet): bool => $adet > 1));
+
+        $this->assertSame([], $tekrar, 'Aynı ülke kimliği birden çok yolda: '.implode(', ', $tekrar));
+    }
+
     public function test_isaret_noktasi_ulkenin_kendi_kutusunda_durur(): void
     {
         [$gx, $gy, $gw, $gh] = WorldMapCountries::VIEWBOX;
@@ -99,14 +113,17 @@ final class AdminWorldMapIsGeographicallyHonestTest extends TestCase
         //
         // Kanada ile kıyaslamak işe yaramıyor: Equal Earth yüksek enlemde
         // yatayı sıkıştırdığı için Kanada'nın batı kıyısı ABD'ninkinden
-        // sağda çıkar. Ölçülen değerler: Alaska'nın batı ucu (168°B, 65.6°K)
-        // x≈161; 48 eyaletin Pasifik kıyısı x≈185.6, kutu genişliği ≈142.
-        // Alaska dahil olsaydı kutu 161'den başlar ve ≈165 genişlikte olurdu.
+        // sağda çıkarır. Harita artık Miller projeksiyonunda (Equal Earth
+        // kenarları büktüğü için "kayık" görünüyordu). Miller'da ölçülen
+        // değerler: 48 eyaletin Pasifik kıyısı (124.7°B) x≈147.5, Maine
+        // (67°B) x≈301; Alaska'nın batı ucu (168°B) x≈32, doğu sınırı
+        // (141°B) x≈96. Alaska dahil olsaydı kutu 32'den başlar ve ≈270
+        // genişlikte olurdu - canlıya çıkmadan önce tam bu oldu.
         $abd = WorldMapCountries::ALL['US'];
 
-        $this->assertGreaterThan(175, $abd['box'][0], 'ABD kutusu Alaska\'yı içeriyor.');
-        $this->assertLessThan(155, $abd['box'][2], 'ABD kutusu 48 eyaletten geniş; Alaska dahil olmuş.');
-        $this->assertGreaterThan(200, $abd['x'], 'ABD işareti Pasifik kıyısına kaymış.');
+        $this->assertGreaterThan(120, $abd['box'][0], 'ABD kutusu Alaska\'yı içeriyor.');
+        $this->assertLessThan(170, $abd['box'][2], 'ABD kutusu 48 eyaletten geniş; Alaska dahil olmuş.');
+        $this->assertGreaterThan(180, $abd['x'], 'ABD işareti Pasifik kıyısına kaymış.');
     }
 
     public function test_harita_donemi_panelden_bagimsizdir_ve_tumu_eski_kayitlari_kapsar(): void
