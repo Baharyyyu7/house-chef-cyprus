@@ -29,10 +29,10 @@
     <span {{ $attributes->merge(['class' => 'hc-brand-logo inline-flex shrink-0 items-center']) }}>
 @endif
     @if ($variant === 'auto')
-        <img src="{{ $light }}" srcset="{{ $lightSrcset }}" width="{{ $compact ? 128 : 344 }}" height="{{ $compact ? 128 : 88 }}" class="{{ $imageClass }} dark:hidden" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}" @if($loading === 'eager') fetchpriority="high" @endif>
-        <img src="{{ $dark }}" srcset="{{ $darkSrcset }}" width="{{ $compact ? 128 : 344 }}" height="{{ $compact ? 128 : 88 }}" class="{{ $imageClass }} hidden dark:block" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}" @if($loading === 'eager') fetchpriority="high" @endif>
+        <img src="{{ $light }}" srcset="{{ $lightSrcset }}" width="{{ $compact ? 128 : 344 }}" height="{{ $compact ? 128 : 88 }}" class="{{ $imageClass }} dark:hidden" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}">
+        <img src="{{ $dark }}" srcset="{{ $darkSrcset }}" width="{{ $compact ? 128 : 344 }}" height="{{ $compact ? 128 : 88 }}" class="{{ $imageClass }} hidden dark:block" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}">
     @else
-        <img src="{{ $variant === 'dark' ? $dark : $light }}" srcset="{{ $variant === 'dark' ? $darkSrcset : $lightSrcset }}" width="{{ $compact ? 128 : 344 }}" height="{{ $compact ? 128 : 88 }}" class="{{ $imageClass }}" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}" @if($loading === 'eager') fetchpriority="high" @endif>
+        <img src="{{ $variant === 'dark' ? $dark : $light }}" srcset="{{ $variant === 'dark' ? $darkSrcset : $lightSrcset }}" width="{{ $compact ? 128 : 344 }}" height="{{ $compact ? 128 : 88 }}" class="{{ $imageClass }}" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}">
     @endif
 @if ($linked)
     </a>
