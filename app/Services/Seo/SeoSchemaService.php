@@ -6,6 +6,7 @@ namespace App\Services\Seo;
 
 use App\Models\BlogPost;
 use App\Models\Recipe;
+use Illuminate\Support\Str;
 
 /** Builds schemas from already-public, visible editorial data only. */
 final class SeoSchemaService
@@ -214,7 +215,10 @@ final class SeoSchemaService
             '@type' => 'Recipe', 'name' => $recipe->translated('title'),
             'description' => $recipe->translated('description') ?: $recipe->translated('excerpt'),
             'url' => route('recipes.show', $recipe),
-            'mainEntityOfPage' => route('recipes.show', $recipe),
+            'mainEntityOfPage' => [
+                '@type' => 'WebPage',
+                '@id' => route('recipes.show', $recipe),
+            ],
             'inLanguage' => $locale,
             'dateModified' => $recipe->updated_at?->toAtomString(),
             'recipeCuisine' => $recipe->cuisine?->name,
@@ -224,26 +228,33 @@ final class SeoSchemaService
             'recipeIngredient' => $ingredients,
             'recipeInstructions' => $recipe->steps->values()->map(fn ($step, int $index): array => [
                 '@type' => 'HowToStep',
+                'position' => $step->position ?: $index + 1,
                 'name' => $step->title,
                 'text' => $step->instruction,
                 'url' => route('recipes.show', $recipe).'#step-'.($step->position ?: $index + 1),
             ])->all(),
-            // author ve datePublished hiçbir tarifte yoktu. İkisi de Google'ın
-            // önerdiği alanlar ve author E-E-A-T tarafında doğrudan sayılıyor -
-            // sitenin bütün konumlanması "doğrulanmış tarifler" üzerine ama
-            // içeriğin arkasında kimin durduğu söylenmiyordu.
-            'author' => [
-                '@type' => 'Organization',
-                'name' => config('brand.name'),
-                'url' => route('home'),
-            ],
+            'author' => $this->organizationNode(),
+            'publisher' => $this->organizationNode(),
             'datePublished' => $recipe->published_at?->toAtomString(),
         ];
 
+        // Equipment (mutfak ekipmanları) - Google HowTo zengin sonucu için faydalı
+        if (is_array($recipe->equipment) && $recipe->equipment !== []) {
+            $recipeNode['tool'] = array_map(static fn (string $tool): array => [
+                '@type' => 'HowToTool',
+                'name' => $tool,
+            ], $recipe->equipment);
+        }
+
+        // Difficulty -> recipeDifficulty mapping
+        $difficultyMap = ['easy' => 'Easy', 'medium' => 'Medium', 'hard' => 'Hard'];
+        $diff = $recipe->difficulty ?? null;
+        if ($diff && isset($difficultyMap[$diff])) {
+            $recipeNode['difficulty'] = $difficultyMap[$diff];
+        }
+
         // Beslenme bilgisi Google'ın tarif sonucunda kalori olarak görünür.
-        // 236 geçerli beslenme kaydı vardı ama şema hiçbirini okumuyordu.
-        // Yalnız tamlığı ve güveni yüksek kayıt basılır: eksik malzemeyle
-        // hesaplanmış bir kalori, hiç kalori göstermemekten daha zararlıdır.
+        // Eksik malzemeyle hesaplanmış bir kalori, hiç kalori göstermemekten daha zararlıdır.
         $beslenme = $this->beslenme($recipe, $locale);
         if ($beslenme !== null) {
             $recipeNode['nutrition'] = $beslenme;
@@ -307,25 +318,39 @@ final class SeoSchemaService
         }
 
         $recipeNode['image'] = [$imageUrl];
+        $recipeNode['speakable'] = [
+            '@type' => 'SpeakableSpecification',
+            'cssSelector' => ['h1', '.hc-kicker', '#tips', '#storage'],
+        ];
 
-        return $this->graph($recipeNode, $crumbs);
+        $graph = $this->graph($recipeNode, $crumbs);
+
+        // VideoObject: medyada video varsa Recipe'ye bağla (Google Video zengin sonucu)
+        $videoData = $this->extractVideoFromMedia($recipe);
+        if ($videoData !== null) {
+            $graph['@graph'][] = $videoData;
+            // Recipe'nin video alanını referans göster
+            foreach ($graph['@graph'] as &$node) {
+                if (($node['@type'] ?? '') === 'Recipe') {
+                    $node['video'] = ['@type' => 'VideoObject', '@id' => $videoData['@id']];
+                    break;
+                }
+            }
+            unset($node);
+        }
+
+        $faqQuestions = $this->generateRecipeFaqs($recipe, $locale);
+        if ($faqQuestions !== []) {
+            $graph['@graph'][] = [
+                '@type' => 'FAQPage',
+                'mainEntity' => $faqQuestions,
+            ];
+        }
+
+        return $graph;
     }
 
     /** @return array<string,mixed> */
-    public function article(BlogPost $post, string $imageUrl = ''): array
-    {
-        $publisher = [
-            '@type' => 'Organization',
-            'name' => config('brand.name'),
-            'logo' => url(config('brand.assets.mark_light')),
-        ];
-
-        $locale = app()->getLocale();
-        $article = ['@type' => 'BlogPosting', 'headline' => $post->translated('title'), 'description' => $post->translated('excerpt'), 'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(), 'mainEntityOfPage' => route('blog.show', $post), 'author' => $publisher, 'publisher' => $publisher, 'inLanguage' => $locale];
-        if (filled($post->author?->name)) {
-            $article['author'] = ['@type' => 'Person', 'name' => $post->author->name];
-        }
-        if ($imageUrl !== '') {
     /**
      * Porsiyon başı beslenme bilgisi.
      *
@@ -384,22 +409,6 @@ final class SeoSchemaService
             'sugarContent' => $deger('sugar', 'g'),
             'sodiumContent' => $deger('sodium', 'mg'),
         ], static fn (?string $v): bool => $v !== null);
-    }
-
-            $article['image'] = [$imageUrl];
-        }
-        $graph = $this->graph($article, [
-            ['name' => $this->crumbName('home', $locale), 'url' => route('home')],
-            ['name' => 'Blog', 'url' => route('blog.index')],
-            ['name' => $post->translated('title'), 'url' => route('blog.show', $post)],
-        ]);
-        $faqBlocks = $post->getAttribute('faq_blocks');
-        $questions = collect(is_array($faqBlocks) ? $faqBlocks : [])->filter(fn (mixed $faq): bool => is_array($faq) && filled($faq['question'] ?? null) && filled($faq['answer'] ?? null))->map(fn (array $faq): array => ['@type' => 'Question', 'name' => $faq['question'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq['answer']]])->values()->all();
-        if ($questions !== []) {
-            $graph['@graph'][] = ['@type' => 'FAQPage', 'mainEntity' => $questions];
-        }
-
-        return $graph;
     }
 
     /**
@@ -538,6 +547,346 @@ final class SeoSchemaService
             'pt' => ['Culinária cipriota', 'Receitas tradicionais', 'Gastronomia mediterrânica'],
             default => ['Kıbrıs mutfağı', 'Geleneksel tarifler', 'Doğu Akdeniz mutfağı'],
         };
+    }
+
+    /**
+     * Generates structured FAQs for recipes to win Google AI Overviews and Perplexity direct answers.
+     *
+     * @return list<array{@type: string, name: string, acceptedAnswer: array{text: string}}>
+     */
+    private function generateRecipeFaqs(Recipe $recipe, string $locale): array
+    {
+        $title = $recipe->translated('title', $locale) ?: (string) $recipe->getRawOriginal('title');
+        $questions = [];
+
+        // 1. Storage notes
+        if (filled($recipe->storage_notes)) {
+            $gun = is_array($recipe->storage_notes) ? data_get($recipe->storage_notes, 'buzdolabi_gun') : null;
+            $uyari = is_array($recipe->storage_notes) ? (string) data_get($recipe->storage_notes, 'uyari', '') : (string) $recipe->storage_notes;
+
+            $q = match ($locale) {
+                'en' => "How should {$title} be stored and how long does it stay fresh?",
+                'de' => "Wie sollte {$title} aufbewahrt werden und wie lange bleibt es frisch?",
+                'pl' => "Jak przechowywać {$title} i jak długo zachowuje świeżość?",
+                'ru' => "Как правильно хранить {$title} и сколько дней блюдо остается свежим?",
+                'fa' => "چگونه {$title} را نگهداری کنیم و تا چند روز تازه می‌ماند؟",
+                'pt' => "Como armazenar {$title} e por quanto tempo permanece fresco?",
+                default => "{$title} nasıl saklanır ve kaç gün tazeliğini korur?",
+            };
+
+            $defaultAdvice = match ($locale) {
+                'en' => 'Allow to cool completely to room temperature, then store in an airtight glass container in the refrigerator.',
+                'de' => 'Vollständig auf Raumtemperatur abkühlen lassen und in einem luftdichten Glasbehälter im Kühlschrank lagern.',
+                'pl' => 'Ostudź do temperatury pokojowej, a następnie przechowuj w szczelnym szklanym pojemniku w lodówce.',
+                'ru' => 'Дайте полностью остыть до комнатной температуры, затем храните в герметичном контейнере в холодильнике.',
+                'fa' => 'اجازه دهید در دمای اتاق کاملاً خنک شود، سپس در ظرف شیشه‌ای دردار در یخچال نگهداری کنید.',
+                'pt' => 'Deixe esfriar completamente até a temperatura ambiente e guarde em recipiente de vidro hermético na geladeira.',
+                default => 'Oda sıcaklığına geldikten sonra hava almayan kapaklı cam kapta buzdolabında saklanmalıdır.',
+            };
+
+            $daysText = '';
+            if ($gun) {
+                $daysText = match ($locale) {
+                    'en' => "Keeps fresh in the refrigerator for up to {$gun} days. ",
+                    'de' => "Im Kühlschrank bis zu {$gun} Tage haltbar. ",
+                    'pl' => "W lodówce zachowuje świeżość do {$gun} dni. ",
+                    'ru' => "В холодильнике сохраняет свежесть до {$gun} дней. ",
+                    'fa' => "در یخچال تا {$gun} روز تازه می‌ماند. ",
+                    'pt' => "Conserva-se fresco na geladeira por até {$gun} dias. ",
+                    default => "Buzdolabında {$gun} gün boyunca tazeliğini korur. ",
+                };
+            }
+
+            $ans = trim($daysText . ($uyari !== '' ? $uyari : $defaultAdvice));
+            if ($ans !== '') {
+                $questions[] = [
+                    '@type' => 'Question',
+                    'name' => $q,
+                    'acceptedAnswer' => ['@type' => 'Answer', 'text' => $ans],
+                ];
+            }
+        }
+
+        // 2. Reheating notes
+        if (filled($recipe->reheating_notes)) {
+            $q = match ($locale) {
+                'en' => "What is the recommended way to reheat {$title}?",
+                'de' => "Wie wärmt man {$title} am besten wieder auf?",
+                'pl' => "Jak najlepiej podgrzać {$title}?",
+                'ru' => "Как лучше всего разогреть {$title}?",
+                'fa' => "بهترین روش برای گرم کردن مجدد {$title} چیست؟",
+                'pt' => "Qual é a melhor forma de reaquecer {$title}?",
+                default => "{$title} nasıl yeniden ısıtılmalıdır?",
+            };
+            $questions[] = [
+                '@type' => 'Question',
+                'name' => $q,
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => (string) $recipe->reheating_notes],
+            ];
+        }
+
+        // 3. Freezing notes
+        if (filled($recipe->freezing_notes)) {
+            $q = match ($locale) {
+                'en' => "Can {$title} be frozen for later use?",
+                'de' => "Kann man {$title} einfrieren?",
+                'pl' => "Czy można zamrozić {$title}?",
+                'ru' => "Можно ли замораживать {$title}?",
+                'fa' => "آیا می‌توان {$title} را در فریزر نگهداری کرد؟",
+                'pt' => "É possível congelar {$title}?",
+                default => "{$title} dondurucuda saklanabilir mi?",
+            };
+            $questions[] = [
+                '@type' => 'Question',
+                'name' => $q,
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => (string) $recipe->freezing_notes],
+            ];
+        }
+
+        // 4. Chef tips
+        if (filled($recipe->tips)) {
+            $tipText = is_array($recipe->tips) ? implode(' ', array_filter($recipe->tips)) : (string) $recipe->tips;
+            if (trim($tipText) !== '') {
+                $q = match ($locale) {
+                    'en' => "What are the essential chef tips for making {$title}?",
+                    'de' => "Was sind die wichtigsten Profi-Tipps für {$title}?",
+                    'pl' => "Jakie są najważniejsze wskazówki szefa kuchni dla {$title}?",
+                    'ru' => "Каковы главные кулинарные советы шеф-повара для {$title}?",
+                    'fa' => "مهم‌ترین نکات طلایی سرآشپز برای تهیه {$title} چیست؟",
+                    'pt' => "Quais são as principais dicas do chef para fazer {$title}?",
+                    default => "{$title} yaparken dikkat edilmesi gereken şef püf noktaları nelerdir?",
+                };
+                $questions[] = [
+                    '@type' => 'Question',
+                    'name' => $q,
+                    'acceptedAnswer' => ['@type' => 'Answer', 'text' => $tipText],
+                ];
+            }
+        }
+
+        // 5. Serving suggestions
+        if (filled($recipe->serving_suggestions)) {
+            $q = match ($locale) {
+                'en' => "How should {$title} be served and paired?",
+                'de' => "Wie und womit serviert man {$title} am besten?",
+                'pl' => "Z czym i jak najlepiej podawać {$title}?",
+                'ru' => "С чем и как лучше всего подавать {$title}?",
+                'fa' => "{$title} چگونه و همراه با چه مواردی باید سرو شود؟",
+                'pt' => "Como e com quais acompanhamentos servir {$title}?",
+                default => "{$title} ne ile ve nasıl servis edilmelidir?",
+            };
+            $questions[] = [
+                '@type' => 'Question',
+                'name' => $q,
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => (string) $recipe->serving_suggestions],
+            ];
+        }
+
+        return $questions;
+    }
+
+    /**
+     * Tarif medyasından video verisi çıkarır.
+     *
+     * Media modelinde type=video veya mime_type video içeren kayıtları
+     * VideoObject şemasına dönüştürür. YouTube/Vimeo URL'leri doğrudan
+     * embed_url olarak kullanılır.
+     *
+     * @return array<string,mixed>|null
+     */
+    private function extractVideoFromMedia(Recipe $recipe): ?array
+    {
+        if (! $recipe->relationLoaded('media')) {
+            $recipe->load('media');
+        }
+
+        $videoMedia = $recipe->media()
+            ->where(fn ($q) => $q->where('type', 'video')->orWhere('mime_type', 'like', 'video/%'))
+            ->first();
+
+        if ($videoMedia === null) {
+            return null;
+        }
+
+        $url = $videoMedia->url ?? $videoMedia->original_url ?? '';
+        if ($url === '') {
+            return null;
+        }
+
+        // YouTube ve Vimeo embed URL'lerini tanır
+        $embedUrl = $url;
+        if (preg_match('#youtube\.com/watch\?v=([a-zA-Z0-9_-]+)#', $url, $m)) {
+            $embedUrl = 'https://www.youtube.com/embed/' . $m[1];
+        } elseif (preg_match('#youtu\.be/([a-zA-Z0-9_-]+)#', $url, $m)) {
+            $embedUrl = 'https://www.youtube.com/embed/' . $m[1];
+        } elseif (preg_match('#vimeo\.com/(\d+)#', $url, $m)) {
+            $embedUrl = 'https://player.vimeo.com/video/' . $m[1];
+        }
+
+        return [
+            '@type' => 'VideoObject',
+            '@id' => $url . '#video',
+            'name' => $recipe->translated('title') . ' - Tarif Videosu',
+            'description' => $recipe->translated('description') ?: $recipe->translated('excerpt'),
+            'thumbnailUrl' => $videoMedia->thumbnail_url ?? $videoMedia->url,
+            'uploadDate' => $recipe->published_at?->toAtomString(),
+            'duration' => 'PT' . max(1, (int) ceil(($recipe->prep_minutes + $recipe->cook_minutes) / 5)) . 'M',
+            'contentUrl' => $url,
+            'embedUrl' => $embedUrl,
+            'publisher' => $this->organizationNode(),
+        ];
+    }
+
+    /**
+     * Organization şema düğümü - E-E-A-T ve Knowledge Graph için.
+     *
+     * sameAs ile sosyal medya profilleri, logonun bulunduğu yer ve
+     * sitenin kimliği tek bir tutarlı düğümde birleşir.
+     */
+    private function organizationNode(): array
+    {
+        $org = [
+            '@type' => 'Organization',
+            '@id' => route('home') . '#organization',
+            'name' => config('brand.name'),
+            'url' => route('home'),
+            'logo' => [
+                '@type' => 'ImageObject',
+                'url' => url(config('brand.assets.mark_light')),
+            ],
+        ];
+
+        // Sosyal medya profilleri - Knowledge Graph bağlamı için sameAs
+        $socialProfiles = array_filter([
+            config('brand.social.twitter'),
+            config('brand.social.instagram'),
+            config('brand.social.facebook'),
+            config('brand.social.youtube'),
+            config('brand.social.tiktok'),
+            config('brand.social.pinterest'),
+        ]);
+
+        if ($socialProfiles !== []) {
+            $org['sameAs'] = array_values($socialProfiles);
+        }
+
+        return $org;
+    }
+
+    /**
+     * Ana sayfa için WebSite + SearchAction şeması.
+     *
+     * Google'ın site arama kutusu zengin sonucunu etkinleştirir.
+     * Yalnız ana sayfada basılır.
+     *
+     * @return array<string,mixed>
+     */
+    public function webSite(): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                $this->organizationNode(),
+                [
+                    '@type' => 'WebSite',
+                    'name' => config('brand.name'),
+                    'url' => route('home'),
+                    'potentialAction' => [
+                        '@type' => 'SearchAction',
+                        'target' => [
+                            '@type' => 'EntryPoint',
+                            'urlTemplate' => url('/arama?q={search_term_string}'),
+                        ],
+                        'query-input' => 'required name=search_term_string',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Site navigasyon yapısı - crawl bütçesi ve site hiyerarşisi için.
+     *
+     * @param list<array{title: string, url: string, children?: list<array{title: string, url: string}>}> $navItems
+     * @return array<string,mixed>
+     */
+    public function siteNavigation(array $navItems): array
+    {
+        $elements = [];
+        foreach ($navItems as $item) {
+            $elements[] = [
+                '@type' => 'SiteNavigationElement',
+                'name' => $item['title'],
+                'url' => $item['url'],
+            ];
+            if (isset($item['children'])) {
+                foreach ($item['children'] as $child) {
+                    $elements[] = [
+                        '@type' => 'SiteNavigationElement',
+                        'name' => $child['title'],
+                        'url' => $child['url'],
+                    ];
+                }
+            }
+        }
+
+        return ['@context' => 'https://schema.org', '@graph' => $elements];
+    }
+
+    /**
+     * Blog yazısı için Article şemasını zenginleştirir.
+     *
+     * wordCount tahmini, speakable vePublisher gelişmiş alanlar ekler.
+     */
+    public function article(BlogPost $post, string $imageUrl = ''): array
+    {
+        $publisher = $this->organizationNode();
+
+        $locale = app()->getLocale();
+        $bodyText = (string) $post->body;
+        $wordCount = str_word_count(strip_tags(Str::markdown($bodyText)));
+
+        $article = [
+            '@type' => 'BlogPosting',
+            'headline' => $post->translated('title'),
+            'description' => $post->translated('excerpt'),
+            'datePublished' => $post->published_at?->toAtomString(),
+            'dateModified' => $post->updated_at?->toAtomString(),
+            'mainEntityOfPage' => [
+                '@type' => 'WebPage',
+                '@id' => route('blog.show', $post),
+            ],
+            'author' => filled($post->author?->name)
+                ? ['@type' => 'Person', 'name' => $post->author->name]
+                : $publisher,
+            'publisher' => $publisher,
+            'inLanguage' => $locale,
+            'wordCount' => $wordCount,
+            'articleSection' => $post->category?->name,
+        ];
+
+        if ($imageUrl !== '') {
+            $article['image'] = [$imageUrl];
+        }
+
+        // Speakable: sesli arama ve Google Assistant için
+        $article['speakable'] = [
+            '@type' => 'SpeakableSpecification',
+            'cssSelector' => ['h1', '.hc-article-lead', '.hc-article-body'],
+        ];
+
+        $graph = $this->graph($article, [
+            ['name' => $this->crumbName('home', $locale), 'url' => route('home')],
+            ['name' => 'Blog', 'url' => route('blog.index')],
+            ['name' => $post->translated('title'), 'url' => route('blog.show', $post)],
+        ]);
+        $faqBlocks = $post->getAttribute('faq_blocks');
+        $questions = collect(is_array($faqBlocks) ? $faqBlocks : [])->filter(fn (mixed $faq): bool => is_array($faq) && filled($faq['question'] ?? null) && filled($faq['answer'] ?? null))->map(fn (array $faq): array => ['@type' => 'Question', 'name' => $faq['question'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq['answer']]])->values()->all();
+        if ($questions !== []) {
+            $graph['@graph'][] = ['@type' => 'FAQPage', 'mainEntity' => $questions];
+        }
+
+        return $graph;
     }
 
     /** @param array<string,mixed>|null $node @param list<array{name:string,url:string}> $crumbs @return array<string,mixed> */

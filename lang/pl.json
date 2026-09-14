@@ -666,5 +666,8 @@
     "home.ingredient_placeholder_example": "Jakie masz składniki? (np. Halloumi, pomidor, soczewica...)",
     "home.search_recipes_placeholder": "Szukaj przepisów, kuchni lub smaków... (np. Szeftalia, hummus, karczochy)",
     "home.quick_soups": "Zupy",
-    "home.quick_desserts": "Desery"
+    "home.quick_desserts": "Desery",
+    "recipe.show.guides_kicker": "Przewodniki kulinarne i kulturowe",
+    "recipe.show.guides_title": "Powiązane artykuły i wskazówki kulinarne",
+    "recipe.show.guides_view_all": "Odkryj wszystkie przewodniki"
 }

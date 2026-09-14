@@ -230,8 +230,8 @@
 
                 <g aria-hidden="true">
                     @foreach (array_slice($countries, 0, $listeSiniri) as $index => $country)
-                        <circle class="hc-world-map__pulse" style="--pulse-delay: {{ $index * 0.42 }}s" cx="{{ $country['x'] }}" cy="{{ $country['y'] }}" r="9" :r="9 * olcek"/>
-                        <circle class="hc-world-map__point" cx="{{ $country['x'] }}" cy="{{ $country['y'] }}" r="3.5" :r="3.5 * olcek"/>
+                        <circle class="hc-world-map__pulse" style="--pulse-delay: {{ $index * 0.42 }}s" cx="{{ $country['x'] }}" cy="{{ $country['y'] }}" :r="9 * olcek"/>
+                        <circle class="hc-world-map__point" cx="{{ $country['x'] }}" cy="{{ $country['y'] }}" :r="3.5 * olcek"/>
                     @endforeach
                 </g>
             </svg>

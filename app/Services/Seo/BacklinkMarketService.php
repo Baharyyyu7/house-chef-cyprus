@@ -87,24 +87,61 @@ final class BacklinkMarketService
      */
     public function varlikAdresi(string $alanAdi, string $tur, string $slug, ?string $explicitLocale = null): ?array
     {
-        $dil = $this->pazar($alanAdi, $explicitLocale);
-
-        $kayit = match ($tur) {
-            'recipe' => Recipe::query()->where('slug', $slug)->first()
-                ?? Recipe::query()->where('slug', 'like', "%{$slug}%")->first(),
-            'blog' => BlogPost::query()->where('slug', $slug)->first()
-                ?? BlogPost::query()->where('slug', 'like', "%{$slug}%")->first(),
-            default => null,
-        };
-
-        if ($kayit === null || ! $kayit->hasTranslation($dil)) {
+        if ($explicitLocale !== null && ($this->diller->enabledLocales()[$explicitLocale] ?? null) === null) {
             return null;
         }
 
-        $yol = ($tur === 'recipe' ? '/tarifler/' : '/blog/').$kayit->slug;
-        $baslik = (string) ($kayit->translated('title', $dil) ?: $kayit->getRawOriginal('title'));
+        $dil = $this->pazar($alanAdi, $explicitLocale);
 
-        return ['url' => $this->diller->urlFor($dil, $yol), 'locale' => $dil, 'title' => $baslik];
+        if ($tur === 'recipe') {
+            $candidates = Recipe::query()
+                ->where(function ($q) use ($slug) {
+                    $q->where('slug', $slug)->orWhere('slug', 'like', "%{$slug}%");
+                })
+                ->orderByRaw('LENGTH(slug) ASC')
+                ->get();
+
+            foreach ($candidates as $kayit) {
+                if ($kayit->status !== 'published' || $kayit->verification_status !== 'verified') {
+                    continue;
+                }
+                if (! $kayit->hasTranslation($dil)) {
+                    continue;
+                }
+                $yol = '/tarifler/'.$kayit->slug;
+                $baslik = (string) ($kayit->translated('title', $dil) ?: $kayit->getRawOriginal('title'));
+
+                return ['url' => $this->diller->urlFor($dil, $yol), 'locale' => $dil, 'title' => $baslik];
+            }
+
+            return null;
+        }
+
+        if ($tur === 'blog') {
+            $candidates = BlogPost::query()
+                ->where(function ($q) use ($slug) {
+                    $q->where('slug', $slug)->orWhere('slug', 'like', "%{$slug}%");
+                })
+                ->orderByRaw('LENGTH(slug) ASC')
+                ->get();
+
+            foreach ($candidates as $kayit) {
+                if ($kayit->status !== 'published' || $kayit->published_at === null || $kayit->published_at->isFuture()) {
+                    continue;
+                }
+                if (! $kayit->hasTranslation($dil)) {
+                    continue;
+                }
+                $yol = '/blog/'.$kayit->slug;
+                $baslik = (string) ($kayit->translated('title', $dil) ?: $kayit->getRawOriginal('title'));
+
+                return ['url' => $this->diller->urlFor($dil, $yol), 'locale' => $dil, 'title' => $baslik];
+            }
+
+            return null;
+        }
+
+        return null;
     }
 
     /**

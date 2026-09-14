@@ -9,7 +9,6 @@ use App\Models\BlogPost;
 use App\Models\ContentOpportunity;
 use App\Models\Recipe;
 use App\Models\SeoBacklinkCandidate;
-use App\Services\Media\AutonomousMediaGateService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -23,9 +22,7 @@ final class AutonomousGrowthEngine
         private readonly IndexNowService $indexNow,
         private readonly BacklinkGrowthService $backlinks,
         private readonly ContentGapService $contentGaps,
-        private readonly LlmsTxtController $llmsTxt,
-        private readonly AutonomousMediaGateService $mediaGate,
-        private readonly AutonomousPublishingGateService $publishingGate
+        private readonly LlmsTxtController $llmsTxt
     ) {
     }
 
@@ -66,21 +63,28 @@ final class AutonomousGrowthEngine
             Cache::forget($key);
         }
 
-        // Prime the caches with fresh seasonal, terroir and recipe intelligence
-        $this->llmsTxt->index();
-        $this->llmsTxt->en();
-        $this->llmsTxt->full();
-        $this->llmsTxt->enFull();
-
-        foreach ($enabledLocales as $loc) {
-            if ($loc !== 'tr' && $loc !== 'en') {
-                $this->llmsTxt->locale($loc);
-                $this->llmsTxt->localeFull($loc);
+        $originalLocale = app()->getLocale();
+        try {
+            foreach ($enabledLocales as $loc) {
+                match ($loc) {
+                    'tr' => $this->llmsTxt->index(),
+                    'en' => $this->llmsTxt->en(),
+                    default => $this->llmsTxt->locale($loc),
+                };
+                match ($loc) {
+                    'tr' => $this->llmsTxt->full(),
+                    'en' => $this->llmsTxt->enFull(),
+                    default => $this->llmsTxt->localeFull($loc),
+                };
             }
+        } finally {
+            app()->setLocale($originalLocale);
         }
 
         // 2. Continuous IndexNow Protocol Submissions
-        $indexNowResult = $this->indexNow->submit();
+        $indexNowResult = config('seo.indexnow.enabled')
+            ? $this->indexNow->submit()
+            : ['success' => false, 'status' => 0, 'count' => 0];
 
         // 3. Backlink Opportunity & Digital PR Prospecting
         $backlinkResult = $this->backlinks->discoverAndEnrich();
@@ -91,11 +95,9 @@ final class AutonomousGrowthEngine
         // 5. Zero-Result Search & Content Gap Mining
         $gapResult = $this->contentGaps->refresh();
 
-        // 6. Autonomous Media Approval Gate
-        $mediaResult = $this->mediaGate->processEligibleCandidates(10);
-
-        // 7. Autonomous Quality Gate & Drip-Feed Publishing
-        $publishingResult = $this->publishingGate->run(2, 3);
+        // Discovery does not confer editorial, image identity or licensing approval.
+        $mediaResult = ['approved' => 0, 'rejected' => 0, 'skipped' => 0];
+        $publishingResult = ['published_blogs' => [], 'published_recipes' => []];
 
         // 8. Catalogue Metrics
         $publishedRecipes = Recipe::query()->where('status', 'published')->count();
@@ -174,11 +176,13 @@ final class AutonomousGrowthEngine
                 'hub_status' => $syndicationResult['hub_status'],
             ],
             'autonomous_media' => [
+                'status' => 'human_review_required',
                 'approved' => $mediaResult['approved'],
                 'rejected' => $mediaResult['rejected'],
                 'skipped' => $mediaResult['skipped'],
             ],
             'autonomous_publishing' => [
+                'status' => 'human_review_required',
                 'published_blogs' => $publishingResult['published_blogs'],
                 'published_recipes' => $publishingResult['published_recipes'],
             ],

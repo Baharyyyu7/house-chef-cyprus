@@ -103,8 +103,9 @@ final class SitemapController extends Controller
     {
         $mediaEligibility = app(PublicMediaEligibilityService::class);
         $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified'))
-            ->with(['media' => fn ($query) => $query->where('visibility', 'public')->orderBy('sort_order')])
+            ->with(['seoMetadata', 'media' => fn ($query) => $query->where('visibility', 'public')->orderBy('sort_order')])
             ->orderBy('updated_at')->get(['id', 'slug', 'title', 'excerpt', 'description', 'updated_at'])
+            ->filter(fn (Recipe $recipe): bool => $this->effectiveAllows($recipe))
             ->filter(fn (Recipe $recipe): bool => $mediaEligibility->firstEligible($recipe->media) !== null)
             ->map(fn (Recipe $recipe): array => [
                 'loc' => route('recipes.show', $recipe->slug),
@@ -123,7 +124,9 @@ final class SitemapController extends Controller
         $indekslenebilirlik = app(BlogIndexability::class);
 
         $urls = $this->indexable(BlogPost::query()->publiclyVisible())
+            ->with('seoMetadata')
             ->orderBy('updated_at')->get(['id', 'slug', 'title', 'excerpt', 'updated_at', 'body', 'fact_check_status', 'originality_status'])
+            ->filter(fn (BlogPost $post): bool => $this->effectiveAllows($post))
             ->filter(fn (BlogPost $post): bool => $indekslenebilirlik->indekslenebilir($post))
             ->map(fn (BlogPost $post): array => [
                 'loc' => route('blog.show', $post),
@@ -175,6 +178,12 @@ final class SitemapController extends Controller
      * iki karşıt talimat vermek Search Console'da "gönderilen URL noindex
      * işaretli" hatası üretir ve sitenin geri kalanına olan güveni düşürür.
      *
+     * Efektif robots SeoMetadataService::robots() ile hesaplanır: 'none'
+     * takma adı, büyük/küçük harf ve boşluk varyantları orada çözülür.
+     * 'max-image-preview:none' gibi direktifler noindex değildir; LIKE ile
+     * '%none%' aramak onları yanlış dışlardı. Bu yüzden DB ön filtresi yalnız
+     * '%noindex%' arar, 'none' ve global kapama PHP filtresinde elenir.
+     *
      * @template TModel of \Illuminate\Database\Eloquent\Model
      *
      * @param  Builder<TModel>  $query
@@ -182,14 +191,30 @@ final class SitemapController extends Controller
      */
     private function indexable($query)
     {
+        if (! config('seo.indexing_enabled')) {
+            return $query->whereRaw('1 = 0');
+        }
+
         return $query->whereDoesntHave('seoMetadata', fn ($q) => $q->where('robots', 'like', '%noindex%'));
+    }
+
+    private function effectiveAllows(object $kayit): bool
+    {
+        $robots = $kayit->relationLoaded('seoMetadata')
+            ? $kayit->getRelation('seoMetadata')?->robots
+            : $kayit->seoMetadata()->value('robots');
+
+        $efektif = app(\App\Services\Seo\SeoMetadataService::class)->robots(is_string($robots) ? $robots : null);
+
+        return ! str_contains($efektif, 'noindex');
     }
 
     public function images(PublicMediaEligibilityService $mediaEligibility): Response
     {
         $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified'))
-            ->with(['media' => fn ($query) => $query->where('visibility', 'public')->where('verification_status', 'verified')->where('media_status', 'approved_real_media')->where('license_review_status', 'approved')->where('attribution_review_status', 'approved')->orderBy('sort_order')])
+            ->with(['seoMetadata', 'media' => fn ($query) => $query->where('visibility', 'public')->where('verification_status', 'verified')->where('media_status', 'approved_real_media')->where('license_review_status', 'approved')->where('attribution_review_status', 'approved')->orderBy('sort_order')])
             ->get(['id', 'slug', 'updated_at'])
+            ->filter(fn (Recipe $recipe): bool => $this->effectiveAllows($recipe))
             ->map(function (Recipe $recipe) use ($mediaEligibility): ?array {
                 $images = $recipe->media->filter(fn (Media $media): bool => $mediaEligibility->isEligible($media))
                     ->map(fn (Media $media): array => ['loc' => $media->publicUrl(), 'title' => $media->alt_text ?: $recipe->slug])
@@ -198,7 +223,8 @@ final class SitemapController extends Controller
                 return $images === [] ? null : ['loc' => route('recipes.show', $recipe->slug), 'lastmod' => $recipe->updated_at?->toDateString(), 'images' => $images];
             })->filter();
 
-        $blogUrls = $this->indexable(BlogPost::query()->publiclyVisible())->with('heroMedia')->get()
+        $blogUrls = $this->indexable(BlogPost::query()->publiclyVisible())->with(['seoMetadata', 'heroMedia'])->get()
+            ->filter(fn (BlogPost $post): bool => $this->effectiveAllows($post))
             ->filter(fn (BlogPost $post): bool => $mediaEligibility->isEligible($post->heroMedia) && $post->heroMedia?->publicUrl() !== null)
             ->map(fn (BlogPost $post): array => ['loc' => route('blog.show', $post), 'lastmod' => $post->updated_at?->toDateString(), 'images' => [['loc' => $post->heroMedia->responsiveUrl(1200) ?: $post->heroMedia->publicUrl(), 'title' => $post->heroMedia->alt_text ?: $post->title]]]);
         $urls = $urls->concat($blogUrls)->values();

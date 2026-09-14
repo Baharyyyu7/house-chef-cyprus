@@ -60,8 +60,9 @@
 .hc-media-tabs a { display: inline-flex; align-items: center; gap: .4rem; padding-block: .75rem; font-size: .8125rem; color: var(--hc-text-secondary); border-bottom: 2px solid transparent; }
 .hc-media-tabs a[aria-current="page"] { color: var(--hc-text-primary); border-color: var(--hc-text-accent); font-weight: 700; }
 .hc-media-tabs a span { font-size: .6875rem; background: var(--hc-background-muted); padding: .1rem .4rem; border-radius: .25rem; }
-.admin-shell .hc-world-map__svg { min-height: 0; }
-.admin-shell .hc-world-map__ipucu { transform: none; width: 11rem; max-width: calc(100% - 16px); white-space: normal; border-radius: .375rem; background: var(--hc-surface-raised); border-color: var(--hc-border-default); box-shadow: 0 4px 12px #00000014; }
+/* min-height:0 kaldırıldı (14 Eyl 2026): app.css'deki min-height:16rem ezip haritayı çok küçük gösteriyordu */
+/* transform:none kaldırıldı (14 Eyl 2026): tooltip translate(-50%, calc(-100% - 12px)) konumlamasını bozuyordu */
+.admin-shell .hc-world-map__ipucu { width: 11rem; max-width: calc(100% - 16px); white-space: normal; border-radius: .375rem; background: var(--hc-surface-raised); border-color: var(--hc-border-default); box-shadow: 0 4px 12px #00000014; }
 .admin-shell .hc-world-map__ipucu strong { overflow-wrap: anywhere; }
 .hc-world-map__empty { display: flex; align-items: center; gap: .75rem; padding: 1rem 0; font-size: .8125rem; color: var(--hc-text-secondary); }
 .hc-world-map__empty svg { flex: none; }

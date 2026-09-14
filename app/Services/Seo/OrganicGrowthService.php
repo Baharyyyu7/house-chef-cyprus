@@ -41,6 +41,7 @@ final class OrganicGrowthService
                 $result = [
                     'status' => 'success',
                     'limit' => $limit,
+                    ...$this->reconcileIssueWork($limit),
                     'opportunities_created' => $this->createOpportunities($limit),
                     ...$this->deriveCandidates($limit),
                     'generated_at' => now()->toIso8601String(),
@@ -207,6 +208,48 @@ final class OrganicGrowthService
         $normalized = $origin.UriResolver::removeDotSegments($path).(isset($parts['query']) ? '?'.$parts['query'] : '');
 
         return ['url' => $normalized, 'host' => $host, 'origin' => $origin];
+    }
+
+    private function reconcileIssueWork(int $limit): array
+    {
+        $resolved = 0;
+        $reopened = 0;
+        $priority = "CASE seo_issues.severity WHEN 'critical' THEN 100 WHEN 'error' THEN 90 WHEN 'warning' THEN 75 ELSE 50 END";
+        $work = ContentOpportunity::query()
+            ->join('seo_issues', 'seo_issues.fingerprint', '=', DB::raw('SUBSTR(content_opportunities.normalized_key, 14)'))
+            ->where('content_opportunities.normalized_key', 'like', 'growth-issue-%')
+            ->where('content_opportunities.kind', 'seo_issue_review')
+            ->whereNull('content_opportunities.reviewed_at')
+            ->whereIn('content_opportunities.status', ['open', 'resolved'])
+            ->where(function ($query) use ($priority): void {
+                $query->where(fn ($query) => $query->where('content_opportunities.status', 'open')->whereNotNull('seo_issues.resolved_at'))
+                    ->orWhere(fn ($query) => $query->where('content_opportunities.status', 'resolved')->whereNull('seo_issues.resolved_at'))
+                    ->orWhereRaw('content_opportunities.priority <> '.$priority);
+            })
+            ->orderBy('content_opportunities.id')->limit($limit)
+            ->select('content_opportunities.*', 'seo_issues.resolved_at as issue_resolved_at', 'seo_issues.reopened_at as issue_reopened_at', 'seo_issues.severity as issue_severity')
+            ->lockForUpdate()->get();
+
+        foreach ($work as $opportunity) {
+            $status = $opportunity->issue_resolved_at === null ? 'open' : 'resolved';
+            $resolved += (int) ($status === 'resolved' && $opportunity->status !== $status);
+            $reopened += (int) ($status === 'open' && $opportunity->status !== $status);
+            $opportunity->update([
+                'status' => $status,
+                'priority' => match ($opportunity->issue_severity) {
+                    'critical' => 100, 'error' => 90, 'warning' => 75, default => 50,
+                },
+                'risk_level' => in_array($opportunity->issue_severity, ['critical', 'error'], true) ? 'high' : 'low',
+                'evidence' => [...($opportunity->evidence ?? []),
+                    'severity' => $opportunity->issue_severity,
+                    'issue_resolved_at' => $opportunity->issue_resolved_at,
+                    'issue_reopened_at' => $opportunity->issue_reopened_at,
+                    'reconciled_at' => now()->toIso8601String(),
+                ],
+            ]);
+        }
+
+        return ['opportunities_resolved' => $resolved, 'opportunities_reopened' => $reopened];
     }
 
     private function createOpportunities(int $limit): int

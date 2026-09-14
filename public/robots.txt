@@ -21,6 +21,18 @@
 User-agent: Mediapartners-Google
 Allow: /
 
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
 User-agent: *
 Allow: /
 
@@ -32,3 +44,9 @@ Disallow: /pisir/
 Disallow: /yonetim/
 
 Sitemap: https://housechefcyprus.com/sitemap.xml
+
+# IndexNow Disclosure
+# https://www.indexnow.org
+Host: housechefcyprus.com
+Key: c032a1e8e8214371b658ef9c7e0b57e1
+KeyLocation: https://housechefcyprus.com/c032a1e8e8214371b658ef9c7e0b57e1.txt

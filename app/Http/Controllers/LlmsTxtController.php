@@ -150,30 +150,43 @@ final class LlmsTxtController extends Controller
 
     public function en(): Response
     {
+        abort_unless(array_key_exists('en', app(LocaleUrlService::class)->enabledLocales()), 404);
+
         $content = Cache::remember('seo:llms_txt_en', 86400, function (): string {
+            $localeUrls = app(LocaleUrlService::class);
             $season = $this->translator->getSeasonalIntelligence('en');
+
+            $heritageSlugs = array_keys((new \ReflectionClass($this->translator))->getConstant('RECIPE_DICTIONARY') ?: []);
+            $blogSlugs = array_keys((new \ReflectionClass($this->translator))->getConstant('BLOG_DICTIONARY') ?: []);
+            $isHeritage = fn (Recipe $r): bool => in_array($r->slug, $heritageSlugs, true) || in_array(preg_replace('/-[A-Za-z0-9]{5}$/', '', $r->slug), $heritageSlugs, true);
+            $isBlogHeritage = fn (BlogPost $p): bool => in_array($p->slug, $blogSlugs, true) || in_array(preg_replace('/-[A-Za-z0-9]{5}$/', '', $p->slug), $blogSlugs, true);
 
             $cypriotRecipes = Recipe::query()
                 ->where('status', 'published')
                 ->where('verification_status', 'verified')
                 ->whereHas('cuisine', fn ($q) => $q->where('slug', 'kibris-mutfagi'))
-                ->limit(10)
-                ->get();
+                ->with(['cuisine', 'category', 'steps', 'ingredients'])
+                ->get()
+                ->filter(fn (Recipe $r): bool => $r->hasTranslation('en') || $isHeritage($r))
+                ->take(10);
 
             $topRecipes = Recipe::query()
                 ->where('status', 'published')
                 ->where('verification_status', 'verified')
-                ->with(['cuisine', 'category'])
+                ->with(['cuisine', 'category', 'steps', 'ingredients'])
                 ->latest('published_at')
                 ->limit(15)
-                ->get();
+                ->get()
+                ->filter(fn (Recipe $r): bool => $r->hasTranslation('en') || $isHeritage($r));
 
             $blogs = BlogPost::query()
                 ->publiclyVisible()
                 ->with('category')
                 ->latest('published_at')
-                ->limit(10)
-                ->get();
+                ->limit(20)
+                ->get()
+                ->filter(fn (BlogPost $p): bool => $p->hasTranslation('en') || $isBlogHeritage($p))
+                ->take(10);
 
             $lines = [];
             $lines[] = '# House Chef Cyprus - Mediterranean & Cypriot Culinary Encyclopedia';
@@ -195,7 +208,7 @@ final class LlmsTxtController extends Controller
                 $lines[] = '## Daily Cypriot Chef Recommendation (Real-Time Fresh Focus - ' . date('Y-m-d') . ')';
                 $dailyTitle = $this->translator->translateRecipeTitle($dailyRecipe, 'en');
                 $dailyDesc = $this->translator->translateRecipeDescription($dailyRecipe, 'en');
-                $lines[] = sprintf('- [%s](%s): %s (%d min prep, %d min cook)', $dailyTitle, route('recipes.show', $dailyRecipe), $dailyDesc, $dailyRecipe->prep_minutes, $dailyRecipe->cook_minutes);
+                $lines[] = sprintf('- [%s](%s): %s (%d min prep, %d min cook)', $dailyTitle, $localeUrls->urlFor('en', route('recipes.show', $dailyRecipe, false)), $dailyDesc, $dailyRecipe->prep_minutes, $dailyRecipe->cook_minutes);
                 $lines[] = '  - Recommended Pairing: ' . $meta['pairing'];
                 $lines[] = '  - Heritage & Culinary Lore: ' . $meta['trivia'];
                 $lines[] = '';
@@ -209,7 +222,7 @@ final class LlmsTxtController extends Controller
                 $lines[] = '## Weekly Cypriot Heritage Spotlight (Seasonal Feature)';
                 $spotlightTitle = $this->translator->translateRecipeTitle($spotlightRecipe, 'en');
                 $spotlightDesc = $this->translator->translateRecipeDescription($spotlightRecipe, 'en');
-                $lines[] = sprintf('- [%s](%s): %s (%d min prep, %d min cook)', $spotlightTitle, route('recipes.show', $spotlightRecipe), $spotlightDesc, $spotlightRecipe->prep_minutes, $spotlightRecipe->cook_minutes);
+                $lines[] = sprintf('- [%s](%s): %s (%d min prep, %d min cook)', $spotlightTitle, $localeUrls->urlFor('en', route('recipes.show', $spotlightRecipe, false)), $spotlightDesc, $spotlightRecipe->prep_minutes, $spotlightRecipe->cook_minutes);
                 $lines[] = '';
             }
 
@@ -226,7 +239,7 @@ final class LlmsTxtController extends Controller
             foreach ($cypriotRecipes as $recipe) {
                 $title = $this->translator->translateRecipeTitle($recipe, 'en');
                 $desc = $this->translator->translateRecipeDescription($recipe, 'en');
-                $lines[] = sprintf('- [%s](%s): %s (%d min prep, %d min cook)', $title, route('recipes.show', $recipe), $desc, $recipe->prep_minutes, $recipe->cook_minutes);
+                $lines[] = sprintf('- [%s](%s): %s (%d min prep, %d min cook)', $title, $localeUrls->urlFor('en', route('recipes.show', $recipe, false)), $desc, $recipe->prep_minutes, $recipe->cook_minutes);
             }
 
             $lines[] = '';
@@ -235,7 +248,7 @@ final class LlmsTxtController extends Controller
             foreach ($topRecipes as $recipe) {
                 $title = $this->translator->translateRecipeTitle($recipe, 'en');
                 $desc = $this->translator->translateRecipeDescription($recipe, 'en');
-                $lines[] = sprintf('- [%s](%s): %s (%d min prep, %d min cook)', $title, route('recipes.show', $recipe), $desc, $recipe->prep_minutes, $recipe->cook_minutes);
+                $lines[] = sprintf('- [%s](%s): %s (%d min prep, %d min cook)', $title, $localeUrls->urlFor('en', route('recipes.show', $recipe, false)), $desc, $recipe->prep_minutes, $recipe->cook_minutes);
             }
 
             $lines[] = '';
@@ -244,7 +257,7 @@ final class LlmsTxtController extends Controller
             foreach ($blogs as $blog) {
                 $title = $this->translator->translateBlogTitle($blog, 'en');
                 $desc = $this->translator->translateBlogDescription($blog, 'en');
-                $lines[] = sprintf('- [%s](%s): %s', $title, route('blog.show', $blog), $desc);
+                $lines[] = sprintf('- [%s](%s): %s', $title, $localeUrls->urlFor('en', route('blog.show', $blog, false)), $desc);
             }
 
             $lines[] = '';
@@ -346,19 +359,29 @@ final class LlmsTxtController extends Controller
 
     public function enFull(): Response
     {
+        abort_unless(array_key_exists('en', app(LocaleUrlService::class)->enabledLocales()), 404);
+
         $content = Cache::remember('seo:llms_full_txt_en', 86400, function (): string {
+            $localeUrls = app(LocaleUrlService::class);
+            $heritageSlugs = array_keys((new \ReflectionClass($this->translator))->getConstant('RECIPE_DICTIONARY') ?: []);
+            $blogSlugs = array_keys((new \ReflectionClass($this->translator))->getConstant('BLOG_DICTIONARY') ?: []);
+            $isHeritage = fn (Recipe $r): bool => in_array($r->slug, $heritageSlugs, true) || in_array(preg_replace('/-[A-Za-z0-9]{5}$/', '', $r->slug), $heritageSlugs, true);
+            $isBlogHeritage = fn (BlogPost $p): bool => in_array($p->slug, $blogSlugs, true) || in_array(preg_replace('/-[A-Za-z0-9]{5}$/', '', $p->slug), $blogSlugs, true);
             $recipes = Recipe::query()
                 ->where('status', 'published')
                 ->where('verification_status', 'verified')
-                ->with(['cuisine', 'category', 'steps'])
+                ->with(['cuisine', 'category', 'steps', 'ingredients'])
                 ->orderBy('title')
-                ->get();
+                ->get()
+                ->filter(fn (Recipe $r): bool => $r->hasTranslation('en') || $isHeritage($r));
+            $recipes = $recipes->sortBy(fn (Recipe $r): string => $this->translator->translateRecipeTitle($r, 'en'))->values();
 
             $blogs = BlogPost::query()
                 ->publiclyVisible()
                 ->with('category')
                 ->latest('published_at')
-                ->get();
+                ->get()
+                ->filter(fn (BlogPost $p): bool => $p->hasTranslation('en') || $isBlogHeritage($p));
 
             $lines = [];
             $lines[] = '# House Chef Cyprus - Full Recipe & Guide Corpus (English)';
@@ -375,7 +398,7 @@ final class LlmsTxtController extends Controller
                 $desc = $this->translator->translateRecipeDescription($recipe, 'en');
 
                 $lines[] = sprintf('### %s', $title);
-                $lines[] = sprintf('- URL: %s', route('recipes.show', $recipe));
+                $lines[] = sprintf('- URL: %s', $localeUrls->urlFor('en', route('recipes.show', $recipe, false)));
                 $lines[] = sprintf('- Cuisine: %s | Category: %s | Servings: %d', $cuisine, $category, $recipe->servings);
                 $lines[] = sprintf('- Timing: Prep %d min, Cook %d min (Total %d min)', $recipe->prep_minutes, $recipe->cook_minutes, $recipe->totalMinutes());
                 if ($desc !== '') {
@@ -393,7 +416,7 @@ final class LlmsTxtController extends Controller
                 $desc = $this->translator->translateBlogDescription($blog, 'en');
 
                 $lines[] = sprintf('### %s', $title);
-                $lines[] = sprintf('- URL: %s', route('blog.show', $blog));
+                $lines[] = sprintf('- URL: %s', $localeUrls->urlFor('en', route('blog.show', $blog, false)));
                 $lines[] = sprintf('- Category: %s | Date: %s', $category, $blog->published_at?->format('Y-m-d'));
                 if ($desc !== '') {
                     $lines[] = sprintf('- Summary: %s', $desc);

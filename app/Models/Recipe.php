@@ -265,6 +265,12 @@ class Recipe extends Model
         return $this->belongsToMany(DietaryTag::class, 'recipe_dietary_tag');
     }
 
+    /** @return BelongsToMany<BlogPost, $this> */
+    public function blogPosts(): BelongsToMany
+    {
+        return $this->belongsToMany(BlogPost::class);
+    }
+
     /** @return HasMany<RecipeNutritionSnapshot, $this> */
     public function nutritionSnapshots(): HasMany
     {

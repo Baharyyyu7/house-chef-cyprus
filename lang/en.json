@@ -725,5 +725,8 @@
     "home.ingredient_placeholder_example": "What ingredients do you have? (e.g. Halloumi, tomato, lentils...)",
     "home.search_recipes_placeholder": "Search recipes, cuisines or flavors... (e.g. Sheftalia, hummus, artichoke)",
     "home.quick_soups": "Soups",
-    "home.quick_desserts": "Desserts"
+    "home.quick_desserts": "Desserts",
+    "recipe.show.guides_kicker": "Culinary & Culture Guides",
+    "recipe.show.guides_title": "Related Culinary Guides & Expert Notes",
+    "recipe.show.guides_view_all": "Explore All Guides"
 }

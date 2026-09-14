@@ -666,5 +666,8 @@
     "home.ingredient_placeholder_example": "Какие ингредиенты у вас есть? (напр. Халлуми, томаты, чечевица...)",
     "home.search_recipes_placeholder": "Поиск рецептов, кухонь или вкусов... (напр. Шефталия, хумус, артишок)",
     "home.quick_soups": "Супы",
-    "home.quick_desserts": "Десерты"
+    "home.quick_desserts": "Десерты",
+    "recipe.show.guides_kicker": "Кулинарные и культурные гиды",
+    "recipe.show.guides_title": "Статьи по теме и советы шеф-поваров",
+    "recipe.show.guides_view_all": "Все статьи и гиды"
 }

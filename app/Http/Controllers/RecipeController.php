@@ -18,6 +18,7 @@ use App\Services\Measurements\RecipeIngredientDisplayService;
 use App\Services\Media\HubCoverPicker;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\NutritionService;
+use App\Services\Seo\InternalLinkService;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoMetadataService;
 use App\Services\Seo\SeoSchemaService;
@@ -78,7 +79,7 @@ final class RecipeController extends Controller
         return view('recipes.index', $viewData);
     }
 
-    public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, PublicMediaEligibilityService $mediaEligibility, SeoMetadataService $seo, SeoSchemaService $schemaService)
+    public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, PublicMediaEligibilityService $mediaEligibility, SeoMetadataService $seo, SeoSchemaService $schemaService, InternalLinkService $internalLinks)
     {
         abort_unless(($recipe->status === 'published' && $recipe->verification_status === 'verified') || $request->user()?->isAdmin(), 404);
         // Çevirisi olmayan tarifin o dildeki adresi yoktur. Sessizce Türkçe
@@ -152,6 +153,7 @@ final class RecipeController extends Controller
             'seoImageHeight' => $sosyalGorsel['height'] ?? null,
             'seoImageAlt' => $heroMedia?->alt_text,
             'cuisineUrl' => $cuisineUrl,
+            'relatedGuides' => $internalLinks->recipeGuidesFor($recipe, app()->getLocale()),
         ]);
     }
 

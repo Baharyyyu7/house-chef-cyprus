@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\BlogPost;
 use App\Models\Recipe;
 use App\Services\Seo\BacklinkMarketService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -110,5 +111,49 @@ final class BacklinkProspectsKnowTheirMarketTest extends TestCase
         $this->assertSame(['total' => 2, 'ready' => 1], $dagilim['de']);
         // Türkçe kaynak dildir; çeviri satırı istemez, her zaman hazırdır.
         $this->assertSame(['total' => 1, 'ready' => 1], $dagilim['tr']);
+    }
+
+    public function test_drafts_and_unverified_recipes_are_not_ready_assets(): void
+    {
+        $draft = $this->tarif('taslak', ['de']);
+        $draft->update(['status' => 'draft']);
+        $unverified = $this->tarif('incelemede', ['de']);
+        $unverified->update(['verification_status' => 'pending']);
+        $service = app(BacklinkMarketService::class);
+
+        $this->assertNull($service->varlikAdresi('publisher.de', 'recipe', 'taslak'));
+        $this->assertNull($service->varlikAdresi('publisher.de', 'recipe', 'incelemede'));
+    }
+
+    public function test_future_blog_is_not_ready_even_when_translated(): void
+    {
+        $post = BlogPost::query()->create([
+            'title' => 'Gelecek yazi', 'slug' => 'future-guide', 'excerpt' => 'Ozet', 'body' => 'Govde',
+            'status' => 'published', 'published_at' => now()->addDay(),
+        ]);
+        foreach (['title' => 'Guide', 'excerpt' => 'Summary', 'body' => 'Content'] as $field => $value) {
+            $post->translations()->create(['locale' => 'de', 'field' => $field, 'value' => $value]);
+        }
+
+        $this->assertNull(app(BacklinkMarketService::class)->varlikAdresi('publisher.de', 'blog', 'future-guide'));
+    }
+
+    public function test_partial_match_skips_an_ineligible_exact_match(): void
+    {
+        $this->tarif('hellim', []);
+        $this->tarif('hellim-izgara', ['de']);
+
+        $asset = app(BacklinkMarketService::class)->varlikAdresi('publisher.de', 'recipe', 'hellim');
+
+        $this->assertNotNull($asset);
+        $this->assertSame(url('/de/tarifler/hellim-izgara'), $asset['url']);
+    }
+
+    public function test_disabled_explicit_language_does_not_yield_a_source_language_asset(): void
+    {
+        config()->set('locales.supported.en.enabled', false);
+        $this->tarif('hellim', []);
+
+        $this->assertNull(app(BacklinkMarketService::class)->varlikAdresi('amalia.com.cy', 'recipe', 'hellim', 'en'));
     }
 }

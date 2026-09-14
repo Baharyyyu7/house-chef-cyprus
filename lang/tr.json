@@ -666,5 +666,8 @@
     "home.ingredient_placeholder_example": "Elinde hangi malzeme var? (örn: Hellim, domates, mercimek...)",
     "home.search_recipes_placeholder": "Tarif, mutfak veya lezzet ara... (örn: Şeftali kebabı, humus, enginar)",
     "home.quick_soups": "Çorbalar",
-    "home.quick_desserts": "Tatlılar"
+    "home.quick_desserts": "Tatlılar",
+    "recipe.show.guides_kicker": "Mutfak ve Kültür Rehberleri",
+    "recipe.show.guides_title": "Bu Tarif Hakkında İlgili Yazılar ve İpuçları",
+    "recipe.show.guides_view_all": "Tüm Rehberleri Keşfet"
 }

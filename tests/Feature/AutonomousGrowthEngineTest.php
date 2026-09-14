@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\ContentOpportunity;
+use App\Models\BlogPost;
+use App\Models\Recipe;
+use App\Models\RecipeMediaCandidate;
+use App\Models\User;
 use App\Services\Seo\AutonomousGrowthEngine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -73,6 +77,37 @@ final class AutonomousGrowthEngineTest extends TestCase
         $responseDeFull->assertOk();
         $responseDeFull->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
         $responseDeFull->assertSee('Full Knowledge Corpus');
+    }
+
+    public function test_background_cycle_cannot_approve_content_or_media_and_preserves_locale(): void
+    {
+        User::factory()->create(['role' => 'admin']);
+        $recipe = Recipe::create(['title' => 'Review required', 'slug' => 'review-required', 'status' => 'draft']);
+        $post = BlogPost::create([
+            'title' => 'A complete guide awaiting an editor', 'slug' => 'awaiting-editor',
+            'excerpt' => 'This content has not received editorial approval.',
+            'body' => str_repeat('A detailed original cooking observation. ', 60),
+            'meta_title' => 'A complete guide awaiting editorial review',
+            'meta_description' => str_repeat('Editorial review is still required. ', 4),
+            'status' => 'draft',
+        ]);
+        $candidate = RecipeMediaCandidate::create([
+            'recipe_id' => $recipe->id, 'provider' => 'pexels', 'external_photo_id' => 'review-required',
+            'source_url' => 'https://images.example.org/dish.jpg', 'status' => 'pending_review',
+            'width' => 1600, 'height' => 1000,
+        ]);
+        app()->setLocale('en');
+        config(['seo.indexnow.enabled' => false]);
+        $report = app(AutonomousGrowthEngine::class)->runCycle();
+
+        $this->assertSame('draft', $post->fresh()->status);
+        $this->assertNull($post->fresh()->human_approved_at);
+        $this->assertSame('pending_review', $candidate->fresh()->status);
+        $this->assertSame(0, $recipe->media()->count());
+        $this->assertSame([], $report['autonomous_publishing']['published_blogs']);
+        $this->assertSame(0, $report['autonomous_media']['approved']);
+        $this->assertSame('en', app()->getLocale());
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'api.indexnow.org'));
     }
 
     public function test_seo_autonomous_growth_command_executes_successfully(): void

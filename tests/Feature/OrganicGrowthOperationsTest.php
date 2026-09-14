@@ -85,6 +85,42 @@ final class OrganicGrowthOperationsTest extends TestCase
         $this->assertSame($recipe->public_id, SeoBacklinkCandidate::first()->evidence['recipe_public_id']);
     }
 
+    public function test_issue_work_tracks_resolution_and_recurrence_without_overwriting_human_decisions(): void
+    {
+        $issue = $this->issue(21);
+        $service = app(OrganicGrowthService::class);
+        $service->refresh(1);
+        $work = ContentOpportunity::where('normalized_key', 'growth-issue-'.$issue->fingerprint)->firstOrFail();
+
+        $issue->update(['resolved_at' => now()]);
+        $result = $service->refresh(1);
+        $this->assertSame(1, $result['opportunities_resolved']);
+        $this->assertSame('resolved', $work->fresh()->status);
+
+        $issue->update(['resolved_at' => null, 'reopened_at' => now(), 'severity' => 'critical']);
+        $result = $service->refresh(1);
+        $this->assertSame(1, $result['opportunities_reopened']);
+        $this->assertSame('open', $work->fresh()->status);
+        $this->assertSame(100, $work->fresh()->priority);
+        $this->assertSame(1, ContentOpportunity::where('normalized_key', $work->normalized_key)->count());
+
+        $work->update(['status' => 'declined', 'reviewed_at' => now()]);
+        $issue->update(['resolved_at' => now()]);
+        $service->refresh(1);
+        $this->assertSame('declined', $work->fresh()->status);
+        Http::assertNothingSent();
+    }
+
+    public function test_deleted_issue_is_not_assumed_fixed(): void
+    {
+        $issue = $this->issue(22);
+        $service = app(OrganicGrowthService::class);
+        $service->refresh(1);
+        $issue->delete();
+        $service->refresh(1);
+        $this->assertSame('open', ContentOpportunity::first()->status);
+    }
+
     public function test_rotating_sources_do_not_get_stuck_on_unsafe_records(): void
     {
         $this->recipe(1)->update(['source_url' => 'http://127.0.0.1/private']);

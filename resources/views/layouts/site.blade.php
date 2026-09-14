@@ -1,4 +1,4 @@
-@props(['title' => 'House Chef Cyprus', 'metaDescription' => "Kıbrıs'tan ilham alan tarifler, malzeme dolabı ve dengeli beslenme rehberi.", 'structuredData' => null, 'canonicalUrl' => null, 'socialImage' => null, 'socialImageWidth' => null, 'socialImageHeight' => null, 'socialImageAlt' => null, 'robots' => null, 'livewire' => false])
+@props(['title' => 'House Chef Cyprus', 'metaDescription' => "Kıbrıs'tan ilham alan tarifler, malzeme dolabı ve dengeli beslenme rehberi.", 'structuredData' => null, 'canonicalUrl' => null, 'socialImage' => null, 'socialImageWidth' => null, 'socialImageHeight' => null, 'socialImageAlt' => null, 'robots' => null, 'livewire' => false, 'seoContent' => null])
 @php($activeLanguage = config('locales.supported.'.app()->getLocale(), config('locales.supported.'.config('locales.default', 'tr'), [])))
 <!DOCTYPE html>
 <html lang="{{ $activeLanguage['html_locale'] ?? 'tr' }}" dir="{{ $activeLanguage['direction'] ?? 'ltr' }}" class="scroll-smooth">
@@ -19,7 +19,7 @@
          dile hreflang vermek, Türkçe içeriği yabancı dil sayfası gibi
          göstermek olurdu. Küme kendini de içerir: kendine gönderme yapmayan
          hreflang'i Google tamamen yok sayar. --}}
-    @foreach (app(\App\Services\Seo\LocaleUrlService::class)->alternates(request()) as $alternatif)
+    @foreach (app(\App\Services\Seo\LocaleUrlService::class)->alternates(request(), $seoContent) as $alternatif)
         <link rel="alternate" hreflang="{{ $alternatif['hreflang'] }}" href="{{ $alternatif['href'] }}">
     @endforeach
     @php($isPrivateSurface = request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))

@@ -666,5 +666,8 @@
     "home.ingredient_placeholder_example": "Welche Zutaten haben Sie? (z. B. Halloumi, Tomaten, Linsen...)",
     "home.search_recipes_placeholder": "Rezepte, Küchen oder Aromen suchen... (z. B. Seftali, Hummus, Artischocke)",
     "home.quick_soups": "Suppen",
-    "home.quick_desserts": "Desserts"
+    "home.quick_desserts": "Desserts",
+    "recipe.show.guides_kicker": "Kulinarik- & Kulturführer",
+    "recipe.show.guides_title": "Passende Ratgeber & Küchenwissen",
+    "recipe.show.guides_view_all": "Alle Ratgeber entdecken"
 }

@@ -76,6 +76,21 @@ final class BacklinkVerificationTest extends TestCase
         Http::assertSentCount(1);
     }
 
+    public function test_numbered_seed_source_is_blocked_before_dns_or_http_even_with_mismatched_stored_host(): void
+    {
+        $this->mock(PublicSourceResolver::class, fn ($mock) => $mock->shouldNotReceive('resolve'));
+        $candidate = $this->candidate();
+        $candidate->update(['source_url' => 'https://www.foodblog12.com/guide']);
+        Http::fake(['*' => Http::response('<a href="https://housechefcyprus.com/tarifler">Link</a>', 200, ['Content-Type' => 'text/html'])]);
+
+        $result = app(BacklinkVerificationService::class)->run(1);
+
+        $this->assertSame('blocked', $candidate->fresh()->check_status);
+        $this->assertSame(0, $result['present']);
+        $this->assertSame('candidate', $candidate->fresh()->status);
+        Http::assertNothingSent();
+    }
+
     private function candidate(string $path = '/guide'): SeoBacklinkCandidate
     {
         return SeoBacklinkCandidate::create(['source_url' => 'https://publisher.org'.$path, 'source_host' => 'publisher.org', 'target_url' => 'https://housechefcyprus.com/tarifler', 'deduplication_hash' => hash('sha256', $path), 'status' => 'candidate', 'evidence' => ['source' => 'test']]);

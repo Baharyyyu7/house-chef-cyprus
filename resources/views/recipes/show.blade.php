@@ -1,4 +1,4 @@
-<x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$seoImage" :social-image-width="$seoImageWidth" :social-image-height="$seoImageHeight" :social-image-alt="$seoImageAlt" :structured-data="$seoSchema">
+<x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$seoImage" :social-image-width="$seoImageWidth" :social-image-height="$seoImageHeight" :social-image-alt="$seoImageAlt" :structured-data="$seoSchema" :seo-content="$recipe">
     @php
         $heroMedia = app(\App\Services\Media\PublicMediaEligibilityService::class)->firstEligible($recipe->media);
         $hasApprovedMedia = $heroMedia !== null;
@@ -164,6 +164,32 @@
 
             @if($relatedRecipes->isNotEmpty())
                 <section class="mt-12"><div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">{{ __('recipe.show.related_kicker') }}</p><h2 class="hc-display-lg mt-2">{{ __('recipe.show.related_title') }}</h2></div><a class="hc-v3-btn hc-v3-btn--ghost" href="{{ $cuisineUrl ?: route('recipes.index') }}">{{ __('recipe.show.related_view_all') }}</a></div><div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">@foreach($relatedRecipes as $relatedRecipe)<x-recipe-card-v3 :recipe="$relatedRecipe" :show-favorite="false" heading="h3" />@endforeach</div></section>
+            @endif
+
+            @if(!empty($relatedGuides))
+                <section class="mt-12">
+                    <div class="flex items-end justify-between gap-4">
+                        <div>
+                            <p class="hc-kicker">{{ __('recipe.show.guides_kicker') }}</p>
+                            <h2 class="hc-display-lg mt-2">{{ __('recipe.show.guides_title') }}</h2>
+                        </div>
+                        <a class="hc-v3-btn hc-v3-btn--ghost" href="{{ route('blog.index') }}">{{ __('recipe.show.guides_view_all') }}</a>
+                    </div>
+                    <div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                        @foreach($relatedGuides as $guide)
+                            <article class="hc-v3-card hc-v3-card--interactive flex flex-col p-5 rounded-2xl border relative" style="border-color: var(--hc-border-default)">
+                                <span class="hc-kicker text-xs mb-2">{{ $guide['kicker'] }}</span>
+                                <h3 class="font-bold text-base leading-snug line-clamp-2 mb-3" style="color: var(--hc-text-primary)">
+                                    <a href="{{ $guide['url'] }}" class="before:absolute before:inset-0 hover:text-orange-600 transition-colors">{{ $guide['label'] }}</a>
+                                </h3>
+                                @if(!empty($guide['excerpt']))
+                                    <p class="text-xs line-clamp-2 mb-4" style="color: var(--hc-text-secondary)">{{ $guide['excerpt'] }}</p>
+                                @endif
+                                <span class="mt-auto text-xs font-bold text-orange-600 flex items-center gap-1">{{ __('blog.show.read_more') }} &rarr;</span>
+                            </article>
+                        @endforeach
+                    </div>
+                </section>
             @endif
             {{-- Multiplex birimi içerik önerisi ızgarası; yazının sonunda,
                  benzer tariflerin ardında duruyor. --}}

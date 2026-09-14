@@ -666,5 +666,8 @@
     "home.ingredient_placeholder_example": "چه موادی در دست دارید؟ (مثلاً هلومی، گوجه، عدس...)",
     "home.search_recipes_placeholder": "جستجوی دستور، سبک غذا یا طعم... (مثلاً کباب شفتالیا، حمص، کنگر)",
     "home.quick_soups": "سوپ‌ها",
-    "home.quick_desserts": "دسرها"
+    "home.quick_desserts": "دسرها",
+    "recipe.show.guides_kicker": "راهنماهای آشپزی و فرهنگ غذایی",
+    "recipe.show.guides_title": "مقالات مرتبط و نکات آشپزی",
+    "recipe.show.guides_view_all": "مشاهده همه راهنماها"
 }

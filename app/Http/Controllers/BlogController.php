@@ -9,6 +9,7 @@ use App\Models\BlogPost;
 use App\Models\BlogTag;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\BlogIndexability;
+use App\Services\Seo\InternalLinkService;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoMetadataService;
 use App\Services\Seo\SeoSchemaService;
@@ -40,7 +41,7 @@ final class BlogController extends Controller
         ]);
     }
 
-    public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService, PublicMediaEligibilityService $mediaEligibility, BlogIndexability $indekslenebilirlik): View
+    public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService, PublicMediaEligibilityService $mediaEligibility, BlogIndexability $indekslenebilirlik, InternalLinkService $internalLinks): View
     {
         abort_unless(BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists(), 404);
         // Aynı kural detayda da geçerli: çevirisi olmayan yazının o dildeki
@@ -82,7 +83,11 @@ final class BlogController extends Controller
         // kapılarından geçene kadar aranabilir olmuyor.
         $metadata['robots'] = $indekslenebilirlik->robots($post);
 
-        return view('blog.show', compact('post', 'schema', 'metadata', 'relatedPosts', 'heroMedia'));
+        $suggestedRecipes = $post->recipes->isNotEmpty()
+            ? $post->recipes
+            : $internalLinks->recommendedRecipesFor($post, app()->getLocale());
+
+        return view('blog.show', compact('post', 'schema', 'metadata', 'relatedPosts', 'heroMedia', 'suggestedRecipes'));
     }
 
     public function category(BlogCategory $category): View

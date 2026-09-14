@@ -1,4 +1,4 @@
-<x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : route('blog.cover', $post)" :social-image-width="$heroMedia?->publicUrl() ? $heroMedia->width : 1200" :social-image-height="$heroMedia?->publicUrl() ? $heroMedia->height : 630" :social-image-alt="$heroMedia?->alt_text ?: $post->translated('title')" :structured-data="$schema">
+<x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : route('blog.cover', $post)" :social-image-width="$heroMedia?->publicUrl() ? $heroMedia->width : 1200" :social-image-height="$heroMedia?->publicUrl() ? $heroMedia->height : 630" :social-image-alt="$heroMedia?->alt_text ?: $post->translated('title')" :structured-data="$schema" :seo-content="$post">
     <section class="hc-container py-10 sm:py-16">
         <article class="mx-auto max-w-3xl">
             <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider" style="color: var(--hc-text-muted)" aria-label="Breadcrumb">
@@ -83,11 +83,12 @@
                 </aside>
             @endif
 
-            @if($post->recipes->isNotEmpty())
+            @php($recipesToDisplay = $post->recipes->isNotEmpty() ? $post->recipes : ($suggestedRecipes ?? collect()))
+            @if($recipesToDisplay->isNotEmpty())
                 <section class="mt-12 pt-8 border-t" style="border-color: var(--hc-border-subtle)">
                     <h2 class="hc-heading-3 mb-6">{{ __('blog.show.related_recipes') }}</h2>
                     <div class="grid gap-5 sm:grid-cols-2">
-                        @foreach($post->recipes as $recipe)
+                        @foreach($recipesToDisplay as $recipe)
                             <x-recipe-card-v3 :recipe="$recipe" :show-favorite="false" heading="h3" />
                         @endforeach
                     </div>

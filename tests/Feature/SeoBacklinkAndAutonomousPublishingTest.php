@@ -52,7 +52,8 @@ final class SeoBacklinkAndAutonomousPublishingTest extends TestCase
         $response->assertOk();
         $response->assertSee('Test Cyprus Food Heritage Prospect');
         $response->assertSee('test-culinary-site.com');
-        $response->assertSee('Otorite Skoru: 88/100');
+        $response->assertSee('İş önceliği: 90/100');
+        $response->assertDontSee('Otorite Skoru');
 
         $updateResponse = $this->actingAs($admin)->post("/yonetim/seo/firsatlar/{$opportunity->id}/durum", [
             'status' => 'contacted',

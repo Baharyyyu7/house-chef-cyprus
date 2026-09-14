@@ -666,5 +666,8 @@
     "home.ingredient_placeholder_example": "Quais ingredientes você tem? (ex: Queijo coalho/Halloumi, tomate, lentilha...)",
     "home.search_recipes_placeholder": "Buscar receitas, cozinhas ou sabores... (ex: Seftali, homus, alcachofra)",
     "home.quick_soups": "Sopas",
-    "home.quick_desserts": "Sobremesas"
+    "home.quick_desserts": "Sobremesas",
+    "recipe.show.guides_kicker": "Guias culinários e culturais",
+    "recipe.show.guides_title": "Artigos relacionados e dicas gastronômicas",
+    "recipe.show.guides_view_all": "Ver todos os guias"
 }
