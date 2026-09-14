@@ -361,7 +361,7 @@
         </section>
 
         <section id="audience" class="hc-dashboard-section" aria-label="Kitle">
-            <x-admin.world-activity-map :map="$audienceMap" :period-label="$periodLabel" />
+            <x-admin.world-activity-map :map="$audienceMap" :period-label="$audienceMap['periodLabel'] ?? $periodLabel" :periods="$audienceMapPeriods ?? []" :dashboard-period="$period" />
         </section>
     </div>
 </x-layouts.site>

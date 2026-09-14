@@ -60,7 +60,7 @@
 .hc-media-tabs a { display: inline-flex; align-items: center; gap: .4rem; padding-block: .75rem; font-size: .8125rem; color: var(--hc-text-secondary); border-bottom: 2px solid transparent; }
 .hc-media-tabs a[aria-current="page"] { color: var(--hc-text-primary); border-color: var(--hc-text-accent); font-weight: 700; }
 .hc-media-tabs a span { font-size: .6875rem; background: var(--hc-background-muted); padding: .1rem .4rem; border-radius: .25rem; }
-.admin-shell .hc-world-map__svg { min-height: 0; aspect-ratio: 960 / 344; }
+.admin-shell .hc-world-map__svg { min-height: 0; }
 .admin-shell .hc-world-map__ipucu { transform: none; width: 11rem; max-width: calc(100% - 16px); white-space: normal; border-radius: .375rem; background: var(--hc-surface-raised); border-color: var(--hc-border-default); box-shadow: 0 4px 12px #00000014; }
 .admin-shell .hc-world-map__ipucu strong { overflow-wrap: anywhere; }
 .hc-world-map__empty { display: flex; align-items: center; gap: .75rem; padding: 1rem 0; font-size: .8125rem; color: var(--hc-text-secondary); }
@@ -213,4 +213,58 @@
 }
 @media (prefers-reduced-motion: reduce) {
     .hc-admin-dashboard *, .hc-admin-dashboard *::before, .hc-admin-dashboard *::after { animation: none !important; transition: none !important; }
+}
+
+/* Dünya haritası: yakınlaştırma, kaydırma, dönem seçimi (14 Eylül 2026).
+   En-boy oranı SVG'nin kendi style özniteliğinde; üretilen görüş kutusundan
+   geliyor. Burada sabit bir oran yazmak, harita yeniden üretildiğinde
+   imleç ile harita koordinatını birbirinden kaydırırdı. */
+.hc-world-map__canvas { touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+.hc-world-map__canvas.is-surukleniyor { cursor: grabbing; }
+.hc-world-map__svg { overflow: hidden; }
+.hc-world-map__ulke-aktif { cursor: zoom-in; }
+.hc-world-map__point { vector-effect: non-scaling-stroke; }
+.hc-world-map__kontroller { position: absolute; top: .75rem; right: .75rem; z-index: 4; display: flex; flex-direction: column; gap: .3rem; }
+.hc-world-map__kontroller button {
+    display: grid; place-items: center; width: 2.25rem; height: 2.25rem;
+    border: 1px solid var(--hc-border-default); border-radius: .5rem;
+    background: color-mix(in srgb, var(--hc-surface-raised) 86%, transparent);
+    -webkit-backdrop-filter: blur(12px) saturate(160%); backdrop-filter: blur(12px) saturate(160%);
+    color: var(--hc-text-primary); font-size: 1.15rem; font-weight: 700; line-height: 1;
+    box-shadow: 0 1px 2px rgb(0 0 0 / .08);
+    transition: transform 100ms ease-out, background-color .15s ease, opacity .15s ease;
+}
+.hc-world-map__kontroller button:hover:not(:disabled) { background: var(--hc-surface-interactive); }
+.hc-world-map__kontroller button:active:not(:disabled) { transform: scale(.94); }
+.hc-world-map__kontroller button:disabled { opacity: .38; cursor: default; }
+.hc-world-map__kontroller button:focus-visible { outline: 2px solid var(--hc-brand-primary); outline-offset: 2px; }
+.hc-world-map__donemler { flex-wrap: wrap; }
+.admin-shell .hc-world-map__countries li:has(> .hc-world-map__ulke-dugme) { display: block; padding: 0; }
+.hc-world-map__ulke-dugme {
+    display: grid; grid-template-columns: .6rem minmax(0, 1fr) auto; align-items: center; gap: .5rem;
+    width: 100%; min-width: 0; padding: .65rem .75rem; border-radius: .25rem; text-align: left;
+    color: inherit; background: transparent; cursor: zoom-in; transition: background-color .15s ease;
+}
+.hc-world-map__ulke-dugme:hover { background: var(--hc-surface-interactive); }
+.hc-world-map__ulke-dugme:focus-visible { outline: 2px solid var(--hc-brand-primary); outline-offset: -2px; }
+.hc-world-map__ulke-dugme span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: normal; }
+.hc-world-map__ulke-dugme strong { color: var(--hc-text-primary); }
+.hc-world-map__ipucu-yardim { color: var(--hc-text-muted); }
+@media (hover: none) { .hc-world-map__ipucu-yardim { display: none; } }
+@media (prefers-reduced-transparency: reduce) {
+    .hc-world-map__kontroller button { background: var(--hc-surface-raised); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* Paneldeki dönem şeridi tek satıra sıkıştırılıyor (flex-wrap: nowrap).
+   Harita kartında altı seçenek dar ekranda "Bug ün", "Tüm ü" diye kelime
+   ortasından kırılıyordu; burada satır kırılabilir, kelime kırılamaz. */
+.hc-admin-dashboard .hc-world-map__donemler { flex-wrap: wrap; flex: 0 1 auto; max-width: 100%; }
+.hc-admin-dashboard .hc-world-map__donemler .hc-admin-period { flex: 1 0 auto; white-space: nowrap; }
+
+/* Dar ekranda harita ~200 piksel yüksekliğinde; dikey üç düğme bunun
+   yarısını kapatıyordu. Düğmeler alt köşede yatay ve küçük durur. */
+@media (max-width: 639px) {
+    .hc-world-map__kontroller { top: auto; bottom: .5rem; right: .5rem; flex-direction: row; gap: .25rem; }
+    .hc-world-map__kontroller button { width: 2rem; height: 2rem; font-size: 1rem; }
+    .hc-admin-dashboard .hc-world-map__donemler { width: 100%; }
 }
