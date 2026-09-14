@@ -183,8 +183,10 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('hc-recipe-detail-hero', false)
             ->assertSee('Ev ölçüleri')
             ->assertSee('Kaynak ve güncellik')
-            ->assertSee('Pişirme rehberi')
-            ->assertSee('fetchpriority="high"', false);
+            ->assertSee('Pişirme rehberi');
+
+        // Yüksek öncelik yalnız LCP görseline aittir; logo onu hero'dan çalmaz.
+        $this->assertLessThanOrEqual(1, substr_count((string) $this->get(route('recipes.show', $recipe))->getContent(), 'fetchpriority="high"'));
     }
 
     public function test_recipe_servings_controls_use_a_separate_increment_contract_without_overwriting_the_typed_value(): void

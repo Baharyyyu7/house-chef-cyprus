@@ -39,6 +39,8 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
-        <env name="INDEXNOW_ENABLED" value="false"/>
+        <env name="INDEXNOW_ENABLED" value="false" force="true"/>
+        <env name="GOOGLE_SEARCH_CONSOLE_ENABLED" value="false" force="true"/>
+        <env name="SEARCH_CONSOLE_ENABLED" value="false" force="true"/>
     </php>
 </phpunit>
