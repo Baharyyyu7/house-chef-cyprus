@@ -247,7 +247,7 @@ final class AdminDashboardService
     {
         $days = array_key_exists($days, self::MAP_PERIODS) ? $days : 7;
 
-        return Cache::remember("admin.audience_map.v2.{$days}", now()->addMinutes(3), function () use ($days): array {
+        $harita = Cache::remember("admin.audience_map.v2.{$days}", now()->addMinutes(3), function () use ($days): array {
             $from = match ($days) {
                 0 => null,
                 1 => now()->startOfDay(),
@@ -265,6 +265,24 @@ final class AdminDashboardService
                 'last_recorded_day' => $sonKayit === null ? null : substr((string) $sonKayit, 0, 10),
             ];
         });
+
+        // Koordinatlar önbellekten değil, o anki ülke tablosundan gelir.
+        //
+        // Önbellek sayıları, koordinatları ve yakınlaştırma kutularını birlikte
+        // tutuyordu. 14 Eylül 2026'da harita Equal Earth'ten Miller'a geçince
+        // yayından önce hesaplanmış eski x/y yeni çizimin üstüne basıldı:
+        // Türkiye'nin noktası Karadeniz'de, Çin'inki Moğolistan'da göründü.
+        // Sayılar pahalı, koordinatlar bedava; yalnız pahalı olan saklanır.
+        $harita['countries'] = array_values(array_filter(array_map(
+            static function (array $ulke): ?array {
+                $guncel = WorldMapCountries::ALL[$ulke['country_code']] ?? null;
+
+                return $guncel === null ? null : ['x' => $guncel['x'], 'y' => $guncel['y'], 'box' => $guncel['box']] + $ulke;
+            },
+            $harita['countries'] ?? []
+        )));
+
+        return $harita;
     }
 
     private function audienceMap(?Carbon $from): array

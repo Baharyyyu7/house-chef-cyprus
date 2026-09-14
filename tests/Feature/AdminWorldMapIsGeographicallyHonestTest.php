@@ -157,6 +157,33 @@ final class AdminWorldMapIsGeographicallyHonestTest extends TestCase
             ->assertDontSee('Almanya');
     }
 
+    public function test_onbellekteki_eski_koordinatlar_yeni_haritaya_basilmaz(): void
+    {
+        // Yayından önce önbelleğe yazılmış harita verisi eski projeksiyonun
+        // koordinatlarını taşıyabilir. Canlıda tam bu oldu: Miller çizimi
+        // üstünde Equal Earth noktaları, Türkiye'nin noktası Karadeniz'de.
+        Cache::put('admin.audience_map.v2.7', [
+            'data_status' => 'available',
+            'total_members' => 5,
+            'countries' => [[
+                'country_code' => 'TR', 'label' => 'Türkiye', 'members' => 5, 'share' => 100.0,
+                'x' => 564.2, 'y' => -134.1, 'box' => [541.9, -143.7, 45.8, 19.5],
+            ]],
+            'summary' => 'eski',
+            'source' => 'visitor_country_aggregate',
+            'period' => 7,
+            'periodLabel' => '7 gün',
+            'last_recorded_day' => now()->toDateString(),
+        ], now()->addMinutes(3));
+
+        $tr = app(AdminDashboardService::class)->audienceMapForPeriod(7)['countries'][0];
+
+        $this->assertSame(5, $tr['members'], 'Önbellekteki sayı korunmalı.');
+        $this->assertSame(WorldMapCountries::ALL['TR']['x'], $tr['x']);
+        $this->assertSame(WorldMapCountries::ALL['TR']['y'], $tr['y']);
+        $this->assertSame(WorldMapCountries::ALL['TR']['box'], $tr['box']);
+    }
+
     public function test_toplam_butun_ulkeleri_sayar_yalniz_ilk_sekizi_degil(): void
     {
         foreach (['TR', 'US', 'DE', 'FR', 'GB', 'NL', 'IT', 'ES', 'GR', 'CY'] as $sira => $kod) {
