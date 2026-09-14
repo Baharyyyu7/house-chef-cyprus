@@ -7,6 +7,7 @@ namespace App\Services\Seo;
 use App\Models\BlogPost;
 use App\Models\ContentOpportunity;
 use App\Models\Recipe;
+use App\Models\SeoBacklinkCandidate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -4796,6 +4797,30 @@ final class BacklinkGrowthService
             $opportunity->save();
 
             $wasCreated ? $created++ : $updated++;
+
+            $candidatePair = app(OrganicGrowthService::class)->candidateUrls($prospect['target_url'], $bestAssetUrl);
+            if ($candidatePair !== null) {
+                SeoBacklinkCandidate::query()->firstOrCreate(
+                    ['deduplication_hash' => $candidatePair['deduplication_hash']],
+                    [
+                        'source_url' => $candidatePair['source_url'],
+                        'source_host' => $candidatePair['source_host'],
+                        'target_url' => $candidatePair['target_url'],
+                        'status' => 'candidate',
+                        'evidence' => [
+                            'source' => 'curated_digital_pr_prospect',
+                            'topic' => $prospect['topic'],
+                            'asset_keyword' => $prospect['asset_keyword'],
+                            'authority_score' => $prospect['authority_score'],
+                            'rationale' => $prospect['rationale'],
+                            'pitch_draft_tr' => $pitchTr,
+                            'pitch_draft_en' => $pitchEn,
+                            'collected_at' => now()->toIso8601String(),
+                            'independently_verified' => false,
+                        ],
+                    ]
+                );
+            }
 
             $results[] = [
                 'domain' => $prospect['domain'],
