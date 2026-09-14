@@ -62,8 +62,17 @@ final class LightModeMutedTextMeetsAaTest extends TestCase
     {
         // `outline:none` konmuş ama yerine bir şey konmamıştı; parlaklık
         // değişimi tek başına odak göstergesi sayılmaz.
+        //
+        // Gösterge artık outline değil kenar çizgisi: SVG öğesinin outline'ı
+        // harita yakınlaştıkça ölçekleniyor ve 11 kat zoomda ülkeyi kapatan
+        // kalın bir çerçeveye dönüşüyordu. Kenar çizgisi yoldaki
+        // non-scaling-stroke ile her zoomda aynı kalınlıkta kalır.
         $this->assertMatchesRegularExpression(
-            '/\.hc-world-map__ulke-aktif:focus-visible \{[^}]*outline:2px solid/',
+            '/\.hc-world-map__ulke-aktif:focus-visible \{[^}]*stroke:var\(--hc-text-primary\); stroke-width:2\.5/',
+            $this->css()
+        );
+        $this->assertDoesNotMatchRegularExpression(
+            '/\.hc-world-map__ulke-aktif:focus-visible \{[^}]*outline:\s*\d/',
             $this->css()
         );
     }
