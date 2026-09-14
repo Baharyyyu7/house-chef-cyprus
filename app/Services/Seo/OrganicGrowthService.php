@@ -162,6 +162,9 @@ final class OrganicGrowthService
         if ($source['host'] === $siteHost || str_ends_with($source['host'], '.'.$siteHost)) {
             return null;
         }
+        if (preg_match('/(?:foodblog|placeholder)\d+/i', $source['host'])) {
+            return null;
+        }
 
         return [
             'source_url' => $source['url'],
