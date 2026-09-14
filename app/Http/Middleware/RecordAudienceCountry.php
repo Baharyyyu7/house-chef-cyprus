@@ -54,15 +54,46 @@ final class RecordAudienceCountry
         'COUNTRY_CODE',
     ];
 
+    /**
+     * Ziyaretçi değil, sitenin kendi altyapısı.
+     *
+     * Ülke IP'den bulunmaya başlayınca (14 Eylül 2026) bunlar ilk gün sayaca
+     * girdi: yayın betiğinin sunucudan attığı kontrol istekleri "Fransa'dan
+     * 7 ziyaret", zamanlayıcıyı dakikada bir tetikleyen Cloudflare Worker
+     * "Almanya" oldu. Önceden ülke başlığı taşımadıkları için hiç
+     * sayılmıyorlardı.
+     */
+    private const MAKINE_YOLLARI = ['_zamanlayici/*', 'up', 'health', 'api/*'];
+
+    /**
+     * Tarayıcı olmayan HTTP istemcileri. Arama motoru botları bu listede yok:
+     * CDN başlığı döneminde de sayılıyorlardı ve sayımı değiştirmek geçmişle
+     * karşılaştırmayı bozardı.
+     */
+    private const MAKINE_ISTEMCILERI = '/^(GuzzleHttp|curl|Wget|python-requests|python-urllib|Go-http-client|okhttp|axios|node-fetch|undici|libwww-perl|Java\/|Apache-HttpClient)/i';
+
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
 
-        if ($request->isMethod('GET') && ! $request->ajax()) {
+        if ($request->isMethod('GET') && ! $request->ajax() && ! $this->makineTrafigi($request)) {
             $this->kaydet($request);
         }
 
         return $response;
+    }
+
+    private function makineTrafigi(Request $request): bool
+    {
+        if ($request->is(...self::MAKINE_YOLLARI)) {
+            return true;
+        }
+
+        $istemci = trim((string) $request->userAgent());
+
+        // Tarayıcılar her zaman bir kimlik gönderir. Boş kimlikle gelen
+        // istek bir betik ya da Worker'dır (zamanlayıcı tetikleyicisi böyle).
+        return $istemci === '' || preg_match(self::MAKINE_ISTEMCILERI, $istemci) === 1;
     }
 
     private function kaydet(Request $request): void

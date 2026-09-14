@@ -102,6 +102,45 @@ final class VisitorCountryBehindCdnTest extends TestCase
         $this->assertStringNotContainsString(self::ZIYARETCI, (string) json_encode(cache()->get('audience:cografi-anahtar-adlari')));
     }
 
+    public function test_sitenin_kendi_makine_trafigi_ziyaret_sayilmaz(): void
+    {
+        // 14 Eylül 2026, ülke IP'den bulunmaya başladığı ilk saat: yayın
+        // betiğinin kontrol istekleri (GuzzleHttp, sunucu IP'si) "Fransa'dan
+        // 7 ziyaret", zamanlayıcı Worker'ı (boş tarayıcı kimliği) "Almanya"
+        // olarak sayıldı.
+        config(['production.trusted_proxies' => '*']);
+        $cozucu = $this->sahteCozucu();
+
+        foreach ([
+            ['User-Agent' => 'GuzzleHttp/7'],
+            ['User-Agent' => 'curl/8.7.1'],
+            ['User-Agent' => ''],
+        ] as $baslik) {
+            $this->get('/', $baslik + ['X-Forwarded-For' => self::ZIYARETCI]);
+        }
+
+        $this->get('/_zamanlayici/gecersiz-anahtar', [
+            'User-Agent' => 'Mozilla/5.0 (Macintosh) Safari/605.1.15',
+            'X-Forwarded-For' => self::ZIYARETCI,
+        ]);
+
+        $this->assertSame(0, (int) AudienceCountryDay::query()->sum('hits'), 'Makine trafiği ziyaret olarak sayıldı.');
+        $this->assertSame([], $cozucu->sorulan, 'Makine trafiği için ülke hiç sorulmamalı.');
+    }
+
+    public function test_gercek_tarayici_ziyareti_sayilir(): void
+    {
+        config(['production.trusted_proxies' => '*']);
+        $this->sahteCozucu();
+
+        $this->get('/', [
+            'User-Agent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1',
+            'X-Forwarded-For' => self::ZIYARETCI,
+        ])->assertOk();
+
+        $this->assertSame(1, (int) AudienceCountryDay::query()->where('country_code', 'TR')->value('hits'));
+    }
+
     public function test_ozel_ag_adresi_hicbir_ulkeye_yazilmaz(): void
     {
         // Proxy arkasında gerçek IP'ye ulaşılamadıysa gelen adres özel ağdan
