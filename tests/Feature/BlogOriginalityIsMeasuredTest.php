@@ -85,6 +85,19 @@ final class BlogOriginalityIsMeasuredTest extends TestCase
         $this->assertSame('duplicate', $kopya->fresh()->originality_status);
     }
 
+    public function test_kanonigi_baska_yaziyi_gosteren_eski_kopya_sahipligi_birakir(): void
+    {
+        // Üretimdeki durum: son ekli kopya daha eski ama kanoniği temiz adresi gösteriyor.
+        $kopya = $this->yazi('kuru-bakliyat-nasil-saklanir-5F16S', '<p>'.self::SABLON_1.'</p><p>'.self::SABLON_2.'</p><p>'.self::SABLON_3.'</p>');
+        $kopya->forceFill(['published_at' => now()->subDays(30), 'canonical_url' => 'https://housechefcyprus.com/blog/kuru-bakliyat-nasil-saklanir'])->save();
+        $temiz = $this->yazi('kuru-bakliyat-nasil-saklanir', $kopya->body);
+
+        $this->artisan('seo:originality-scan --apply')->assertSuccessful();
+
+        $this->assertSame('passed', $temiz->fresh()->originality_status);
+        $this->assertSame('duplicate', $kopya->fresh()->originality_status);
+    }
+
     public function test_tarama_tekrar_yaziyi_indeksten_cikarir_icerigi_silmez(): void
     {
         $this->sablonYazi('sablon-a');

@@ -42,13 +42,21 @@ final class BlogOriginalityService
      */
     public function olc(?Collection $yazilar = null): array
     {
-        $yazilar ??= BlogPost::query()->publiclyVisible()->get(['id', 'body', 'published_at']);
+        $yazilar ??= BlogPost::query()->publiclyVisible()->get(['id', 'slug', 'body', 'published_at', 'canonical_url']);
 
         // Paragraf ilk yayınlanan yazınındır; tekrar sayılan yalnız sonrakilerdir.
         // 14 Eylül 2026'da ölçüldü: 20 yazının "-XXXXX" son ekli birebir kopyası
         // vardı ve eski kural kopyayla birlikte orijinali de indeksten düşürüyordu.
+        //
+        // Kanoniği başka bir yazıyı gösteren yazı sahipliği önce ona bırakır:
+        // son ekli kopyalar tarihçe daha eskiydi ama kanonikleri temiz adresi
+        // gösteriyordu. Tarihe bakılsa indeksten düşen temiz adres olurdu.
         // Yayında olmayan aday (published_at boş) en sona konur.
-        $yazilar = $yazilar->sortBy(static fn (BlogPost $y): array => [$y->published_at?->getTimestamp() ?? PHP_INT_MAX, $y->getKey() ?? PHP_INT_MAX])->values();
+        $yazilar = $yazilar->sortBy(static fn (BlogPost $y): array => [
+            filled($y->canonical_url) && ! str_ends_with((string) $y->canonical_url, '/blog/'.$y->slug) ? 1 : 0,
+            $y->published_at?->getTimestamp() ?? PHP_INT_MAX,
+            $y->getKey() ?? PHP_INT_MAX,
+        ])->values();
 
         $sahip = [];
         $yaziParagraflari = [];
@@ -92,7 +100,7 @@ final class BlogOriginalityService
      */
     public function adayiOlc(BlogPost $aday): array
     {
-        $korpus = BlogPost::query()->publiclyVisible()->whereKeyNot($aday->getKey())->get(['id', 'body', 'published_at']);
+        $korpus = BlogPost::query()->publiclyVisible()->whereKeyNot($aday->getKey())->get(['id', 'slug', 'body', 'published_at', 'canonical_url']);
 
         // Aday yayındaki her yazıdan sonra gelir; kendi yayın tarihi ne olursa olsun.
         $olcumAdayi = (clone $aday)->setAttribute('published_at', null);
