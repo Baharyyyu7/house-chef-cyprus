@@ -155,6 +155,29 @@ final class AdminWorldMapIsGeographicallyHonestTest extends TestCase
         $this->assertEqualsWithDelta(100.0, array_sum(array_column($harita['countries'], 'share')), 0.5);
     }
 
+    public function test_sayac_durduysa_kart_bunu_soyler(): void
+    {
+        // Site ülke başlığı göndermeyen bir CDN'e taşındığında sayaç hata
+        // vermeden durdu; kart günlerce eksik rakamı normalmiş gibi gösterdi.
+        $this->ziyaret('TR', 5, 3);
+        Cache::flush();
+
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard', ['period' => 7, 'harita' => 7]))
+            ->assertOk()
+            ->assertSee('tarihinden beri yeni kayıt almıyor');
+
+        $this->ziyaret('DE', 1);
+        Cache::flush();
+
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard', ['period' => 7, 'harita' => 7]))
+            ->assertOk()
+            ->assertDontSee('tarihinden beri yeni kayıt almıyor');
+    }
+
     public function test_kart_yakinlastirma_ve_donem_secimi_sunar(): void
     {
         $ulke = WorldMapCountries::ALL['TR'];

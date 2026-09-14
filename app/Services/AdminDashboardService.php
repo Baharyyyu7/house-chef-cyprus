@@ -254,7 +254,16 @@ final class AdminDashboardService
                 default => now()->subDays($days),
             };
 
-            return $this->audienceMap($from) + ['period' => $days, 'periodLabel' => self::MAP_PERIODS[$days]];
+            // Sayacın en son ne zaman kayıt aldığı. Kayıt kesilirse (örneğin
+            // site ülke başlığı göndermeyen bir CDN'e taşınınca) dönem
+            // rakamları sessizce eksik kalır; kart bunu söyleyebilsin diye.
+            $sonKayit = AudienceCountryDay::query()->max('day');
+
+            return $this->audienceMap($from) + [
+                'period' => $days,
+                'periodLabel' => self::MAP_PERIODS[$days],
+                'last_recorded_day' => $sonKayit === null ? null : substr((string) $sonKayit, 0, 10),
+            ];
         });
     }
 

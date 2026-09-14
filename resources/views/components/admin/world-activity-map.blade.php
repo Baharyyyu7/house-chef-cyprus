@@ -10,6 +10,10 @@
     $listeSiniri = 12;
     $listelenen = array_slice($countries, 0, $listeSiniri);
     $kalanUlke = max(0, count($countries) - $listeSiniri);
+    $sonKayit = $map['last_recorded_day'] ?? null;
+    // Dün ya da bugün kayıt yoksa sayaç durmuş sayılır. Gece yarısını yeni
+    // geçmiş bir anda "bugün" boş olabilir; bu yüzden dünü de kabul ediyoruz.
+    $sayacDurdu = $sonKayit !== null && \Illuminate\Support\Carbon::parse($sonKayit)->lt(now()->subDay()->startOfDay());
     $kutular = collect($countries)
         ->filter(fn (array $country): bool => isset($country['box']))
         ->mapWithKeys(fn (array $country): array => [$country['country_code'] => $country['box']])
@@ -41,6 +45,20 @@
             <span class="hc-v3-badge hc-v3-badge--accent">{{ $periodLabel }}</span>
         @endif
     </div>
+
+    @if ($sayacDurdu)
+        {{-- 12-13 Eylül 2026'da site Cloudflare'den Hostinger CDN'e geçti.
+             Sayaç ülkeyi CDN'in eklediği başlıktan okuyor ve yeni CDN bu
+             başlığı göndermiyor; kayıt sessizce durdu. Haritanın "7 gün"
+             rakamı günlerce eksik göründü ve bunu hiçbir şey söylemedi. --}}
+        <div class="hc-world-map__empty mt-4" role="status">
+            <x-ui.icon name="warning" size="18" />
+            <div>
+                <p class="font-semibold">Ülke sayacı {{ \Illuminate\Support\Carbon::parse($sonKayit)->translatedFormat('j F') }} tarihinden beri yeni kayıt almıyor</p>
+                <p class="hc-caption mt-1">Rakamlar o güne kadarki ziyaretleri gösterir. Sayaç ülkeyi CDN'in gönderdiği başlıktan okur; site şu an bu başlığı göndermeyen bir CDN üzerinden yayınlanıyor.</p>
+            </div>
+        </div>
+    @endif
 
     <div
         class="mt-5"
