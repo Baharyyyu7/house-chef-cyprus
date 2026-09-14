@@ -700,15 +700,14 @@ final class SeoSchemaService
             $recipe->load('media');
         }
 
-        $videoMedia = $recipe->media()
-            ->where(fn ($q) => $q->where('type', 'video')->orWhere('mime_type', 'like', 'video/%'))
-            ->first();
+        $videoMedia = $recipe->media
+            ->first(fn ($m) => ($m->kind ?? null) === 'video' || str_starts_with((string) ($m->mime_type ?? ''), 'video/'));
 
         if ($videoMedia === null) {
             return null;
         }
 
-        $url = $videoMedia->url ?? $videoMedia->original_url ?? '';
+        $url = $videoMedia->embed_url ?: ($videoMedia->source_url ?: ($videoMedia->publicUrl() ?: ''));
         if ($url === '') {
             return null;
         }
@@ -728,7 +727,7 @@ final class SeoSchemaService
             '@id' => $url . '#video',
             'name' => $recipe->translated('title') . ' - Tarif Videosu',
             'description' => $recipe->translated('description') ?: $recipe->translated('excerpt'),
-            'thumbnailUrl' => $videoMedia->thumbnail_url ?? $videoMedia->url,
+            'thumbnailUrl' => $videoMedia->publicUrl() ?: $url,
             'uploadDate' => $recipe->published_at?->toAtomString(),
             'duration' => 'PT' . max(1, (int) ceil(($recipe->prep_minutes + $recipe->cook_minutes) / 5)) . 'M',
             'contentUrl' => $url,
