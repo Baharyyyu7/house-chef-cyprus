@@ -122,6 +122,11 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_indexnow_su
 // ülke sayacı eski dosyayla çalışmaya devam eder.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('geoip_update', fn () => Artisan::call('geoip:update')))->name('geoip_update')->monthlyOn(4, '04:40')->withoutOverlapping();
 
+// Blog özgünlüğü: birebir tekrar eden paragrafları olan yazılar noindex olur
+// ve site haritasından çıkar (içerik silinmez). Sitemap ve IndexNow'dan önce
+// çalışır ki tekrar içerik arama motoruna bildirilmesin.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_originality_scan', fn () => Artisan::call('seo:originality-scan', ['--apply' => true])))->name('seo_originality_scan')->dailyAt('01:37')->withoutOverlapping();
+
 // Dil dil büyüme. Sabah brifingden hemen önce çalışır ki brifing taze
 // tabloyu görsün. Açık ama içeriği olmayan bir dil toplamların içinde
 // kaybolur; burada kaybolmuyor.

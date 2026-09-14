@@ -55,10 +55,31 @@ final class BlogPost extends Model
      */
     public function renderedBody(): string
     {
-        return Str::markdown((string) $this->translated('body'), [
+        $html = Str::markdown((string) $this->translated('body'), [
             'html_input' => 'strip',
             'allow_unsafe_links' => false,
         ]);
+
+        // Gövdede H1 varsa bütün başlıklar bir kademe aşağı iner: # → h2,
+        // ## → h3.
+        //
+        // Sayfanın H1'i yazı başlığı ve şablonda basılıyor. 14 Eylül 2026'da
+        // yayındaki 248 yazının 177'sinin gövdesi "# Başlık" satırıyla
+        // başlıyordu; her sayfada ikinci bir H1 çıkıyordu.
+        //
+        // Kaydırma koşullu: gövdesi zaten "##" ile başlayan yazılar doğru
+        // yazılmıştır. Onları da kaydırmak ara başlıklarını H3'e indirir ve
+        // sayfa H1'den H3'e atlardı - bir kusuru düzeltirken başka bir
+        // hiyerarşi kusuru yaratmak.
+        if (preg_match('/<h1[\s>]/i', $html) !== 1) {
+            return $html;
+        }
+
+        return preg_replace_callback(
+            '/<(\/?)h([1-6])(?=[\s>])/i',
+            static fn (array $e): string => '<'.$e[1].'h'.min(6, (int) $e[2] + 1),
+            $html
+        ) ?? $html;
     }
 
     /** @param Builder<self> $query @return Builder<self> */

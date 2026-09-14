@@ -101,6 +101,23 @@ final class AutonomousPublishingGateService
                 continue;
             }
 
+            // Kalite kapısı: birebir tekrar eden paragraflar.
+            //
+            // Bu kapı eskiden yoktu ve aşağıdaki güncelleme originality_status'u
+            // hiçbir ölçüm yapmadan "passed" yazıyordu. 13 Eylül 2026'da 100
+            // şablon yazı bu yoldan yayına girdi; paragraflarının %84'ü başka
+            // yazılarda birebir geçiyordu. Özgünlük artık ölçülmeden onaylanmaz.
+            $ozgunluk = app(BlogOriginalityService::class);
+            $ozgunlukOlcumu = $ozgunluk->adayiOlc($post);
+
+            if ($ozgunluk->tekrarMi($ozgunlukOlcumu)) {
+                $heldBackBlogs[] = [
+                    'slug' => $post->slug,
+                    'reason' => 'Paragraflarının %'.round($ozgunlukOlcumu['share'] * 100).' kadarı yayındaki başka yazılarda birebir geçiyor.',
+                ];
+                continue;
+            }
+
             // Quality Gate 4: Internal Recipe Link Connectivity
             if ($post->recipes()->count() === 0) {
                 // Autonomously attach relevant verified recipes

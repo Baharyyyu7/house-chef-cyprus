@@ -240,6 +240,15 @@ final class SeoSchemaService
             'datePublished' => $recipe->published_at?->toAtomString(),
         ];
 
+        // Beslenme bilgisi Google'ın tarif sonucunda kalori olarak görünür.
+        // 236 geçerli beslenme kaydı vardı ama şema hiçbirini okumuyordu.
+        // Yalnız tamlığı ve güveni yüksek kayıt basılır: eksik malzemeyle
+        // hesaplanmış bir kalori, hiç kalori göstermemekten daha zararlıdır.
+        $beslenme = $this->beslenme($recipe, $locale);
+        if ($beslenme !== null) {
+            $recipeNode['nutrition'] = $beslenme;
+        }
+
         $baseSlug = preg_replace('/-[A-Za-z0-9]{5}$/', '', $recipe->slug);
         $entity = self::HERITAGE_ENTITIES[$recipe->slug]
             ?? self::HERITAGE_ENTITIES[$baseSlug]
@@ -317,6 +326,66 @@ final class SeoSchemaService
             $article['author'] = ['@type' => 'Person', 'name' => $post->author->name];
         }
         if ($imageUrl !== '') {
+    /**
+     * Porsiyon başı beslenme bilgisi.
+     *
+     * Kaynak en son geçerli beslenme kaydı. Tamlık ya da güven %80'in altındaysa
+     * boş döner. 14 Eylül 2026'da yayındaki 78 dolu kaydın 17'sinin tamlığı
+     * %0-20 arasındaydı; o değerler şemaya girseydi Google yanlış kalori
+     * gösterirdi.
+     *
+     * @return array<string, string>|null
+     */
+    private function beslenme(Recipe $recipe, string $locale): ?array
+    {
+        // Kaydedilmemiş tarifin beslenme kaydı olamaz; sorgu atmak hem boşa
+        // hem de veritabanı olmayan bağlamlarda (önizleme, birim testi) hata.
+        if (! $recipe->exists && ! $recipe->relationLoaded('nutritionSnapshots')) {
+            return null;
+        }
+
+        $kayit = $recipe->relationLoaded('nutritionSnapshots')
+            ? $recipe->nutritionSnapshots->whereNull('invalidated_at')->sortByDesc('calculated_at')->first()
+            : $recipe->nutritionSnapshots()->whereNull('invalidated_at')->latest('calculated_at')->first();
+
+        if ($kayit === null || (float) $kayit->completeness_percentage < 80 || (float) $kayit->confidence_score < 80) {
+            return null;
+        }
+
+        $payload = is_array($kayit->payload) ? $kayit->payload : (array) json_decode((string) $kayit->payload, true);
+        $besinler = (array) ($payload['nutrients'] ?? []);
+
+        $deger = static function (string $anahtar, string $varsayilanBirim) use ($besinler): ?string {
+            $besin = $besinler[$anahtar] ?? null;
+
+            if (! is_array($besin) || ! is_numeric($besin['per_serving'] ?? null) || (float) $besin['per_serving'] < 0) {
+                return null;
+            }
+
+            $sayi = rtrim(rtrim(number_format((float) $besin['per_serving'], 1, '.', ''), '0'), '.');
+
+            return $sayi.' '.((string) ($besin['unit'] ?? '') ?: $varsayilanBirim);
+        };
+
+        $kalori = $deger('energy_kcal', 'kcal');
+
+        if ($kalori === null || (float) $kalori <= 0) {
+            return null;
+        }
+
+        return array_filter([
+            '@type' => 'NutritionInformation',
+            'servingSize' => '1 '.$this->yieldUnit($locale),
+            'calories' => $kalori,
+            'proteinContent' => $deger('protein', 'g'),
+            'carbohydrateContent' => $deger('carbohydrate', 'g'),
+            'fatContent' => $deger('fat', 'g'),
+            'fiberContent' => $deger('fiber', 'g'),
+            'sugarContent' => $deger('sugar', 'g'),
+            'sodiumContent' => $deger('sodium', 'mg'),
+        ], static fn (?string $v): bool => $v !== null);
+    }
+
             $article['image'] = [$imageUrl];
         }
         $graph = $this->graph($article, [
