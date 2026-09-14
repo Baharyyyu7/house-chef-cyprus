@@ -178,6 +178,33 @@ final class AdminWorldMapIsGeographicallyHonestTest extends TestCase
             ->assertDontSee('tarihinden beri yeni kayıt almıyor');
     }
 
+    public function test_son_kayit_dun_ise_sabah_altidan_sonra_uyarir_gece_uyarmaz(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+
+        // 14 Eylül 07:15: son kayıt 13 Eylül. Canlıda tam bu durumda kart
+        // sessiz kalmıştı.
+        $this->travelTo(now()->setDate(2026, 9, 14)->setTime(7, 15));
+        $this->ziyaret('TR', 2, 1);
+        Cache::flush();
+
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard', ['period' => 7, 'harita' => 7]))
+            ->assertOk()
+            ->assertSee('tarihinden beri yeni kayıt almıyor');
+
+        // Gece 02:00'de bugün henüz kayıt olmaması normal; alarm yok.
+        $this->travelTo(now()->setTime(2, 0));
+        Cache::flush();
+
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard', ['period' => 7, 'harita' => 7]))
+            ->assertOk()
+            ->assertDontSee('tarihinden beri yeni kayıt almıyor');
+
+        $this->travelBack();
+    }
+
     public function test_kart_yakinlastirma_ve_donem_secimi_sunar(): void
     {
         $ulke = WorldMapCountries::ALL['TR'];

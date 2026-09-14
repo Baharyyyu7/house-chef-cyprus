@@ -11,9 +11,16 @@
     $listelenen = array_slice($countries, 0, $listeSiniri);
     $kalanUlke = max(0, count($countries) - $listeSiniri);
     $sonKayit = $map['last_recorded_day'] ?? null;
-    // Dün ya da bugün kayıt yoksa sayaç durmuş sayılır. Gece yarısını yeni
-    // geçmiş bir anda "bugün" boş olabilir; bu yüzden dünü de kabul ediyoruz.
-    $sayacDurdu = $sonKayit !== null && \Illuminate\Support\Carbon::parse($sonKayit)->lt(now()->subDay()->startOfDay());
+    // Sayaç durmuş sayılır: dünden eski son kayıt ya da sabah 06:00'yı geçmiş
+    // olduğu hâlde bugün hiç kayıt yok. Yalnız "dünden eski" şartı yetmedi:
+    // 14 Eylül 07:00'de son kayıt 13 Eylül'dü (dün), günde ~1.500 ziyaret
+    // alan sitede bugün sıfır kayıt vardı ve kart hiçbir şey söylemiyordu.
+    // 06:00 payı, gece yarısını yeni geçmiş sakin saatlerde yanlış alarmı önler.
+    $sonKayitGunu = $sonKayit !== null ? \Illuminate\Support\Carbon::parse($sonKayit)->startOfDay() : null;
+    $sayacDurdu = $sonKayitGunu !== null && (
+        $sonKayitGunu->lt(now()->subDay()->startOfDay())
+        || ($sonKayitGunu->lt(now()->startOfDay()) && now()->hour >= 6)
+    );
     $kutular = collect($countries)
         ->filter(fn (array $country): bool => isset($country['box']))
         ->mapWithKeys(fn (array $country): array => [$country['country_code'] => $country['box']])
