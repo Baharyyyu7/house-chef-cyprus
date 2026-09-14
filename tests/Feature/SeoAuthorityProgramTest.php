@@ -26,7 +26,10 @@ final class SeoAuthorityProgramTest extends TestCase
             ->assertOk()
             ->assertSee('"@type":"Recipe"', false)
             ->assertSee('"@type":"BreadcrumbList"', false)
-            ->assertSee('"mainEntityOfPage":"'.route('recipes.show', $recipe).'"', false)
+            // mainEntityOfPage düz adres yerine WebPage nesnesi olarak basılıyor
+            // (94fba00). İki biçim de schema.org'da geçerli; korunan şey alanın
+            // tarifin kendi kanonik adresini göstermesi.
+            ->assertSee('"mainEntityOfPage":{"@type":"WebPage","@id":"'.route('recipes.show', $recipe).'"}', false)
             ->assertSee('"dateModified"', false)
             ->assertDontSee('aggregateRating', false)
             ->assertDontSee('reviewRating', false);

@@ -696,6 +696,13 @@ final class SeoSchemaService
      */
     private function extractVideoFromMedia(Recipe $recipe): ?array
     {
+        // Kaydedilmemiş tarifin medyası olamaz. Bu kontrol yokken medya
+        // tablosuna sorgu gidiyordu; veritabanı olmayan bağlamda (önizleme,
+        // birim testi) hata verdi ve yayın kapısını durdurdu.
+        if (! $recipe->exists && ! $recipe->relationLoaded('media')) {
+            return null;
+        }
+
         if (! $recipe->relationLoaded('media')) {
             $recipe->load('media');
         }
