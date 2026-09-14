@@ -65,36 +65,49 @@ final class BlogOriginalityIsMeasuredTest extends TestCase
         $servis = app(BlogOriginalityService::class);
         $olcum = $servis->olc();
 
-        $this->assertTrue($servis->tekrarMi($olcum[$a->id]));
+        // İlk yayınlanan paragrafların sahibidir; tekrar sonraki yazıdır.
+        $this->assertFalse($servis->tekrarMi($olcum[$a->id]));
         $this->assertTrue($servis->tekrarMi($olcum[$b->id]));
-        $this->assertSame(0.75, $olcum[$a->id]['share']);
+        $this->assertSame(0.75, $olcum[$b->id]['share']);
         $this->assertFalse($servis->tekrarMi($olcum[$ozgun->id]));
         $this->assertSame(0.0, $olcum[$ozgun->id]['share']);
     }
 
+    public function test_birebir_kopyada_orijinal_indekste_kalir(): void
+    {
+        $orijinal = $this->yazi('ev-olculeri-rehberi', '<p>'.self::SABLON_1.'</p><p>'.self::SABLON_2.'</p><p>'.self::SABLON_3.'</p>');
+        $orijinal->forceFill(['published_at' => now()->subDays(10)])->save();
+        $kopya = $this->yazi('ev-olculeri-rehberi-0JCY7', $orijinal->body);
+
+        $this->artisan('seo:originality-scan --apply')->assertSuccessful();
+
+        $this->assertSame('passed', $orijinal->fresh()->originality_status);
+        $this->assertSame('duplicate', $kopya->fresh()->originality_status);
+    }
+
     public function test_tarama_tekrar_yaziyi_indeksten_cikarir_icerigi_silmez(): void
     {
-        $a = $this->sablonYazi('sablon-a');
-        $this->sablonYazi('sablon-b');
+        $this->sablonYazi('sablon-a');
+        $b = $this->sablonYazi('sablon-b');
         $ozgun = $this->ozgunYazi('ozgun-yazi');
 
         $this->artisan('seo:originality-scan --apply')->assertSuccessful();
 
-        $a->refresh();
-        $this->assertSame('duplicate', $a->originality_status);
-        $this->assertSame('published', $a->status, 'Yazı silinmemeli ya da yayından kaldırılmamalı.');
-        $this->assertStringContainsString('noindex', app(BlogIndexability::class)->robots($a));
+        $b->refresh();
+        $this->assertSame('duplicate', $b->originality_status);
+        $this->assertSame('published', $b->status, 'Yazı silinmemeli ya da yayından kaldırılmamalı.');
+        $this->assertStringContainsString('noindex', app(BlogIndexability::class)->robots($b));
         $this->assertSame('passed', $ozgun->fresh()->originality_status);
     }
 
     public function test_rapor_modu_hicbir_seyi_yazmaz(): void
     {
-        $a = $this->sablonYazi('sablon-a');
-        $this->sablonYazi('sablon-b');
+        $this->sablonYazi('sablon-a');
+        $b = $this->sablonYazi('sablon-b');
 
         $this->artisan('seo:originality-scan')->assertSuccessful();
 
-        $this->assertSame('passed', $a->fresh()->originality_status);
+        $this->assertSame('passed', $b->fresh()->originality_status);
     }
 
     public function test_tekrari_duzelen_yazi_kendiliginden_onaylanmaz(): void
@@ -103,11 +116,12 @@ final class BlogOriginalityIsMeasuredTest extends TestCase
         $a = $this->sablonYazi('sablon-a');
         $b = $this->sablonYazi('sablon-b');
         $this->artisan('seo:originality-scan --apply')->assertSuccessful();
+        $this->assertSame('duplicate', $b->fresh()->originality_status);
 
-        $b->forceFill(['status' => 'draft'])->save();
+        $a->forceFill(['status' => 'draft'])->save();
         $this->artisan('seo:originality-scan --apply')->assertSuccessful();
 
-        $this->assertSame('pending', $a->fresh()->originality_status);
+        $this->assertSame('pending', $b->fresh()->originality_status);
     }
 
     public function test_yayin_kapisi_tekrar_taslagi_olcer(): void
