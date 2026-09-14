@@ -1,6 +1,6 @@
-<x-layouts.site title="Organik Büyüme">
+<x-layouts.site :title="__('admin_workspaces.links')">
     <section class="hc-admin-page">
-        <x-admin.page-header title="Organik büyüme" eyebrow="SEO ve İçerik" :back="['url' => route('admin.seo.index'), 'label' => 'SEO merkezi']">
+        <x-admin.page-header :title="__('admin_workspaces.links')" :eyebrow="__('admin_workspaces.search')" :back="['url' => route('admin.seo.index'), 'label' => 'SEO merkezi']">
             <x-slot:actions>
                 <a class="hc-v3-btn hc-v3-btn--outline" href="{{ route('admin.seo.opportunities') }}"><x-ui.icon name="check" size="16" />İnceleme işleri</a>
                 <form method="post" action="{{ route('admin.seo.growth.refresh') }}" x-data="{ busy: false }" @submit="busy = true">@csrf<button class="hc-v3-btn hc-v3-btn--primary" :disabled="busy"><x-ui.icon name="refresh" size="16" /><span x-text="busy ? 'Yenileniyor…' : 'Kuyruğu yenile'">Kuyruğu yenile</span></button></form>

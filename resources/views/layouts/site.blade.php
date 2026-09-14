@@ -359,6 +359,7 @@
                 </div>
 
                 <main id="admin-main-content" tabindex="-1" class="hc-page">
+                    <x-admin.workspace-tabs />
                     @if (session('status'))
                         <div class="hc-alert hc-alert-success mb-6" role="status">{{ session('status') }}</div>
                     @endif

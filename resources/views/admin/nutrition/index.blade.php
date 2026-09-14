@@ -1,6 +1,6 @@
-<x-layouts.site title="Beslenme ve Uygunluk">
+<x-layouts.site :title="__('admin_workspaces.nutrition')">
 <section class="hc-container hc-admin-crud-page py-8 sm:py-10">
-<x-admin.page-header eyebrow="İçerik güveni" title="Beslenme ve uygunluk" description="Besin verilerini, alerjen ilişkilerini ve diyet eşiklerini kaynaklı biçimde yönetin." :back="['url'=>route('admin.dashboard'),'label'=>'Yönetim']"><x-slot:actions><a class="hc-v3-btn hc-v3-btn--secondary" href="{{ route('admin.nutrition.history') }}">Hesaplama geçmişi</a></x-slot:actions></x-admin.page-header>
+<x-admin.page-header :eyebrow="__('admin_workspaces.catalogue')" :title="__('admin_workspaces.nutrition')" :back="['url'=>route('admin.dashboard'),'label'=>'Yönetim']"><x-slot:actions><a class="hc-v3-btn hc-v3-btn--secondary" href="{{ route('admin.nutrition.history') }}">Hesaplama geçmişi</a></x-slot:actions></x-admin.page-header>
 @if(session('status'))<x-ui.alert class="mt-5" type="success">{{ session('status') }}</x-ui.alert>@endif @if($errors->any())<x-ui.alert class="mt-5" type="error">{{ $errors->first() }}</x-ui.alert>@endif
 <nav class="hc-admin-tabs mt-6" aria-label="Beslenme bölümleri"><a href="#facts">Besin değerleri</a><a href="#nutrients">Besin öğeleri</a><a href="#allergens">Alerjenler</a><a href="#relations">Malzeme–alerjen</a><a href="#overrides">Tarif override</a><a href="#thresholds">Diyet eşikleri</a><a href="#snapshots">Snapshot’lar</a></nav>
 

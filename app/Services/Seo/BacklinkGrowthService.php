@@ -4647,7 +4647,8 @@ final class BacklinkGrowthService
      */
     public function prospects(): array
     {
-        return self::TARGET_PROSPECTS;
+        // Numbered seed placeholders are not researched publishers.
+        return array_values(array_filter(self::TARGET_PROSPECTS, static fn (array $prospect): bool => ! preg_match('/^foodblog[0-9]+\.com$/i', $prospect['domain'])));
     }
 
     public function discoverAndEnrich(): array
@@ -4657,7 +4658,7 @@ final class BacklinkGrowthService
         $results = [];
         $marketService = app(BacklinkMarketService::class);
 
-        foreach (self::TARGET_PROSPECTS as $prospect) {
+        foreach ($this->prospects() as $prospect) {
             $key = Str::slug('backlink-' . $prospect['domain'] . '-' . $prospect['asset_keyword']);
 
             $opportunity = ContentOpportunity::query()->firstOrNew(['normalized_key' => $key]);

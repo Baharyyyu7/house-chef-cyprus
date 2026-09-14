@@ -21,7 +21,7 @@ final class SeoContentAutomationTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
         $member = User::factory()->create(['role' => 'member']);
 
-        $this->actingAs($admin)->get(route('admin.seo.index'))->assertOk()->assertSee('SEO operasyon merkezi');
+        $this->actingAs($admin)->get(route('admin.seo.index'))->assertOk()->assertSee('SEO ve Büyüme');
         $this->actingAs($member)->get(route('admin.seo.index'))->assertForbidden();
     }
 

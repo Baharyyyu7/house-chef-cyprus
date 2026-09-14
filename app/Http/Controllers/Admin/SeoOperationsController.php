@@ -42,7 +42,7 @@ final class SeoOperationsController extends Controller
             'score' => $olcum['score'],
             'authority' => $olcum,
             'growth' => $growth->snapshot(),
-            'systemRuns' => IntegrityReport::query()->where('guard', 'like', 'seo:system:%')->latest('id')->limit(21)->get(),
+            'systemRuns' => IntegrityReport::query()->where('guard', 'like', 'seo:system:%')->latest('id')->limit(21)->get()->unique('guard')->values(),
         ]);
     }
 
@@ -103,9 +103,7 @@ final class SeoOperationsController extends Controller
             'total_gaps' => ContentOpportunity::query()->where('kind', '!=', 'backlink_prospect')->count(),
         ];
 
-        $dailyTargets = app(\App\Services\Seo\AutonomousGrowthEngine::class)->getDailyTargetsSnapshot();
-
-        return view('admin.seo.opportunities', compact('opportunities', 'stats', 'tab', 'dailyTargets'));
+        return view('admin.seo.opportunities', compact('opportunities', 'stats', 'tab'));
     }
 
     public function updateOpportunityStatus(Request $request, ContentOpportunity $opportunity): RedirectResponse

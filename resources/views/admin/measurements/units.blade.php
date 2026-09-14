@@ -1,6 +1,6 @@
-<x-layouts.site title="Ölçü Birimleri">
+<x-layouts.site :title="__('admin_workspaces.units')">
     <section class="hc-container hc-admin-crud-page py-8 sm:py-10">
-        <x-admin.page-header eyebrow="Tarif verisi" title="Mutfak ölçü birimleri" :back="['url' => route('admin.dashboard'), 'label' => 'Yönetim']">
+        <x-admin.page-header :eyebrow="__('admin_workspaces.catalogue')" :title="__('admin_workspaces.units')" :back="['url' => route('admin.dashboard'), 'label' => 'Yönetim']">
             <x-slot:actions><a class="hc-v3-btn hc-v3-btn--secondary" href="{{ route('admin.measurements.conversions') }}">Malzeme dönüşümleri</a></x-slot:actions>
         </x-admin.page-header>
 

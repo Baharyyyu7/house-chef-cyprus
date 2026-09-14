@@ -1,6 +1,6 @@
-<x-layouts.site title="Teknik SEO">
+<x-layouts.site :title="__('admin_workspaces.issues')">
     <section class="hc-container py-8 sm:py-10">
-        <x-admin.page-header eyebrow="SEO ve İçerik" title="Teknik SEO sorunları" :back="['url' => route('admin.seo.index'), 'label' => 'SEO merkezi']" />
+        <x-admin.page-header :eyebrow="__('admin_workspaces.search')" :title="__('admin_workspaces.issues')" :back="['url' => route('admin.seo.index'), 'label' => 'SEO merkezi']" />
         @if($errors->any())<div role="alert" class="mt-4 text-sm">{{ $errors->first() }}</div>@endif
         <form class="mt-6 grid gap-3 sm:grid-cols-4">
             <label class="sr-only" for="issue-severity">Önem seviyesi</label><select id="issue-severity" class="hc-input" name="severity"><option value="">Tüm önem seviyeleri</option>@foreach(['critical', 'error', 'warning', 'info'] as $value)<option value="{{ $value }}" @selected(request('severity') === $value)>{{ $value }}</option>@endforeach</select>

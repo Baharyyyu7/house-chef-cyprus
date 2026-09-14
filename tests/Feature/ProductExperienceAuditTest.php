@@ -50,7 +50,7 @@ final class ProductExperienceAuditTest extends TestCase
 
         $this->actingAs($admin)->get(route('admin.product-experience.index'))
             ->assertOk()
-            ->assertSee('Ürün deneyimi')
+            ->assertSee('Arayüz Kontrolü')
             ->assertSee('Tarayıcı QA bekliyor')
             ->assertSee('Gerçek tarayıcı');
         $this->actingAs($member)->get(route('admin.product-experience.index'))->assertForbidden();

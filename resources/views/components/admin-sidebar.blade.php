@@ -26,18 +26,13 @@
             ['route' => 'admin.content-factory.index', 'label' => 'İçerik Fabrikası', 'icon' => 'server'],
             ['route' => 'admin.production-content.index', 'label' => 'Canlı İçerik Merkezi', 'icon' => 'archive'],
         ],
-        'Veri ve SEO' => [
-            ['route' => 'admin.ingredients.index', 'label' => 'Malzemeler', 'icon' => 'tag'],
-            ['route' => 'admin.measurements.units', 'label' => 'Ölçü Birimleri', 'icon' => 'scale'],
-            ['route' => 'admin.measurements.conversions', 'label' => 'Dönüşümler', 'icon' => 'refresh'],
-            ['route' => 'admin.nutrition.index', 'label' => 'Beslenme', 'icon' => 'heart'],
-            ['route' => 'admin.data-quality.index', 'label' => 'Veri Kalitesi', 'icon' => 'database'],
-            ['route' => 'admin.seo.index', 'label' => 'SEO Operasyonları', 'icon' => 'search'],
-            ['route' => 'admin.seo.growth', 'label' => 'Organik Büyüme', 'icon' => 'gauge'],
-            ['route' => 'admin.seo.issues', 'label' => 'SEO Sağlığı', 'icon' => 'warning'],
-            ['route' => 'admin.product-experience.index', 'label' => 'Ürün Deneyimi', 'icon' => 'gauge'],
-            ['route' => 'admin.personalization.index', 'label' => 'Kişiselleştirme', 'icon' => 'sliders'],
-        ],
+        'Veri ve SEO' => collect(config('admin_workspaces'))->map(fn ($area, $key) => [
+            'route' => reset($area['tabs'])['route'],
+            'label' => __('admin_workspaces.'.$key),
+            'icon' => $area['icon'],
+            'patterns' => collect($area['tabs'])->pluck('matches')->flatten()->all(),
+            'search' => collect(array_keys($area['tabs']))->map(fn ($label) => __('admin_workspaces.'.$label))->join(' '),
+        ])->values()->all(),
         'Sistem' => [
             ['route' => 'admin.users.index', 'label' => 'Kullanıcılar', 'icon' => 'users'],
             ['route' => 'admin.release-candidate.index', 'label' => 'RC Kontrol Merkezi', 'icon' => 'shield'],
@@ -50,6 +45,8 @@
             ['route' => 'admin.system-events.index', 'label' => 'Sistem Olayları', 'icon' => 'info'],
         ],
     ];
+    $isItemActive = fn ($item) => request()->routeIs(...($item['patterns'] ?? [str_replace('.index', '.*', $item['route']), $item['route']]));
+    $itemTerms = fn ($item) => $item['label'].' '.($item['search'] ?? '');
 @endphp
 
 <nav aria-label="Yönetim menüsü" class="admin-sidebar flex h-full flex-col" x-data="{ eslesir(metin) { return metin.toLocaleLowerCase('tr-TR').includes(adminSidebarQuery.trim().toLocaleLowerCase('tr-TR')) } }">
@@ -84,13 +81,13 @@
         {{-- Akordeon: aynı anda tek grup açık kalır, böylece menü 28 satır
              yerine bir grubun maddeleri kadar uzar. Açık grup sayfa yüklenirken
              bulunulan bölüme göre seçilir; hiçbiri değilse "Her gün" açılır. --}}
-        @php($acikGrup = collect($groups)->search(fn ($items) => collect($items)->contains(fn ($item) => request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route']))))
+        @php($acikGrup = collect($groups)->search(fn ($items) => collect($items)->contains($isItemActive)))
         <div x-data="{ acik: '{{ $acikGrup === false ? 'Her gün' : $acikGrup }}' }" class="space-y-1.5">
         @foreach ($groups as $group => $items)
-            @php($groupActive = collect($items)->contains(fn ($item) => request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route'])))
+            @php($groupActive = collect($items)->contains($isItemActive))
             @php($groupSearch = mb_strtolower($group.' '.collect($items)->pluck('label')->join(' '), 'UTF-8'))
             @php($gunluk = $group === 'Her gün')
-            <section aria-label="{{ $group }}" x-show="eslesir(@js($group.' '.collect($items)->pluck('label')->join(' ')))">
+            <section aria-label="{{ $group }}" x-show="eslesir(@js($group.' '.collect($items)->map($itemTerms)->join(' ')))">
                 {{-- "Her gün" akordeon değil: her oturumda kullanılan yerler
                      bir tıklama arkasında durmamalı. Diğer üç grup kapalı
                      kalır, derin işler bir kat aşağıda. --}}
@@ -109,9 +106,9 @@
                      x-show="{{ $gunluk ? 'true' : "acik === '".$group."'" }} || adminSidebarCollapsed || adminSidebarQuery"
                      @unless($gunluk) x-collapse.duration.250ms @endunless>
                     @foreach ($items as $item)
-                        @php($active = $item['route'] === 'admin.seo.index' ? request()->routeIs('admin.seo.index') : request()->routeIs(str_replace('.index', '.*', $item['route'])) || request()->routeIs($item['route']))
+                        @php($active = $isItemActive($item))
                         @php($itemSearch = mb_strtolower($item['label'], 'UTF-8'))
-                        <a href="{{ route($item['route']) }}" aria-label="{{ $item['label'] }}" @if($active) aria-current="page" @endif :title="adminSidebarCollapsed ? '{{ $item['label'] }}' : null" x-show="eslesir(@js($item['label'])) || (adminSidebarQuery.trim() && eslesir(@js($group)))" @class([
+                        <a href="{{ route($item['route']) }}" aria-label="{{ $item['label'] }}" @if($active) aria-current="page" @endif :title="adminSidebarCollapsed ? @js($item['label']) : null" x-show="eslesir(@js($itemTerms($item))) || (adminSidebarQuery.trim() && eslesir(@js($group)))" @class([
                             'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:ring-orange-200',
                             'bg-orange-400/18 text-white shadow-sm ring-1 ring-orange-300/20' => $active,
                             'text-stone-300 hover:translate-x-0.5 hover:bg-white/8 hover:text-white' => ! $active,
@@ -128,7 +125,7 @@
             </section>
         @endforeach
         </div>
-        <p x-cloak x-show="adminSidebarQuery.trim() && !eslesir(@js('Genel Bakış '.collect($groups)->flatten(1)->pluck('label')->join(' ').' '.implode(' ', array_keys($groups))))" role="status" class="px-3 py-4 text-xs text-stone-300">Eşleşen bölüm bulunamadı.</p>
+        <p x-cloak x-show="adminSidebarQuery.trim() && !eslesir(@js('Genel Bakış '.collect($groups)->flatten(1)->map($itemTerms)->join(' ').' '.implode(' ', array_keys($groups))))" role="status" class="px-3 py-4 text-xs text-stone-300">Eşleşen bölüm bulunamadı.</p>
     </div>
 
     <div class="border-t border-white/10 p-4">

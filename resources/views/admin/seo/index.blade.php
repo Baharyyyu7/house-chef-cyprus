@@ -1,13 +1,12 @@
-<x-layouts.site title="SEO ve İçerik">
+<x-layouts.site :title="__('admin_workspaces.search')">
     <section class="hc-container py-8 sm:py-10">
-        <x-admin.page-header eyebrow="SEO ve İçerik" title="SEO operasyon merkezi" :back="['url' => route('admin.dashboard'), 'label' => 'Yönetim']">
+        <x-admin.page-header :eyebrow="__('admin_workspaces.search')" :title="__('admin_workspaces.overview')" :back="['url' => route('admin.dashboard'), 'label' => 'Yönetim']">
             <x-slot:actions>
-                <a class="hc-v3-btn hc-v3-btn--ghost" href="{{ route('admin.seo.growth') }}"><x-ui.icon name="arrow-right" :size="16" /> Büyüme kuyruğu</a>
                 <form method="post" action="{{ route('admin.seo.audit') }}">@csrf<button class="hc-v3-btn hc-v3-btn--primary"><x-ui.icon name="search" :size="16" /> SEO denetimi</button></form>
             </x-slot:actions>
         </x-admin.page-header>
-        <section class="border-b py-6">
-            <h2 class="text-lg font-bold">{{ __('growth.title') }}</h2>
+        <details class="border-b py-4">
+            <summary class="cursor-pointer text-sm font-semibold">{{ __('growth.title') }}</summary>
             <ul class="mt-3 divide-y">
                 @forelse($systemRuns as $run)
                     <li class="flex flex-wrap justify-between gap-3 py-3">
@@ -18,7 +17,7 @@
                     <li class="py-3 text-muted">{{ __('growth.empty') }}</li>
                 @endforelse
             </ul>
-        </section>
+        </details>
         <dl class="mt-6 grid grid-cols-2 gap-5 border-y py-5 xl:grid-cols-4" style="border-color:var(--hc-border-subtle)">
             @foreach(['SEO kalite skoru' => $score.'/100', 'Indexlenebilir tarif' => $authority['indexable']['recipes'], 'Indexlenebilir blog' => $authority['indexable']['articles'], 'Açık sorun' => $growth['open_issues']] as $label => $value)
                 <div class="min-w-0"><dt class="text-sm text-muted">{{ $label }}</dt><dd class="mt-1 text-2xl font-bold">{{ $value }}</dd></div>
@@ -37,10 +36,10 @@
             <dl class="mt-4 grid grid-cols-2 gap-5 xl:grid-cols-4">
                 <div><dt class="text-sm text-muted">Açık inceleme işi</dt><dd class="mt-1 text-xl font-bold"><a href="{{ route('admin.seo.opportunities') }}">{{ $growth['open_opportunities'] }}</a></dd></div>
                 <div><dt class="text-sm text-muted">Dış bağlantı araştırma adayı</dt><dd class="mt-1 text-xl font-bold">{{ $growth['research_candidates'] }}</dd></div>
-                <div><dt class="text-sm text-muted">Editörün gözlemlediği bağlantı</dt><dd class="mt-1 text-xl font-bold">{{ $growth['observed_links'] }}</dd></div>
-                <div><dt class="text-sm text-muted">Google tıklamaları</dt><dd class="mt-1 font-bold">Veri bağlı değil</dd></div>
+                <div><dt class="text-sm text-muted">Doğrulanmış bağlantı</dt><dd class="mt-1 text-xl font-bold">{{ $growth['machine_verified_links'] }}</dd></div>
+                <div><dt class="text-sm text-muted">Google tıklamaları</dt><dd class="mt-1 text-xl font-bold">{{ $growth['organic_metrics']['google_clicks'] ?? '-' }}</dd></div>
             </dl>
-            <p class="mt-4 text-sm text-muted">Bağımsız backlink doğrulaması ve Search Console ölçümü bağlı değil. Araştırma adayları backlink sayılmaz.</p>
+            <p class="mt-4 text-sm text-muted">{{ $growth['organic_metrics']['note'] }}</p>
             <p class="mt-2 text-sm">Son otomasyon: {{ $growth['latest_run']?->created_at?->format('d.m.Y H:i') ?? 'henüz çalışmadı' }}@if($growth['latest_run']) · {{ $growth['latest_run']->status === 'success' ? 'Tamamlandı' : 'Başarısız' }}@endif</p>
         </section>
         <div class="grid gap-6 py-6 xl:grid-cols-2">

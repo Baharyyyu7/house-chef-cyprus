@@ -1,49 +1,20 @@
-<x-layouts.site title="SEO Backlink ve İçerik Fırsatları">
+<x-layouts.site :title="__('admin_workspaces.work')">
 <section class="hc-container py-8 sm:py-10">
     <x-admin.page-header 
-        eyebrow="SEO & Digital PR" 
-        title="Backlink & İletişim Operasyonları" 
-        description="Akdeniz ve Kıbrıs mutfak otoritesini artırmak için taranan yüksek otoriteli yayıncılar, eşleşen kaynaklar ve tek tıkla e-posta iletişim araçları." 
+        :eyebrow="__('admin_workspaces.search')"
+        :title="__('admin_workspaces.work')"
         :back="['url' => route('admin.seo.index'), 'label' => 'SEO merkezi']"
     >
         <x-slot:actions>
             <form method="post" action="{{ route('admin.seo.opportunities.refresh') }}">
                 @csrf
                 <button type="submit" class="hc-v3-btn hc-v3-btn--ghost">
-                    🔄 Fırsatları Yenile
+                    <x-ui.icon name="refresh" :size="16" /> Listeyi yenile
                 </button>
             </form>
         </x-slot:actions>
     </x-admin.page-header>
 
-    @if(isset($dailyTargets))
-        <div class="mt-6 rounded-2xl border p-5 bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-emerald-500/10 border-orange-500/30">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-orange-400">⚡ Otonom Büyüme & Besleme Motoru</span>
-                    <h3 class="text-lg font-extrabold text-white mt-1">Günlük 100 SEO · 100 GEO · 100 Backlink Hedefi</h3>
-                    <p class="text-xs text-stone-400 mt-0.5">Arka planda 2 saatte bir ve her sabah 06:00'da otonom olarak yenilenir ve beslenir.</p>
-                </div>
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="rounded-xl px-3.5 py-2 bg-charcoal-900/80 border border-white/10 text-center">
-                        <span class="block text-[11px] text-stone-400 font-semibold">Günlük SEO Hedefi</span>
-                        <strong class="text-sm font-extrabold text-orange-400">{{ $dailyTargets['seo']['achieved'] }}/{{ $dailyTargets['seo']['target'] }}</strong>
-                        <span class="text-[10px] ml-1 text-emerald-400">✓ %{{ $dailyTargets['seo']['progress_percent'] }}</span>
-                    </div>
-                    <div class="rounded-xl px-3.5 py-2 bg-charcoal-900/80 border border-white/10 text-center">
-                        <span class="block text-[11px] text-stone-400 font-semibold">Günlük GEO Hedefi</span>
-                        <strong class="text-sm font-extrabold text-amber-400">{{ $dailyTargets['geo']['achieved'] }}/{{ $dailyTargets['geo']['target'] }}</strong>
-                        <span class="text-[10px] ml-1 text-emerald-400">✓ %{{ $dailyTargets['geo']['progress_percent'] }}</span>
-                    </div>
-                    <div class="rounded-xl px-3.5 py-2 bg-charcoal-900/80 border border-white/10 text-center">
-                        <span class="block text-[11px] text-stone-400 font-semibold">Günlük Backlink Hedefi</span>
-                        <strong class="text-sm font-extrabold text-indigo-400">{{ $dailyTargets['backlinks']['achieved'] }}/{{ $dailyTargets['backlinks']['target'] }}</strong>
-                        <span class="text-[10px] ml-1 text-emerald-400">✓ %{{ $dailyTargets['backlinks']['progress_percent'] }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
 
     {{-- Üst İstatistik Sayaçları --}}
     <div class="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -60,7 +31,7 @@
             <strong class="text-blue-400">{{ $stats['contacted_backlinks'] }}</strong>
         </div>
         <div class="hc-admin-stat">
-            <span>Kazanılan Backlink</span>
+            <span>Tamamlandı olarak işaretlenen</span>
             <strong class="text-emerald-400">{{ $stats['won_backlinks'] }}</strong>
         </div>
     </div>
@@ -104,7 +75,7 @@
             @php
                 $evidence = $opportunity->evidence ?? [];
                 $isBacklink = $opportunity->kind === 'backlink_prospect';
-                $score = $evidence['authority_score'] ?? $opportunity->priority;
+                $score = $opportunity->priority;
                 $targetDomain = $evidence['target_domain'] ?? (isset($evidence['target_url']) ? parse_url($evidence['target_url'], PHP_URL_HOST) : null) ?? $opportunity->title;
                 $targetUrl = $evidence['target_url'] ?? '#';
                 $topic = $evidence['topic'] ?? $opportunity->topic_cluster ?? $opportunity->title;
@@ -146,7 +117,7 @@
                                     🌐 {{ $targetDomain }}
                                 </span>
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-bold {{ $score >= 85 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30' }}">
-                                    Otorite Skoru: {{ $score }}/100
+                                    İş önceliği: {{ $score }}/100
                                 </span>
                             @else
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/30">

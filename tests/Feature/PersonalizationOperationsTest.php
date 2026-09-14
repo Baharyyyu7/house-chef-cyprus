@@ -87,7 +87,7 @@ final class PersonalizationOperationsTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
         $member = User::factory()->create(['role' => 'member', 'email_verified_at' => now()]);
-        $this->actingAs($admin)->get('/yonetim/kisisellestirme-operasyonlari')->assertOk()->assertSee('Kişiselleştirme operasyonları');
+        $this->actingAs($admin)->get('/yonetim/kisisellestirme-operasyonlari')->assertOk()->assertSee('Öneriler');
         $this->actingAs($member)->get('/yonetim/kisisellestirme-operasyonlari')->assertForbidden();
     }
 
