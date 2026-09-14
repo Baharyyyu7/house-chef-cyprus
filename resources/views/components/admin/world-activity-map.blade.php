@@ -294,6 +294,6 @@
     </div>
 
     <p class="hc-caption mt-4" style="color:var(--hc-text-muted)">{{ $visits
-    ? 'Kaynak: sitenin kendi ziyaret sayacı. Yalnız gün ve ülke tutulur. Google Analytics raporu değildir; sayılar örtüşmeyebilir.'
+    ? 'Kaynak: sitenin kendi ziyaret sayacı. Yalnız gün ve ülke tutulur. Google Analytics raporu değildir; sayılar örtüşmeyebilir. Ülke verisi: DB-IP IP to Country Lite (CC BY 4.0).'
     : 'Kaynak: uygulamadaki etkin üye profil ülkeleri. Google Analytics ziyaretçi raporu değildir.' }}</p>
 </article>

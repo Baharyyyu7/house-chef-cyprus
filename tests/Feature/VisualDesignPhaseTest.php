@@ -114,7 +114,11 @@ final class VisualDesignPhaseTest extends TestCase
         $this->actingAs($admin)->get(route('admin.dashboard'))
             ->assertOk()
             ->assertSee('Yönetim alanı')
-            ->assertSee('Veri Kalitesi')
+            // Menü 14 Eylül 2026'da (46571b0) üç çalışma alanında birleşti;
+            // sabit "Veri Kalitesi" etiketi kalktı, veri kalitesi "katalog"
+            // alanının sekmesi oldu. Etiket artık çeviri dosyasından geliyor,
+            // test de oradan okuyor ki bir sonraki adlandırmada yine kırılmasın.
+            ->assertSee(__('admin_workspaces.catalogue'))
             ->assertSee(route('admin.recipes.index'), false);
 
         $this->actingAs($member)->get(route('admin.dashboard'))->assertForbidden();

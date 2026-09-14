@@ -37,6 +37,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // saw a null consent on every request, and no advertising could ever render —
         // silently, with the configuration looking correct.
         $middleware->encryptCookies(except: ['hc_analytics_consent', 'hc_advertising_consent']);
+        // Gerçek ziyaretçi IP'si CDN arkasında X-Forwarded-For'dan okunur;
+        // güvenilen proxy listesi çalışma anında yapılandırmadan gelir.
+        // Ayrıntı: App\Http\Middleware\TrustCdnProxies.
+        $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustCdnProxies::class);
         // Yönlendirmeden önce çalışmalı: dil önekini istek yolundan çıkarıp
         // normal rotaya düşürüyor, böylece rotalar ikinci kez tanımlanmıyor.
         $middleware->prepend(LocaleUrlPrefix::class);

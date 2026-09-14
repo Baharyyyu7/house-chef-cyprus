@@ -117,6 +117,11 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_social_draf
 // yapılandırma kararı, kod kararı değil: INDEXNOW_ENABLED=true yeter.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_indexnow_submit', fn () => Artisan::call('seo:indexnow-submit')))->name('seo_indexnow_submit')->dailyAt('02:31')->withoutOverlapping()->when(fn (): bool => (bool) config('seo.indexnow.enabled'));
 
+// IP→ülke veritabanı (DB-IP, CC BY 4.0) ayda bir güncellenir. Komut yeni
+// dosyayı doğrulamadan eskisinin yerine koymaz; indirme başarısız olursa
+// ülke sayacı eski dosyayla çalışmaya devam eder.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('geoip_update', fn () => Artisan::call('geoip:update')))->name('geoip_update')->monthlyOn(4, '04:40')->withoutOverlapping();
+
 // Dil dil büyüme. Sabah brifingden hemen önce çalışır ki brifing taze
 // tabloyu görsün. Açık ama içeriği olmayan bir dil toplamların içinde
 // kaybolur; burada kaybolmuyor.

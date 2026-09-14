@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Models\AudienceCountryDay;
+use App\Services\Geo\IpCountryResolver;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,12 +14,25 @@ use Throwable;
 /**
  * Ziyaretçinin ülkesini günlük toplama yazar.
  *
- * Ülke bilgisi yalnız önümüzdeki CDN/sunucu katmanının verdiği başlıktan
- * okunur; IP adresine bakılmaz ve hiçbir yere yazılmaz. Başlık yoksa hiçbir
- * şey kaydedilmez - uydurma veri üretmektense harita boş kalır.
+ * Ülke önce önümüzdeki CDN/sunucu katmanının verdiği başlıktan okunur. Başlık
+ * yoksa ülke, sunucudaki yerel veritabanından IP ile bulunur.
+ *
+ * Başlangıçta yalnız başlık okunuyordu ve IP'ye hiç bakılmıyordu. 12-13 Eylül
+ * 2026'da site Cloudflare'den Hostinger CDN'e geçti; yeni CDN ülke başlığı
+ * göndermediği için sayaç hata vermeden durdu (günlük 2.119 → 0).
+ *
+ * IP yalnız bu isteğin belleğinde, ülke bulmak için kullanılır: veritabanına,
+ * önbelleğe ya da loga yazılmaz, dışarıya gönderilmez. Kayda yine yalnız gün
+ * ve ülke kodu geçer. Ülke bulunamazsa hiçbir şey kaydedilmez - uydurma veri
+ * üretmektense harita eksik kalır.
  */
 final class RecordAudienceCountry
 {
+    public function __construct(
+        private readonly IpCountryResolver $ulkeler
+    ) {
+    }
+
     /**
      * Farklı barındırıcılar aynı bilgiyi farklı adla gönderiyor.
      */
@@ -99,7 +113,11 @@ final class RecordAudienceCountry
             }
         }
 
-        return null;
+        // Son çare: yerel veritabanı. $request->ip() ancak güvenilen proxy
+        // ayarı doğruysa gerçek ziyaretçiyi verir (bkz. TrustCdnProxies);
+        // yanlışsa CDN sunucusunun ülkesi bulunur. Çözücü özel ağ adreslerini
+        // zaten reddeder.
+        return $this->ulkeler->country($request->ip());
     }
 
     /**
@@ -116,7 +134,9 @@ final class RecordAudienceCountry
             $adaylar = [];
 
             foreach (array_keys($request->headers->all()) as $ad) {
-                if (preg_match('/(country|geo|cf-|ip-?city|region)/i', (string) $ad) === 1) {
+                // forwarded/real-ip/client-ip: CDN'in gerçek ziyaretçi IP'sini
+                // hangi başlıkla ilettiğini öğrenmek için. Yalnız ad tutulur.
+                if (preg_match('/(country|geo|cf-|ip-?city|region|forwarded|real-ip|client-ip)/i', (string) $ad) === 1) {
                     $adaylar[] = strtolower((string) $ad);
                 }
             }
