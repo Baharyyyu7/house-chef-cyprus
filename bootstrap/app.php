@@ -1,6 +1,7 @@
 <?php
 
 use App\Contracts\Observability\ErrorReporterInterface;
+use App\Http\Middleware\CanonicalHost;
 use App\Http\Middleware\LocaleUrlPrefix;
 use App\Http\Middleware\RecordAudienceCountry;
 use App\Http\Middleware\RequestContext;
@@ -41,6 +42,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // güvenilen proxy listesi çalışma anında yapılandırmadan gelir.
         // Ayrıntı: App\Http\Middleware\TrustCdnProxies.
         $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustCdnProxies::class);
+        // Canonical alan adı yönlendirmesi (www -> non-www 301)
+        $middleware->prepend(CanonicalHost::class);
         // Yönlendirmeden önce çalışmalı: dil önekini istek yolundan çıkarıp
         // normal rotaya düşürüyor, böylece rotalar ikinci kez tanımlanmıyor.
         $middleware->prepend(LocaleUrlPrefix::class);

@@ -32,6 +32,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -149,5 +150,19 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('contact-request', fn (Request $request) => Limit::perHour(5)->by(hash('sha256', (string) $request->ip().'|'.mb_strtolower((string) $request->input('email')))));
         RateLimiter::for('payment-attempt', fn (Request $request) => Limit::perMinute(5)->by($request->user()?->id ?: $request->ip()));
         RateLimiter::for('digital-download', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+
+        URL::macro('localizedRoute', function (string $name, array $parameters = [], bool $absolute = true) {
+            $locale = app()->getLocale();
+            $defaultLocale = config('locales.default', 'tr');
+
+            $route = route($name, $parameters, $absolute);
+
+            if ($locale === $defaultLocale) {
+                return $route;
+            }
+
+            $localeUrlService = app(\App\Services\Seo\LocaleUrlService::class);
+            return $localeUrlService->urlFor($locale, $route);
+        });
     }
 }

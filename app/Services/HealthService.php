@@ -13,6 +13,10 @@ final class HealthService
     /** @return array{status:string,checked_at:string,components:array<int,array<string,mixed>>} */
     public function snapshot(bool $refresh = false): array
     {
+        if ($refresh) {
+            Cache::forget('health.snapshot.v1');
+        }
+
         return Cache::remember('health.snapshot.v1', now()->addSeconds((int) config('observability.health_cache_seconds')), function (): array {
             $components = [];
             $components[] = $this->check('application', fn () => true, 'Uygulama çalışıyor.');

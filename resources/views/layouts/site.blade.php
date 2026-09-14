@@ -68,7 +68,18 @@
          dosyaları CORS ile çekilir ve ikincisi ayrı bir bağlantı açar. --}}
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
-    <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    <link rel="preload" as="style" href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&family=inter:400,500,600,700&display=swap">
+    <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&family=inter:400,500,600,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&family=inter:400,500,600,700&display=swap" />
+    </noscript>
+    <style>
+        /* Responsive CSS media queries for mobile/tablet/desktop */
+        @media (max-width: 639px) { .hc-hide-mobile { display: none !important; } }
+        @media (min-width: 640px) and (max-width: 1023px) { .hc-hide-tablet { display: none !important; } }
+        @media (min-width: 1024px) { .hc-hide-desktop { display: none !important; } }
+    </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <title>{{ $title }}</title>
     <script>if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');</script>
     <script>
@@ -306,7 +317,6 @@
         }
     })();
     </script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @unless($isPrivateSurface)<x-google-integrations />@endunless
 </head>
 <body data-alpine-owner="{{ $livewire ? 'livewire' : 'app' }}" x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, adminSidebarCollapsed: localStorage.hcAdminSidebarCollapsed === 'true', adminSidebarQuery: '', scrolled: false }"

@@ -9,7 +9,8 @@
 
 @php
     $sizes = config('brand.sizes');
-    $width = $sizes[$size] ?? $sizes['md'];
+    $width = (int) ($sizes[$size] ?? $sizes['md']);
+    $height = $compact ? $width : (int) max(1, round($width * 44 / 172));
     $loading = $loading ?? ($context === 'header' ? 'eager' : 'lazy');
     $assets = config('brand.assets');
     $light = asset($compact ? $assets['mark_light'] : $assets['logo_light']);
@@ -19,7 +20,7 @@
     $lightSrcset = $light.' 1x, '.asset($assets[$compact ? 'mark_light_2x' : 'logo_light_2x']).' 2x';
     $darkSrcset = $dark.' 1x, '.asset($assets[$compact ? 'mark_dark_2x' : 'logo_dark_2x']).' 2x';
     $imageClass = 'hc-brand-logo__image max-w-full object-contain';
-    $imageStyle = 'width: '.$width.'px; height: auto;';
+    $imageStyle = 'width: '.$width.'px; height: '.$height.'px; aspect-ratio: '.$width.'/'.$height.';';
     $alt = config('brand.name');
 @endphp
 
@@ -29,10 +30,10 @@
     <span {{ $attributes->merge(['class' => 'hc-brand-logo inline-flex shrink-0 items-center']) }}>
 @endif
     @if ($variant === 'auto')
-        <img src="{{ $light }}" srcset="{{ $lightSrcset }}" width="{{ $compact ? 128 : 344 }}" height="{{ $compact ? 128 : 88 }}" class="{{ $imageClass }} dark:hidden" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}">
-        <img src="{{ $dark }}" srcset="{{ $darkSrcset }}" width="{{ $compact ? 128 : 344 }}" height="{{ $compact ? 128 : 88 }}" class="{{ $imageClass }} hidden dark:block" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}">
+        <img src="{{ $light }}" srcset="{{ $lightSrcset }}" width="{{ $width }}" height="{{ $height }}" class="{{ $imageClass }} dark:hidden" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}" @if($context === 'header') fetchpriority="high" @endif>
+        <img src="{{ $dark }}" srcset="{{ $darkSrcset }}" width="{{ $width }}" height="{{ $height }}" class="{{ $imageClass }} hidden dark:block" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}" @if($context === 'header') fetchpriority="high" @endif>
     @else
-        <img src="{{ $variant === 'dark' ? $dark : $light }}" srcset="{{ $variant === 'dark' ? $darkSrcset : $lightSrcset }}" width="{{ $compact ? 128 : 344 }}" height="{{ $compact ? 128 : 88 }}" class="{{ $imageClass }}" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}">
+        <img src="{{ $variant === 'dark' ? $dark : $light }}" srcset="{{ $variant === 'dark' ? $darkSrcset : $lightSrcset }}" width="{{ $width }}" height="{{ $height }}" class="{{ $imageClass }}" style="{{ $imageStyle }}" alt="{{ $alt }}" loading="{{ $loading }}" @if($context === 'header') fetchpriority="high" @endif>
     @endif
 @if ($linked)
     </a>
