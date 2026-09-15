@@ -1,52 +1,28 @@
-# Bu dosya canlıda gerçekten servis edilen robots.txt'tir.
-#
-# routes/web.php içindeki /robots.txt görünümü canlıda çalışmıyor: web
-# sunucusu aynı adda gerçek bir dosya bulduğunda onu servis ediyor ve
-# uygulamaya hiç gelmiyor. Cloudflare de kendi yönettiği yapay zekâ
-# tarayıcı bloğunu bunun önüne ekliyor. Kuralları buraya yazmazsak
-# hiçbir yerde geçerli olmuyorlar.
+User-agent: *
+Allow: /
 
-# İÇERİK SİNYALİ BURADA TANIMLANMAZ.
-#
-# Cloudflare kendi Content-Signal satırını bu dosyanın önüne ekliyor
-# (search=yes, ai-train=no, use=reference). Buraya ikinci bir satır yazmak
-# iki çelişen sinyal üretir ve tarayıcı hangisine uyacağını bilemez; tek
-# satır iki satırdan iyidir.
-#
-# GPTBot, ClaudeBot, Google-Extended gibi ajanları engelleyen satırlar da
-# aynı yerden geliyor ve kod tarafından değiştirilemiyor. Politikayı
-# değiştirmek için Cloudflare panelindeki "Managed robots.txt" ayarı
-# kapatılmalı. Kapatılmadan burada yazılan hiçbir şey geçerli olmaz.
+Sitemap: https://housechefcyprus.com/sitemap.xml
+Sitemap: https://housechefcyprus.com/sitemaps/recipes.xml
+Sitemap: https://housechefcyprus.com/sitemaps/blog.xml
+Sitemap: https://housechefcyprus.com/sitemaps/images.xml
+Sitemap: https://housechefcyprus.com/sitemaps/pages.xml
 
-User-agent: Mediapartners-Google
+IndexNow: https://api.indexnow.org/indexnow
+Host: housechefcyprus.com
+Key: c032a1e8e8214371b658ef9c7e0b57e1
+Key-Location: https://housechefcyprus.com/.well-known/key.txt
+
+User-agent: GPTBot
 Allow: /
 
 User-agent: PerplexityBot
 Allow: /
 
-User-agent: Applebot
+User-agent: ClaudeBot
 Allow: /
 
-User-agent: Applebot-Extended
+User-agent: Google-Extended
 Allow: /
 
-User-agent: OAI-SearchBot
+User-agent: Bingbot
 Allow: /
-
-User-agent: *
-Allow: /
-
-# Oturum gerektiren ya da kişiye özel alanlar arama sonuçlarında işi yok.
-Disallow: /dashboard
-Disallow: /dolabim
-Disallow: /favoriler
-Disallow: /pisir/
-Disallow: /yonetim/
-
-Sitemap: https://housechefcyprus.com/sitemap.xml
-
-# IndexNow Disclosure
-# https://www.indexnow.org
-Host: housechefcyprus.com
-Key: c032a1e8e8214371b658ef9c7e0b57e1
-KeyLocation: https://housechefcyprus.com/c032a1e8e8214371b658ef9c7e0b57e1.txt

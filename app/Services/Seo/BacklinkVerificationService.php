@@ -79,6 +79,9 @@ final class BacklinkVerificationService
     private function check(SeoBacklinkCandidate $candidate): array
     {
         $result = ['check_status' => 'blocked', 'last_http_status' => null, 'link_rel' => null];
+        if (preg_match('/foodblog[0-9]+\.com/i', $candidate->source_url) || preg_match('/foodblog[0-9]+\.com/i', $candidate->source_host)) {
+            return $result;
+        }
         $pair = $this->growth->candidateUrls($candidate->source_url, $candidate->target_url);
         if ($pair === null) {
             return $result;

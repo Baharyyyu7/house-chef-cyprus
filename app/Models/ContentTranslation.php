@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 final class ContentTranslation extends Model
 {
-    protected $fillable = ['locale', 'field', 'value'];
+    protected $fillable = ['locale', 'field', 'value', 'translatable_type', 'translatable_id'];
 
     public function translatable(): MorphTo
     {

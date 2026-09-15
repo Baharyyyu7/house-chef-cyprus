@@ -27,7 +27,7 @@ final class SeoBacklinkCandidate extends Model
         'observed' => ['reviewing', 'rejected'],
     ];
 
-    protected $fillable = ['source_url', 'source_host', 'target_url', 'deduplication_hash', 'status', 'evidence', 'review_note', 'reviewed_at', 'reviewed_by_user_id', 'check_status', 'checked_at', 'next_check_at', 'last_http_status', 'link_rel'];
+    protected $fillable = ['source_url', 'source_host', 'target_url', 'deduplication_hash', 'status', 'evidence', 'review_note', 'reviewed_at', 'reviewed_by_user_id', 'check_status', 'checked_at', 'next_check_at', 'last_http_status', 'link_rel', 'authority_score', 'asset_keyword', 'outreach_status', 'email_template_en', 'email_template_tr', 'domain', 'topic'];
 
     protected function casts(): array
     {

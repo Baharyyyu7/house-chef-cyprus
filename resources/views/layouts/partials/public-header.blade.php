@@ -42,7 +42,7 @@
                                  class="hc-user-menu absolute left-1/2 z-50 mt-3 w-[20rem] -translate-x-1/2 origin-top overflow-hidden rounded-3xl p-1.5"
                                  role="menu" aria-label="{{ __('nav.my_kitchen') }}">
                                 @foreach ($mutfakRotalari as [$rota, $etiket, $aciklama])
-                                    <a href="{{ route($rota) }}" class="hc-user-menu__item !items-start" role="menuitem">
+                                    <a href="{{ localized_route($rota) }}" class="hc-user-menu__item !items-start" role="menuitem">
                                         <span class="min-w-0">
                                             <span class="block">{{ $etiket }}</span>
                                             <span class="hc-caption block font-normal" style="color: var(--hc-text-secondary)">{{ $aciklama }}</span>

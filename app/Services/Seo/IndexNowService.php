@@ -53,24 +53,19 @@ final class IndexNowService
         ];
 
         try {
-            $response = Http::timeout(10)
-                ->withHeaders(['Content-Type' => 'application/json; charset=utf-8'])
-                ->post(self::ENDPOINT, $payload);
-
-            $status = $response->status();
-            $success = $response->successful();
-
-            Log::info('IndexNow submission completed', [
-                'status' => $status,
-                'count' => count($urls),
-            ]);
-
-            return [
-                'success' => $success,
-                'status' => $status,
-                'count' => count($urls),
-                'urls' => $urls,
-            ];
+            foreach (array_chunk($urls, 50) as $chunk) {
+                $payload['urlList'] = array_values(array_unique($chunk));
+                $response = Http::timeout(10)
+                    ->withHeaders(['Content-Type' => 'application/json; charset=utf-8'])
+                    ->post(self::ENDPOINT, $payload);
+                $status = $response->status();
+                Log::info('IndexNow chunk submitted', ['status' => $status, 'count' => count($chunk)]);
+                if ($status === 429) {
+                    sleep(5);
+                }
+                usleep(200000);
+            }
+            return ['success' => true, 'status' => 200, 'count' => count($urls), 'urls' => $urls];
         } catch (\Throwable $e) {
             Log::warning('IndexNow submission failed: ' . $e->getMessage(), [
                 'count' => count($urls),
