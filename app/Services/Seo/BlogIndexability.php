@@ -52,11 +52,11 @@ final class BlogIndexability
             $engeller[] = 'ince';
         }
 
-        if ($yazi->fact_check_status !== 'passed') {
+        if (! in_array($yazi->fact_check_status, ['passed', 'verified'], true)) {
             $engeller[] = 'olgu_denetimi_gecmedi';
         }
 
-        if ($yazi->originality_status !== 'passed') {
+        if (! in_array($yazi->originality_status, ['passed', 'clean', 'original'], true)) {
             $engeller[] = 'ozgunluk_gecmedi';
         }
 

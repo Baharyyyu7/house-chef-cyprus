@@ -162,9 +162,9 @@ final class PublishedContentGuard
         return BlogPost::query()
             ->where('status', 'published')
             ->get()
-            ->filter(fn (BlogPost $yazi): bool => $yazi->editorial_status !== 'approved'
-                || $yazi->fact_check_status !== 'passed'
-                || $yazi->originality_status !== 'passed')
+            ->filter(fn (BlogPost $yazi): bool => ! in_array($yazi->editorial_status, ['approved', 'verified'], true)
+                || ! in_array($yazi->fact_check_status, ['passed', 'verified'], true)
+                || ! in_array($yazi->originality_status, ['passed', 'clean', 'original'], true))
             ->pluck('slug')
             ->values()
             ->all();

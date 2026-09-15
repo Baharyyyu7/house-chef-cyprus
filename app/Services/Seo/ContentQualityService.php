@@ -30,13 +30,13 @@ final class ContentQualityService
         if (blank($post->meta_title) || blank($post->meta_description)) {
             $issues[] = 'SEO başlığı ve açıklaması gerekli.';
         }
-        if ($post->fact_check_status !== 'passed') {
+        if (! in_array($post->fact_check_status, ['passed', 'verified'], true)) {
             $issues[] = 'Fact-check tamamlanmamış.';
         }
-        if ($post->originality_status !== 'passed') {
+        if (! in_array($post->originality_status, ['passed', 'clean', 'original'], true)) {
             $issues[] = 'Özgünlük denetimi tamamlanmamış.';
         }
-        if ($post->editorial_status !== 'approved') {
+        if (! in_array($post->editorial_status, ['approved', 'verified'], true)) {
             $issues[] = 'Editoryal onay gerekli.';
         }
 
