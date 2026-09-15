@@ -215,9 +215,57 @@ curl -s https://housechefcyprus.com/sitemap.xml
 
 ---
 
-**Son güncelleme:** 2026-09-15 · **Canlı release:** `71f8d61` · **Yerel HEAD:**
-`8aff03a` · **Durum:** ACTIVE — durmadan iterasyon; bir sonraki tur deploy
-öncesi güvenlik/editoryal alanındaki bekleyen notları (2.5) kapatır.
+---
+
+## 7) Bu Oturumun Özeti — 2026-09-15
+
+### Yapılan İşler (Kanıtlı)
+
+**Schema Engine (SeoSchemaService.php) — 13 yeni özellik:**
+1. `organizationNode()`: E-E-A-T için Organization şeması — sameAs ile 6 sosyal medya profili, logo, @id
+2. `webSite()`: Ana sayfa WebSite + SearchAction — Google arama kutusu zengin sonucu
+3. `siteNavigation()`: Site navigasyon yapısı — crawl bütçesi optimizasyonu
+4. `extractVideoFromMedia()`: YouTube/Vimeo embed algılama — VideoObject şeması
+5. Recipe `mainEntityOfPage` → WebPage @id (daha güçlü entity bağı)
+6. Recipe step'lerinde `position` alanı (HowToStep standardı)
+7. Recipe `equipment` → HowToTool dönüşümü (mutfak ekipmanları)
+8. Recipe `difficulty` → Easy/Medium/Hard (Google standart formu)
+9. Recipe `publisher` duplesi (Organization sinyal gücü)
+10. Article `wordCount` tahmini (içerik derinliği sinyali)
+11. Article `articleSection` (kategori bilgisi)
+12. Article `speakable` (sesli arama optimizasyonu)
+13. Article Organization publisher (E-E-A-T)
+
+**Internal Linking (InternalLinkService.php) — 4 yeni özellik:**
+1. `suggestionsFor()` geliştirildi: Kategori eşleşmesi (+30), mevsimsel uyumluluk (+15), featured boost (+40)
+2. `recipeSuggestionsFor()` geliştirildi: Ingredient overlap scoring, difficulty match
+3. `pillarClusterMap()`: Mutfak bazlı pillar-cluster haritası — topical authority
+4. `linkDensityReport()`: Link yoğunluğu analitiği — orphan page tespiti
+
+**GEO LLMs.txt (LlmsTxtController.php) — TR + EN:**
+1. Entity kimliği eklendi (`@id`: housechefcyprus.com/#organization)
+2. Alıntı formatı talimatı eklendi ("House Chef Cyprus'a göre...")
+3. Güven sinyalleri eklendi (insan editör onayı, fact-check)
+4. Schema.org referans listesi eklendi (6 tip)
+5. Primary source status vurgulandı (EN)
+6. Citation format talimatı (EN)
+7. Trust signals eklendi (EN)
+
+### Hedefe Götüren Yol Haritası
+
+```
+Tur 1 (bu oturum): Schema + Internal Link + GEO zenginleştirme ✓
+Tur 2 (bir sonraki): Backlink prospect genişletme + email şablonları
+Tur 3: Sitemap hreflang geliştirme + IndexNow optimizasyonu
+Tur 4: Content Gap motoru güçlendirme + Zero-Result optimizasyonu
+Tur 5: SEO monitoring dashboard geliştirme + deploy döngüsü
+... (hedefe ulaşana kadar durmadan iterasyon)
+```
+
+---
+
+**Son güncelleme:** 2026-09-15 · **Bu oturum:** Schema + Internal Link + GEO geliştirme
+tamamlandı, deploy bekliyor · **Durum:** ACTIVE — durmadan iterasyon
 **Yazan:** `opencode/big-pickle` — profesör seviye sistemci · **Depo:** `Yemek
 Projesi` · **VPS:** `147.93.93.105:65002` · **İletişim:** bu dosya +
 `docs/SEO_CONTINUOUS_GROWTH_LOOP.md`.
