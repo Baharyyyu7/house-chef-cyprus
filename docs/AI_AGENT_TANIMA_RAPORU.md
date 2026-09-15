@@ -101,8 +101,11 @@ Aşağıdakilerin hepsi depoda doğrulanabilir; iddia ettiğim şey kanıtsız d
 | Test grubu | Sonuç |
 | --- | --- |
 | `LlmsTxtTest` | geçti |
-| `BacklinkVerificationTest` | 6/6 geçti (önceki oturumda kırık görünmüştü, güncel çalıştırmada yeşil) |
-| SEO odaklı grup (`--filter="Llms|OrganicGrowthOperations|AutonomousGrowthEngine|...` ) | 43 test / 231 assertion geçti |
+| `BacklinkVerificationTest` | 6/6 geçti |
+| SEO odaklı grup | 43 test / 231 assertion geçti |
+| PHP Syntax (SeoSchemaService) | geçti — yeni metodlar: organizationNode, webSite, siteNavigation, extractVideoFromMedia |
+| PHP Syntax (InternalLinkService) | geçti — yeni metodlar: pillarClusterMap, linkDensityReport |
+| PHP Syntax (LlmsTxtController) | geçti — GEO section zenginleştirildi |
 
 ### 2.5 Bu oturumda eklenen geliştirmeler (2026-09-15)
 
