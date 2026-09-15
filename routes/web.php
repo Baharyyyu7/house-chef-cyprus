@@ -206,8 +206,6 @@ Route::get('/en/site.webmanifest', fn () => response(file_get_contents(public_pa
 Route::get('/c032a1e8e8214371b658ef9c7e0b57e1.txt', fn () => response(config('services.indexnow.key', 'c032a1e8e8214371b658ef9c7e0b57e1'), 200, ['Content-Type' => 'text/plain; charset=UTF-8']));
 Route::view('/robots.txt', 'robots')->name('robots');
 
-Route::get('/seo/dashboard', [App\Http\Controllers\Seo\DashboardController::class, 'index'])->name('seo.dashboard');
-
 // Zamanlayıcı tetikleme ucu. Hostinger cron'u 2 Ağustos 2026'dan beri
 // çalışmıyor; bu uç dışarıdan bir zamanlayıcının uygulamayı dürtmesini
 // sağlıyor. Token tanımlı değilse 404 döner, yani varsayılan kapalıdır.

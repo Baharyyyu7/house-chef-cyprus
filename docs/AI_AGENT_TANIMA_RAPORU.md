@@ -127,15 +127,17 @@ Aşağıdakilerin hepsi depoda doğrulanabilir; iddia ettiğim şey kanıtsız d
 
 ### 2.6 Bekleyen/güvenlik notları (dürüst envanter)
 
-- `/seo/dashboard` rotası (`app/Http/Controllers/Seo/DashboardController.php`)
-  herkese açık tanımlanmış — commit/deploy edilmedi. `can:access-admin` arkasına
-  alınmadan yayına girmemeli.
+- ✅ `/seo/dashboard` rotası kaldırıldı (2026-09-15): controller git'e hiç
+  girmediği/beklemede kaldığı için kırık public rota yerine yayın öncesi
+  `routes/web.php`'den çıkarıldı. Deploy güvenli.
 - `AutoFixSeoIssues.php`, `SeoBacklinkOutreach.php` +
   `BacklinkOutreachProcessor.php` + `docs/backlink_outreach_list.json` (20 yüksek
   otorite prospect) güvenliği/editoryal kapıyı aşmamalı: taslak-üretim ile
-  dış mesaj gönderimi ayrı tutulmalı.
-- `public/.well-known/key.txt` IndexNow anahtarı kopyası — rota zaten servis ediyor,
-  kopya gereksiz olabilir (silme kararı sunucu/servis sahibi onayıyla).
+  dış mesaj gönderimi ayrı tutulmalı. Şu an diskte yok — yazılırsa yeniden
+  editoryal kapıyla (draft-only, NO dış gönderim) commit edilmeli.
+- ✅ `public/.well-known/key.txt` IndexNow anahtarı: `routes/web.php` zaten
+  `/c032a1e8...txt` yolunu servis ediyor (satır 206); robots.txt `Key-Location`
+  buna işaret ediyor. Kopya dosya deploy'a dahil edilmedi, zararsız ve/kaldı.
 - Çalışma ağacındaki değişmemiş plan dokümanları
   (`SEO_GEO_COMPREHENSIVE_PLAN.md`, `PLAN_SEO_GEO_DOMINANCE.md`,
   `SEO_GEO_BACKLINK_MASTER_STRATEGY.md`, `IMPLEMENTATION_PLAN.md`,
