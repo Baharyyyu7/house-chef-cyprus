@@ -30,6 +30,7 @@ return [
     'measure_title' => 'Recipes with verified measurements',
     'measure_intro' => 'View household measures, gram equivalents and nutrition for each recipe.',
     'social' => 'or continue with',
+    'or_with_email' => 'or with email',
     'provider' => 'Continue with :provider',
     'recovery' => 'Account access',
     'reset_title' => 'Reset your password',

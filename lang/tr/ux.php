@@ -30,6 +30,7 @@ return [
     'measure_title' => 'Ölçüleri doğrulanmış tarifler',
     'measure_intro' => 'Her tarifte ev ölçüsü, gram karşılığı ve besin değeri görünür.',
     'social' => 'veya şununla devam et',
+    'or_with_email' => 'veya e-posta ile',
     'provider' => ':provider ile devam et',
     'recovery' => 'Hesap erişimi',
     'reset_title' => 'Şifrenizi yenileyin',

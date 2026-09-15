@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\MemberRegistered;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirect;
@@ -92,6 +95,20 @@ final class SocialLoginController extends Controller
                 'terms_accepted_at' => now(),
             ]);
         });
+
+        if ($kullanici->wasRecentlyCreated) {
+            try {
+                event(new Registered($kullanici));
+            } catch (Throwable $e) {
+                Log::warning('Social login registration event failed: '.$e->getMessage());
+            }
+
+            try {
+                event(new MemberRegistered($kullanici));
+            } catch (Throwable $e) {
+                Log::warning('Social login member registration event failed: '.$e->getMessage());
+            }
+        }
 
         Auth::login($kullanici, remember: true);
         request()->session()->regenerate();

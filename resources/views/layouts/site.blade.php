@@ -24,7 +24,8 @@
     @endforeach
     @php($isPrivateSurface = request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
     @if ($robots || $isPrivateSurface)
-        <meta name="robots" content="{{ $robots ?: 'noindex,nofollow' }}">
+        @php($effectiveRobots = $isPrivateSurface || str_contains((string) $robots, 'noindex') ? ($robots ?: 'noindex,nofollow') : ($robots ? $robots.', max-image-preview:large' : 'index,follow, max-image-preview:large'))
+        <meta name="robots" content="{{ $effectiveRobots }}">
     @endif
     @unless ($isPrivateSurface || str_contains((string) $robots, 'noindex'))
         <meta name="geo.region" content="CY">

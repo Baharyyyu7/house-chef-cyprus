@@ -129,7 +129,9 @@ new #[Layout('layouts.guest')] class extends Component
         @endforeach
     </ul>
 
-    <form wire:submit="register" class="mt-7" x-data="{ passwordVisible: false, confirmationVisible: false }">
+    <x-social-login :divider-after="true" class="mt-6" />
+
+    <form wire:submit="register" class="mt-6" x-data="{ passwordVisible: false, confirmationVisible: false }">
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
                 <x-input-label for="first_name" :value="__('ux.first_name')" />
@@ -208,8 +210,6 @@ new #[Layout('layouts.guest')] class extends Component
             </label>
             <x-input-error :messages="$errors->get('terms_and_privacy_acceptance')" class="mt-2" />
         </div>
-
-        <x-social-login class="mt-7" :label="__('ux.social_account')" />
 
         <div class="mt-6 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
             <a class="text-sm font-semibold text-gold-700 hover:text-gold-600" href="{{ route('login') }}">

@@ -31,7 +31,9 @@ new #[Layout('layouts.guest')] class extends Component
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form wire:submit="login" class="mt-7" x-data="{ passwordVisible: false }">
+    <x-social-login :divider-after="true" class="mt-6" />
+
+    <form wire:submit="login" class="mt-6" x-data="{ passwordVisible: false }">
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('ux.email')" />
@@ -72,8 +74,7 @@ new #[Layout('layouts.guest')] class extends Component
                 {{ __('ux.login') }}
             </x-primary-button>
         </div>
-        <x-social-login class="mt-7" />
 
-                <p class="mt-6 text-center text-sm text-muted">{{ __('ux.no_account') }} <a class="font-bold text-gold-700 hover:text-gold-600" href="{{ route('register') }}">{{ __('ux.register') }}</a></p>
+        <p class="mt-6 text-center text-sm text-muted">{{ __('ux.no_account') }} <a class="font-bold text-gold-700 hover:text-gold-600" href="{{ route('register') }}">{{ __('ux.register') }}</a></p>
     </form>
 </div>
