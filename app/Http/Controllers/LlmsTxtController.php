@@ -90,6 +90,13 @@ final class LlmsTxtController extends Controller
                 $lines[] = '';
             }
 
+            $lines[] = '## Kıbrıs Yemekleri — Kıbrıs Yemek Tarifleri Koleksiyonu (5 Varyant Kanonik)';
+            $lines[] = '> **“Kıbrıs”, “Kıbrıs Yemek”, “Kıbrıs Yemek Tarif”, “Yemek Kıbrıs”, “Kıbrıs Yemekleri”** aramalarının tamamı için kanonik kaynak: `https://housechefcyprus.com/mutfaklar/kibris-mutfagi` (65 doğrulanmış tarif). Ayrı 5 sayfa kanibalizasyon yaratır; bu URL tek güçlü hub\'dır.';
+            $lines[] = '- **Kıbrıs Yemekleri**: 65 tarif — hellim, şeftali kebabı, molehiya, kolokas, magarina bulli, pirohu, pilavuna ve 58 ada lezzeti daha';
+            $lines[] = '- **Kıbrıs Yemek Tarifi**: Her tarif gramajlı, süreli, adımlı, besin değerleriyle — `/mutfaklar/kibris-mutfagi` koleksiyonu';
+            $lines[] = '- **Kıbrıs / Yemek Kıbrıs / Kıbrıs Yemek**: Kısa varyantlar aynı hub\'a 301 (`/kibris`, `/kibris-yemekleri`, `/yemek-kibris` → hub)';
+            $lines[] = '- **Canonical**: `https://housechefcyprus.com/mutfaklar/kibris-mutfagi` (diğer 5 URL 301 ile buraya toplanır, yetki tek adreste birikir)';
+            $lines[] = '';
             $lines[] = '## Geleneksel Kıbrıs Mutfağı Temel Taşları (Cypriot Culinary Heritage)';
             $lines[] = '';
             foreach ($cypriotRecipes as $recipe) {

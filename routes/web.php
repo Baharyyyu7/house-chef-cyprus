@@ -112,6 +112,12 @@ Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])-
 // tarif varsa açılır; eşiğin altındaki malzeme 404 verir.
 // Mutfak sayfalari: sitenin kendi arama kaydi "kibris mutfagi"ni 24 kez
 // olctu ama indekslenebilir tek bir mutfak sayfasi yoktu.
+// Kıbrıs 5'li varyant için kısa/anahtar kelime URL'leri — hepsi kanonik hub'a 301
+// "Kıbrıs", "Kıbrıs Yemek", "Kıbrıs Yemek Tarif", "Yemek Kıbrıs", "Kıbrıs Yemekleri" tek sayfada toplanır
+foreach (['kibris','kibris-yemek','kibris-yemekleri','kibris-yemek-tarifi','kibris-yemek-tarifleri','yemek-kibris'] as $kisa) {
+    Route::redirect('/'.$kisa, '/mutfaklar/kibris-mutfagi', 301)->name('kibris.alias.'.$kisa);
+    Route::redirect('/en/'.$kisa, '/en/mutfaklar/kibris-mutfagi', 301);
+}
 Route::get('/mutfaklar', [CuisineHubController::class, 'index'])->name('cuisines.index');
 Route::get('/mutfaklar/{slug}', [CuisineHubController::class, 'show'])->name('cuisines.show');
 Route::get('/kategoriler', [CategoryHubController::class, 'index'])->name('categories.index');

@@ -101,12 +101,14 @@ final class SitemapController extends Controller
 
     public function recipes(): Response
     {
-        $mediaEligibility = app(PublicMediaEligibilityService::class);
+        // Kıbrıs için kritik düzeltme: 65 Kıbrıs tarifi sitemap'te 0 gösteriliyordu
+        // çünkü branded_fallback görsel "eligible" sayılmıyordu. Tarif sitemap'i
+        // sayfayı duyurur, görseli değil — görsel image sitemap'tedir.
+        // Noindex filtresi yeter; media filtresi sitemap'i boşaltıyordu.
         $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified'))
-            ->with(['seoMetadata', 'media' => fn ($query) => $query->where('visibility', 'public')->orderBy('sort_order')])
+            ->with(['seoMetadata'])
             ->orderBy('updated_at')->get(['id', 'slug', 'title', 'excerpt', 'description', 'updated_at'])
             ->filter(fn (Recipe $recipe): bool => $this->effectiveAllows($recipe))
-            ->filter(fn (Recipe $recipe): bool => $mediaEligibility->firstEligible($recipe->media) !== null)
             ->map(fn (Recipe $recipe): array => [
                 'loc' => route('recipes.show', $recipe->slug),
                 'lastmod' => $recipe->updated_at?->toDateString(),
