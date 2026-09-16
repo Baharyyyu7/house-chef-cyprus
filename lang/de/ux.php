@@ -30,6 +30,7 @@ return [
     'measure_title' => 'Rezepte mit geprüften Mengenangaben',
     'measure_intro' => 'Sehen Sie Haushaltsmaße, Gramm-Äquivalente und Nährwerte für jedes Rezept.',
     'social' => 'oder fortfahren mit',
+    'or_with_email' => 'oder per E-Mail',
     'provider' => 'Fortfahren mit :provider',
     'recovery' => 'Kontozugriff',
     'reset_title' => 'Passwort zurücksetzen',

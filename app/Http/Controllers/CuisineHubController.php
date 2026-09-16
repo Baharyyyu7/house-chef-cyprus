@@ -33,7 +33,7 @@ use Illuminate\View\View;
 final class CuisineHubController extends Controller
 {
     /** Bir mutfak sayfasının var olması için gereken en az yayındaki tarif sayısı. */
-    private const ASGARI_TARIF = 5;
+    private const ASGARI_TARIF = 4;
 
     /**
      * Bu mutfağın sayfası var mı?

@@ -30,6 +30,7 @@ return [
     'measure_title' => 'Receitas com medidas verificadas',
     'measure_intro' => 'Veja medidas caseiras, equivalentes em gramas e nutrição para cada receita.',
     'social' => 'ou continue com',
+    'or_with_email' => 'ou com e-mail',
     'provider' => 'Continuar com :provider',
     'recovery' => 'Acesso à conta',
     'reset_title' => 'Redefinir palavra-passe',

@@ -30,6 +30,7 @@ return [
     'measure_title' => 'Przepisy ze sprawdzonymi miarami',
     'measure_intro' => 'Zobacz miary domowe, gramatury i wartości odżywcze dla każdego przepisu.',
     'social' => 'lub kontynuuj przez',
+    'or_with_email' => 'lub przez e-mail',
     'provider' => 'Kontynuuj z :provider',
     'recovery' => 'Dostęp do konta',
     'reset_title' => 'Zresetuj hasło',
