@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+export COPYFILE_DISABLE=1
 
 # Builds a complete, immutable Laravel release overlay for the Hostinger
 # deployer. The deployer still checks out the exact read-only Git commit, then
