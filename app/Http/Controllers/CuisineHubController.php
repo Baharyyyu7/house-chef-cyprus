@@ -79,7 +79,7 @@ final class CuisineHubController extends Controller
         // Ayrı 5 sayfa = %100 kanibalizasyon. Tek güçlü hub, 5 niyeti de karşılar.
         if ($isKibris) {
             $title = 'Kıbrıs Yemek Tarifleri - Geleneksel Kıbrıs Mutfağı | House Chef Cyprus';
-            $description = 'Kıbrıs Yemek Tarifleri, Kıbrıs Mutfağı\'nın en smaklı geleneksel tarifleri. Hellim, şeftali kebabı, molehiya, kolokas ve 65 doğrulanmış ada lezzeti.';
+            $description = 'Kıbrıs Yemek Tarifleri, Kıbrıs Mutfağı\'nın en lezzetli geleneksel tarifleri. Hellim, şeftali kebabı, molehiya, kolokas ve '.$tarifler->count().' doğrulanmış ada lezzeti.';
             $seoTitle = $title;
             $h1 = 'Kıbrıs Yemek Tarifleri - Geleneksel Kıbrıs Mutfağı';
         } else {
@@ -110,12 +110,12 @@ final class CuisineHubController extends Controller
                     [
                         '@type' => 'Question',
                         'name' => 'Kıbrıs Yemekleri nelerdir?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs Yemekleri; hellim, şeftali kebabı, molehiya, kolokas, magarina bulli, pirohu, pilavuna ve 58 ada lezzeti daha olmak üzere toplam 65 doğrulanmış Kıbrıs Mutfağı tarifini kapsar. House Chef Cyprus arşivi her tarifi gramajlı, süreli ve adımlı olarak belgeler.'],
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs Yemekleri; hellim, şeftali kebabı, molehiya, kolokas, magarina bulli, pirohu, pilavuna ve '.max(0, $tarifler->count() - 7).' ada lezzeti daha olmak üzere toplam '.$tarifler->count().' doğrulanmış Kıbrıs Mutfağı tarifini kapsar. House Chef Cyprus arşivi her tarifi gramajlı, süreli ve adımlı olarak belgeler.'],
                     ],
                     [
                         '@type' => 'Question',
                         'name' => 'Kıbrıs Yemek Tarifi nereden bulunur?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Doğrulanmış 65 Kıbrıs Yemek Tarifi bu sayfada listelenir. “Kıbrıs Usulü” etiketli her tarif mutfak ekibince ölçülmüş, denenmiş ve besin değerleriyle birlikte yayınlanır. Aradığınız Kıbrıs Yemek Tarifini filtreleyip adımlarıyla pişirebilirsiniz.'],
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Doğrulanmış '.$tarifler->count().' Kıbrıs Yemek Tarifi bu sayfada listelenir. “Kıbrıs Usulü” etiketli her tarif mutfak ekibince ölçülmüş, denenmiş ve besin değerleriyle birlikte yayınlanır. Aradığınız Kıbrıs Yemek Tarifini filtreleyip adımlarıyla pişirebilirsiniz.'],
                     ],
                     [
                         '@type' => 'Question',
@@ -130,7 +130,7 @@ final class CuisineHubController extends Controller
                     [
                         '@type' => 'Question',
                         'name' => 'Kıbrıs Yemekleri kaç tariftir?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'House Chef Cyprus arşivinde 65 doğrulanmış Kıbrıs Yemekleri tarifi vardır. Tamamı "Kıbrıs Mutfağı" mutfağına aittir ve her biri görseli, ölçüsü ve pişirme süresiyle birlikte belgelenmiştir.'],
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'House Chef Cyprus arşivinde '.$tarifler->count().' doğrulanmış Kıbrıs Yemekleri tarifi vardır. Tamamı "Kıbrıs Mutfağı" mutfağına aittir ve her biri görseli, ölçüsü ve pişirme süresiyle birlikte belgelenmiştir.'],
                     ],
                     [
                         '@type' => 'Question',

@@ -120,12 +120,16 @@ final class RecipeController extends Controller
                 : route('recipes.index', ['cuisine' => $recipe->cuisine->slug]);
         }
 
+        $displayMedia = app(\App\Services\Media\RecipeDisplayMediaService::class)->resolve($recipe);
+        $hasCompletePresentation = $heroMedia !== null || ($recipe->cuisine !== null && $recipe->category !== null);
+        $schemaImageUrl = $sosyalGorsel['url'] ?? ($hasCompletePresentation ? ($displayMedia['hero_url'] ?? '') : '');
+
         // Şema görseli de paylaşım varyantını kullanır; Google zengin sonuç
         // için bu adresi okuyor ve ham kaynak bir tarifte 2,77 MB'tı.
-        $schema = $schemaService->recipe($recipe, collect($ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings))->pluck('formatted')->values()->all(), $sosyalGorsel['url'] ?? '', $cuisineUrl);
+        $schema = $schemaService->recipe($recipe, collect($ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings))->pluck('formatted')->values()->all(), $schemaImageUrl, $cuisineUrl);
         $metadata = $seo->for($recipe, $recipe->title.' · House Chef Cyprus', $recipe->description ?: $recipe->excerpt, route('recipes.show', $recipe), $request->query() === [] ? 'index,follow' : 'noindex,follow');
-        if ($heroMedia === null) {
-            // Onayli ana gorseli olmayan tarifler ziyaret edilebilir; ancak
+        if (! $hasCompletePresentation) {
+            // Onayli ana gorseli veya mutfak/kategori kimligi bulunmayan eksik taslaklar
             // kalite kapisini gecene kadar arama motoruna aday gosterilmez.
             $metadata['robots'] = 'noindex,follow';
         }
@@ -155,12 +159,11 @@ final class RecipeController extends Controller
                 ->get(),
             'seoSchema' => $schema,
             'metadata' => $metadata,
-            // Paylaşım görseli ham kaynağı gösteriyordu; bir tarifte
-            // 2,77 MB'lık PNG. Hattın ürettiği 1200x630 varyantı bu iş için.
-            'seoImage' => $sosyalGorsel['url'] ?? null,
-            'seoImageWidth' => $sosyalGorsel['width'] ?? null,
-            'seoImageHeight' => $sosyalGorsel['height'] ?? null,
-            'seoImageAlt' => $heroMedia?->alt_text,
+            // Paylaşım görseli: onaylı görsel varsa onun OG varyantı, yoksa yüksek çözünürlüklü gastronomi görseli
+            'seoImage' => $sosyalGorsel['url'] ?? $displayMedia['hero_url'] ?? null,
+            'seoImageWidth' => $sosyalGorsel['width'] ?? 1600,
+            'seoImageHeight' => $sosyalGorsel['height'] ?? 1000,
+            'seoImageAlt' => $heroMedia?->alt_text ?? $displayMedia['alt'] ?? null,
             'cuisineUrl' => $cuisineUrl,
             'relatedGuides' => $internalLinks->recipeGuidesFor($recipe, app()->getLocale()),
         ]);

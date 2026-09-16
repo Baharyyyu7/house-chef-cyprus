@@ -96,6 +96,9 @@
                             @endforeach
                         </div>
                     </article>
+                    @if($loop->iteration === 3)
+                        <x-ad-slot slot-name="in_feed" class="my-6" />
+                    @endif
                 @endforeach
             </div>
 
@@ -140,6 +143,10 @@
                         @endforeach
                     </div>
                 </div>
+            </div>
+
+            <div class="mt-12">
+                <x-ad-slot slot-name="multiplex" class="my-8" />
             </div>
         </div>
     </div>

@@ -27,7 +27,14 @@
         <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             @foreach ($tarifler as $tarif)
                 <x-recipe-card-v3 :recipe="$tarif" :show-favorite="false" />
+                @if ($loop->iteration === 4 && ! $loop->last)
+                    <x-ad-slot slot-name="in_feed" class="col-span-full my-2" />
+                @endif
             @endforeach
+        </div>
+
+        <div class="mt-12 max-w-3xl">
+            <x-ad-slot slot-name="multiplex" class="my-8" />
         </div>
     </section>
 </x-layouts.site>

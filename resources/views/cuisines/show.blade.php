@@ -188,6 +188,22 @@
             </section>
         @endif
 
+        <div class="mt-12">
+            <h2 class="font-display text-2xl font-semibold">{{ $mutfak->name }} {{ __('cuisine.recipes_suffix') }}</h2>
+            <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
+                @foreach($tarifler as $tarif)
+                    <x-recipe-card-v3 :recipe="$tarif" :show-favorite="false" />
+                    @if($loop->iteration === 4 && ! $loop->last)
+                        <x-ad-slot slot-name="in_feed" class="col-span-full my-2" />
+                    @endif
+                @endforeach
+            </div>
+        </div>
+
+        <div class="mt-12 max-w-3xl">
+            <x-ad-slot slot-name="multiplex" class="my-8" />
+        </div>
+
         <x-collection-siblings :baslik="__('cuisine.siblings_title')" :ogeler="$kardesler" :mevcut-url="route('cuisines.show', $mutfak->slug)" />
     </section>
 </x-layouts.site>

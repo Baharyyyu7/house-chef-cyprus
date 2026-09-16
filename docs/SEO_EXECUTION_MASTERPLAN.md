@@ -91,7 +91,8 @@ The site already has a complete SEO infrastructure:
 1. Verify `LlmsTxtController` is operational
 2. Deploy `/llms.txt` and `/llms-full.txt`
 3. Deploy `/pricing.md` if applicable
-4. `/okf/` bundle — UYGULANMADI (2026-09-16 tespiti: route yok, yalnız bu satırda geçiyor). Ya implemente edilecek ya bu satır silinecek; varmış gibi raporlanmaz.
+4. `/okf/` bundle — DÜŞÜRÜLDÜ (2026-09-16 kararı): doğrulanmış AI-arama sinyali yok;
+   `/llms.txt` + `/llms-full.txt` zaten canlı ve aynı ihtiyacı karşılıyor. Maliyet/fayda negatif.
 
 ---
 

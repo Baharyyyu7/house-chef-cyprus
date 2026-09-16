@@ -37,6 +37,9 @@ boşluğuna (EN çeviri, video, özgün rehber) açılır ve taslak → insan on
 
 Kilit kuralları:
 - Aynı dosyayı iki ajan aynı anda düzenlemez; girmeden önce `git log --oneline -5`.
+- Commitlemeden önce `git status --short`: yalnız kendi lane dosyaların
+  stage'lenir (`git add <dosya>`), tüm ağaç asla (`git add -A` yasak).
+  2026-09-16'da tüm kirli ağaç tek committe karıştı (6f20d24); tekrarlanmaz.
 - `config/locales.php` içindeki `enabled` alanına hiçbir ajan dokunmaz.
 - Hiçbir ajan yazı yayınlamaz, dil açmaz, toplu onay vermez.
 - `recipe-images:generate-fallbacks` yerelde çalıştırılmaz.
@@ -107,3 +110,33 @@ toplu içerik üretimi/yayını, otomatik outreach, dizin bombardımanı.
 Açık konular: 59 tarifte onaylı görsel eksik (zengin sonuç engeli, görsel
 lane), Search Console API bağlantısı yok (kör uçuş), `/okf/` kararı
 (implemente et ya da masterplan'dan düşür), yukarıdaki test arızası.
+
+## 6. Devam logu — 2026-09-16 öğleden sonra (Claude Code lane)
+
+- `BlogIndexabilityTest` arızası çözüldü: sayfa doğru şekilde
+  `index,follow, max-image-preview:large` basıyordu, test eski tam-eşleşme
+  `content="index,follow"` arıyordu. Repo konvansiyonuna
+  (`RecipeCollectionLandingPagesTest:25`) uygun önek eşleşmeye çevrildi.
+  Test-dışı kod değişmedi. `BlogIndexability` 6/6 geçti.
+- `/okf/` kararı: DÜŞÜRÜLDÜ. Doğrulanmış AI-arama sinyali yok;
+  `/llms.txt` + `/llms-full.txt` canlı ve yeterli. Masterplan güncellendi.
+- Search Console durumu (salt-okunur, `seo:morning-brief --json`):
+  enabled+configured ama `ready:false` — OAuth/hizmet hesabı içe aktarımı
+  insan adımı bekliyor. IndexNow da `ready:false` (alan adı + anahtar dosya
+  doğrulaması bekliyor). Bilinmeyen değer sıfır yazılmadı.
+- Açık yerel sorun: 0 (`open_seo_issues:0`), içerik fırsatı: 298 (sinyal,
+  otomatik yayın yok).
+
+## 7. Kapanış turu — 2026-09-16 akşam (Claude Code lane)
+
+- Lane kuralı eklendi: commit öncesi `git status`, yalnız kendi dosyalar
+  stage'lenir (`git add -A` yasak).
+- Disk kontrolü: `storage/app/private/backups` 204M (yerel test yedekleri),
+  `fallbacks` 520 dosya/2M, `media-import/recipes` boş. Silinmedi: paralel
+  ajanlar aktifken başkasının dosyasını silmek yasak bölge; temizlik
+  komutları insanda (`rm -rf storage/app/private/backups/*` + `.gitignore`
+  korunur, `rm -rf storage/app/public/fallbacks`).
+- Görsel kuyruğu: 3/366 tamamlandı (%0,8), 0 kilitli, 363 boşta. Görsel
+  üretimi görsel lane'de sürüyor; bu oturumda üretim aracı yok.
+- İnsan blokları (kodla bitmez): GSC OAuth içe aktarımı, IndexNow alan
+  adı+anahtar doğrulaması, backlink temasları, yayın onayları.

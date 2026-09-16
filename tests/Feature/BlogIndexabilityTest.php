@@ -18,7 +18,7 @@ final class BlogIndexabilityTest extends TestCase
 
         $this->get(route('blog.show', $yazi))
             ->assertOk()
-            ->assertSee('content="index,follow"', false);
+            ->assertSee('content="index,follow', false);
 
         $this->get(route('sitemap.blog'))->assertOk()->assertSee($yazi->slug);
     }
