@@ -71,19 +71,21 @@ final class SeoIndexNowSubmit extends Command
                 'enabled' => true,
                 'status' => $result['status'],
                 'count' => $result['count'],
+                'submitted' => $result['submitted'],
+                'retry_after' => $result['retry_after'],
                 'success' => $result['success'],
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-            return self::SUCCESS;
+            return $result['success'] ? self::SUCCESS : self::FAILURE;
         }
 
-        if ($result['success'] || in_array($result['status'], [200, 202], true)) {
+        if ($result['success']) {
             $this->info(sprintf('✓ %d adres IndexNow protokolü ile arama motorlarına başarıyla bildirildi (HTTP %d).', $result['count'], $result['status']));
 
             return self::SUCCESS;
         }
 
-        $this->warn(sprintf('IndexNow yanıtı: HTTP %d (Kuyruktaki %d adres)', $result['status'], $result['count']));
+        $this->warn(sprintf('IndexNow yanıtı: HTTP %d (Kabul edilen %d adres)', $result['status'], $result['count']));
 
-        return self::SUCCESS;
+        return self::FAILURE;
     }
 }

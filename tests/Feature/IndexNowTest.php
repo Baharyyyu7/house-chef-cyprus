@@ -68,4 +68,75 @@ final class IndexNowTest extends TestCase
             ->expectsOutputToContain('[DRY-RUN] İstek gönderilmedi.')
             ->assertExitCode(0);
     }
+
+    public function test_rate_limit_stops_chunks_and_defers_subsequent_calls(): void
+    {
+        Http::fakeSequence()->push(null, 200)->push(null, 429, ['Retry-After' => '120'])->push(null, 200);
+        $urls = array_map(fn ($id) => "https://localhost/tarifler/{$id}", range(1, 110));
+        $service = app(IndexNowService::class);
+        $result = $service->submit($urls);
+        $this->assertFalse($result['success']);
+        $this->assertSame(429, $result['status']);
+        $this->assertSame(50, $result['submitted']);
+        $this->assertSame(array_slice($urls, 0, 50), $result['urls']);
+        $this->assertSame(120, $result['retry_after']);
+        Http::assertSentCount(2);
+        $this->assertSame(0, $service->submit($urls)['submitted']);
+        Http::assertSentCount(2);
+        $this->travel(121)->seconds();
+        $this->assertTrue($service->submit([$urls[50]])['success']);
+        Http::assertSentCount(3);
+    }
+
+    public function test_accepted_validation_pending_response_and_duplicates_are_reported_correctly(): void
+    {
+        Http::fakeSequence()->push(null, 202);
+        $result = app(IndexNowService::class)->submit(['https://localhost/a', 'https://localhost/a']);
+        $this->assertTrue($result['success']);
+        $this->assertSame(202, $result['status']);
+        $this->assertSame(1, $result['count']);
+        Http::assertSent(fn ($request) => $request['urlList'] === ['https://localhost/a']);
+    }
+
+    public function test_rejected_http_status_is_not_reported_as_success(): void
+    {
+        Http::fakeSequence()->push(null, 403)->push(null, 200);
+        $result = app(IndexNowService::class)->submit(array_map(fn ($id) => "https://localhost/{$id}", range(1, 60)));
+        $this->assertFalse($result['success']);
+        $this->assertSame(403, $result['status']);
+        $this->assertSame(0, $result['count']);
+        Http::assertSentCount(1);
+    }
+
+    public function test_connection_failure_preserves_only_previously_accepted_urls(): void
+    {
+        $calls = 0;
+        Http::fake(function () use (&$calls) {
+            if (++$calls === 2) {
+                throw new \Illuminate\Http\Client\ConnectionException('timeout');
+            }
+            return Http::response(null, 200);
+        });
+        $result = app(IndexNowService::class)->submit(array_map(fn ($id) => "https://localhost/{$id}", range(1, 60)));
+        $this->assertFalse($result['success']);
+        $this->assertSame(500, $result['status']);
+        $this->assertSame(50, $result['submitted']);
+    }
+
+    public function test_command_returns_failure_in_json_and_text_modes(): void
+    {
+        config()->set('seo.indexnow.enabled', true);
+        Http::fake(['https://api.indexnow.org/*' => Http::response(null, 403)]);
+        $this->artisan('seo:indexnow-submit --json')->expectsOutputToContain('"success":false')->assertExitCode(1);
+        $this->artisan('seo:indexnow-submit')->expectsOutputToContain('HTTP 403')->assertExitCode(1);
+    }
+
+    public function test_retry_after_http_date_is_respected(): void
+    {
+        $this->freezeTime();
+        Http::fakeSequence()->push(null, 429, ['Retry-After' => now()->addMinutes(5)->toRfc7231String()]);
+        $result = app(IndexNowService::class)->submit(['https://localhost/a']);
+        $this->assertSame(300, $result['retry_after']);
+        $this->assertFalse($result['success']);
+    }
 }

@@ -767,6 +767,15 @@ final class SeoSchemaService
                 '@type' => 'ImageObject',
                 'url' => url(config('brand.assets.mark_light')),
             ],
+            'areaServed' => ['Cyprus', 'Northern Cyprus', 'TR', 'EU', 'Global'],
+            'knowsAbout' => [
+                'Cypriot Cuisine',
+                'Mediterranean Diet',
+                'Hellim / Halloumi Cheese',
+                'Traditional Turkish Recipes',
+                'Metric Kitchen Measurement Conversions',
+                'Pantry Recipe Recommendations',
+            ],
         ];
 
         // Sosyal medya profilleri - Knowledge Graph bağlamı için sameAs

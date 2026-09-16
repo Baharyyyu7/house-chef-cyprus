@@ -12,8 +12,8 @@ declare(strict_types=1);
  * Komutlar:
  *   php scripts/image-queue.php init                     # Kuyruğu başlat / senkronize et
  *   php scripts/image-queue.php claim --worker="AI-1"    # Bir sonraki boştaki yemeği kilitle
- *   php scripts/image-queue.php complete --slug="..."    # Başarıyla tamamlandı olarak işaretle
- *   php scripts/image-queue.php release --slug="..."     # İptal et, havuza geri bırak
+ *   php scripts/image-queue.php complete --slug="..." --worker="AI-1" # Başarıyla tamamlandı olarak işaretle
+ *   php scripts/image-queue.php release --slug="..." --worker="AI-1"  # İptal et, havuza geri bırak
  *   php scripts/image-queue.php status                   # Canlı kuyruk durumunu göster
  */
 
@@ -58,19 +58,21 @@ function loadQueue(string $queueFile): array {
         return ['updated_at' => date('c'), 'total' => 0, 'completed' => 0, 'claimed' => 0, 'pending' => 0, 'items' => []];
     }
     $content = file_get_contents($queueFile);
-    return json_decode($content, true) ?: [];
+    return json_decode($content, true, 512, JSON_THROW_ON_ERROR);
 }
 
-function saveQueue(string $queueFile, array $data): void {
+function saveQueue(string $queueFile, array &$data): void {
     $data['updated_at'] = date('c');
     $total = count($data['items'] ?? []);
     $completed = 0;
     $claimed = 0;
     $pending = 0;
+    $blocked = 0;
 
     foreach ($data['items'] as $item) {
         if ($item['status'] === 'completed') $completed++;
         elseif ($item['status'] === 'claimed') $claimed++;
+        elseif ($item['status'] === 'blocked') $blocked++;
         else $pending++;
     }
 
@@ -78,8 +80,17 @@ function saveQueue(string $queueFile, array $data): void {
     $data['completed'] = $completed;
     $data['claimed'] = $claimed;
     $data['pending'] = $pending;
+    $data['blocked'] = $blocked;
 
-    file_put_contents($queueFile, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+    $temporary = tempnam(dirname($queueFile), '.queue-');
+    try {
+        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
+        if (file_put_contents($temporary, $json) !== strlen($json) || !rename($temporary, $queueFile)) {
+            throw new RuntimeException('Kuyruk atomik olarak kaydedilemedi.');
+        }
+    } finally {
+        if (file_exists($temporary)) unlink($temporary);
+    }
 }
 
 function generatePrompt(array $item): string {
@@ -122,8 +133,9 @@ function syncMarkdownDoc(string $docFile, array $queue): void {
     $md .= "2. **Üretim ve Yükleme:** Ajan görseli üretir, `scripts/upload-recipe-image.sh` ile 1920x1620 PNG olarak sunucuya aktarır.\n";
     $md .= "3. **Tamamlama (Complete):** `php scripts/image-queue.php complete --slug=\"{slug}\" --worker=\"AI-Worker-1\"`\n";
     $md .= "   - Durum `completed` olarak kaydedilir ve ajana yeni iş verilir.\n";
-    $md .= "4. **Zaman Aşımı / Hata (Timeout):** 15 dakikadan uzun süre kilitli kalan işler otomatik olarak havuza iade edilir.\n\n";
+    $md .= "4. **Zaman Aşımı / Hata (Timeout):** Kilitler otomatik dağıtılmaz. Aynı worker claim ile işine devam eder; renew ile zamanı yeniler. release ve block için sahip worker zorunludur.\n\n";
 
+    $md .= "Engellenen kayıtlar: `" . ($queue['blocked'] ?? 0) . "`. `block --slug=... --worker=... --reason=...` ile eksik kimlik açıklanır.\n\n";
     $md .= "## 2. Canlı Kuyruk Listesi\n\n";
     $md .= "| # | Durum | Kilitleyen Ajan | Tarif Başlığı | Mutfak | Kategori | Dosya Adı (`media-import/recipes/`) |\n";
     $md .= "|:---:|:---:|:---|:---|:---|:---|:---|\n";
@@ -133,6 +145,7 @@ function syncMarkdownDoc(string $docFile, array $queue): void {
         $badge = match($item['status']) {
             'completed' => '`✓ Bitti`',
             'claimed' => '`⏳ İşleniyor`',
+            'blocked' => '`! Engelli`',
             default => '`[ ] Boşta`',
         };
         $worker = $item['claimed_by'] ? "**{$item['claimed_by']}**" : "-";
@@ -142,7 +155,7 @@ function syncMarkdownDoc(string $docFile, array $queue): void {
             $i++,
             $badge,
             $worker,
-            $item['title'],
+            str_replace(['|', "\n", "\r"], ['/', ' ', ' '], $item['title'] . (isset($item['blocked_reason']) ? ' (' . $item['blocked_reason'] . ')' : '')),
             $item['cuisine'],
             $item['category'],
             $item['target_filename']
@@ -162,7 +175,7 @@ switch ($action) {
                 echo "HATA: storage/app/missing_recipes_for_images.json bulunamadı!\n";
                 exit(1);
             }
-            $raw = json_decode(file_get_contents($jsonSource), true);
+            $raw = json_decode(file_get_contents($jsonSource), true, 512, JSON_THROW_ON_ERROR);
             $queue = loadQueue($queueFile);
             $items = $queue['items'] ?? [];
 
@@ -206,29 +219,26 @@ switch ($action) {
         break;
 
     case 'claim':
-        $worker = $options['worker'] ?? 'Worker-' . getmypid();
+        $worker = $options['worker'] ?? null;
+        if (!is_string($worker) || trim($worker) === '') {
+            echo json_encode(['success' => false, 'message' => '--worker zorunludur.']) . PHP_EOL;
+            exit(1);
+        }
         withLock($lockFile, function() use ($queueFile, $docFile, $worker) {
             $queue = loadQueue($queueFile);
             $items = $queue['items'] ?? [];
-            $now = time();
             $claimedItem = null;
 
-            // 1. Check for stale claims (> 15 minutes) and release them
-            foreach ($items as $slug => &$it) {
-                if ($it['status'] === 'claimed' && !empty($it['claimed_at'])) {
-                    $claimTime = strtotime($it['claimed_at']);
-                    if (($now - $claimTime) > 900) { // 15 mins
-                        $it['status'] = 'pending';
-                        $it['claimed_by'] = null;
-                        $it['claimed_at'] = null;
-                    }
+            foreach ($items as $item) {
+                if ($item['status'] === 'claimed' && $item['claimed_by'] === $worker) {
+                    $claimedItem = $item;
+                    break;
                 }
             }
-            unset($it);
 
             // 2. Find first pending item
             foreach ($items as $slug => &$item) {
-                if ($item['status'] === 'pending') {
+                if (!$claimedItem && $item['status'] === 'pending') {
                     $item['status'] = 'claimed';
                     $item['claimed_by'] = $worker;
                     $item['claimed_at'] = date('c');
@@ -239,7 +249,7 @@ switch ($action) {
             unset($item);
 
             if (!$claimedItem) {
-                echo json_encode(['success' => false, 'message' => 'Kuyrukta boştaki yemek kalmadı (tümü alındı ya da tamamlandı).'], JSON_UNESCAPED_UNICODE) . PHP_EOL;
+                echo json_encode(['success' => false, 'message' => 'Boşta iş yok; engelli ve işlenmekte olan kayıtları status ile kontrol edin.'], JSON_UNESCAPED_UNICODE) . PHP_EOL;
                 return;
             }
 
@@ -265,80 +275,53 @@ switch ($action) {
         break;
 
     case 'complete':
-        $slug = $options['slug'] ?? null;
-        $worker = $options['worker'] ?? 'Worker';
-        if (!$slug) {
-            echo "HATA: --slug parametresi zorunludur.\n";
-            exit(1);
-        }
-        $force = isset($options['force']);
-        if (!$force) {
-            $remoteCheck = sprintf(
-                'ssh -p 65002 u584361532@147.93.93.105 "[ -s /home/u584361532/domains/housechefcyprus.com/shared/storage/app/media-import/recipes/recipe--%s.png ]"',
-                $slug
-            );
-            exec($remoteCheck, $chkOut, $chkRet);
-            if ($chkRet !== 0) {
-                echo json_encode([
-                    'success' => false,
-                    'message' => "HATA: recipe--{$slug}.png henüz sunucuda bulunamadı! Önce ./scripts/upload-recipe-image.sh ile yükleyin (veya --force ile geçin)."
-                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . PHP_EOL;
-                exit(1);
-            }
-        }
-
-        withLock($lockFile, function() use ($queueFile, $docFile, $slug, $worker) {
-            $queue = loadQueue($queueFile);
-            if (!isset($queue['items'][$slug])) {
-                echo json_encode(['success' => false, 'message' => "Slug bulunamadı: {$slug}"], JSON_UNESCAPED_UNICODE) . PHP_EOL;
-                return;
-            }
-
-            $queue['items'][$slug]['status'] = 'completed';
-            $queue['items'][$slug]['completed_at'] = date('c');
-            $queue['items'][$slug]['claimed_by'] = $worker;
-
-            saveQueue($queueFile, $queue);
-            syncMarkdownDoc($docFile, $queue);
-
-            echo json_encode([
-                'success' => true,
-                'action' => 'completed',
-                'worker' => $worker,
-                'slug' => $slug,
-                'message' => "Görsel teslimatı tamamlandı: {$slug}"
-            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . PHP_EOL;
-        });
-        break;
-
     case 'release':
+    case 'block':
+    case 'renew':
         $slug = $options['slug'] ?? null;
-        if (!$slug) {
-            echo "HATA: --slug parametresi zorunludur.\n";
+        $worker = $options['worker'] ?? null;
+        $reason = $options['reason'] ?? null;
+        if (!is_string($slug) || !is_string($worker) || trim($worker) === '' ||
+            ($action === 'block' && (!is_string($reason) || trim($reason) === ''))) {
+            echo json_encode(['success' => false, 'message' => '--slug ve --worker zorunludur; block için --reason da zorunludur.']) . PHP_EOL;
             exit(1);
         }
-        withLock($lockFile, function() use ($queueFile, $docFile, $slug) {
+        $result = withLock($lockFile, function() use ($queueFile, $docFile, $slug, $worker, $action, $reason) {
             $queue = loadQueue($queueFile);
-            if (!isset($queue['items'][$slug])) {
-                echo json_encode(['success' => false, 'message' => "Slug bulunamadı: {$slug}"], JSON_UNESCAPED_UNICODE) . PHP_EOL;
-                return;
+            $item = $queue['items'][$slug] ?? null;
+            if (!$item || $item['status'] !== 'claimed' || $item['claimed_by'] !== $worker) {
+                echo json_encode(['success' => false, 'message' => 'İş bu worker tarafından kilitlenmemiş.'], JSON_UNESCAPED_UNICODE) . PHP_EOL;
+                return 1;
             }
-
-            $queue['items'][$slug]['status'] = 'pending';
-            $queue['items'][$slug]['claimed_by'] = null;
-            $queue['items'][$slug]['claimed_at'] = null;
-
+            if ($action === 'complete') {
+                $remotePath = '/home/u584361532/domains/housechefcyprus.com/shared/storage/app/media-import/recipes/recipe--' . $slug . '.png';
+                $remoteCheck = 'ssh -o BatchMode=yes -o ConnectTimeout=15 -p 65002 u584361532@147.93.93.105 ' . escapeshellarg('[ -s ' . escapeshellarg($remotePath) . ' ]');
+                exec($remoteCheck, $output, $exitCode);
+                if ($exitCode !== 0) {
+                    echo json_encode(['success' => false, 'message' => 'Sunucuda görsel teslimatı doğrulanamadı.'], JSON_UNESCAPED_UNICODE) . PHP_EOL;
+                    return 1;
+                }
+                $item['status'] = 'completed';
+                $item['completed_at'] = date('c');
+            } elseif ($action === 'renew') {
+                $item['claimed_at'] = date('c');
+            } else {
+                $item['status'] = $action === 'block' ? 'blocked' : 'pending';
+                $item['claimed_by'] = null;
+                $item['claimed_at'] = null;
+                if ($action === 'block') {
+                    $item['blocked_reason'] = trim($reason);
+                    $item['blocked_by'] = $worker;
+                    $item['blocked_at'] = date('c');
+                }
+            }
+            $queue['items'][$slug] = $item;
             saveQueue($queueFile, $queue);
             syncMarkdownDoc($docFile, $queue);
-
-            echo json_encode([
-                'success' => true,
-                'action' => 'released',
-                'slug' => $slug,
-                'message' => "Yemek havuza iade edildi: {$slug}"
-            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . PHP_EOL;
+            echo json_encode(['success' => true, 'action' => $action, 'worker' => $worker, 'slug' => $slug], JSON_UNESCAPED_UNICODE) . PHP_EOL;
+            return 0;
         });
-        break;
+        exit($result);
 
     case 'status':
     default:
@@ -356,6 +339,7 @@ switch ($action) {
         echo sprintf("  Tamamlanan (Yüklü) : %d adet (%%%s)\n", $completed, $pct);
         echo sprintf("  İşleniyor (Kilitli): %d adet\n", $claimed);
         echo sprintf("  Boşta Bekleyen     : %d adet\n", $pending);
+        echo sprintf("  Engellenen         : %d adet\n", $queue['blocked'] ?? 0);
         echo "--------------------------------------------------------\n";
         if ($claimed > 0) {
             echo "  Aktif Kilitler:\n";

@@ -8,6 +8,7 @@ use App\Models\BlogPost;
 use App\Models\Recipe;
 use App\Services\Seo\LocaleUrlService;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 final class IndexNowService
@@ -22,7 +23,7 @@ final class IndexNowService
 
     /**
      * @param array<int, string>|null $urls
-     * @return array{success: bool, status: int, count: int, urls: array<int, string>}
+     * @return array{success: bool, status: int, count: int, submitted: int, urls: array<int, string>, retry_after: int}
      */
     public function submit(?array $urls = null): array
     {
@@ -30,13 +31,18 @@ final class IndexNowService
             $urls = $this->collectRecentUrls();
         }
 
+        $urls = array_values(array_unique($urls));
+        $submitted = [];
+        $result = static fn (bool $success, int $status, array $accepted, int $retryAfter = 0): array => [
+            'success' => $success,
+            'status' => $status,
+            'count' => count($accepted),
+            'submitted' => count($accepted),
+            'urls' => $accepted,
+            'retry_after' => $retryAfter,
+        ];
         if (empty($urls)) {
-            return [
-                'success' => true,
-                'status' => 200,
-                'count' => 0,
-                'urls' => [],
-            ];
+            return $result(true, 200, []);
         }
 
         $key = $this->getKey();
@@ -44,39 +50,48 @@ final class IndexNowService
         if ($host === '') {
             $host = 'housechefcyprus.com';
         }
+        $cooldownKey = 'indexnow:retry-at:' . hash('sha256', $host . ':' . $key);
+        $retryAt = (int) Cache::get($cooldownKey, 0);
+        if ($retryAt > now()->timestamp) {
+            return $result(false, 429, [], $retryAt - now()->timestamp);
+        }
 
         $payload = [
             'host' => $host,
             'key' => $key,
             'keyLocation' => "https://{$host}/{$key}.txt",
-            'urlList' => array_values(array_unique($urls)),
         ];
-
+        $acceptedStatus = 200;
         try {
             foreach (array_chunk($urls, 50) as $chunk) {
-                $payload['urlList'] = array_values(array_unique($chunk));
+                $payload['urlList'] = $chunk;
                 $response = Http::timeout(10)
                     ->withHeaders(['Content-Type' => 'application/json; charset=utf-8'])
                     ->post(self::ENDPOINT, $payload);
                 $status = $response->status();
-                Log::info('IndexNow chunk submitted', ['status' => $status, 'count' => count($chunk)]);
-                if ($status === 429) {
-                    sleep(5);
+                if (!in_array($status, [200, 202], true)) {
+                    $retryAfter = 0;
+                    if ($status === 429) {
+                        $header = trim($response->header('Retry-After'));
+                        $retryAfter = ctype_digit($header) ? (int) $header : max(0, (strtotime($header) ?: 0) - now()->timestamp);
+                        $retryAfter = max(60, $retryAfter);
+                        Cache::put($cooldownKey, now()->timestamp + $retryAfter, $retryAfter);
+                    }
+                    Log::warning('IndexNow chunk rejected', ['status' => $status, 'submitted' => count($submitted)]);
+                    return $result(false, $status, $submitted, $retryAfter);
                 }
-                usleep(200000);
+                $submitted = array_merge($submitted, $chunk);
+                if ($status === 202) {
+                    $acceptedStatus = 202;
+                }
+                Log::info('IndexNow chunk accepted', ['status' => $status, 'count' => count($chunk)]);
             }
-            return ['success' => true, 'status' => 200, 'count' => count($urls), 'urls' => $urls];
+            return $result(true, $acceptedStatus, $submitted);
         } catch (\Throwable $e) {
             Log::warning('IndexNow submission failed: ' . $e->getMessage(), [
-                'count' => count($urls),
+                'submitted' => count($submitted),
             ]);
-
-            return [
-                'success' => false,
-                'status' => 500,
-                'count' => count($urls),
-                'urls' => $urls,
-            ];
+            return $result(false, 500, $submitted);
         }
     }
 

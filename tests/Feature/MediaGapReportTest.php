@@ -35,6 +35,24 @@ final class MediaGapReportTest extends TestCase
         $this->assertSame('complete', $rapor['status']);
     }
 
+    public function test_an_approval_label_without_fidelity_still_counts_as_missing(): void
+    {
+        $recipe = $this->tarif('Kimliği Belirsiz Görsel');
+        $this->makeRecipePubliclyEligible($recipe);
+        $recipe->media()->update(['fidelity_status' => 'weak_match', 'fidelity_confidence' => 20]);
+
+        $this->assertSame(1, $this->rapor()['missing_media']);
+    }
+
+    public function test_an_approved_image_with_a_missing_source_still_counts_as_missing(): void
+    {
+        $recipe = $this->tarif('Kaynağı Eksik Görsel');
+        $this->makeRecipePubliclyEligible($recipe);
+        \Illuminate\Support\Facades\Storage::disk('public')->delete($recipe->media()->first()->path);
+
+        $this->assertSame(1, $this->rapor()['missing_media']);
+    }
+
     public function test_a_recipe_without_media_is_queued(): void
     {
         $this->tarif('Görselsiz Tarif');
@@ -158,14 +176,7 @@ final class MediaGapReportTest extends TestCase
 
     private function onayliGorsel(Recipe $tarif): void
     {
-        $tarif->media()->create([
-            'kind' => 'recipe_synthetic',
-            'disk' => 'public',
-            'path' => 'media/approved-synthetic/recipe/ABC/source.jpg',
-            'mime_type' => 'image/jpeg',
-            'visibility' => 'public',
-            'media_status' => 'approved_real_media',
-        ]);
+        $this->makeRecipePubliclyEligible($tarif);
     }
 
     /** @param array<string, mixed> $alanlar */

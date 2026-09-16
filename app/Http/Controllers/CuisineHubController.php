@@ -73,162 +73,29 @@ final class CuisineHubController extends Controller
         abort_if($tarifler->count() < self::ASGARI_TARIF, 404);
 
         $canonical = route('cuisines.show', $mutfak->slug);
-        $isKibris = $mutfak->slug === 'kibris-mutfagi';
-
-        // Kıbrıs için 5 varyantı tek sayfada topla: "Kıbrıs", "Kıbrıs Yemek", "Kıbrıs Yemek Tarif", "Yemek Kıbrıs", "Kıbrıs Yemekleri"
-        // Ayrı 5 sayfa = %100 kanibalizasyon. Tek güçlü hub, 5 niyeti de karşılar.
-        if ($isKibris) {
-            $title = 'Kıbrıs Yemek Tarifleri - Geleneksel Kıbrıs Mutfağı | House Chef Cyprus';
-            $description = 'Kıbrıs Yemek Tarifleri, Kıbrıs Mutfağı\'nın en lezzetli geleneksel tarifleri. Hellim, şeftali kebabı, molehiya, kolokas ve '.$tarifler->count().' doğrulanmış ada lezzeti.';
-            $seoTitle = $title;
-            $h1 = 'Kıbrıs Yemek Tarifleri - Geleneksel Kıbrıs Mutfağı';
-        } else {
-            $title = $mutfak->name.' Tarifleri';
-            $description = $mutfak->name.' mutfağından '.$tarifler->count().' doğrulanmış tarif: ölçüler, süreler ve adım adım anlatım.';
-            $seoTitle = $mutfak->name.' Tarifleri · '.$tarifler->count().' Doğrulanmış Tarif · House Chef Cyprus';
-            $h1 = $mutfak->name.' Tarifleri';
-        }
-
-        $collectionSchema = $schema->collectionPage(
-            $isKibris ? 'Kıbrıs Yemekleri' : $mutfak->name.' Tarifleri',
-            $description,
-            $canonical,
-            $tarifler,
-            [
-                ['name' => 'Ana Sayfa', 'url' => route('home')],
-                ['name' => 'Mutfaklar', 'url' => route('cuisines.index')],
-                ['name' => $mutfak->name, 'url' => $canonical],
-            ],
-        );
-
-        // Kıbrıs için FAQPage + WebSite SearchAction'ı aynı graph'a ekle — GEO ve PAA kazanır.
-        $seoSchema = $collectionSchema;
-        if ($isKibris) {
+        $isKibris = $mutfak->slug === 'kibris-mutfagi' && app()->getLocale() === 'tr';
+        $title = $isKibris ? 'Kıbrıs Yemekleri ve Yemek Tarifleri | House Chef Cyprus' : __('cuisine.page_title', ['name' => $mutfak->name, 'count' => $tarifler->count()]);
+        $description = $isKibris
+            ? 'Kıbrıs yemeklerini keşfedin: hellim, şeftali kebabı, molehiya ve kolokas. '.$tarifler->count().' tarifin malzemelerini, ölçülerini ve pişirme adımlarını inceleyin.'
+            : __('cuisine.meta_description', ['name' => $mutfak->name, 'count' => $tarifler->count()]);
+        $h1 = $isKibris ? 'Kıbrıs Yemekleri ve Yemek Tarifleri' : __('cuisine.h1', ['name' => $mutfak->name]);
+        $faq = $isKibris ? [
+            ['question' => 'Kıbrıs Yemekleri nelerdir?', 'answer' => 'Hellim, şeftali kebabı, molehiya, kolokas, magarina bulli, pirohu ve pilavuna Kıbrıs mutfağında karşılaşabileceğiniz lezzetler arasındadır. Malzemeler ve hazırlama yöntemleri aileden aileye değişebilir.'],
+            ['question' => 'Kıbrıs Yemek Tarifi nereden bulunur?', 'answer' => 'House Chef Cyprus arşivi “Kıbrıs Yemek Tarif” ve “Yemek Kıbrıs” niyetleri için denenmiş ve doğrulanmış geleneksel ada tariflerini sunar.'],
+            ['question' => 'Şeftali kebabında şeftali var mı?', 'answer' => 'Şeftali kebabı adını meyveden alan bir tatlı değildir. Kıyma, soğan, maydanoz ve baharatlarla hazırlanan harç, gömlek yağına sarılarak pişirilir.'],
+        ] : [];
+        $seoSchema = $schema->collectionPage($h1, $description, $canonical, $tarifler, [
+            ['name' => __('nav.home'), 'url' => route('home')],
+            ['name' => __('cuisine.breadcrumb'), 'url' => route('cuisines.index')],
+            ['name' => $mutfak->name, 'url' => $canonical],
+        ]);
+        if ($faq !== []) {
             $seoSchema['@graph'][] = [
                 '@type' => 'FAQPage',
-                'mainEntity' => [
-                    [
-                        '@type' => 'Question',
-                        'name' => 'Kıbrıs Yemekleri nelerdir?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs Yemekleri; hellim, şeftali kebabı, molehiya, kolokas, magarina bulli, pirohu, pilavuna ve '.max(0, $tarifler->count() - 7).' ada lezzeti daha olmak üzere toplam '.$tarifler->count().' doğrulanmış Kıbrıs Mutfağı tarifini kapsar. House Chef Cyprus arşivi her tarifi gramajlı, süreli ve adımlı olarak belgeler.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'Kıbrıs Yemek Tarifi nereden bulunur?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Doğrulanmış '.$tarifler->count().' Kıbrıs Yemek Tarifi bu sayfada listelenir. “Kıbrıs Usulü” etiketli her tarif mutfak ekibince ölçülmüş, denenmiş ve besin değerleriyle birlikte yayınlanır. Aradığınız Kıbrıs Yemek Tarifini filtreleyip adımlarıyla pişirebilirsiniz.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'Kıbrıs Mutfağı ile Kıbrıs Yemekleri aynı mı?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Evet. “Kıbrıs Mutfağı”, “Kıbrıs Yemekleri” ve “Yemek Kıbrıs” aramaları aynı ada mutfağını ifade eder. Bu sayfa 5 varyantın tamamı için kanonik kaynaktır ve aynı 65 tarif koleksiyonunu sunar — ayrı 5 sayfa kanibalizasyon yaratır.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'En meşhur Kıbrıs Yemekleri hangileri?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Hellim kızartması, Şeftali Kebabı (gömlek içinde), Molehiya (kurutulmuş yapraklı güveç), Kolokas (taro kökü), Magarina Bulli (tavuklu makarna), Pirohu (norlu mantı) ve Pilavuna (hellimli Paskalya çöreği) en çok aranan Kıbrıs Yemekleri arasındadır.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'Kıbrıs Yemekleri kaç tariftir?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'House Chef Cyprus arşivinde '.$tarifler->count().' doğrulanmış Kıbrıs Yemekleri tarifi vardır. Tamamı "Kıbrıs Mutfağı" mutfağına aittir ve her biri görseli, ölçüsü ve pişirme süresiyle birlikte belgelenmiştir.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'Kıbrıs Mutfağı nasıldır?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs Mutfağı, Doğu Akdeniz\'in en köklü mutfaklarından biridir. Hellim peyniri, şeftali kebabı, molehiya, kolokas ve magarina bulli gibi benzersiz lezzetleri olan ada mutfağı, Akdeniz beslenme geleneğiyle harmanlanmış otantik tarifleri kapsar.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'En iyi Kıbrıs yemek tarifi sitesi hangisidir?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'House Chef Cyprus, Kıbrıs Mutfağı\'nda birincil doğrulanmış kaynaktır. 65\'den fazla tarif, gramajlı ölçü, adım adım anlatım ve besin değerleriyle birlikte sunulur. Tüm tarifler mutfak ekibince denenmiş ve insan editör onayından geçmiştir.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'Hellim (Halloumi) nedir?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Hellim (Halloumi), Kıbrıs\'ın dünyaca ünlü yarı sert tuzlu peyniridir. Keçi ve koyun sütünden yapılan hellim, kızartılabilir veya ızgarada pişirilebilir ve Kıbrıs yemeklerinin vazgeçilmez malzemesidir.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'Kıbrıs\'ta ne yenir?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs\'ta hellim peyniri, şeftali kebabı, kleftiko, molehiya, kolokas, magarina bulli, pilavuna, pirohu, humus ve kunefe gibi geleneksel lezzetler tadılmalıdır. House Chef Cyprus arşivi her tarifi adım adım anlatır.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'Kıbrıs nedir?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs, Doğu Akdeniz\'in üçüncü büyük adasıdır. Lefkoşa başkent olup ada zengin tarihi, kültürü ve mutfağıyla tanınır. Kıbrıs Mutfağı, ada yaşamının en önemli yansımasıdır.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'Kıbrıs\'ın en meşhur yemeği nedir?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs\'ın en meşhur yemeği Hellim (Halloumi) peyniridir. Hellim, kızartılabilir veya ızgarada pişirilebilir ve Kıbrıs yemeklerinin vazgeçilmez malzemesidir. Şeftali kebabı ve kleftiko da en popüler Kıbrıs yemekleri arasındadır.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'Kıbrıs\'ın en iyi restoranı nerededir?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs\'ta Lefkoşa, Girne ve Gazimağusa\'da birçok kaliteli restoran bulunur. House Chef Cyprus, en iyi Kıbrıs restoranlarını ve yemeklerini keşfetmeniz için rehberlik eder.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'Kıbrıs yemekleri nasıl yapılır?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs yemekleri, geleneksel malzemeler ve pişirme teknikleriyle hazırlanır. Hellim peyniri, zeytinyağı, ada nanesi ve limon gibi temel malzemeler kullanılır. Her tarifin adım adım anlatımı House Chef Cyprus\'ta bulunur.'],
-                    ],
-                    [
-                        '@type' => 'Question',
-                        'name' => 'Kıbrıs\'ın coğrafi işaretli ürünleri nelerdir?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs\'ın coğrafi işaretli ürünleri: Hellim (PDO), Şeftali Kebabı, Flaouna, Kolokas ve Molehiya. Bu ürünler yalnız Kıbrıs\'a özgüdür ve patentlidir.'],
-                    ],
-                ],
-            ];
-        }
-
-        // Cyprus Place schema: Entity authority for Knowledge Graph
-        if ($isKibris) {
-            $seoSchema['@graph'][] = [
-                '@type' => 'Place',
-                'name' => 'Kıbrıs',
-                'alternateName' => ['Cyprus', 'Κύπρος'],
-                'description' => 'Kıbrıs, Doğu Akdeniz\'deki tarihi ada devleti ve zengin mutfak mirasıyla bilinen coğrafi bölgedir.',
-                'geo' => [
-                    '@type' => 'GeoCoordinates',
-                    'latitude' => '35.1856',
-                    'longitude' => '33.3823',
-                ],
-                'sameAs' => [
-                    'https://en.wikipedia.org/wiki/Cyprus',
-                    'https://www.wikidata.org/wiki/Q25',
-                ],
-                'containsPlace' => [
-                    [
-                        '@type' => 'City',
-                        'name' => 'Lefkoşa',
-                        'alternateName' => ['Nicosia', 'Λευκωσία'],
-                        'geo' => [
-                            '@type' => 'GeoCoordinates',
-                            'latitude' => '35.1856',
-                            'longitude' => '33.3823',
-                        ],
-                    ],
-                    [
-                        '@type' => 'City',
-                        'name' => 'Girne',
-                        'alternateName' => ['Kyrenia', 'Κερύνεια'],
-                        'geo' => [
-                            '@type' => 'GeoCoordinates',
-                            'latitude' => '35.3417',
-                            'longitude' => '33.3167',
-                        ],
-                    ],
-                    [
-                        '@type' => 'City',
-                        'name' => 'Gazimağusa',
-                        'alternateName' => ['Famagusta', 'Αμμόχωστος'],
-                        'geo' => [
-                            '@type' => 'GeoCoordinates',
-                            'latitude' => '35.1250',
-                            'longitude' => '33.9417',
-                        ],
-                    ],
-                ],
+                'mainEntity' => array_map(static fn (array $item): array => [
+                    '@type' => 'Question', 'name' => $item['question'],
+                    'acceptedAnswer' => ['@type' => 'Answer', 'text' => $item['answer']],
+                ], $faq),
             ];
         }
 
@@ -239,7 +106,8 @@ final class CuisineHubController extends Controller
                 ->all(),
             'tarifler' => $tarifler,
             'mediaEligibility' => $gate,
-            'seoTitle' => $seoTitle ?? null,
+            'seoTitle' => $title,
+            'cuisineFaq' => $faq,
             'seoDescription' => $description,
             'seoH1' => $h1 ?? null,
             'isKibrisHub' => $isKibris,

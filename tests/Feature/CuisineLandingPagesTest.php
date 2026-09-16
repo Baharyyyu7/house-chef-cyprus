@@ -179,6 +179,69 @@ final class CuisineLandingPagesTest extends TestCase
         $this->assertStringNotContainsString('"@type":"Recipe"', $this->collectionSchema($icerik));
     }
 
+    public function test_cyprus_faq_matches_visible_content_and_links_only_to_existing_recipes(): void
+    {
+        $cuisine = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 5);
+        $draft = $this->tarif($cuisine, 'Taslak hellim', 'draft');
+        $html = (string) $this->get(route('cuisines.show', $cuisine->slug))->assertOk()->getContent();
+        $schema = json_decode($this->collectionSchema($html), true, flags: JSON_THROW_ON_ERROR);
+        $faq = collect($schema['@graph'])->firstWhere('@type', 'FAQPage');
+        $this->assertCount(3, $faq['mainEntity']);
+        $visible = preg_replace('#<script\b[^>]*>.*?</script>#s', '', $html);
+        foreach ($faq['mainEntity'] as $item) {
+            $this->assertStringContainsString(e($item['name']), $visible);
+            $this->assertStringContainsString(e($item['acceptedAnswer']['text']), $visible);
+        }
+        $this->assertStringNotContainsString($draft->slug, $html);
+        $this->assertStringNotContainsString('patentlidir', $html);
+        $this->assertStringNotContainsString('kanonik kaynağı', $html);
+        $this->assertStringNotContainsString('test edilmiştir', $html);
+        preg_match_all('#href="([^" ]*/tarifler/[^" ]+)"#', $html, $links);
+        $allowed = $cuisine->recipes()->where('status', 'published')->get()->map(fn ($recipe) => route('recipes.show', $recipe))->all();
+        foreach ($links[1] as $url) {
+            $this->assertContains($url, $allowed);
+        }
+    }
+
+    public function test_english_cyprus_page_does_not_repeat_turkish_editorial_content(): void
+    {
+        config()->set('locales.supported.en.enabled', true);
+        $cuisine = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 5);
+        foreach ($cuisine->recipes as $recipe) {
+            foreach (['title' => 'Cyprus recipe '.$recipe->id, 'excerpt' => 'Summary.', 'description' => 'Description.'] as $field => $value) {
+                $recipe->translations()->create(['locale' => 'en', 'field' => $field, 'value' => $value]);
+            }
+        }
+        $this->get('/en/mutfaklar/kibris-mutfagi')->assertOk()
+            ->assertDontSee('Kıbrıs Yemekleri ve Yemek Tarifleri')
+            ->assertDontSee('Şeftali kebabında şeftali var mı?')
+            ->assertDontSee('"@type":"FAQPage"', false);
+    }
+
+    public function test_site_schema_uses_one_brand_identity_without_geographic_impersonation(): void
+    {
+        $cuisine = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 5);
+        foreach (['/', '/mutfaklar/'.$cuisine->slug] as $path) {
+            $html = (string) $this->get($path)->assertOk()->getContent();
+            preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $html, $matches);
+            $nodes = collect($matches[1])->flatMap(fn (string $raw) => json_decode($raw, true, flags: JSON_THROW_ON_ERROR)['@graph'] ?? []);
+            $this->assertCount(1, $nodes->where('@type', 'WebSite'));
+            $organizations = $nodes->where('@type', 'Organization');
+            $this->assertCount(1, $organizations);
+            $organization = $organizations->first();
+            $this->assertSame(config('brand.name'), $organization['name']);
+            $this->assertSame(route('home').'#organization', $organization['@id']);
+            $this->assertArrayNotHasKey('geo', $organization);
+            $this->assertArrayNotHasKey('address', $organization);
+            $this->assertEmpty($nodes->where('@type', 'LocalBusiness'));
+            $this->assertEmpty($nodes->where('@type', 'Place'));
+            foreach ($organization['sameAs'] ?? [] as $url) {
+                $this->assertStringNotContainsString('wikipedia.org', $url);
+                $this->assertStringNotContainsString('wikidata.org', $url);
+            }
+        }
+    }
+
     private function mutfak(string $ad, string $slug, int $tarifAdedi): Cuisine
     {
         $mutfak = Cuisine::query()->create(['name' => $ad, 'slug' => $slug]);

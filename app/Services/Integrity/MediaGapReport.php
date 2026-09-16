@@ -125,9 +125,10 @@ final class MediaGapReport
         return Recipe::query()
             ->where('status', 'published')
             ->where('verification_status', 'verified')
-            ->whereDoesntHave('media', fn ($query) => $query->where('media_status', 'approved_real_media'))
-            ->with(['cuisine', 'category', 'recipeIngredients'])
-            ->get();
+            ->with(['cuisine', 'category', 'recipeIngredients', 'media.reviewedBy', 'media.approvedBy'])
+            ->get()
+            ->filter(fn (Recipe $recipe): bool => app(\App\Services\Media\PublicMediaEligibilityService::class)->firstEligible($recipe->media) === null)
+            ->values();
     }
 
     /**

@@ -1,7 +1,7 @@
 # 🍽️ Görsel Üretim Dağıtık Koordinasyon ve Canlı Kilit Sistemi
 
-> **Canlı İlerleme:** `%0.8` Tamamlandı | **Tamamlanan:** `3` / `366` | **İşleniyor:** `0` | **Boşta:** `363`
-> **Son Güncelleme:** 2026-09-16 11:57:41
+> **Canlı İlerleme:** `%1.4` Tamamlandı | **Tamamlanan:** `5` / `366` | **İşleniyor:** `1` | **Boşta:** `358`
+> **Son Güncelleme:** 2026-09-16 13:31:51
 > **Kurallar:** [docs/GORSEL_URETIM_MASTER_PROMPT.md](GORSEL_URETIM_MASTER_PROMPT.md) ve [docs/AJAN_CALISMA_KURALLARI.md](AJAN_CALISMA_KURALLARI.md)
 
 ## 1. Dağıtık Kilit Protokolü ("Ben Yapacağım" Mekanizması)
@@ -12,18 +12,20 @@ Birden fazla yapay zeka ajanının aynı anda güvenle çalışabilmesi için:
 2. **Üretim ve Yükleme:** Ajan görseli üretir, `scripts/upload-recipe-image.sh` ile 1920x1620 PNG olarak sunucuya aktarır.
 3. **Tamamlama (Complete):** `php scripts/image-queue.php complete --slug="{slug}" --worker="AI-Worker-1"`
    - Durum `completed` olarak kaydedilir ve ajana yeni iş verilir.
-4. **Zaman Aşımı / Hata (Timeout):** 15 dakikadan uzun süre kilitli kalan işler otomatik olarak havuza iade edilir.
+4. **Zaman Aşımı / Hata (Timeout):** Kilitler otomatik dağıtılmaz. Aynı worker claim ile işine devam eder; renew ile zamanı yeniler. release ve block için sahip worker zorunludur.
+
+Engellenen kayıtlar: `2`. `block --slug=... --worker=... --reason=...` ile eksik kimlik açıklanır.
 
 ## 2. Canlı Kuyruk Listesi
 
 | # | Durum | Kilitleyen Ajan | Tarif Başlığı | Mutfak | Kategori | Dosya Adı (`media-import/recipes/`) |
 |:---:|:---:|:---|:---|:---|:---|:---|
-| 1 | `[ ] Boşta` | - | **Kıbrıs Usulü Fırın** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-firin-YDQEZ.png` |
-| 2 | `[ ] Boşta` | - | **Kıbrıs Usulü Fırın** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-firin-4ST5Z.png` |
-| 3 | `[ ] Boşta` | - | **Kıbrıs Usulü Fırın Tavuk Baget** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-firin-tavuk-baget-PCR3Q.png` |
+| 1 | `! Engelli` | - | **Kıbrıs Usulü Fırın (Tarif başlığı eksik; hangi fırın yemeği olduğu doğrulanamıyor.)** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-firin-YDQEZ.png` |
+| 2 | `! Engelli` | - | **Kıbrıs Usulü Fırın (Tarif başlığı eksik; hangi fırın yemeği olduğu doğrulanamıyor.)** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-firin-4ST5Z.png` |
+| 3 | `✓ Bitti` | **AI-Worker-1** | **Kıbrıs Usulü Fırın Tavuk Baget** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-firin-tavuk-baget-PCR3Q.png` |
 | 4 | `✓ Bitti` | **Antigravity-Master** | **Kıbrıs Usulü Kleftiko (Kuzu Fırın)** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-kleftiko-kuzu-firin-JSCP5.png` |
-| 5 | `[ ] Boşta` | - | **Kıbrıs Usulü Kleftiko (Kuzu Fırın)** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-kleftiko-kuzu-firin-63QYN.png` |
-| 6 | `[ ] Boşta` | - | **Kıbrıs Usulü Molohiya** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-molohiya-0TZW4.png` |
+| 5 | `✓ Bitti` | **AI-Worker-4** | **Kıbrıs Usulü Kleftiko (Kuzu Fırın)** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-kleftiko-kuzu-firin-63QYN.png` |
+| 6 | `⏳ İşleniyor` | **AI-Worker-4** | **Kıbrıs Usulü Molohiya** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-molohiya-0TZW4.png` |
 | 7 | `[ ] Boşta` | - | **Kıbrıs Usulü Molohiya** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-molohiya-T9C33.png` |
 | 8 | `✓ Bitti` | **AI-Worker-1** | **Kıbrıs Usulü Tavuklu Kolokas** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-tavuklu-kolokas-C0DS3.png` |
 | 9 | `[ ] Boşta` | - | **Kıbrıs Usulü Tavuklu Kolokas** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-tavuklu-kolokas-S8VGF.png` |
