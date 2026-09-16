@@ -28,7 +28,7 @@ return [
         'timezone' => env('GOOGLE_SEARCH_CONSOLE_TIMEZONE', env('SEARCH_CONSOLE_TIMEZONE', 'Europe/Nicosia')),
     ],
     'indexnow' => [
-        'enabled' => (bool) env('INDEXNOW_ENABLED', false),
+        'enabled' => (bool) env('INDEXNOW_ENABLED', true),
         'endpoint' => env('INDEXNOW_ENDPOINT', 'https://api.indexnow.org/indexnow'),
         'batch_size' => (int) env('INDEXNOW_BATCH_SIZE', 100),
     ],
@@ -41,8 +41,8 @@ return [
         'country' => 'CY',
         'region' => 'TR',
         'geo_coordinates' => [
-            'latitude' => 35.1690,
-            'longitude' => 33.3611,
+            'latitude' => 35.1856,
+            'longitude' => 33.3823,
         ],
         'city' => 'Nicosia',
         'timezone' => 'Europe/Nicosia',

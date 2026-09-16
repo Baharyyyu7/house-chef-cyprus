@@ -24,7 +24,7 @@
         ? __('archive.meta_desc_home')
         : __('archive.meta_desc_recipes', ['total' => $recipes->total()]);
 @endphp
-<x-layouts.site :title="$sayfaBasligi" :meta-description="$sayfaAciklamasi" :canonical-url="$seoIndexability['canonical']" :robots="$seoIndexability['robots']">
+<x-layouts.site :title="$sayfaBasligi" :meta-description="$sayfaAciklamasi" :canonical-url="$seoIndexability['canonical']" :robots="$seoIndexability['robots']" :structured-data="$homeSchema ?? null">
 @if (request()->routeIs('home'))
     @include('home.index')
 @else

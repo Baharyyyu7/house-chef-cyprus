@@ -91,7 +91,7 @@ The site already has a complete SEO infrastructure:
 1. Verify `LlmsTxtController` is operational
 2. Deploy `/llms.txt` and `/llms-full.txt`
 3. Deploy `/pricing.md` if applicable
-4. Verify `/okf/` bundle
+4. `/okf/` bundle — UYGULANMADI (2026-09-16 tespiti: route yok, yalnız bu satırda geçiyor). Ya implemente edilecek ya bu satır silinecek; varmış gibi raporlanmaz.
 
 ---
 
@@ -170,7 +170,7 @@ The site already has a complete SEO infrastructure:
 **Impact**: Already built, needs activation
 **Action**:
 1. Enable `AutonomousGrowthEngine` as scheduled job
-2. Configure daily cron: `php artisan seo:autonomous-cycle`
+2. Configure daily cron: `php artisan seo:autonomous-growth` (02:45 scheduler'da aktif; dokümandaki eski `seo:autonomous-cycle` adı kodda yok — 2026-09-16 düzeltmesi)
 3. Monitor daily KPI dashboard
 4. 100 SEO + 100 GEO + 100 Backlink daily targets
 

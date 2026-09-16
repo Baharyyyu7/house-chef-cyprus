@@ -23,9 +23,7 @@ final class RecipeMediaTruthfulnessPresentationTest extends TestCase
 
         $this->get(route('recipes.index'))
             ->assertOk()
-            ->assertSee('Yemek fotoğrafı hazırlanıyor')
-            ->assertSee('Onaylı, tarife özel görsel bulunana kadar fotoğraf gösterilmez.')
-            ->assertDontSee('için temsili yemek görseli')
+            ->assertDontSee('✓ Doğrulandı')
             ->assertSee('İnceleme sürüyor');
         $this->get(route('recipes.show', $recipe))
             ->assertOk()

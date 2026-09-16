@@ -1,7 +1,7 @@
 # 🍽️ Görsel Üretim Dağıtık Koordinasyon ve Canlı Kilit Sistemi
 
-> **Canlı İlerleme:** `%0.8` Tamamlandı | **Tamamlanan:** `3` / `366` | **İşleniyor:** `1` | **Boşta:** `362`
-> **Son Güncelleme:** 2026-09-16 11:47:25
+> **Canlı İlerleme:** `%0.8` Tamamlandı | **Tamamlanan:** `3` / `366` | **İşleniyor:** `0` | **Boşta:** `363`
+> **Son Güncelleme:** 2026-09-16 11:57:41
 > **Kurallar:** [docs/GORSEL_URETIM_MASTER_PROMPT.md](GORSEL_URETIM_MASTER_PROMPT.md) ve [docs/AJAN_CALISMA_KURALLARI.md](AJAN_CALISMA_KURALLARI.md)
 
 ## 1. Dağıtık Kilit Protokolü ("Ben Yapacağım" Mekanizması)

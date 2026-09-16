@@ -164,6 +164,23 @@
 
     <x-home-testimonials :testimonials="collect(config('testimonials.home', []))->filter(fn ($item, $index) => in_array($index, [0, 2, 4]))->all()" :disclosure="config('testimonials.disclosure')" />
 
+    {{-- Blog-hub şeridi: Kıbrıs rehber yazıları anasayfadan yüzey alır.
+         Üyelik kartındaki metin bağlantı tek başına hub desteği sayılmazdı.
+         Yazı yoksa bölüm hiç basılmaz, boş şerit çıkmaz. --}}
+    @if(($homeBlogPosts ?? collect())->isNotEmpty())
+    <section data-reveal class="hc-container py-16" aria-labelledby="home-guides-title">
+        <div class="flex items-end justify-between gap-4">
+            <div><p class="hc-kicker">{{ __('nav.blog') }}</p><h2 id="home-guides-title" class="hc-heading-2 mt-3">{{ __('home.nav_kitchen_guides') }}</h2></div>
+            <a class="hidden text-sm font-extrabold text-orange-700 sm:inline" href="{{ route('blog.index') }}">{{ __('blog.show.read_more') }} →</a>
+        </div>
+        <div class="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
+            @foreach($homeBlogPosts as $yazi)
+                <x-blog-card :post="$yazi" />
+            @endforeach
+        </div>
+    </section>
+    @endif
+
 
 <section class="hc-container py-16" aria-labelledby="home-membership-title">
     <div class="hc-v3-card p-8 sm:p-12">

@@ -1,21 +1,22 @@
 <x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$seoImage" :social-image-width="$seoImageWidth" :social-image-height="$seoImageHeight" :social-image-alt="$seoImageAlt" :structured-data="$seoSchema" :seo-content="$recipe">
     @php
-        $heroMedia = app(\App\Services\Media\PublicMediaEligibilityService::class)->firstEligible($recipe->media);
-        $hasApprovedMedia = $heroMedia !== null;
-        $isSyntheticHero = (bool) $heroMedia?->generated_by_ai;
+        $displayMedia = app(\App\Services\Media\RecipeDisplayMediaService::class)->resolve($recipe);
+        $heroMedia = $displayMedia['media'];
+        $hasApprovedMedia = $displayMedia['has_specific_media'];
+        $isSyntheticHero = $displayMedia['is_synthetic'];
     @endphp
 
     {{-- Hero başlık çubuğunun altından başlar; çubuk sayfa tepesindeyken
          saydam durduğu için arada krem bir bant kalmaz. --}}
     <section class="hc-recipe-detail-hero relative isolate -mt-[var(--hc-header-h)] overflow-hidden bg-charcoal-950 pt-[var(--hc-header-h)] text-white">
-        @if($hasApprovedMedia)
+        @if($hasApprovedMedia && $heroMedia)
             <picture>
                 @if($heroMedia->responsiveSrcset([800, 1200, 1600], 'avif'))<source type="image/avif" srcset="{{ $heroMedia->responsiveSrcset([800, 1200, 1600], 'avif') }}" sizes="100vw">@endif
                 @if($heroMedia->responsiveSrcset([800, 1200, 1600], 'webp'))<source type="image/webp" srcset="{{ $heroMedia->responsiveSrcset([800, 1200, 1600], 'webp') }}" sizes="100vw">@endif
                 <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-70" src="{{ $heroMedia->responsiveUrl(1600) }}" srcset="{{ $heroMedia->responsiveSrcset([800, 1200, 1600]) }}" sizes="100vw" width="1600" height="1000" alt="" aria-hidden="true" fetchpriority="high">
             </picture>
         @else
-            <div class="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_75%_20%,rgba(255,102,0,.32),transparent_28%),linear-gradient(135deg,#111913,#17251d_48%,#20160e)]" aria-hidden="true"></div>
+            <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-60" src="{{ $displayMedia['hero_url'] }}" width="1600" height="1000" alt="" aria-hidden="true" fetchpriority="high">
         @endif
         <div class="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(10,16,13,.97)_0%,rgba(10,16,13,.82)_48%,rgba(10,16,13,.25)_100%)]"></div>
         <div class="hc-container grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_19rem] lg:py-20">
@@ -26,7 +27,7 @@
                 <p class="hc-body-lg mt-5 max-w-2xl text-stone-200">{{ $recipe->translated('excerpt') }}</p>
                 <div class="mt-7 flex flex-wrap gap-2">@foreach([[__('recipe.prep'), $recipe->prep_minutes.' '.__('recipe.min')], [__('recipe.cook'), $recipe->cook_minutes.' '.__('recipe.min')], [__('recipe.total'), $recipe->totalMinutes().' '.__('recipe.min')], [__('recipe.servings'), $recipe->servings], [__('recipe.difficulty'), $recipe->zorlukEtiketi()]] as [$label, $value])<span class="hc-v3-badge border-white/20 bg-white/10 text-white backdrop-blur"><strong class="text-orange-200">{{ $label }}</strong> {{ $value }}</span>@endforeach</div>
                 <div class="mt-6 flex flex-wrap items-center gap-3"><span class="text-xs text-stone-300">{{ __('recipe.last_editorial_review') }}: {{ $recipe->editorial_reviewed_at?->format('d.m.Y') ?: __('recipe.not_recorded') }}</span>@auth<form method="post" action="{{ route('favorites.toggle', $recipe) }}">@csrf<button class="hc-v3-btn hc-v3-btn--outline border-white/20 bg-white/10 text-white hover:bg-white/20" type="submit" aria-label="{{ $recipe->title }} tarifini favorilere ekle">{{ $isFavorited ? __('recipe.in_favorites') : __('recipe.add_to_favorites') }}</button></form>@endauth</div>
-                <div class="mt-2"><x-social-share :title="$recipe->title" :description="$recipe->excerpt" :image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : null" /></div>
+                <div class="mt-2"><x-social-share :title="$recipe->title" :description="$recipe->excerpt" :image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : $displayMedia['hero_url']" /></div>
                 <div class="mt-3 flex flex-col items-start" x-data="{ openEmbed: false, copied: false }">
                     <button type="button" @click="openEmbed = !openEmbed" class="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-300 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>

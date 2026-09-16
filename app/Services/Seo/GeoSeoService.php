@@ -12,8 +12,8 @@ use Illuminate\Support\Str;
 
 final class GeoSeoService
 {
-    private const CYPRUS_LATITUDE = 35.1690;
-    private const CYPRUS_LONGITUDE = 33.3611;
+    private const CYPRUS_LATITUDE = 35.1856;
+    private const CYPRUS_LONGITUDE = 33.3823;
     private const CYPRUS_REGION = 'TR';
     private const CYPRUS_COUNTRY = 'CY';
 

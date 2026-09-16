@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\Search\RecipeSearchInterface;
 use App\Models\Allergen;
+use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\Cuisine;
 use App\Models\DietaryTag;
@@ -27,7 +28,7 @@ use Illuminate\Http\Request;
 
 final class RecipeController extends Controller
 {
-    public function index(Request $request, RecipeSearchInterface $search, ZeroResultSearchService $zeroResults, SeoIndexabilityService $indexability)
+    public function index(Request $request, RecipeSearchInterface $search, ZeroResultSearchService $zeroResults, SeoIndexabilityService $indexability, SeoSchemaService $schemaService)
     {
         $filters = $request->only([
             'q', 'cuisine', 'category', 'difficulty', 'dietary_tag', 'exclude_allergens',
@@ -73,6 +74,14 @@ final class RecipeController extends Controller
             $mediaEligibility = app(PublicMediaEligibilityService::class);
             $viewData['homeHighlights'] = $catalogue->lazy()->filter(fn (Recipe $recipe): bool => $mediaEligibility->firstEligible($recipe->media) !== null)->take(4)->collect();
             $viewData['homeIngredients'] = cache()->remember('home-ingredients-v2:'.app()->getLocale(), now()->addMinutes(5), fn () => Ingredient::query()->where('is_active', true)->orderBy('name')->get(['public_id', 'name'])->toArray());
+            // Anasayfa daha önce WebSite şemasız basılıyordu: webSite()
+            // tanımlıydı ama hiçbir çağrısı yoktu. Google site adı + site
+            // içi arama kutusu zengin sonucunu yalnız bu şema açar.
+            $viewData['homeSchema'] = $schemaService->webSite();
+            // Blog-hub şeridi: anasayfadan bloga giden tek bağlantı üyelik
+            // kartındaki metin linkti. Son 3 yayında yazı, hub desteğini
+            // kapatır ve Kıbrıs rehber içeriklerini yüzeye taşır.
+            $viewData['homeBlogPosts'] = BlogPost::query()->publiclyVisible()->translatedInto()->with(['category', 'heroMedia', 'media'])->latest('published_at')->take(3)->get();
 
         }
 

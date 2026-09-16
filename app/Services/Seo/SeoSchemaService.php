@@ -304,8 +304,8 @@ final class SeoSchemaService
         // Geo-targeted recipe schema for Kıbrıs content
         $recipeNode['geo'] = [
             '@type' => 'GeoCoordinates',
-            'latitude' => '35.1690',
-            'longitude' => '33.3615',
+            'latitude' => '35.1856',
+            'longitude' => '33.3823',
             'address' => 'Kıbrıs',
         ];
         $crumbs = [['name' => $this->crumbName('home', $locale), 'url' => route('home')]];
@@ -808,7 +808,9 @@ final class SeoSchemaService
                         '@type' => 'SearchAction',
                         'target' => [
                             '@type' => 'EntryPoint',
-                            'urlTemplate' => url('/arama?q={search_term_string}'),
+                            // /arama route'u yok; gerçek arama tarif arşivinde
+                            // ?q= ile çalışır. Ölü adres şemaya girmez.
+                            'urlTemplate' => route('recipes.index').'?q={search_term_string}',
                         ],
                         'query-input' => 'required name=search_term_string',
                     ],
