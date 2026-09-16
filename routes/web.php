@@ -53,6 +53,7 @@ use App\Http\Controllers\PolicyPageController;
 use App\Http\Controllers\RecipeCollectionController;
 use App\Http\Controllers\RecipeCollectionLandingController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\RecipeRatingController;
 use App\Http\Controllers\RssFeedController;
 use App\Http\Controllers\SchedulerTriggerController;
 use App\Http\Controllers\ShopController;
@@ -153,6 +154,9 @@ Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
 
         return redirect()->route('recipes.show', $adaylar->first(), 301);
     });
+Route::post('/tarifler/{recipe:slug}/oyla', [RecipeRatingController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('recipes.rate');
 Route::get('/embed/recipes/{recipe:slug}', [RecipeController::class, 'embed'])->name('recipes.embed');
 Route::get('/embed/tarif/{recipe:slug}', [RecipeController::class, 'embed'])->name('recipes.embed.tr');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');

@@ -260,6 +260,40 @@ final class SeoSchemaService
             $recipeNode['nutrition'] = $beslenme;
         }
 
+        // Topluluk oyu: sayfadaki görünür yıldız widget'ıyla birebir aynı
+        // sayılar. Oy yoksa alan basılmaz; sahte 5.0 ilan edilmez.
+        $oyOzeti = $recipe->ratingSummary();
+        if ($oyOzeti['count'] > 0 && $oyOzeti['average'] !== null) {
+            $recipeNode['aggregateRating'] = [
+                '@type' => 'AggregateRating',
+                'ratingValue' => number_format($oyOzeti['average'], 1, '.', ''),
+                'reviewCount' => (string) $oyOzeti['count'],
+                'bestRating' => '5',
+            ];
+        }
+
+        // Şef ipuçları + malzeme ikameleri: sayfadaki görünür GEO kutusundaki
+        // metnin aynısı. CreativeWork.comment geçerli bir alandır ve görünen
+        // içerikle birebir eşleşir.
+        $yorumlar = [];
+        foreach ((array) ($recipe->tips ?? []) as $ipucu) {
+            if (is_string($ipucu) && trim($ipucu) !== '') {
+                $yorumlar[] = ['@type' => 'Comment', 'text' => trim($ipucu)];
+            }
+        }
+        foreach ($recipe->recipeIngredients as $kalem) {
+            // recipeIngredients HasMany'dir, pivot yoktur: ikame doğrudan
+            // kalem sütunundadır. Görünür GEO kutusundaki metnin aynısı.
+            $ikame = $kalem->substitution ?? null;
+            $ad = $kalem->ingredient?->name ?? $kalem->group_name ?? null;
+            if (is_string($ikame) && trim($ikame) !== '' && is_string($ad) && trim($ad) !== '') {
+                $yorumlar[] = ['@type' => 'Comment', 'text' => trim($ad).' yoksa: '.trim($ikame)];
+            }
+        }
+        if ($yorumlar !== []) {
+            $recipeNode['comment'] = array_slice($yorumlar, 0, 20);
+        }
+
         $baseSlug = preg_replace('/-[A-Za-z0-9]{5}$/', '', $recipe->slug);
         $entity = self::HERITAGE_ENTITIES[$recipe->slug]
             ?? self::HERITAGE_ENTITIES[$baseSlug]

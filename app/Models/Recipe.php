@@ -218,6 +218,48 @@ class Recipe extends Model
         return $this->hasMany(RecipeStep::class)->orderBy('position');
     }
 
+    /** @return HasMany<RecipeRating, $this> */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(RecipeRating::class);
+    }
+
+    /**
+     * @return array{average: float|null, count: int}
+     */
+    public function ratingSummary(): array
+    {
+        if (! $this->exists) {
+            return ['average' => null, 'count' => 0];
+        }
+
+        if ($this->relationLoaded('ratings')) {
+            $toplam = $this->ratings->count();
+            if ($toplam === 0) {
+                return ['average' => null, 'count' => 0];
+            }
+
+            return [
+                'average' => round((float) $this->ratings->avg('rating'), 1),
+                'count' => $toplam,
+            ];
+        }
+
+        try {
+            $toplam = (int) $this->ratings()->count();
+            if ($toplam === 0) {
+                return ['average' => null, 'count' => 0];
+            }
+
+            return [
+                'average' => round((float) $this->ratings()->avg('rating'), 1),
+                'count' => $toplam,
+            ];
+        } catch (\Throwable) {
+            return ['average' => null, 'count' => 0];
+        }
+    }
+
     /** @return BelongsToMany<Ingredient, $this> */
     public function ingredients(): BelongsToMany
     {

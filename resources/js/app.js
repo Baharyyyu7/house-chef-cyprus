@@ -232,6 +232,153 @@ Alpine.data('hcRecipeSteps', (slug, total) => ({
         },
     }));
 
+    // Yapışkan pişim zamanlayıcısı. Adım butonları `hc-start-timer`
+    // olayıyla besler; sayfa kaydırılsa da sağ altta yaşar. Sesli uyarı
+    // WebAudio ile üretilir, dosya gerektirmez.
+    Alpine.data('hcCookTimer', () => ({
+        acik: false,
+        calisiyor: false,
+        bitti: false,
+        toplam: 0,
+        kalan: 0,
+        etiket: '',
+        zamanlayici: null,
+        bitis: 0,
+        get gosterim() {
+            const saniye = Math.max(0, Math.ceil(this.kalan));
+
+            return `${String(Math.floor(saniye / 60)).padStart(2, '0')}:${String(saniye % 60).padStart(2, '0')}`;
+        },
+        get yuzde() {
+            return this.toplam > 0 ? (this.kalan / this.toplam) * 100 : 0;
+        },
+        baslat(saniye, etiket) {
+            this.durdur();
+            this.toplam = saniye;
+            this.kalan = saniye;
+            this.etiket = etiket || '';
+            this.acik = true;
+            this.bitti = false;
+            this.devamEt();
+        },
+        devamEt() {
+            this.calisiyor = true;
+            this.bitis = Date.now() + this.kalan * 1000;
+            window.clearInterval(this.zamanlayici);
+            this.zamanlayici = window.setInterval(() => {
+                this.kalan = Math.max(0, (this.bitis - Date.now()) / 1000);
+                if (this.kalan <= 0) {
+                    this.bitir();
+                }
+            }, 250);
+        },
+        duraklatDevam() {
+            if (!this.acik || this.bitti) {
+                return;
+            }
+            if (this.calisiyor) {
+                this.calisiyor = false;
+                window.clearInterval(this.zamanlayici);
+            } else if (this.kalan > 0) {
+                this.devamEt();
+            }
+        },
+        sifirla() {
+            this.durdur();
+            this.kalan = this.toplam;
+            this.bitti = false;
+        },
+        kapat() {
+            this.durdur();
+            this.acik = false;
+        },
+        durdur() {
+            this.calisiyor = false;
+            window.clearInterval(this.zamanlayici);
+        },
+        bitir() {
+            this.durdur();
+            this.kalan = 0;
+            this.bitti = true;
+            this.sesliUyari();
+        },
+        sesliUyari() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                [0, 450, 900].forEach((gecikme, i) => {
+                    const osc = ctx.createOscillator();
+                    const kazanc = ctx.createGain();
+                    osc.connect(kazanc);
+                    kazanc.connect(ctx.destination);
+                    osc.frequency.value = i === 2 ? 880 : 660;
+                    osc.start(ctx.currentTime + gecikme / 1000);
+                    osc.stop(ctx.currentTime + gecikme / 1000 + 0.35);
+                });
+            } catch {
+                // Ses kapalıysa zamanlayıcı yine de görsel olarak biter.
+            }
+        },
+    }));
+
+    // Üyeliksiz 5 yıldız oylama. Sunucu `hc_voter` çereziyle tekilliği
+    // korur; tarayıcı kopyası yalnız anlık arayüz içindir.
+    Alpine.data('hcRecipeRating', (adres, kisa, adet, ortalama) => ({
+        adres,
+        kisa,
+        adet,
+        ortalama,
+        vurgu: 0,
+        secili: 0,
+        gonderiliyor: false,
+        tesekkur: false,
+        init() {
+            try {
+                const sakli = window.localStorage.getItem(`hc-rated-${this.kisa}`);
+                if (sakli) {
+                    this.secili = Number.parseInt(sakli, 10) || 0;
+                }
+            } catch {
+                // Depolama kapalıysa oy yine de sunucuya yazılır.
+            }
+        },
+        get gorunen() {
+            return this.secili;
+        },
+        oyla(yildiz) {
+            if (this.gonderiliyor) {
+                return;
+            }
+            this.gonderiliyor = true;
+            const jeton = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+            window.fetch(this.adres, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': jeton},
+                body: JSON.stringify({rating: yildiz}),
+            }).then((yanit) => {
+                if (!yanit.ok) {
+                    throw new Error('oy-gonderilemedi');
+                }
+
+                return yanit.json();
+            }).then((veri) => {
+                this.adet = veri.count;
+                this.ortalama = veri.average;
+                this.secili = veri.user_rating;
+                this.tesekkur = true;
+                try {
+                    window.localStorage.setItem(`hc-rated-${this.kisa}`, String(yildiz));
+                } catch {
+                    // Sessiz geç.
+                }
+            }).catch(() => {
+                this.tesekkur = false;
+            }).finally(() => {
+                this.gonderiliyor = false;
+            });
+        },
+    }));
+
     Alpine.data('hcRecipeIngredients', (slug) => ({
         key: `hc-ing-${slug}`,
         checked: [],

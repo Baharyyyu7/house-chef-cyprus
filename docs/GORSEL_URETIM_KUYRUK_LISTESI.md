@@ -1,7 +1,7 @@
 # 🍽️ Görsel Üretim Dağıtık Koordinasyon ve Canlı Kilit Sistemi
 
-> **Canlı İlerleme:** `%1.4` Tamamlandı | **Tamamlanan:** `5` / `366` | **İşleniyor:** `1` | **Boşta:** `358`
-> **Son Güncelleme:** 2026-09-16 13:31:51
+> **Canlı İlerleme:** `%1.9` Tamamlandı | **Tamamlanan:** `7` / `366` | **İşleniyor:** `2` | **Boşta:** `354`
+> **Son Güncelleme:** 2026-09-16 19:40:43
 > **Kurallar:** [docs/GORSEL_URETIM_MASTER_PROMPT.md](GORSEL_URETIM_MASTER_PROMPT.md) ve [docs/AJAN_CALISMA_KURALLARI.md](AJAN_CALISMA_KURALLARI.md)
 
 ## 1. Dağıtık Kilit Protokolü ("Ben Yapacağım" Mekanizması)
@@ -14,7 +14,7 @@ Birden fazla yapay zeka ajanının aynı anda güvenle çalışabilmesi için:
    - Durum `completed` olarak kaydedilir ve ajana yeni iş verilir.
 4. **Zaman Aşımı / Hata (Timeout):** Kilitler otomatik dağıtılmaz. Aynı worker claim ile işine devam eder; renew ile zamanı yeniler. release ve block için sahip worker zorunludur.
 
-Engellenen kayıtlar: `2`. `block --slug=... --worker=... --reason=...` ile eksik kimlik açıklanır.
+Engellenen kayıtlar: `3`. `block --slug=... --worker=... --reason=...` ile eksik kimlik açıklanır.
 
 ## 2. Canlı Kuyruk Listesi
 
@@ -26,12 +26,12 @@ Engellenen kayıtlar: `2`. `block --slug=... --worker=... --reason=...` ile eksi
 | 4 | `✓ Bitti` | **Antigravity-Master** | **Kıbrıs Usulü Kleftiko (Kuzu Fırın)** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-kleftiko-kuzu-firin-JSCP5.png` |
 | 5 | `✓ Bitti` | **AI-Worker-4** | **Kıbrıs Usulü Kleftiko (Kuzu Fırın)** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-kleftiko-kuzu-firin-63QYN.png` |
 | 6 | `⏳ İşleniyor` | **AI-Worker-4** | **Kıbrıs Usulü Molohiya** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-molohiya-0TZW4.png` |
-| 7 | `[ ] Boşta` | - | **Kıbrıs Usulü Molohiya** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-molohiya-T9C33.png` |
+| 7 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Usulü Molohiya** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-molohiya-T9C33.png` |
 | 8 | `✓ Bitti` | **AI-Worker-1** | **Kıbrıs Usulü Tavuklu Kolokas** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-tavuklu-kolokas-C0DS3.png` |
-| 9 | `[ ] Boşta` | - | **Kıbrıs Usulü Tavuklu Kolokas** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-tavuklu-kolokas-S8VGF.png` |
+| 9 | `! Engelli` | - | **Kıbrıs Usulü Tavuklu Kolokas (Tarif başlığı tavuklu, canlı malzeme listesi kuzu eti içeriyor; yemek kimliği düzeltilmeden görsel teslim edilmez.)** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-tavuklu-kolokas-S8VGF.png` |
 | 10 | `✓ Bitti` | **AI-Worker-1** | **Kıbrıs Usulü Şeftali Kebabı** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-seftali-kebabi-PK57V.png` |
-| 11 | `[ ] Boşta` | - | **Kıbrıs Usulü Şeftali Kebabı** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-seftali-kebabi-KEFH3.png` |
-| 12 | `[ ] Boşta` | - | **Limonlu Balık Tepsisi** | Kıbrıs Mutfağı | Ana Yemek | `recipe--limonlu-balik-tepsisi.png` |
+| 11 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Usulü Şeftali Kebabı** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-seftali-kebabi-KEFH3.png` |
+| 12 | `⏳ İşleniyor` | **Automation-Images-20260916** | **Limonlu Balık Tepsisi** | Kıbrıs Mutfağı | Ana Yemek | `recipe--limonlu-balik-tepsisi.png` |
 | 13 | `[ ] Boşta` | - | **Peynirli Kraker** | Kıbrıs Mutfağı | Atıştırmalık / Pratik | `recipe--peynirli-kraker.png` |
 | 14 | `[ ] Boşta` | - | **Kıbrıs Hellimli Gözleme** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-hellimli-gozleme.png` |
 | 15 | `[ ] Boşta` | - | **Kıbrıs Hellimli Gözleme** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-hellimli-gozleme-6QTYM.png` |
