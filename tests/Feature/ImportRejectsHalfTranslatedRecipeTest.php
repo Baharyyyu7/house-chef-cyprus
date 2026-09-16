@@ -75,6 +75,7 @@ final class ImportRejectsHalfTranslatedRecipeTest extends TestCase
         return [
             'type' => 'recipe',
             'slug' => 'hellimli-borek-testi',
+            'locale' => 'en',
             'fields' => [
                 'title' => 'Halloumi Pastry',
                 'excerpt' => 'Cypriot style',

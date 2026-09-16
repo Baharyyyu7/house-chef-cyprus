@@ -74,6 +74,30 @@ final class ImportContentTranslationsTest extends TestCase
         $this->assertSame(0, $tarif->fresh()->translations()->count());
     }
 
+    public function test_a_translation_for_another_locale_is_refused(): void
+    {
+        $tarif = $this->tarif();
+        $veri = $this->tamCeviri();
+        $veri['locale'] = 'pl';
+        $this->dosyaYaz('recipe-hellim-izgara.json', $veri);
+
+        $this->artisan('content:import-translations', ['--apply' => true])->assertExitCode(0);
+
+        $this->assertSame(0, $tarif->fresh()->translations()->count());
+    }
+
+    public function test_a_translation_without_a_locale_is_refused(): void
+    {
+        $tarif = $this->tarif();
+        $veri = $this->tamCeviri();
+        unset($veri['locale']);
+        $this->dosyaYaz('recipe-hellim-izgara.json', $veri);
+
+        $this->artisan('content:import-translations', ['--apply' => true])->assertExitCode(0);
+
+        $this->assertSame(0, $tarif->fresh()->translations()->count());
+    }
+
     public function test_copying_the_source_text_is_refused(): void
     {
         // Türkçe metnin kopyalanması alanı doluymuş gibi gösterir ama sayfa

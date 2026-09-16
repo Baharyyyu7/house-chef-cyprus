@@ -81,6 +81,18 @@ final class ImportContentTranslations extends Command
                     continue;
                 }
 
+                if (! is_string($veri['locale'] ?? null) || trim($veri['locale']) === '') {
+                    $atlanan['dil bilgisi eksik veya geçersiz'][] = $ad;
+
+                    continue;
+                }
+
+                if ($veri['locale'] !== $locale) {
+                    $atlanan['dosyanın dili klasörle uyuşmuyor'][] = $ad;
+
+                    continue;
+                }
+
                 $tur = (string) ($veri['type'] ?? '');
                 $slug = (string) ($veri['slug'] ?? '');
                 $alanlar = is_array($veri['fields'] ?? null) ? $veri['fields'] : [];
@@ -192,7 +204,7 @@ final class ImportContentTranslations extends Command
      *
      * @param  array<string, mixed>  $veri
      * @param  list<array{0: object, 1: string, 2: string}>  $isler
-     * @return string|null  Sorun varsa atlanma sebebi, yoksa null
+     * @return string|null Sorun varsa atlanma sebebi, yoksa null
      */
     private function tarifGovdesi(Recipe $tarif, array $veri, array &$isler): ?string
     {
