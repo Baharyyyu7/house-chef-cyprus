@@ -11,6 +11,7 @@ use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 final class VisualDesignPhaseTest extends TestCase
@@ -48,15 +49,21 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('mobile-nav', false);
     }
 
-    public function test_v2_homepage_uses_the_real_food_hero_and_keeps_search_and_primary_calls_to_action(): void
+    public function test_v2_homepage_uses_video_hero_and_keeps_search_and_primary_calls_to_action(): void
     {
         // Metin değil davranış doğrulanıyor. Kahraman bölümündeki çağrı
         // metinleri tasarım turlarında yeniden yazılıyor ve birebir dizeye
         // bağlı bir test, kasıtlı bir metin değişikliğinde kırılıp gerçek
         // bir hata varmış gibi görünüyordu.
+        // Video tek başına sahnedir; kapak görseli kalmamalı.
+        Storage::fake('public');
+        Storage::disk('public')->put('videos/hero-quality-20260908.mp4', 'sahte-video');
+
         $icerik = (string) $this->get(route('home'))
             ->assertOk()
-            ->assertSee('house-chef-hero-v2.png', false)
+            // Video tek başına sahnedir; kapak görseli kalmamalı.
+            ->assertDontSee('house-chef-hero-v2', false)
+            ->assertSee('data-hero-video', false)
             // Arama kutusunun kendisi aranıyor, üstündeki başlık değil:
             // başlık metni tasarım turlarında yeniden yazılıyor.
             ->assertSee('hero-ingredient', false)

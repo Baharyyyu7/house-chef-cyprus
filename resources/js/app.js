@@ -485,20 +485,12 @@ Alpine.data('hcBlogKaruseli', (adet) => ({
     }));
 
 /**
- * Kahraman döngü videosu.
- *
- * Video kahraman görselin üzerine biner ve onun yerine geçmez: görsel
- * sayfanın LCP öğesi, video ise süs. Bu yüzden kaynak HTML'de durmuyor -
- * burada, sayfa yüklendikten sonra takılıyor. Böylece video baytları açılış
- * ölçümünün dışında kalıyor.
- *
- * Beş kapı var; biri bile kapalıysa video hiç indirilmez ve altındaki
- * görsel olduğu gibi kalır:
- *   - dar ekran (mobilde 60 KB'lik görsel için 2 MB video indirilmez)
- *   - hareket kısıtlı tercihi
- *   - Save-Data isteği
- *   - yavaş bağlantı
- *   - dosyanın oynatılamaması
+ * Kahraman videosu sahnenin kendisi: kaynak doğrudan markup'tadır ve her
+ * ekranda oynar. Bu orkestratör kaynak takmaz; yalnız görünürlük, sekme
+ * odağı ve erişilebilirlik kapılarını yönetir:
+ *   - hareket kısıtlı tercihi (video durur ve gizlenir)
+ *   - Save-Data isteği ve yavaş bağlantı (oynatma denenmez)
+ *   - dosyanın oynatılamaması (katman gizli kalır, koyu zemin durur)
  */
 (() => {
     const video = document.querySelector('[data-hero-video]');
@@ -507,7 +499,6 @@ Alpine.data('hcBlogKaruseli', (adet) => ({
         return;
     }
 
-    const genisEkran = window.matchMedia('(min-width: 1024px)');
     const hareketKisitli = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     /**
@@ -526,38 +517,12 @@ Alpine.data('hcBlogKaruseli', (adet) => ({
             && ! ['slow-2g', '2g'].includes(baglanti.effectiveType);
     };
 
-    let kaynakTakildi = false;
+    // Görünür olmak için gerçekten kare basmış olması gerekiyor. canplay
+    // yetmez; dosya düşerse katman gizli kalır, koyu zemin durur.
+    video.addEventListener('playing', () => video.setAttribute('data-hazir', ''), { once: true });
 
-    const kaynaklariTak = () => {
-        if (kaynakTakildi) {
-            return;
-        }
-
-        kaynakTakildi = true;
-
-        // Kaynak sırası önemli: tarayıcı ilk oynatabildiğini alır ve WebM
-        // aynı kareyi MP4'ten küçük veriyor.
-        for (const [tur, alan] of [['video/webm', 'webm'], ['video/mp4', 'mp4']]) {
-            const adres = video.dataset[alan];
-
-            if (adres) {
-                const kaynak = document.createElement('source');
-                kaynak.type = tur;
-                kaynak.src = adres;
-                video.append(kaynak);
-            }
-        }
-
-        // Görünür olmak için gerçekten kare basmış olması gerekiyor. canplay
-        // yetmez; dosya düştüğünde boş siyah bir kare açılıyordu.
-        video.addEventListener('playing', () => video.setAttribute('data-hazir', ''), { once: true });
-
-        // Kalıcı olarak vazgeçilen tek durum: dosya oynatılamıyor. Katman
-        // görünmez kalır, altındaki görsel olduğu gibi durur.
-        video.addEventListener('error', () => { video.dataset.kapali = 'medya-hatasi'; }, { once: true });
-
-        video.load();
-    };
+    // Kalıcı olarak vazgeçilen tek durum: dosya oynatılamıyor.
+    video.addEventListener('error', () => { video.dataset.kapali = 'medya-hatasi'; }, { once: true });
 
     /**
      * Oynatma denemesi.
@@ -567,8 +532,6 @@ Alpine.data('hcBlogKaruseli', (adet) => ({
             return;
         }
 
-        kaynaklariTak();
-
         const sozu = video.play();
 
         if (sozu && typeof sozu.catch === 'function') {
@@ -577,18 +540,22 @@ Alpine.data('hcBlogKaruseli', (adet) => ({
     };
 
     const durdur = () => {
-        if (kaynakTakildi) {
-            video.pause();
-        }
+        video.pause();
     };
 
     const basla = () => {
+        // Markup autoplay ile açılır; kapılar kapalıysa (hareket kısıtlı,
+        // veri tasarrufu, yavaş hat) hemen durdurulur ve bir daha denenmez.
+        if (! kapilarAcik()) {
+            video.removeAttribute('autoplay');
+            video.pause();
+        }
         document.addEventListener('visibilitychange', () => {
             document.visibilityState === 'visible' ? oynat() : durdur();
         });
 
-        // Pencere büyüyünce ya da hareket tercihi değişince yeniden denenir.
-        genisEkran.addEventListener('change', () => (genisEkran.matches ? oynat() : durdur()));
+        // Video her ekranda oynar; genişlik değişimi oynatmayı kesmez.
+        // Yalnız hareket tercihi değişimi izlenir.
         hareketKisitli.addEventListener('change', () => (hareketKisitli.matches ? durdur() : oynat()));
 
         // Hero ekrandan çıkınca oynatmanın sürmesi için sebep yok.

@@ -40,19 +40,19 @@ final class HeroVideoTest extends TestCase
             ->assertSee('hero-loop.mp4', false);
     }
 
-    public function test_the_source_is_not_in_the_markup_so_it_cannot_delay_the_first_paint(): void
+    public function test_the_source_is_direct_in_the_markup_so_no_image_flashes_first(): void
     {
-        // Kaynak <source> olarak basılsaydı tarayıcı videoyu görselle
-        // yarıştırırdı; kahraman görsel sayfanın LCP öğesi ve öne alınmış
-        // durumda. Adres data- özniteliğinde durur, JS sayfa yüklendikten
-        // sonra takar.
+        // Video artık sahnenin kendisi: kapak görseli kaldırıldı, önce
+        // resim sonra video geçişi yaşanmıyor. Kaynak doğrudan markup'ta,
+        // preload auto ve autoplay ile ilk kareye kadar oynar.
         $this->videoYaz('hero-loop.mp4');
 
         $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
 
-        $this->assertStringContainsString('data-mp4=', $icerik);
-        $this->assertStringNotContainsString('<source type="video/mp4"', $icerik);
-        $this->assertMatchesRegularExpression('/<video[^>]*preload="none"/', $icerik);
+        $this->assertMatchesRegularExpression('/<video[^>]*preload="auto"/', $icerik);
+        $this->assertMatchesRegularExpression('/<video[^>]*autoplay/', $icerik);
+        $this->assertStringContainsString('hero-loop.mp4', $icerik);
+        $this->assertStringNotContainsString('house-chef-hero-v2', $icerik);
     }
 
     public function test_the_layer_is_decorative_and_stays_out_of_the_reading_order(): void
@@ -69,15 +69,17 @@ final class HeroVideoTest extends TestCase
         $this->assertMatchesRegularExpression('/<video[^>]*playsinline/', $icerik);
     }
 
-    public function test_the_hero_image_still_carries_the_first_paint(): void
+    public function test_no_hero_image_competes_with_the_video(): void
     {
-        // Video eklendikten sonra da LCP öğesi görsel olmalı.
+        // Kapak görseli kalktı; LCP metindir (H1), video tek görsel katmandır.
         $this->videoYaz('hero-loop.mp4');
 
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('fetchpriority="high"', false)
-            ->assertSee('house-chef-hero-v2-1717.avif', false);
+            ->assertDontSee('house-chef-hero-v2', false)
+            ->assertDontSee('v2-hero-image', false)
+            ->assertDontSee('fetchpriority="high"', false)
+            ->assertSee('data-hero-video', false);
     }
 
     public function test_the_web_root_serves_hero_video_with_video_mime_and_cache_rules(): void

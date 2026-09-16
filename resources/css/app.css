@@ -677,15 +677,16 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
 }
 .hc-reveal-on [data-reveal].is-revealed { opacity: 1; transform: none; }
 
-/* Kahraman döngü videosu. Görselin üstünde durur ve yalnız oynayabildiğinde
-   görünür olur: kaynak takılmazsa ya da dosya düşerse altındaki görsel
-   olduğu gibi kalır, kimse boş bir kare görmez.
-   object-position görselinkiyle aynı (%64) - açılırken kadraj kaymasın. */
+/* Kahraman videosu sahnenin kendisidir (kapak görseli yok). Kaynak
+   doğrudan markup'tadır; ilk kare basılana kadar görünmez durur, oynayınca
+   yumuşakça belirir. Oynatılamazsa katman gizli kalır, koyu zemin ve metin
+   olduğu gibi durur. */
 .hc-hero-video {
     position:absolute; inset:0; z-index:-20;
     height:100%; width:100%;
     object-fit:cover; object-position:64% center;
-    opacity:1;
+    opacity:0;
+    transition:opacity .8s ease;
     pointer-events:none;
 }
 .hc-hero-video.is-active,

@@ -1,14 +1,9 @@
 {{-- Hero sayfanın kendisidir, sayfanın üstünde duran bir kart değil.
          Tam genişlikte açılır ve alt kenarı sayfa zeminine karışır; böylece
          yüzen başlık çubuğu gerçekten içeriğin üstünden geçer. --}}
-    <section class="hc-home-hero hc-home-hero--master relative isolate -mt-[var(--hc-header-h)] flex flex-col justify-center min-h-[75svh] items-stretch pb-16 pt-[calc(var(--hc-header-h)+3rem)] sm:pb-20">
-        <div class="absolute inset-0 overflow-hidden pointer-events-none -z-30">
-            <picture>
-                <source type="image/avif" sizes="100vw" srcset="{{ asset('images/house-chef-hero-v2-900.avif').'?v=2' }} 900w, {{ asset('images/house-chef-hero-v2-1440.avif').'?v=2' }} 1440w, {{ asset('images/house-chef-hero-v2-1717.avif').'?v=2' }} 1717w">
-                <source type="image/webp" sizes="100vw" srcset="{{ asset('images/house-chef-hero-v2-900.webp') }} 900w, {{ asset('images/house-chef-hero-v2-1440.webp') }} 1440w, {{ asset('images/house-chef-hero-v2-1717.webp') }} 1717w">
-                <img class="v2-hero-image absolute inset-0 -z-30 h-full w-full object-cover object-[64%_center]" src="{{ asset('images/house-chef-hero-v2.png') }}" width="1717" height="916" alt="Halloumi, domates ve zeytinli Kıbrıs esintili Akdeniz tabağı" fetchpriority="high" decoding="async">
-            </picture>
-            {{-- Yüksek kaliteli ana video: Kullanıcı talebi doğrultusunda kristal netliğinde Akdeniz mutfak videosu doğrudan açılışta kesintisiz başlar. --}}
+    <section class="hc-home-hero hc-home-hero--master relative isolate -mt-[var(--hc-header-h)] flex flex-col justify-center min-h-[82svh] items-stretch pb-16 pt-[calc(var(--hc-header-h)+3rem)] sm:pb-20">
+        {{-- Video tek başına sahnedir: kapak görseli yok, önce-resim-sonra-video geçişi yok. Video gelene kadar koyu zemin durur. --}}
+        <div class="absolute inset-0 overflow-hidden pointer-events-none -z-30 bg-[#060606]">
             <x-hero-video />
         </div>
         {{-- İki katman: yatay olan metne okunur bir zemin verir, dikey olan

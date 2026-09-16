@@ -1,40 +1,35 @@
 @php
     /**
-     * Kahraman görselin üzerine binen döngü videosu.
+     * Kahraman videosu: hero görselinin kendisi.
      *
-     * Video görselin yerine geçmiyor, üstüne biniyor. Görsel sayfanın LCP
-     * öğesi ve fetchpriority="high" ile öne alınmış; video onu geciktirirse
-     * ölçülen açılış süresi bozulur. Bu yüzden burada yalnız boş bir <video>
-     * basılır - kaynağı JavaScript, sayfa yüklendikten sonra ve yalnız
-     * koşullar tutuyorsa takar.
+     * Eskiden altta bir kapak görseli, üstte geç yüklenen video vardı;
+     * açılışta önce resim, sonra videoya geçiş görünüyordu. Artık resim
+     * yok: video doğrudan <source> ile basılır, preload="auto" ve autoplay
+     * ile ilk kareye kadar koyu zeminde bekler, oynayınca yumuşakça belirir.
      *
-     * Dosya sunucuda yoksa hiçbir şey basılmaz: video gelene kadar sayfa
-     * bugünkü hâliyle çalışır, boş bir istek bile gitmez.
+     * Dosya sunucuda yoksa hiçbir şey basılmaz: boş bir istek bile gitmez.
+     * Hareket kısıtlıysa tarayıcı tarafı (app.js) oynatmayı durdurur, CSS
+     * katmanı gizler; video içerik değil süstür (aria-hidden, tabindex dışı).
      */
     use Illuminate\Support\Facades\Storage;
 
     $disk = Storage::disk('public');
     $qualityMp4 = 'videos/hero-quality-20260908.mp4';
     $loopMp4 = 'videos/hero-loop.mp4';
-    $mp4 = $disk->exists($qualityMp4) ? $qualityMp4 : $loopMp4;
-    $webm = 'videos/hero-loop.webm';
-
-    $mp4Var = $disk->exists($mp4);
-    $webmVar = $disk->exists($webm);
+    $mp4 = $disk->exists($qualityMp4) ? $qualityMp4 : ($disk->exists($loopMp4) ? $loopMp4 : null);
 @endphp
 
-@if ($mp4Var || $webmVar)
-    {{-- aria-hidden ve tabindex: video dekoratif bir katman, içerik değil.
-         Ekran okuyucuya ve klavye sırasına girmemeli. --}}
+@if ($mp4 !== null)
     <video
         class="hc-hero-video"
         data-hero-video
-        @if ($mp4Var) data-mp4="{{ $disk->url($mp4) }}" @endif
-        @if ($webmVar) data-webm="{{ $disk->url($webm) }}" @endif
+        src="{{ $disk->url($mp4) }}"
         muted
         loop
         playsinline
-        preload="none"
+        autoplay
+        preload="auto"
+        disablepictureinpicture
         aria-hidden="true"
         tabindex="-1"
     ></video>
