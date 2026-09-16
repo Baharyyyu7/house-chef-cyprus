@@ -107,6 +107,8 @@
             <div class="hc-arama__oneriler mt-5">
                 <span class="hc-arama__etiket">{{ __('home.quick_links') }}</span>
                 <a class="hc-arama__cip" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">{{ __('home.cypriot_cuisine') }}</a>
+                {{-- Exact-match iç bağlantı: "Kıbrıs Yemekleri" araması hub sayfasına site içi en güçlü sayfadan bağlanır. --}}
+                <a class="hc-arama__cip" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">Kıbrıs Yemekleri</a>
                 @foreach([['home.under_20_min', 'sure', '20-dakika', ['max_minutes' => 20]], ['home.easy_recipes', 'zorluk', 'kolay', ['difficulty' => 'easy']]] as [$chipKey, $tur, $slug, $params])
                     <a href="{{ $koleksiyonBaglantisi($tur, $slug) ?? route('recipes.index', $params) }}" class="hc-arama__cip">{{ __($chipKey) }}</a>
                 @endforeach

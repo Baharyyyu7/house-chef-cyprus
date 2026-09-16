@@ -84,7 +84,18 @@
             @endif
 
             @php($recipesToDisplay = $post->recipes->isNotEmpty() ? $post->recipes : ($suggestedRecipes ?? collect()))
-            @if($recipesToDisplay->isNotEmpty())
++            {{-- Kıbrıs konulu yazı, Kıbrıs hub sayfasına bağlanır: blog arşivi hub otoritesini besler. Sorgusuz tespit (ek sorgu yok). --}}
++            @php($kibrisYazisi = str_contains(mb_strtolower(($post->translated('title') ?? '').' '.($post->translated('excerpt') ?? '').' '.($post->category?->name ?? ''), 'utf-8'), 'kıbrıs') || str_contains(mb_strtolower(($post->translated('title') ?? '').' '.($post->translated('excerpt') ?? ''), 'utf-8'), 'hellim'))
++            @if($kibrisYazisi)
++                <section class="mt-12 rounded-2xl border p-5 flex flex-wrap items-center justify-between gap-4" style="border-color: var(--hc-border-default)">
++                    <div>
++                        <p class="hc-kicker text-xs">Kıbrıs Mutfağı</p>
++                        <p class="font-bold text-base mt-1" style="color: var(--hc-text-primary)">Doğrulanmış tariflerin tamamı tek koleksiyonda</p>
++                    </div>
++                    <a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">Kıbrıs Yemekleri &rarr;</a>
++                </section>
++            @endif
+             @if($recipesToDisplay->isNotEmpty())
                 <section class="mt-12 pt-8 border-t" style="border-color: var(--hc-border-subtle)">
                     <h2 class="hc-heading-3 mb-6">{{ __('blog.show.related_recipes') }}</h2>
                     <div class="grid gap-5 sm:grid-cols-2">
