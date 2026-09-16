@@ -16,7 +16,7 @@
         @if(($isKibrisHub ?? false) === true)
             <h2 class="mt-4 font-display text-2xl font-semibold text-gold-700 dark:text-gold-400">Kıbrıs Yemekleri</h2>
             <p class="hc-body-sm mt-2 max-w-2xl font-semibold tracking-wide text-gold-700 dark:text-gold-300">Kıbrıs · Kıbrıs Yemek · Kıbrıs Yemek Tarif · Yemek Kıbrıs · Kıbrıs Yemekleri · Kıbrıs Mutfağı</p>
-            <p class="hc-body-lg mt-3 max-w-3xl leading-relaxed text-muted">Kıbrıs Mutfağı, Akdeniz'in kuzey kıyısında yer alan ada mutfağının en zengin örneğidir. Osmanlı, Yunan ve Türk etkilerini birleştiren bu mutfak, hellim, şeftali kebabı, molehiya, kolokas ve 65 doğrulanmış tarifiyle dünyaya bilinir. House Chef Cyprus arşivi bu mirası gramajlı, süreli ve adımlı olarak belgeler.</p>
+            <p class="hc-body-lg mt-3 max-w-3xl leading-relaxed text-muted">Kıbrıs Mutfağı, Akdeniz'in kuzey kıyısında yer alan ada mutfağının en zengin örneğidir. Osmanlı, Yunan ve Türk etkilerini birleştiren bu mutfak, hellim, şeftali kebabı, molehiya, kolokas ve {{ $tarifler->count() }} doğrulanmış tarifiyle dünyaya bilinir. House Chef Cyprus arşivi bu mirası gramajlı, süreli ve adımlı olarak belgeler.</p>
         @else
             <p class="hc-body-lg mt-4 max-w-2xl text-muted">
                 {{ __('cuisine.body_count', ['name' => $mutfak->name, 'count' => $tarifler->count()]) }}
@@ -31,7 +31,7 @@
         @if(($isKibrisHub ?? false) === true)
             <div class="mt-8 max-w-3xl rounded-2xl border border-gold-100 bg-gold-50/50 p-6 dark:border-gold-900/30 dark:bg-gold-950/20">
                 <h2 class="font-display text-xl font-semibold">Kıbrıs Yemekleri Nedir? Adanın Mutfak Mirası</h2>
-                <p class="hc-body-sm mt-3 leading-relaxed text-muted">Kıbrıs Yemekleri; hellim, şeftali kebabı, molehiya, kolokas, magarina bulli, pirohu ve pilavuna gibi ada mutfağına özgü lezzetler ile Akdeniz'in zeytinyağlı ve ızgara geleneğini birleştiren mutfaktır. House Chef Cyprus arşivi bu mirası 65 doğrulanmış <strong>Kıbrıs Yemek Tarifi</strong> ile belgeler. Her tarif porsiyonu, gramajı ve pişirme süresiyle birlikte test edilmiştir.</p>
+                <p class="hc-body-sm mt-3 leading-relaxed text-muted">Kıbrıs Yemekleri; hellim, şeftali kebabı, molehiya, kolokas, magarina bulli, pirohu ve pilavuna gibi ada mutfağına özgü lezzetler ile Akdeniz'in zeytinyağlı ve ızgara geleneğini birleştiren mutfaktır. House Chef Cyprus arşivi bu mirası {{ $tarifler->count() }} doğrulanmış <strong>Kıbrıs Yemek Tarifi</strong> ile belgeler. Her tarif porsiyonu, gramajı ve pişirme süresiyle birlikte test edilmiştir.</p>
                 <h2 class="mt-6 font-display text-lg font-semibold">Kıbrıs Yemek Tarifleri — 20 En Popüler</h2>
                 <p class="hc-body-sm mt-2 leading-relaxed text-muted">Aşağıdaki koleksiyon “Kıbrıs Yemek Tarif” ve “Yemek Kıbrıs” niyetlerini de karşılar: filtre, arama veya kategoriyle daraltmadan önce tüm <strong>Kıbrıs Yemek Tarifleri</strong> tek adreste listelenir. Aradığınızı bulamadıysanız üst menüdeki “Ne Pişirebilirim?” ile dolabınıza göre eşleşen Kıbrıs tariflerini görün.</p>
                 <div class="mt-4 flex flex-wrap gap-2">
@@ -65,29 +65,29 @@
                 <h2 class="font-display text-xl font-semibold">Kıbrıs Mutfağı Malzeme Sözlüğü</h2>
                 <p class="hc-body-sm mt-3 leading-relaxed text-muted">Kıbrıs Yemekleri'nin temel malzemeleri: hellim peyniri, hellim, şeftali, zeytinyağı, narenciye, ada nanesi, kekik, harnup pekmezi, ceviz, badem, nar, patlıcan, domates, biber ve daha fazlası. Her malzeme Kıbrıs'ın kendine özgü iklim ve toprak yapısından lezzet alır.</p>
                 <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                    <a href="{{ route('recipes.show', 'hellim-tost') }}" class="rounded-xl border border-charcoal-100 bg-white p-3 text-center transition hover:border-gold-300 hover:bg-gold-50 dark:border-charcoal-800 dark:bg-charcoal-900 dark:hover:border-gold-700">
+                    <a href="{{ route('recipes.show', 'hellim-ve-domatesli-kahvalti-tavasi') }}" class="rounded-xl border border-charcoal-100 bg-white p-3 text-center transition hover:border-gold-300 hover:bg-gold-50 dark:border-charcoal-800 dark:bg-charcoal-900 dark:hover:border-gold-700">
                         <span class="font-semibold">Hellim</span>
                         <span class="hc-body-xs mt-1 block text-muted">Kıbrıs peyniri</span>
                     </a>
-                    <a href="{{ route('recipes.show', 'kibris-usulu-seftali-kebab') }}" class="rounded-xl border border-charcoal-100 bg-white p-3 text-center transition hover:border-gold-300 hover:bg-gold-50 dark:border-charcoal-800 dark:bg-charcoal-900 dark:hover:border-gold-700">
+                    <a href="{{ route('recipes.show', 'kibris-usulu-seftali-kebabi') }}" class="rounded-xl border border-charcoal-100 bg-white p-3 text-center transition hover:border-gold-300 hover:bg-gold-50 dark:border-charcoal-800 dark:bg-charcoal-900 dark:hover:border-gold-700">
                         <span class="font-semibold">Şeftali Kebabı</span>
                         <span class="hc-body-xs mt-1 block text-muted">Kıbrıs klasiği</span>
                     </a>
-                    <a href="{{ route('recipes.show', 'kibris-usulu-kleftiko') }}" class="rounded-xl border border-charcoal-100 bg-white p-3 text-center transition hover:border-gold-300 hover:bg-gold-50 dark:border-charcoal-800 dark:bg-charcoal-900 dark:hover:border-gold-700">
+                    <a href="{{ route('recipes.show', 'kibris-usulu-kleftiko-kuzu-firin-55M4W') }}" class="rounded-xl border border-charcoal-100 bg-white p-3 text-center transition hover:border-gold-300 hover:bg-gold-50 dark:border-charcoal-800 dark:bg-charcoal-900 dark:hover:border-gold-700">
                         <span class="font-semibold">Kleftiko</span>
                         <span class="hc-body-xs mt-1 block text-muted">Kuzu tandır</span>
                     </a>
-                    <a href="{{ route('recipes.show', 'kibris-molohiya') }}" class="rounded-xl border border-charcoal-100 bg-white p-3 text-center transition hover:border-gold-300 hover:bg-gold-50 dark:border-charcoal-800 dark:bg-charcoal-900 dark:hover:border-gold-700">
+                    <a href="{{ route('recipes.show', 'kibris-usulu-molohiya-FY1DJ') }}" class="rounded-xl border border-charcoal-100 bg-white p-3 text-center transition hover:border-gold-300 hover:bg-gold-50 dark:border-charcoal-800 dark:bg-charcoal-900 dark:hover:border-gold-700">
                         <span class="font-semibold">Molehiya</span>
                         <span class="hc-body-xs mt-1 block text-muted">Yaprak yemeği</span>
                     </a>
-                    <a href="{{ route('recipes.show', 'kibris-kolokas') }}" class="rounded-xl border border-charcoal-100 bg-white p-3 text-center transition hover:border-gold-300 hover:bg-gold-50 dark:border-charcoal-800 dark:bg-charcoal-900 dark:hover:border-gold-700">
+                    <a href="{{ route('recipes.show', 'kibris-usulu-kolokas-1G5V5') }}" class="rounded-xl border border-charcoal-100 bg-white p-3 text-center transition hover:border-gold-300 hover:bg-gold-50 dark:border-charcoal-800 dark:bg-charcoal-900 dark:hover:border-gold-700">
                         <span class="font-semibold">Kolokas</span>
                         <span class="hc-body-xs mt-1 block text-muted">Taro kökü</span>
                     </a>
-                    <a href="{{ route('recipes.show', 'magarina-bulli') }}" class="rounded-xl border border-charcoal-100 bg-white p-3 text-center transition hover:border-gold-300 hover:bg-gold-50 dark:border-charcoal-800 dark:bg-charcoal-900 dark:hover:border-gold-700">
-                        <span class="font-semibold">Magarina Bulli</span>
-                        <span class="hc-body-xs mt-1 block text-muted">Tavuklu makarna</span>
+                    <a href="{{ route('recipes.show', 'kibris-hellimli-gozleme-J6K0C') }}" class="rounded-xl border border-charcoal-100 bg-white p-3 text-center transition hover:border-gold-300 hover:bg-gold-50 dark:border-charcoal-800 dark:bg-charcoal-900 dark:hover:border-gold-700">
+                        <span class="font-semibold">Gözleme</span>
+                        <span class="hc-body-xs mt-1 block text-muted">Hellimli gözleme</span>
                     </a>
                 </div>
             </section>
@@ -160,10 +160,10 @@
                 <p class="hc-body-sm mt-3 leading-relaxed text-muted">Kıbrıs, coğrafi işaret tescilli lezzetleriyle dünya çapında tanınır. Hellim peyniri (PDO), şeftali kebabı, kolokas ve Flaouna gibi yemekler yalnız Kıbrıs'a özgüdür ve patentlidir.</p>
                 <ul class="mt-4 space-y-2">
                     <li class="hc-body-sm"><strong>Hellim (Halloumi)</strong> — Yarı sert tuzlu peynir, keçi ve koyun sütünden. Kızartılabilir veya ızgarada pişirilebilir. <a href="{{ route('ingredients.hub.show', 'hellim') }}" class="text-gold-700 hover:underline dark:text-gold-400">Detay →</a></li>
-                    <li class="hc-body-sm"><strong>Şeftali Kebabı (Sheftalia)</strong> — Kuzu eti ve baharat karışımı, arı Lemdenin zarında. <a href="{{ route('recipes.show', 'kibris-usulu-seftali-kebab') }}" class="text-gold-700 hover:underline dark:text-gold-400">Tarif →</a></li>
-                    <li class="hc-body-sm"><strong>Flaouna (Pilavuna)</strong> — Paskalya çöreği, hellim ve nane ile. <a href="{{ route('recipes.show', 'kibris-pilavuna') }}" class="text-gold-700 hover:underline dark:text-gold-400">Tarif →</a></li>
-                    <li class="hc-body-sm"><strong>Kolokas (Taro)</strong> — Taro kökü, domates ve limon sosuyla pişirilir. <a href="{{ route('recipes.show', 'kibris-kolokas') }}" class="text-gold-700 hover:underline dark:text-gold-400">Tarif →</a></li>
-                    <li class="hc-body-sm"><strong>Molehiya</strong> — Kurutulmuş yapraklar, kuzu eti ve limon ile pişirilir. <a href="{{ route('recipes.show', 'kibris-molohiya') }}" class="text-gold-700 hover:underline dark:text-gold-400">Tarif →</a></li>
+                    <li class="hc-body-sm"><strong>Şeftali Kebabı (Sheftalia)</strong> — Kuzu eti ve baharat karışımı, arı Lemdenin zarında. <a href="{{ route('recipes.show', 'kibris-usulu-seftali-kebabi') }}" class="text-gold-700 hover:underline dark:text-gold-400">Tarif →</a></li>
+                    <li class="hc-body-sm"><strong>Flaouna (Pilavuna)</strong> — Paskalya çöreği, hellim ve nane ile. <a href="{{ route('recipes.show', 'kibris-usulu-flaouna-Q4HMP') }}" class="text-gold-700 hover:underline dark:text-gold-400">Tarif →</a></li>
+                    <li class="hc-body-sm"><strong>Kolokas (Taro)</strong> — Taro kökü, domates ve limon sosuyla pişirilir. <a href="{{ route('recipes.show', 'kibris-usulu-kolokas-1G5V5') }}" class="text-gold-700 hover:underline dark:text-gold-400">Tarif →</a></li>
+                    <li class="hc-body-sm"><strong>Molehiya</strong> — Kurutulmuş yapraklar, kuzu eti ve limon ile pişirilir. <a href="{{ route('recipes.show', 'kibris-usulu-molohiya-FY1DJ') }}" class="text-gold-700 hover:underline dark:text-gold-400">Tarif →</a></li>
                 </ul>
             </section>
 
@@ -173,11 +173,11 @@
                 <dl class="mt-6 space-y-4">
                     <div class="rounded-xl border border-charcoal-100 bg-white p-4 dark:border-charcoal-800 dark:bg-charcoal-900">
                         <dt class="font-semibold">Kıbrıs Yemekleri nelerdir?</dt>
-                        <dd class="hc-body-sm mt-2 leading-relaxed text-muted">Hellim, şeftali kebabı, molehiya, kolokas, magarina bulli, pirohu, pilavuna ve 58 ada lezzeti daha — toplam 65 doğrulanmış Kıbrıs Mutfağı tarifi.</dd>
+                        <dd class="hc-body-sm mt-2 leading-relaxed text-muted">Hellim, şeftali kebabı, molehiya, kolokas, magarina bulli, pirohu, pilavuna ve {{ max(0, $tarifler->count() - 7) }} ada lezzeti daha — toplam {{ $tarifler->count() }} doğrulanmış Kıbrıs Mutfağı tarifi.</dd>
                     </div>
                     <div class="rounded-xl border border-charcoal-100 bg-white p-4 dark:border-charcoal-800 dark:bg-charcoal-900">
                         <dt class="font-semibold">Kıbrıs Yemek Tarifi nereden bulunur?</dt>
-                        <dd class="hc-body-sm mt-2 leading-relaxed text-muted">Bu sayfada. “Kıbrıs Usulü” etiketli 65 tarifin tamamı ölçülmüş, denenmiş ve besin değerleriyle birlikte yayınlanır.</dd>
+                        <dd class="hc-body-sm mt-2 leading-relaxed text-muted">Bu sayfada. “Kıbrıs Usulü” etiketli {{ $tarifler->count() }} tarifin tamamı ölçülmüş, denenmiş ve besin değerleriyle birlikte yayınlanır.</dd>
                     </div>
                     <div class="rounded-xl border border-charcoal-100 bg-white p-4 dark:border-charcoal-800 dark:bg-charcoal-900">
                         <dt class="font-semibold">Kıbrıs Mutfağı ile Kıbrıs Yemekleri aynı mı?</dt>
