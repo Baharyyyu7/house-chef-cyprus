@@ -92,6 +92,20 @@ final class HeroVideoTest extends TestCase
         $this->assertMatchesRegularExpression('/FilesMatch "[^\"]*mp4\|webm[^\"]*"/', $htaccess);
     }
 
+    public function test_poster_shows_instantly_and_lightweight_source_is_preferred(): void
+    {
+        Storage::disk('public')->put('videos/hero-quality-20260908.mp4', 'sahte-video');
+        Storage::disk('public')->put('videos/hero-720p-20260916.mp4', 'hafif-video');
+        Storage::disk('public')->put('videos/hero-poster.webp', 'sahte-afis');
+
+        $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('hero-720p-20260916.mp4', $icerik);
+        $this->assertStringNotContainsString('hero-quality-20260908.mp4', $icerik);
+        $this->assertMatchesRegularExpression('/<video[^>]*poster="[^"]*hero-poster\.webp"/', $icerik);
+        $this->assertMatchesRegularExpression('/<video[^>]*class="[^"]*is-active/', $icerik);
+    }
+
     private function videoYaz(string $ad): void
     {
         Storage::disk('public')->put('videos/'.$ad, 'sahte-video');
