@@ -271,6 +271,22 @@ switch ($action) {
             echo "HATA: --slug parametresi zorunludur.\n";
             exit(1);
         }
+        $force = isset($options['force']);
+        if (!$force) {
+            $remoteCheck = sprintf(
+                'ssh -p 65002 u584361532@147.93.93.105 "[ -s /home/u584361532/domains/housechefcyprus.com/shared/storage/app/media-import/recipes/recipe--%s.png ]"',
+                $slug
+            );
+            exec($remoteCheck, $chkOut, $chkRet);
+            if ($chkRet !== 0) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => "HATA: recipe--{$slug}.png henüz sunucuda bulunamadı! Önce ./scripts/upload-recipe-image.sh ile yükleyin (veya --force ile geçin)."
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . PHP_EOL;
+                exit(1);
+            }
+        }
+
         withLock($lockFile, function() use ($queueFile, $docFile, $slug, $worker) {
             $queue = loadQueue($queueFile);
             if (!isset($queue['items'][$slug])) {

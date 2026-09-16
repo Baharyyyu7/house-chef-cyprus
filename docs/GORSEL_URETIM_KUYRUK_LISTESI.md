@@ -1,7 +1,7 @@
 # 🍽️ Görsel Üretim Dağıtık Koordinasyon ve Canlı Kilit Sistemi
 
-> **Canlı İlerleme:** `%0.3` Tamamlandı | **Tamamlanan:** `1` / `366` | **İşleniyor:** `1` | **Boşta:** `364`
-> **Son Güncelleme:** 2026-09-16 11:40:40
+> **Canlı İlerleme:** `%0.8` Tamamlandı | **Tamamlanan:** `3` / `366` | **İşleniyor:** `1` | **Boşta:** `362`
+> **Son Güncelleme:** 2026-09-16 11:47:25
 > **Kurallar:** [docs/GORSEL_URETIM_MASTER_PROMPT.md](GORSEL_URETIM_MASTER_PROMPT.md) ve [docs/AJAN_CALISMA_KURALLARI.md](AJAN_CALISMA_KURALLARI.md)
 
 ## 1. Dağıtık Kilit Protokolü ("Ben Yapacağım" Mekanizması)
@@ -25,9 +25,9 @@ Birden fazla yapay zeka ajanının aynı anda güvenle çalışabilmesi için:
 | 5 | `[ ] Boşta` | - | **Kıbrıs Usulü Kleftiko (Kuzu Fırın)** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-kleftiko-kuzu-firin-63QYN.png` |
 | 6 | `[ ] Boşta` | - | **Kıbrıs Usulü Molohiya** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-molohiya-0TZW4.png` |
 | 7 | `[ ] Boşta` | - | **Kıbrıs Usulü Molohiya** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-molohiya-T9C33.png` |
-| 8 | `[ ] Boşta` | - | **Kıbrıs Usulü Tavuklu Kolokas** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-tavuklu-kolokas-C0DS3.png` |
+| 8 | `✓ Bitti` | **AI-Worker-1** | **Kıbrıs Usulü Tavuklu Kolokas** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-tavuklu-kolokas-C0DS3.png` |
 | 9 | `[ ] Boşta` | - | **Kıbrıs Usulü Tavuklu Kolokas** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-tavuklu-kolokas-S8VGF.png` |
-| 10 | `[ ] Boşta` | - | **Kıbrıs Usulü Şeftali Kebabı** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-seftali-kebabi-PK57V.png` |
+| 10 | `✓ Bitti` | **AI-Worker-1** | **Kıbrıs Usulü Şeftali Kebabı** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-seftali-kebabi-PK57V.png` |
 | 11 | `[ ] Boşta` | - | **Kıbrıs Usulü Şeftali Kebabı** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-seftali-kebabi-KEFH3.png` |
 | 12 | `[ ] Boşta` | - | **Limonlu Balık Tepsisi** | Kıbrıs Mutfağı | Ana Yemek | `recipe--limonlu-balik-tepsisi.png` |
 | 13 | `[ ] Boşta` | - | **Peynirli Kraker** | Kıbrıs Mutfağı | Atıştırmalık / Pratik | `recipe--peynirli-kraker.png` |
