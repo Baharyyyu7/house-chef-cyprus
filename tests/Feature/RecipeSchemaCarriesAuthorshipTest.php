@@ -62,7 +62,8 @@ final class RecipeSchemaCarriesAuthorshipTest extends TestCase
 
         $this->assertNotNull($node);
         $this->assertNotEmpty($node['image'] ?? []);
-        $this->assertStringContainsString('name="robots" content="index,follow"', $icerik);
+        $this->assertStringContainsString('name="robots" content="index,follow', $icerik);
+        $this->assertStringContainsString('max-image-preview:large', $icerik);
     }
 
     public function test_recipe_sitemap_only_lists_recipes_with_eligible_media(): void
@@ -71,7 +72,7 @@ final class RecipeSchemaCarriesAuthorshipTest extends TestCase
         $hazir->update(['slug' => 'gorselli-tarif']);
         $this->makeRecipePubliclyEligible($hazir);
         $eksik = $this->tarif();
-        $eksik->update(['slug' => 'gorselsiz-tarif']);
+        $eksik->update(['slug' => 'gorselsiz-tarif', 'verification_status' => 'needs_review']);
 
         $this->get(route('sitemap.recipes'))
             ->assertOk()

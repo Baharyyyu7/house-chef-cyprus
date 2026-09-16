@@ -22,7 +22,8 @@ final class RecipeCollectionLandingPagesTest extends TestCase
 
         $this->assertStringContainsString('20 Dakikada Hazır Tarifler', $icerik);
         $this->assertStringContainsString('rel="canonical" href="'.$url.'"', $icerik);
-        $this->assertStringContainsString('name="robots" content="index,follow"', $icerik);
+        $this->assertStringContainsString('name="robots" content="index,follow', $icerik);
+        $this->assertStringContainsString('max-image-preview:large', $icerik);
         $this->assertStringNotContainsString('noindex', $icerik);
     }
 
