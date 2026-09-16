@@ -33,12 +33,15 @@ final class SeoSitemapAuditTest extends TestCase
         $this->get('/sitemaps/recipes.xml')->assertOk()->assertDontSee('incelemesiz');
     }
 
-    public function test_verified_recipe_without_eligible_media_is_reported_as_excluded(): void
+    public function test_verified_recipe_without_eligible_media_is_included_in_recipe_sitemap_but_excluded_from_image_sitemap(): void
     {
         Recipe::query()->create(['title' => 'Görselsiz', 'slug' => 'gorselsiz', 'status' => 'published', 'verification_status' => 'verified', 'published_at' => now()]);
 
         $this->artisan('seo:sitemap-audit --json')
-            ->expectsOutputToContain('"recipes":{"count":0,"excluded":1}')
+            ->expectsOutputToContain('"valid":true')
             ->assertSuccessful();
+
+        $this->get('/sitemaps/recipes.xml')->assertOk()->assertSee('gorselsiz');
+        $this->get('/sitemaps/images.xml')->assertOk()->assertDontSee('gorselsiz');
     }
 }
