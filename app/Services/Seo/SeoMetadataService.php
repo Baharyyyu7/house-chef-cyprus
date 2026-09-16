@@ -29,8 +29,22 @@ final class SeoMetadataService
             ];
         }
 
+        // Kıbrıs mutfağı tariflerinde başlığa "Kıbrıs Yemek Tarifi" ekle:
+        // "Hellim Kızartması" → "Hellim Kızartması — Kıbrıs Yemek Tarifi | House Chef Cyprus"
+        // "Kıbrıs Usulü Kleftiko" → "Kıbrıs Usulü Kleftiko · House Chef Cyprus"
+        $title = $metadata?->meta_title ?: $fallbackTitle;
+        if ($entity instanceof Recipe && $entity->cuisine && $entity->cuisine->slug === 'kibris-mutfagi') {
+            $baseTitle = $metadata?->meta_title ?: $fallbackTitle;
+            // Başlıkta zaten "Kıbrıs" yoksa ekle
+            if ($baseTitle !== '' && ! str_contains(mb_strtolower($baseTitle), 'kibris')) {
+                $title = $baseTitle . ' — Kıbrıs Yemek Tarifi | House Chef Cyprus';
+            } else {
+                $title = $baseTitle . ' · House Chef Cyprus';
+            }
+        }
+
         return [
-            'title' => Str::limit((string) ($metadata?->meta_title ?: $fallbackTitle), 70, ''),
+            'title' => Str::limit((string) $title, 70, ''),
             'description' => Str::limit((string) ($metadata?->meta_description ?: $fallbackDescription ?: ''), 160, ''),
             'canonical' => $this->safeCanonical($candidateCanonical, $canonical),
             'robots' => $robots,

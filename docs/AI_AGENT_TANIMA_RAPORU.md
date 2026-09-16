@@ -256,18 +256,31 @@ curl -s https://housechefcyprus.com/sitemap.xml
 ### Hedefe Götüren Yol Haritası
 
 ```
-Tur 1 (bu oturum): Schema + Internal Link + GEO zenginleştirme ✓
-Tur 2 (bir sonraki): Backlink prospect genişletme + email şablonları
-Tur 3: Sitemap hreflang geliştirme + IndexNow optimizasyonu
-Tur 4: Content Gap motoru güçlendirme + Zero-Result optimizasyonu
-Tur 5: SEO monitoring dashboard geliştirme + deploy döngüsü
+Tur 1 (2026-09-15): Schema + Internal Link + GEO zenginleştirme ✓
+Tur 2 (2026-09-16): Cyprus Entity Authority + Topical Cluster + IndexNow ✓
+Tur 3 (bir sonraki): Backlink outreach Kıbrıs üniversiteleri/medyası + EN çeviriler
+Tur 4: Sitemap hreflang geliştirme + Cloudflare bot doğrulama
+Tur 5: Content Gap motoru güçlendirme + Zero-Result optimizasyonu
+Tur 6: SEO monitoring dashboard + ranking tracking
 ... (hedefe ulaşana kadar durmadan iterasyon)
 ```
 
+### Bu Oturumda Yapılanlar (2026-09-16)
+
+| Faz | Değişiklik | Dosya | Doğrulama |
+|-----|-----------|-------|----------|
+| Cyprus Entity | Organization sameAs: Wikipedia Q25, Q171498, Q219717 | `site.blade.php` | Blade ✅ |
+| Cyprus Place | Yeni Place şeması: Cyprus, Lefkoşa, Girne, Gazimağusa | `site.blade.php` | Blade ✅ |
+| Topical Cluster | Cyprus hub FAQ 5→10, Cyprus Place schema | `CuisineHubController.php` | `php -l` ✅ |
+| Internal Link | Cyprus bonus: +25 (suggestions), +20 (recipe) | `InternalLinkService.php` | `php -l` ✅ |
+| GEO Citation | Cyprus search support, Wikidata, regional authority | `LlmsTxtController.php` | `php -l` ✅ |
+| IndexNow | Default true yapıldı | `config/seo.php` | `php -l` ✅ |
+| Rapor | Kapsamlı Cyprus SEO/GEO raporu | `docs/KIBRIS_SEO_RAPORU.md` | Read ✅ |
+
 ---
 
-**Son güncelleme:** 2026-09-15 · **Bu oturum:** Schema + Internal Link + GEO geliştirme
-tamamlandı, deploy bekliyor · **Durum:** ACTIVE — durmadan iterasyon
+**Son güncelleme:** 2026-09-16 · **Bu oturum:** Cyprus Entity Authority +
+Topical Cluster + GEO Citation + IndexNow geliştirme tamamlandı · **Durum:** ACTIVE — durmadan iterasyon
 **Yazan:** `opencode/big-pickle` — profesör seviye sistemci · **Depo:** `Yemek
 Projesi` · **VPS:** `147.93.93.105:65002` · **İletişim:** bu dosya +
 `docs/SEO_CONTINUOUS_GROWTH_LOOP.md`.

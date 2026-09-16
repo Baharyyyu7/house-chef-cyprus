@@ -44,8 +44,8 @@ final class SitemapController extends Controller
             'kategoriler' => $this->date($categories->max('latest_published_at')),
         ];
 
-        // ne-pisirebilirim üyelik duvarının arkasından çıkarıldı; indekslenebilir bir araç sayfasıdır.
-        $staticPaths = ['', 'tarifler', 'blog', 'malzemeler', 'mutfaklar', 'kategoriler', 'ne-pisirebilirim', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'iletisim'];
+        // ne-pisirebilirim, haftalik-menu ve magaza indekslenebilir araç ve ürün sayfalarıdır.
+        $staticPaths = ['', 'tarifler', 'blog', 'haftalik-menu', 'magaza', 'malzemeler', 'mutfaklar', 'kategoriler', 'ne-pisirebilirim', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'iletisim'];
         $urls = collect($staticPaths)->map(fn (string $path): array => ['loc' => url($path), 'lastmod' => $hubLastmods[$path] ?? null]);
 
         // Malzeme sayfaları. Liste ile sitemap aynı eşiği paylaşmak zorunda:

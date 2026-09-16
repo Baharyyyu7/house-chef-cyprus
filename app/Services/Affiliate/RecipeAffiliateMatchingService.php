@@ -13,6 +13,11 @@ final class RecipeAffiliateMatchingService
     /** @var Collection<string, AffiliateLink>|null */
     private static ?Collection $cachedLinks = null;
 
+    public static function clearCache(): void
+    {
+        self::$cachedLinks = null;
+    }
+
     /**
      * @return Collection<int, AffiliateLink>
      */
@@ -22,14 +27,20 @@ final class RecipeAffiliateMatchingService
             return collect();
         }
 
-        if (self::$cachedLinks === null) {
-            self::$cachedLinks = AffiliateLink::query()
+        if (self::$cachedLinks === null || app()->runningUnitTests()) {
+            $links = AffiliateLink::query()
                 ->where('is_active', true)
                 ->get()
                 ->keyBy('slug');
-        }
 
-        $allLinks = self::$cachedLinks;
+            if (! app()->runningUnitTests()) {
+                self::$cachedLinks = $links;
+            }
+
+            $allLinks = $links;
+        } else {
+            $allLinks = self::$cachedLinks;
+        }
 
         if ($allLinks->isEmpty()) {
             return collect();

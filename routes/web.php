@@ -91,6 +91,7 @@ Route::post('/destek-ol', [TipController::class, 'process'])->name('tip.process'
 // yapıyor ($paymentsEnabled false iken düğmeler "Yakında" olur).
 
 Route::get('/', [RecipeController::class, 'index'])->name('home');
+Route::get('/haftalik-menu', [\App\Http\Controllers\WeeklyMenuController::class, 'index'])->name('weekly-menu.index');
 Route::post('/dil', LocaleController::class)->middleware('throttle:20,1')->name('locale.update');
 // Sosyal giriş. Sağlayıcı yapılandırılmamışsa controller 404 döner ve düğme
 // zaten basılmaz; anahtarsız bir düğme herkesi hata sayfasına götürür.

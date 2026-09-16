@@ -26,7 +26,7 @@ final class KibrisHubFiveVariantDominanceTest extends TestCase
 
     public function test_every_keyword_variant_redirects_permanently_to_the_hub(): void
     {
-        $this->mutfak('Kıbrıs Mutfağı', self::HUB, 4);
+        $this->mutfak('Kıbrıs Mutfağı', self::HUB, 5);
 
         $hedef = route('cuisines.show', self::HUB);
 
@@ -39,7 +39,7 @@ final class KibrisHubFiveVariantDominanceTest extends TestCase
 
     public function test_english_keyword_variants_redirect_to_the_hub(): void
     {
-        $this->mutfak('Kıbrıs Mutfağı', self::HUB, 4);
+        $this->mutfak('Kıbrıs Mutfağı', self::HUB, 5);
 
         foreach (['kibris', 'kibris-yemek', 'kibris-yemekleri', 'kibris-yemek-tarifi', 'kibris-yemek-tarifleri', 'yemek-kibris'] as $kisa) {
             $response = $this->get('/en/'.$kisa);
@@ -50,7 +50,7 @@ final class KibrisHubFiveVariantDominanceTest extends TestCase
 
     public function test_the_cyprus_hub_speaks_all_five_variants(): void
     {
-        $this->mutfak('Kıbrıs Mutfağı', self::HUB, 4);
+        $this->mutfak('Kıbrıs Mutfağı', self::HUB, 5);
 
         $icerik = (string) $this->get(route('cuisines.show', self::HUB))->assertOk()->getContent();
 
@@ -67,7 +67,7 @@ final class KibrisHubFiveVariantDominanceTest extends TestCase
 
     public function test_the_cyprus_hub_carries_faqpage_schema(): void
     {
-        $this->mutfak('Kıbrıs Mutfağı', self::HUB, 4);
+        $this->mutfak('Kıbrıs Mutfağı', self::HUB, 5);
 
         $icerik = (string) $this->get(route('cuisines.show', self::HUB))->assertOk()->getContent();
 
@@ -80,7 +80,7 @@ final class KibrisHubFiveVariantDominanceTest extends TestCase
 
     public function test_other_cuisines_keep_their_generic_title_without_faq(): void
     {
-        $this->mutfak('Yunan Mutfağı', 'yunan-mutfagi', 4);
+        $this->mutfak('Yunan Mutfağı', 'yunan-mutfagi', 5);
 
         $icerik = (string) $this->get(route('cuisines.show', 'yunan-mutfagi'))->assertOk()->getContent();
 
@@ -91,7 +91,7 @@ final class KibrisHubFiveVariantDominanceTest extends TestCase
 
     public function test_cuisine_sitemap_still_lists_the_cyprus_hub(): void
     {
-        $this->mutfak('Kıbrıs Mutfağı', self::HUB, 4);
+        $this->mutfak('Kıbrıs Mutfağı', self::HUB, 5);
 
         $xml = (string) $this->get('/sitemaps/pages.xml')->assertOk()->getContent();
 

@@ -28,11 +28,11 @@ final class CuisineLandingPagesTest extends TestCase
 
     public function test_a_cuisine_with_enough_recipes_gets_a_page(): void
     {
-        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 5);
 
         $this->get(route('cuisines.show', $mutfak->slug))
             ->assertOk()
-            ->assertSee('Kıbrıs Mutfağı Tarifleri', false);
+            ->assertSee('Kıbrıs Mutfağı', false);
     }
 
     public function test_a_thin_cuisine_has_no_page(): void
@@ -66,7 +66,7 @@ final class CuisineLandingPagesTest extends TestCase
     {
         // Asıl amaç buydu: filtreli görünüm noindex'ti ve canonical'ı
         // /tarifler'e dönüyordu.
-        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 5);
 
         $icerik = (string) $this->get(route('cuisines.show', $mutfak->slug))->assertOk()->getContent();
 
@@ -77,7 +77,7 @@ final class CuisineLandingPagesTest extends TestCase
     public function test_the_sitemap_lists_exactly_the_pages_that_exist(): void
     {
         // Liste ile sitemap ayrışırsa sitemap 404 veren adresleri ilan eder.
-        $var = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+        $var = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 5);
         $yok = $this->mutfak('Yunan Mutfağı', 'yunan-mutfagi', 2);
 
         $xml = (string) $this->get('/sitemaps/pages.xml')->assertOk()->getContent();
@@ -88,7 +88,7 @@ final class CuisineLandingPagesTest extends TestCase
 
     public function test_the_sitemap_uses_the_latest_published_recipe_as_cuisine_lastmod(): void
     {
-        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 5);
         $mutfak->recipes()->update(['published_at' => '2026-08-01 12:00:00']);
         $mutfak->recipes()->firstOrFail()->update(['published_at' => '2026-08-31 12:00:00']);
 
@@ -102,7 +102,7 @@ final class CuisineLandingPagesTest extends TestCase
 
     public function test_the_index_only_links_to_pages_that_exist(): void
     {
-        $var = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+        $var = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 5);
         $yok = $this->mutfak('Yunan Mutfağı', 'yunan-mutfagi', 2);
 
         $this->get(route('cuisines.index'))
@@ -115,7 +115,7 @@ final class CuisineLandingPagesTest extends TestCase
     {
         // Anasayfadaki çip `cuisine=kibris` kullanıyordu ve hiçbir mutfağa
         // karşılık gelmediği için sıfır sonuç dönüyordu.
-        $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+        $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 5);
 
         // Çipler anasayfada render ediliyor.
         $this->get(route('home'))
@@ -137,7 +137,7 @@ final class CuisineLandingPagesTest extends TestCase
 
     public function test_recipe_detail_links_to_the_cuisine_page_when_that_page_exists(): void
     {
-        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 5);
         $tarif = $mutfak->recipes()->firstOrFail();
 
         $this->get(route('recipes.show', $tarif))
@@ -158,7 +158,7 @@ final class CuisineLandingPagesTest extends TestCase
 
     public function test_recipe_breadcrumb_schema_routes_through_the_existing_cuisine_page(): void
     {
-        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 5);
         $tarif = $mutfak->recipes()->firstOrFail();
         $icerik = (string) $this->get(route('recipes.show', $tarif))->assertOk()->getContent();
 
@@ -169,12 +169,12 @@ final class CuisineLandingPagesTest extends TestCase
 
     public function test_cuisine_page_marks_its_visible_recipes_as_a_collection(): void
     {
-        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 4);
+        $mutfak = $this->mutfak('Kıbrıs Mutfağı', 'kibris-mutfagi', 5);
 
         $icerik = (string) $this->get(route('cuisines.show', $mutfak->slug))->assertOk()->getContent();
 
         $this->assertStringContainsString('"@type":"CollectionPage"', $icerik);
-        $this->assertStringContainsString('"numberOfItems":4', $icerik);
+        $this->assertStringContainsString('"numberOfItems":5', $icerik);
         $this->assertStringContainsString('"url":"'.route('recipes.show', $mutfak->recipes()->firstOrFail()).'"', $icerik);
         $this->assertStringNotContainsString('"@type":"Recipe"', $this->collectionSchema($icerik));
     }

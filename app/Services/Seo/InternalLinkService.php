@@ -63,6 +63,13 @@ final class InternalLinkService
                 $reasons[] = 'Mevsim tarifi';
             }
 
+            // Kıbrıs mutfağı bonusu: "Kıbrıs" ve ilgili anahtar kelimeler
+            // için güçlü iç bağlantı ağı kurulması kritiktir.
+            if ($recipe->cuisine && $recipe->cuisine->slug === 'kibris-mutfagi') {
+                $score += 25;
+                $reasons[] = 'Kıbrıs mutfağı';
+            }
+
             return [
                 'label' => $label,
                 'url' => $url,
@@ -173,6 +180,13 @@ final class InternalLinkService
             // Seçkin bonus (+10)
             if ($rel->is_featured) {
                 $score += 10;
+            }
+
+            // Kıbrıs mutfağı bonusu (+20): Kıbrıs odaklı anahtar kelimeler için
+            // iç bağlantı yoğunluğu artırılır.
+            if ($rel->cuisine && $rel->cuisine->slug === 'kibris-mutfagi') {
+                $score += 20;
+                $reasons[] = 'Kıbrıs mutfağı';
             }
 
             return [

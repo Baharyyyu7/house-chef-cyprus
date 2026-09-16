@@ -74,9 +74,19 @@
                                     </button>
                                 </form>
                             @else
-                                <button type="button" disabled class="px-5 py-2.5 rounded-xl bg-neutral-200 dark:bg-neutral-700 text-neutral-500 font-bold text-sm cursor-not-allowed">
-                                    Yakında
-                                </button>
+                                <div class="flex flex-wrap items-center justify-end gap-2">
+                                    <a href="https://api.whatsapp.com/send?text={{ urlencode('Merhaba, House Chef Cyprus üzerinden "' . $product->title . '" (' . $product->formattedPrice() . ') e-kitabını FAST/Havale ile satın almak istiyorum. Hesap bilgilerini iletir misiniz?') }}"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all shadow-xs inline-flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.311.045-.698.055-1.146-.088-.3-.095-.694-.23-1.196-.445-2.107-.905-3.486-3.039-3.59-3.18-.105-.14-1.026-1.365-1.026-2.604 0-1.238.647-1.849.877-2.099.231-.25.503-.312.67-.312.167 0 .334.002.48.01.156.008.364-.06.57.433.212.508.723 1.764.787 1.892.063.13.105.281.02.45-.084.168-.125.271-.25.417-.126.147-.264.327-.377.439-.126.125-.257.262-.11.514.146.251.651 1.074 1.397 1.738.96.855 1.769 1.121 2.022 1.246.252.126.4-.041.547-.21.147-.168.629-.732.796-.983.167-.251.334-.209.564-.125.231.084 1.464.69 1.716.816.251.125.419.188.48.293.063.104.063.606-.081 1.011z"/></svg>
+                                        <span>WhatsApp ile Satın Al ➔</span>
+                                    </a>
+                                    <a href="mailto:destek@housechefcyprus.com?subject={{ urlencode($product->title . ' E-Kitap Satın Alma') }}&body={{ urlencode('Merhaba, ' . $product->title . ' e-kitabını FAST/Havale ile satın almak istiyorum.') }}"
+                                       class="px-3 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 font-bold text-xs transition-all inline-flex items-center">
+                                        <span>E-posta ile Talep</span>
+                                    </a>
+                                </div>
                             @endif
                         </div>
                     </div>

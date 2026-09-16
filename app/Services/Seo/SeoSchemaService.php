@@ -301,6 +301,13 @@ final class SeoSchemaService
         if ($keywords !== []) {
             $recipeNode['keywords'] = implode(', ', $keywords);
         }
+        // Geo-targeted recipe schema for Kıbrıs content
+        $recipeNode['geo'] = [
+            '@type' => 'GeoCoordinates',
+            'latitude' => '35.1690',
+            'longitude' => '33.3615',
+            'address' => 'Kıbrıs',
+        ];
         $crumbs = [['name' => $this->crumbName('home', $locale), 'url' => route('home')]];
         if ($recipe->cuisine !== null && $cuisineUrl !== null) {
             $crumbs[] = ['name' => $this->crumbName('cuisines', $locale), 'url' => route('cuisines.index')];

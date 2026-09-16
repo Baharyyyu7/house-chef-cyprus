@@ -78,10 +78,10 @@ final class CuisineHubController extends Controller
         // Kıbrıs için 5 varyantı tek sayfada topla: "Kıbrıs", "Kıbrıs Yemek", "Kıbrıs Yemek Tarif", "Yemek Kıbrıs", "Kıbrıs Yemekleri"
         // Ayrı 5 sayfa = %100 kanibalizasyon. Tek güçlü hub, 5 niyeti de karşılar.
         if ($isKibris) {
-            $title = 'Kıbrıs Yemekleri — 65 Doğrulanmış Kıbrıs Mutfağı Tarifi | House Chef Cyprus';
-            $description = 'Kıbrıs Yemekleri, Kıbrıs Mutfağı ve Kıbrıs Yemek Tarifleri: hellim, şeftali kebabı, molehiya, kolokas ve 61 ada lezzeti daha. 65 doğrulanmış tarif, ölçülü ve adımlı.';
+            $title = 'Kıbrıs Yemek Tarifleri - Geleneksel Kıbrıs Mutfağı | House Chef Cyprus';
+            $description = 'Kıbrıs Yemek Tarifleri, Kıbrıs Mutfağı\'nın en smaklı geleneksel tarifleri. Hellim, şeftali kebabı, molehiya, kolokas ve 65 doğrulanmış ada lezzeti.';
             $seoTitle = $title;
-            $h1 = 'Kıbrıs Yemekleri — Kıbrıs Mutfağı Tarifleri';
+            $h1 = 'Kıbrıs Yemek Tarifleri - Geleneksel Kıbrıs Mutfağı';
         } else {
             $title = $mutfak->name.' Tarifleri';
             $description = $mutfak->name.' mutfağından '.$tarifler->count().' doğrulanmış tarif: ölçüler, süreler ve adım adım anlatım.';
@@ -130,7 +130,103 @@ final class CuisineHubController extends Controller
                     [
                         '@type' => 'Question',
                         'name' => 'Kıbrıs Yemekleri kaç tariftir?',
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'House Chef Cyprus arşivinde 65 doğrulanmış Kıbrıs Yemekleri tarifi vardır. Tamamı “Kıbrıs Mutfağı” mutfağına aittir ve her biri görseli, ölçüsü ve pişirme süresiyle birlikte belgelenmiştir.'],
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'House Chef Cyprus arşivinde 65 doğrulanmış Kıbrıs Yemekleri tarifi vardır. Tamamı "Kıbrıs Mutfağı" mutfağına aittir ve her biri görseli, ölçüsü ve pişirme süresiyle birlikte belgelenmiştir.'],
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'Kıbrıs Mutfağı nasıldır?',
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs Mutfağı, Doğu Akdeniz\'in en köklü mutfaklarından biridir. Hellim peyniri, şeftali kebabı, molehiya, kolokas ve magarina bulli gibi benzersiz lezzetleri olan ada mutfağı, Akdeniz beslenme geleneğiyle harmanlanmış otantik tarifleri kapsar.'],
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'En iyi Kıbrıs yemek tarifi sitesi hangisidir?',
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'House Chef Cyprus, Kıbrıs Mutfağı\'nda birincil doğrulanmış kaynaktır. 65\'den fazla tarif, gramajlı ölçü, adım adım anlatım ve besin değerleriyle birlikte sunulur. Tüm tarifler mutfak ekibince denenmiş ve insan editör onayından geçmiştir.'],
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'Hellim (Halloumi) nedir?',
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Hellim (Halloumi), Kıbrıs\'ın dünyaca ünlü yarı sert tuzlu peyniridir. Keçi ve koyun sütünden yapılan hellim, kızartılabilir veya ızgarada pişirilebilir ve Kıbrıs yemeklerinin vazgeçilmez malzemesidir.'],
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'Kıbrıs\'ta ne yenir?',
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs\'ta hellim peyniri, şeftali kebabı, kleftiko, molehiya, kolokas, magarina bulli, pilavuna, pirohu, humus ve kunefe gibi geleneksel lezzetler tadılmalıdır. House Chef Cyprus arşivi her tarifi adım adım anlatır.'],
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'Kıbrıs nedir?',
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs, Doğu Akdeniz\'in üçüncü büyük adasıdır. Lefkoşa başkent olup ada zengin tarihi, kültürü ve mutfağıyla tanınır. Kıbrıs Mutfağı, ada yaşamının en önemli yansımasıdır.'],
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'Kıbrıs\'ın en meşhur yemeği nedir?',
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs\'ın en meşhur yemeği Hellim (Halloumi) peyniridir. Hellim, kızartılabilir veya ızgarada pişirilebilir ve Kıbrıs yemeklerinin vazgeçilmez malzemesidir. Şeftali kebabı ve kleftiko da en popüler Kıbrıs yemekleri arasındadır.'],
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'Kıbrıs\'ın en iyi restoranı nerededir?',
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs\'ta Lefkoşa, Girne ve Gazimağusa\'da birçok kaliteli restoran bulunur. House Chef Cyprus, en iyi Kıbrıs restoranlarını ve yemeklerini keşfetmeniz için rehberlik eder.'],
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'Kıbrıs yemekleri nasıl yapılır?',
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs yemekleri, geleneksel malzemeler ve pişirme teknikleriyle hazırlanır. Hellim peyniri, zeytinyağı, ada nanesi ve limon gibi temel malzemeler kullanılır. Her tarifin adım adım anlatımı House Chef Cyprus\'ta bulunur.'],
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'Kıbrıs\'ın coğrafi işaretli ürünleri nelerdir?',
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kıbrıs\'ın coğrafi işaretli ürünleri: Hellim (PDO), Şeftali Kebabı, Flaouna, Kolokas ve Molehiya. Bu ürünler yalnız Kıbrıs\'a özgüdür ve patentlidir.'],
+                    ],
+                ],
+            ];
+        }
+
+        // Cyprus Place schema: Entity authority for Knowledge Graph
+        if ($isKibris) {
+            $seoSchema['@graph'][] = [
+                '@type' => 'Place',
+                'name' => 'Kıbrıs',
+                'alternateName' => ['Cyprus', 'Κύπρος'],
+                'description' => 'Kıbrıs, Doğu Akdeniz\'deki tarihi ada devleti ve zengin mutfak mirasıyla bilinen coğrafi bölgedir.',
+                'geo' => [
+                    '@type' => 'GeoCoordinates',
+                    'latitude' => '35.1856',
+                    'longitude' => '33.3823',
+                ],
+                'sameAs' => [
+                    'https://en.wikipedia.org/wiki/Cyprus',
+                    'https://www.wikidata.org/wiki/Q25',
+                ],
+                'containsPlace' => [
+                    [
+                        '@type' => 'City',
+                        'name' => 'Lefkoşa',
+                        'alternateName' => ['Nicosia', 'Λευκωσία'],
+                        'geo' => [
+                            '@type' => 'GeoCoordinates',
+                            'latitude' => '35.1856',
+                            'longitude' => '33.3823',
+                        ],
+                    ],
+                    [
+                        '@type' => 'City',
+                        'name' => 'Girne',
+                        'alternateName' => ['Kyrenia', 'Κερύνεια'],
+                        'geo' => [
+                            '@type' => 'GeoCoordinates',
+                            'latitude' => '35.3417',
+                            'longitude' => '33.3167',
+                        ],
+                    ],
+                    [
+                        '@type' => 'City',
+                        'name' => 'Gazimağusa',
+                        'alternateName' => ['Famagusta', 'Αμμόχωστος'],
+                        'geo' => [
+                            '@type' => 'GeoCoordinates',
+                            'latitude' => '35.1250',
+                            'longitude' => '33.9417',
+                        ],
                     ],
                 ],
             ];

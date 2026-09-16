@@ -162,6 +162,8 @@
                  önermiyor; okuma akışının doğal bir molasında duruyor. --}}
             <x-ad-slot slot-name="in_article" />
 
+            <x-recipe-monetization-callout :recipe="$recipe" />
+
             <section class="mt-8 rounded-[1.5rem] bg-charcoal-950 p-5 text-white sm:p-7"><p class="hc-overline text-orange-300">{{ __('recipe.show.notes_kicker') }}</p><h2 class="hc-heading-3 mt-2">{{ __('recipe.show.notes_title') }}</h2><p class="mt-2 text-sm leading-6 text-stone-300">{{ __('recipe.show.notes_body') }}</p><a class="hc-v3-btn hc-v3-btn--primary mt-5" href="#tips">{{ __('recipe.show.notes_cta') }}</a></section>
 
             @if($relatedRecipes->isNotEmpty())

@@ -5,8 +5,6 @@ declare(strict_types=1);
 return [
     'locale' => env('SEO_LOCALE', 'tr'),
     'country' => env('SEO_COUNTRY', 'CY'),
-    // Staging is deliberately noindex. This must be explicitly enabled only
-    // after the public domain and canonical URLs have been approved.
     'indexing_enabled' => (bool) env('SEO_INDEXING_ENABLED', true),
     'auto_publish' => (bool) env('SEO_CONTENT_AUTO_PUBLISH', false),
     'content_automation_enabled' => (bool) env('CONTENT_AUTOMATION_ENABLED', true),
@@ -19,11 +17,6 @@ return [
         'duplicate_description_limit' => 160,
         'minimum_article_characters' => (int) env('SEO_MINIMUM_ARTICLE_CHARACTERS', 300),
         'minimum_recipe_description_characters' => (int) env('SEO_MINIMUM_RECIPE_DESCRIPTION_CHARACTERS', 120),
-
-        // Sıfır sonuçlu arama kaç kez tekrarlanırsa içerik fırsatı sayılır.
-        // Eşik yokken tek seferlik test aramaları ("functionalities",
-        // "search term string") editoryal öneri listesine giriyordu; beş
-        // öneriden ikisi çöptü. Gerçek talepler 18-25 aramada.
         'minimum_zero_result_searches' => (int) env('SEO_MINIMUM_ZERO_RESULT_SEARCHES', 5),
     ],
     'search_console' => [
@@ -42,5 +35,23 @@ return [
     'social' => [
         'x_enabled' => (bool) env('X_API_ENABLED', env('X_DISTRIBUTION_ENABLED', false)),
         'x_auto_post' => (bool) env('X_AUTO_POST', false),
+    ],
+    'geo_targeting' => [
+        'locale' => 'tr-TR',
+        'country' => 'CY',
+        'region' => 'TR',
+        'geo_coordinates' => [
+            'latitude' => 35.1690,
+            'longitude' => 33.3611,
+        ],
+        'city' => 'Nicosia',
+        'timezone' => 'Europe/Nicosia',
+    ],
+    'hreflang' => [
+        'enabled' => true,
+        'default_locale' => 'tr',
+        'locales' => ['tr-TR', 'en-GB', 'de-DE', 'fa-IR', 'pl-PL', 'ru-RU', 'pt-PT'],
+        'x_default' => '/tr/',
+        'include_self' => true,
     ],
 ];
