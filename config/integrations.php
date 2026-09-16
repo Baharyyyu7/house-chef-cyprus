@@ -61,5 +61,16 @@ return [
             'secret_key' => env('GOOGLE_RECAPTCHA_SECRET_KEY'),
         ],
     ],
+    'affiliate' => [
+        'enabled' => (bool) env('AFFILIATE_ENABLED', true),
+        'amazon' => [
+            'tag' => env('AMAZON_AFFILIATE_TAG', 'housechefcyprus-21'),
+            'base_url' => 'https://www.amazon.com.tr',
+        ],
+        'trendyol' => [
+            'partner_id' => env('TRENDYOL_AFFILIATE_ID', ''),
+            'base_url' => 'https://www.trendyol.com',
+        ],
+    ],
     'captcha_provider' => env('CAPTCHA_PROVIDER', 'turnstile'),
 ];

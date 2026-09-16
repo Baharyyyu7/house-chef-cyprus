@@ -12,18 +12,18 @@ class PerfectCategoryMediaAndBlogRestorationSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->command->info('1. Tüm blog yazıları yayına (published) alınıyor...');
+        $this->command->info('1. Gerçek blog yazıları yayına (published) alınıyor...');
 
-        BlogPost::query()->update([
+        BlogPost::query()->where('body', 'not like', '%Test verisi%')->update([
             'status' => 'published',
             'editorial_status' => 'approved',
         ]);
-        BlogPost::query()->whereNull('published_at')->update([
+        BlogPost::query()->where('body', 'not like', '%Test verisi%')->whereNull('published_at')->update([
             'published_at' => now(),
         ]);
 
         $publishedBlogCount = BlogPost::publiclyVisible()->count();
-        $this->command->info("✓ Toplam {$publishedBlogCount} blog yazısı yayında (published) olarak güncellendi.");
+        $this->command->info("✓ Toplam {$publishedBlogCount} gerçek blog yazısı yayında (published) olarak güncellendi.");
 
         $this->command->info('2. Kategori bazlı ilgili görseller (Category-Matched Approved Media) dağıtılıyor...');
 
@@ -89,7 +89,7 @@ class PerfectCategoryMediaAndBlogRestorationSeeder extends Seeder
         $this->command->info("✓ Toplam {$recipeAssignedCount} tarife kategorisine tam uygun onaylı görsel atandı.");
 
         // 3. BLOG YAZILARINA kategorisine veya bağlandığı tarife göre tam uyuşan görsel ata
-        $blogsWithoutApprovedMedia = BlogPost::whereDoesntHave('heroMedia', function ($q) {
+        $blogsWithoutApprovedMedia = BlogPost::where('body', 'not like', '%Test verisi%')->whereDoesntHave('heroMedia', function ($q) {
             $q->where('visibility', 'public')
                 ->where('verification_status', 'verified')
                 ->where('media_status', 'approved_real_media');

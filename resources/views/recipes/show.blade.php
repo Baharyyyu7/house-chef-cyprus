@@ -149,6 +149,8 @@
                 <section id="equipment" class="hc-v3-card mt-8 hc-scroll-target p-5 sm:p-6"><p class="hc-overline" style="color: var(--hc-text-muted)">{{ __('recipe.show.equipment_kicker') }}</p><h2 class="hc-heading-3 mt-2">{{ __('recipe.show.equipment_title') }}</h2><div class="mt-4 flex flex-wrap gap-2">@foreach($recipe->equipment as $equipment)<span class="hc-v3-badge">⌁ {{ $equipment }}</span>@endforeach</div></section>
             @endif
 
+            <x-recipe-equipment-affiliate :recipe="$recipe" />
+
             @if(!empty($recipe->tips) || !empty($recipe->common_mistakes))
                 <section class="mt-8 grid gap-4 md:grid-cols-2">@if(!empty($recipe->tips))<article class="rounded-[1.5rem] border border-orange-200 bg-orange-50 p-5 dark:border-orange-500/20 dark:bg-orange-500/10 sm:p-6"><p class="hc-overline text-orange-700 dark:text-orange-200">{{ __('recipe.show.tips_kicker') }}</p><h2 class="hc-heading-3 mt-2">{{ __('recipe.show.tips_title') }}</h2><ul class="mt-4 space-y-3 text-sm leading-6">@foreach($recipe->tips as $tip)<li class="flex gap-2"><span aria-hidden="true">✓</span><span>{{ $tip }}</span></li>@endforeach</ul></article>@endif@if(!empty($recipe->common_mistakes))<article class="hc-v3-card p-5 sm:p-6"><p class="hc-overline" style="color: var(--hc-text-muted)">{{ __('recipe.show.mistakes_kicker') }}</p><h2 class="hc-heading-3 mt-2">{{ __('recipe.show.mistakes_title') }}</h2><ul class="mt-4 space-y-3 text-sm leading-6" style="color: var(--hc-text-secondary)">@foreach($recipe->common_mistakes as $mistake)<li class="flex gap-2"><span aria-hidden="true">ⓘ</span><span>{{ $mistake }}</span></li>@endforeach</ul></article>@endif</section>
             @endif

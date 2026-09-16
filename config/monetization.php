@@ -19,7 +19,7 @@ return [
 
     'affiliate_allowed_hosts' => array_values(array_filter(array_map(
         'trim',
-        explode(',', (string) env('AFFILIATE_ALLOWED_HOSTS', '')),
+        explode(',', (string) env('AFFILIATE_ALLOWED_HOSTS', 'www.amazon.com.tr,amazon.com.tr,www.trendyol.com,trendyol.com,www.amazon.com,amazon.com')),
     ))),
 
     /*
