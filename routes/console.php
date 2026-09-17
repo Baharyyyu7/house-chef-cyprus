@@ -126,6 +126,7 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('geoip_update', 
 // ve site haritasından çıkar (içerik silinmez). Sitemap ve IndexNow'dan önce
 // çalışır ki tekrar içerik arama motoruna bildirilmesin.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_originality_scan', fn () => Artisan::call('seo:originality-scan', ['--apply' => true])))->name('seo_originality_scan')->dailyAt('01:37')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_recipe_quality_scan', fn () => Artisan::call('seo:recipe-quality-scan', ['--apply' => true])))->name('seo_recipe_quality_scan')->dailyAt('02:07')->withoutOverlapping();
 
 // Dil dil büyüme. Sabah brifingden hemen önce çalışır ki brifing taze
 // tabloyu görsün. Açık ama içeriği olmayan bir dil toplamların içinde

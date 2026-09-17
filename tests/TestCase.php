@@ -39,5 +39,11 @@ abstract class TestCase extends BaseTestCase
             'media_reviewed_at' => now(), 'approved_at' => now(), 'responsive_variants' => $variants,
             'checksum_sha256' => hash('sha256', $source), 'alt_text' => $recipe->title.' servis edilmiş hâlde',
         ]);
+
+        // Yayın tarihi olmayan tarif herkese açık sayılmaz: site haritası
+        // 16 Eylül 2026'da yayın tarihi boş 637 tarifi listeliyordu.
+        if ($recipe->published_at === null) {
+            $recipe->forceFill(['published_at' => now()->subDay()])->save();
+        }
     }
 }

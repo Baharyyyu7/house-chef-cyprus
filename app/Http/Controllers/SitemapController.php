@@ -21,7 +21,7 @@ final class SitemapController extends Controller
             // Static pages have no trustworthy per-page update timestamp.
             // Omitting lastmod is preferable to publishing a false daily change.
             ['loc' => route('sitemap.pages'), 'lastmod' => null],
-            ['loc' => route('sitemap.recipes'), 'lastmod' => $this->date(Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->max('updated_at'))],
+            ['loc' => route('sitemap.recipes'), 'lastmod' => $this->date(Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->whereNotNull('published_at')->where('published_at', '<=', now())->max('updated_at'))],
             ['loc' => route('sitemap.blog'), 'lastmod' => $this->date(BlogPost::query()->publiclyVisible()->max('updated_at'))],
             ['loc' => route('sitemap.images'), 'lastmod' => $this->date(Media::query()->where('visibility', 'public')->max('updated_at'))],
         ]);
@@ -34,7 +34,7 @@ final class SitemapController extends Controller
         $ingredients = IngredientHubController::sayfasiOlanlar();
         $cuisines = CuisineHubController::sayfasiOlanlar();
         $categories = CategoryHubController::sayfasiOlanlar();
-        $latestRecipe = $this->date(Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->max('published_at'));
+        $latestRecipe = $this->date(Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->whereNotNull('published_at')->where('published_at', '<=', now())->max('published_at'));
         $hubLastmods = [
             '' => $latestRecipe,
             'tarifler' => $latestRecipe,
@@ -105,7 +105,7 @@ final class SitemapController extends Controller
         // çünkü branded_fallback görsel "eligible" sayılmıyordu. Tarif sitemap'i
         // sayfayı duyurur, görseli değil — görsel image sitemap'tedir.
         // Noindex filtresi yeter; media filtresi sitemap'i boşaltıyordu.
-        $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified'))
+        $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->whereNotNull('published_at')->where('published_at', '<=', now()))
             ->with(['seoMetadata'])
             ->orderBy('updated_at')->get(['id', 'slug', 'title', 'excerpt', 'description', 'updated_at'])
             ->filter(fn (Recipe $recipe): bool => $this->effectiveAllows($recipe))
@@ -213,7 +213,7 @@ final class SitemapController extends Controller
 
     public function images(PublicMediaEligibilityService $mediaEligibility): Response
     {
-        $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified'))
+        $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->whereNotNull('published_at')->where('published_at', '<=', now()))
             ->with(['seoMetadata', 'media' => fn ($query) => $query->where('visibility', 'public')->where('verification_status', 'verified')->where('media_status', 'approved_real_media')->where('license_review_status', 'approved')->where('attribution_review_status', 'approved')->orderBy('sort_order')])
             ->get(['id', 'slug', 'updated_at'])
             ->filter(fn (Recipe $recipe): bool => $this->effectiveAllows($recipe))
