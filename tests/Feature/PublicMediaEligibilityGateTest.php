@@ -10,6 +10,7 @@ use App\Models\Recipe;
 use App\Models\User;
 use App\Services\Media\PublicMediaEligibilityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -56,6 +57,43 @@ final class PublicMediaEligibilityGateTest extends TestCase
             ->assertOk()
             ->assertSee('Onaylı yemek fotoğrafı henüz yok')
             ->assertDontSee('/storage/media/recipe/reused.jpg');
+    }
+
+    public function test_media_with_another_recipe_identity_in_its_path_is_rejected(): void
+    {
+        Storage::fake('public');
+        $recipe = $this->recipe('Kimliği uyuşmayan tarif');
+        $media = $this->completeMedia($recipe, 'media/approved-synthetic/recipe/OTHER_RECIPE/source.jpg', 'identity-mismatch-checksum');
+
+        $this->assertSame('recipe_identity_mismatch', app(PublicMediaEligibilityService::class)->reason($media->fresh()));
+        $this->get(route('recipes.show', $recipe))
+            ->assertOk()
+            ->assertSee('Onaylı yemek fotoğrafı henüz yok')
+            ->assertDontSee('/storage/media/approved-synthetic/recipe/OTHER_RECIPE/source.jpg');
+    }
+
+    public function test_identity_mismatch_quarantine_command_is_dry_run_by_default_and_private_when_applied(): void
+    {
+        Storage::fake('public');
+        $recipe = $this->recipe('Karantina tarif');
+        $media = $this->completeMedia($recipe, 'media/approved-synthetic/recipe/OTHER_RECIPE/quarantine.jpg', 'quarantine-checksum');
+
+        $this->assertSame(0, Artisan::call('media:quarantine-identity-mismatches', ['--json' => true]));
+        $dryRun = Artisan::output();
+        $this->assertStringContainsString('"mode":"dry-run"', $dryRun);
+        $this->assertStringContainsString('"quarantined":0', $dryRun);
+        $this->assertSame('public', $media->fresh()->visibility);
+
+        $this->assertSame(0, Artisan::call('media:quarantine-identity-mismatches', ['--apply' => true, '--json' => true]));
+        $apply = Artisan::output();
+        $this->assertStringContainsString('"mode":"apply"', $apply);
+        $this->assertStringContainsString('"quarantined":1', $apply);
+        $this->assertDatabaseHas('media', [
+            'id' => $media->id,
+            'visibility' => 'private',
+            'media_status' => 'no_media',
+        ]);
+        Storage::disk('public')->assertExists('media/approved-synthetic/recipe/OTHER_RECIPE/quarantine.jpg');
     }
 
     public function test_seed_or_system_accounts_can_never_make_media_publicly_eligible(): void
