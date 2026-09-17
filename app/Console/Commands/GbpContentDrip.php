@@ -78,7 +78,8 @@ final class GbpContentDrip extends Command
         // Yüksek performanslı tarifleri çek
         $topRecipes = DB::table('recipes')
             ->where('status', 'published')
-            ->orderBy('view_count', 'desc')
+            ->orderByDesc('is_featured')
+            ->orderByDesc('reliability_score')
             ->limit(50)
             ->select(['id', 'slug', 'title', 'description'])
             ->get();
@@ -88,7 +89,7 @@ final class GbpContentDrip extends Command
 
         for ($i = 0; $i < $weekCount; $i++) {
             $theme   = self::POST_THEMES[$i % count(self::POST_THEMES)];
-            $recipe  = $topRecipes->random();
+            $recipe  = $topRecipes->isNotEmpty() ? $topRecipes->random() : null;
             $postDate = $startDate->copy()->addDays($i * 2); // Haftada 3 (Pt, Çrş, Cm)
 
             $content = $this->buildPostContent($theme, $recipe);
