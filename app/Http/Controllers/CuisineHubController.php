@@ -74,16 +74,24 @@ final class CuisineHubController extends Controller
 
         $canonical = route('cuisines.show', $mutfak->slug);
         $isKibris = $mutfak->slug === 'kibris-mutfagi' && app()->getLocale() === 'tr';
-        $title = $isKibris ? 'Kıbrıs Yemekleri ve Yemek Tarifleri | House Chef Cyprus' : __('cuisine.page_title', ['name' => $mutfak->name, 'count' => $tarifler->count()]);
+        // EN money-hub: İngilizce SERP "Cypriot/Cyprus" terimleriyle arıyor;
+        // Türkçe taksonomi adıyla üretilen "Kıbrıs Mutfağı Recipes" başlığı
+        // ne kullanıcıyla ne sorguyla eşleşiyordu. TR dalına dokunulmaz.
+        $isKibrisEn = $mutfak->slug === 'kibris-mutfagi' && app()->getLocale() === 'en';
+        $title = $isKibris ? 'Kıbrıs Yemekleri ve Yemek Tarifleri | House Chef Cyprus' : ($isKibrisEn ? __('cuisine.kibris_en_title') : __('cuisine.page_title', ['name' => $mutfak->name, 'count' => $tarifler->count()]));
         $description = $isKibris
             ? 'Kıbrıs yemeklerini keşfedin: hellim, şeftali kebabı, molehiya ve kolokas. '.$tarifler->count().' tarifin malzemelerini, ölçülerini ve pişirme adımlarını inceleyin.'
-            : __('cuisine.meta_description', ['name' => $mutfak->name, 'count' => $tarifler->count()]);
-        $h1 = $isKibris ? 'Kıbrıs Yemekleri ve Yemek Tarifleri' : __('cuisine.h1', ['name' => $mutfak->name]);
+            : ($isKibrisEn ? __('cuisine.kibris_en_desc') : __('cuisine.meta_description', ['name' => $mutfak->name, 'count' => $tarifler->count()]));
+        $h1 = $isKibris ? 'Kıbrıs Yemekleri ve Yemek Tarifleri' : ($isKibrisEn ? __('cuisine.kibris_en_h1') : __('cuisine.h1', ['name' => $mutfak->name]));
         $faq = $isKibris ? [
             ['question' => 'Kıbrıs Yemekleri nelerdir?', 'answer' => 'Hellim, şeftali kebabı, molehiya, kolokas, magarina bulli, pirohu ve pilavuna Kıbrıs mutfağında karşılaşabileceğiniz lezzetler arasındadır. Malzemeler ve hazırlama yöntemleri aileden aileye değişebilir.'],
             ['question' => 'Kıbrıs Yemek Tarifi nereden bulunur?', 'answer' => 'House Chef Cyprus arşivi “Kıbrıs Yemek Tarif” ve “Yemek Kıbrıs” niyetleri için denenmiş ve doğrulanmış geleneksel ada tariflerini sunar.'],
             ['question' => 'Şeftali kebabında şeftali var mı?', 'answer' => 'Şeftali kebabı adını meyveden alan bir tatlı değildir. Kıyma, soğan, maydanoz ve baharatlarla hazırlanan harç, gömlek yağına sarılarak pişirilir.'],
-        ] : [];
+        ] : ($isKibrisEn ? [
+            ['question' => __('cuisine.kibris_en_faq_1_q'), 'answer' => __('cuisine.kibris_en_faq_1_a')],
+            ['question' => __('cuisine.kibris_en_faq_2_q'), 'answer' => __('cuisine.kibris_en_faq_2_a')],
+            ['question' => __('cuisine.kibris_en_faq_3_q'), 'answer' => __('cuisine.kibris_en_faq_3_a')],
+        ] : []);
         $seoSchema = $schema->collectionPage($h1, $description, $canonical, $tarifler, [
             ['name' => __('nav.home'), 'url' => route('home')],
             ['name' => __('cuisine.breadcrumb'), 'url' => route('cuisines.index')],

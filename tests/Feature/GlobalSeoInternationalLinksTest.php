@@ -27,7 +27,7 @@ final class GlobalSeoInternationalLinksTest extends TestCase
         $suggestions = app(InternalLinkService::class)->suggestionsFor($post);
         $this->assertCount(1, $suggestions);
         $this->assertSame('English recipe title', $suggestions[0]['label']);
-        $this->assertStringEndsWith('/tarifler/translated', $suggestions[0]['url']);
+        $this->assertStringEndsWith('/recipes/translated', $suggestions[0]['url']);
     }
 
     public function test_public_blog_html_keeps_explicit_editorial_noindex(): void

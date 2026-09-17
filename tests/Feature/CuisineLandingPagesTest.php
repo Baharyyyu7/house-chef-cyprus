@@ -212,10 +212,15 @@ final class CuisineLandingPagesTest extends TestCase
                 $recipe->translations()->create(['locale' => 'en', 'field' => $field, 'value' => $value]);
             }
         }
-        $this->get('/en/mutfaklar/kibris-mutfagi')->assertOk()
+        // EN kanonik yol yerelleşmiş segmenttedir (/en/cuisines/...);
+        // Türkçe yazım kalıcı olarak oraya yönlenir.
+        $this->get('/en/cuisines/kibris-mutfagi')->assertOk()
             ->assertDontSee('Kıbrıs Yemekleri ve Yemek Tarifleri')
             ->assertDontSee('Şeftali kebabında şeftali var mı?')
-            ->assertDontSee('"@type":"FAQPage"', false);
+            // EN hub'ın kendi İngilizce SSS'si vardır (EnglishCyprusHubTest);
+            // yasak olan Türkçe editoryal içeriğin tekrarıdır.
+            ->assertSee('"@type":"FAQPage"', false)
+            ->assertSee('Is sheftalia made with peaches?', false);
     }
 
     public function test_site_schema_uses_one_brand_identity_without_geographic_impersonation(): void
