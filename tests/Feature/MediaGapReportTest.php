@@ -142,7 +142,9 @@ final class MediaGapReportTest extends TestCase
         $tarif->media()->create([
             'kind' => 'recipe_synthetic',
             'disk' => 'public',
-            'path' => 'media/approved-synthetic/recipe/ONAY/source.jpg',
+            // Klasör tarifin kendi kimliği olmalı; yabancı kimlik artık
+            // uyuşmazlık sayılıyor (eaf1311).
+            'path' => 'media/approved-synthetic/recipe/'.$tarif->public_id.'/source.jpg',
             'mime_type' => 'image/jpeg',
             'visibility' => 'public',
             'media_status' => 'approved_real_media',
@@ -236,7 +238,7 @@ final class MediaGapReportTest extends TestCase
         $tarif->media()->create([
             'kind' => 'recipe_synthetic',
             'disk' => 'public',
-            'path' => 'media/approved-synthetic/recipe/'.uniqid().'/source.jpg',
+            'path' => 'media/approved-synthetic/recipe/'.$tarif->public_id.'/source.jpg',
             'mime_type' => 'image/jpeg',
             'visibility' => 'public',
             'media_status' => 'approved_real_media',

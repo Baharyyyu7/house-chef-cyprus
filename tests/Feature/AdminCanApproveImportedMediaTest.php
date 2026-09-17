@@ -146,7 +146,9 @@ final class AdminCanApproveImportedMediaTest extends TestCase
             'published_at' => now(),
         ]);
 
-        $kaynak = 'media/approved-synthetic/recipe/'.Str::ulid().'/source.png';
+        // Klasör tarifin kendi kimliği: başka kimlikli klasörde duran görsel
+        // kimlik uyuşmazlığı sayılır ve onaya girmez (eaf1311).
+        $kaynak = 'media/approved-synthetic/recipe/'.$recipe->public_id.'/source.png';
         Storage::disk('public')->put($kaynak, 'binary');
 
         // Kapı varyantları $item['name'] üzerinden indeksler; bu alan olmadan

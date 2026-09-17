@@ -138,10 +138,16 @@ final class DuplicateMediaDoesNotDeadlockApprovalTest extends TestCase
             'published_at' => now(),
         ]);
 
+        // Dosya yolundaki klasör tarifin kendi kimliği olmalı: başka bir
+        // tarifin klasöründe duran görsel artık kimlik uyuşmazlığı sayılıyor
+        // ve onaya girmiyor (eaf1311).
+        $klasor = (string) $tarif->public_id;
+        Storage::disk('public')->put('media/approved-synthetic/recipe/'.$klasor.'/source.png', 'png');
+
         $alanlar = [
             'kind' => 'recipe_synthetic',
             'disk' => 'public',
-            'path' => 'media/approved-synthetic/recipe/AAA/source.png',
+            'path' => 'media/approved-synthetic/recipe/'.$klasor.'/source.png',
             'mime_type' => 'image/png',
             'visibility' => 'public',
             'media_status' => 'approved_real_media',

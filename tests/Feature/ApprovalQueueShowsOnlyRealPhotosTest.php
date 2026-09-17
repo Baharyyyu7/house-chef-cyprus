@@ -63,10 +63,13 @@ final class ApprovalQueueShowsOnlyRealPhotosTest extends TestCase
             'published_at' => now(),
         ]);
 
+        // Kaynak dosya tarifin kendi kimlik klasöründe durmalı (eaf1311).
+        Storage::disk('public')->put('media/approved-synthetic/recipe/'.$tarif->public_id.'/source.png', 'png');
+
         $tarif->media()->create([
             'kind' => 'recipe_synthetic',
             'disk' => 'public',
-            'path' => 'media/approved-synthetic/recipe/YOK/source.png',
+            'path' => 'media/approved-synthetic/recipe/'.$tarif->public_id.'/source.png',
             'mime_type' => 'image/png',
             'visibility' => 'public',
             'media_status' => 'approved_real_media',
@@ -98,7 +101,6 @@ final class ApprovalQueueShowsOnlyRealPhotosTest extends TestCase
     public function test_a_delivered_recipe_photo_does_reach_the_queue(): void
     {
         Storage::fake('public');
-        Storage::disk('public')->put('media/approved-synthetic/recipe/ABC/source.png', 'png');
 
         // Kuyruk artık onayı zihinsel olarak uygulayıp gerçekten yayına
         // çıkacak mı diye bakıyor; varyantlar da hazır olmalı.
@@ -116,10 +118,14 @@ final class ApprovalQueueShowsOnlyRealPhotosTest extends TestCase
             'published_at' => now(),
         ]);
 
+        // Kuyruk path sütununa değil diskteki dosyaya bakıyor; kaynak dosya
+        // tarifin kendi kimlik klasöründe gerçekten durmalı.
+        Storage::disk('public')->put('media/approved-synthetic/recipe/'.$tarif->public_id.'/source.png', 'png');
+
         $tarif->media()->create([
             'kind' => 'recipe_synthetic',
             'disk' => 'public',
-            'path' => 'media/approved-synthetic/recipe/ABC/source.png',
+            'path' => 'media/approved-synthetic/recipe/'.$tarif->public_id.'/source.png',
             'mime_type' => 'image/png',
             'visibility' => 'public',
             'media_status' => 'approved_real_media',
@@ -137,6 +143,9 @@ final class ApprovalQueueShowsOnlyRealPhotosTest extends TestCase
                     'jpeg' => 'media/optimized/ABC/'.$boy.'.jpg',
                     'webp' => 'media/optimized/ABC/'.$boy.'.webp',
                 ])->all(),
+            // Kuyruk onayı zihnen uygulayıp sonucu ölçüyor; sağlaması olmayan
+            // kayıt onaylansa da yayına çıkamaz, dolayısıyla kuyruğa girmez.
+            'checksum_sha256' => str_repeat('c', 64),
         ]);
 
         $this->actingAs($this->yonetici())
