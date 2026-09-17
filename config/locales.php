@@ -14,6 +14,30 @@ return [
     */
     'default' => env('APP_LOCALE', 'tr'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Localized path segments
+    |--------------------------------------------------------------------------
+    |
+    | English pages lived under the Turkish path (/en/tarifler/...). An English
+    | searcher and an English-language crawler both read the path; "recipes" is
+    | the word they know. Only the first segment is translated: the recipe slug
+    | is the dish's own name and stays as it is.
+    |
+    | The Turkish segment remains the internal route name. This map is the
+    | public spelling per locale; requests to the Turkish spelling under a
+    | foreign prefix are redirected to the localized one.
+    |
+    */
+    'path_aliases' => [
+        'en' => ['tarifler' => 'recipes', 'mutfaklar' => 'cuisines'],
+        'de' => ['tarifler' => 'rezepte', 'mutfaklar' => 'kuechen'],
+        'ru' => ['tarifler' => 'recepty', 'mutfaklar' => 'kuhni'],
+        'pl' => ['tarifler' => 'przepisy', 'mutfaklar' => 'kuchnie'],
+        'pt' => ['tarifler' => 'receitas', 'mutfaklar' => 'cozinhas'],
+        'fa' => ['tarifler' => 'recipes', 'mutfaklar' => 'cuisines'],
+    ],
+
     'supported' => [
         'tr' => [
             'flag' => '🇹🇷',

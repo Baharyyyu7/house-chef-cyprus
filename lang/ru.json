@@ -535,6 +535,7 @@
     "recipe.show.ingredient_count": ":count ингредиентов",
     "recipe.show.collect_manage": "Сохранить в подборку",
     "recipe.show.photo_credit": "Автор фотографии",
+    "recipe.show.representative_image": "Репрезентативное фото — пример этого блюда",
     "recipe.show.photo_by": "Фото: :author",
     "recipe.show.steps_kicker": "Приготовление",
     "recipe.show.steps_title": "Пошаговое руководство",

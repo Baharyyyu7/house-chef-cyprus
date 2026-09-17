@@ -14,6 +14,10 @@ return [
     'links' => 'Bağlantılar',
     'work' => 'İş Listesi',
     'issues' => 'Sorunlar',
+    'ai_mentions' => 'AI Mention',
+    'citation_gaps' => 'Citation Boşlukları',
+    'llm_structure' => 'LLM Yapı',
+    'weekly_report' => 'Haftalık Rapor',
     'interface' => 'Arayüz Kontrolü',
     'recommendations' => 'Öneriler',
 ];

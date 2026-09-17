@@ -54,4 +54,15 @@ return [
         'x_default' => '/tr/',
         'include_self' => true,
     ],
+    // Distribb SEO Platform
+    'distribb' => [
+        'enabled' => (bool) env('DISTRIBB_API_ENABLED', false),
+        'api_key' => env('DISTRIBB_API_KEY'),
+        'platform_url' => env('DISTRIBB_PLATFORM_URL', 'https://api.distribb.io'),
+        'onboarding_url' => env('DISTRIBB_ONBOARDING_URL', 'https://distribb.io/onboarding'),
+        'auto_publish' => (bool) env('DISTRIBB_AUTO_PUBLISH', false),
+        'backlink_exchange' => true,
+        'keyword_region' => env('DISTRIBB_KEYWORD_REGION', 'CY'),
+        'content_pillars' => ['https://housechefcyprus.com/tr/kibris-mutlagi', 'https://housechefcyprus.com/tr/mediterranean-recipes'],
+    ],
 ];

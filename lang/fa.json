@@ -535,6 +535,7 @@
     "recipe.show.ingredient_count": ":count ماده اولیه",
     "recipe.show.collect_manage": "مدیریت در مجموعه‌ها",
     "recipe.show.photo_credit": "اعتبار عکس",
+    "recipe.show.representative_image": "تصویر نماینده — عکس نمونه این غذا",
     "recipe.show.photo_by": "عکاس: :author",
     "recipe.show.steps_kicker": "مراحل پخت",
     "recipe.show.steps_title": "راهنمای گام‌به‌گام پخت",

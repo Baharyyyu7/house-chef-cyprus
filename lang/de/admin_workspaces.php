@@ -14,6 +14,10 @@ return [
     'links' => 'Links',
     'work' => 'Aufgaben',
     'issues' => 'Probleme',
+    'ai_mentions' => 'KI-Erwähnungen',
+    'citation_gaps' => 'Zitierungslücken',
+    'llm_structure' => 'LLM-Struktur',
+    'weekly_report' => 'Wochenbericht',
     'interface' => 'Oberflächenprüfung',
     'recommendations' => 'Empfehlungen',
 ];

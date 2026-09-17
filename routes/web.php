@@ -350,6 +350,10 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('seo/sorunlar/{issue}/coz', [SeoOperationsController::class, 'resolve'])->name('seo.issues.resolve');
     Route::post('seo/sorunlar/{issue}/yeniden-ac', [SeoOperationsController::class, 'reopen'])->name('seo.issues.reopen');
     Route::post('seo/firsatlar/{opportunity}/durum', [SeoOperationsController::class, 'updateOpportunityStatus'])->name('seo.opportunities.update-status');
+    Route::get('seo/ai-notlar', [SeoOperationsController::class, 'aiMentions'])->name('seo.ai-mentions');
+    Route::get('seo/citation-boslarlari', [SeoOperationsController::class, 'citationGaps'])->name('seo.citation-gaps');
+    Route::get('seo/llm-yapi', [SeoOperationsController::class, 'llmStructure'])->name('seo.llm-structure');
+    Route::get('seo/haftalik-rapor', [SeoOperationsController::class, 'weeklyReport'])->name('seo.weekly-report');
     Route::get('gorsel-talepleri', [ImageRequestController::class, 'index'])->name('image-requests.index');
     Route::get('ai-gorsel-studyosu', [AiImageStudioController::class, 'index'])->name('ai-image-studio.index');
     Route::get('ai-gorsel-studyosu/{generation}', [AiImageStudioController::class, 'show'])->name('ai-image-studio.show');

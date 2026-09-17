@@ -535,6 +535,7 @@
     "recipe.show.ingredient_count": ":count ingredientes",
     "recipe.show.collect_manage": "Organizar em coleções",
     "recipe.show.photo_credit": "Crédito da foto",
+    "recipe.show.representative_image": "Foto representativa — imagem de exemplo deste prato",
     "recipe.show.photo_by": "Foto por :author",
     "recipe.show.steps_kicker": "Confeção",
     "recipe.show.steps_title": "Instruções passo a passo",

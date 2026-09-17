@@ -14,6 +14,10 @@ return [
     'links' => 'پیوندها',
     'work' => 'فهرست کارها',
     'issues' => 'مشکلات',
+    'ai_mentions' => 'اشاره‌های هوش مصنوعی',
+    'citation_gaps' => 'شکاف‌های استناد',
+    'llm_structure' => 'ساختار LLM',
+    'weekly_report' => 'گزارش هفتگی',
     'interface' => 'بررسی رابط کاربری',
     'recommendations' => 'پیشنهادها',
 ];
