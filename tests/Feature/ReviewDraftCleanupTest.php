@@ -38,6 +38,8 @@ final class ReviewDraftCleanupTest extends TestCase
         $this->assertStringContainsString('noindex', (string) $kopya->seoMetadata?->robots);
         $this->assertSame(route('blog.show', $es), $kopya->seoMetadata?->canonical_override);
         $this->assertSame('published', $kopya->status, 'İçerik silinmemeli.');
+        // Not başlıkta kalırsa ilgili yazı kartlarında ziyaretçiye görünür.
+        $this->assertSame('Alerjen Etiketleri Nasıl Okunur?', $kopya->title);
         $this->assertNull($es->fresh('seoMetadata')->seoMetadata?->robots);
     }
 

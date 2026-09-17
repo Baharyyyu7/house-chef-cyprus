@@ -44,29 +44,29 @@ final class SeoReviewDraftCleanup extends Command
             $temizSlug = (string) preg_replace(self::SON_EK, '', (string) $yazi->slug);
             $es = BlogPost::query()->publiclyVisible()->where('slug', $temizSlug)->first();
 
-            if ($es !== null) {
-                $indeksDisi[] = $yazi->slug;
-
-                if ($yaz) {
-                    $meta->update($yazi, [
-                        'robots' => 'noindex,follow',
-                        'canonical_override' => route('blog.show', $es),
-                    ]);
-                }
-
-                continue;
-            }
-
+            // Başlıktaki iç not her durumda temizlenir: indeks dışına alınan
+            // kopya bile ilgili yazı kartlarında ziyaretçiye görünüyor.
             $yeniBaslik = trim((string) preg_replace(self::BASLIK_NOTU, ' ', (string) $yazi->title));
 
-            if ($yeniBaslik === '' || $yeniBaslik === $yazi->title) {
+            if ($yeniBaslik !== '' && $yeniBaslik !== $yazi->title) {
+                $baslikTemizlenen[] = $yazi->slug;
+
+                if ($yaz) {
+                    $yazi->forceFill(['title' => $yeniBaslik])->save();
+                }
+            }
+
+            if ($es === null) {
                 continue;
             }
 
-            $baslikTemizlenen[] = $yazi->slug;
+            $indeksDisi[] = $yazi->slug;
 
             if ($yaz) {
-                $yazi->forceFill(['title' => $yeniBaslik])->save();
+                $meta->update($yazi, [
+                    'robots' => 'noindex,follow',
+                    'canonical_override' => route('blog.show', $es),
+                ]);
             }
         }
 
