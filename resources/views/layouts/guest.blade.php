@@ -48,7 +48,7 @@
                      taze bir girdi acar. Tarifler sayfasi da ayni sekilde. --}}
                 <source type="image/avif" srcset="{{ asset('images/house-chef-hero-v2-1440.avif').'?v=2' }}">
                 <source type="image/webp" srcset="{{ asset('images/house-chef-hero-v2-1440.webp') }}">
-                <img src="{{ asset('images/house-chef-hero-v2-1440.webp') }}" alt="" loading="lazy" decoding="async">
+                <img src="{{ asset('images/house-chef-hero-v2-1440.webp') }}" alt="House Chef Cyprus Mutfak" loading="lazy" decoding="async">
             </picture>
             <div class="hc-giris__perde"></div>
             <div class="hc-giris__kartlar">

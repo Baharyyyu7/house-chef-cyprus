@@ -13,10 +13,10 @@
             <picture>
                 @if($heroMedia->responsiveSrcset([800, 1200, 1600], 'avif'))<source type="image/avif" srcset="{{ $heroMedia->responsiveSrcset([800, 1200, 1600], 'avif') }}" sizes="100vw">@endif
                 @if($heroMedia->responsiveSrcset([800, 1200, 1600], 'webp'))<source type="image/webp" srcset="{{ $heroMedia->responsiveSrcset([800, 1200, 1600], 'webp') }}" sizes="100vw">@endif
-                <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-70" src="{{ $heroMedia->responsiveUrl(1600) }}" srcset="{{ $heroMedia->responsiveSrcset([800, 1200, 1600]) }}" sizes="100vw" width="1600" height="1000" alt="" aria-hidden="true" fetchpriority="high">
+                <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-70" src="{{ $heroMedia->responsiveUrl(1600) }}" srcset="{{ $heroMedia->responsiveSrcset([800, 1200, 1600]) }}" sizes="100vw" width="1600" height="1000" alt="{{ $recipe->translated('title') }}" aria-hidden="true" fetchpriority="high">
             </picture>
         @else
-            <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-60" src="{{ $displayMedia['hero_url'] }}" width="1600" height="1000" alt="" aria-hidden="true" fetchpriority="high">
+            <img class="absolute inset-0 -z-20 h-full w-full object-cover opacity-60" src="{{ $displayMedia['hero_url'] }}" width="1600" height="1000" alt="{{ $recipe->translated('title') }}" aria-hidden="true" fetchpriority="high">
         @endif
         <div class="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(10,16,13,.97)_0%,rgba(10,16,13,.82)_48%,rgba(10,16,13,.25)_100%)]"></div>
         <div class="hc-container grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_19rem] lg:py-20">
