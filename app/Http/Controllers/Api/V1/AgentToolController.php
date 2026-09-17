@@ -12,6 +12,7 @@ use App\Services\IngredientMatchingService;
 use App\Services\Measurements\RecipeIngredientDisplayService;
 use App\Services\NutritionService;
 use App\Services\Seo\LocaleUrlService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -271,13 +272,9 @@ final class AgentToolController extends Controller
             'servings' => ['nullable', 'integer', 'min:1', 'max:99'],
         ]);
 
-        $recipe = Recipe::query()
-            ->where('slug', $validated['slug'])
-            ->orWhere('public_id', $validated['slug'])
+        $recipe = $this->publicRecipeQuery($validated['slug'])
             ->with(['cuisine', 'category', 'steps', 'recipeIngredients.ingredient', 'recipeIngredients.group'])
             ->firstOrFail();
-
-        abort_unless($recipe->status === 'published' && $recipe->verification_status === 'verified', 404);
 
         $servings = (int) ($validated['servings'] ?? $recipe->servings);
         $ingredients = $ingredientDisplay->forRecipe($recipe->recipeIngredients, $recipe->servings, $servings);
@@ -333,9 +330,7 @@ final class AgentToolController extends Controller
             'servings' => ['required', 'integer', 'min:1', 'max:99'],
         ]);
 
-        $recipe = Recipe::query()
-            ->where('slug', $validated['slug'])
-            ->orWhere('public_id', $validated['slug'])
+        $recipe = $this->publicRecipeQuery($validated['slug'])
             ->with(['recipeIngredients.ingredient', 'recipeIngredients.group'])
             ->firstOrFail();
 
@@ -370,9 +365,7 @@ final class AgentToolController extends Controller
             'step' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        $recipe = Recipe::query()
-            ->where('slug', $validated['slug'])
-            ->orWhere('public_id', $validated['slug'])
+        $recipe = $this->publicRecipeQuery($validated['slug'])
             ->with(['steps'])
             ->firstOrFail();
 
@@ -432,12 +425,10 @@ final class AgentToolController extends Controller
     {
         $validated = $request->validate([
             'slug' => ['required', 'string'],
+            'confirmed' => ['nullable', 'boolean'],
         ]);
 
-        $recipe = Recipe::query()
-            ->where('slug', $validated['slug'])
-            ->orWhere('public_id', $validated['slug'])
-            ->firstOrFail();
+        $recipe = $this->publicRecipeQuery($validated['slug'])->firstOrFail();
 
         $user = $request->user();
 
@@ -450,6 +441,15 @@ final class AgentToolController extends Controller
                 'login_url' => route('login'),
                 'recipe' => $recipe->title,
             ], 401);
+        }
+
+        if (! $request->boolean('confirmed')) {
+            return response()->json([
+                'success' => false,
+                'authenticated' => true,
+                'requires_human_confirmation' => true,
+                'message' => 'Explicit human confirmation is required before changing favorites.',
+            ], 409);
         }
 
         $user->favoriteRecipes()->toggle($recipe->id);
@@ -494,5 +494,15 @@ final class AgentToolController extends Controller
             ->all();
 
         return array_values(array_unique(array_merge($directMatches, $nameMatches)));
+    }
+
+    private function publicRecipeQuery(string $identifier): Builder
+    {
+        return Recipe::query()
+            ->where('status', 'published')
+            ->where('verification_status', 'verified')
+            ->where(fn (Builder $query) => $query
+                ->where('slug', $identifier)
+                ->orWhere('public_id', $identifier));
     }
 }

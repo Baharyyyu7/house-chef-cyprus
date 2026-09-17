@@ -40,7 +40,7 @@ class LocaleSwitchNavigationTest extends TestCase
         $this->withSession(['hc_locale' => 'tr'])->get('/en/recipes')
             ->assertOk()->assertSee('lang="en"', false)
             ->assertSee('href="'.url('/en/blog').'"', false)
-            ->assertSee('action="'.url('/dil').'"', false);
+            ->assertSee('href="'.url('/tarifler').'"', false);
         $this->get('/tarifler')->assertOk()->assertDontSee('href="'.url('/en/blog').'"', false);
     }
 }

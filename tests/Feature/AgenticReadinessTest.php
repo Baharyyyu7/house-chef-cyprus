@@ -280,6 +280,7 @@ final class AgenticReadinessTest extends TestCase
 
         $response = $this->actingAs($user)->postJson(route('api.agent.tools.save-recipe'), [
             'slug' => 'kibris-hellimli-borek',
+            'confirmed' => true,
         ]);
 
         $response->assertStatus(200)
@@ -288,6 +289,44 @@ final class AgenticReadinessTest extends TestCase
             ->assertJsonPath('is_favorited', true);
 
         $this->assertTrue($user->favoriteRecipes()->where('recipes.id', $this->sampleRecipe->id)->exists());
+    }
+
+    public function test_level_5_authenticated_agent_cannot_save_recipe_without_explicit_confirmation(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->postJson(route('api.agent.tools.save-recipe'), [
+            'slug' => 'kibris-hellimli-borek',
+        ])->assertStatus(409)
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('requires_human_confirmation', true);
+
+        $this->assertFalse($user->favoriteRecipes()->where('recipes.id', $this->sampleRecipe->id)->exists());
+    }
+
+    public function test_agent_tools_do_not_expose_unpublished_or_unverified_recipes(): void
+    {
+        $draft = $this->sampleRecipe->replicate();
+        $draft->public_id = 'rec_draft_01';
+        $draft->slug = 'gizli-taslak-tarif';
+        $draft->title = 'Gizli Taslak Tarif';
+        $draft->status = 'draft';
+        $draft->verification_status = 'unreviewed';
+        $draft->published_at = null;
+        $draft->save();
+
+        foreach ([
+            ['api.agent.tools.recipe', ['slug' => $draft->slug]],
+            ['api.agent.tools.adjust-servings', ['slug' => $draft->slug, 'servings' => 2]],
+            ['api.agent.tools.cooking-step', ['slug' => $draft->slug, 'step' => 1]],
+        ] as [$route, $payload]) {
+            $this->postJson(route($route), $payload)->assertNotFound();
+        }
+
+        $this->actingAs(User::factory()->create())->postJson(route('api.agent.tools.save-recipe'), [
+            'slug' => $draft->slug,
+            'confirmed' => true,
+        ])->assertNotFound();
     }
 
     /**
