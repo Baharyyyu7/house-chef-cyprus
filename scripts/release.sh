@@ -144,8 +144,17 @@ adim 'Artefakt sunucuya yukleniyor.'
 if "$DRY_RUN"; then
     printf '  [dry-run] scp %s\n' "$(basename "$ARTEFAKT")"
 else
-    COPYFILE_DISABLE=1 scp -q -P "$SSH_PORT" "$ARTEFAKT" "$ARTEFAKT.sha256" "$SSH_TARGET:~/"
-    uzak "cd ~ && sha256sum -c $(basename "$ARTEFAKT").sha256" >/dev/null || hata 'Checksum tutmadi.'
+    for deneme in 1 2 3; do
+        COPYFILE_DISABLE=1 scp -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o ConnectTimeout=30 -q -P "$SSH_PORT" "$ARTEFAKT" "$ARTEFAKT.sha256" "$SSH_TARGET:~/" || true
+        if uzak "cd ~ && sha256sum -c $(basename "$ARTEFAKT").sha256" >/dev/null 2>&1; then
+            break
+        fi
+        if [[ $deneme -eq 3 ]]; then
+            hata 'Checksum tutmadi veya yukleme 3 denemede tamamlanamadi.'
+        fi
+        printf '  yukleme tekrarlanacak (deneme %d/3)...\n' "$((deneme + 1))"
+        sleep 2
+    done
 fi
 
 # --- 8. Bayat release dizini ------------------------------------------------
