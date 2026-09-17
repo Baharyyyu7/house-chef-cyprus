@@ -262,7 +262,10 @@ final class SeoSchemaService
 
         // Topluluk oyu: sayfadaki görünür yıldız widget'ıyla birebir aynı
         // sayılar. Oy yoksa alan basılmaz; sahte 5.0 ilan edilmez.
-        $oyOzeti = $recipe->ratingSummary();
+        // Kaydedilmemiş (bellek içi) tarifte tablo sorgulanmaz: exists
+        // kontrolü hem ratings hem aşağıdaki recipeIngredients erişimini
+        // korur (DB'siz testler ve factory make() akışları).
+        $oyOzeti = $recipe->exists ? $recipe->ratingSummary() : ['average' => null, 'count' => 0];
         if ($oyOzeti['count'] > 0 && $oyOzeti['average'] !== null) {
             $recipeNode['aggregateRating'] = [
                 '@type' => 'AggregateRating',
@@ -281,13 +284,15 @@ final class SeoSchemaService
                 $yorumlar[] = ['@type' => 'Comment', 'text' => trim($ipucu)];
             }
         }
-        foreach ($recipe->recipeIngredients as $kalem) {
-            // recipeIngredients HasMany'dir, pivot yoktur: ikame doğrudan
-            // kalem sütunundadır. Görünür GEO kutusundaki metnin aynısı.
-            $ikame = $kalem->substitution ?? null;
-            $ad = $kalem->ingredient?->name ?? $kalem->group_name ?? null;
-            if (is_string($ikame) && trim($ikame) !== '' && is_string($ad) && trim($ad) !== '') {
-                $yorumlar[] = ['@type' => 'Comment', 'text' => trim($ad).' yoksa: '.trim($ikame)];
+        if ($recipe->exists) {
+            foreach ($recipe->recipeIngredients as $kalem) {
+                // recipeIngredients HasMany'dir, pivot yoktur: ikame doğrudan
+                // kalem sütunundadır. Görünür GEO kutusundaki metnin aynısı.
+                $ikame = $kalem->substitution ?? null;
+                $ad = $kalem->ingredient?->name ?? $kalem->group_name ?? null;
+                if (is_string($ikame) && trim($ikame) !== '' && is_string($ad) && trim($ad) !== '') {
+                    $yorumlar[] = ['@type' => 'Comment', 'text' => trim($ad).' yoksa: '.trim($ikame)];
+                }
             }
         }
         if ($yorumlar !== []) {

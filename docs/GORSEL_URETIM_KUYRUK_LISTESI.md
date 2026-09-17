@@ -1,7 +1,7 @@
 # 🍽️ Görsel Üretim Dağıtık Koordinasyon ve Canlı Kilit Sistemi
 
-> **Canlı İlerleme:** `%1.9` Tamamlandı | **Tamamlanan:** `7` / `366` | **İşleniyor:** `2` | **Boşta:** `354`
-> **Son Güncelleme:** 2026-09-16 19:40:43
+> **Canlı İlerleme:** `%1.9` Tamamlandı | **Tamamlanan:** `7` / `366` | **İşleniyor:** `1` | **Boşta:** `355`
+> **Son Güncelleme:** 2026-09-17 03:35:54
 > **Kurallar:** [docs/GORSEL_URETIM_MASTER_PROMPT.md](GORSEL_URETIM_MASTER_PROMPT.md) ve [docs/AJAN_CALISMA_KURALLARI.md](AJAN_CALISMA_KURALLARI.md)
 
 ## 1. Dağıtık Kilit Protokolü ("Ben Yapacağım" Mekanizması)
@@ -31,7 +31,7 @@ Engellenen kayıtlar: `3`. `block --slug=... --worker=... --reason=...` ile eksi
 | 9 | `! Engelli` | - | **Kıbrıs Usulü Tavuklu Kolokas (Tarif başlığı tavuklu, canlı malzeme listesi kuzu eti içeriyor; yemek kimliği düzeltilmeden görsel teslim edilmez.)** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-tavuklu-kolokas-S8VGF.png` |
 | 10 | `✓ Bitti` | **AI-Worker-1** | **Kıbrıs Usulü Şeftali Kebabı** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-seftali-kebabi-PK57V.png` |
 | 11 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Usulü Şeftali Kebabı** | Kıbrıs Mutfağı | Ana Yemek | `recipe--kibris-usulu-seftali-kebabi-KEFH3.png` |
-| 12 | `⏳ İşleniyor` | **Automation-Images-20260916** | **Limonlu Balık Tepsisi** | Kıbrıs Mutfağı | Ana Yemek | `recipe--limonlu-balik-tepsisi.png` |
+| 12 | `[ ] Boşta` | - | **Limonlu Balık Tepsisi** | Kıbrıs Mutfağı | Ana Yemek | `recipe--limonlu-balik-tepsisi.png` |
 | 13 | `[ ] Boşta` | - | **Peynirli Kraker** | Kıbrıs Mutfağı | Atıştırmalık / Pratik | `recipe--peynirli-kraker.png` |
 | 14 | `[ ] Boşta` | - | **Kıbrıs Hellimli Gözleme** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-hellimli-gozleme.png` |
 | 15 | `[ ] Boşta` | - | **Kıbrıs Hellimli Gözleme** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-hellimli-gozleme-6QTYM.png` |

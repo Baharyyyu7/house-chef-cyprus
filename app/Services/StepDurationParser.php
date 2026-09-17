@@ -23,25 +23,25 @@ final class StepDurationParser
         $toplam = 0;
         $bulundu = false;
 
-        if (preg_match_all('/(\d+)\s*(?:-\s*(\d+)\s*)?(saat|hour|hr)/iu', $metin, $eslesmeler, PREG_SET_ORDER) === false) {
+        if (preg_match_all('/(\d+(?:[.,]\d+)?)\s*(?:[-–—]\s*(\d+(?:[.,]\d+)?)\s*)?(saat|hour|hr)/iu', $metin, $eslesmeler, PREG_SET_ORDER) === false) {
             return null;
         }
         foreach ($eslesmeler as $eslesme) {
             $bulundu = true;
-            $toplam += ((int) ($eslesme[2] !== '' ? $eslesme[2] : $eslesme[1])) * 60;
+            $toplam += ((float) str_replace(',', '.', $eslesme[2] !== '' ? $eslesme[2] : $eslesme[1])) * 60;
         }
 
-        if (preg_match_all('/(\d+)\s*(?:-\s*(\d+)\s*)?(dakika|dak|dk|mins?|minutes?)/iu', $metin, $eslesmeler, PREG_SET_ORDER) === false) {
+        if (preg_match_all('/(\d+(?:[.,]\d+)?)\s*(?:[-–—]\s*(\d+(?:[.,]\d+)?)\s*)?(dakika|dak|dk|mins?|minutes?)/iu', $metin, $eslesmeler, PREG_SET_ORDER) === false) {
             return null;
         }
         foreach ($eslesmeler as $eslesme) {
             $bulundu = true;
-            $toplam += (int) ($eslesme[2] !== '' ? $eslesme[2] : $eslesme[1]);
+            $toplam += (float) str_replace(',', '.', $eslesme[2] !== '' ? $eslesme[2] : $eslesme[1]);
         }
 
-        if (! $bulundu && preg_match_all('/(\d+)\s*(?:-\s*(\d+)\s*)?(saniye|sn|secs?|seconds?)/iu', $metin, $eslesmeler, PREG_SET_ORDER) !== false) {
+        if (! $bulundu && preg_match_all('/(\d+(?:[.,]\d+)?)\s*(?:[-–—]\s*(\d+(?:[.,]\d+)?)\s*)?(saniye|sn|secs?|seconds?)/iu', $metin, $eslesmeler, PREG_SET_ORDER) !== false) {
             foreach ($eslesmeler as $eslesme) {
-                $saniye = (int) ($eslesme[2] !== '' ? $eslesme[2] : $eslesme[1]);
+                $saniye = (float) str_replace(',', '.', $eslesme[2] !== '' ? $eslesme[2] : $eslesme[1]);
                 if ($saniye >= 60) {
                     $bulundu = true;
                     $toplam += (int) ceil($saniye / 60);
@@ -53,6 +53,6 @@ final class StepDurationParser
             return null;
         }
 
-        return $toplam;
+        return (int) ceil($toplam);
     }
 }

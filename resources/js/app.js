@@ -244,6 +244,7 @@ Alpine.data('hcRecipeSteps', (slug, total) => ({
         etiket: '',
         zamanlayici: null,
         bitis: 0,
+        sesBaglami: null,
         get gosterim() {
             const saniye = Math.max(0, Math.ceil(this.kalan));
 
@@ -262,6 +263,7 @@ Alpine.data('hcRecipeSteps', (slug, total) => ({
             this.devamEt();
         },
         devamEt() {
+            this.sesiHazirla();
             this.calisiyor = true;
             this.bitis = Date.now() + this.kalan * 1000;
             window.clearInterval(this.zamanlayici);
@@ -277,8 +279,12 @@ Alpine.data('hcRecipeSteps', (slug, total) => ({
                 return;
             }
             if (this.calisiyor) {
-                this.calisiyor = false;
-                window.clearInterval(this.zamanlayici);
+                this.kalan = Math.max(0, (this.bitis - Date.now()) / 1000);
+                if (this.kalan <= 0) {
+                    this.bitir();
+                } else {
+                    this.durdur();
+                }
             } else if (this.kalan > 0) {
                 this.devamEt();
             }
@@ -295,6 +301,14 @@ Alpine.data('hcRecipeSteps', (slug, total) => ({
         durdur() {
             this.calisiyor = false;
             window.clearInterval(this.zamanlayici);
+            this.zamanlayici = null;
+        },
+        destroy() {
+            this.durdur();
+            if (this.sesBaglami && this.sesBaglami.state !== 'closed') {
+                this.sesBaglami.close().catch(() => {});
+            }
+            this.sesBaglami = null;
         },
         bitir() {
             this.durdur();
@@ -302,9 +316,21 @@ Alpine.data('hcRecipeSteps', (slug, total) => ({
             this.bitti = true;
             this.sesliUyari();
         },
+        sesiHazirla() {
+            try {
+                this.sesBaglami ??= new (window.AudioContext || window.webkitAudioContext)();
+                if (this.sesBaglami.state === 'suspended') {
+                    // Başlat/devam et tıklamasının kullanıcı etkinliği içinde izin al.
+                    this.sesBaglami.resume().catch(() => {});
+                }
+            } catch {
+                // Ses desteklenmiyorsa görsel geri sayım çalışmaya devam eder.
+            }
+        },
         sesliUyari() {
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const ctx = this.sesBaglami;
+                if (!ctx || ctx.state !== 'running') return;
                 [0, 450, 900].forEach((gecikme, i) => {
                     const osc = ctx.createOscillator();
                     const kazanc = ctx.createGain();

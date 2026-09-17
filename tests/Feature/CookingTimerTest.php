@@ -76,6 +76,34 @@ final class CookingTimerTest extends TestCase
         $this->assertStringContainsString('seconds: 1200', $icerik);
     }
 
+    public function test_kayitli_sure_dakikaya_yuvarlanmadan_baslatilir(): void
+    {
+        $tarif = $this->tarif('Doksan Saniyelik Tarif');
+        RecipeStep::query()->create([
+            'recipe_id' => $tarif->id, 'position' => 1,
+            'title' => 'Çırp', 'instruction' => 'Köpürene kadar çırpın.',
+            'duration_seconds' => 90,
+        ]);
+
+        $icerik = (string) $this->get(route('recipes.show', $tarif))->assertOk()->getContent();
+
+        $this->assertStringContainsString('seconds: 90,', $icerik);
+        $this->assertStringContainsString('01:30', strip_tags($icerik));
+    }
+
+    public function test_baslik_ve_yonergede_tekrarlanan_sure_iki_kez_sayilmaz(): void
+    {
+        $tarif = $this->tarif('Tekrarlanan Süreli Tarif');
+        RecipeStep::query()->create([
+            'recipe_id' => $tarif->id, 'position' => 1,
+            'title' => '15 dakika dinlendir', 'instruction' => 'Hamuru 15 dakika dinlendirin.',
+        ]);
+
+        $icerik = (string) $this->get(route('recipes.show', $tarif))->assertOk()->getContent();
+
+        $this->assertStringContainsString('seconds: 900,', $icerik);
+    }
+
     public function test_suresiz_adimda_buton_yoktur(): void
     {
         $tarif = $this->tarif('Süresiz Tarif');
