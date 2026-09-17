@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Media;
 
 use App\Models\Media;
+use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -65,6 +66,10 @@ final class PublicMediaEligibilityService
             return 'approval_incomplete';
         }
 
+        if ($this->hasMismatchedRecipeIdentity($media)) {
+            return 'recipe_identity_mismatch';
+        }
+
         if (! in_array($media->fidelity_status, ['strong_match', 'approved'], true)
             || (int) $media->fidelity_confidence < (int) config('media_excellence.public_gate.minimum_fidelity_confidence', 90)) {
             return 'fidelity_not_confirmed';
@@ -87,6 +92,21 @@ final class PublicMediaEligibilityService
         }
 
         return null;
+    }
+
+    private function hasMismatchedRecipeIdentity(Media $media): bool
+    {
+        if (! is_string($media->path) || $media->path === '') {
+            return false;
+        }
+
+        if (! preg_match('#(?:^|/)media/approved-synthetic/recipe/([^/]+)/#', $media->path, $matches)) {
+            return false;
+        }
+
+        $recipe = $media->relationLoaded('mediable') ? $media->mediable : $media->mediable()->first();
+
+        return $recipe instanceof Recipe && (string) ($matches[1] ?? '') !== (string) $recipe->public_id;
     }
 
     private function hasHumanApproval(Media $media): bool

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\Category;
-use App\Models\Cuisine;
 use App\Models\Recipe;
 use App\Models\User;
 use App\Services\Media\RecipeDisplayMediaService;
@@ -80,7 +78,7 @@ final class RecipeDisplayMediaServiceTest extends TestCase
         $this->assertSame('Kıbrıs Kleftiko Fotoğrafı', $result['alt']);
     }
 
-    public function test_matches_dish_specific_photo_when_no_approved_media(): void
+    public function test_uses_brand_mark_when_no_approved_media_instead_of_another_dish_photo(): void
     {
         $recipe = Recipe::query()->create([
             'title' => 'Geleneksel Kırmızı Mercimek Çorbası',
@@ -95,56 +93,39 @@ final class RecipeDisplayMediaServiceTest extends TestCase
         $this->assertFalse($result['has_specific_media']);
         $this->assertTrue($result['is_fallback']);
         $this->assertNull($result['media']);
-        $this->assertStringContainsString('images.unsplash.com', $result['card_url']);
-        $this->assertStringContainsString('photo-1547592166-23ac45744acd', $result['card_url']);
-        $this->assertStringContainsString('800', $result['card_url']);
-        $this->assertStringContainsString('1600', $result['hero_url']);
+        $this->assertStringNotContainsString('images.unsplash.com', $result['card_url']);
+        $this->assertStringContainsString('brand/og-default.jpg', $result['card_url']);
+        $this->assertSame(__('card.photo_preparing'), $result['badge_label']);
     }
 
-    public function test_falls_back_to_category_hero_when_unmatched(): void
+    public function test_uses_recipe_branded_fallback_when_available(): void
     {
-        $category = Category::query()->create([
-            'name' => 'Tatlılar',
-            'slug' => 'tatli',
-        ]);
-
         $recipe = Recipe::query()->create([
             'title' => 'Egzotik Ada Muhallebisi',
             'slug' => 'egzotik-ada-muhallebisi',
-            'category_id' => $category->id,
             'status' => 'published',
             'verification_status' => 'under_review',
             'published_at' => now(),
+        ]);
+        $path = 'fallbacks/recipes/'.$recipe->public_id.'.svg';
+        Storage::disk('public')->put($path, '<svg/>');
+        $recipe->media()->create([
+            'kind' => 'image',
+            'disk' => 'public',
+            'path' => $path,
+            'mime_type' => 'image/svg+xml',
+            'size' => 6,
+            'visibility' => 'public',
+            'verification_status' => 'branded_fallback',
+            'media_status' => 'branded_fallback',
+            'is_placeholder' => false,
         ]);
 
         $result = $this->service->resolve($recipe);
 
         $this->assertFalse($result['has_specific_media']);
         $this->assertTrue($result['is_fallback']);
-        $this->assertStringContainsString('images.unsplash.com', $result['card_url']);
-        $this->assertStringContainsString('Tatlılar', $result['badge_label']);
-    }
-
-    public function test_falls_back_to_cypriot_cuisine_hero_for_cypriot_recipes(): void
-    {
-        $cuisine = Cuisine::query()->create([
-            'name' => 'Kıbrıs Mutfağı',
-            'slug' => 'kibris-mutfagi',
-        ]);
-
-        $recipe = Recipe::query()->create([
-            'title' => 'Özel Ada Yemeği',
-            'slug' => 'ozel-ada-yemegi',
-            'cuisine_id' => $cuisine->id,
-            'status' => 'published',
-            'verification_status' => 'under_review',
-            'published_at' => now(),
-        ]);
-
-        $result = $this->service->resolve($recipe);
-
-        $this->assertFalse($result['has_specific_media']);
-        $this->assertTrue($result['is_fallback']);
-        $this->assertStringContainsString('photo-1555396273-367ea4eb4db5', $result['card_url']);
+        $this->assertStringContainsString('/storage/'.$path, $result['card_url']);
+        $this->assertStringNotContainsString('images.unsplash.com', $result['card_url']);
     }
 }
