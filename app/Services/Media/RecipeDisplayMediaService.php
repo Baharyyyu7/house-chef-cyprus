@@ -153,16 +153,13 @@ final class RecipeDisplayMediaService
         }
 
         // Seviye 2: Yemek adına göre özel fotoğraf eşleştirmesi (Unsplash Açık Mutfak Kütüphanesi)
-        $slug = $recipe->slug;
+        // Parça eşleşme: tek kelimelik anahtar ("pilav") yalnız tam slug
+        // parçasında aranır, yoksa "pilavuna" böreğine pilav fotoğrafı
+        // basılırdı. Tireli anahtarlar ("tavuk-sote") zaten dar olduğu için
+        // alt-dize araması korunur.
+        $slug = mb_strtolower($recipe->slug);
         $title = mb_strtolower($recipe->title);
-        $matchedUrl = null;
-
-        foreach (self::DISH_SPECIFIC_PHOTOS as $keyword => $url) {
-            if (str_contains($slug, $keyword) || str_contains($title, $keyword)) {
-                $matchedUrl = $url;
-                break;
-            }
-        }
+        $matchedUrl = self::matchDishPhoto($slug, $title);
 
         // Seviye 3: Kategori veya Mutfak Mirası (Hiç eşleşmeyen kalırsa)
         if ($matchedUrl === null) {
@@ -188,5 +185,60 @@ final class RecipeDisplayMediaService
             'is_fallback' => true,
             'badge_label' => $catName,
         ];
+    }
+
+    /**
+     * Bilinen Türkçe çekim eklerini düşürür ("mantisi" → "manti").
+     * Kökün parçası olan heceler listede yoktur ("pilavuna" → "pilavun"
+     * kalır, "pilav" ile eşleşmez).
+     *
+     * @var list<string>
+     */
+    private const CEKIM_EKLERI = [
+        'lari', 'leri', 'nin', 'nın', 'nun', 'nün', 'ler', 'lar',
+        'nda', 'nde', 'dan', 'den', 'lik', 'lık', 'luk', 'lük',
+        'siz', 'sız', 'suz', 'süz', 'si', 'sı', 'su', 'sü',
+        'yi', 'yı', 'yu', 'yü', 'in', 'ın', 'un', 'ün',
+        'li', 'lı', 'lu', 'lü', 'la', 'le', 'da', 'de',
+        'ta', 'te', 'i', 'ı', 'u', 'ü', 'a', 'e',
+    ];
+
+    /**
+     * Slug + başlıktan yemek fotoğrafı seçer. Test edilebilir olması için
+     * ayrı metottadır.
+     */
+    public static function matchDishPhoto(string $slug, string $title): ?string
+    {
+        $slugParcalari = array_filter(explode('-', mb_strtolower($slug)));
+        $baslikParcalari = array_filter(preg_split('/[^\p{L}\p{N}]+/u', mb_strtolower($title)) ?: []);
+
+        foreach (self::DISH_SPECIFIC_PHOTOS as $keyword => $url) {
+            if (str_contains($keyword, '-')) {
+                if (str_contains(mb_strtolower($slug), $keyword) || str_contains(mb_strtolower($title), $keyword)) {
+                    return $url;
+                }
+
+                continue;
+            }
+
+            foreach (array_merge($slugParcalari, $baslikParcalari) as $parca) {
+                if ($parca === $keyword || self::kok($parca) === $keyword) {
+                    return $url;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static function kok(string $parca): string
+    {
+        foreach (self::CEKIM_EKLERI as $ek) {
+            if (mb_strlen($parca) > mb_strlen($ek) + 2 && str_ends_with($parca, $ek)) {
+                return mb_substr($parca, 0, mb_strlen($parca) - mb_strlen($ek));
+            }
+        }
+
+        return $parca;
     }
 }
