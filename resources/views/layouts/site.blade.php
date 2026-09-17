@@ -236,45 +236,19 @@
         // hiçbir blok gizlenmez; sayfa efektsiz ama eksiksiz görünür.
         document.documentElement.classList.add('hc-reveal-on');
 
-        // Gözlemci beklenmedik bir nedenle tetiklenmezse içerik görünmez
-        // kalmasın: kısa bir süre sonra kalan her blok açılır.
-        //
-        // Bu ağ her kaydırma olayında yeni bir rAF kuyruğa alıyordu ve
-        // hepsiniAc tüm belgeyi sorgulayıp her öğe için getBoundingClientRect
-        // çağırıyordu. 15.000 piksellik anasayfada kaydırma ana iş
-        // parçacığını kilitliyordu: yüzlerce sıraya girmiş çağrı, her biri
-        // zorunlu yeniden yerleşim. Şimdi kare başına en fazla bir çağrı var
-        // ve iş bitince dinleyici kendini söküyor - ağın görevi zaten
-        // gözlemci tetiklenmezse devreye girmek.
-        var kareBekliyor = false;
-
-        function hepsiniAc() {
-            kareBekliyor = false;
-
+        // Emniyet ağı: Gözlemci beklenmedik bir nedenle tetiklenmezse
+        // içerik görünmez kalmasın; yüklemeden kısa bir süre sonra kalan her blok açılır.
+        // Kaydırma sırasında getBoundingClientRect çağrılmaz, forced reflow ve scroll kasması önlenir.
+        function emniyetAc() {
             var kalan = document.querySelectorAll('[data-reveal]:not(.is-revealed)');
-
             for (var i = 0; i < kalan.length; i++) {
-                if (kalan[i].getBoundingClientRect().top < window.innerHeight * 1.5) {
-                    kalan[i].classList.add('is-revealed');
-                }
+                kalan[i].classList.add('is-revealed');
             }
-
-            if (document.querySelector('[data-reveal]:not(.is-revealed)') === null) {
-                window.removeEventListener('scroll', kaydirmada);
-            }
-        }
-
-        function kaydirmada() {
-            if (kareBekliyor) { return; }
-
-            kareBekliyor = true;
-            window.requestAnimationFrame(hepsiniAc);
         }
 
         if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', kur); } else { kur(); }
         document.addEventListener('livewire:navigated', kur);
-        window.addEventListener('load', function () { setTimeout(hepsiniAc, 1200); });
-        window.addEventListener('scroll', kaydirmada, { passive: true });
+        window.addEventListener('load', function () { setTimeout(emniyetAc, 1500); });
 
         // Yapiskan baslik durumu artik kaydirma olayina bagli degil.
         //

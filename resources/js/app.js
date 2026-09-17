@@ -732,13 +732,13 @@ Alpine.data('hcBlogKaruseli', (adet) => ({
         // Yalnız hareket tercihi değişimi izlenir.
         hareketKisitli.addEventListener('change', () => (hareketKisitli.matches ? durdur() : oynat()));
 
-        // Hero ekrandan çıkınca oynatmanın sürmesi için sebep yok.
+        // Hero ekrandan çıkınca oynatmanın sürmesi için sebep yok; kaydırmada GPU ve CPU boşalsın.
         if ('IntersectionObserver' in window) {
             new IntersectionObserver((kayitlar) => {
                 for (const kayit of kayitlar) {
                     kayit.isIntersecting ? oynat() : durdur();
                 }
-            }, { threshold: 0.05 }).observe(video);
+            }, { threshold: 0.15 }).observe(video);
 
             return;
         }

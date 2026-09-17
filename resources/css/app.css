@@ -540,6 +540,8 @@ html.dark {
     border-color: transparent;
     box-shadow: none;
     transition: background-color .35s var(--hc-spring-smooth), box-shadow .35s var(--hc-spring-smooth);
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
 }
 /* Sert 1px çizgi yerine, yüzen çubuk içeriğe gerçekten bindiğinde
    beliren bir kenar geçişi. */
@@ -688,6 +690,10 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
     opacity:0;
     transition:opacity .8s ease;
     pointer-events:none;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+    contain: strict;
+    backface-visibility: hidden;
 }
 .hc-hero-video.is-active,
 .hc-hero-video[data-hazir] { opacity:1; }
