@@ -11,26 +11,35 @@ final class ScrollHandlersAreCheapTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_the_reveal_safety_net_does_not_queue_a_frame_per_scroll_event(): void
+    public function test_the_reveal_safety_net_does_not_listen_to_scroll_at_all(): void
     {
         // Her kaydırma olayı yeni bir requestAnimationFrame kuyruğa alıyordu
         // ve çağrılan işlev tüm belgeyi sorgulayıp her öğe için
         // getBoundingClientRect çağırıyordu. 15.000 piksellik anasayfada
         // kaydırma ana iş parçacığını kilitliyordu.
+        //
+        // Ağ artık kaydırmayı hiç dinlemiyor: görevi gözlemci tetiklenmezse
+        // devreye girmek, bunun için yüklemeden sonra tek atış yeterli.
         $icerik = (string) $this->get('/')->assertOk()->getContent();
 
-        $this->assertStringNotContainsString(
-            "window.addEventListener('scroll', function () { window.requestAnimationFrame(hepsiniAc); }",
-            $icerik
-        );
-        $this->assertStringContainsString('kareBekliyor', $icerik);
+        $this->assertStringNotContainsString('hepsiniAc', $icerik);
+        $this->assertStringNotContainsString("addEventListener('scroll', kaydirmada", $icerik);
+        $this->assertStringContainsString('emniyetAc', $icerik);
     }
 
-    public function test_the_safety_net_removes_itself_once_everything_is_revealed(): void
+    public function test_the_safety_net_runs_once_after_load(): void
     {
-        // Ağın görevi gözlemci tetiklenmezse devreye girmek; iş bitince
-        // sayfanın ömrü boyunca kaydırmayı dinlemesi için sebep yok.
-        $this->get('/')->assertOk()->assertSee("removeEventListener('scroll', kaydirmada)", false);
+        // Ağ yüklemeden sonra bir kez çalışır; kalan blokları ölçmeden açar,
+        // böylece kaydırma sırasında zorunlu yeniden yerleşim oluşmaz.
+        $icerik = (string) $this->get('/')->assertOk()->getContent();
+
+        $this->assertStringContainsString("window.addEventListener('load'", $icerik);
+        $this->assertStringContainsString('setTimeout(emniyetAc', $icerik);
+
+        // Ölçüm yalnız başlık yüksekliği için yapılıyor; emniyet ağının
+        // kendisi hiçbir öğeyi ölçmemeli, yoksa zorunlu yeniden yerleşim olur.
+        $blok = substr($icerik, (int) strpos($icerik, 'function emniyetAc'), 500);
+        $this->assertStringNotContainsString('getBoundingClientRect', $blok);
     }
 
     public function test_the_header_state_does_not_depend_on_a_scroll_listener(): void
