@@ -17,6 +17,50 @@
                         <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('weekly-menu.*')]) href="{{ localized_route('weekly-menu.index') }}" @if(request()->routeIs('weekly-menu.*')) aria-current="page" @endif>{{ __('nav.weekly_menu') }}</a>
                     @endif
 
+                    <div class="relative" x-data="{ acik: false }" @keydown.escape.window="acik = false">
+                        <button type="button" @click="acik = !acik" :aria-expanded="acik" aria-haspopup="menu"
+                                @class(['nav-link inline-flex items-center gap-1 whitespace-nowrap', 'nav-link-active' => request()->routeIs('private-chef.*', 'catering.*', 'cooking-classes.*', 'meal-plans.*')])>
+                            ✨ Hizmetler
+                            <span class="text-[.6rem] transition-transform duration-300" :class="acik ? 'rotate-180' : ''" aria-hidden="true">▾</span>
+                        </button>
+                        <div x-cloak x-show="acik" @click="acik = false" class="fixed inset-0 z-40" aria-hidden="true"></div>
+                        <div x-cloak x-show="acik"
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 -translate-y-1 scale-[.97]"
+                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave-end="opacity-0 -translate-y-1 scale-[.97]"
+                             class="hc-user-menu absolute left-1/2 z-50 mt-3 w-[20rem] -translate-x-1/2 origin-top overflow-hidden rounded-3xl p-2 shadow-2xl"
+                             role="menu" aria-label="Özel Hizmetler">
+                            <a href="{{ route('private-chef.index') }}" class="hc-user-menu__item !items-start" role="menuitem">
+                                <span class="min-w-0">
+                                    <span class="block font-bold">👨‍🍳 Private Chef Cyprus</span>
+                                    <span class="hc-caption block font-normal" style="color: var(--hc-text-secondary)">Villanızda özel şef & gurme Akdeniz akşamı</span>
+                                </span>
+                            </a>
+                            <a href="{{ route('catering.index') }}" class="hc-user-menu__item !items-start" role="menuitem">
+                                <span class="min-w-0">
+                                    <span class="block font-bold">🍽️ Catering Cyprus</span>
+                                    <span class="hc-caption block font-normal" style="color: var(--hc-text-secondary)">Düğün, ziyafet ve kurumsal davet catering</span>
+                                </span>
+                            </a>
+                            <a href="{{ route('cooking-classes.index') }}" class="hc-user-menu__item !items-start" role="menuitem">
+                                <span class="min-w-0">
+                                    <span class="block font-bold">🧀 Yemek Kursları & Atölye</span>
+                                    <span class="hc-caption block font-normal" style="color: var(--hc-text-secondary)">Hellim yapımı ve Kıbrıs meze masterclass</span>
+                                </span>
+                            </a>
+                            <a href="{{ route('meal-plans.index') }}" class="hc-user-menu__item !items-start" role="menuitem">
+                                <span class="min-w-0">
+                                    <span class="block font-bold">🥗 Akdeniz Yemek Planları</span>
+                                    <span class="hc-caption block font-normal" style="color: var(--hc-text-secondary)">7 günlük dengeli menüler & pazar listesi</span>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+
+
                     @auth
                         @php($mutfakRotalari = collect([
                             ['ingredients.explore', __('nav.explore'), __('ux.match')],
@@ -109,7 +153,14 @@
                     @if (Route::has('shop.index'))
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('shop.*')]) href="{{ localized_route('shop.index') }}" @click="menuOpen = false" @if(request()->routeIs('shop.*')) aria-current="page" @endif>{{ __('nav.shop') }}</a>
                     @endif
-                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('private-chef.*'), 'text-orange-600 dark:text-orange-400']) href="{{ route('private-chef.index') }}" @click="menuOpen = false" @if(request()->routeIs('private-chef.*')) aria-current="page" @endif>👨‍🍳 Private Chef</a>
+                    <div class="my-2 border-t border-stone-200/60 pt-2 dark:border-stone-800">
+                        <p class="px-3 text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">✨ Özel Hizmetler</p>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('private-chef.*')]) href="{{ route('private-chef.index') }}" @click="menuOpen = false">👨‍🍳 Private Chef Cyprus</a>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('catering.*')]) href="{{ route('catering.index') }}" @click="menuOpen = false">🍽️ Catering & Davet</a>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('cooking-classes.*')]) href="{{ route('cooking-classes.index') }}" @click="menuOpen = false">🧀 Yemek Kursları & Atölye</a>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('meal-plans.*')]) href="{{ route('meal-plans.index') }}" @click="menuOpen = false">🥗 Akdeniz Yemek Planları</a>
+                    </div>
+
                     @auth
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ localized_route('ingredients.explore') }}" @click="menuOpen = false" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>{{ __('nav.explore') }}</a>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ localized_route('ai-kitchen.index') }}" @click="menuOpen = false" @if(request()->routeIs('ai-kitchen.*')) aria-current="page" @endif>{{ __('nav.ai_kitchen') }}</a>

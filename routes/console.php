@@ -159,3 +159,10 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_auto_drip',
 // GBP Content Drip: Haftalık Google Business Profile içerik taslakları üretir.
 // storage/app/content-import/gbp-posts/ klasörüne JSON yazar. Otomatik yayın yok.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_gbp_content_drip', fn () => Artisan::call('seo:gbp-content-drip', ['--week' => 3])))->name('seo_gbp_content_drip')->weeklyOn(1, '08:30')->withoutOverlapping();
+
+// Backlink Outreach Queue: Haftalık yüksek otoriteli yayıncılar için kişiselleştirilmiş iş birliği dosyaları hazırlar.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_backlink_outreach_queue', fn () => Artisan::call('seo:backlink-outreach-queue', ['--limit' => 20, '--export-md' => true])))->name('seo_backlink_outreach_queue')->weeklyOn(2, '04:00')->withoutOverlapping();
+
+// Keyword Cluster Build: Semantik Hub-Spoke iç bağlantı haritasını ve küme otoritesini otomatik günceller.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_keyword_cluster_build', fn () => Artisan::call('seo:keyword-cluster-build', ['--export-json' => true])))->name('seo_keyword_cluster_build')->weeklyOn(3, '04:15')->withoutOverlapping();
+

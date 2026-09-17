@@ -45,18 +45,22 @@
                     </div>
                 </div>
                 <div>
-                    <p class="text-sm font-extrabold text-orange-300">Kıbrıs Mutfağı</p>
+                    <p class="text-sm font-extrabold text-orange-300">Özel Hizmetler & Mutfak</p>
                     <div class="hc-footer-muted mt-4 grid gap-2.5 text-sm [&>a]:inline-flex [&>a]:min-h-[24px] [&>a]:items-center">
+                        <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('private-chef.index') }}">👨‍🍳 Private Chef Cyprus</a>
+                        <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('catering.index') }}">🍽️ Catering Cyprus</a>
+                        <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('cooking-classes.index') }}">🧀 Yemek Kursları & Atölye</a>
+                        <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('meal-plans.index') }}">🥗 Akdeniz Yemek Planları</a>
                         @if(url()->current() !== route('cuisines.show', 'kibris-mutfagi'))
-                            <a class="font-semibold text-gold-300 hover:text-orange-300" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">Kıbrıs Yemekleri</a>
+                            <a class="hover:text-orange-300" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">Kıbrıs Yemekleri</a>
                         @else
                             <span class="font-semibold text-gold-300">Kıbrıs Yemekleri</span>
                         @endif
                         <a class="hover:text-orange-300" href="{{ route('ingredients.hub.show', 'hellim') }}">Hellim</a>
                         <a class="hover:text-orange-300" href="{{ route('blog.index') }}?q=Kıbrıs">Kıbrıs Rehberleri</a>
-                        <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('private-chef.index') }}">👨‍🍳 Private Chef Cyprus</a>
                     </div>
                 </div>
+
             </div>
             <div class="border-t border-white/10"><div class="hc-container hc-footer-muted flex flex-col gap-2 py-5 text-xs sm:flex-row sm:items-center sm:justify-between"><span>© {{ date('Y') }} House Chef Cyprus</span><span>{{ __('footer.rights_reserved') }}</span></div></div>
         </footer>
