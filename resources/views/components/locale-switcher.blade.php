@@ -50,18 +50,20 @@
         >
             @foreach ($languages as $locale => $language)
                 @if (($language['enabled'] ?? false) === true)
-                    <form method="POST" action="{{ route('locale.update') }}" role="none">
-                        @csrf
-                        <input type="hidden" name="locale" value="{{ $locale }}">
-                        <input type="hidden" name="return_to" value="{{ request()->getRequestUri() }}">
-                        <button type="submit" role="menuitem" @class(['hc-locale__option', 'is-current' => $locale === $currentLocale]) @if($locale === $currentLocale) aria-current="true" @endif>
-                            <span class="hc-locale__flag" aria-hidden="true">{{ $language['flag'] ?? '🏳️' }}</span>
-                            <span class="hc-locale__name">{{ $language['native_label'] }}</span>
-                            @if($locale === $currentLocale)
-                                <span class="hc-locale__check" aria-hidden="true"><x-ui.icon name="check" size="16" /></span>
-                            @endif
-                        </button>
-                    </form>
+                    @php($hedefUrl = app(\App\Services\Seo\LocaleUrlService::class)->urlFor($locale, request()->getRequestUri()))
+                    <a href="{{ $hedefUrl }}"
+                       role="menuitem"
+                       lang="{{ $language['html_locale'] ?? $locale }}"
+                       hreflang="{{ $language['html_locale'] ?? $locale }}"
+                       aria-label="{{ $language['native_label'] }} ({{ strtoupper((string) ($language['html_locale'] ?? $locale)) }})"
+                       @class(['hc-locale__option', 'is-current' => $locale === $currentLocale])
+                       @if($locale === $currentLocale) aria-current="true" @endif>
+                        <span class="hc-locale__flag" aria-hidden="true">{{ $language['flag'] ?? '🏳️' }}</span>
+                        <span class="hc-locale__name">{{ $language['native_label'] }}</span>
+                        @if($locale === $currentLocale)
+                            <span class="hc-locale__check" aria-hidden="true"><x-ui.icon name="check" size="16" /></span>
+                        @endif
+                    </a>
                 @else
                     <span class="hc-locale__option is-pending" aria-disabled="true" title="{{ __('language.coming_soon') }}">
                         <span class="hc-locale__flag" aria-hidden="true">{{ $language['flag'] ?? '🏳️' }}</span>

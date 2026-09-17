@@ -38,7 +38,7 @@
             <a href="{{ route('ingredients.explore') }}" class="hc-v3-btn hc-v3-btn--outline">{{ __('archive.match_with_ingredients') }} <span aria-hidden="true">→</span></a>
         </div>
 
-        <form class="hc-v3-card mt-7 grid gap-4 p-4 sm:p-5" action="{{ route('recipes.index') }}" aria-label="{{ __('archive.search_recipes') }}">
+        <form class="hc-v3-card mt-7 grid gap-4 p-4 sm:p-5" action="{{ route('recipes.index') }}" role="search" aria-label="{{ __('archive.search_recipes') }}" toolname="search_recipes" tooldescription="Search HouseChef recipes by title, ingredients, cuisine, cooking time, and dietary preferences">
             <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_12rem_12rem_auto]">
             <div>
                 <label class="hc-v3-field-label" for="recipe-search">{{ __('archive.search_recipes') }}</label>

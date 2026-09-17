@@ -46,8 +46,23 @@ final class IngredientMatchingService
         $quantityResults = collect();
         $matched = 0;
 
+        $hasPantry = $pantryItems->isNotEmpty();
         foreach ($required as $row) {
             if (in_array($row->ingredient_id, $availableIds, true) && ! in_array($row->ingredient_id, $excludedIds, true)) {
+                if (! $hasPantry) {
+                    $matched++;
+                    $quantityResults->push([
+                        'ingredient_public_id' => $row->ingredient?->public_id,
+                        'name' => $row->ingredient?->name,
+                        'status' => 'sufficient',
+                        'required_quantity' => (string) ($row->canonical_quantity ?? $row->quantity ?? ''),
+                        'available_quantity' => null,
+                        'unit' => $row->canonical_unit ?? $row->unit,
+                    ]);
+
+                    continue;
+                }
+
                 $pantry = $pantryItems->firstWhere('ingredient_id', $row->ingredient_id);
                 $quantity = $this->quantityStatus($row, $pantry);
                 $quantityResults->push(['ingredient_public_id' => $row->ingredient->public_id, 'name' => $row->ingredient->name, ...$quantity]);

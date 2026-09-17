@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AgentToolController;
 use App\Http\Controllers\Api\V1\IngredientNutritionController;
 use App\Http\Controllers\Api\V1\IngredientSubstitutionController;
 use App\Http\Controllers\Api\V1\LookupController;
@@ -33,6 +34,18 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
     Route::get('allergens', [LookupController::class, 'allergens']);
     Route::get('dietary-tags', [LookupController::class, 'dietaryTags']);
     Route::post('recipe-match', RecipeMatchController::class)->middleware(RequireJsonApi::class);
+
+    // WebMCP / AI Agent Tools Endpoints
+    Route::prefix('agent')->group(function (): void {
+        Route::get('tools', [AgentToolController::class, 'tools'])->name('api.agent.tools');
+        Route::post('tools/search', [AgentToolController::class, 'search'])->name('api.agent.tools.search');
+        Route::post('tools/find-by-ingredients', [AgentToolController::class, 'findByIngredients'])->name('api.agent.tools.find-by-ingredients');
+        Route::post('tools/recipe', [AgentToolController::class, 'recipe'])->name('api.agent.tools.recipe');
+        Route::post('tools/adjust-servings', [AgentToolController::class, 'adjustServings'])->name('api.agent.tools.adjust-servings');
+        Route::post('tools/cooking-step', [AgentToolController::class, 'cookingStep'])->name('api.agent.tools.cooking-step');
+        Route::post('tools/switch-language', [AgentToolController::class, 'switchLanguage'])->name('api.agent.tools.switch-language');
+        Route::post('tools/save-recipe', [AgentToolController::class, 'saveRecipe'])->name('api.agent.tools.save-recipe');
+    });
 
     Route::middleware('auth')->prefix('personalization')->group(function (): void {
         Route::get('profile', [PersonalizationController::class, 'profile']);

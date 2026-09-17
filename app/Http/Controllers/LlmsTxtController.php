@@ -15,8 +15,7 @@ final class LlmsTxtController extends Controller
 {
     public function __construct(
         private readonly CulinaryTranslationService $translator
-    ) {
-    }
+    ) {}
 
     public function index(): Response
     {
@@ -49,11 +48,11 @@ final class LlmsTxtController extends Controller
             $lines[] = '# House Chef Cyprus - Doğu Akdeniz & Kıbrıs Gastronomi Ansiklopedisi';
             $lines[] = '';
             $lines[] = '> House Chef Cyprus, Doğu Akdeniz ve Kıbrıs mutfağının doğrulanmış yemek tarifleri, geleneksel pişirme teknikleri, mutfak dönüştürme tabloları ve editoryal gastronomi ansiklopedisidir.';
-            $lines[] = '> For International & English AI Search Engines (Perplexity, ChatGPT, Claude, Gemini), see English AI Corpus: ' . route('llms.txt.en');
+            $lines[] = '> For International & English AI Search Engines (Perplexity, ChatGPT, Claude, Gemini), see English AI Corpus: '.route('llms.txt.en');
             $lines[] = '';
             $lines[] = 'House Chef Cyprus, geleneksel Kıbrıs lezzetleri (Şeftali Kebabı, Molehiya, Kolokas, Kleftiko, Hellimli hamur işleri) başta olmak üzere Akdeniz mutfağının porsiyon, besin değeri ve gramaj ölçüleri editoryal olarak doğrulanmış tariflerini sunar.';
             $lines[] = '';
-            $lines[] = '## Güncel Mevsim Odağı: ' . $season['name'];
+            $lines[] = '## Güncel Mevsim Odağı: '.$season['name'];
             $lines[] = $season['description'];
             $lines[] = '';
 
@@ -63,11 +62,11 @@ final class LlmsTxtController extends Controller
 
             if ($dailyRecipe) {
                 $meta = $this->translator->getDailySpotlightMeta($dayOfYear, 'tr');
-                $lines[] = '## Günün Kıbrıs Şef Önerisi (Daily Chef Recommendation - ' . date('d.m.Y') . ')';
+                $lines[] = '## Günün Kıbrıs Şef Önerisi (Daily Chef Recommendation - '.date('d.m.Y').')';
                 $desc = trim((string) ($dailyRecipe->description ?: $dailyRecipe->excerpt));
                 $lines[] = sprintf('- [%s](%s): %s (%d dk hazırlık, %d dk pişirme)', $dailyRecipe->title, route('recipes.show', $dailyRecipe), $desc, $dailyRecipe->prep_minutes, $dailyRecipe->cook_minutes);
-                $lines[] = '  - Eşleşme Önerisi: ' . $meta['pairing'];
-                $lines[] = '  - Mutfak Notu / Miras: ' . $meta['trivia'];
+                $lines[] = '  - Eşleşme Önerisi: '.$meta['pairing'];
+                $lines[] = '  - Mutfak Notu / Miras: '.$meta['trivia'];
                 $lines[] = '';
             }
 
@@ -85,7 +84,7 @@ final class LlmsTxtController extends Controller
             $lines[] = '## Kıbrıs Mutfak Kültürü ve Sıkça Sorulan Sorular (Authoritative Culinary FAQ & Knowledge Base)';
             $lines[] = '';
             foreach ($this->translator->getCulinaryFaq('tr') as $faq) {
-                $lines[] = '### ' . $faq['q'];
+                $lines[] = '### '.$faq['q'];
                 $lines[] = $faq['a'];
                 $lines[] = '';
             }
@@ -116,7 +115,7 @@ final class LlmsTxtController extends Controller
             $lines[] = '## Editoryal Gastronomi ve Mutfak Rehberleri';
             $lines[] = '';
             foreach ($blogs as $blog) {
-                $desc = trim((string) ($blog->excerpt ?: substr(strip_tags((string) $blog->body), 0, 160) . '...'));
+                $desc = trim((string) ($blog->excerpt ?: substr(strip_tags((string) $blog->body), 0, 160).'...'));
                 $lines[] = sprintf('- [%s](%s): %s', $blog->title, route('blog.show', $blog), $desc);
             }
 
@@ -148,6 +147,17 @@ final class LlmsTxtController extends Controller
             $lines[] = '- BreadcrumbList: https://schema.org/BreadcrumbList (tüm sayfalarda)';
             $lines[] = '- Organization: https://schema.org/Organization (site kimliği)';
             $lines[] = '- WebSite + SearchAction: https://schema.org/WebSite (ana sayfa)';
+            $lines[] = '';
+            $lines[] = '## Yapay Zekâ Ajan Araçları ve WebMCP Yetenekleri (AI Agent Tools & WebMCP)';
+            $lines[] = 'HouseChef Cyprus, otonom tarayıcı ajanları (Chrome Agentic, ChatGPT, Claude Computer Use, Gemini) için yapılandırılmış WebMCP (Web Model Context Protocol) araçları sunar:';
+            $lines[] = '- `search_recipes`: Çoklu kısıtlı arama (sorgu, mutfak, azami süre, zorluk, diyet tercihi). Uç nokta: `POST /api/v1/agent/tools/search`';
+            $lines[] = '- `find_recipes_by_ingredients`: Dolaptaki malzemelerle tarif eşleştirme ve eksik malzeme analizi. Uç nokta: `POST /api/v1/agent/tools/find-by-ingredients`';
+            $lines[] = '- `get_recipe`: Ayrıntılı gramajlı malzemeler, sıralı adımlar, besin değerleri ve alerjen uyarıları. Uç nokta: `POST /api/v1/agent/tools/recipe`';
+            $lines[] = '- `adjust_servings`: İstenen porsiyon sayısına göre dinamik malzeme ölçekleme. Uç nokta: `POST /api/v1/agent/tools/adjust-servings`';
+            $lines[] = '- `get_cooking_step`: Adım adım etkileşimli pişirme, zamanlayıcılar ve şef ipuçları. Uç nokta: `POST /api/v1/agent/tools/cooking-step`';
+            $lines[] = '- `switch_language`: Sayfayı Türkçe veya İngilizce görüntülemek için kanonik URL. Uç nokta: `POST /api/v1/agent/tools/switch-language`';
+            $lines[] = '- `save_recipe`: Favorilere ekleme (kullanıcı onayı gerektiren yetkilendirilmiş eylem). Uç nokta: `POST /api/v1/agent/tools/save-recipe`';
+            $lines[] = '- **Araç Şemaları & Kayıt Dizini**: `GET /api/v1/agent/tools` (JSON Schema standardı)';
             $lines[] = '';
             $lines[] = '## Veri Akışları ve Arama Entegrasyonları (Data Feeds & Standards)';
             $lines[] = '';
@@ -219,7 +229,7 @@ final class LlmsTxtController extends Controller
             $lines[] = '';
             $lines[] = 'Covering time-honoured island classics—such as Sheftalia Kebab, slow-roasted clay-oven Kleftiko, Molokhia (Molehiya), Kolokas taro root stew, and artisan Halloumi pastries—House Chef Cyprus delivers kitchen-tested instructions curated by culinary editors.';
             $lines[] = '';
-            $lines[] = '## Current Seasonal Cyprus Focus: ' . $season['name'];
+            $lines[] = '## Current Seasonal Cyprus Focus: '.$season['name'];
             $lines[] = $season['description'];
             $lines[] = '';
 
@@ -229,12 +239,12 @@ final class LlmsTxtController extends Controller
 
             if ($dailyRecipe) {
                 $meta = $this->translator->getDailySpotlightMeta($dayOfYear, 'en');
-                $lines[] = '## Daily Cypriot Chef Recommendation (Real-Time Fresh Focus - ' . date('Y-m-d') . ')';
+                $lines[] = '## Daily Cypriot Chef Recommendation (Real-Time Fresh Focus - '.date('Y-m-d').')';
                 $dailyTitle = $this->translator->translateRecipeTitle($dailyRecipe, 'en');
                 $dailyDesc = $this->translator->translateRecipeDescription($dailyRecipe, 'en');
                 $lines[] = sprintf('- [%s](%s): %s (%d min prep, %d min cook)', $dailyTitle, $localeUrls->urlFor('en', route('recipes.show', $dailyRecipe, false)), $dailyDesc, $dailyRecipe->prep_minutes, $dailyRecipe->cook_minutes);
-                $lines[] = '  - Recommended Pairing: ' . $meta['pairing'];
-                $lines[] = '  - Heritage & Culinary Lore: ' . $meta['trivia'];
+                $lines[] = '  - Recommended Pairing: '.$meta['pairing'];
+                $lines[] = '  - Heritage & Culinary Lore: '.$meta['trivia'];
                 $lines[] = '';
             }
 
@@ -253,7 +263,7 @@ final class LlmsTxtController extends Controller
             $lines[] = '## Cypriot Culinary Heritage FAQ & Authoritative Knowledge Base';
             $lines[] = '';
             foreach ($this->translator->getCulinaryFaq('en') as $faq) {
-                $lines[] = '### ' . $faq['q'];
+                $lines[] = '### '.$faq['q'];
                 $lines[] = $faq['a'];
                 $lines[] = '';
             }
@@ -322,6 +332,17 @@ final class LlmsTxtController extends Controller
             $lines[] = '- Organization: https://schema.org/Organization (site identity)';
             $lines[] = '- WebSite + SearchAction: https://schema.org/WebSite (homepage)';
             $lines[] = '';
+            $lines[] = '## AI Agent Tools & WebMCP Capabilities';
+            $lines[] = 'HouseChef Cyprus provides structured WebMCP (Web Model Context Protocol) tools for autonomous browser agents (Chrome Agentic, ChatGPT Browser, Claude Computer Use, Gemini):';
+            $lines[] = '- `search_recipes`: Multi-constraint recipe search (query, cuisine, max minutes, difficulty, dietary preference). Endpoint: `POST /api/v1/agent/tools/search`';
+            $lines[] = '- `find_recipes_by_ingredients`: Pantry ingredient matching and missing ingredient calculation. Endpoint: `POST /api/v1/agent/tools/find-by-ingredients`';
+            $lines[] = '- `get_recipe`: Complete structured recipe details, scaled ingredients, step instructions, nutrition, and allergens. Endpoint: `POST /api/v1/agent/tools/recipe`';
+            $lines[] = '- `adjust_servings`: Dynamic portion scaling for ingredients and nutrition facts. Endpoint: `POST /api/v1/agent/tools/adjust-servings`';
+            $lines[] = '- `get_cooking_step`: Interactive cooking guidance, step timers, and chef notes. Endpoint: `POST /api/v1/agent/tools/cooking-step`';
+            $lines[] = '- `switch_language`: Canonical localized URL to switch between English and Turkish. Endpoint: `POST /api/v1/agent/tools/switch-language`';
+            $lines[] = '- `save_recipe`: Favorite recipe management (consequential action requiring human authorization). Endpoint: `POST /api/v1/agent/tools/save-recipe`';
+            $lines[] = '- **Tool Schemas & Capability Registry**: `GET /api/v1/agent/tools` (Standard JSON Schema)';
+            $lines[] = '';
             $lines[] = '## Data Feeds & Search Engine Integrations';
             $lines[] = '';
             $lines[] = sprintf('- [English RSS Feed](%s): XML feed of recipes and culinary guides in English.', route('feed.en'));
@@ -364,9 +385,9 @@ final class LlmsTxtController extends Controller
             $lines[] = '# House Chef Cyprus - Kapsamlı İçerik Kataloğu';
             $lines[] = '';
             $lines[] = '> Bu belge, yapay zekâ dil modelleri (LLM) ve arama motorları için House Chef Cyprus platformundaki tüm doğrulanmış tarif ve editoryal rehberleri içerir.';
-            $lines[] = '> English full corpus available at: ' . route('llms.full.en');
+            $lines[] = '> English full corpus available at: '.route('llms.full.en');
             $lines[] = '';
-            $lines[] = '## Tüm Doğrulanmış Tarifler (' . $recipes->count() . ' Adet)';
+            $lines[] = '## Tüm Doğrulanmış Tarifler ('.$recipes->count().' Adet)';
             $lines[] = '';
 
             foreach ($recipes as $recipe) {
@@ -383,7 +404,7 @@ final class LlmsTxtController extends Controller
                 $lines[] = '';
             }
 
-            $lines[] = '## Editoryal Mutfak ve Gastronomi Rehberleri (' . $blogs->count() . ' Adet)';
+            $lines[] = '## Editoryal Mutfak ve Gastronomi Rehberleri ('.$blogs->count().' Adet)';
             $lines[] = '';
 
             foreach ($blogs as $blog) {
@@ -438,7 +459,7 @@ final class LlmsTxtController extends Controller
             $lines[] = '';
             $lines[] = '> This document provides the complete, authoritative knowledge base of verified Mediterranean and Cypriot recipes and editorial gastronomy guides for Large Language Models (LLMs), AI assistants, and search engines.';
             $lines[] = '';
-            $lines[] = '## All Verified Recipes (' . $recipes->count() . ' Total)';
+            $lines[] = '## All Verified Recipes ('.$recipes->count().' Total)';
             $lines[] = '';
 
             foreach ($recipes as $recipe) {
@@ -457,7 +478,7 @@ final class LlmsTxtController extends Controller
                 $lines[] = '';
             }
 
-            $lines[] = '## Editorial Gastronomy & Cooking Guides (' . $blogs->count() . ' Total)';
+            $lines[] = '## Editorial Gastronomy & Cooking Guides ('.$blogs->count().' Total)';
             $lines[] = '';
 
             foreach ($blogs as $blog) {

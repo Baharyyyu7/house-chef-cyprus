@@ -131,7 +131,7 @@ new #[Layout('layouts.guest')] class extends Component
 
     <x-social-login :divider-after="true" class="mt-6" />
 
-    <form wire:submit="register" class="mt-6" x-data="{ passwordVisible: false, confirmationVisible: false }">
+    <form wire:submit="register" class="mt-6" x-data="{ passwordVisible: false, confirmationVisible: false }" toolname="create_account" tooldescription="Create a new personal HouseChef Cyprus account">
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
                 <x-input-label for="first_name" :value="__('ux.first_name')" />

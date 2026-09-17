@@ -596,6 +596,8 @@
     "recipe.recipe": "Recipe",
     "recipe.related": "Related Recipes",
     "recipe.servings": "Servings",
+    "recipe.decrease_servings": "Decrease servings",
+    "recipe.increase_servings": "Increase servings",
     "recipe.show.ai_image_note": "AI-generated image, editorially approved.",
     "recipe.show.allergens_contains": "⚠ Contains:",
     "recipe.show.allergens_may_contain": "ⓘ May contain:",

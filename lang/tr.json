@@ -313,6 +313,8 @@
     "recipe.cook": "Pişirme",
     "recipe.total": "Toplam",
     "recipe.servings": "Porsiyon",
+    "recipe.decrease_servings": "Porsiyonu azalt",
+    "recipe.increase_servings": "Porsiyonu artır",
     "recipe.difficulty": "Zorluk",
     "recipe.min": "dk",
     "recipe.last_editorial_review": "Son editoryal kontrol",

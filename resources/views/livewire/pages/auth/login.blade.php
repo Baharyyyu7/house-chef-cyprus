@@ -33,7 +33,7 @@ new #[Layout('layouts.guest')] class extends Component
 
     <x-social-login :divider-after="true" class="mt-6" />
 
-    <form wire:submit="login" class="mt-6" x-data="{ passwordVisible: false }">
+    <form wire:submit="login" class="mt-6" x-data="{ passwordVisible: false }" toolname="login_account" tooldescription="Log in to an existing HouseChef Cyprus account with email and password">
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('ux.email')" />
@@ -49,7 +49,7 @@ new #[Layout('layouts.guest')] class extends Component
                                 x-bind:type="passwordVisible ? 'text' : 'password'"
                                 name="password"
                                 required autocomplete="current-password" />
-                <button type="button" class="absolute inset-y-0 right-2 my-1 rounded-md px-3 text-xs font-semibold text-gold-700 outline-none transition hover:bg-gold-50 focus-visible:ring-2 focus-visible:ring-gold-500 dark:hover:bg-forest-800" @click="passwordVisible = !passwordVisible" x-text="passwordVisible ? @js(__('ux.hide')) : @js(__('ux.show'))"></button>
+                <button type="button" class="absolute inset-y-0 right-2 my-1 rounded-md px-3 text-xs font-semibold text-gold-700 outline-none transition hover:bg-gold-50 focus-visible:ring-2 focus-visible:ring-gold-500 dark:hover:bg-forest-800" @click="passwordVisible = !passwordVisible" x-text="passwordVisible ? @js(__('ux.hide')) : @js(__('ux.show'))" :aria-label="passwordVisible ? @js(__('ux.hide')) : @js(__('ux.show'))"></button>
             </div>
 
             <x-input-error :messages="$errors->get('form.password')" class="mt-2" />

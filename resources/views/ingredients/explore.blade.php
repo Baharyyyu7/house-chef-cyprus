@@ -26,8 +26,7 @@
     <section class="hc-container hc-page">
         <div class="grid gap-6 xl:grid-cols-[minmax(20rem,.8fr)_minmax(0,1.5fr)]">
             <aside class="xl:sticky xl:top-24 xl:self-start">
-                {{-- Malzeme girişi sayfanın birincil eylemi; hiçbir ekran genişliğinde katlanmaz. --}}
-                <form method="get" class="hc-panel space-y-6" aria-label="{{ __('explore.ingredients_heading') }}">
+                <form method="get" class="hc-panel space-y-6" aria-label="{{ __('explore.ingredients_heading') }}" toolname="find_recipes_by_ingredients" tooldescription="Match and find recipes based on selected or available pantry ingredients with substitution suggestions">
                     <div x-data="hcIngredientPicker(@js($ingredientOptions), @js($selected))">
                         <div class="flex items-center justify-between gap-3">
                             <div><h2 class="font-display text-2xl font-semibold">{{ __('explore.ingredients_heading') }}</h2><p class="mt-1 text-sm text-muted">{{ __('explore.ingredients_sub') }}</p></div>

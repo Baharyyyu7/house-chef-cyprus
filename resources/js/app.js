@@ -13,6 +13,7 @@
 import Alpine from 'alpinejs';
 window.Alpine = Alpine;
 window.__HC_VERSION__ = '2026.09.11.3';
+import './webmcp.js';
 let chartLibrary;
 
 const chartInstances = new WeakMap();

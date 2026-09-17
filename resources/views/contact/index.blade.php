@@ -15,8 +15,7 @@
             </div>
         @endif
 
-        <div class="mx-auto mt-10 grid max-w-5xl gap-8 lg:grid-cols-[1fr_.62fr] lg:items-start">
-            <form class="hc-v3-card p-6 sm:p-8" method="post" action="{{ route('legal.center.contact.store') }}">
+            <form class="hc-v3-card p-6 sm:p-8" method="post" action="{{ route('legal.center.contact.store') }}" toolname="contact_housechef" tooldescription="Submit an inquiry or editorial feedback to HouseChef Cyprus editorial team">
                 @csrf
                 <input type="hidden" name="source_page" value="{{ route('contact.index') }}">
                 
