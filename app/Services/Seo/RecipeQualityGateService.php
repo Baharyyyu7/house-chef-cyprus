@@ -39,6 +39,7 @@ final class RecipeQualityGateService
     {
         $tarifler ??= Recipe::query()
             ->where('status', 'published')
+            ->with('steps:id,recipe_id,instruction')
             ->get(['id', 'title', 'description', 'excerpt', 'published_at']);
 
         $tarifler = $tarifler
@@ -81,16 +82,46 @@ final class RecipeQualityGateService
     public function eksikMi(Recipe $tarif): bool
     {
         return $tarif->steps()->count() < self::ASGARI_ADIM
-            || $tarif->recipeIngredients()->count() < self::ASGARI_MALZEME;
+            || $tarif->recipeIngredients()->count() < self::ASGARI_MALZEME
+            || $this->yerTutucuMalzemeVar($tarif);
     }
 
-    /** @return list<string> */
+    /**
+     * "Ana Malzeme" bir malzeme değil, doldurulmamış bir alandır.
+     *
+     * 17 Eylül 2026'da yayındaki 74 tarifin malzeme listesi bu yer tutucuyla
+     * başlıyordu; bir tatlı tarifinin malzemesinde soğan ve sarımsak vardı.
+     */
+    public function yerTutucuMalzemeVar(Recipe $tarif): bool
+    {
+        return $tarif->ingredients()
+            ->where(fn ($q) => $q->where('slug', 'ana-malzeme')->orWhere('name', 'Ana Malzeme'))
+            ->exists();
+    }
+
+    /**
+     * Açıklama cümleleri ve adım yönergeleri birlikte ölçülür.
+     *
+     * 111 tarifin ilk adımı birebir "Tüm malzemeleri tarif için hazırlayın ve
+     * temizleyin." idi. Açıklamada yemeğin adı geçtiği için açıklama tek
+     * başına ayırt edemiyordu; yönergeler ediyor.
+     *
+     * @return list<string>
+     */
     private function parmakIzleri(Recipe $tarif): array
     {
         $metin = trim(strip_tags((string) $tarif->getRawOriginal('description').' '.$tarif->getRawOriginal('excerpt')));
         $izler = [];
 
-        foreach (preg_split('/(?<=[.!?])\s+/u', $metin) ?: [] as $cumle) {
+        $parcalar = preg_split('/(?<=[.!?])\s+/u', $metin) ?: [];
+
+        if ($tarif->relationLoaded('steps') || $tarif->exists) {
+            foreach ($tarif->steps as $adim) {
+                $parcalar[] = (string) $adim->getRawOriginal('instruction');
+            }
+        }
+
+        foreach ($parcalar as $cumle) {
             $sade = mb_strtolower(trim($cumle));
             $sade = preg_replace('/[^\p{L}\p{N} ]+/u', ' ', $sade) ?? $sade;
             $sade = trim(preg_replace('/\s+/u', ' ', $sade) ?? $sade);

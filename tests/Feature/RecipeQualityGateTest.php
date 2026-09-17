@@ -103,4 +103,36 @@ final class RecipeQualityGateTest extends TestCase
             ->assertSee(route('recipes.show', $canli), false)
             ->assertDontSee('yayin-tarihi-yok', false);
     }
+
+    public function test_genel_adim_yonergeleri_sablon_sayilir(): void
+    {
+        // 111 tarifin adımları birebir aynıydı; açıklamada yemeğin adı geçtiği
+        // için açıklama tek başına bunu ayırt edemiyordu.
+        $genel = ['Tüm malzemeleri tarif için hazırlayın ve iyice temizleyin bu adımda.', 'Ocağı orta ateşte ısıtın ve malzemeleri sırayla tencereye alın.', 'Pişirme tamamlanınca ocaktan alıp servis tabağına aktarın ve sıcak sunun.'];
+
+        $ilk = $this->tarif('ilk-genel-tarif', 'Bu tarifin kendine ait bir açıklaması vardır ve başka yazıda geçmez.', adim: 0);
+        $ikinci = $this->tarif('ikinci-genel-tarif', 'Bu tarifin de kendine ait ayrı bir açıklaması vardır efendim.', adim: 0);
+
+        foreach ([$ilk, $ikinci] as $tarif) {
+            foreach ($genel as $i => $yonerge) {
+                $tarif->steps()->create(['position' => $i + 1, 'title' => 'Adım '.($i + 1), 'instruction' => $yonerge]);
+            }
+        }
+
+        $this->artisan('seo:recipe-quality-scan --apply')->assertSuccessful();
+
+        $this->assertStringContainsString('noindex', $this->robots($ikinci));
+        $this->assertStringNotContainsString('noindex', $this->robots($ilk));
+    }
+
+    public function test_ana_malzeme_yer_tutucusu_tasiyan_tarif_indeks_disina_alinir(): void
+    {
+        $tarif = $this->tarif('yer-tutuculu-tarif', 'Kendine ait özgün bir açıklama cümlesi burada duruyor ve tekrar etmez.');
+        $yerTutucu = Ingredient::query()->create(['slug' => 'ana-malzeme', 'name' => 'Ana Malzeme']);
+        $tarif->recipeIngredients()->create(['ingredient_id' => $yerTutucu->id, 'quantity' => 1, 'unit' => 'adet', 'sort_order' => 99]);
+
+        $this->artisan('seo:recipe-quality-scan --apply')->assertSuccessful();
+
+        $this->assertStringContainsString('noindex', $this->robots($tarif));
+    }
 }
