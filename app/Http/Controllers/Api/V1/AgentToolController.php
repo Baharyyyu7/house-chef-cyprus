@@ -121,9 +121,10 @@ final class AgentToolController extends Controller
                     'description' => 'Save or favorite a recipe to the user profile. Requires authenticated session with explicit human confirmation.',
                     'parameters' => [
                         'type' => 'object',
-                        'required' => ['slug'],
+                        'required' => ['slug', 'confirmed'],
                         'properties' => [
                             'slug' => ['type' => 'string', 'description' => 'Recipe slug to favorite.'],
+                            'confirmed' => ['type' => 'boolean', 'description' => 'Explicit human confirmation flag. Must be true to change user data.'],
                         ],
                     ],
                     'risk_level' => 'write',

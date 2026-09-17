@@ -360,6 +360,10 @@ final class AgenticReadinessTest extends TestCase
         $this->assertContains('get_cooking_step', $toolNames);
         $this->assertContains('switch_language', $toolNames);
         $this->assertContains('save_recipe', $toolNames);
+
+        $saveTool = collect($response->json('tools'))->firstWhere('name', 'save_recipe');
+        $this->assertSame(['slug', 'confirmed'], $saveTool['parameters']['required']);
+        $this->assertSame('boolean', $saveTool['parameters']['properties']['confirmed']['type']);
     }
 
     /**
