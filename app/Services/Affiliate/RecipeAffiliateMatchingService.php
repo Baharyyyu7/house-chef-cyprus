@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Affiliate;
 
 use App\Models\AffiliateLink;
+use App\Models\BlogPost;
 use App\Models\Recipe;
 use Illuminate\Support\Collection;
 
@@ -22,6 +23,32 @@ final class RecipeAffiliateMatchingService
      * @return Collection<int, AffiliateLink>
      */
     public function forRecipe(Recipe $recipe, int $limit = 2): Collection
+    {
+        return $this->forText(
+            (string) $recipe->title,
+            (string) ($recipe->category?->slug ?? ''),
+            (string) ($recipe->description ?? ''),
+            $limit
+        );
+    }
+
+    /**
+     * @return Collection<int, AffiliateLink>
+     */
+    public function forBlog(BlogPost $post, int $limit = 2): Collection
+    {
+        return $this->forText(
+            (string) $post->translated('title'),
+            (string) ($post->category?->slug ?? ''),
+            (string) strip_tags($post->translated('body') ?? ''),
+            $limit
+        );
+    }
+
+    /**
+     * @return Collection<int, AffiliateLink>
+     */
+    public function forText(string $title, string $categorySlug = '', string $body = '', int $limit = 2): Collection
     {
         if (! config('integrations.affiliate.enabled', true)) {
             return collect();
@@ -46,13 +73,14 @@ final class RecipeAffiliateMatchingService
             return collect();
         }
 
-        $categorySlug = (string) ($recipe->category?->slug ?? '');
-        $titleLower = mb_strtolower((string) $recipe->title);
+        $categoryLower = mb_strtolower($categorySlug);
+        $titleLower = mb_strtolower($title);
+        $contextLower = mb_strtolower(trim($title . ' ' . $categorySlug . ' ' . mb_substr($body, 0, 1500)));
 
         $matchedSlugs = [];
 
         // 1. Çorba & Püre
-        if (str_contains($categorySlug, 'corba') || str_contains($titleLower, 'çorba') || str_contains($titleLower, 'corba')) {
+        if (str_contains($categoryLower, 'corba') || str_contains($titleLower, 'çorba') || str_contains($titleLower, 'corba') || str_contains($contextLower, 'çorba')) {
             $matchedSlugs[] = 'braun-el-blender-seti';
             $matchedSlugs[] = 'paslanmaz-celik-duduklu-tencere';
             $matchedSlugs[] = 'isiya-dayanikli-silikon-spatula-seti';
@@ -170,10 +198,32 @@ final class RecipeAffiliateMatchingService
         }
 
         // 15. Et & Tavuk Sote / Kavurma
-        elseif (str_contains($titleLower, 'sote') || str_contains($titleLower, 'kavurma') || str_contains($titleLower, 'tavuk') || str_contains($titleLower, 'tantuni')) {
+        elseif (str_contains($titleLower, 'sote') || str_contains($titleLower, 'kavurma') || str_contains($titleLower, 'tavuk') || str_contains($titleLower, 'tantuni') || str_contains($contextLower, 'tavuk')) {
             $matchedSlugs[] = 'granit-wok-tava-28cm';
             $matchedSlugs[] = 'pirge-ecco-sef-bicagi';
             $matchedSlugs[] = 'anlik-dijital-et-termometresi';
+        }
+
+        // 16. Şarap, Tadım & İçecek Kültürü
+        elseif (str_contains($titleLower, 'şarap') || str_contains($titleLower, 'sarap') || str_contains($contextLower, 'şarap') || str_contains($contextLower, 'sarap') || str_contains($titleLower, 'tadım') || str_contains($titleLower, 'tadim')) {
+            $matchedSlugs[] = 'kristal-sarap-kadehi-seti';
+            $matchedSlugs[] = 'tirbuson-ve-sarap-havalandirici';
+            $matchedSlugs[] = 'zeytinyagi-spreyi-ve-yagdanlik';
+        }
+
+        // 17. Fermente, Konserve, Turşu & Saklama Bilimi
+        elseif (str_contains($titleLower, 'fermente') || str_contains($titleLower, 'turşu') || str_contains($titleLower, 'tursu') || str_contains($titleLower, 'konserve') || str_contains($titleLower, 'sirke') || str_contains($contextLower, 'fermente') || str_contains($contextLower, 'konserve')) {
+            $matchedSlugs[] = 'kilitli-cam-saklama-kabi-seti';
+            $matchedSlugs[] = 'salata-kurutucu-santrifuj';
+            $matchedSlugs[] = 'dijital-hassas-mutfak-tartisi';
+        }
+
+        // 18. Akdeniz Diyeti & Sağlıklı Beslenme
+        elseif (str_contains($titleLower, 'diyet') || str_contains($titleLower, 'akdeniz') || str_contains($contextLower, 'akdeniz diyeti') || str_contains($contextLower, 'beslenme')) {
+            $matchedSlugs[] = 'salata-kurutucu-santrifuj';
+            $matchedSlugs[] = 'zeytinyagi-spreyi-ve-yagdanlik';
+            $matchedSlugs[] = 'dijital-hassas-mutfak-tartisi';
+            $matchedSlugs[] = 'dokum-izgara-tava-lava';
         }
 
         // Güçlü varsayılan eşleşmeler

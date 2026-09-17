@@ -1,8 +1,22 @@
-@props(['recipe'])
+@props(['recipe' => null, 'post' => null, 'products' => null, 'title' => null, 'heading' => 'h2'])
 
 @php
     $affiliateService = app(\App\Services\Affiliate\RecipeAffiliateMatchingService::class);
-    $matchedEquipment = $affiliateService->forRecipe($recipe, 2);
+    if ($products !== null) {
+        $matchedEquipment = $products;
+    } elseif ($post !== null) {
+        $matchedEquipment = $affiliateService->forBlog($post, 2);
+    } elseif ($recipe !== null) {
+        $matchedEquipment = $affiliateService->forRecipe($recipe, 2);
+    } else {
+        $matchedEquipment = collect();
+    }
+
+    $isBlog = $post !== null;
+    $boxTitle = $title ?? ($isBlog ? 'Bu Rehberde Önerilen Profesyonel Mutfak Ekipmanları' : 'Bu Tarifi Kusursuz Pişirmek İçin Önerilen Ekipmanlar');
+    $desc = $isBlog
+        ? 'Rehberimizdeki teknikleri ve ada tariflerini evinizde şef standartlarında uygulamanız için tavsiye ettiğimiz mutfak gereçleri:'
+        : 'Tarifimizin kıvamını, lezzetini ve sunumunu evinizde şef standartlarında yakalamanız için seçtiğimiz mutfak ekipmanları:';
 @endphp
 
 @if($matchedEquipment->isNotEmpty())
@@ -12,13 +26,13 @@
                 <p class="hc-overline flex items-center gap-1.5 font-bold text-orange-600 dark:text-orange-400">
                     <span aria-hidden="true">🍳</span> Şefin Tavsiyesi · Ekipman
                 </p>
-                <h2 class="hc-heading-3 mt-1">Bu Tarifi Kusursuz Pişirmek İçin Önerilen Ekipmanlar</h2>
+                <{{ $heading }} class="hc-heading-3 mt-1">{{ $boxTitle }}</{{ $heading }}>
             </div>
             <span class="hc-v3-badge hc-v3-badge--success text-xs">Denenmiş ve Önerilen</span>
         </div>
 
         <p class="hc-body-sm mt-3" style="color: var(--hc-text-secondary)">
-            Tarifimizin kıvamını, lezzetini ve sunumunu evinizde şef standartlarında yakalamanız için seçtiğimiz mutfak ekipmanları:
+            {{ $desc }}
         </p>
 
         <div class="mt-5 grid gap-4 sm:grid-cols-2">

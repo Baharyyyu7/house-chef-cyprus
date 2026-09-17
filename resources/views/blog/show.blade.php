@@ -58,7 +58,16 @@
                 <x-social-share :title="$post->title" :description="$post->excerpt" :image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : null" />
             </div>
 
+            {{-- Şefin Tavsiyesi: Profesyonel Mutfak Ekipmanı Affiliate Kartları --}}
+            <x-recipe-equipment-affiliate :post="$post" heading="h2" />
+
+            {{-- Kuzey Kıbrıs Özel Villa Şefi & Ada Catering Lead Kartı --}}
+            <x-recipe-chef-lead-card :post="$post" />
+
             <x-ad-slot slot-name="in_article" class="my-8" />
+
+            {{-- Dijital Mutfak E-Kitabı Tanıtım & Satış Vitrini --}}
+            <x-ebook-showcase-card class="mt-8" />
 
             @if(!empty($post->faq_blocks))
                 <section class="mt-12 pt-8 border-t" style="border-color: var(--hc-border-subtle)" aria-labelledby="sss-basligi">
@@ -84,17 +93,17 @@
             @endif
 
             @php($recipesToDisplay = $post->recipes->isNotEmpty() ? $post->recipes : ($suggestedRecipes ?? collect()))
-+            {{-- Kıbrıs konulu yazı, Kıbrıs hub sayfasına bağlanır: blog arşivi hub otoritesini besler. Sorgusuz tespit (ek sorgu yok). --}}
-+            @php($kibrisYazisi = str_contains(mb_strtolower(($post->translated('title') ?? '').' '.($post->translated('excerpt') ?? '').' '.($post->category?->name ?? ''), 'utf-8'), 'kıbrıs') || str_contains(mb_strtolower(($post->translated('title') ?? '').' '.($post->translated('excerpt') ?? ''), 'utf-8'), 'hellim'))
-+            @if($kibrisYazisi)
-+                <section class="mt-12 rounded-2xl border p-5 flex flex-wrap items-center justify-between gap-4" style="border-color: var(--hc-border-default)">
-+                    <div>
-+                        <p class="hc-kicker text-xs">Kıbrıs Mutfağı</p>
-+                        <p class="font-bold text-base mt-1" style="color: var(--hc-text-primary)">Doğrulanmış tariflerin tamamı tek koleksiyonda</p>
-+                    </div>
-+                    <a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">Kıbrıs Yemekleri &rarr;</a>
-+                </section>
-+            @endif
+            {{-- Kıbrıs konulu yazı, Kıbrıs hub sayfasına bağlanır: blog arşivi hub otoritesini besler. Sorgusuz tespit (ek sorgu yok). --}}
+            @php($kibrisYazisi = str_contains(mb_strtolower(($post->translated('title') ?? '').' '.($post->translated('excerpt') ?? '').' '.($post->category?->name ?? ''), 'utf-8'), 'kıbrıs') || str_contains(mb_strtolower(($post->translated('title') ?? '').' '.($post->translated('excerpt') ?? ''), 'utf-8'), 'hellim'))
+            @if($kibrisYazisi)
+                <section class="mt-12 rounded-2xl border p-5 flex flex-wrap items-center justify-between gap-4" style="border-color: var(--hc-border-default)">
+                    <div>
+                        <p class="hc-kicker text-xs">Kıbrıs Mutfağı</p>
+                        <p class="font-bold text-base mt-1" style="color: var(--hc-text-primary)">Doğrulanmış tariflerin tamamı tek koleksiyonda</p>
+                    </div>
+                    <a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">Kıbrıs Yemekleri &rarr;</a>
+                </section>
+            @endif
              @if($recipesToDisplay->isNotEmpty())
                 <section class="mt-12 pt-8 border-t" style="border-color: var(--hc-border-subtle)">
                     <h2 class="hc-heading-3 mb-6">{{ __('blog.show.related_recipes') }}</h2>

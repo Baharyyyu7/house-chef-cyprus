@@ -1,10 +1,12 @@
-@props(['recipe'])
+@props(['recipe' => null, 'post' => null, 'postTitle' => null])
 
 @php
     $whatsappNumber = config('contact-requests.whatsapp_number', '905338000000');
-    $dishTitle = $recipe->title;
-    $waText = urlencode("Merhaba House Chef Cyprus! '{$dishTitle}' tarifinizi inceledim. Kıbrıs'taki villamız / davetimiz için özel şef ve catering hizmeti hakkında fiyat ve menü detaylarını öğrenmek istiyorum.");
+    $dishTitle = $postTitle ?? $post?->translated('title') ?? $recipe?->title ?? 'Özel Kıbrıs Menüsü';
+    $isBlog = $post !== null || $postTitle !== null;
+    $waText = urlencode("Merhaba House Chef Cyprus! '{$dishTitle}' konulu içeriğinizi inceledim. Kıbrıs'taki villamız / davetimiz için özel şef ve catering hizmeti hakkında fiyat ve menü detaylarını öğrenmek istiyorum.");
     $waUrl = "https://api.whatsapp.com/send?phone={$whatsappNumber}&text={$waText}";
+    $cardTitle = $isBlog ? 'Kıbrıs Tatilinizde Villanızda Özel Şef & Gurme Catering' : 'Bu Yemeği Villanızda Usta Şefimize Pişirtin';
 @endphp
 
 <aside itemscope itemtype="https://schema.org/Service" aria-label="Kıbrıs Özel Villa Şefi ve Catering Hizmeti" class="hc-v3-card mt-8 p-6 sm:p-8 border-2 border-orange-300/80 dark:border-orange-500/30 bg-gradient-to-br from-amber-50/90 via-white to-orange-50/70 dark:from-stone-900 dark:via-stone-900 dark:to-stone-850 shadow-lg">
@@ -27,7 +29,7 @@
                 </div>
 
                 <h3 itemprop="name" class="text-xl sm:text-2xl font-black tracking-tight text-stone-900 dark:text-white">
-                    Bu Yemeği Villanızda Usta Şefimize Pişirtin
+                    {{ $cardTitle }}
                 </h3>
 
                 <p class="text-xs sm:text-sm leading-relaxed text-stone-700 dark:text-stone-300 max-w-2xl">
@@ -57,7 +59,7 @@
                 <!-- Affiliate Köprüsü (Evde Kendin Pişir) -->
                 <div class="pt-1 flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
                     <span aria-hidden="true">🍳</span>
-                    <span>Bu tarifi evinizde şef kıvamında pişirmek için gereken ekipmanları mı arıyorsunuz?</span>
+                    <span>{{ $isBlog ? 'Bu lezzet ve teknikleri evinizde şef kıvamında uygulamak için gereken ekipmanları mı arıyorsunuz?' : 'Bu tarifi evinizde şef kıvamında pişirmek için gereken ekipmanları mı arıyorsunuz?' }}</span>
                     <a href="#recommended-equipment" class="font-bold text-stone-800 dark:text-stone-200 underline hover:text-orange-600 dark:hover:text-orange-400">
                         Şefin Ekipman Tavsiyelerine Göz Atın ↓
                     </a>
