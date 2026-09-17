@@ -684,5 +684,7 @@
     "home.quick_desserts": "Sobremesas",
     "recipe.show.guides_kicker": "Guias culinários e culturais",
     "recipe.show.guides_title": "Artigos relacionados e dicas gastronômicas",
-    "recipe.show.guides_view_all": "Ver todos os guias"
+    "recipe.show.guides_view_all": "Ver todos os guias",
+    "recipe.decrease_servings": "Diminuir porções",
+    "recipe.increase_servings": "Aumentar porções"
 }

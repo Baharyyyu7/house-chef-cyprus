@@ -4,6 +4,16 @@ info:
   version: v1
   description: Public API. All identifiers exposed to clients are public ULIDs.
 paths:
+  # Ajan araç uçları: bir LLM istemcisinin tarif arayıp porsiyon
+  # ölçekleyebilmesi için. Listeleme GET, işlemler POST.
+  /api/v1/agent/tools: { get: { responses: { '200': { $ref: '#/components/responses/SingleResponse' } } } }
+  /api/v1/agent/tools/search: { post: { responses: { '200': { $ref: '#/components/responses/CollectionResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } } } }
+  /api/v1/agent/tools/find-by-ingredients: { post: { responses: { '200': { $ref: '#/components/responses/CollectionResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } } } }
+  /api/v1/agent/tools/recipe: { post: { responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '404': { $ref: '#/components/responses/ErrorResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } } } }
+  /api/v1/agent/tools/adjust-servings: { post: { responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } } } }
+  /api/v1/agent/tools/cooking-step: { post: { responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '404': { $ref: '#/components/responses/ErrorResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } } } }
+  /api/v1/agent/tools/switch-language: { post: { responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } } } }
+  /api/v1/agent/tools/save-recipe: { post: { responses: { '200': { $ref: '#/components/responses/SingleResponse' }, '422': { $ref: '#/components/responses/ErrorResponse' } } } }
   /api/v1/health: { get: { responses: { '200': { $ref: '#/components/responses/SingleResponse' } } } }
   /api/v1/status: { get: { responses: { '200': { $ref: '#/components/responses/SingleResponse' } } } }
   /api/v1/version: { get: { responses: { '200': { $ref: '#/components/responses/SingleResponse' } } } }

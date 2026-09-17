@@ -684,5 +684,7 @@
     "home.quick_desserts": "Desserts",
     "recipe.show.guides_kicker": "Kulinarik- & Kulturführer",
     "recipe.show.guides_title": "Passende Ratgeber & Küchenwissen",
-    "recipe.show.guides_view_all": "Alle Ratgeber entdecken"
+    "recipe.show.guides_view_all": "Alle Ratgeber entdecken",
+    "recipe.decrease_servings": "Portionen verringern",
+    "recipe.increase_servings": "Portionen erhöhen"
 }

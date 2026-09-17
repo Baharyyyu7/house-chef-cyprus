@@ -684,5 +684,7 @@
     "home.quick_desserts": "دسرها",
     "recipe.show.guides_kicker": "راهنماهای آشپزی و فرهنگ غذایی",
     "recipe.show.guides_title": "مقالات مرتبط و نکات آشپزی",
-    "recipe.show.guides_view_all": "مشاهده همه راهنماها"
+    "recipe.show.guides_view_all": "مشاهده همه راهنماها",
+    "recipe.decrease_servings": "کاهش تعداد پرس",
+    "recipe.increase_servings": "افزایش تعداد پرس"
 }

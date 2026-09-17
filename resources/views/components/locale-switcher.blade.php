@@ -12,9 +12,14 @@
     $languages = config('locales.supported', []);
     $currentLocale = app()->getLocale();
     $currentLanguage = $languages[$currentLocale] ?? $languages[config('locales.default', 'tr')] ?? [];
+    // Sayım ETKİN diller üzerinden: kapalı diller listede çıkmıyor, dolayısıyla
+    // "birden çok dil var" ölçütü de onları saymamalı. Tek seçenekli bir menü
+    // kullanıcıya bir şey sunmaz; bağlantısındaki hreflang niteliği ise tek dil
+    // açıkken sayfada hreflang varmış görüntüsü verir.
+    $enabledLanguages = array_filter($languages, fn (array $dil): bool => ($dil['enabled'] ?? false) === true);
 @endphp
 
-@if (count($languages) > 1)
+@if (count($enabledLanguages) > 1)
     <div x-data="{ acik: false }" @keydown.escape.window="acik = false" {{ $attributes->class(['hc-locale relative']) }}>
         <button
             type="button"
