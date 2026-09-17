@@ -1,0 +1,29 @@
+name: Autonomous Growth Engine Heartbeat
+
+on:
+  schedule:
+    # Her 15 dakikada bir çalışarak otonom arka plan görevlerini tetikler
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: scheduler-heartbeat
+  cancel-in-progress: false
+
+jobs:
+  heartbeat:
+    name: Ping Autonomous Scheduler
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Trigger House Chef Cyprus Scheduler
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -m 30 "https://housechefcyprus.com/_zamanlayici/3c7f9f195d787bb8e0dc262c890a7cac6f5407bafe7bb7d6873591212419fa8a")
+          echo "Scheduler HTTP Status: $STATUS"
+          if [ "$STATUS" -eq 204 ] || [ "$STATUS" -eq 429 ]; then
+            echo "✓ Zamanlayıcı başarıyla tetiklendi (veya kilit altında koşuyor)."
+            exit 0
+          else
+            echo "Beklenmeyen durum kodu: $STATUS"
+            exit 0
+          fi

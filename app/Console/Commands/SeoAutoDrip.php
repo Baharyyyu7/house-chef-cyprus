@@ -49,9 +49,9 @@ final class SeoAutoDrip extends Command
 
         // Kalite kapısından geçmiş adaylar
         $candidates = BlogPost::where('status', 'draft')
-            ->where('editorial_status', 'approved')
-            ->where('fact_check_status', 'passed')
-            ->where('originality_status', 'original')
+            ->whereIn('editorial_status', ['approved', 'verified'])
+            ->whereIn('fact_check_status', ['passed', 'verified'])
+            ->whereIn('originality_status', ['passed', 'clean', 'original'])
             ->whereNotNull('body')
             ->orderBy('updated_at', 'desc')
             ->limit($remaining * 3) // Karakter filtresine takılanlar için buffer
