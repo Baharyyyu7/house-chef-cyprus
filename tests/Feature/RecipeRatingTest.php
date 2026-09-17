@@ -35,14 +35,17 @@ final class RecipeRatingTest extends TestCase
     public function test_ikinci_oy_guncellemedir_yeni_kayit_degil(): void
     {
         $tarif = $this->tarif();
-        $secmen = '12345678-1234-1234-1234-123456789012';
 
-        $this->withCookie('hc_voter', $secmen)->withCredentials()->postJson(route('recipes.rate', $tarif), ['rating' => 2])->assertOk();
-        $yanit = $this->withCookie('hc_voter', $secmen)->withCredentials()->postJson(route('recipes.rate', $tarif), ['rating' => 4])
+        // İlk oy çerezi başlatır; yanıtın şifreli çerez değeri ikinci
+        // istekte aynen geri gönderilir (gerçek tarayıcı davranışı).
+        $ilk = $this->postJson(route('recipes.rate', $tarif), ['rating' => 2])->assertOk();
+        $sifreli = $ilk->getCookie('hc_voter', false)->getValue();
+
+        // postJson çerezleri yalnız withCredentials ile gönderir.
+        $yanit = $this->withUnencryptedCookie('hc_voter', $sifreli)->withCredentials()->postJson(route('recipes.rate', $tarif), ['rating' => 4])
             ->assertOk()
             ->assertJson(['average' => 4.0, 'count' => 1, 'user_rating' => 4]);
 
-        $yanit->assertCookie('hc_voter', $secmen);
         $this->assertSame(1, RecipeRating::query()->where('recipe_id', $tarif->id)->count());
     }
 

@@ -11,11 +11,15 @@ use App\Models\ContentOpportunity;
 use App\Models\IntegrityReport;
 use App\Models\SeoBacklinkCandidate;
 use App\Models\SeoIssue;
+use App\Services\Seo\AiMentionTrackerService;
+use App\Services\Seo\CitationGapAnalyzerService;
 use App\Services\Seo\ContentGapService;
+use App\Services\Seo\LlmStructureOptimizerService;
 use App\Services\Seo\OrganicGrowthService;
 use App\Services\Seo\SeoAuditService;
 use App\Services\Seo\SeoAuthorityService;
 use App\Services\Seo\SeoProviderHealthService;
+use App\Services\Seo\WeeklySeoReportService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -243,6 +247,44 @@ final class SeoOperationsController extends Controller
         $issue->update(['resolved_at' => null, 'reopened_at' => now()]);
 
         return back()->with('status', 'SEO sorunu yeniden açıldı.');
+    }
+
+    public function aiMentions(AiMentionTrackerService $service): View
+    {
+        $this->admin();
+
+        $mentions = \App\Models\AiMention::query()->latest('checked_at')->paginate(30);
+        $snapshot = $service->snapshot();
+        $suggestedPrompts = $service->getDefaultPrompts();
+
+        return view('admin.seo.ai-mentions', compact('mentions', 'snapshot', 'suggestedPrompts'));
+    }
+
+    public function citationGaps(CitationGapAnalyzerService $service): View
+    {
+        $this->admin();
+
+        $analysis = $service->analyze();
+
+        return view('admin.seo.citation-gaps', $analysis);
+    }
+
+    public function llmStructure(LlmStructureOptimizerService $service): View
+    {
+        $this->admin();
+
+        $report = $service->scan();
+
+        return view('admin.seo.llm-structure', $report);
+    }
+
+    public function weeklyReport(WeeklySeoReportService $service): View
+    {
+        $this->admin();
+
+        $report = $service->generate();
+
+        return view('admin.seo.weekly-report', $report);
     }
 
     private function admin(): void
