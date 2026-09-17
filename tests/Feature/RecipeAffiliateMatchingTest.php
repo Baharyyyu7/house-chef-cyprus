@@ -129,4 +129,35 @@ final class RecipeAffiliateMatchingTest extends TestCase
         $response->assertSee('rel="sponsored nofollow noopener"', false);
         $response->assertSee('Braun MultiQuick');
     }
+
+    public function test_matching_service_recommends_fish_knife_for_fish(): void
+    {
+        $recipe = new Recipe(['title' => 'Fırında Levrek Buğulama', 'slug' => 'firinda-levrek']);
+        $service = app(RecipeAffiliateMatchingService::class);
+        $matches = $service->forRecipe($recipe, 2);
+
+        $this->assertNotEmpty($matches);
+        $this->assertTrue($matches->contains('slug', 'balik-fileto-bicagi'));
+    }
+
+    public function test_matching_service_recommends_pizza_stone_for_lahmacun(): void
+    {
+        $recipe = new Recipe(['title' => 'Ev Yapımı Çıtır Lahmacun', 'slug' => 'citir-lahmacun']);
+        $service = app(RecipeAffiliateMatchingService::class);
+        $matches = $service->forRecipe($recipe, 2);
+
+        $this->assertNotEmpty($matches);
+        $this->assertTrue($matches->contains('slug', 'firin-pizza-tasi-ve-kuregi'));
+    }
+
+    public function test_matching_service_recommends_tray_for_baklava(): void
+    {
+        $recipe = new Recipe(['title' => 'Antep Fıstıklı Ev Baklavası', 'slug' => 'ev-baklavasi']);
+        $service = app(RecipeAffiliateMatchingService::class);
+        $matches = $service->forRecipe($recipe, 2);
+
+        $this->assertNotEmpty($matches);
+        $this->assertTrue($matches->contains('slug', 'baklava-ve-borek-tepsisi'));
+    }
 }
+

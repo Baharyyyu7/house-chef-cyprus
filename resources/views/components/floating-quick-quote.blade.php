@@ -12,16 +12,46 @@
     name: '',
     phone: '',
     date: '',
+    get estimatedCost() {
+        if (this.service === 'private_chef') {
+            if (this.guests === '2-4') return '€180 – €240 (Şef + 4 Çeşit Ada Menüsü)';
+            if (this.guests === '5-10') return '€280 – €390 (Şef + Taze Ada Meze & Ana Yemek)';
+            if (this.guests === '11-20') return '€450 – €680 (Şef + Servis Ekibi)';
+            if (this.guests === '21-50') return '€750 – €1.400 (Tam Teşekküllü Villa Ziyafeti)';
+            return 'Özel Bütçelendirme';
+        } else if (this.service === 'catering') {
+            if (this.guests === '2-4') return '€150 – €200 (Gurme Finger-Food)';
+            if (this.guests === '5-10') return '€300 – €450 (Açık Büfe Meze & Barbekü)';
+            if (this.guests === '11-20') return '€550 – €850 (Kokteyl & Ziyafet)';
+            return '€950+ (Büyük Davet & Organizasyon)';
+        } else if (this.service === 'cooking_class') {
+            return 'Kişi Başı €85 (3 Saatlik İnteraktif Kıbrıs Atölyesi)';
+        } else {
+            return 'Haftalık €220 – €320 (Kişiye Özel Hazırlanmış Gurme Menü)';
+        }
+    },
+    get serviceTargetUrl() {
+        if (this.service === 'private_chef') return '{{ route('private-chef.index') }}';
+        if (this.service === 'catering') return '{{ route('catering.index') }}';
+        if (this.service === 'cooking_class') return '{{ route('cooking-classes.index') }}';
+        return '{{ route('meal-plans.index') }}';
+    },
+    get serviceTargetLabel() {
+        if (this.service === 'private_chef') return 'Özel Şef Menü & Paketlerini İncele';
+        if (this.service === 'catering') return 'Catering Paketleri & Detayları İncele';
+        if (this.service === 'cooking_class') return 'Yemek Kursu Takvimini İncele';
+        return 'Haftalık Menü Planlarını İncele';
+    },
     get whatsappUrl() {
         const text = encodeURIComponent(
-            `Merhaba House Chef Cyprus! Özel Şef / Catering teklifi almak istiyorum.\n\n` +
-            `• Hizmet: ${this.service === 'private_chef' ? 'Özel Şef (Villa Deneyimi)' : (this.service === 'catering' ? 'Catering & Davet' : (this.service === 'cooking_class' ? 'Yemek Kursu' : 'Haftalık Menü Planı'))}\n` +
+            `Merhaba House Chef Cyprus! Fiyat hesaplayıcınızdan tahmini inceledim:\n\n` +
+            `• Hizmet: ${this.service === 'private_chef' ? 'Özel Şef (Villa)' : (this.service === 'catering' ? 'Catering & Davet' : (this.service === 'cooking_class' ? 'Yemek Kursu' : 'Haftalık Menü Planı'))}\n` +
             `• Bölge: ${this.region}\n` +
             `• Kişi Sayısı: ${this.guests}\n` +
+            `• Tahmini Bütçe Aralığı: ${this.estimatedCost}\n` +
             (this.date ? `• Tarih: ${this.date}\n` : '') +
             (this.name ? `• İsim: ${this.name}\n` : '') +
-            (this.phone ? `• Tel: ${this.phone}\n` : '') +
-            `\nFiyat ve menü detaylarını iletebilir misiniz?`
+            `\nDetaylı rezervasyon uygunluğu hakkında bilgi almak istiyorum.`
         );
         return `https://api.whatsapp.com/send?phone={{ $whatsappNumber }}&text=${text}`;
     }
@@ -36,16 +66,16 @@ class="relative z-40">
                 class="group flex items-center gap-2.5 rounded-full border border-orange-400/40 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 px-4 py-3 text-white shadow-xl shadow-orange-950/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-orange-900/30 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:ring-offset-stone-900"
                 aria-haspopup="dialog"
                 x-bind:aria-expanded="open.toString()"
-                aria-label="Kuzey Kıbrıs Özel Şef & Catering Hızlı Teklif Al">
+                aria-label="Kıbrıs Özel Şef & Fiyat Hesaplayıcı">
             <span class="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-base backdrop-blur-sm transition-transform group-hover:rotate-12" aria-hidden="true">
                 👨‍🍳
             </span>
             <span class="flex flex-col text-left">
                 <span class="text-[10px] font-bold uppercase tracking-widest text-orange-200">Kıbrıs Özel Şef</span>
-                <span class="text-xs font-black sm:text-sm">Hızlı Teklif Al</span>
+                <span class="text-xs font-black sm:text-sm">Fiyat & Paket Hesapla</span>
             </span>
-            <span class="ml-1 inline-flex items-center rounded-full bg-emerald-500/90 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm animate-pulse">
-                Canlı
+            <span class="ml-1 inline-flex items-center rounded-full bg-amber-400/90 px-2 py-0.5 text-[10px] font-bold text-stone-900 shadow-sm">
+                Anında
             </span>
         </button>
     </div>
@@ -79,13 +109,13 @@ class="relative z-40">
                 <div class="flex items-start justify-between gap-4 border-b border-stone-150 pb-4 dark:border-stone-800">
                     <div>
                         <span class="inline-flex items-center gap-1.5 rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700 dark:bg-orange-950/60 dark:text-orange-300">
-                            <span aria-hidden="true">✨</span> Ada Geneli Villa & Davet Hizmeti
+                            <span aria-hidden="true">✨</span> Self-Servis Fiyat & Paket Hesaplayıcı
                         </span>
-                        <h2 id="quick-quote-title" class="mt-2 text-xl font-black text-stone-900 dark:text-white sm:text-2xl">
-                            Özel Şef & Catering Teklifi Al
-                        </h2>
+                        <div role="heading" aria-level="2" id="quick-quote-title" class="mt-2 text-xl font-black text-stone-900 dark:text-white sm:text-2xl">
+                            Özel Şef & Menü Hesaplayıcı
+                        </div>
                         <p class="mt-1 text-xs text-stone-600 dark:text-stone-300">
-                            Girne, Lefkoşa, Mağusa ve İskele'de villanız için anında fiyat teklifi hazırlayalım.
+                            Girne, Lefkoşa, Mağusa ve İskele villaları için anlık bütçe ve paket kapsamı görüntüleyin.
                         </p>
                     </div>
                     <button type="button" 
@@ -97,7 +127,7 @@ class="relative z-40">
                 </div>
 
                 {{-- Interactive Quick Configurator --}}
-                <div class="mt-6 space-y-4">
+                <div class="mt-5 space-y-4">
                     {{-- Hizmet Seçimi --}}
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
@@ -159,46 +189,41 @@ class="relative z-40">
                         </div>
                     </div>
 
-                    {{-- Tarih & İletişim (İsteğe Bağlı) --}}
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label for="quick_date" class="block text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                                4. Tarih (İsteğe bağlı)
-                            </label>
-                            <input id="quick_date" x-model="date" type="date" class="hc-v3-input mt-1.5 text-sm py-2">
+                    {{-- Canlı Hesaplama Sonucu --}}
+                    <div class="rounded-2xl border border-amber-300 bg-amber-50/80 p-4 dark:border-amber-700/50 dark:bg-amber-950/30">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-200">
+                                Anlık Otomatik Bütçe Tahmini
+                            </span>
+                            <span class="rounded-full bg-amber-200/80 px-2 py-0.5 text-[10px] font-extrabold text-amber-950 dark:bg-amber-900 dark:text-amber-100">
+                                Taze Ada Malzemeleri Dahil
+                            </span>
                         </div>
-                        <div>
-                            <label for="quick_name" class="block text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                                5. İsim (İsteğe bağlı)
-                            </label>
-                            <input id="quick_name" x-model="name" type="text" placeholder="Adınız" class="hc-v3-input mt-1.5 text-sm py-2">
-                        </div>
+                        <p class="mt-1.5 text-base sm:text-lg font-black text-amber-950 dark:text-amber-100" x-text="estimatedCost"></p>
+                        <p class="mt-1 text-[11px] text-amber-800 dark:text-amber-300">
+                            Menü planlaması, pazar alışverişi, villa mutfağında hazırlık, masa servisi ve mutfak temizliği dahildir.
+                        </p>
                     </div>
                 </div>
 
                 {{-- Action Buttons --}}
-                <div class="mt-6 space-y-2.5 pt-4 border-t border-stone-150 dark:border-stone-800">
-                    {{-- WhatsApp Direct --}}
+                <div class="mt-5 space-y-2.5 pt-3 border-t border-stone-150 dark:border-stone-800">
+                    {{-- Primary Self-Service Action --}}
+                    <a x-bind:href="serviceTargetUrl" 
+                       x-on:click="open = false"
+                       class="flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-600 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-orange-950/20 transition hover:bg-orange-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <span x-text="serviceTargetLabel"></span>
+                        <span aria-hidden="true">➔</span>
+                    </a>
+
+                    {{-- Secondary Optional WhatsApp --}}
                     <a x-bind:href="whatsappUrl" 
                        target="_blank" 
                        rel="noopener noreferrer"
-                       class="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-950/20 transition hover:bg-emerald-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <span class="text-lg" aria-hidden="true">💬</span>
-                        <span>WhatsApp ile Anında Teklif Al</span>
-                        <span class="text-emerald-200">➔</span>
+                       class="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-emerald-600/70 bg-emerald-50/60 dark:bg-emerald-950/30 px-5 py-2.5 text-xs sm:text-sm font-bold text-emerald-800 dark:text-emerald-200 transition hover:bg-emerald-100 dark:hover:bg-emerald-900/50">
+                        <span aria-hidden="true">💬</span>
+                        <span>WhatsApp'a Bu Bilgilerle Not Bırak</span>
                     </a>
-
-                    {{-- Form Alternative --}}
-                    <div class="flex items-center justify-between pt-2">
-                        <a href="{{ route('private-chef.index') }}#booking-form" 
-                           x-on:click="open = false"
-                           class="text-xs font-semibold text-stone-500 underline underline-offset-2 hover:text-orange-600 dark:text-stone-400">
-                            Detaylı Rezervasyon Formunu Aç
-                        </a>
-                        <span class="text-[11px] text-stone-400 dark:text-stone-500">
-                            Ön teklif tamamen ücretsizdir
-                        </span>
-                    </div>
                 </div>
 
             </div>
