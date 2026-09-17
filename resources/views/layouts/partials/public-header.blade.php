@@ -2,7 +2,7 @@
             'hc-public-header sticky top-0 z-40 transition-all duration-300',
             'hc-header-over-hero' => request()->routeIs('home', 'recipes.show'),
         ])>
-            <nav :class="scrolled ? 'h-[4.25rem]' : 'h-[5.25rem]'" class="hc-container flex items-center justify-between gap-4 transition-all duration-300" aria-label="{{ __('ux.menu') }}">
+            <nav class="hc-container flex h-[4.75rem] items-center justify-between gap-4 transition-colors duration-300" aria-label="{{ __('ux.menu') }}">
                 <x-brand-logo class="scale-105" />
                 {{-- Menüde sekiz üst düzey bağlantı vardı ve sığmadığı için
                      "Ana / Sayfa", "Ne / Pişirebilirim?", "AI / Mutfak" diye

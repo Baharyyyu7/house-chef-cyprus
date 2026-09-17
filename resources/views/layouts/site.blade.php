@@ -263,7 +263,7 @@
         function gozcuyuKur() {
             var gozcu = document.createElement('div');
             gozcu.setAttribute('aria-hidden', 'true');
-            gozcu.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:16px;pointer-events:none';
+            gozcu.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:48px;pointer-events:none';
             document.body.prepend(gozcu);
 
             var basligiGuncelle = function (kaydirildi) {

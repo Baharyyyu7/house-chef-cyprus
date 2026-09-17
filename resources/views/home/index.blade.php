@@ -3,7 +3,7 @@
          yüzen başlık çubuğu gerçekten içeriğin üstünden geçer. --}}
     <section class="hc-home-hero hc-home-hero--master relative isolate -mt-[var(--hc-header-h)] flex flex-col justify-center min-h-[82svh] items-stretch pb-16 pt-[calc(var(--hc-header-h)+3rem)] sm:pb-20">
         {{-- Video tek başına sahnedir: kapak görseli yok, önce-resim-sonra-video geçişi yok. Video gelene kadar koyu zemin durur. --}}
-        <div class="absolute inset-0 overflow-hidden pointer-events-none -z-30 bg-[#060606] transform-gpu">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none -z-30 bg-[#060606]">
             <x-hero-video />
         </div>
         {{-- İki katman: yatay olan metne okunur bir zemin verir, dikey olan
