@@ -150,3 +150,12 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('editorial_workl
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('editorial_operations_brief', fn () => Artisan::call('content:editorial-operations-brief')))->name('editorial_operations_brief')->dailyAt('07:00')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_factory_fact_check_morning_brief', fn () => Artisan::call('content:fact-check-morning-brief')))->name('content_factory_fact_check_morning_brief')->dailyAt('07:00')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_factory_morning_brief', fn () => Artisan::call('content:factory-morning-brief')))->name('content_factory_morning_brief')->dailyAt('07:00')->withoutOverlapping();
+
+// SEO Auto Drip: Kalite kapısını geçmiş onaylı blogları günde max 5 yayınlar.
+// AGENTS.md kuralı: editorial_status=approved + fact_check_status=passed + originality_status=original olan içerikler
+// insan onayından geçmiş sayılır. Limiti düşük tut (max 5/gün) — toplu yayın riski.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_auto_drip', fn () => Artisan::call('seo:auto-drip', ['--limit' => 5])))->name('seo_auto_drip')->dailyAt('08:00')->withoutOverlapping();
+
+// GBP Content Drip: Haftalık Google Business Profile içerik taslakları üretir.
+// storage/app/content-import/gbp-posts/ klasörüne JSON yazar. Otomatik yayın yok.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_gbp_content_drip', fn () => Artisan::call('seo:gbp-content-drip', ['--week' => 3])))->name('seo_gbp_content_drip')->weeklyOn(1, '08:30')->withoutOverlapping();
