@@ -14,7 +14,7 @@ php_bin() { command -v php >/dev/null 2>&1 && command -v php || printf '%s\n' "$
 composer_bin() { command -v composer >/dev/null 2>&1 && command -v composer || printf '%s\n' "$HOME/.config/herd-lite/bin/composer"; }
 ensure_runtime() { mkdir -p "$RUNTIME_DIR" "$LOG_DIR"; }
 pid_running() { [[ -f "$1" ]] && kill -0 "$(cat "$1")" 2>/dev/null; }
-remove_stale_pid() { [[ -f "$1" ]] && ! pid_running "$1" && rm -f "$1"; }
+remove_stale_pid() { if [[ -f "$1" ]] && ! pid_running "$1"; then rm -f "$1"; fi; return 0; }
 port_in_use() { lsof -nP -iTCP:"$APP_PORT" -sTCP:LISTEN >/dev/null 2>&1; }
 start_process() { local pid="$1" log="$2"; shift 2; remove_stale_pid "$pid"; if pid_running "$pid"; then return; fi; "$@" >>"$log" 2>&1 & echo $! >"$pid"; }
 stop_process() { local pid="$1"; remove_stale_pid "$pid"; if pid_running "$pid"; then kill "$(cat "$pid")" 2>/dev/null || true; for _ in 1 2 3 4 5; do pid_running "$pid" || break; sleep 1; done; fi; remove_stale_pid "$pid"; }

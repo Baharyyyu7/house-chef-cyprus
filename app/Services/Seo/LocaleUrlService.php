@@ -52,6 +52,9 @@ final class LocaleUrlService
         foreach (array_keys((array) config('locales.supported', [])) as $mevcut) {
             if ($path === '/'.$mevcut || str_starts_with($path, '/'.$mevcut.'/')) {
                 $path = substr($path, strlen('/'.$mevcut)) ?: '/';
+                // O dilin yazımı da iç rota adına döner: /pl/przepisy yolu
+                // İngilizceye çevrilirken /en/przepisy kalmasın.
+                $path = $this->icYol($mevcut, $path);
                 break;
             }
         }
@@ -60,7 +63,59 @@ final class LocaleUrlService
             return (rtrim(url($path), '/') ?: url('/')).$suffix;
         }
 
-        return rtrim(url('/'.$locale.rtrim($path, '/')), '/').$suffix;
+        return rtrim(url('/'.$locale.rtrim($this->yerellesmisYol($locale, $path), '/')), '/').$suffix;
+    }
+
+    /**
+     * Yolun ilk parçasını o dilin yazımına çevirir: /tarifler → /recipes.
+     *
+     * Tarif slug'ı yemeğin kendi adıdır, çevrilmez. Yalnız ilk parça değişir;
+     * iç rota adı Türkçe kalır, bu yalnızca herkese açık yazımdır.
+     *
+     * Girdi zaten yerelleşmiş olabilir (/en/recipes); önce Türkçe iç
+     * ada geri çevrilir, sonra hedef dile ileri çevrilir ki /en/recipes
+     * → /pl/przepisy gibi çapraz dönüşümler doğru çalışsın.
+     */
+    /** Yerelleşmiş ilk parçayı iç rota adına çevirir: /recipes → /tarifler. */
+    public function icYol(string $locale, string $path): string
+    {
+        $ters = array_flip((array) (config('locales.path_aliases')[$locale] ?? []));
+
+        if ($ters === [] || $path === '/' || $path === '') {
+            return $path;
+        }
+
+        $parcalar = explode('/', ltrim($path, '/'));
+        $parcalar[0] = $ters[$parcalar[0]] ?? $parcalar[0];
+
+        return '/'.implode('/', $parcalar);
+    }
+
+    public function yerellesmisYol(string $locale, string $path): string
+    {
+        $takma = (array) (config('locales.path_aliases')[$locale] ?? []);
+
+        if ($takma === [] || $path === '/' || $path === '') {
+            return $path;
+        }
+
+        $parcalar = explode('/', ltrim($path, '/'));
+        $ilk = $parcalar[0];
+
+        // Girdi yerelleşmişse (recipes, rezepte, przepisy ...) önce Türkçe'ye çevir.
+        if (! isset($takma[$ilk])) {
+            foreach ((array) config('locales.path_aliases', []) as $harita) {
+                $ters = array_flip((array) $harita);
+                if (isset($ters[$ilk])) {
+                    $ilk = $ters[$ilk];
+                    break;
+                }
+            }
+        }
+
+        $parcalar[0] = $takma[$ilk] ?? $ilk;
+
+        return '/'.implode('/', $parcalar);
     }
 
     /**

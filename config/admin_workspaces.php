@@ -18,6 +18,10 @@ return [
             'links' => ['route' => 'admin.seo.growth', 'matches' => ['admin.seo.growth*']],
             'work' => ['route' => 'admin.seo.opportunities', 'matches' => ['admin.seo.opportunities*']],
             'issues' => ['route' => 'admin.seo.issues', 'matches' => ['admin.seo.issues*']],
+            'ai_mentions' => ['route' => 'admin.seo.ai-mentions', 'matches' => ['admin.seo.ai-mentions*']],
+            'citation_gaps' => ['route' => 'admin.seo.citation-gaps', 'matches' => ['admin.seo.citation-gaps*']],
+            'llm_structure' => ['route' => 'admin.seo.llm-structure', 'matches' => ['admin.seo.llm-structure*']],
+            'weekly_report' => ['route' => 'admin.seo.weekly-report', 'matches' => ['admin.seo.weekly-report*']],
         ],
     ],
     'experience' => [

@@ -69,13 +69,26 @@ final class LocaleUrlPrefix
             abort(404);
         }
 
+        // Yol parçası dile çevrilir: /en/tarifler/... yerine /en/recipes/...
+        // İngilizce arayan ve İngilizce tarayan yolu da okur. Türkçe yazımla
+        // gelen istek kalıcı olarak yerelleşmiş adrese gider; aynı içerik iki
+        // adreste durmaz.
+        $takma = (array) (config('locales.path_aliases')[$ilkParca] ?? []);
+        $ikinciParca = (string) $request->segment(2);
+
+        if ($ikinciParca !== '' && isset($takma[$ikinciParca])) {
+            return redirect($this->yolDegistir($request, $takma[$ikinciParca]), 301);
+        }
+
+        $tersTakma = array_flip($takma);
+
         app()->setLocale($ilkParca);
         $request->setLocale($ilkParca);
         // SetLocale sonradan çalışıyor ve çereze bakıyor; seçimin URL'den
         // geldiğini oradan da görebilmesi için işaretlenir.
         $request->attributes->set('hc_url_locale', $ilkParca);
 
-        return $next($this->onekiSoyulmusIstek($request));
+        return $next($this->onekiSoyulmusIstek($request, $tersTakma[$ikinciParca] ?? null));
     }
 
     private function onekSizYol(Request $request): string
@@ -86,10 +99,27 @@ final class LocaleUrlPrefix
         return $parcali.($request->getQueryString() !== null ? '?'.$request->getQueryString() : '');
     }
 
-    private function onekiSoyulmusIstek(Request $request): Request
+    /** Dil önekli yolun ikinci parçasını değiştirip tam adresi döner. */
+    private function yolDegistir(Request $request, string $yeniParca): string
+    {
+        $parcalar = explode('/', trim((string) $request->path(), '/'));
+        $parcalar[1] = $yeniParca;
+        $sorgu = $request->getQueryString();
+
+        return '/'.implode('/', $parcalar).($sorgu !== null ? '?'.$sorgu : '');
+    }
+
+    private function onekiSoyulmusIstek(Request $request, ?string $rotaParcasi = null): Request
     {
         $yol = '/'.ltrim((string) $request->path(), '/');
         $yeni = substr($yol, strlen('/'.$request->segment(1))) ?: '/';
+
+        // Yerelleşmiş parça iç rota adına geri çevrilir: /recipes → /tarifler.
+        if ($rotaParcasi !== null) {
+            $parcalar = explode('/', trim($yeni, '/'));
+            $parcalar[0] = $rotaParcasi;
+            $yeni = '/'.implode('/', $parcalar);
+        }
 
         $sorgu = $request->getQueryString();
         $request->server->set('REQUEST_URI', $yeni.($sorgu !== null ? '?'.$sorgu : ''));

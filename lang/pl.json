@@ -535,6 +535,7 @@
     "recipe.show.ingredient_count": ":count składników",
     "recipe.show.collect_manage": "Zarządzaj w kolekcjach",
     "recipe.show.photo_credit": "Autor zdjęcia",
+    "recipe.show.representative_image": "Zdjęcie reprezentatywne — przykładowe zdjęcie tego dania",
     "recipe.show.photo_by": "Zdjęcie: :author",
     "recipe.show.steps_kicker": "Przygotowanie",
     "recipe.show.steps_title": "Instrukcja krok po kroku",

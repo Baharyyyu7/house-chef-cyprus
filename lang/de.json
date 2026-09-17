@@ -535,6 +535,7 @@
     "recipe.show.ingredient_count": ":count Zutaten",
     "recipe.show.collect_manage": "In Sammlung speichern",
     "recipe.show.photo_credit": "Bildnachweis",
+    "recipe.show.representative_image": "Repräsentatives Foto — Beispielbild für dieses Gericht",
     "recipe.show.photo_by": "Foto von :author",
     "recipe.show.steps_kicker": "Zubereitung",
     "recipe.show.steps_title": "Schritt-für-Schritt-Anleitung",
