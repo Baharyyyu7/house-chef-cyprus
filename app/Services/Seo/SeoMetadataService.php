@@ -21,8 +21,11 @@ final class SeoMetadataService
         $robots = $this->robots($metadata?->robots, $defaultRobots);
 
         if (app()->getLocale() !== config('locales.default', 'tr')) {
+            $translatedTitle = (string) $entity->translated('title');
+            $title = $this->formatTitleWithBrand($translatedTitle !== '' ? $translatedTitle : $fallbackTitle);
+
             return [
-                'title' => Str::limit((string) $entity->translated('title').' · House Chef Cyprus', 70, ''),
+                'title' => $title,
                 'description' => Str::limit((string) ($entity instanceof Recipe ? ($entity->translated('description') ?: $entity->translated('excerpt')) : $entity->translated('excerpt')), 160, ''),
                 'canonical' => app(LocaleUrlService::class)->urlFor(app()->getLocale(), $canonical),
                 'robots' => $robots,
@@ -30,21 +33,21 @@ final class SeoMetadataService
         }
 
         // Kıbrıs mutfağı tariflerinde başlığa "Kıbrıs Yemek Tarifi" ekle:
-        // "Hellim Kızartması" → "Hellim Kızartması — Kıbrıs Yemek Tarifi | House Chef Cyprus"
+        // "Hellim Kızartması" → "Hellim Kızartması — Kıbrıs Yemek Tarifi · House Chef Cyprus"
         // "Kıbrıs Usulü Kleftiko" → "Kıbrıs Usulü Kleftiko · House Chef Cyprus"
-        $title = $metadata?->meta_title ?: $fallbackTitle;
+        $rawTitle = (string) ($metadata?->meta_title ?: $fallbackTitle);
+        $title = $this->cleanBrandSuffix($rawTitle);
+
         if ($entity instanceof Recipe && $entity->cuisine && $entity->cuisine->slug === 'kibris-mutfagi') {
-            $baseTitle = $metadata?->meta_title ?: $fallbackTitle;
-            // Başlıkta zaten "Kıbrıs" yoksa ekle
-            if ($baseTitle !== '' && ! str_contains(mb_strtolower($baseTitle), 'kibris')) {
-                $title = $baseTitle . ' — Kıbrıs Yemek Tarifi | House Chef Cyprus';
-            } else {
-                $title = $baseTitle . ' · House Chef Cyprus';
+            if ($title !== '' && ! str_contains(mb_strtolower($title), 'kibris')) {
+                $title = $title.' — Kıbrıs Yemek Tarifi';
             }
         }
 
+        $title = $this->formatTitleWithBrand($title);
+
         return [
-            'title' => Str::limit((string) $title, 70, ''),
+            'title' => $title,
             'description' => Str::limit((string) ($metadata?->meta_description ?: $fallbackDescription ?: ''), 160, ''),
             'canonical' => $this->safeCanonical($candidateCanonical, $canonical),
             'robots' => $robots,
@@ -86,9 +89,41 @@ final class SeoMetadataService
         if (in_array('none', $directives, true)) {
             $directives = array_merge($directives, ['noindex', 'nofollow']);
         }
+
         return implode(',', array_merge([
             in_array('noindex', $directives, true) ? 'noindex' : 'index',
             in_array('nofollow', $directives, true) ? 'nofollow' : 'follow',
         ], array_values(array_diff($directives, ['all', 'none', 'index', 'noindex', 'follow', 'nofollow']))));
+    }
+
+    public function cleanBrandSuffix(string $title): string
+    {
+        $title = trim($title);
+
+        return trim(preg_replace('/\s*(\·|\||\-|\—)\s*House Chef Cyprus$/ui', '', $title) ?? $title);
+    }
+
+    public function formatTitleWithBrand(string $rawTitle, string $brand = 'House Chef Cyprus', int $maxTotalLength = 68): string
+    {
+        $coreTitle = $this->cleanBrandSuffix($rawTitle);
+        if ($coreTitle === '') {
+            return $brand;
+        }
+
+        $suffix = ' · '.$brand;
+        $suffixLen = mb_strlen($suffix);
+        $maxCoreLength = $maxTotalLength - $suffixLen;
+
+        if (mb_strlen($coreTitle) > $maxCoreLength) {
+            $truncated = mb_substr($coreTitle, 0, $maxCoreLength - 1);
+            $lastSpace = mb_strrpos($truncated, ' ');
+            if ($lastSpace !== false && $lastSpace > (int) ($maxCoreLength * 0.5)) {
+                $coreTitle = mb_substr($truncated, 0, $lastSpace).'…';
+            } else {
+                $coreTitle = $truncated.'…';
+            }
+        }
+
+        return $coreTitle.$suffix;
     }
 }

@@ -49,6 +49,16 @@ final class SitemapHubLastmodTest extends TestCase
         $this->assertUrlOmitsLastmod($xml, url('editorial-ilkeler'));
     }
 
+    public function test_pages_sitemap_includes_xhtml_link_alternates_for_enabled_locales(): void
+    {
+        $xml = (string) $this->get('/sitemaps/pages.xml')->assertOk()->getContent();
+
+        $this->assertStringContainsString('xmlns:xhtml="http://www.w3.org/1999/xhtml"', $xml);
+        $this->assertStringContainsString('<xhtml:link rel="alternate" hreflang="tr" href="'.url('tarifler').'"/>', $xml);
+        $this->assertStringContainsString('<xhtml:link rel="alternate" hreflang="en" href="'.url('en/recipes').'"/>', $xml);
+        $this->assertStringContainsString('<xhtml:link rel="alternate" hreflang="x-default" href="'.url('tarifler').'"/>', $xml);
+    }
+
     private function assertUrlHasLastmod(string $xml, string $url, string $date): void
     {
         $this->assertMatchesRegularExpression('#<loc>'.preg_quote($url, '#').'</loc>\s*<lastmod>'.$date.'</lastmod>#', $xml);

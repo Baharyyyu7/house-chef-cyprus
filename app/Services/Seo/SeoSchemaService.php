@@ -221,8 +221,8 @@ final class SeoSchemaService
             ],
             'inLanguage' => $locale,
             'dateModified' => $recipe->updated_at?->toAtomString(),
-            'recipeCuisine' => $recipe->cuisine?->name,
-            'recipeCategory' => $recipe->category?->name,
+            'recipeCuisine' => $recipe->cuisine ? taxonomy_name($recipe->cuisine) : null,
+            'recipeCategory' => $recipe->category ? taxonomy_name($recipe->category) : null,
             'prepTime' => 'PT'.$recipe->prep_minutes.'M', 'cookTime' => 'PT'.$recipe->cook_minutes.'M',
             'totalTime' => 'PT'.$recipe->totalMinutes().'M', 'recipeYield' => $recipe->servings.' '.$this->yieldUnit($locale),
             'recipeIngredient' => $ingredients,
@@ -334,8 +334,8 @@ final class SeoSchemaService
         }
 
         $keywords = array_filter(array_merge([
-            $recipe->cuisine?->name,
-            $recipe->category?->name,
+            $recipe->cuisine ? taxonomy_name($recipe->cuisine) : null,
+            $recipe->category ? taxonomy_name($recipe->category) : null,
         ], $this->localizedKeywords($locale)));
         if ($keywords !== []) {
             $recipeNode['keywords'] = implode(', ', $keywords);
@@ -643,7 +643,7 @@ final class SeoSchemaService
                 };
             }
 
-            $ans = trim($daysText . ($uyari !== '' ? $uyari : $defaultAdvice));
+            $ans = trim($daysText.($uyari !== '' ? $uyari : $defaultAdvice));
             if ($ans !== '') {
                 $questions[] = [
                     '@type' => 'Question',
@@ -768,21 +768,21 @@ final class SeoSchemaService
         // YouTube ve Vimeo embed URL'lerini tanır
         $embedUrl = $url;
         if (preg_match('#youtube\.com/watch\?v=([a-zA-Z0-9_-]+)#', $url, $m)) {
-            $embedUrl = 'https://www.youtube.com/embed/' . $m[1];
+            $embedUrl = 'https://www.youtube.com/embed/'.$m[1];
         } elseif (preg_match('#youtu\.be/([a-zA-Z0-9_-]+)#', $url, $m)) {
-            $embedUrl = 'https://www.youtube.com/embed/' . $m[1];
+            $embedUrl = 'https://www.youtube.com/embed/'.$m[1];
         } elseif (preg_match('#vimeo\.com/(\d+)#', $url, $m)) {
-            $embedUrl = 'https://player.vimeo.com/video/' . $m[1];
+            $embedUrl = 'https://player.vimeo.com/video/'.$m[1];
         }
 
         return [
             '@type' => 'VideoObject',
-            '@id' => $url . '#video',
-            'name' => $recipe->translated('title') . ' - Tarif Videosu',
+            '@id' => $url.'#video',
+            'name' => $recipe->translated('title').' - Tarif Videosu',
             'description' => $recipe->translated('description') ?: $recipe->translated('excerpt'),
             'thumbnailUrl' => $videoMedia->publicUrl() ?: $url,
             'uploadDate' => $recipe->published_at?->toAtomString(),
-            'duration' => 'PT' . max(1, (int) ceil(($recipe->prep_minutes + $recipe->cook_minutes) / 5)) . 'M',
+            'duration' => 'PT'.max(1, (int) ceil(($recipe->prep_minutes + $recipe->cook_minutes) / 5)).'M',
             'contentUrl' => $url,
             'embedUrl' => $embedUrl,
             'publisher' => $this->organizationNode(),
@@ -799,7 +799,7 @@ final class SeoSchemaService
     {
         $org = [
             '@type' => 'Organization',
-            '@id' => route('home') . '#organization',
+            '@id' => route('home').'#organization',
             'name' => config('brand.name'),
             'url' => route('home'),
             'logo' => [
@@ -870,7 +870,7 @@ final class SeoSchemaService
     /**
      * Site navigasyon yapısı - crawl bütçesi ve site hiyerarşisi için.
      *
-     * @param list<array{title: string, url: string, children?: list<array{title: string, url: string}>}> $navItems
+     * @param  list<array{title: string, url: string, children?: list<array{title: string, url: string}>}>  $navItems
      * @return array<string,mixed>
      */
     public function siteNavigation(array $navItems): array

@@ -22,7 +22,7 @@
         <div class="hc-container grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_19rem] lg:py-20">
             <div class="max-w-3xl">
                 <a class="hc-v3-btn hc-v3-btn--ghost -ml-3 text-white hover:bg-white/10" href="{{ route('recipes.index') }}"><span aria-hidden="true">←</span> {{ __('recipe.back_to_archive') }}</a>
-                <p class="hc-overline mt-8 text-orange-300">@if($recipe->cuisine && $cuisineUrl)<a href="{{ $cuisineUrl }}">{{ $recipe->cuisine->name }}</a>@else {{ __('recipe.home_cooking') }} @endif <span aria-hidden="true">/</span> {{ $recipe->region ?: ($recipe->category?->name ?? __('recipe.recipe')) }}</p>
+                <p class="hc-overline mt-8 text-orange-300">@if($recipe->cuisine && $cuisineUrl)<a href="{{ $cuisineUrl }}">{{ taxonomy_name($recipe->cuisine) }}</a>@else {{ __('recipe.home_cooking') }} @endif <span aria-hidden="true">/</span> {{ $recipe->region ?: ($recipe->category ? taxonomy_name($recipe->category) : __('recipe.recipe')) }}</p>
                 <h1 class="hc-display-xl mt-4 max-w-3xl">{{ $recipe->translated('title') }}</h1>
                 <p class="hc-body-lg mt-5 max-w-2xl text-stone-200">{{ $recipe->translated('excerpt') }}</p>
                 <div class="mt-7 flex flex-wrap gap-2">@foreach([[__('recipe.prep'), $recipe->prep_minutes.' '.__('recipe.min')], [__('recipe.cook'), $recipe->cook_minutes.' '.__('recipe.min')], [__('recipe.total'), $recipe->totalMinutes().' '.__('recipe.min')], [__('recipe.servings'), $recipe->servings], [__('recipe.difficulty'), $recipe->zorlukEtiketi()]] as [$label, $value])<span class="hc-v3-badge border-white/20 bg-white/10 text-white backdrop-blur"><strong class="text-orange-200">{{ $label }}</strong> {{ $value }}</span>@endforeach</div>

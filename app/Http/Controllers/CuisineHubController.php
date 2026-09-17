@@ -78,11 +78,11 @@ final class CuisineHubController extends Controller
         // Türkçe taksonomi adıyla üretilen "Kıbrıs Mutfağı Recipes" başlığı
         // ne kullanıcıyla ne sorguyla eşleşiyordu. TR dalına dokunulmaz.
         $isKibrisEn = $mutfak->slug === 'kibris-mutfagi' && app()->getLocale() === 'en';
-        $title = $isKibris ? 'Kıbrıs Yemekleri ve Yemek Tarifleri | House Chef Cyprus' : ($isKibrisEn ? __('cuisine.kibris_en_title') : __('cuisine.page_title', ['name' => $mutfak->name, 'count' => $tarifler->count()]));
+        $title = $isKibris ? 'Kıbrıs Yemekleri ve Yemek Tarifleri | House Chef Cyprus' : ($isKibrisEn ? __('cuisine.kibris_en_title') : __('cuisine.page_title', ['name' => taxonomy_name($mutfak), 'count' => $tarifler->count()]));
         $description = $isKibris
             ? 'Kıbrıs yemeklerini keşfedin: hellim, şeftali kebabı, molehiya ve kolokas. '.$tarifler->count().' tarifin malzemelerini, ölçülerini ve pişirme adımlarını inceleyin.'
-            : ($isKibrisEn ? __('cuisine.kibris_en_desc') : __('cuisine.meta_description', ['name' => $mutfak->name, 'count' => $tarifler->count()]));
-        $h1 = $isKibris ? 'Kıbrıs Yemekleri ve Yemek Tarifleri' : ($isKibrisEn ? __('cuisine.kibris_en_h1') : __('cuisine.h1', ['name' => $mutfak->name]));
+            : ($isKibrisEn ? __('cuisine.kibris_en_desc') : __('cuisine.meta_description', ['name' => taxonomy_name($mutfak), 'count' => $tarifler->count()]));
+        $h1 = $isKibris ? 'Kıbrıs Yemekleri ve Yemek Tarifleri' : ($isKibrisEn ? __('cuisine.kibris_en_h1') : __('cuisine.h1', ['name' => taxonomy_name($mutfak)]));
         $faq = $isKibris ? [
             ['question' => 'Kıbrıs Yemekleri nelerdir?', 'answer' => 'Hellim, şeftali kebabı, molehiya, kolokas, magarina bulli, pirohu ve pilavuna Kıbrıs mutfağında karşılaşabileceğiniz lezzetler arasındadır. Malzemeler ve hazırlama yöntemleri aileden aileye değişebilir.'],
             ['question' => 'Kıbrıs Yemek Tarifi nereden bulunur?', 'answer' => 'House Chef Cyprus arşivi “Kıbrıs Yemek Tarif” ve “Yemek Kıbrıs” niyetleri için denenmiş ve doğrulanmış geleneksel ada tariflerini sunar.'],
@@ -95,7 +95,7 @@ final class CuisineHubController extends Controller
         $seoSchema = $schema->collectionPage($h1, $description, $canonical, $tarifler, [
             ['name' => __('nav.home'), 'url' => route('home')],
             ['name' => __('cuisine.breadcrumb'), 'url' => route('cuisines.index')],
-            ['name' => $mutfak->name, 'url' => $canonical],
+            ['name' => taxonomy_name($mutfak), 'url' => $canonical],
         ]);
         if ($faq !== []) {
             $seoSchema['@graph'][] = [
@@ -110,7 +110,7 @@ final class CuisineHubController extends Controller
         return view('cuisines.show', [
             'mutfak' => $mutfak,
             'kardesler' => self::sayfasiOlanlar()
-                ->map(fn (Cuisine $m): array => ['title' => $m->name, 'url' => route('cuisines.show', $m->slug)])
+                ->map(fn (Cuisine $m): array => ['title' => taxonomy_name($m), 'url' => route('cuisines.show', $m->slug)])
                 ->all(),
             'tarifler' => $tarifler,
             'mediaEligibility' => $gate,

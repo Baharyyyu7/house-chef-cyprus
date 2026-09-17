@@ -10,6 +10,7 @@ use App\Models\Recipe;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\BlogIndexability;
 use App\Services\Seo\LocaleUrlService;
+use App\Services\Seo\SeoMetadataService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
 
@@ -46,7 +47,11 @@ final class SitemapController extends Controller
 
         // ne-pisirebilirim, haftalik-menu ve magaza indekslenebilir araç ve ürün sayfalarıdır.
         $staticPaths = ['', 'tarifler', 'blog', 'haftalik-menu', 'magaza', 'malzemeler', 'mutfaklar', 'kategoriler', 'ne-pisirebilirim', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'iletisim'];
-        $urls = collect($staticPaths)->map(fn (string $path): array => ['loc' => url($path), 'lastmod' => $hubLastmods[$path] ?? null]);
+        $urls = collect($staticPaths)->map(fn (string $path): array => [
+            'loc' => url($path),
+            'lastmod' => $hubLastmods[$path] ?? null,
+            'alternates' => $this->alternatesForStaticPath($path),
+        ]);
 
         // Malzeme sayfaları. Liste ile sitemap aynı eşiği paylaşmak zorunda:
         // ayrışırsa sitemap 404 veren adresleri ilan eder ve tarama bütçesi
@@ -56,6 +61,7 @@ final class SitemapController extends Controller
                 ->map(fn ($malzeme): array => [
                     'loc' => route('ingredients.hub.show', $malzeme->slug),
                     'lastmod' => $this->date($malzeme->latest_published_at),
+                    'alternates' => $this->alternatesForStaticPath('/malzemeler/'.$malzeme->slug),
                 ])
         );
 
@@ -65,6 +71,7 @@ final class SitemapController extends Controller
                 ->map(fn ($mutfak): array => [
                     'loc' => route('cuisines.show', $mutfak->slug),
                     'lastmod' => $this->date($mutfak->latest_published_at),
+                    'alternates' => $this->alternatesForStaticPath('/mutfaklar/'.$mutfak->slug),
                 ])
         );
 
@@ -72,6 +79,7 @@ final class SitemapController extends Controller
             $categories->map(fn ($kategori): array => [
                 'loc' => route('categories.show', $kategori->slug),
                 'lastmod' => $this->date($kategori->latest_published_at),
+                'alternates' => $this->alternatesForStaticPath('/kategoriler/'.$kategori->slug),
             ])
         );
 
@@ -174,6 +182,30 @@ final class SitemapController extends Controller
     }
 
     /**
+     * @return list<array{hreflang: string, href: string}>
+     */
+    private function alternatesForStaticPath(string $path): array
+    {
+        $servis = app(LocaleUrlService::class);
+        $diller = $servis->enabledLocales();
+
+        if (count($diller) < 2) {
+            return [];
+        }
+
+        $path = '/'.ltrim($path, '/');
+        $kume = [];
+
+        foreach ($diller as $kod => $dil) {
+            $kume[] = ['hreflang' => (string) ($dil['html_locale'] ?? $kod), 'href' => $servis->urlFor($kod, $path)];
+        }
+
+        $kume[] = ['hreflang' => 'x-default', 'href' => $servis->urlFor($servis->defaultLocale(), $path)];
+
+        return $kume;
+    }
+
+    /**
      * Sitemap "bu sayfayı indeksle" demektir. Yayındaki 678 tarifin 450'si
      * seoMetadata.robots alanında noindex taşıyor -- inceleme beklediği için,
      * ki bu doğru -- ama hepsi sitemap'e giriyordu. Google'a aynı sayfa için
@@ -206,7 +238,7 @@ final class SitemapController extends Controller
             ? $kayit->getRelation('seoMetadata')?->robots
             : $kayit->seoMetadata()->value('robots');
 
-        $efektif = app(\App\Services\Seo\SeoMetadataService::class)->robots(is_string($robots) ? $robots : null);
+        $efektif = app(SeoMetadataService::class)->robots(is_string($robots) ? $robots : null);
 
         return ! str_contains($efektif, 'noindex');
     }
