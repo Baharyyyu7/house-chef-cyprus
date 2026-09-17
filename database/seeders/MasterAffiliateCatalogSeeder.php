@@ -11,7 +11,7 @@ final class MasterAffiliateCatalogSeeder extends Seeder
 {
     public function run(): void
     {
-        $amazonTag = config('integrations.affiliate.amazon.tag', 'housechefcyprus-21');
+        $amazonTag = config('integrations.affiliate.amazon.tag', 'housechefcypr-21');
 
         $products = [
             // 1. Tencereler & Tavalar

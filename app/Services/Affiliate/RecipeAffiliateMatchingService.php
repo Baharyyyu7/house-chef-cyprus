@@ -251,7 +251,7 @@ final class RecipeAffiliateMatchingService
 
     private function applyAffiliateTags(AffiliateLink $link): void
     {
-        $amazonTag = config('integrations.affiliate.amazon.tag', 'housechefcyprus-21');
+        $amazonTag = config('integrations.affiliate.amazon.tag', 'housechefcypr-21');
 
         if ($link->provider === 'amazon' && ! empty($amazonTag)) {
             $parsed = parse_url($link->target_url);

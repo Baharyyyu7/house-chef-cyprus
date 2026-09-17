@@ -55,7 +55,7 @@ class MonetizationSeeder extends Seeder
             'title' => 'Lava Döküm Yuvarlak Tencere 26 cm',
             'category' => 'equipment',
             'description' => 'Kuzu Tandır ve yavaş pişen Güveç yemekleri için mükemmel ısı dağılımı sağlayan döküm tencere.',
-            'target_url' => 'https://www.amazon.com.tr/dp/B00K8K7X6?tag=housechefcyprus-21',
+            'target_url' => 'https://www.amazon.com.tr/dp/B00K8K7X6?tag=housechefcypr-21',
             'provider' => 'amazon',
             'price' => 1890.00,
             'currency' => 'TRY',

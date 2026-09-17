@@ -9,7 +9,7 @@ return [
 
     'partners' => [
         'amazon' => [
-            'tag' => env('AFFILIATE_AMAZON_TAG', 'housechefcyprus-21'),
+            'tag' => env('AFFILIATE_AMAZON_TAG', 'housechefcypr-21'),
             'base_search_url' => 'https://www.amazon.com/s?k=',
         ],
         'trendyol' => [

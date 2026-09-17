@@ -64,7 +64,7 @@ return [
     'affiliate' => [
         'enabled' => (bool) env('AFFILIATE_ENABLED', true),
         'amazon' => [
-            'tag' => env('AMAZON_AFFILIATE_TAG', 'housechefcyprus-21'),
+            'tag' => env('AMAZON_AFFILIATE_TAG', 'housechefcypr-21'),
             'base_url' => 'https://www.amazon.com.tr',
         ],
         'trendyol' => [
