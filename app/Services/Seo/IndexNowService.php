@@ -103,15 +103,28 @@ final class IndexNowService
      */
     public function collectRecentUrls(): array
     {
-        $recipes = Recipe::query()
+        // Yalnız indekslenebilir adresler bildirilir. 17 Eylül 2026'da
+        // ölçüldü: yayındaki 988 tarifin 674'ü şablon olduğu için noindex
+        // taşıyordu ve bu liste hepsini Bing'e gönderiyordu. Arama motoruna
+        // "bu sayfayı hemen tara" deyip sayfada "indeksleme" yazmak, tarama
+        // bütçesini harcamaktan başka bir şey yapmaz.
+        $indekslenebilir = static fn ($sorgu) => $sorgu->whereDoesntHave(
+            'seoMetadata',
+            fn ($q) => $q->where('robots', 'like', '%noindex%')
+        );
+
+        $recipes = $indekslenebilir(Recipe::query()
             ->where('status', 'published')
             ->where('verification_status', 'verified')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now()))
             ->latest('updated_at')
             ->limit(150)
             ->get();
 
-        $blogs = BlogPost::query()
+        $blogs = $indekslenebilir(BlogPost::query()
             ->publiclyVisible()
+            ->where('originality_status', '!=', 'duplicate'))
             ->latest('updated_at')
             ->limit(50)
             ->get();

@@ -139,4 +139,24 @@ final class IndexNowTest extends TestCase
         $this->assertSame(300, $result['retry_after']);
         $this->assertFalse($result['success']);
     }
+
+    public function test_indeks_disi_tarif_bildirilmez(): void
+    {
+        config()->set('seo.indexnow.enabled', true);
+
+        $acik = Recipe::query()->create([
+            'title' => 'Gerçek Tarif', 'slug' => 'gercek-tarif-indexnow', 'excerpt' => 'Özet.', 'description' => 'Açıklama.',
+            'status' => 'published', 'verification_status' => 'verified', 'published_at' => now()->subDay(),
+        ]);
+        $kapali = Recipe::query()->create([
+            'title' => 'Şablon Tarif', 'slug' => 'sablon-tarif-indexnow', 'excerpt' => 'Özet.', 'description' => 'Açıklama.',
+            'status' => 'published', 'verification_status' => 'verified', 'published_at' => now()->subDay(),
+        ]);
+        app(\App\Services\Seo\SeoMetadataService::class)->update($kapali, ['robots' => 'noindex,follow']);
+
+        $urls = app(\App\Services\Seo\IndexNowService::class)->collectRecentUrls();
+
+        $this->assertContains(route('recipes.show', $acik), $urls);
+        $this->assertNotContains(route('recipes.show', $kapali), $urls, 'noindex taşıyan sayfa arama motoruna bildirilmemeli.');
+    }
 }
