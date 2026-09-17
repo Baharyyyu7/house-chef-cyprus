@@ -386,6 +386,15 @@
     "cuisine.body_detail": "Every recipe includes measurements, times and nutritional values.",
     "cuisine.breadcrumb": "Cuisines",
     "cuisine.h1": ":name Recipes",
+    "cuisine.kibris_en_desc": "Traditional Cypriot recipes with precise measurements: halloumi dishes, sheftalia, kleftiko, kolokas and flaouna, tested step by step.",
+    "cuisine.kibris_en_faq_1_a": "Halloumi, sheftalia (Cypriot meatballs in caul fat), slow-roasted kleftiko lamb, molehiya stew, taro-root kolokas and Easter flaouna pastries are among the best-known dishes of Cyprus. House Chef Cyprus documents each with tested measurements and steps.",
+    "cuisine.kibris_en_faq_1_q": "What are the most famous Cypriot dishes?",
+    "cuisine.kibris_en_faq_2_a": "This archive publishes tested, verified traditional Cypriot recipes in English, with metric measurements, times and step-by-step instructions.",
+    "cuisine.kibris_en_faq_2_q": "Where can I find traditional Cypriot recipes in English?",
+    "cuisine.kibris_en_faq_3_a": "No. Sheftalia (often written seftali kebab) contains no peach: seasoned minced meat with onion, parsley and spices is wrapped in caul fat and grilled.",
+    "cuisine.kibris_en_faq_3_q": "Is sheftalia made with peaches?",
+    "cuisine.kibris_en_h1": "Cypriot Recipes",
+    "cuisine.kibris_en_title": "Cypriot Recipes – Traditional Cyprus Food | House Chef Cyprus",
     "cuisine.meta_description": ":count verified recipes from :name cuisine: measurements, times and step-by-step instructions.",
     "cuisine.page_title": ":name Recipes · :count Verified Recipes · House Chef Cyprus",
     "cuisine.recipes_suffix": "Recipes",
@@ -742,5 +751,6 @@
     "home.quick_desserts": "Desserts",
     "recipe.show.guides_kicker": "Culinary & Culture Guides",
     "recipe.show.guides_title": "Related Culinary Guides & Expert Notes",
-    "recipe.show.guides_view_all": "Explore All Guides"
+    "recipe.show.guides_view_all": "Explore All Guides",
+    "recipe.show.representative_image": "Representative photo — illustrative example"
 }
