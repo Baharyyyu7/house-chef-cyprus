@@ -145,6 +145,7 @@ if "$DRY_RUN"; then
     printf '  [dry-run] scp %s\n' "$(basename "$ARTEFAKT")"
 else
     for deneme in 1 2 3; do
+        uzak "rm -f ~/$(basename "$ARTEFAKT")*" >/dev/null 2>&1 || true
         COPYFILE_DISABLE=1 scp -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o ConnectTimeout=30 -q -P "$SSH_PORT" "$ARTEFAKT" "$ARTEFAKT.sha256" "$SSH_TARGET:~/" || true
         if uzak "cd ~ && sha256sum -c $(basename "$ARTEFAKT").sha256" >/dev/null 2>&1; then
             break
