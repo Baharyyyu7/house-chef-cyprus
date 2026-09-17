@@ -51,7 +51,7 @@ final class GrowthIsMeasuredPerLocaleTest extends TestCase
         $servis = app(LocaleGrowthService::class);
 
         $this->assertSame('tr', $servis->adresinDili('https://x.test/tarifler/hellim'));
-        $this->assertSame('en', $servis->adresinDili('https://x.test/en/tarifler/hellim'));
+        $this->assertSame('en', $servis->adresinDili('https://x.test/en/recipes/hellim'));
         $this->assertSame('de', $servis->adresinDili('https://x.test/de/blog/x'));
         $this->assertSame('tr', $servis->adresinDili('https://x.test/'));
         // Dil gibi görünen ama dil olmayan bir ilk parça varsayılana düşer.
@@ -61,8 +61,8 @@ final class GrowthIsMeasuredPerLocaleTest extends TestCase
     public function test_tiklama_ve_gosterim_dile_gore_ayrilir(): void
     {
         $this->olcum('https://x.test/tarifler/a', 10, 100);
-        $this->olcum('https://x.test/en/tarifler/a', 3, 60);
-        $this->olcum('https://x.test/de/tarifler/a', 0, 40);
+        $this->olcum('https://x.test/en/recipes/a', 3, 60);
+        $this->olcum('https://x.test/de/rezepte/a', 0, 40);
 
         $p = app(LocaleGrowthService::class)->aramaPerformansi();
 
@@ -129,7 +129,7 @@ final class GrowthIsMeasuredPerLocaleTest extends TestCase
         }
 
         // Aynı dile ait, gösterimi sıfır olan bir ölçüm satırı.
-        $this->olcum('https://x.test/en/tarifler/baska-sayfa', 0, 0);
+        $this->olcum('https://x.test/en/recipes/baska-sayfa', 0, 0);
 
         $tablo = app(LocaleGrowthService::class)->tablo();
 
@@ -152,7 +152,7 @@ final class GrowthIsMeasuredPerLocaleTest extends TestCase
             $tarif->translations()->create(['locale' => 'en', 'field' => $a, 'value' => $d]);
         }
 
-        $this->olcum('https://x.test/en/tarifler/hellim-w', 12, 400, 4.0);
+        $this->olcum('https://x.test/en/recipes/hellim-w', 12, 400, 4.0);
 
         $tablo = app(LocaleGrowthService::class)->tablo();
 
@@ -170,7 +170,7 @@ final class GrowthIsMeasuredPerLocaleTest extends TestCase
         foreach (['title' => 'Halloumi', 'excerpt' => 'S.', 'description' => 'D.'] as $a => $d) {
             $tarif->translations()->create(['locale' => 'en', 'field' => $a, 'value' => $d]);
         }
-        $this->olcum('https://x.test/en/tarifler/hellim-y', 0, 500, 8.0);
+        $this->olcum('https://x.test/en/recipes/hellim-y', 0, 500, 8.0);
 
         $tablo = app(LocaleGrowthService::class)->tablo();
 

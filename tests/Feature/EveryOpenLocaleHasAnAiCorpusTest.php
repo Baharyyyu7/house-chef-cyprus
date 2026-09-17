@@ -59,7 +59,7 @@ final class EveryOpenLocaleHasAnAiCorpusTest extends TestCase
             ->getContent();
 
         $this->assertStringContainsString('Gegrillter Halloumi', $icerik);
-        $this->assertStringContainsString(url('/de/tarifler/gegrillter-halloumi'), $icerik);
+        $this->assertStringContainsString(url('/de/rezepte/gegrillter-halloumi'), $icerik);
     }
 
     public function test_cevrilmemis_icerik_korpusa_girmez(): void
@@ -69,7 +69,7 @@ final class EveryOpenLocaleHasAnAiCorpusTest extends TestCase
         $icerik = $this->get('/de/llms.txt')->assertOk()->getContent();
 
         $this->assertStringNotContainsString('Hellim Izgara', $icerik, 'Türkçe başlık Almanca korpusa sızdı.');
-        $this->assertStringNotContainsString('/de/tarifler/cevrisiz', $icerik);
+        $this->assertStringNotContainsString('/de/rezepte/cevrisiz', $icerik);
     }
 
     public function test_icerik_yokken_dogru_soyler(): void

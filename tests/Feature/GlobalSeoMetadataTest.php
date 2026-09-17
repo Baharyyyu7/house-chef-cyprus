@@ -51,7 +51,7 @@ final class GlobalSeoMetadataTest extends TestCase
         $metadata = app(SeoMetadataService::class)->for($recipe, 'Turkish title', 'Turkish description', url('/tarifler/rice'));
 
         $this->assertSame('Cook the rice gently and leave it covered to rest before serving.', $metadata['description']);
-        $this->assertSame(url('/en/tarifler/rice'), $metadata['canonical']);
+        $this->assertSame(url('/en/recipes/rice'), $metadata['canonical']);
     }
 
     public function test_canonical_overrides_require_an_absolute_http_url_without_credentials_or_fragment(): void

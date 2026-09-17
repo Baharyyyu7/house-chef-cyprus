@@ -34,7 +34,7 @@ final class LocaleUrlPrefixTest extends TestCase
         config()->set('locales.supported.en.enabled', true);
 
         $this->get('/en')->assertOk();
-        $this->get('/en/tarifler')->assertOk();
+        $this->get('/en/recipes')->assertOk();
     }
 
     public function test_the_url_prefix_wins_over_the_cookie(): void
@@ -44,7 +44,7 @@ final class LocaleUrlPrefixTest extends TestCase
         config()->set('locales.supported.en.enabled', true);
 
         $this->withCookie('hc_locale', 'tr')
-            ->get('/en/tarifler')
+            ->get('/en/recipes')
             ->assertOk()
             ->assertSee('lang="en"', false);
     }

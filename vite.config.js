@@ -8,4 +8,18 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    build: {
+        cssCodeSplit: true,
+        chunkSizeWarningLimit: 500,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    chart: ['chart.js'],
+                },
+            },
+        },
+    },
+    server: {
+        hmr: { host: 'localhost' },
+    },
 });

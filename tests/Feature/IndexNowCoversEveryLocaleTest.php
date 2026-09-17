@@ -59,7 +59,7 @@ final class IndexNowCoversEveryLocaleTest extends TestCase
 
         $adresler = app(IndexNowService::class)->collectRecentUrls();
 
-        $this->assertContains(url('/en/tarifler/cevrili-tarif'), $adresler);
+        $this->assertContains(url('/en/recipes/cevrili-tarif'), $adresler);
         $this->assertContains(url('/tarifler/cevrili-tarif'), $adresler);
     }
 
@@ -70,7 +70,7 @@ final class IndexNowCoversEveryLocaleTest extends TestCase
         $adresler = app(IndexNowService::class)->collectRecentUrls();
 
         $this->assertNotContains(
-            url('/en/tarifler/cevrisiz-tarif'),
+            url('/en/recipes/cevrisiz-tarif'),
             $adresler,
             '404 veren bir adres IndexNow ile arama motoruna bildirildi.'
         );
@@ -80,7 +80,7 @@ final class IndexNowCoversEveryLocaleTest extends TestCase
     {
         $adresler = app(IndexNowService::class)->collectRecentUrls();
 
-        foreach (['/en', '/en/tarifler', '/en/blog'] as $yol) {
+        foreach (['/en', '/en/recipes', '/en/blog'] as $yol) {
             $this->assertContains(url($yol), $adresler, $yol.' bildirilmedi.');
         }
     }
@@ -93,7 +93,7 @@ final class IndexNowCoversEveryLocaleTest extends TestCase
         $adresler = app(IndexNowService::class)->collectRecentUrls();
 
         foreach ($adresler as $adres) {
-            $this->assertStringNotContainsString('/en/tarifler/', $adres);
+            $this->assertStringNotContainsString('/en/recipes/', $adres);
         }
     }
 

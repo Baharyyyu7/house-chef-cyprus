@@ -83,14 +83,14 @@ final class LlmsTxtTest extends TestCase
         $this->get($path)->assertOk()
             ->assertSee('Editor recipe title', false)
             ->assertSee('Editor recipe description', false)
-            ->assertSee(url('/en/tarifler/kibris-seftali-kebabi'), false)
+            ->assertSee(url('/en/recipes/kibris-seftali-kebabi'), false)
             ->assertDontSee(url('/tarifler/kibris-seftali-kebabi'), false)
             ->assertSee('Editor guide title', false)
             ->assertSee('Editor guide summary', false)
             ->assertSee(url('/en/blog/editor-guide'), false)
             ->assertDontSee(url('/blog/editor-guide'), false);
 
-        $this->get('/en/tarifler/kibris-seftali-kebabi')->assertOk()->assertSee('Editor recipe title');
+        $this->get('/en/recipes/kibris-seftali-kebabi')->assertOk()->assertSee('Editor recipe title');
         $this->get('/en/blog/editor-guide')->assertOk()->assertSee('Editor guide title');
     }
 

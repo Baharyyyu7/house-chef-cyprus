@@ -30,6 +30,41 @@ if (! function_exists('localized_route')) {
     }
 }
 
+if (! function_exists('taxonomy_name')) {
+    /**
+     * Taksonomi görünen adı: varsayılan dilde kayıt adı, diğer dillerde
+     * arayüz sözlüğündeki karşılık; karşılık yoksa kayıt adı.
+     *
+     * Mutfak/kategori adları çeviri hattının tür listesinde yoktur
+     * (yalnız recipe/blog), o yüzden kayıt adı Türkçe kalır. İngilizce
+     * sayfada "Kıbrıs Mutfağı" yazması hem kullanıcıyı hem Google'ın dil
+     * tespitini bozar; bu köprü kapanana dek sözlük karşılığı basılır.
+     *
+     * @param  object{name?: string, slug?: string}  $model
+     */
+    function taxonomy_name(object $model): string
+    {
+        $kayit = (string) ($model->name ?? '');
+
+        if (app()->getLocale() === config('locales.default', 'tr')) {
+            return $kayit;
+        }
+
+        $tur = $model instanceof App\Models\Cuisine
+            ? 'cuisine'
+            : ($model instanceof App\Models\Category ? 'category' : null);
+
+        if ($tur === null || ! isset($model->slug)) {
+            return $kayit;
+        }
+
+        $anahtar = "taxonomy.{$tur}.{$model->slug}";
+        $ceviri = __($anahtar);
+
+        return $ceviri === $anahtar ? $kayit : $ceviri;
+    }
+}
+
 if (! function_exists('localized_asset')) {
     /**
      * Generate a locale-prefixed asset URL.
