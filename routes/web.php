@@ -231,8 +231,12 @@ Route::view('/private-chef', 'private-chef.index')->name('private-chef.index');
 Route::redirect('/ozel-sef', '/private-chef', 301);
 Route::view('/catering-cyprus', 'catering.index')->name('catering.index');
 Route::view('/cooking-classes', 'cooking-classes.index')->name('cooking-classes.index');
+Route::view('/meal-plans', 'meal-plans.index')->name('meal-plans.index');
 Route::redirect('/catering', '/catering-cyprus', 301);
 Route::redirect('/yemek-kursu', '/cooking-classes', 301);
+Route::redirect('/diyet-plani', '/meal-plans', 301);
+Route::redirect('/yemek-plani', '/meal-plans', 301);
+
 
 Route::post('/yasal-bilgilendirme/iletisim', [ContactRequestController::class, 'store'])->middleware('throttle:contact-request')->name('legal.center.contact.store');
 // Bu üç politika kendi sayfasında duruyor. Bölümler yasal merkezden

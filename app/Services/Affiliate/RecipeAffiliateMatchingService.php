@@ -101,11 +101,20 @@ final class RecipeAffiliateMatchingService
             $matchedSlugs[] = 'dijital-hassas-mutfak-tartisi';
         }
 
-        // 9. Genel Sebze & Zeytinyağlı
-        elseif (str_contains($categorySlug, 'zeytinyagli') || str_contains($categorySlug, 'sebze')) {
+        // 9. Genel Sebze & Zeytinyağlı & Vegan
+        elseif (str_contains($categorySlug, 'zeytinyagli') || str_contains($categorySlug, 'sebze') || str_contains($categorySlug, 'vegan')) {
             $matchedSlugs[] = 'pirge-ecco-sef-bicagi';
+            $matchedSlugs[] = 'ahsap-bambu-kesme-tahtasi';
             $matchedSlugs[] = 'dokum-tencere-lava-28cm';
         }
+
+        // 10. Kahvaltı & Hızlı Tarifler
+        elseif (str_contains($categorySlug, 'kahvalti') || str_contains($categorySlug, 'hizli') || str_contains($titleLower, 'omlet') || str_contains($titleLower, 'tost')) {
+            $matchedSlugs[] = 'dokum-izgara-tava-lava';
+            $matchedSlugs[] = 'pirge-ecco-sef-bicagi';
+            $matchedSlugs[] = 'dijital-hassas-mutfak-tartisi';
+        }
+
 
         // Varsayılan eşleşmeler
         $matchedSlugs[] = 'dijital-hassas-mutfak-tartisi';

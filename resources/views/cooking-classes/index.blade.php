@@ -243,7 +243,8 @@
             @endif
 
             <form
-                action="{{ route('contact.store') }}"
+                action="{{ route('legal.center.contact.store') }}"
+
                 method="POST"
                 class="space-y-5 rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-700 dark:bg-stone-900">
                 @csrf
