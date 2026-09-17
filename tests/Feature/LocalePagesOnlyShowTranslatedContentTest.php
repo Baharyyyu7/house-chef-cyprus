@@ -38,7 +38,7 @@ final class LocalePagesOnlyShowTranslatedContentTest extends TestCase
         // başka dilde içerik döndürmesi demekti.
         $tarif = $this->tarif();
 
-        $this->get('/en/tarifler/'.$tarif->slug)->assertNotFound();
+        $this->get('/en/recipes/'.$tarif->slug)->assertNotFound();
     }
 
     public function test_an_untranslated_post_has_no_address_in_that_locale(): void
@@ -77,7 +77,7 @@ final class LocalePagesOnlyShowTranslatedContentTest extends TestCase
         foreach (['title' => 'Grilled Halloumi', 'excerpt' => 'Crisp cheese.', 'description' => 'Cook until golden.'] as $field => $value) {
             $translated->translations()->create(['locale' => 'en', 'field' => $field, 'value' => $value]);
         }
-        $this->get('/en/tarifler?q=Halloumi')->assertOk()->assertSee('Grilled Halloumi')
+        $this->get('/en/recipes?q=Halloumi')->assertOk()->assertSee('Grilled Halloumi')
             ->assertDontSee($hidden->slug)->assertDontSee('Hellim Izgara');
     }
 

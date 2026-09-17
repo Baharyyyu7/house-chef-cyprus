@@ -44,7 +44,7 @@ class GlobalLanguageExperienceTest extends TestCase
     public function test_english_public_navigation_has_localized_accessibility_labels(): void
     {
         config(['locales.supported.en.enabled' => true]);
-        $this->get('/en/tarifler')->assertOk()
+        $this->get('/en/recipes')->assertOk()
             ->assertSee('aria-label="Main menu"', false)
             ->assertSee('aria-label="Open menu"', false)
             ->assertSee('aria-label="Close menu"', false)

@@ -14,7 +14,7 @@ class LocaleSwitchNavigationTest extends TestCase
     {
         config(['locales.supported.en.enabled' => true]);
         $this->post('/dil', ['locale' => 'en', 'return_to' => '/tarifler?q=hellim&page=2'])
-            ->assertRedirect(url('/en/tarifler?q=hellim&page=2'));
+            ->assertRedirect(url('/en/recipes?q=hellim&page=2'));
         $this->post('/dil', ['locale' => 'tr', 'return_to' => '/en?sort=newest'])
             ->assertRedirect(url('/').'?sort=newest');
     }
@@ -37,7 +37,7 @@ class LocaleSwitchNavigationTest extends TestCase
         config(['locales.supported.en.enabled' => true]);
         $this->withSession(['hc_locale' => 'en'])->get('/tarifler')
             ->assertOk()->assertSee('lang="tr"', false);
-        $this->withSession(['hc_locale' => 'tr'])->get('/en/tarifler')
+        $this->withSession(['hc_locale' => 'tr'])->get('/en/recipes')
             ->assertOk()->assertSee('lang="en"', false)
             ->assertSee('href="'.url('/en/blog').'"', false)
             ->assertSee('action="'.url('/dil').'"', false);

@@ -72,17 +72,17 @@ final class HreflangOnlyForEnabledLocalesTest extends TestCase
         $servis = app(LocaleUrlService::class);
 
         $this->assertSame(rtrim(url('/tarifler'), '/'), $servis->urlFor('tr', '/tarifler'));
-        $this->assertSame(rtrim(url('/en/tarifler'), '/'), $servis->urlFor('en', '/tarifler'));
+        $this->assertSame(rtrim(url('/en/recipes'), '/'), $servis->urlFor('en', '/tarifler'));
     }
 
     public function test_a_path_that_already_carries_a_prefix_is_not_doubled(): void
     {
-        // /en/en/tarifler üretmek hreflang kümesini bozar ve 404 hedefi
+        // /en/en/recipes üretmek hreflang kümesini bozar ve 404 hedefi
         // gösterir; hedefi 404 olan küme tamamen atılır.
         $servis = app(LocaleUrlService::class);
 
-        $this->assertSame(rtrim(url('/pl/tarifler'), '/'), $servis->urlFor('pl', '/en/tarifler'));
-        $this->assertSame(rtrim(url('/tarifler'), '/'), $servis->urlFor('tr', '/en/tarifler'));
+        $this->assertSame(rtrim(url('/pl/przepisy'), '/'), $servis->urlFor('pl', '/en/recipes'));
+        $this->assertSame(rtrim(url('/tarifler'), '/'), $servis->urlFor('tr', '/en/recipes'));
     }
 
     public function test_the_sitemap_stays_plain_while_only_one_locale_is_enabled(): void

@@ -71,7 +71,7 @@ final class BacklinkProspectsKnowTheirMarketTest extends TestCase
 
         $adres = app(BacklinkMarketService::class)->varlikAdresi('essen-und-trinken.de', 'recipe', 'hellim-izgara');
 
-        $this->assertSame(url('/de/tarifler/hellim-izgara'), $adres['url']);
+        $this->assertSame(url('/de/rezepte/hellim-izgara'), $adres['url']);
         $this->assertSame('de', $adres['locale']);
     }
 
@@ -82,7 +82,7 @@ final class BacklinkProspectsKnowTheirMarketTest extends TestCase
         $adres = app(BacklinkMarketService::class)->varlikAdresi('essen-und-trinken.de', 'recipe', 'hellimli');
 
         $this->assertNotNull($adres);
-        $this->assertSame(url('/de/tarifler/hellimli-kibris-boregi'), $adres['url']);
+        $this->assertSame(url('/de/rezepte/hellimli-kibris-boregi'), $adres['url']);
         $this->assertSame('de', $adres['locale']);
     }
 
@@ -146,7 +146,7 @@ final class BacklinkProspectsKnowTheirMarketTest extends TestCase
         $asset = app(BacklinkMarketService::class)->varlikAdresi('publisher.de', 'recipe', 'hellim');
 
         $this->assertNotNull($asset);
-        $this->assertSame(url('/de/tarifler/hellim-izgara'), $asset['url']);
+        $this->assertSame(url('/de/rezepte/hellim-izgara'), $asset['url']);
     }
 
     public function test_disabled_explicit_language_does_not_yield_a_source_language_asset(): void
