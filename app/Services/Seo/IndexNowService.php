@@ -46,10 +46,13 @@ final class IndexNowService
         }
 
         $key = $this->getKey();
-        $host = (string) parse_url(config('app.url', 'https://housechefcyprus.com'), PHP_URL_HOST);
-        if ($host === '') {
-            $host = 'housechefcyprus.com';
+        $configuredHost = (string) parse_url((string) (config('seo.search_console.site_url') ?: config('app.url', 'https://housechefcyprus.com')), PHP_URL_HOST);
+        // Local development uses 127.0.0.1/localhost but the key file lives on production.
+        // Submitting 127.0.0.1 to IndexNow would 403 and waste quota.
+        if ($configuredHost === '' || $configuredHost === 'localhost' || $configuredHost === '127.0.0.1' || str_ends_with($configuredHost, '.test') || str_ends_with($configuredHost, '.local')) {
+            $configuredHost = 'housechefcyprus.com';
         }
+        $host = $configuredHost;
         $cooldownKey = 'indexnow:retry-at:' . hash('sha256', $host . ':' . $key);
         $retryAt = (int) Cache::get($cooldownKey, 0);
         if ($retryAt > now()->timestamp) {
