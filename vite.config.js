@@ -13,8 +13,13 @@ export default defineConfig({
         chunkSizeWarningLimit: 500,
         rollupOptions: {
             output: {
-                manualChunks: {
-                    chart: ['chart.js'],
+                // rolldown nesne biçimini kabul etmiyor, işlev bekliyor.
+                manualChunks(id) {
+                    if (id.includes('node_modules/chart.js')) {
+                        return 'chart';
+                    }
+
+                    return undefined;
                 },
             },
         },
