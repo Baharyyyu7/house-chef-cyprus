@@ -54,6 +54,7 @@
                         @endif
                         <a class="hover:text-orange-300" href="{{ route('ingredients.hub.show', 'hellim') }}">Hellim</a>
                         <a class="hover:text-orange-300" href="{{ route('blog.index') }}?q=Kıbrıs">Kıbrıs Rehberleri</a>
+                        <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('private-chef.index') }}">👨‍🍳 Private Chef Cyprus</a>
                     </div>
                 </div>
             </div>

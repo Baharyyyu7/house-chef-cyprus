@@ -18,11 +18,12 @@ return [
         'menu_content' => 'Menü ve Mutfak İçeriği İş Birliği',
         'hospitality' => 'Otel ve Villa İş Birliği',
         'referral_partner' => 'Restoran ve Şef Yönlendirme Ortaklığı',
+        'private_chef' => 'Özel Şef Kiralama & Villa Rezervasyonu (Private Chef)',
         'affiliate_partner' => 'Satış Ortaklığı (Affiliate)',
         'business_listing' => 'İşletme Profili ve İlan',
         'other' => 'Diğer',
     ],
-    'commercial_subjects' => ['partnership', 'advertising', 'referral_partner', 'affiliate_partner', 'business_listing', 'menu_content', 'hospitality'],
+    'commercial_subjects' => ['partnership', 'advertising', 'referral_partner', 'private_chef', 'affiliate_partner', 'business_listing', 'menu_content', 'hospitality'],
     'statuses' => [
         'new' => 'Yeni', 'in_review' => 'İnceleniyor', 'waiting_reply' => 'Yanıt Bekliyor',
         'answered' => 'Yanıtlandı', 'resolved' => 'Çözüldü', 'spam' => 'Spam', 'archived' => 'Arşivlendi',

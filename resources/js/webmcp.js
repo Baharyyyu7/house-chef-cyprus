@@ -234,9 +234,10 @@
         requires_human_confirmation: true,
         parameters: {
             type: 'object',
-            required: ['slug'],
+            required: ['slug', 'confirmed'],
             properties: {
-                slug: { type: 'string', description: 'Recipe slug.' }
+                slug: { type: 'string', description: 'Recipe slug.' },
+                confirmed: { type: 'boolean', description: 'Explicit confirmation that the user wants to change their favorites.' }
             }
         },
         execute: async (params) => {

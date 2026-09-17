@@ -109,6 +109,7 @@
                     @if (Route::has('shop.index'))
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('shop.*')]) href="{{ localized_route('shop.index') }}" @click="menuOpen = false" @if(request()->routeIs('shop.*')) aria-current="page" @endif>{{ __('nav.shop') }}</a>
                     @endif
+                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('private-chef.*'), 'text-orange-600 dark:text-orange-400']) href="{{ route('private-chef.index') }}" @click="menuOpen = false" @if(request()->routeIs('private-chef.*')) aria-current="page" @endif>👨‍🍳 Private Chef</a>
                     @auth
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ localized_route('ingredients.explore') }}" @click="menuOpen = false" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>{{ __('nav.explore') }}</a>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ localized_route('ai-kitchen.index') }}" @click="menuOpen = false" @if(request()->routeIs('ai-kitchen.*')) aria-current="page" @endif>{{ __('nav.ai_kitchen') }}</a>

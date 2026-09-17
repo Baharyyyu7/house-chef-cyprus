@@ -60,6 +60,7 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TipController;
+use App\Http\Controllers\WeeklyMenuController;
 use App\Models\BlogPost;
 use App\Models\Recipe;
 use Illuminate\Http\Request;
@@ -92,7 +93,7 @@ Route::post('/destek-ol', [TipController::class, 'process'])->name('tip.process'
 // yapıyor ($paymentsEnabled false iken düğmeler "Yakında" olur).
 
 Route::get('/', [RecipeController::class, 'index'])->name('home');
-Route::get('/haftalik-menu', [\App\Http\Controllers\WeeklyMenuController::class, 'index'])->name('weekly-menu.index');
+Route::get('/haftalik-menu', [WeeklyMenuController::class, 'index'])->name('weekly-menu.index');
 Route::post('/dil', LocaleController::class)->middleware('throttle:20,1')->name('locale.update');
 // Sosyal giriş. Sağlayıcı yapılandırılmamışsa controller 404 döner ve düğme
 // zaten basılmaz; anahtarsız bir düğme herkesi hata sayfasına götürür.
@@ -116,7 +117,7 @@ Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])-
 // olctu ama indekslenebilir tek bir mutfak sayfasi yoktu.
 // Kıbrıs 5'li varyant için kısa/anahtar kelime URL'leri — hepsi kanonik hub'a 301
 // "Kıbrıs", "Kıbrıs Yemek", "Kıbrıs Yemek Tarif", "Yemek Kıbrıs", "Kıbrıs Yemekleri" tek sayfada toplanır
-foreach (['kibris','kibris-yemek','kibris-yemekleri','kibris-yemek-tarifi','kibris-yemek-tarifleri','yemek-kibris'] as $kisa) {
+foreach (['kibris', 'kibris-yemek', 'kibris-yemekleri', 'kibris-yemek-tarifi', 'kibris-yemek-tarifleri', 'yemek-kibris'] as $kisa) {
     Route::redirect('/'.$kisa, '/mutfaklar/kibris-mutfagi', 301)->name('kibris.alias.'.$kisa);
     Route::redirect('/en/'.$kisa, '/en/mutfaklar/kibris-mutfagi', 301);
 }
@@ -226,6 +227,8 @@ Route::get('/_zamanlayici/{token}', SchedulerTriggerController::class)
 Route::get('/yasal-bilgilendirme', [LegalInformationCenterController::class, 'index'])->name('legal.center');
 // İletişim formu yasal metnin içine gömülüydü; kendi sayfası oldu.
 Route::view('/iletisim', 'contact.index')->name('contact.index');
+Route::view('/private-chef', 'private-chef.index')->name('private-chef.index');
+Route::redirect('/ozel-sef', '/private-chef', 301);
 Route::post('/yasal-bilgilendirme/iletisim', [ContactRequestController::class, 'store'])->middleware('throttle:contact-request')->name('legal.center.contact.store');
 // Bu üç politika kendi sayfasında duruyor. Bölümler yasal merkezden
 // taşındı, kopyalanmadı: aynı metin iki adreste dururken ikisi de
