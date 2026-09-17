@@ -136,7 +136,12 @@ final class MediaExcellenceTest extends TestCase
         $this->assertStringContainsString('/storage/media/optimized/', (string) $media->responsiveUrl(100));
         foreach ($media->responsive_variants as $variant) {
             Storage::disk('public')->assertExists($variant['jpeg']);
+            $dimensions = getimagesize(Storage::disk('public')->path($variant['jpeg']));
+            $this->assertSame([$variant['width'], $variant['height']], array_slice($dimensions, 0, 2));
         }
+        $this->assertNotSame($media->responsive_variants['square']['jpeg'], $media->responsive_variants['card']['jpeg']);
+        $this->assertStringContainsString('square-1080x1080', $media->responsive_variants['square']['jpeg']);
+        $this->assertStringContainsString('card-800x600', $media->responsive_variants['card']['jpeg']);
 
         $this->assertSame(['processed' => 0, 'skipped' => 0, 'failed' => 0], app(MediaOptimizationService::class)->optimize());
     }

@@ -72,7 +72,7 @@ final class MediaOptimizationService
             $canvas = imagecreatetruecolor($targetWidth, $targetHeight);
             [$sourceX, $sourceY, $cropWidth, $cropHeight] = $this->crop($media, $width, $height, $targetWidth, $targetHeight);
             imagecopyresampled($canvas, $source, 0, 0, $sourceX, $sourceY, $targetWidth, $targetHeight, $cropWidth, $cropHeight);
-            $base = 'media/optimized/'.$media->public_id.'/'.$targetWidth;
+            $base = 'media/optimized/'.$media->public_id.'/'.$name.'-'.$targetWidth.'x'.$targetHeight;
             $jpeg = $base.'.jpg';
             ob_start();
             imagejpeg($canvas, null, (int) config('media_excellence.quality.jpeg'));
