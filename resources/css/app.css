@@ -1033,14 +1033,17 @@ html { scroll-padding-top: calc(var(--hc-header-h, 4.75rem) + 1.25rem); }
 .hc-nav-control,
 .hc-nav-control > .hc-locale__trigger { border-radius: 9999px; }
 a.hc-nav-control {
-    padding-inline: 1.15rem;
+    padding-inline: .95rem;
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
-.hc-user-trigger.hc-nav-control { border-radius: 9999px; padding-inline: .3rem 1rem; }
+@media (min-width: 1536px) {
+    a.hc-nav-control { padding-inline: 1.15rem; }
+}
+.hc-user-trigger.hc-nav-control { border-radius: 9999px; padding-inline: .35rem .85rem; }
 .hc-user-trigger.hc-nav-control > span:first-child { border-radius: 9999px; }
 /* Anahtar ile diğerlerinin kenarı aynı renkte olsun; farklı kenar rengi
    aynı sıradaki şeyleri iki gruba bölüyordu. */

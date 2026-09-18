@@ -2,14 +2,14 @@
             'hc-public-header sticky top-0 z-40 transition-all duration-300',
             'hc-header-over-hero' => request()->routeIs('home', 'recipes.show'),
         ])>
-            <nav class="hc-container flex h-[4.75rem] items-center justify-between gap-4 transition-colors duration-300" aria-label="{{ __('ux.menu') }}">
+            <nav class="mx-auto flex h-[4.75rem] w-full max-w-[92rem] items-center justify-between gap-2 px-4 transition-colors duration-300 sm:px-6 lg:px-8 xl:gap-4" aria-label="{{ __('ux.menu') }}">
                 <x-brand-logo class="scale-100 sm:scale-105 shrink-0" />
                 {{-- Menüde sekiz üst düzey bağlantı vardı ve sığmadığı için
                      "Ana / Sayfa", "Ne / Pişirebilirim?", "AI / Mutfak" diye
                      iki satıra kırılıyordu. Herkesin gittiği yerler üstte
                      kaldı; üyeye özel araçlar tek bir başlık altına indi.
                      "Ana Sayfa" kalktı çünkü logo zaten oraya götürüyor. --}}
-                <div class="hidden items-center gap-7 text-sm font-bold xl:flex">
+                <div class="hidden items-center gap-3.5 text-[13px] font-bold xl:flex 2xl:gap-6 2xl:text-sm">
                     <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ localized_route('recipes.index') }}" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>{{ __('nav.recipes') }}</a>
                     <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ localized_route('ingredients.explore') }}" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>{{ __('nav.explore') }}</a>
                     <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ localized_route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif>{{ __('nav.blog') }}</a>
@@ -112,7 +112,7 @@
                     <x-locale-switcher />
                     <x-theme-switch class="hc-nav-control shrink-0" />
                     @auth
-                        @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline hc-nav-control whitespace-nowrap shrink-0">{{ __('nav.admin') }}</a>@endif
+                        @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline hc-nav-control whitespace-nowrap shrink-0 !px-3">{{ __('nav.admin') }}</a>@endif
                         <x-user-menu />
                     @else
                         <a href="{{ route('login') }}" class="hc-btn hc-btn-outline hc-nav-control whitespace-nowrap shrink-0">{{ __('nav.login') }}</a>
