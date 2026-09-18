@@ -3,7 +3,7 @@
      kolay tarifler) en güçlü iç bağlantıyı veren yer. c3ccef8 ana sayfayı
      yeniden yazarken bu bölümler düştü ve hub sayfaları ana sayfadan
      gelen bağlantıyı kaybetti; burada geri getiriliyor. --}}
-<section data-reveal class="hc-container py-10" aria-label="{{ __('home.quick_links') }}">
+<div data-reveal class="hc-container py-10" aria-label="{{ __('home.quick_links') }}">
             <div class="hc-arama__oneriler mt-5">
                 <span class="hc-arama__etiket">{{ __('home.quick_links') }}</span>
                 <a class="hc-arama__cip" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">🇨🇾 {{ __('home.cypriot_cuisine') }}</a>
@@ -15,9 +15,9 @@
                 <a class="hc-arama__cip" href="{{ route('categories.show', 'tatli') }}">🍯 {{ __('home.quick_desserts') }}</a>
                 <a class="hc-arama__cip !border-orange-500/30 !bg-orange-500/10 !text-orange-700 dark:!text-orange-300 font-bold" href="{{ route('recipes.index') }}">{{ __('home.all_archive') }}</a>
             </div>
-</section>
+</div>
 
-    <section data-reveal class="hc-container py-16"><div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">{{ __('home.cuisines_kicker') }}</p><h2 class="hc-heading-2 mt-3">{{ __('home.cuisines_title') }}</h2></div><a class="hidden text-sm font-extrabold text-orange-700 sm:inline" href="{{ route('recipes.index') }}">{{ __('home.go_to_archive') }} →</a></div>{{-- Kutular eskiden bir yıldız ve bir addan ibaretti; yüksekti ve boştu.
+    <div data-reveal class="hc-container py-16"><div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">{{ __('home.cuisines_kicker') }}</p><h2 class="hc-heading-2 mt-3">{{ __('home.cuisines_title') }}</h2></div><a class="hidden text-sm font-extrabold text-orange-700 sm:inline" href="{{ route('recipes.index') }}">{{ __('home.go_to_archive') }} →</a></div>{{-- Kutular eskiden bir yıldız ve bir addan ibaretti; yüksekti ve boştu.
              Artık koleksiyonun büyüklüğünü gösteriyor ve en dolu mutfaklar başa
              geliyor, yani tıklamadan önce ne bulacağını biliyorsun. Tarifi
              olmayan mutfak hiç listelenmez. --}}
@@ -39,4 +39,4 @@
                     <span class="hc-hub-card__ok" aria-hidden="true">›</span>
                 </a>
             @endforeach
-        </div></section>
+        </div></div>
