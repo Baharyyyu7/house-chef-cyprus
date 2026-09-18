@@ -20,7 +20,11 @@ final class SeoMetadataTitleTest extends TestCase
 
         $metadata = $service->for($recipe, $recipe->title, null, url('/tarifler/kleftiko'));
 
-        $this->assertStringEndsWith('· House Chef Cyprus', $metadata['title']);
+        // Marka ya tam olarak bulunur ya da hiç bulunmaz; asla yarım kalmaz.
+        // Uzun başlıkta ek bırakılır, çünkü arama sonucunda asıl değerli
+        // olan sorguyu karşılayan kelimelerdir.
+        $markaVar = str_contains($metadata['title'], 'House Chef Cyprus');
+        $this->assertTrue(! $markaVar || str_ends_with($metadata['title'], '· House Chef Cyprus'));
         $this->assertStringNotContainsString('House Che ·', $metadata['title']);
         $this->assertStringNotContainsString('House Che ', $metadata['title']);
         $this->assertLessThanOrEqual(70, mb_strlen($metadata['title']));

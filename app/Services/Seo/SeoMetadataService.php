@@ -24,9 +24,25 @@ final class SeoMetadataService
             $translatedTitle = (string) $entity->translated('title');
             $title = $this->formatTitleWithBrand($translatedTitle !== '' ? $translatedTitle : $fallbackTitle);
 
+            $desc = (string) ($entity instanceof Recipe ? ($entity->translated('description') ?: $entity->translated('excerpt')) : $entity->translated('excerpt'));
+            if ($entity instanceof Recipe && $desc !== '' && ($metadata?->meta_description === null || trim((string) $metadata->meta_description) === '')) {
+                $totalMinutes = $entity->totalMinutes();
+                $servings = (int) $entity->servings;
+                $prefix = '';
+                if ($totalMinutes > 0) {
+                    $prefix .= "⏱ {$totalMinutes} min • ";
+                }
+                if ($servings > 0) {
+                    $prefix .= "{$servings} Servings • ";
+                }
+                if ($prefix !== '' && ! str_contains($desc, '⏱')) {
+                    $desc = $prefix.$desc;
+                }
+            }
+
             return [
                 'title' => $title,
-                'description' => Str::limit((string) ($entity instanceof Recipe ? ($entity->translated('description') ?: $entity->translated('excerpt')) : $entity->translated('excerpt')), 160, ''),
+                'description' => Str::limit($desc, 160, ''),
                 'canonical' => app(LocaleUrlService::class)->urlFor(app()->getLocale(), $canonical),
                 'robots' => $robots,
             ];
@@ -46,9 +62,25 @@ final class SeoMetadataService
 
         $title = $this->formatTitleWithBrand($title);
 
+        $description = (string) ($metadata?->meta_description ?: $fallbackDescription ?: '');
+        if ($entity instanceof Recipe && ($metadata?->meta_description === null || trim((string) $metadata->meta_description) === '')) {
+            $totalMinutes = $entity->totalMinutes();
+            $servings = (int) $entity->servings;
+            $prefix = '';
+            if ($totalMinutes > 0) {
+                $prefix .= "⏱ {$totalMinutes} dk • ";
+            }
+            if ($servings > 0) {
+                $prefix .= "{$servings} Kişilik • ";
+            }
+            if ($prefix !== '' && $description !== '' && ! str_contains($description, '⏱')) {
+                $description = $prefix.$description;
+            }
+        }
+
         return [
             'title' => $title,
-            'description' => Str::limit((string) ($metadata?->meta_description ?: $fallbackDescription ?: ''), 160, ''),
+            'description' => Str::limit($description, 160, ''),
             'canonical' => $this->safeCanonical($candidateCanonical, $canonical),
             'robots' => $robots,
         ];
@@ -113,6 +145,20 @@ final class SeoMetadataService
         $suffix = ' · '.$brand;
         $suffixLen = mb_strlen($suffix);
         $maxCoreLength = $maxTotalLength - $suffixLen;
+
+        // Başlık marka ekiyle birlikte sığmıyorsa önce ek bırakılır. Asıl
+        // başlığı ortasından kesip "…" koymak, arama sonucunda sorguyu
+        // karşılayan kelimeleri siliyordu: "Fırın Kaç Dakikada Isınır? Ön
+        // Isıtma Süreleri… · House Chef Cyprus". Marka zaten adreste ve
+        // site adında görünüyor.
+        if (mb_strlen($coreTitle) > $maxCoreLength && mb_strlen($coreTitle) <= $maxTotalLength) {
+            return $coreTitle;
+        }
+
+        if (mb_strlen($coreTitle) > $maxTotalLength) {
+            $maxCoreLength = $maxTotalLength;
+            $suffix = '';
+        }
 
         if (mb_strlen($coreTitle) > $maxCoreLength) {
             $truncated = mb_substr($coreTitle, 0, $maxCoreLength - 1);
