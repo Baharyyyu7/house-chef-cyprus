@@ -63,18 +63,18 @@ class="relative z-40">
     <div class="fixed right-4 sm:right-6 z-40 flex items-center gap-2 transform-gpu transition-all duration-300" style="bottom: calc(1.25rem + var(--hc-consent-h, 0px));">
         <button type="button" 
                 x-on:click="open = true" 
-                class="group flex items-center gap-2.5 rounded-full border border-orange-400/40 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 px-4 py-3 text-white shadow-xl shadow-orange-950/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-orange-900/30 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:ring-offset-stone-900"
+                class="group flex items-center justify-center gap-2.5 rounded-full border border-orange-400/40 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 p-2.5 sm:px-4 sm:py-3 text-white shadow-xl shadow-orange-950/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-orange-900/30 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:ring-offset-stone-900"
                 aria-haspopup="dialog"
                 x-bind:aria-expanded="open.toString()"
                 aria-label="Kıbrıs Özel Şef & Fiyat Hesaplayıcı">
-            <span class="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-base backdrop-blur-sm transition-transform group-hover:rotate-12" aria-hidden="true">
+            <span class="flex h-8 w-8 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/20 text-lg sm:text-base backdrop-blur-sm transition-transform group-hover:rotate-12" aria-hidden="true">
                 👨‍🍳
             </span>
-            <span class="flex flex-col text-left">
+            <span class="hidden sm:flex flex-col text-left">
                 <span class="text-[10px] font-bold uppercase tracking-widest text-orange-200">Kıbrıs Özel Şef</span>
                 <span class="text-xs font-black sm:text-sm">Fiyat & Paket Hesapla</span>
             </span>
-            <span class="ml-1 inline-flex items-center rounded-full bg-amber-400/90 px-2 py-0.5 text-[10px] font-bold text-stone-900 shadow-sm">
+            <span class="hidden sm:inline-flex ml-1 items-center rounded-full bg-amber-400/90 px-2 py-0.5 text-[10px] font-bold text-stone-900 shadow-sm">
                 Anında
             </span>
         </button>

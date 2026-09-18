@@ -59,3 +59,15 @@ Ajanlar atanmış alanları doğrudan düzeltir ve kendi testlerini çalıştır
 İçerik teslimleri yalnız sunucudaki JSON teslim kutularına yazılır. Mevcut yayın ve dil kuralları geçerlidir. Yeni dil veya içerik yayınının durumu açıkça kaydedilir. Dış yayıncı veya Google erişimi gerektiren adımların teknik hazırlığı ile dış sistemdeki sonucu ayrı raporlanır.
 
 Bu dosyayı yalnız koordinatör günceller. Nihai rapor, değişen dosyalar, test sonuçları, çapraz inceleme sonuçları ve gerçek canlı sürümü içerir.
+
+## 2026-09-18 koordinatör yeniden kontrolü
+
+Önceki hazır durumu yeni sürümlerin tamamını kapsamaz. `79c36cf` canlı ve
+yerel sürümünde aşağıdaki yeni bulgular kaydedildi. Ayrıntılı ölçüm ve
+teslim kaydı: `docs/seo/2026-09-16-ai-worker-1-delivery-report.md`.
+
+| Kimlik | Önem | Bulgu | Sahip | Durum | Kanıt |
+| --- | --- | --- | --- | --- | --- |
+| GLOB-009 | Yüksek | Seeder gerçek ziyaretçi oyu olmadan 14-36 puan üretiyor; canlıda 1.007 tarifte 24.874 eşleşme var | AI-Worker-1 / AI-Worker-8 | Düzeltme ve doğrulama sürüyor | 2026-09-18 06:54:43 UTC salt okunur canlı SHA256 parmak izi denetimi; seeder regresyon testi önce 18 yapay oyla başarısız, engelleme sonrası başarılı |
+| GLOB-010 | Yüksek | `SeoAutoDrip` günlük taslak yayınlıyor; ayrı insan yayın kararı yerine içerik kalite alanlarını yeterli sayıyor | Sonraki otomasyon kontrolü | Açık | `app/Console/Commands/SeoAutoDrip.php`, `routes/console.php` içindeki günlük `seo_auto_drip` |
+| GLOB-011 | Takip | Yedi dil etkin, bu durum her dilde bütün içerik ve arayüzlerin hazır olduğunu kanıtlamaz | Koordinatör | Kapsam doğrulaması açık | 2026-09-18 `config/locales.php`: tr/en/de/fa/pl/ru/pt; bu tur hiçbir ayar değiştirilmedi |

@@ -956,10 +956,18 @@ body { padding-bottom: var(--hc-consent-h, 0px); }
    duruyor ama dördü de kendi yüksekliğini taşıyordu (40, 32, 44, 44 piksel).
    Yan yana duran şeylerin aynı boyda olması gerekir; sıra hattı buradan gelir. */
 :root { --hc-nav-control: 2.5rem; }
-.hc-nav-control { height: var(--hc-nav-control); min-height: var(--hc-nav-control); }
+.hc-nav-control {
+    height: var(--hc-nav-control);
+    min-height: var(--hc-nav-control);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
 /* Anahtarın boyu artınca topuzu ve yolu da orantılı büyür, yoksa pil içinde
    küçük bir topuz yüzer. */
-.hc-theme-switch.hc-nav-control { height: var(--hc-nav-control); width: 4.25rem; padding: .25rem; }
+.hc-theme-switch.hc-nav-control { height: var(--hc-nav-control); width: 4.25rem; padding: .25rem; flex-shrink: 0; }
 .hc-theme-switch.hc-nav-control .hc-theme-switch__knob { width: 2rem; height: 2rem; }
 .hc-theme-switch.hc-nav-control[aria-checked="true"] .hc-theme-switch__knob { transform: translateX(1.75rem); }
 
@@ -1024,7 +1032,14 @@ html { scroll-padding-top: calc(var(--hc-header-h, 4.75rem) + 1.25rem); }
    eylem o. */
 .hc-nav-control,
 .hc-nav-control > .hc-locale__trigger { border-radius: 9999px; }
-a.hc-nav-control { padding-inline: 1.1rem; }
+a.hc-nav-control {
+    padding-inline: 1.15rem;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
 .hc-user-trigger.hc-nav-control { border-radius: 9999px; padding-inline: .3rem 1rem; }
 .hc-user-trigger.hc-nav-control > span:first-child { border-radius: 9999px; }
 /* Anahtar ile diğerlerinin kenarı aynı renkte olsun; farklı kenar rengi
@@ -1763,6 +1778,7 @@ select.hc-arama__girdi {
   color: var(--hc-text-secondary);
   font-size: .82rem;
   font-weight: 700;
+  white-space: nowrap;
   transition:
     border-color var(--hc-duration-fast) ease,
     background-color var(--hc-duration-fast) ease,
@@ -1971,6 +1987,26 @@ details > summary { user-select: none; }
   font-size: .925rem;
   line-height: 1.6;
   color: var(--hc-text-secondary);
-  border-t: 1px solid var(--hc-border-subtle);
+  border-top: 1px solid var(--hc-border-subtle);
   padding-top: .75rem;
 }
+
+/* ═══════════════════════════════════════════════
+   30. AD-SLOT RESPONSIVE PROTECTION
+   ═══════════════════════════════════════════════ */
+
+.ad-slot {
+  max-width: 100%;
+  overflow-x: hidden;
+  contain: layout;
+}
+
+.ad-slot ins.adsbygoogle {
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.ad-slot iframe {
+  max-width: 100% !important;
+}
+

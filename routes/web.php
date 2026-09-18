@@ -245,7 +245,12 @@ Route::post('/yasal-bilgilendirme/iletisim', [ContactRequestController::class, '
 Route::get('/gizlilik', PolicyPageController::class)->defaults('sayfa', 'gizlilik')->name('policy.gizlilik');
 Route::get('/cerezler', PolicyPageController::class)->defaults('sayfa', 'cerezler')->name('policy.cerezler');
 Route::get('/kullanim-kosullari', PolicyPageController::class)->defaults('sayfa', 'kullanim-kosullari')->name('policy.kullanim-kosullari');
+Route::redirect('/gizlilik-politikasi', '/gizlilik', 301);
+Route::redirect('/privacy-policy', '/gizlilik', 301);
 Route::redirect('/cerez-politikasi', '/cerezler', 301);
+Route::redirect('/cookie-policy', '/cerezler', 301);
+Route::redirect('/kullanim-sartlari', '/kullanim-kosullari', 301);
+Route::redirect('/terms-of-service', '/kullanim-kosullari', 301);
 Route::redirect('/kaynak-politikasi', '/yasal-bilgilendirme#icerik-ve-kaynak-politikasi', 301);
 Route::redirect('/kaynak-ve-veri-guven-politikasi', '/yasal-bilgilendirme#icerik-ve-kaynak-politikasi', 301);
 Route::get('/{page}', [InformationPageController::class, 'show'])

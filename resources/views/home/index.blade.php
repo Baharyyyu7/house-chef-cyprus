@@ -1,7 +1,7 @@
 {{-- Hero sayfanın kendisidir, sayfanın üstünde duran bir kart değil.
          Tam genişlikte açılır ve alt kenarı sayfa zeminine karışır; böylece
          yüzen başlık çubuğu gerçekten içeriğin üstünden geçer. --}}
-    <section class="hc-home-hero hc-home-hero--master relative isolate -mt-[var(--hc-header-h)] flex flex-col justify-center min-h-[82svh] items-stretch pb-16 pt-[calc(var(--hc-header-h)+3rem)] sm:pb-20">
+    <section class="hc-home-hero hc-home-hero--master relative isolate -mt-[var(--hc-header-h)] flex flex-col justify-start min-h-[82svh] items-stretch pb-20 pt-[calc(var(--hc-header-h)+2.5rem)] sm:pb-28 sm:pt-[calc(var(--hc-header-h)+3.5rem)]">
         {{-- Video tek başına sahnedir: kapak görseli yok, önce-resim-sonra-video geçişi yok. Video gelene kadar koyu zemin durur. --}}
         <div class="absolute inset-0 overflow-hidden pointer-events-none -z-30 bg-[#060606]">
             <x-hero-video />
@@ -16,15 +16,15 @@
                 <p class="hc-kicker text-orange-300">{{ __('home.kicker') }}</p>
                 <h1 class="hc-display-xl mt-5 max-w-3xl text-white">{{ __('home.hero_title') }}</h1>
                 <p class="hc-hero-muted hc-body-lg mt-6 max-w-2xl">{{ __('home.hero_subtitle') }}</p>
-                <div class="mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-                    <a class="hc-btn hc-btn-primary px-7" href="#hero-ingredient">{{ __('home.hero_cta') }} <span class="ml-1" aria-hidden="true">→</span></a>
-                    <a class="hc-btn border border-white/40 bg-black/25 text-white backdrop-blur-md hover:bg-white hover:!text-stone-900 shadow-sm transition-all duration-200 px-6 font-semibold" href="{{ route('ingredients.explore') }}">🥕 {{ __('home.hero_pantry_btn') }}</a>
-                    <a class="hc-hero-secondary text-sm font-semibold text-white/90 underline-offset-4 transition hover:text-white hover:underline sm:ml-2" href="{{ route('recipes.index') }}">{{ __('home.browse_archive') }}</a>
+                <div class="mt-9 flex flex-col items-stretch sm:items-center sm:flex-row gap-3 sm:gap-4">
+                    <a class="hc-btn hc-btn-primary px-7 w-full sm:w-auto text-center justify-center whitespace-nowrap" href="#hero-ingredient">{{ __('home.hero_cta') }} <span class="ml-1" aria-hidden="true">→</span></a>
+                    <a class="hc-btn border border-white/40 bg-black/30 text-white backdrop-blur-md hover:bg-white hover:!text-stone-900 shadow-sm transition-all duration-200 px-6 font-semibold w-full sm:w-auto text-center justify-center whitespace-nowrap" href="{{ route('ingredients.explore') }}">🥕 {{ __('home.hero_pantry_btn') }}</a>
+                    <a class="hc-hero-secondary text-center sm:text-left text-sm font-semibold text-white/90 underline-offset-4 transition hover:text-white hover:underline py-1 sm:py-0 sm:ml-2 whitespace-nowrap" href="{{ route('recipes.index') }}">{{ __('home.browse_archive') }}</a>
                 </div>
             </div>
         </div>
         {{-- Arama kutusu sayfanın ilk eylemi; malzeme seçimi ve tarif aramasını şık sekmelerle tek alanda sunar --}}
-    <div id="kesfet" class="hc-container relative z-20 mt-8">
+    <div id="kesfet" class="hc-container relative z-20 mt-10 sm:mt-12">
         <div class="hc-arama hc-home-search" x-data="{ activeSearchTab: 'ingredients' }">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-1">
                 <div>

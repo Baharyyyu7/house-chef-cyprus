@@ -3,7 +3,7 @@
             'hc-header-over-hero' => request()->routeIs('home', 'recipes.show'),
         ])>
             <nav class="hc-container flex h-[4.75rem] items-center justify-between gap-4 transition-colors duration-300" aria-label="{{ __('ux.menu') }}">
-                <x-brand-logo class="scale-105" />
+                <x-brand-logo class="scale-100 sm:scale-105 shrink-0" />
                 {{-- Menüde sekiz üst düzey bağlantı vardı ve sığmadığı için
                      "Ana / Sayfa", "Ne / Pişirebilirim?", "AI / Mutfak" diye
                      iki satıra kırılıyordu. Herkesin gittiği yerler üstte
@@ -108,26 +108,26 @@
                     @endif
                 </div>
 
-                <div class="hidden items-center gap-2 xl:flex">
+                <div class="hidden items-center gap-2.5 xl:flex shrink-0">
                     <x-locale-switcher />
-                    <x-theme-switch class="hc-nav-control" />
+                    <x-theme-switch class="hc-nav-control shrink-0" />
                     @auth
-                        @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline hc-nav-control">{{ __('nav.admin') }}</a>@endif
+                        @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline hc-nav-control whitespace-nowrap shrink-0">{{ __('nav.admin') }}</a>@endif
                         <x-user-menu />
                     @else
-                        <a href="{{ route('login') }}" class="hc-btn hc-btn-outline hc-nav-control">{{ __('nav.login') }}</a>
-                        <a href="{{ route('register') }}" class="hc-btn hc-btn-gold hc-nav-control">{{ __('nav.register') }}</a>
+                        <a href="{{ route('login') }}" class="hc-btn hc-btn-outline hc-nav-control whitespace-nowrap shrink-0">{{ __('nav.login') }}</a>
+                        <a href="{{ route('register') }}" class="hc-btn hc-btn-gold hc-nav-control whitespace-nowrap shrink-0">{{ __('nav.register') }}</a>
                     @endauth
                 </div>
-                <div class="flex items-center gap-2 xl:hidden">
+                <div class="flex items-center gap-2 xl:hidden shrink-0">
                     {{-- 375px'te logo + dil + tema + menu toplami 404px ediyordu:
                          menu dugmesi ekranin disinda kaliyor ve sayfa yatay
                          kaymadigi icin hata gorunmuyordu. Telefondan hicbir
                          gezinme baglantisina ulasilamiyordu. Dar ekranda dil
                          secici cubuktan cikip cekmeceye giriyor. --}}
                     <div class="hidden sm:block"><x-locale-switcher /></div>
-                    <x-theme-switch class="hc-nav-control" />
-                    <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="{{ __('ux.open_menu') }}"><x-ui.icon name="menu" size="20" /></button>
+                    <x-theme-switch class="hc-nav-control shrink-0" />
+                    <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl border border-white/20 bg-charcoal-900/80 text-white backdrop-blur-md transition duration-200 active:scale-95 hover:border-white/40 dark:border-stone-700/80 dark:bg-stone-800/80" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="{{ __('ux.open_menu') }}"><x-ui.icon name="menu" size="20" /></button>
                 </div>
             </nav>
             {{-- Çekmece kendini modal ilan ediyor; o hâlde arkası gerçekten
