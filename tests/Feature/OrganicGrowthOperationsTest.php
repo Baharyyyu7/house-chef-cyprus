@@ -223,7 +223,9 @@ final class OrganicGrowthOperationsTest extends TestCase
         $events = app(Schedule::class)->events();
         $event = collect($events)->first(fn ($event) => $event->description === 'seo_growth_refresh');
         $this->assertNotNull($event);
-        $this->assertSame('49 1 * * *', $event->expression);
+        // Hostinger tetikleyicisi beş dakikada bir çalışıyor; 01:49 hiç
+        // eşleşmez ve görev koşmazdı. Saatler beşin katına hizalandı (c3ccef8).
+        $this->assertSame('45 1 * * *', $event->expression);
         $this->assertTrue($event->withoutOverlapping);
     }
 

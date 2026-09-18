@@ -57,7 +57,9 @@ final class AdminShellContractTest extends TestCase
         self::assertStringContainsString('.admin-shell__content { min-width:0;', $css);
         self::assertStringContainsString('.admin-shell .hc-page { width:100%;', $css);
         self::assertStringContainsString('.hc-admin-stat, .hc-admin-metric-card { display:flex;', $css);
-        self::assertStringContainsString('@media (max-width: 767px) { html, body, .admin-shell { overflow-x:clip;', $css);
+        // Yatay taşma artık her genişlikte kesiliyor (8e4aa76); clip, hidden'ın
+        // aksine yapışkan başlığı bozmaz.
+        self::assertStringContainsString('html, body, .admin-shell { overflow-x:clip;', $css);
     }
 
     /** @return list<Route> */
