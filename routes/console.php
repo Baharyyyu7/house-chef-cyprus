@@ -72,19 +72,19 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_integri
 // dosyaları text/plain olarak gidiyordu ve sitedeki her görsel gri yer
 // tutucuya düşüyordu. HTML doğruydu, dosyalar 200 veriyordu; hiçbir
 // sunucu tarafı denetimi bunu yakalayamazdı.
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('asset_delivery_check', fn () => Artisan::call('assets:delivery-check')))->name('asset_delivery_check')->dailyAt('01:09')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('asset_delivery_check', fn () => Artisan::call('assets:delivery-check')))->name('asset_delivery_check')->dailyAt('01:10')->withoutOverlapping();
 // Görsel eksiği sırası. Yayındaki tariflerin yarısına yakını onaylı
 // görseli olmadığı için yer tutucuyla gösteriliyor; ziyaretçinin gördüğü
 // en büyük eksiklik bu. Görsel üretimi başka ajanlara veriliyor, bu görev
 // onlara verilecek sırayı sitenin kendi verisinden üretiyor.
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_gap_queue', fn () => Artisan::call('media:gap-queue')))->name('media_gap_queue')->dailyAt('01:13')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('media_gap_queue', fn () => Artisan::call('media:gap-queue')))->name('media_gap_queue')->dailyAt('01:15')->withoutOverlapping();
 // Çeviri hazırlığı. Site dört dil için hazır ama hiç çeviri yok ve
 // dillerin dördü de kapalı - doğru durum, çünkü çevirisi olmayan kayıt o
 // dilde var olmuyor. Tehlike sıralamada: Türkçe tarafı eksik bir tarifi
 // çevirmek hatayı dille çarpar ve bu site zaten bir kez ölçekli zayıf
 // içerik yüzünden ceza yedi. Bu görev hangi tarifin çevrilmeye hazır
 // olduğunu ve baskın engelin ne olduğunu ölçüyor.
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('translation_readiness', fn () => Artisan::call('content:translation-readiness')))->name('translation_readiness')->dailyAt('01:17')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('translation_readiness', fn () => Artisan::call('content:translation-readiness')))->name('translation_readiness')->dailyAt('01:20')->withoutOverlapping();
 
 // İç bağlantılar denetleniyor: 404 verenler ve 200 dönüp sıfır tarif
 // listeleyen katalog filtreleri. İkincisi üretimde aylarca fark edilmedi.
@@ -92,30 +92,30 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('link_integrity'
 
 // Kayıtlı sıfır sonuçlu aramalar güncel katalogla yeniden deneniyor:
 // karşılanmış talep, karşılanmamış gibi görünüp içerik görevi üretmesin.
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('zero_result_recheck', fn () => Artisan::call('search:recheck-zero-results')))->name('zero_result_recheck')->dailyAt('01:21')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('zero_result_recheck', fn () => Artisan::call('search:recheck-zero-results')))->name('zero_result_recheck')->dailyAt('01:25')->withoutOverlapping();
 
 // Koşu geçmişi trend için tutuluyor, arşiv için değil: üç aylık pencere
 // panelin gösterdiği her şeyi karşılıyor.
 Schedule::call(fn () => app(IntegrityReportLog::class)->prune(90))->name('integrity_report_prune')->weeklyOn(1, '02:10')->withoutOverlapping();
 // Salt okunur sözleşme muhafızı yalnız tablo + sütun genişliği + sabit değer
 // birlikte çözülebildiğinde bulgu üretir; belirsiz/dinamik yazımlar manşete girmez.
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('database_schema_contract', fn () => Artisan::call('db:schema-contract')))->name('database_schema_contract')->dailyAt('01:29')->withoutOverlapping();
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_audit', fn () => Artisan::call('seo:audit')))->name('seo_audit')->dailyAt('01:17')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('database_schema_contract', fn () => Artisan::call('db:schema-contract')))->name('database_schema_contract')->dailyAt('01:30')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_audit', fn () => Artisan::call('seo:audit')))->name('seo_audit')->dailyAt('01:35')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_sitemap_audit', fn () => Artisan::call('seo:sitemap-audit')))->name('seo_sitemap_audit')->dailyAt('01:25')->withoutOverlapping();
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_opportunities', fn () => Artisan::call('seo:content-opportunities')))->name('seo_content_opportunities')->dailyAt('01:43')->withoutOverlapping();
-Schedule::command('seo:growth-refresh', ['--limit' => 1000])->name('seo_growth_refresh')->dailyAt('01:49')->withoutOverlapping();
-Schedule::command('seo:backlinks-verify', ['--limit' => 3])->name('seo_backlinks_verify')->dailyAt('02:17')->withoutOverlapping();
-Schedule::command('seo:search-console-import')->name('seo_search_console_import')->dailyAt('06:47')->withoutOverlapping();
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_refresh', fn () => Artisan::call('seo:content-refresh')))->name('seo_content_refresh')->dailyAt('02:11')->withoutOverlapping();
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_internal_links', fn () => Artisan::call('seo:internal-links')))->name('seo_internal_links')->dailyAt('05:17')->withoutOverlapping();
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_social_drafts', fn () => Artisan::call('seo:social-drafts')))->name('seo_social_drafts')->dailyAt('05:43')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_opportunities', fn () => Artisan::call('seo:content-opportunities')))->name('seo_content_opportunities')->dailyAt('01:40')->withoutOverlapping();
+Schedule::command('seo:growth-refresh', ['--limit' => 1000])->name('seo_growth_refresh')->dailyAt('01:45')->withoutOverlapping();
+Schedule::command('seo:backlinks-verify', ['--limit' => 20])->name('seo_backlinks_verify')->dailyAt('02:15')->withoutOverlapping();
+Schedule::command('seo:search-console-import')->name('seo_search_console_import')->dailyAt('06:45')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_content_refresh', fn () => Artisan::call('seo:content-refresh')))->name('seo_content_refresh')->dailyAt('02:10')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_internal_links', fn () => Artisan::call('seo:internal-links')))->name('seo_internal_links')->dailyAt('05:20')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_social_drafts', fn () => Artisan::call('seo:social-drafts')))->name('seo_social_drafts')->dailyAt('05:40')->withoutOverlapping();
 // IndexNow: Bing ve Yandex'e "şu adresler değişti" der. Komut vardı ama
 // hiç zamanlanmamıştı; yani "anında bildirir" diyen bir araç kimse
 // çağırmadığı için hiç çalışmıyordu.
 //
 // Yapılandırma kapalıyken sessizce atlanır. Dış servise istek gitmesi
 // yapılandırma kararı, kod kararı değil: INDEXNOW_ENABLED=true yeter.
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_indexnow_submit', fn () => Artisan::call('seo:indexnow-submit')))->name('seo_indexnow_submit')->dailyAt('02:31')->withoutOverlapping()->when(fn (): bool => (bool) config('seo.indexnow.enabled'));
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_indexnow_submit', fn () => Artisan::call('seo:indexnow-submit')))->name('seo_indexnow_submit')->dailyAt('02:30')->withoutOverlapping()->when(fn (): bool => (bool) config('seo.indexnow.enabled'));
 
 // IP→ülke veritabanı (DB-IP, CC BY 4.0) ayda bir güncellenir. Komut yeni
 // dosyayı doğrulamadan eskisinin yerine koymaz; indirme başarısız olursa
@@ -125,15 +125,15 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('geoip_update', 
 // Blog özgünlüğü: birebir tekrar eden paragrafları olan yazılar noindex olur
 // ve site haritasından çıkar (içerik silinmez). Sitemap ve IndexNow'dan önce
 // çalışır ki tekrar içerik arama motoruna bildirilmesin.
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_originality_scan', fn () => Artisan::call('seo:originality-scan', ['--apply' => true])))->name('seo_originality_scan')->dailyAt('01:37')->withoutOverlapping();
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_recipe_quality_scan', fn () => Artisan::call('seo:recipe-quality-scan', ['--apply' => true])))->name('seo_recipe_quality_scan')->dailyAt('02:07')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_originality_scan', fn () => Artisan::call('seo:originality-scan', ['--apply' => true])))->name('seo_originality_scan')->dailyAt('01:35')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_recipe_quality_scan', fn () => Artisan::call('seo:recipe-quality-scan', ['--apply' => true])))->name('seo_recipe_quality_scan')->dailyAt('02:05')->withoutOverlapping();
 
 // Dil dil büyüme. Sabah brifingden hemen önce çalışır ki brifing taze
 // tabloyu görsün. Açık ama içeriği olmayan bir dil toplamların içinde
 // kaybolur; burada kaybolmuyor.
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_locale_growth', fn () => Artisan::call('seo:locale-growth')))->name('seo_locale_growth')->dailyAt('06:53')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_locale_growth', fn () => Artisan::call('seo:locale-growth')))->name('seo_locale_growth')->dailyAt('06:50')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_autonomous_growth', fn () => Artisan::call('seo:autonomous-growth')))->name('seo_autonomous_growth')->dailyAt('02:45')->withoutOverlapping();
-Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_morning_brief', fn () => Artisan::call('seo:morning-brief')))->name('seo_morning_brief')->dailyAt('06:59')->withoutOverlapping();
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_morning_brief', fn () => Artisan::call('seo:morning-brief')))->name('seo_morning_brief')->dailyAt('06:55')->withoutOverlapping();
 Schedule::call(fn () => app(\App\Services\Seo\GrowthSystem::class)->dispatch())->name('seo_growth_system')->hourly()->withoutOverlapping();
 // Draft-only content operations: limits are encoded in the command/config and auto-publish is permanently disabled.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_factory_recipe_drafts', fn () => Artisan::call('content:factory-seed', ['--type' => 'recipe', '--daily' => true])))->name('content_factory_recipe_drafts')->dailyAt('03:00')->withoutOverlapping();

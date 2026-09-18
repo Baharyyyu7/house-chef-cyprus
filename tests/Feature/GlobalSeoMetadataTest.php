@@ -107,4 +107,21 @@ final class GlobalSeoMetadataTest extends TestCase
         $this->assertCount(3, $turkish);
         $this->assertSame(['tr', 'en', 'x-default'], array_column($turkish, 'hreflang'));
     }
+
+    public function test_recipe_ctr_hook_prepends_time_and_servings_to_meta_description(): void
+    {
+        app()->setLocale('tr');
+        $recipe = new Recipe([
+            'title' => 'Kıbrıs Köftesi',
+            'prep_minutes' => 20,
+            'cook_minutes' => 25,
+            'rest_minutes' => 0,
+            'servings' => 4,
+        ]);
+        $recipe->setRelation('seoMetadata', null);
+
+        $metadata = app(SeoMetadataService::class)->for($recipe, 'Kıbrıs Köftesi', 'Geleneksel lezzetli Kıbrıs köftesi tarifi.', url('/tarifler/kibris-koftesi'));
+
+        $this->assertStringStartsWith('⏱ 45 dk • 4 Kişilik • Geleneksel lezzetli Kıbrıs köftesi tarifi.', $metadata['description']);
+    }
 }

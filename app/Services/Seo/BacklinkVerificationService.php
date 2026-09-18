@@ -37,7 +37,7 @@ final class BacklinkVerificationService
                 ->where(fn ($query) => $query->whereNull('next_check_at')->orWhere('next_check_at', '<=', now()))
                 ->orderBy('checked_at')->orderBy('id')->limit(100)->get();
             foreach ($candidates as $candidate) {
-                if ($result['checked'] >= max(1, min(3, $limit))) {
+                if ($result['checked'] >= max(1, min(50, $limit))) {
                     break;
                 }
                 if (microtime(true) - $started > 20) {

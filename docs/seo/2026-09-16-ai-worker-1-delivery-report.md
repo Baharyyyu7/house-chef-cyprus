@@ -68,6 +68,25 @@ karantina arşivine eksiksiz yazılıp doğrulanacak. Gerçek oylar ve bu sırad
 gelen yeni ziyaretçi oyları korunacak. Test/yayın/karantina sonucu aşağıdaki
 teslim kapanışına yazılmadan canlı düzeltme tamamlanmış sayılmaz.
 
+### 2026-09-18 canlı kapanış
+
+- Canlı sürüm: `58571b3c16161de2e2b961d3ee29aa1d8233e357`.
+- Testler: tam PHP süiti 1.462 test ile başarılı; JavaScript kontrolleri 7/7
+  başarılı.
+- `RecipeTestKitchenRatingsSeeder` sentetik oy üretmeyecek şekilde engellendi.
+- `recipe-ratings:quarantine-synthetic --apply` canlıda çalıştırıldı:
+  24.874 sentetik kayıt, 1.007 tarif, değişen veya işlem dışı bırakılan satır 0.
+- Özel arşiv:
+  `storage/app/private/quarantine/recipe-ratings-0bbbcab6-633e-4cb6-b535-de456613d28f.jsonl`.
+- Manifest:
+  `storage/app/private/quarantine/recipe-ratings-0bbbcab6-633e-4cb6-b535-de456613d28f.jsonl.manifest.json`.
+- Arşiv doğrulaması: 24.874 satır; SHA256
+  `32d5622bb9af7c7b04bf8020d6d19e8790c951b22f5465538e53ba22b0facfd0`.
+- Son canlı kontrol: sentetik eşleşme 0, toplam oylama satırı 0.
+- Örnek tarifler `kibris-hellimli-gozleme` ve `kibris-usulu-molohiya-T9C33`
+  HTTP 200 döndü; `Recipe` JSON-LD korunuyor, gerçek oy kalmadığı için
+  `aggregateRating` artık üretilmiyor.
+
 ## Açık takip
 
 - `SeoAutoDrip` taslakları her gün otomatik yayımlıyor; yorumda insan onayı

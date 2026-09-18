@@ -30,10 +30,10 @@ final class SeoMetadataService
                 $servings = (int) $entity->servings;
                 $prefix = '';
                 if ($totalMinutes > 0) {
-                    $prefix .= "⏱ {$totalMinutes} min • ";
-                }
-                if ($servings > 0) {
-                    $prefix .= "{$servings} Servings • ";
+                    $prefix = "⏱ {$totalMinutes} min • ";
+                    if ($servings > 0) {
+                        $prefix .= "{$servings} Servings • ";
+                    }
                 }
                 if ($prefix !== '' && ! str_contains($desc, '⏱')) {
                     $desc = $prefix.$desc;
@@ -68,10 +68,10 @@ final class SeoMetadataService
             $servings = (int) $entity->servings;
             $prefix = '';
             if ($totalMinutes > 0) {
-                $prefix .= "⏱ {$totalMinutes} dk • ";
-            }
-            if ($servings > 0) {
-                $prefix .= "{$servings} Kişilik • ";
+                $prefix = "⏱ {$totalMinutes} dk • ";
+                if ($servings > 0) {
+                    $prefix .= "{$servings} Kişilik • ";
+                }
             }
             if ($prefix !== '' && $description !== '' && ! str_contains($description, '⏱')) {
                 $description = $prefix.$description;

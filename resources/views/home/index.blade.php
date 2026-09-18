@@ -1,203 +1,39 @@
-{{-- Hero sayfanın kendisidir, sayfanın üstünde duran bir kart değil.
-         Tam genişlikte açılır ve alt kenarı sayfa zeminine karışır; böylece
-         yüzen başlık çubuğu gerçekten içeriğin üstünden geçer. --}}
-    <section class="hc-home-hero hc-home-hero--master relative isolate -mt-[var(--hc-header-h)] flex flex-col justify-start min-h-[82svh] items-stretch pb-20 pt-[calc(var(--hc-header-h)+2.5rem)] sm:pb-28 sm:pt-[calc(var(--hc-header-h)+3.5rem)]">
-        {{-- Video tek başına sahnedir: kapak görseli yok, önce-resim-sonra-video geçişi yok. Video gelene kadar koyu zemin durur. --}}
-        <div class="absolute inset-0 overflow-hidden pointer-events-none -z-30 bg-[#060606]">
-            <x-hero-video />
+{{-- Homepage: editorial hero, pantry matching, collections, trust and close. --}}
+<section class="hc-home-hero hc-home-hero--future relative isolate -mt-[var(--hc-header-h)] overflow-hidden">
+    <div class="hc-home-hero__media absolute inset-0 -z-30 pointer-events-none" aria-hidden="true"><x-hero-video /></div>
+    <div class="hc-home-hero__mesh absolute inset-0 -z-20 pointer-events-none" aria-hidden="true"></div>
+    <div class="hc-home-hero__glow hc-home-hero__glow--one absolute -z-10 pointer-events-none" aria-hidden="true"></div>
+    <div class="hc-home-hero__glow hc-home-hero__glow--two absolute -z-10 pointer-events-none" aria-hidden="true"></div>
+    <div class="hc-container relative flex min-h-[48rem] flex-col justify-between pb-8 pt-[calc(var(--hc-header-h)+5rem)] sm:min-h-[55rem] sm:pb-10 sm:pt-[calc(var(--hc-header-h)+7rem)] lg:min-h-[min(58rem,100svh)]">
+        <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(22rem,.7fr)] lg:gap-20">
+            <div class="max-w-3xl">
+                <div class="hc-home-hero__signal hc-animate-fade-up"><span class="hc-home-hero__signal-dot" aria-hidden="true"></span><span>{{ __('home.kicker') }}</span></div>
+                <h1 class="hc-home-hero__title hc-animate-fade-up">{{ __('home.hero_title') }}</h1>
+                <p class="hc-home-hero__subtitle hc-animate-fade-up">{{ __('home.hero_subtitle') }}</p>
+                <div class="hc-home-hero__actions hc-animate-fade-up"><a class="hc-future-btn hc-future-btn--primary hc-btn-primary" href="#hero-ingredient"><span>{{ __('home.hero_cta') }}</span><span aria-hidden="true">↗</span></a><a class="hc-future-btn hc-future-btn--quiet hc-hero-secondary" href="{{ route('recipes.index') }}"><span>{{ __('home.browse_archive') }}</span><span aria-hidden="true">→</span></a></div>
+                <div class="hc-home-hero__proof hc-animate-fade-up" aria-label="{{ __('home.trust_title') }}"><span><b aria-hidden="true">01</b> {{ __('home.editorial_verified_only') }}</span><span><b aria-hidden="true">02</b> {{ __('home.step_3') }}</span></div>
+            </div>
+            <div class="hc-home-orbit hc-animate-scale-in" aria-hidden="true"><div class="hc-home-orbit__halo"></div><div class="hc-home-orbit__ring hc-home-orbit__ring--outer"></div><div class="hc-home-orbit__ring hc-home-orbit__ring--inner"></div><div class="hc-home-orbit__core"><span class="hc-home-orbit__eyebrow">HOUSE CHEF</span><strong>CYPRUS</strong><span class="hc-home-orbit__line"></span><span class="hc-home-orbit__caption">{{ __('home.cuisines_title') }}</span></div><span class="hc-home-orbit__label hc-home-orbit__label--top">{{ __('home.cuisines_kicker') }}</span><span class="hc-home-orbit__label hc-home-orbit__label--side">{{ __('home.step_3') }}</span></div>
         </div>
-        {{-- İki katman: yatay olan metne okunur bir zemin verir, dikey olan
-             hem çubuğu hem de alt kenarı sayfa zeminine bağlar. --}}
-        <div class="absolute inset-0 -z-10 bg-[linear-gradient(96deg,rgba(9,9,9,.94)_0%,rgba(9,9,9,.88)_34%,rgba(9,9,9,.58)_54%,rgba(9,9,9,.14)_72%,rgba(9,9,9,0)_100%)] pointer-events-none"></div>
-        <div class="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(9,9,9,.50)_0%,rgba(9,9,9,.04)_22%,rgba(9,9,9,.10)_52%,rgba(9,9,9,.62)_100%)] pointer-events-none"></div>
-        <div class="hc-home-hero__eritme pointer-events-none" aria-hidden="true"></div>
-        <div class="hc-container">
-            <div class="max-w-4xl">
-                <p class="hc-kicker text-orange-300">{{ __('home.kicker') }}</p>
-                <h1 class="hc-display-xl mt-5 max-w-3xl text-white">{{ __('home.hero_title') }}</h1>
-                <p class="hc-hero-muted hc-body-lg mt-6 max-w-2xl">{{ __('home.hero_subtitle') }}</p>
-                <div class="mt-9 flex flex-col items-stretch sm:items-center sm:flex-row gap-3 sm:gap-4">
-                    <a class="hc-btn hc-btn-primary px-7 w-full sm:w-auto text-center justify-center whitespace-nowrap" href="#hero-ingredient">{{ __('home.hero_cta') }} <span class="ml-1" aria-hidden="true">→</span></a>
-                    <a class="hc-btn border border-white/40 bg-black/30 text-white backdrop-blur-md hover:bg-white hover:!text-stone-900 shadow-sm transition-all duration-200 px-6 font-semibold w-full sm:w-auto text-center justify-center whitespace-nowrap" href="{{ route('ingredients.explore') }}">🥕 {{ __('home.hero_pantry_btn') }}</a>
-                    <a class="hc-hero-secondary text-center sm:text-left text-sm font-semibold text-white/90 underline-offset-4 transition hover:text-white hover:underline py-1 sm:py-0 sm:ml-2 whitespace-nowrap" href="{{ route('recipes.index') }}">{{ __('home.browse_archive') }}</a>
-                </div>
-            </div>
-        </div>
-        {{-- Arama kutusu sayfanın ilk eylemi; malzeme seçimi ve tarif aramasını şık sekmelerle tek alanda sunar --}}
-    <div id="kesfet" class="hc-container relative z-20 mt-10 sm:mt-12">
-        <div class="hc-arama hc-home-search" x-data="{ activeSearchTab: 'ingredients' }">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-1">
-                <div>
-                    <p class="hc-kicker">{{ __('home.search_kicker') }}</p>
-                    <h2 class="hc-heading-3 mt-1.5" style="color:var(--hc-text-primary)">
-                        <span x-show="activeSearchTab === 'ingredients'">{{ __('home.search_title') }}</span>
-                        <span x-show="activeSearchTab === 'recipes'" x-cloak>{{ __('home.search_recipes_title') }}</span>
-                    </h2>
-                </div>
-
-                {{-- Segmented Mode Switcher --}}
-                <div class="grid grid-cols-2 w-full sm:w-auto sm:inline-flex rounded-2xl p-1 bg-stone-100 dark:bg-stone-800/90 border border-stone-200/80 dark:border-stone-700/80 text-xs font-bold shrink-0 self-stretch sm:self-center shadow-inner" role="tablist" aria-label="{{ __('home.search_mode_label') }}">
-                    <button
-                        type="button"
-                        role="tab"
-                        @click="activeSearchTab = 'ingredients'"
-                        :class="activeSearchTab === 'ingredients' ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-sm' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'"
-                        class="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-200"
-                        :aria-selected="activeSearchTab === 'ingredients'"
-                    >
-                        <span>🥕 {{ __('home.search_tab_ingredients') }}</span>
-                    </button>
-                    <button
-                        type="button"
-                        role="tab"
-                        @click="activeSearchTab = 'recipes'"
-                        :class="activeSearchTab === 'recipes' ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-sm' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'"
-                        class="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-200"
-                        :aria-selected="activeSearchTab === 'recipes'"
-                    >
-                        <span>🔍 {{ __('home.search_tab_recipes') }}</span>
-                    </button>
-                </div>
-            </div>
-
-            {{-- Form 1: Malzeme Arama --}}
-            <div x-show="activeSearchTab === 'ingredients'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
-                <form id="home-ingredients" class="hc-arama__kutu mt-4" action="{{ route('ingredients.explore') }}" method="get">
-                    <label class="sr-only" for="hero-ingredient">{{ __('home.select_ingredient_label') }}</label>
-                    <span class="hc-arama__ikon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span>
-                    <select id="hero-ingredient" class="hc-arama__girdi cursor-pointer" name="ingredients[]" required>
-                        <option value="">{{ __('home.ingredient_placeholder_example') }}</option>
-                        @foreach($homeIngredients as $ingredient)
-                            <option value="{{ $ingredient['public_id'] }}">{{ $ingredient['name'] }}</option>
-                        @endforeach
-                    </select>
-                    <button class="hc-arama__dugme" type="submit">
-                        <span>{{ __('home.what_can_i_cook') }}</span>
-                        <span class="hc-arama__ok" aria-hidden="true">→</span>
-                    </button>
-                </form>
-            </div>
-
-            {{-- Form 2: Doğrudan Tarif Arama --}}
-            <div x-cloak x-show="activeSearchTab === 'recipes'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
-                <form id="home-search" class="hc-arama__kutu mt-4" action="{{ route('recipes.index') }}" method="get">
-                    <label class="sr-only" for="hero-search-input">{{ __('archive.search_recipes') }}</label>
-                    <span class="hc-arama__ikon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span>
-                    <input
-                        id="hero-search-input"
-                        class="hc-arama__girdi"
-                        type="search"
-                        name="q"
-                        placeholder="{{ __('home.search_recipes_placeholder') }}"
-                        autocomplete="off"
-                    >
-                    <button class="hc-arama__dugme" type="submit">
-                        <span>{{ __('archive.show_recipes') }}</span>
-                        <span class="hc-arama__ok" aria-hidden="true">→</span>
-                    </button>
-                </form>
-            </div>
-
-            {{-- Hızlı Filtre Çipleri --}}
-            <div class="hc-arama__oneriler mt-5">
-                <span class="hc-arama__etiket">{{ __('home.quick_links') }}</span>
-                <a class="hc-arama__cip" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">🇨🇾 {{ __('home.cypriot_cuisine') }}</a>
-                <a class="hc-arama__cip" href="{{ route('cuisines.show', 'turk-mutfagi') }}">🇹🇷 Türk Mutfağı</a>
-                @foreach([['home.under_20_min', 'sure', '20-dakika', ['max_minutes' => 20]], ['home.easy_recipes', 'zorluk', 'kolay', ['difficulty' => 'easy']]] as [$chipKey, $tur, $slug, $params])
-                    <a href="{{ $koleksiyonBaglantisi($tur, $slug) ?? route('recipes.index', $params) }}" class="hc-arama__cip">{{ __($chipKey) }}</a>
-                @endforeach
-                <a class="hc-arama__cip" href="{{ route('categories.show', 'corba') }}">🥣 {{ __('home.quick_soups') }}</a>
-                <a class="hc-arama__cip" href="{{ route('categories.show', 'tatli') }}">🍯 {{ __('home.quick_desserts') }}</a>
-                <a class="hc-arama__cip !border-orange-500/30 !bg-orange-500/10 !text-orange-700 dark:!text-orange-300 font-bold" href="{{ route('recipes.index') }}">{{ __('home.all_archive') }}</a>
-            </div>
+        <div id="kesfet" class="hc-home-command hc-animate-scale-in" x-data="{ activeSearchTab: 'ingredients' }">
+            <div class="hc-home-command__header"><div><p class="hc-home-command__eyebrow">{{ __('home.search_kicker') }}</p><h2 class="hc-home-command__title"><span x-show="activeSearchTab === 'ingredients'">{{ __('home.search_title') }}</span><span x-show="activeSearchTab === 'recipes'" x-cloak>{{ __('home.search_recipes_title') }}</span></h2></div><div class="hc-home-command__tabs" role="tablist" aria-label="{{ __('home.search_mode_label') }}"><button type="button" role="tab" @click="activeSearchTab = 'ingredients'" :aria-selected="activeSearchTab === 'ingredients'" :class="activeSearchTab === 'ingredients' ? 'is-active' : ''"><span aria-hidden="true">✦</span> {{ __('home.search_tab_ingredients') }}</button><button type="button" role="tab" @click="activeSearchTab = 'recipes'" :aria-selected="activeSearchTab === 'recipes'" :class="activeSearchTab === 'recipes' ? 'is-active' : ''"><span aria-hidden="true">⌕</span> {{ __('home.search_tab_recipes') }}</button></div></div>
+            <div x-show="activeSearchTab === 'ingredients'" x-transition.opacity><form id="home-ingredients" class="hc-home-command__form" action="{{ route('ingredients.explore') }}" method="get"><label class="sr-only" for="hero-ingredient">{{ __('home.select_ingredient_label') }}</label><span class="hc-home-command__form-icon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span><select id="hero-ingredient" class="hc-home-command__input" name="ingredients[]" required><option value="">{{ __('home.ingredient_placeholder_example') }}</option>@foreach($homeIngredients as $ingredient)<option value="{{ $ingredient['public_id'] }}">{{ $ingredient['name'] }}</option>@endforeach</select><button class="hc-home-command__submit" type="submit"><span>{{ __('home.what_can_i_cook') }}</span><span aria-hidden="true">↗</span></button></form></div>
+            <div x-cloak x-show="activeSearchTab === 'recipes'" x-transition.opacity><form id="home-search" class="hc-home-command__form" action="{{ route('recipes.index') }}" method="get"><label class="sr-only" for="hero-search-input">{{ __('archive.search_recipes') }}</label><span class="hc-home-command__form-icon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span><input id="hero-search-input" class="hc-home-command__input" type="search" name="q" placeholder="{{ __('home.search_recipes_placeholder') }}" autocomplete="off"><button class="hc-home-command__submit" type="submit"><span>{{ __('archive.show_recipes') }}</span><span aria-hidden="true">↗</span></button></form></div>
+            <div class="hc-home-command__links"><span>{{ __('home.quick_links') }}</span><a href="{{ route('cuisines.show', 'kibris-mutfagi') }}">🇨🇾 {{ __('home.cypriot_cuisine') }}</a><a href="{{ route('recipes.index', ['max_minutes' => 20]) }}">{{ __('home.under_20_min') }}</a><a href="{{ route('recipes.index', ['difficulty' => 'easy']) }}">{{ __('home.easy_recipes') }}</a><a href="{{ route('recipes.index') }}">{{ __('home.all_archive') }}</a></div>
         </div>
     </div>
-
 </section>
 
-    <section data-reveal class="hc-container pb-20"><div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p class="hc-kicker">{{ __('home.whats_for_dinner') }}</p><h2 class="hc-display-lg mt-3">{{ __('home.next_great_plate') }}</h2></div><p class="hc-body-sm max-w-sm" style="color:var(--hc-text-secondary)">{{ __('home.editorial_verified_only') }}</p></div>
-        @if($homeHighlights->isNotEmpty())
-            <div class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4" data-reveal-group>
-                @foreach($homeHighlights as $recipe)
-                    <x-recipe-card-v3 :recipe="$recipe" :show-favorite="false" heading="h3" />
-                @endforeach
-            </div>
-        @else
-            <div class="hc-featured-empty hc-empty mt-8"><p class="text-xl font-extrabold" style="color: var(--hc-text);">{{ __('home.featured_empty_title') }}</p><p class="mt-2">{{ __('home.featured_empty_subtitle') }}</p><a class="hc-btn hc-btn-outline mt-5" href="{{ route('recipes.index') }}">{{ __('home.go_to_archive') }}</a></div>
-        @endif
-    </section>
+<section data-reveal class="hc-home-section hc-home-section--featured hc-container"><div class="hc-home-section__intro"><div><p class="hc-kicker">{{ __('home.whats_for_dinner') }}</p><h2 class="hc-display-lg mt-3">{{ __('home.next_great_plate') }}</h2></div><a class="hc-section-link" href="{{ route('recipes.index') }}">{{ __('home.go_to_archive') }} <span aria-hidden="true">↗</span></a></div><div class="hc-home-section__rule"><span>{{ __('home.whats_for_dinner') }}</span><span>{{ __('home.editorial_verified_only') }}</span></div>@if($homeHighlights->isNotEmpty())<div class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4" data-reveal-group>@foreach($homeHighlights as $recipe)<x-recipe-card-v3 :recipe="$recipe" :show-favorite="false" heading="h3" />@endforeach</div>@else<div class="hc-featured-empty hc-empty mt-8"><p class="text-xl font-extrabold" style="color: var(--hc-text);">{{ __('home.featured_empty_title') }}</p><p class="mt-2">{{ __('home.featured_empty_subtitle') }}</p><a class="hc-btn hc-btn-outline mt-5" href="{{ route('recipes.index') }}">{{ __('home.go_to_archive') }}</a></div>@endif</section>
 
-    {{-- Anasayfada hic reklam yuvasi yoktu: en cok goruntulenen sayfa hicbir
-         gelir uretmiyordu. AD_SLOT_DISPLAY yapilandirmada tanimliydi ama hicbir
-         sayfada kullanilmiyordu.
+<x-ad-slot slot-name="display" class="hc-container my-10" />
 
-         Konum kasitli: one cikan tarifler bittikten sonra, dolap bandindan
-         once. Ilk ekranda reklam yok - hero ve arama once gelir. --}}
-    <x-ad-slot slot-name="display" class="hc-container my-10" />
+<section data-reveal class="hc-home-pantry-band hc-home-section--dark"><div class="hc-container grid gap-12 py-20 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:py-28"><div class="max-w-xl"><p class="hc-kicker text-orange-300">{{ __('home.pantry_kicker') }}</p><h2 class="hc-display-lg mt-4 max-w-2xl text-white">{{ __('home.pantry_title') }}</h2><p class="mt-6 max-w-xl text-base leading-8 text-stone-300 sm:text-lg">{{ __('home.pantry_subtitle') }}</p><a class="hc-future-btn hc-future-btn--light mt-8" href="{{ route('ingredients.explore') }}"><span>{{ __('home.pantry_cta') }}</span><span aria-hidden="true">↗</span></a></div><ol class="hc-home-steps hc-home-steps--future" data-reveal-group><li><span>01</span><div><strong>{{ __('home.step_1') }}</strong></div></li><li><span>02</span><div><strong>{{ __('home.step_2') }}</strong></div></li><li><span>03</span><div><strong>{{ __('home.step_3') }}</strong></div></li></ol></div></section>
 
-    <section data-reveal class="hc-home-pantry-band"><div class="hc-container grid gap-8 py-14 lg:grid-cols-[1.18fr_.82fr] lg:items-end"><div><p class="hc-kicker text-orange-300">{{ __('home.pantry_kicker') }}</p><h2 class="hc-display-lg mt-3 max-w-2xl text-white">{{ __('home.pantry_title') }}</h2><p class="mt-5 max-w-xl hc-body-md text-stone-300">{{ __('home.pantry_subtitle') }}</p><a class="hc-btn mt-7 bg-white text-charcoal-900 hover:bg-orange-50" href="{{ route('ingredients.explore') }}">{{ __('home.pantry_cta') }} <span aria-hidden="true">→</span></a></div><ol class="hc-home-steps"><li><span>01</span><p>{{ __('home.step_1') }}</p></li><li><span>02</span><p>{{ __('home.step_2') }}</p></li><li><span>03</span><p>{{ __('home.step_3') }}</p></li></ol></div></section>
+<section data-reveal class="hc-home-section hc-home-section--collections hc-container"><div class="hc-home-section__intro"><div><p class="hc-kicker">{{ __('home.cuisines_kicker') }}</p><h2 class="hc-heading-2 mt-3">{{ __('home.cuisines_title') }}</h2></div><a class="hc-section-link" href="{{ route('cuisines.index') }}">{{ __('home.go_to_archive') }} <span aria-hidden="true">↗</span></a></div><div class="hc-collection-grid mt-9" data-reveal-group>@foreach($cuisines->where('recipes_count', '>', 0)->sortByDesc('recipes_count')->take(6) as $cuisine)@php($kapak = $mutfakKapaklari[$cuisine->id] ?? null)<a href="{{ \App\Http\Controllers\CuisineHubController::sayfasiVar($cuisine->recipes_count) ? route('cuisines.show', $cuisine->slug) : route('recipes.index', ['cuisine' => $cuisine->slug]) }}" class="hc-collection-card group">@if($kapak)<img src="{{ $kapak->responsiveUrl(800) }}" srcset="{{ $kapak->responsiveSrcset([400, 800]) }}" sizes="(min-width: 1024px) 30rem, 100vw" alt="{{ taxonomy_name($cuisine) }}" width="800" height="560" loading="lazy" decoding="async">@endif<span class="hc-collection-card__veil"></span><span class="hc-collection-card__content"><span class="hc-collection-card__count">{{ __('home.recipes_count', ['count' => $cuisine->recipes_count]) }}</span><strong>{{ __($cuisine->name) }}</strong><span class="hc-collection-card__arrow" aria-hidden="true">↗</span></span></a>@endforeach</div></section>
 
-    <section data-reveal class="hc-container py-16"><div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">{{ __('home.cuisines_kicker') }}</p><h2 class="hc-heading-2 mt-3">{{ __('home.cuisines_title') }}</h2></div><a class="hidden text-sm font-extrabold text-orange-700 sm:inline" href="{{ route('recipes.index') }}">{{ __('home.go_to_archive') }} →</a></div>{{-- Kutular eskiden bir yıldız ve bir addan ibaretti; yüksekti ve boştu.
-             Artık koleksiyonun büyüklüğünü gösteriyor ve en dolu mutfaklar başa
-             geliyor, yani tıklamadan önce ne bulacağını biliyorsun. Tarifi
-             olmayan mutfak hiç listelenmez. --}}
-        <div class="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-            @foreach($cuisines->where('recipes_count', '>', 0)->sortByDesc('recipes_count')->take(6) as $cuisine)
-                {{-- Sayfasi olan mutfak indekslenebilir sayfasina, olmayan
-                     filtreli goruntusune baglanir. Esik denetleyicide. --}}
-@php($kapak = $mutfakKapaklari[$cuisine->id] ?? null)
-                <a href="{{ \App\Http\Controllers\CuisineHubController::sayfasiVar($cuisine->recipes_count) ? route('cuisines.show', $cuisine->slug) : route('recipes.index', ['cuisine' => $cuisine->slug]) }}" class="hc-hub-card group">
-                    @if ($kapak)
-                        <span class="hc-hub-card__gorsel" aria-hidden="true">
-                            <img src="{{ $kapak->responsiveUrl(400) }}" srcset="{{ $kapak->responsiveSrcset([400, 800]) }}" sizes="(min-width: 1024px) 22rem, (min-width: 640px) 45vw, 92vw" width="400" height="300" alt="{{ taxonomy_name($cuisine) }}" loading="lazy" decoding="async">
-                        </span>
-                    @endif
-                    <span class="hc-hub-card__govde">
-                        <span class="hc-hub-card__baslik">{{ __($cuisine->name) }}</span>
-                        <span class="hc-caption">{{ __('home.recipes_count', ['count' => $cuisine->recipes_count]) }}</span>
-                    </span>
-                    <span class="hc-hub-card__ok" aria-hidden="true">›</span>
-                </a>
-            @endforeach
-        </div></section>
+<x-home-testimonials :testimonials="collect(config('testimonials.home', []))->filter(fn ($item, $index) => in_array($index, [0, 2, 4]))->all()" :disclosure="config('testimonials.disclosure')" />
 
-    <x-home-testimonials :testimonials="collect(config('testimonials.home', []))->filter(fn ($item, $index) => in_array($index, [0, 2, 4]))->all()" :disclosure="config('testimonials.disclosure')" />
+@if(($homeBlogPosts ?? collect())->isNotEmpty())<section data-reveal class="hc-home-section hc-container" aria-labelledby="home-guides-title"><div class="hc-home-section__intro"><div><p class="hc-kicker">{{ __('nav.blog') }}</p><h2 id="home-guides-title" class="hc-heading-2 mt-3">{{ __('home.nav_kitchen_guides') }}</h2></div><a class="hc-section-link" href="{{ route('blog.index') }}">{{ __('blog.show.read_more') }} <span aria-hidden="true">↗</span></a></div><div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>@foreach($homeBlogPosts as $yazi)<x-blog-card :post="$yazi" />@endforeach</div></section>@endif
 
-    {{-- Blog-hub şeridi: Kıbrıs rehber yazıları anasayfadan yüzey alır.
-         Üyelik kartındaki metin bağlantı tek başına hub desteği sayılmazdı.
-         Yazı yoksa bölüm hiç basılmaz, boş şerit çıkmaz. --}}
-    @if(($homeBlogPosts ?? collect())->isNotEmpty())
-    <section data-reveal class="hc-container py-16" aria-labelledby="home-guides-title">
-        <div class="flex items-end justify-between gap-4">
-            <div><p class="hc-kicker">{{ __('nav.blog') }}</p><h2 id="home-guides-title" class="hc-heading-2 mt-3">{{ __('home.nav_kitchen_guides') }}</h2></div>
-            <a class="hidden text-sm font-extrabold text-orange-700 sm:inline" href="{{ route('blog.index') }}">{{ __('blog.show.read_more') }} →</a>
-        </div>
-        <div class="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-            @foreach($homeBlogPosts as $yazi)
-                <x-blog-card :post="$yazi" />
-            @endforeach
-        </div>
-    </section>
-    @endif
-
-
-<section class="hc-container py-16" aria-labelledby="home-membership-title">
-    <div class="hc-v3-card p-8 sm:p-12">
-        <p class="hc-kicker">{{ __('home.membership_kicker') }}</p>
-        <h2 id="home-membership-title" class="hc-heading-1 mt-3">{{ __('home.membership_title') }}</h2>
-        <p class="hc-body-md mt-4">{{ __('home.membership_subtitle') }}</p>
-        <a class="hc-btn hc-btn-primary mt-6" href="{{ auth()->check() ? route('ingredients.explore') : route('register') }}">{{ auth()->check() ? __('home.membership_cta_logged_in') : __('home.membership_cta_guest') }}</a>
-        @if(config('monetization.payments_enabled'))
-            <a class="hc-text-link ml-4" href="{{ route('pricing') }}">{{ __('home.pricing_link') }}</a>
-        @else
-            <p class="hc-caption mt-4 font-semibold text-emerald-600 dark:text-emerald-400">✓ {{ __('home.pricing_soon') }}</p>
-        @endif
-        <nav class="mt-8 flex flex-wrap gap-4" aria-label="Tarif koleksiyonları">
-            <a class="hc-text-link" href="{{ route('ingredients.hub.index') }}">{{ __('home.nav_by_ingredient') }}</a>
-            <a class="hc-text-link" href="{{ route('cuisines.index') }}">{{ __('home.nav_by_cuisine') }}</a>
-            <a class="hc-text-link" href="{{ route('categories.index') }}">{{ __('home.nav_by_category') }}</a>
-            <a class="hc-text-link" href="{{ $koleksiyonBaglantisi('sure', '30-dakika') ?? route('recipes.index', ['max_minutes' => 30]) }}">{{ __('home.nav_under_30_min') }}</a>
-            <a class="hc-text-link" href="{{ route('blog.index') }}">{{ __('home.nav_kitchen_guides') }}</a>
-        </nav>
-    </div>
-</section>
+<section data-reveal class="hc-home-close hc-container" aria-labelledby="home-membership-title"><div class="hc-home-close__inner"><div class="hc-home-close__copy"><p class="hc-kicker">{{ __('home.membership_kicker') }}</p><h2 id="home-membership-title" class="hc-heading-1 mt-4">{{ __('home.membership_title') }}</h2><p class="hc-body-md mt-5">{{ __('home.membership_subtitle') }}</p><a class="hc-future-btn hc-future-btn--primary mt-8" href="{{ auth()->check() ? route('ingredients.explore') : route('register') }}"><span>{{ auth()->check() ? __('home.membership_cta_logged_in') : __('home.membership_cta_guest') }}</span><span aria-hidden="true">↗</span></a></div><nav class="hc-home-close__nav" aria-label="Tarif koleksiyonları"><span>{{ __('home.cuisines_kicker') }}</span><a href="{{ route('ingredients.hub.index') }}">{{ __('home.nav_by_ingredient') }} <b>↗</b></a><a href="{{ route('cuisines.index') }}">{{ __('home.nav_by_cuisine') }} <b>↗</b></a><a href="{{ route('categories.index') }}">{{ __('home.nav_by_category') }} <b>↗</b></a><a href="{{ $koleksiyonBaglantisi('sure', '30-dakika') ?? route('recipes.index', ['max_minutes' => 30]) }}">{{ __('home.nav_under_30_min') }} <b>↗</b></a><a href="{{ route('blog.index') }}">{{ __('home.nav_kitchen_guides') }} <b>↗</b></a></nav></div></section>

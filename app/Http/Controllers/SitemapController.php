@@ -114,15 +114,34 @@ final class SitemapController extends Controller
         // çünkü branded_fallback görsel "eligible" sayılmıyordu. Tarif sitemap'i
         // sayfayı duyurur, görseli değil — görsel image sitemap'tedir.
         // Noindex filtresi yeter; media filtresi sitemap'i boşaltıyordu.
-        $urls = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->whereNotNull('published_at')->where('published_at', '<=', now()))
+        $recipes = $this->indexable(Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->whereNotNull('published_at')->where('published_at', '<=', now()))
             ->with(['seoMetadata'])
             ->orderBy('updated_at')->get(['id', 'slug', 'title', 'excerpt', 'description', 'updated_at'])
-            ->filter(fn (Recipe $recipe): bool => $this->effectiveAllows($recipe))
-            ->map(fn (Recipe $recipe): array => [
+            ->filter(fn (Recipe $recipe): bool => $this->effectiveAllows($recipe));
+
+        $urls = collect();
+
+        foreach ($recipes as $recipe) {
+            $alternates = $this->alternates('/tarifler/'.$recipe->slug, $recipe);
+            $lastmod = $recipe->updated_at?->toDateString();
+
+            $urls->push([
                 'loc' => route('recipes.show', $recipe->slug),
-                'lastmod' => $recipe->updated_at?->toDateString(),
-                'alternates' => $this->alternates('/tarifler/'.$recipe->slug, $recipe),
+                'lastmod' => $lastmod,
+                'alternates' => $alternates,
             ]);
+
+            foreach ($alternates as $alt) {
+                if ($alt['hreflang'] === 'x-default' || $alt['hreflang'] === 'tr') {
+                    continue;
+                }
+                $urls->push([
+                    'loc' => $alt['href'],
+                    'lastmod' => $lastmod,
+                    'alternates' => $alternates,
+                ]);
+            }
+        }
 
         return $this->urls($urls);
     }
@@ -134,16 +153,35 @@ final class SitemapController extends Controller
         // çelişince tarayıcıya karışık sinyal gidiyor.
         $indekslenebilirlik = app(BlogIndexability::class);
 
-        $urls = $this->indexable(BlogPost::query()->publiclyVisible())
+        $posts = $this->indexable(BlogPost::query()->publiclyVisible())
             ->with('seoMetadata')
             ->orderBy('updated_at')->get(['id', 'slug', 'title', 'excerpt', 'updated_at', 'body', 'fact_check_status', 'originality_status'])
             ->filter(fn (BlogPost $post): bool => $this->effectiveAllows($post))
-            ->filter(fn (BlogPost $post): bool => $indekslenebilirlik->indekslenebilir($post))
-            ->map(fn (BlogPost $post): array => [
+            ->filter(fn (BlogPost $post): bool => $indekslenebilirlik->indekslenebilir($post));
+
+        $urls = collect();
+
+        foreach ($posts as $post) {
+            $alternates = $this->alternates('/blog/'.$post->slug, $post);
+            $lastmod = $post->updated_at?->toDateString();
+
+            $urls->push([
                 'loc' => route('blog.show', $post),
-                'lastmod' => $post->updated_at?->toDateString(),
-                'alternates' => $this->alternates('/blog/'.$post->slug, $post),
+                'lastmod' => $lastmod,
+                'alternates' => $alternates,
             ]);
+
+            foreach ($alternates as $alt) {
+                if ($alt['hreflang'] === 'x-default' || $alt['hreflang'] === 'tr') {
+                    continue;
+                }
+                $urls->push([
+                    'loc' => $alt['href'],
+                    'lastmod' => $lastmod,
+                    'alternates' => $alternates,
+                ]);
+            }
+        }
 
         return $this->urls($urls);
     }

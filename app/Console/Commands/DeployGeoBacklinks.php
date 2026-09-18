@@ -21,9 +21,7 @@ final class DeployGeoBacklinks extends Command
         $dryRun = $this->option('dry-run');
 
         foreach ($candidates as $candidate) {
-            $exists = SeoBacklinkCandidate::where('deduplication_hash', $candidate['deduplication_hash'])
-                ->where('domain', $candidate['domain'])
-                ->exists();
+            $exists = SeoBacklinkCandidate::where('deduplication_hash', $candidate['deduplication_hash'])->exists();
 
             if ($exists) {
                 $skipped++;
@@ -31,7 +29,23 @@ final class DeployGeoBacklinks extends Command
             }
 
             if (! $dryRun) {
-                SeoBacklinkCandidate::create($candidate);
+                $evidence = is_array($candidate['evidence'] ?? null) ? $candidate['evidence'] : [];
+                $evidence['domain'] = $candidate['domain'] ?? $candidate['source_host'] ?? null;
+                $evidence['topic'] = $candidate['topic'] ?? null;
+                $evidence['asset_keyword'] = $candidate['asset_keyword'] ?? null;
+                $evidence['authority_score'] = $candidate['authority_score'] ?? 70;
+                $evidence['outreach_status'] = $candidate['outreach_status'] ?? 'pending';
+                $evidence['pitch_draft_en'] = $candidate['email_template_en'] ?? null;
+                $evidence['pitch_draft_tr'] = $candidate['email_template_tr'] ?? null;
+
+                SeoBacklinkCandidate::create([
+                    'source_url' => $candidate['source_url'],
+                    'source_host' => $candidate['source_host'],
+                    'target_url' => $candidate['target_url'],
+                    'deduplication_hash' => $candidate['deduplication_hash'],
+                    'status' => $candidate['status'] ?? 'candidate',
+                    'evidence' => $evidence,
+                ]);
             }
             $created++;
         }

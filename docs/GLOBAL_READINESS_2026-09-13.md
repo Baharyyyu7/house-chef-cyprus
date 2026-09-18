@@ -68,6 +68,6 @@ teslim kaydı: `docs/seo/2026-09-16-ai-worker-1-delivery-report.md`.
 
 | Kimlik | Önem | Bulgu | Sahip | Durum | Kanıt |
 | --- | --- | --- | --- | --- | --- |
-| GLOB-009 | Yüksek | Seeder gerçek ziyaretçi oyu olmadan 14-36 puan üretiyor; canlıda 1.007 tarifte 24.874 eşleşme var | AI-Worker-1 / AI-Worker-8 | Düzeltme ve doğrulama sürüyor | 2026-09-18 06:54:43 UTC salt okunur canlı SHA256 parmak izi denetimi; seeder regresyon testi önce 18 yapay oyla başarısız, engelleme sonrası başarılı |
+| GLOB-009 | Yüksek | Seeder gerçek ziyaretçi oyu olmadan 14-36 puan üretiyor; canlıda 1.007 tarifte 24.874 eşleşme var | AI-Worker-1 / AI-Worker-8 | Kapatıldı | 2026-09-18 canlı sürüm `58571b3`: üretici engellendi, 1.462 PHP testi ve 7 JS testi geçti, 24.874 sentetik oy özel sunucu arşivine alındı ve canlı DB'den kaldırıldı. Son kontrol: sentetik eşleşme 0, toplam oy 0, örnek tarif JSON-LD çıktılarında `aggregateRating` yok. Arşiv SHA256 `32d5622bb9af7c7b04bf8020d6d19e8790c951b22f5465538e53ba22b0facfd0` |
 | GLOB-010 | Yüksek | `SeoAutoDrip` günlük taslak yayınlıyor; ayrı insan yayın kararı yerine içerik kalite alanlarını yeterli sayıyor | Sonraki otomasyon kontrolü | Açık | `app/Console/Commands/SeoAutoDrip.php`, `routes/console.php` içindeki günlük `seo_auto_drip` |
 | GLOB-011 | Takip | Yedi dil etkin, bu durum her dilde bütün içerik ve arayüzlerin hazır olduğunu kanıtlamaz | Koordinatör | Kapsam doğrulaması açık | 2026-09-18 `config/locales.php`: tr/en/de/fa/pl/ru/pt; bu tur hiçbir ayar değiştirilmedi |
