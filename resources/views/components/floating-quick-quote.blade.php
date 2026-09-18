@@ -60,7 +60,7 @@ x-on:keydown.escape.window="open = false"
 class="relative z-40">
 
     {{-- Floating Action Pill --}}
-    <div class="fixed bottom-5 right-5 z-40 flex items-center gap-2 transform-gpu">
+    <div class="fixed right-4 sm:right-6 z-40 flex items-center gap-2 transform-gpu transition-all duration-300" style="bottom: calc(1.25rem + var(--hc-consent-h, 0px));">
         <button type="button" 
                 x-on:click="open = true" 
                 class="group flex items-center gap-2.5 rounded-full border border-orange-400/40 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 px-4 py-3 text-white shadow-xl shadow-orange-950/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-orange-900/30 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:ring-offset-stone-900"

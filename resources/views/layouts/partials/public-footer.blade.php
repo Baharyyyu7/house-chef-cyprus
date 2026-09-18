@@ -20,28 +20,28 @@
                 <div>
                     <p class="text-sm font-extrabold text-orange-300">{{ __('footer.platform') }}</p>
                     <div class="hc-footer-muted mt-4 grid gap-3 text-sm [&>a]:inline-flex [&>a]:min-h-[24px] [&>a]:items-center">
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'hakkimizda') }}">{{ __('footer.about_us') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'nasil-calisir') }}">{{ __('footer.how_it_works') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'sss') }}">{{ __('footer.faq') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'tarif-dogrulama-politikasi') }}">{{ __('footer.recipe_verification') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'editorial-ilkeler') }}">{{ __('footer.editorial_principles') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'hata-bildir') }}">{{ __('footer.report_issue') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('contact.index') }}">{{ __('footer.contact') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('information.show', 'hakkimizda') }}">{{ __('footer.about_us') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('information.show', 'nasil-calisir') }}">{{ __('footer.how_it_works') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('information.show', 'sss') }}">{{ __('footer.faq') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('information.show', 'tarif-dogrulama-politikasi') }}">{{ __('footer.recipe_verification') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('information.show', 'editorial-ilkeler') }}">{{ __('footer.editorial_principles') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('information.show', 'hata-bildir') }}">{{ __('footer.report_issue') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('contact.index') }}">{{ __('footer.contact') }}</a>
                     </div>
                 </div>
 
                 <div>
                     <p class="text-sm font-extrabold text-orange-300">{{ __('footer.legal') }}</p>
                     <div class="hc-footer-muted mt-4 grid gap-3 text-sm [&>a]:inline-flex [&>a]:min-h-[24px] [&>a]:items-center">
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#gizlilik-ve-kisisel-veriler">{{ __('footer.privacy') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#kullanim-kosullari">{{ __('footer.terms') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#cerez-politikasi">{{ __('footer.cookies') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#gorsel-ve-yapay-zeka-politikasi">{{ __('footer.image_policy') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('legal.center') }}#icerik-ve-kaynak-politikasi">{{ __('footer.source_policy') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'besin-degeri-aciklamasi') }}">{{ __('footer.nutrition_disclaimer') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'alerjen-uyarisi') }}">{{ __('footer.allergen_warning') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'gorsel-ve-medya-politikasi') }}">{{ __('footer.media_policy') }}</a>
-                        <a class="whitespace-nowrap hover:text-orange-300" href="{{ route('information.show', 'icerik-duzeltme-politikasi') }}">{{ __('footer.corrections_policy') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('legal.center') }}#gizlilik-ve-kisisel-veriler">{{ __('footer.privacy') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('legal.center') }}#kullanim-kosullari">{{ __('footer.terms') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('legal.center') }}#cerez-politikasi">{{ __('footer.cookies') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('legal.center') }}#gorsel-ve-yapay-zeka-politikasi">{{ __('footer.image_policy') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('legal.center') }}#icerik-ve-kaynak-politikasi">{{ __('footer.source_policy') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('information.show', 'besin-degeri-aciklamasi') }}">{{ __('footer.nutrition_disclaimer') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('information.show', 'alerjen-uyarisi') }}">{{ __('footer.allergen_warning') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('information.show', 'gorsel-ve-medya-politikasi') }}">{{ __('footer.media_policy') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('information.show', 'icerik-duzeltme-politikasi') }}">{{ __('footer.corrections_policy') }}</a>
                     </div>
                 </div>
                 <div>
@@ -57,7 +57,7 @@
                             <span class="font-semibold text-gold-300">Kıbrıs Yemekleri</span>
                         @endif
                         <a class="hover:text-orange-300" href="{{ route('ingredients.hub.show', 'hellim') }}">Hellim</a>
-                        <a class="hover:text-orange-300" href="{{ route('blog.index') }}?q=Kıbrıs">Kıbrıs Rehberleri</a>
+                        <a class="hover:text-orange-300" href="{{ route('blog.index', ['q' => 'Kıbrıs']) }}">Kıbrıs Rehberleri</a>
                     </div>
                 </div>
 

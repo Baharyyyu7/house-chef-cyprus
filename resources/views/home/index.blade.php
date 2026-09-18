@@ -36,13 +36,13 @@
                 </div>
 
                 {{-- Segmented Mode Switcher --}}
-                <div class="inline-flex rounded-2xl p-1 bg-stone-100 dark:bg-stone-800/90 border border-stone-200/80 dark:border-stone-700/80 text-xs font-bold shrink-0 self-start sm:self-center shadow-inner" role="tablist" aria-label="{{ __('home.search_mode_label') }}">
+                <div class="grid grid-cols-2 w-full sm:w-auto sm:inline-flex rounded-2xl p-1 bg-stone-100 dark:bg-stone-800/90 border border-stone-200/80 dark:border-stone-700/80 text-xs font-bold shrink-0 self-stretch sm:self-center shadow-inner" role="tablist" aria-label="{{ __('home.search_mode_label') }}">
                     <button
                         type="button"
                         role="tab"
                         @click="activeSearchTab = 'ingredients'"
                         :class="activeSearchTab === 'ingredients' ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-sm' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'"
-                        class="flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-200"
+                        class="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-200"
                         :aria-selected="activeSearchTab === 'ingredients'"
                     >
                         <span>🥕 {{ __('home.search_tab_ingredients') }}</span>
@@ -52,7 +52,7 @@
                         role="tab"
                         @click="activeSearchTab = 'recipes'"
                         :class="activeSearchTab === 'recipes' ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-sm' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'"
-                        class="flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-200"
+                        class="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-200"
                         :aria-selected="activeSearchTab === 'recipes'"
                     >
                         <span>🔍 {{ __('home.search_tab_recipes') }}</span>
@@ -65,7 +65,7 @@
                 <form id="home-ingredients" class="hc-arama__kutu mt-4" action="{{ route('ingredients.explore') }}" method="get">
                     <label class="sr-only" for="hero-ingredient">{{ __('home.select_ingredient_label') }}</label>
                     <span class="hc-arama__ikon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span>
-                    <select id="hero-ingredient" class="hc-arama__girdi" name="ingredients[]" required>
+                    <select id="hero-ingredient" class="hc-arama__girdi cursor-pointer" name="ingredients[]" required>
                         <option value="">{{ __('home.ingredient_placeholder_example') }}</option>
                         @foreach($homeIngredients as $ingredient)
                             <option value="{{ $ingredient['public_id'] }}">{{ $ingredient['name'] }}</option>
@@ -101,9 +101,8 @@
             {{-- Hızlı Filtre Çipleri --}}
             <div class="hc-arama__oneriler mt-5">
                 <span class="hc-arama__etiket">{{ __('home.quick_links') }}</span>
-                <a class="hc-arama__cip" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">{{ __('home.cypriot_cuisine') }}</a>
-                {{-- Exact-match iç bağlantı: "Kıbrıs Yemekleri" araması hub sayfasına site içi en güçlü sayfadan bağlanır. --}}
-                <a class="hc-arama__cip" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">Kıbrıs Yemekleri</a>
+                <a class="hc-arama__cip" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">🇨🇾 {{ __('home.cypriot_cuisine') }}</a>
+                <a class="hc-arama__cip" href="{{ route('cuisines.show', 'turk-mutfagi') }}">🇹🇷 Türk Mutfağı</a>
                 @foreach([['home.under_20_min', 'sure', '20-dakika', ['max_minutes' => 20]], ['home.easy_recipes', 'zorluk', 'kolay', ['difficulty' => 'easy']]] as [$chipKey, $tur, $slug, $params])
                     <a href="{{ $koleksiyonBaglantisi($tur, $slug) ?? route('recipes.index', $params) }}" class="hc-arama__cip">{{ __($chipKey) }}</a>
                 @endforeach
@@ -191,7 +190,7 @@
         @if(config('monetization.payments_enabled'))
             <a class="hc-text-link ml-4" href="{{ route('pricing') }}">{{ __('home.pricing_link') }}</a>
         @else
-            <p class="hc-caption mt-4">{{ __('home.pricing_soon') }}</p>
+            <p class="hc-caption mt-4 font-semibold text-emerald-600 dark:text-emerald-400">✓ {{ __('home.pricing_soon') }}</p>
         @endif
         <nav class="mt-8 flex flex-wrap gap-4" aria-label="Tarif koleksiyonları">
             <a class="hc-text-link" href="{{ route('ingredients.hub.index') }}">{{ __('home.nav_by_ingredient') }}</a>

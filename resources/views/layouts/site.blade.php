@@ -174,11 +174,14 @@
     {{-- Yapışkan başlık yüksekliğini ölç: bölüm bağlantıları hedefi çubukların altında bırakmasın. --}}
     <script>
     (function () {
+        function getHeaderNav() {
+            return document.querySelector('.hc-public-header > nav') || document.querySelector('.hc-public-header') || document.querySelector('body > header');
+        }
         function measure() {
             var root = document.documentElement;
-            var header = document.querySelector('.hc-public-header') || document.querySelector('body > header');
+            var headerNav = getHeaderNav();
             var nav = document.querySelector('.hc-sticky-under-header');
-            if (header) { root.style.setProperty('--hc-header-h', Math.round(header.getBoundingClientRect().height) + 'px'); }
+            if (headerNav) { root.style.setProperty('--hc-header-h', Math.round(headerNav.getBoundingClientRect().height) + 'px'); }
             // Cerez seridi ekranin altina sabitleniyor ve panelin altinda
             // kalan baglanti gercekten tiklanamiyor. Serit bir engel degil
             // (sarmalayici pointer-events:none) ama panelin kapladigi alan
@@ -191,8 +194,8 @@
         function watch() {
             measure();
             if (typeof ResizeObserver === 'function') {
-                var header = document.querySelector('.hc-public-header') || document.querySelector('body > header');
-                if (header) { new ResizeObserver(measure).observe(header); }
+                var headerNav = getHeaderNav();
+                if (headerNav) { new ResizeObserver(measure).observe(headerNav); }
             }
         }
         if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', watch); } else { watch(); }

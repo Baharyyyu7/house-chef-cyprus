@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 export COPYFILE_DISABLE=1
+export PATH="/Users/kaganbahar/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 # Uctan uca surum yayinlama.
 #

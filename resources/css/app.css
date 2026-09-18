@@ -334,7 +334,7 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
 @media (max-width: 639px) { .hc-admin-page-header { align-items:flex-start; flex-direction:column; }.hc-admin-periods { width:100%; }.hc-admin-period { flex:1; text-align:center; }.hc-admin-metrics { grid-template-columns:1fr; }.hc-admin-metric { min-height:9rem; }.hc-admin-system-grid { grid-template-columns:1fr; } }
 @media (max-width: 767px) { .hc-admin-crud-page { padding-inline:1rem; }.hc-admin-crud-header { align-items:flex-start; flex-direction:column; }.hc-admin-page-actions,.hc-admin-page-actions .hc-v3-btn { width:100%; }.hc-admin-filter-bar { align-items:stretch; flex-direction:column; }.hc-admin-filter-bar > .hc-v3-btn,.hc-admin-filter-bar > a { width:100%; }.hc-admin-form-section { grid-template-columns:1fr; gap:1rem; padding:1rem; }.hc-admin-detail-grid { grid-template-columns:1fr; padding:1rem; }.hc-admin-sticky-save { align-items:stretch; flex-direction:column; bottom:.5rem; }.hc-admin-sticky-save > div,.hc-admin-sticky-save > div > * { width:100%; }.hc-admin-data-table td { white-space:normal; }.hc-admin-table-shell { padding:.7rem; } }
 @media (max-width: 767px) { .hc-admin-step-card { grid-template-columns:2.3rem minmax(0,1fr); }.hc-admin-step-card > :last-child { grid-column:1 / -1; justify-content:flex-end; } }
-@media (max-width: 767px) { html, body, .admin-shell { overflow-x:clip; } }
+html, body, .admin-shell { overflow-x:clip; }
 @media (prefers-reduced-motion: reduce) { .hc-v3-reveal { animation:none; } }
 /* Yönetim paneli metrikleri iki katmanda: eylem alınanlar önde, referans sayılar şeritte.
    Eskiden on kart eşit ağırlıkta ve 13rem yüksekliğindeydi; hangisinin önemli olduğu okunmuyordu. */
@@ -461,7 +461,7 @@ html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-web
 @media (min-width: 1280px) { .hc-workspace-shell { grid-template-columns:minmax(18rem,.7fr) minmax(0,1.7fr); align-items:start; }.hc-workspace-sidebar { position:sticky; top:calc(var(--hc-header-h) + 1rem); }.hc-tool-grid { grid-template-columns:1.25fr .75fr; } }
 @media (max-width: 639px) { .hc-match-card__meta { grid-template-columns:1fr; }.hc-recipe-step-list::before { display:none; }.hc-workspace-hero__inner { padding:1.25rem; } }
 /* Yapışkan header ve bölüm menüsünün gerçek yüksekliği; app.js çalışma anında günceller. */
-:root { --hc-header-h: 85px; --hc-section-nav-h: 53px; }
+:root { --hc-header-h: 4.75rem; --hc-section-nav-h: 53px; }
 .hc-sticky-under-header { top: var(--hc-header-h); }
 .hc-scroll-target { scroll-margin-top: calc(var(--hc-header-h) + var(--hc-section-nav-h) + .75rem); }
 @keyframes hc-media-shimmer { from { background-position:-140% 0; } to { background-position:240% 0; } }
@@ -625,6 +625,11 @@ html:not(.dark) .hc-header-over-hero:not(.is-scrolled) > nav .hc-brand-logo img:
     border-color: transparent;
     background: var(--hc-background-page);
     box-shadow: var(--hc-elev-3);
+    max-height: calc(100vh - 4.75rem);
+    max-height: calc(100dvh - 4.75rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
 }
 /* Çekmece açıkken sayfa kaymaz. Kilidin işareti düzenin zaten kullandığı
    body.overflow-hidden; asıl kaydırıcı html olduğu için o da durdurulur,
@@ -993,20 +998,7 @@ button.hc-locale__option:hover { background:var(--hc-surface-soft); }
 html[dir="rtl"] .hc-locale__panel { right:auto; left:0; transform-origin:top left; }
 @media (prefers-reduced-motion: reduce) { .hc-locale__trigger:active { transform:none; } .hc-locale__caret { transition:none; } }
 
-/* Kahraman görselden sayfa zeminine geçiş. Yükseklik ekranla büyür ama bir
-   sınırı vardır; kısa ekranda görselin yarısını yutmasın. */
-/* Tek bir doğrusal gradyan gözde bant oluşturuyordu: geçişin ortasında
-   belirgin bir çizgi görünüyor. Çok duraklı ve kolaylaştırılmış bir eğri
-   bandı kırar, alan da yükseldi ki geçiş aceleye gelmesin. */
-.hc-home-hero__eritme {                    inset-inline:0;           z-index:-9; height:clamp(7rem, 24vh, 16rem);
-    background:linear-gradient(180deg,
-        rgba(9,9,9,0) 0%,
-        color-mix(in srgb, var(--hc-bg) 8%, transparent) 22%,
-        color-mix(in srgb, var(--hc-bg) 24%, transparent) 40%,
-        color-mix(in srgb, var(--hc-bg) 50%, transparent) 58%,
-        color-mix(in srgb, var(--hc-bg) 76%, transparent) 74%,
-        color-mix(in srgb, var(--hc-bg) 93%, transparent) 88%,
-        var(--hc-bg) 100%); }
+
 
 /* Profil sayfası. Baş harf rozeti hesap menüsündekiyle aynı dili konuşur,
    böylece iki yerde de aynı kişi olduğunuz belli olur. */
@@ -1022,8 +1014,8 @@ html[dir="rtl"] .hc-locale__panel { right:auto; left:0; transform-origin:top lef
 /* Bağlantıyla bir başlığa atlandığında hedef, yapışkan üst çubuğun altında
    kalıyordu: sayfa doğru yere kayıyor ama başlık görünmüyordu. Kaydırma
    çubuğun boyu kadar erken durur. */
-html { scroll-padding-top: calc(var(--hc-header-h, 84px) + 1.25rem); }
-:target { scroll-margin-top: calc(var(--hc-header-h, 84px) + 1.25rem); }
+html { scroll-padding-top: calc(var(--hc-header-h, 4.75rem) + 1.25rem); }
+:target { scroll-margin-top: calc(var(--hc-header-h, 4.75rem) + 1.25rem); }
 
 /* Üst çubuktaki kontroller tek bir biçim dili konuşur. Yarıçapları 0, 9999
    ve 12 piksel arasında değişiyordu; yan yana duran dört şey üç ayrı köşe
@@ -1561,10 +1553,10 @@ form[action*="favorites"] button {
    ═══════════════════════════════════════════════ */
 
 .hc-sticky-under-header {
-  top: var(--hc-header-h, 5.25rem);
+  top: var(--hc-header-h, 4.75rem);
 }
 .hc-scroll-target {
-  scroll-margin-top: calc(var(--hc-header-h, 5.25rem) + var(--hc-section-nav-h, 0px) + 0.75rem);
+  scroll-margin-top: calc(var(--hc-header-h, 4.75rem) + var(--hc-section-nav-h, 0px) + 0.75rem);
 }
 
 /* ═══════════════════════════════════════════════
@@ -1646,7 +1638,7 @@ form[action*="favorites"] button {
   border: 1px solid var(--hc-border-default);
   border-radius: var(--hc-radius-xl);
   background: var(--hc-surface-raised);
-  padding: 1.5rem;
+  padding: 1.15rem 1rem;
   box-shadow: var(--hc-shadow-md);
 }
 @media (min-width: 640px) { .hc-arama { padding: 1.6rem 1.75rem; } }
@@ -1671,6 +1663,9 @@ form[action*="favorites"] button {
   transition:
     border-color var(--hc-duration-fast) ease,
     box-shadow var(--hc-duration-fast) ease;
+}
+@media (min-width: 640px) {
+  .hc-arama__kutu { flex-wrap: nowrap; }
 }
 .hc-arama__kutu:focus-within {
   border-color: var(--hc-brand-primary);
@@ -1700,6 +1695,11 @@ form[action*="favorites"] button {
   color: var(--hc-text-primary);
   outline: none;
   box-shadow: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+select.hc-arama__girdi {
+  cursor: pointer;
 }
 .hc-arama__girdi::placeholder {
   color: var(--hc-text-muted);
@@ -1709,9 +1709,11 @@ form[action*="favorites"] button {
 .hc-arama__dugme {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: .5rem;
   padding: .75rem 1.25rem;
   margin: .375rem;
+  width: calc(100% - .75rem);
   border-radius: var(--hc-radius-md);
   background: var(--hc-brand-primary);
   color: var(--hc-brand-contrast);
@@ -1723,6 +1725,9 @@ form[action*="favorites"] button {
   transition:
     background-color var(--hc-duration-fast) ease,
     transform var(--hc-duration-fast) var(--hc-ease-standard);
+}
+@media (min-width: 640px) {
+  .hc-arama__dugme { width: auto; }
 }
 .hc-arama__dugme:hover { background: var(--hc-brand-hover); box-shadow: var(--hc-elev-2); }
 .hc-arama__dugme:active { transform: scale(.98); }
@@ -1784,10 +1789,17 @@ form[action*="favorites"] button {
 .hc-home-hero__eritme {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 12rem;
-  background: linear-gradient(to bottom, transparent, var(--hc-bg));
+  height: clamp(7rem, 20vh, 14rem);
+  background: linear-gradient(180deg,
+      rgba(9,9,9,0) 0%,
+      color-mix(in srgb, var(--hc-bg) 8%, transparent) 22%,
+      color-mix(in srgb, var(--hc-bg) 24%, transparent) 40%,
+      color-mix(in srgb, var(--hc-bg) 50%, transparent) 58%,
+      color-mix(in srgb, var(--hc-bg) 76%, transparent) 74%,
+      color-mix(in srgb, var(--hc-bg) 93%, transparent) 88%,
+      var(--hc-bg) 100%);
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
 }
 
 /* ═══════════════════════════════════════════════
