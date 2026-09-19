@@ -24,6 +24,13 @@ use Illuminate\Support\Str;
 final class BlogPost extends Model
 {
     use HasPublicId, HasTranslations;
+    use \App\Models\Concerns\RedirectsOldSlugs;
+
+    public function showRouteName(): string
+    {
+        return 'blog.show';
+    }
+
 
     /**
      * Bir yazı sayfasını taşıyan alanlar.

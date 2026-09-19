@@ -23,6 +23,13 @@ use Illuminate\Support\Carbon;
 class Recipe extends Model
 {
     use HasPublicId, SoftDeletes;
+    use \App\Models\Concerns\RedirectsOldSlugs;
+
+    public function showRouteName(): string
+    {
+        return 'recipes.show';
+    }
+
     use HasTranslations {
         hasTranslation as private kendiAlanlariCevrildi;
         scopeTranslatedInto as private kendiAlanlariIcinSuz;
