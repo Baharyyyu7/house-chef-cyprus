@@ -63,4 +63,16 @@ final class RankedUrlGuardTest extends TestCase
 
         $this->assertSame([], $kapananlar);
     }
+
+    public function test_yonlendirilen_eski_adres_kapali_sayilmaz(): void
+    {
+        $yazi = $this->yazi('sogan-karamelizasyonu', 'published');
+        $yazi->update(['slug' => 'sogan-karamelizasyonu-ATNFE']);
+
+        $kapananlar = app(RankedUrlGuardService::class)->kapananlar([
+            ['page' => 'https://housechefcyprus.com/en/blog/sogan-karamelizasyonu', 'impressions' => 29],
+        ]);
+
+        $this->assertSame([], $kapananlar);
+    }
 }

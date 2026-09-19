@@ -48,6 +48,15 @@ final class RankedUrlGuardService
         return $sonuc;
     }
 
+    /** Adresi değişmiş kayıt 301 ile yönleniyorsa sayfa kapanmış sayılmaz. */
+    private function yonlendiriliyor(string $sinif, string $slug): bool
+    {
+        return \App\Models\SlugRedirect::query()
+            ->where('model_type', (new $sinif)->getMorphClass())
+            ->where('old_slug', $slug)
+            ->exists();
+    }
+
     private function sebep(string $adres): ?string
     {
         $yol = trim((string) parse_url($adres, PHP_URL_PATH), '/');
@@ -68,7 +77,7 @@ final class RankedUrlGuardService
             $yazi = BlogPost::query()->where('slug', $slug)->with('seoMetadata')->first();
 
             if ($yazi === null) {
-                return 'kayit_yok';
+                return $this->yonlendiriliyor(BlogPost::class, $slug) ? null : 'kayit_yok';
             }
 
             if ($yazi->status !== 'published' || $yazi->published_at === null || $yazi->published_at->isFuture()) {
@@ -82,11 +91,19 @@ final class RankedUrlGuardService
             $tarif = Recipe::query()->where('slug', $slug)->with('seoMetadata')->first();
 
             if ($tarif === null) {
-                return 'kayit_yok';
+                return $this->yonlendiriliyor(Recipe::class, $slug) ? null : 'kayit_yok';
             }
 
             if ($tarif->status !== 'published') {
                 return 'yayinda_degil';
+            }
+
+            // Kopya tarif bilinçli olarak gerçek eşine bağlandıysa (noindex +
+            // kanonik), sinyal kaybolmuyor, eşine taşınıyor; kapanma değil.
+            $kanonik = (string) $tarif->seoMetadata?->canonical_override;
+
+            if ($kanonik !== '' && ! str_ends_with($kanonik, '/'.$tarif->slug)) {
+                return null;
             }
 
             return str_contains((string) $tarif->seoMetadata?->robots, 'noindex') ? 'noindex' : null;
