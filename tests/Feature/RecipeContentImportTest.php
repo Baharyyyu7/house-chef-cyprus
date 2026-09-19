@@ -159,4 +159,27 @@ final class RecipeContentImportTest extends TestCase
 
         $this->assertSame('noindex,nofollow', $tarif->fresh('seoMetadata')->seoMetadata?->robots);
     }
+
+    public function test_gecersiz_kalan_ceviri_uyarisi_verilir(): void
+    {
+        config(['locales.supported.en.enabled' => true]);
+        $tarif = $this->tarif('hellim-tavasi', 'Şablon açıklama metni burada duruyor ve hiçbir şey anlatmıyor.');
+        foreach (['title' => 'Halloumi Pan', 'excerpt' => 'Summary.', 'description' => 'Description.'] as $alan => $deger) {
+            $tarif->translations()->create(['locale' => 'en', 'field' => $alan, 'value' => $deger]);
+        }
+        foreach ($tarif->steps as $adim) {
+            $adim->translations()->create(['locale' => 'en', 'field' => 'title', 'value' => 'Step']);
+            $adim->translations()->create(['locale' => 'en', 'field' => 'instruction', 'value' => 'Old instruction text.']);
+        }
+        foreach ($tarif->ingredients as $malzeme) {
+            $malzeme->translations()->create(['locale' => 'en', 'field' => 'name', 'value' => 'Placeholder']);
+        }
+        $this->assertTrue($tarif->fresh(['steps', 'ingredients'])->hasTranslation('en'));
+
+        $this->teslim('hellim', $this->gercekIcerik('hellim-tavasi'));
+
+        $this->artisan('content:import-recipes --apply')
+            ->expectsOutputToContain('en çevirisi artık eksik')
+            ->assertSuccessful();
+    }
 }

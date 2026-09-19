@@ -96,6 +96,16 @@ final class ImportRecipeContent extends Command
                 continue;
             }
 
+            // İçerik değişince eski adımlara bağlı çeviriler geçersiz kalır ve
+            // o dildeki sayfa 404'e düşer. 19 Eylül 2026'da Google'ın sıraladığı
+            // Rusça çoban salata ve Almanca ıspanaklı gözleme sayfaları böyle
+            // kapandı. Hangi dillerin yeniden çevrilmesi gerektiği bildirilir.
+            $oncekiDiller = collect(array_keys((array) config('locales.supported', [])))
+                ->reject(fn (string $dil): bool => $dil === (string) config('locales.default', 'tr'))
+                ->filter(fn (string $dil): bool => $tarif->hasTranslation($dil))
+                ->values()
+                ->all();
+
             DB::transaction(function () use ($tarif, $veri): void {
                 $tarif->forceFill([
                     'title' => (string) ($veri['title'] ?? $tarif->title),
@@ -130,6 +140,13 @@ final class ImportRecipeContent extends Command
                     ]);
                 }
             });
+
+            $tarif->refresh()->load(['steps', 'ingredients']);
+            $kaybolan = array_values(array_filter($oncekiDiller, fn (string $dil): bool => ! $tarif->hasTranslation($dil)));
+
+            if ($kaybolan !== []) {
+                $this->components->warn($tarif->slug.': '.implode(', ', $kaybolan).' çevirisi artık eksik; bu dillerdeki sayfa yeniden çevrilene kadar 404 verir.');
+            }
 
             // Kapıyı geçen içerik yazıldıysa, taramanın koyduğu makine
             // damgası kalkar: sayfa artık gerçek bir tarif. İnsanın elle
