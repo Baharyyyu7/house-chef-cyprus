@@ -176,6 +176,42 @@ final class SearchConsoleMeasurementService
         }
     }
 
+    /**
+     * Sayfa bazında son günlerin gösterimleri.
+     *
+     * Sorgu satırları hangi aramada göründüğümüzü söyler; hangi sayfanın
+     * göründüğünü söylemez. Sıralanan bir sayfanın kapanması ancak sayfa
+     * boyutuyla fark edilir.
+     *
+     * @return list<array{page: string, impressions: int, clicks: int, position: float}>
+     */
+    public function pageRows(int $gun = 28): array
+    {
+        if (! config('seo.search_console.enabled') || ! $this->configured()) {
+            return [];
+        }
+
+        $token = Http::asForm()->withoutRedirecting()->connectTimeout(5)->timeout(10)->post('https://oauth2.googleapis.com/token', [
+            'client_id' => config('seo.search_console.client_id'), 'client_secret' => config('seo.search_console.client_secret'),
+            'refresh_token' => config('seo.search_console.refresh_token'), 'grant_type' => 'refresh_token',
+        ]);
+        $this->requireSuccess($token);
+
+        $url = 'https://www.googleapis.com/webmasters/v3/sites/'.rawurlencode($this->property()).'/searchAnalytics/query';
+        $cevap = Http::withToken((string) $token->json('access_token'))->withoutRedirecting()->connectTimeout(5)->timeout(15)->post($url, [
+            'startDate' => now()->subDays($gun)->toDateString(), 'endDate' => now()->toDateString(),
+            'type' => 'web', 'dataState' => 'all', 'dimensions' => ['page'], 'rowLimit' => 1000,
+        ]);
+        $this->requireSuccess($cevap);
+
+        return array_values(array_map(static fn (array $r): array => [
+            'page' => (string) ($r['keys'][0] ?? ''),
+            'impressions' => (int) ($r['impressions'] ?? 0),
+            'clicks' => (int) ($r['clicks'] ?? 0),
+            'position' => (float) ($r['position'] ?? 0),
+        ], (array) $cevap->json('rows', [])));
+    }
+
     private function requireSuccess(Response $response): void
     {
         if (in_array($response->status(), [429, 503], true)) {
