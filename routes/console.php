@@ -127,6 +127,8 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('geoip_update', 
 // çalışır ki tekrar içerik arama motoruna bildirilmesin.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_originality_scan', fn () => Artisan::call('seo:originality-scan', ['--apply' => true])))->name('seo_originality_scan')->dailyAt('01:35')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_recipe_quality_scan', fn () => Artisan::call('seo:recipe-quality-scan', ['--apply' => true])))->name('seo_recipe_quality_scan')->dailyAt('02:05')->withoutOverlapping();
+// Aynı başlıkla iki sayfa aynı sorguda yarışırsa ikisi de zayıflar.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_blog_duplicate_title', fn () => Artisan::call('seo:blog-duplicate-title-consolidation', ['--apply' => true])))->name('seo_blog_duplicate_title')->dailyAt('02:20')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_ranked_url_guard', fn () => Artisan::call('seo:ranked-url-guard')))->name('seo_ranked_url_guard')->dailyAt('07:00')->withoutOverlapping();
 // Büyüme iddiası ancak bir önceki ölçümle yan yana konunca doğrulanabilir;
 // aynı koşu ilk yirmide görünüp tıklanmayan sayfalar için iş kaydı açar.

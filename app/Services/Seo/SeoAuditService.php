@@ -101,6 +101,14 @@ final class SeoAuditService
                 return;
             }
 
+            // Kendisi indekse kapalı bir sayfanın kanoniği sonucu değiştirmez:
+            // kaybedecek sinyali yoktur. 20 Eylül 2026'da tarif kalite kapısı
+            // 223 ölçüsüz tarifi kapatınca bu uyarı 171'e fırlamıştı ve
+            // hepsinin kaynağı da kapalıydı.
+            if ($this->kendisiKapali($entity)) {
+                return;
+            }
+
             // Kanoniğin kendi adresini göstermemesi tek başına kusur değil:
             // kopya tarifler ve taslak inceleme nüshaları bilerek gerçek eşine
             // bağlanır. 20 Eylül 2026'da ölçüldü, 227 teknik uyarının 191'i bu
@@ -184,5 +192,15 @@ final class SeoAuditService
         }
 
         return str_contains((string) $hedef->seoMetadata?->robots, 'noindex') ? 'noindex' : null;
+    }
+
+    /** Sayfanın kendisi indekse kapalı mı? */
+    private function kendisiKapali(Model $entity): bool
+    {
+        if ($entity instanceof BlogPost) {
+            return str_contains(app(BlogIndexability::class)->robots($entity), 'noindex');
+        }
+
+        return $entity instanceof Recipe && str_contains((string) $entity->seoMetadata?->robots, 'noindex');
     }
 }

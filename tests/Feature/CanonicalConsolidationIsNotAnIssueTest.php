@@ -115,4 +115,14 @@ final class CanonicalConsolidationIsNotAnIssueTest extends TestCase
 
         $this->assertCount(1, $yineleme);
     }
+
+    public function test_kendisi_noindex_olan_sayfanin_kanonigi_uyari_uretmez(): void
+    {
+        $kapali = $this->tarif('yayinda-olmayan-es', 'draft');
+        $kopya = $this->tarif('kopya-tarif');
+        $this->kanonikKoy($kopya, route('recipes.show', $kapali));
+        $kopya->seoMetadata()->update(['robots' => 'noindex,follow']);
+
+        $this->assertSame([], $this->kanonikUyarilari());
+    }
 }
