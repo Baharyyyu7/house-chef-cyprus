@@ -24,21 +24,38 @@ final class SeoBlogDuplicateTitleConsolidation extends Command
 {
     protected $signature = 'seo:blog-duplicate-title-consolidation {--apply : Değişiklikleri yaz. Varsayılan yalnız rapordur.}';
 
-    protected $description = 'Aynı SEO başlığını taşıyan blog yazılarını tek kanonik adreste toplar.';
+    protected $description = 'Aynı yazının birden çok nüshasını tek kanonik adreste toplar.';
 
     public function handle(): int
     {
         $yaz = (bool) $this->option('apply');
         $yazilar = BlogPost::query()
             ->whereIn('status', ['published', 'scheduled', 'approved'])
-            ->whereNotNull('meta_title')
-            ->where('meta_title', '!=', '')
             ->with('seoMetadata')
             ->get();
 
         $birlesen = [];
 
-        foreach ($yazilar->groupBy('meta_title') as $baslik => $grup) {
+        // İki ayrı yineleme biçimi var ve ikisi de aynı sorunu doğuruyor.
+        // Aynı SEO başlığı: 20 Eylül 2026'da 26 konuda görüldü. Aynı adres
+        // kökü: aynı gün 6 konuda, "-XXXXX" son ekli iki üç nüsha birden
+        // indeksteydi ve bunların arasında sitenin en çok gösterim alan iki
+        // sayfası da vardı. Başlıkları farklı olduğu için başlık kuralına
+        // takılmıyorlardı.
+        $gruplar = [];
+
+        foreach ($yazilar as $yazi) {
+            if (filled($yazi->meta_title)) {
+                $gruplar['baslik:'.$yazi->meta_title][] = $yazi;
+            }
+
+            $gruplar['adres:'.preg_replace('/-[A-Z0-9]{5}$/', '', $yazi->slug)][] = $yazi;
+        }
+
+        $islenen = [];
+
+        foreach ($gruplar as $baslik => $satirlar) {
+            $grup = collect($satirlar);
             if ($grup->count() < 2) {
                 continue;
             }
@@ -50,6 +67,18 @@ final class SeoBlogDuplicateTitleConsolidation extends Command
                     continue;
                 }
 
+                // Daha önce birleştirilmiş nüsha yeniden yazılmaz.
+                if (str_contains((string) $kopya->seoMetadata?->robots, 'noindex')
+                    && filled($kopya->seoMetadata?->canonical_override)) {
+                    continue;
+                }
+
+                // Aynı nüsha iki gruptan da gelebilir; bir kez işlenir.
+                if (isset($islenen[$kopya->getKey()])) {
+                    continue;
+                }
+
+                $islenen[$kopya->getKey()] = true;
                 $birlesen[] = ['kopya' => $kopya->slug, 'asil' => $asil->slug, 'baslik' => (string) $baslik];
 
                 if (! $yaz) {

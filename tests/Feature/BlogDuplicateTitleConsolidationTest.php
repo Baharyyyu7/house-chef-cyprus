@@ -72,4 +72,22 @@ final class BlogDuplicateTitleConsolidationTest extends TestCase
         $this->assertSame('Tek Başlık', $yalniz->fresh()->meta_title);
         $this->assertNull($yalniz->fresh()->seoMetadata?->canonical_override);
     }
+
+    public function test_ayni_adres_kokunu_paylasan_nushalar_baslik_farkli_olsa_da_birlesir(): void
+    {
+        // 20 Eylül 2026: sitenin en çok gösterim alan iki sayfasının üçer
+        // nüshası birden indeksteydi; başlıkları farklı olduğu için başlık
+        // kuralına takılmıyorlardı.
+        $temiz = $this->yazi('firin-kac-dakikada-isinir', 'Fırın Kaç Dakikada Isınır?', '<p>Kısa gövde.</p>');
+        $eski = $this->yazi('firin-kac-dakikada-isinir-BH3DY', 'Fırın Ne Kadar Sürede Isınır?', '<p>Bu nüshanın gövdesi daha uzun. '.str_repeat('Ayrıntı eklendi. ', 80).'</p>', '-40 days');
+
+        $this->artisan('seo:blog-duplicate-title-consolidation --apply')->assertSuccessful();
+
+        $temiz->refresh();
+        $eski->refresh();
+
+        $this->assertStringContainsString('daha uzun', (string) $temiz->body);
+        $this->assertSame('noindex,follow', (string) $eski->seoMetadata?->robots);
+        $this->assertSame(route('blog.show', $temiz), (string) $eski->seoMetadata?->canonical_override);
+    }
 }
