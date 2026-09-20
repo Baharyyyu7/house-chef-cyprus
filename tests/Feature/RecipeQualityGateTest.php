@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Ingredient;
 use App\Models\Recipe;
+use App\Services\Seo\RecipeQualityGateService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -134,5 +135,22 @@ final class RecipeQualityGateTest extends TestCase
         $this->artisan('seo:recipe-quality-scan --apply')->assertSuccessful();
 
         $this->assertStringContainsString('noindex', $this->robots($tarif));
+    }
+
+    public function test_hicbir_malzemesinde_olcu_olmayan_tarif_eksik_sayilir(): void
+    {
+        $tarif = $this->tarif('olcusuz-tarif', 'Bu tarifin açıklaması yeterince uzun ve kendine özgüdür, başka tarifte geçmez.');
+        $tarif->recipeIngredients()->update(['quantity' => null, 'unit' => null, 'preparation' => null]);
+
+        $this->assertTrue(app(RecipeQualityGateService::class)->eksikMi($tarif->fresh()));
+    }
+
+    public function test_tek_malzemesinde_olcu_olan_tarif_gecer(): void
+    {
+        $tarif = $this->tarif('olculu-tarif', 'Bu tarifin açıklaması yeterince uzun ve kendine özgüdür, başka tarifte geçmez.');
+        $tarif->recipeIngredients()->update(['quantity' => null, 'unit' => null, 'preparation' => null]);
+        $tarif->recipeIngredients()->first()->forceFill(['quantity' => '2', 'unit' => 'adet'])->save();
+
+        $this->assertFalse(app(RecipeQualityGateService::class)->eksikMi($tarif->fresh()));
     }
 }

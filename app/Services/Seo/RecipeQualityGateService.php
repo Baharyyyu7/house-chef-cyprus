@@ -83,7 +83,8 @@ final class RecipeQualityGateService
     {
         return $tarif->steps()->count() < self::ASGARI_ADIM
             || $tarif->recipeIngredients()->count() < self::ASGARI_MALZEME
-            || $this->yerTutucuMalzemeVar($tarif);
+            || $this->yerTutucuMalzemeVar($tarif)
+            || $this->hicOlcuYok($tarif);
     }
 
     /**
@@ -132,5 +133,27 @@ final class RecipeQualityGateService
         }
 
         return $izler;
+    }
+
+    /**
+     * Hiçbir malzemesinde ölçü olmayan tarif alışveriş listesidir.
+     *
+     * 20 Eylül 2026'da ölçüldü: yayında ve indekse açık 223 tarifin malzeme
+     * listesi "Tavuk, Patates, Domates" gibiydi; tek bir miktar ya da
+     * hazırlık notu yoktu. Bu sayfalar aranan soruyu yanıtlamıyor.
+     *
+     * Ölçüt kasten katı: tek bir malzemesinde bile miktar ya da hazırlık
+     * notu bulunan tarif geçer. Tuzu ölçüsüz yazılmış gerçek bir tarif
+     * cezalandırılmaz; ölçüsü hiç olmayan liste geçmez.
+     */
+    public function hicOlcuYok(Recipe $tarif): bool
+    {
+        $malzemeler = $tarif->recipeIngredients()->get(['quantity', 'preparation']);
+
+        if ($malzemeler->isEmpty()) {
+            return true;
+        }
+
+        return $malzemeler->every(static fn ($malzeme): bool => blank($malzeme->quantity) && blank($malzeme->preparation));
     }
 }
