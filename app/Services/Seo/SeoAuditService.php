@@ -62,7 +62,12 @@ final class SeoAuditService
                 $this->add($detected, 'content', 'info', $post, route('blog.show', $post), 'Blog yazısında ilgili doğrulanmış tarif bağlantısı bulunmuyor.', 'blog_missing_internal_recipe_link');
             }
         });
-        BlogPost::query()->whereIn('status', ['published', 'scheduled', 'approved'])->selectRaw('meta_title, COUNT(*) as aggregate')->whereNotNull('meta_title')->where('meta_title', '!=', '')->groupBy('meta_title')->having('aggregate', '>', 1)->each(function (BlogPost $post) use (&$detected): void {
+        // Gruplanmış sorgu chunk'lanmaz: each() sorguya birincil anahtara göre
+        // sıralama ve limit/offset ekler, GROUP BY ile birleşince uydurma
+        // satırlar üretir. 20 Eylül 2026'da ölçüldü: gerçekte tek bir
+        // yinelenen başlık varken denetim 26 uyarı açıyordu ve her koşuda
+        // farklılarını açıp kapatıyordu.
+        BlogPost::query()->whereIn('status', ['published', 'scheduled', 'approved'])->selectRaw('meta_title, COUNT(*) as aggregate')->whereNotNull('meta_title')->where('meta_title', '!=', '')->groupBy('meta_title')->having('aggregate', '>', 1)->get()->each(function (BlogPost $post) use (&$detected): void {
             $detected[] = $this->issue('technical', 'warning', null, null, null, 'Aynı SEO başlığı birden fazla blog yazısında kullanılıyor.', 'duplicate_blog_title:'.$post->meta_title, ['field' => 'meta_title']);
         });
     }
@@ -113,10 +118,10 @@ final class SeoAuditService
               ->orWhereHasMorph('seoable', [Recipe::class], fn ($r) => $r->where('status', 'published')->where('verification_status', 'verified'));
         });
 
-        $publishedMetadata()->selectRaw('meta_title, COUNT(*) as aggregate')->whereNotNull('meta_title')->where('meta_title', '!=', '')->groupBy('meta_title')->having('aggregate', '>', 1)->each(function (SeoMetadata $metadata) use (&$detected): void {
+        $publishedMetadata()->selectRaw('meta_title, COUNT(*) as aggregate')->whereNotNull('meta_title')->where('meta_title', '!=', '')->groupBy('meta_title')->having('aggregate', '>', 1)->get()->each(function (SeoMetadata $metadata) use (&$detected): void {
             $detected[] = $this->issue('technical', 'warning', null, null, null, 'Aynı SEO başlığı birden fazla içerikte kullanılıyor.', 'duplicate_metadata_title:'.$metadata->meta_title, ['field' => 'meta_title']);
         });
-        $publishedMetadata()->selectRaw('meta_description, COUNT(*) as aggregate')->whereNotNull('meta_description')->where('meta_description', '!=', '')->groupBy('meta_description')->having('aggregate', '>', 1)->each(function (SeoMetadata $metadata) use (&$detected): void {
+        $publishedMetadata()->selectRaw('meta_description, COUNT(*) as aggregate')->whereNotNull('meta_description')->where('meta_description', '!=', '')->groupBy('meta_description')->having('aggregate', '>', 1)->get()->each(function (SeoMetadata $metadata) use (&$detected): void {
             $detected[] = $this->issue('technical', 'warning', null, null, null, 'Aynı SEO açıklaması birden fazla içerikte kullanılıyor.', 'duplicate_metadata_description:'.$metadata->meta_description, ['field' => 'meta_description']);
         });
     }

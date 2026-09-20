@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\BlogPost;
 use App\Models\Recipe;
 use App\Services\Seo\SeoAuditService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -90,5 +91,28 @@ final class CanonicalConsolidationIsNotAnIssueTest extends TestCase
         $this->kanonikKoy($kopya, 'https://baska-site.example/tarifler/kopya-tarif');
 
         $this->assertStringContainsString('site dışı', implode(' ', $this->kanonikUyarilari()));
+    }
+
+    public function test_yinelenen_baslik_sayisi_gercek_yinelemeyle_ayni(): void
+    {
+        // Gruplanmış sorgu chunk'lanınca uydurma satır üretiyordu: tek bir
+        // yinelenen başlık varken denetim 26 uyarı açıyordu.
+        foreach (['a', 'b', 'c', 'd', 'e', 'f'] as $ek) {
+            BlogPost::query()->create([
+                'title' => 'Yazı '.$ek,
+                'slug' => 'yazi-'.$ek,
+                'excerpt' => 'Özet '.$ek,
+                'body' => '<p>Gövde '.$ek.'</p>',
+                'status' => 'published',
+                'published_at' => now()->subDay(),
+                'meta_title' => in_array($ek, ['a', 'b'], true) ? 'Ortak Başlık' : 'Ayrı Başlık '.$ek,
+                'meta_description' => 'Açıklama '.$ek,
+            ]);
+        }
+
+        $sonuc = app(SeoAuditService::class)->run();
+        $yineleme = array_filter($sonuc['issues'], static fn (array $k): bool => str_contains((string) $k['message'], 'Aynı SEO başlığı birden fazla blog'));
+
+        $this->assertCount(1, $yineleme);
     }
 }
