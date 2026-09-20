@@ -153,4 +153,33 @@ final class RecipeQualityGateTest extends TestCase
 
         $this->assertFalse(app(RecipeQualityGateService::class)->eksikMi($tarif->fresh()));
     }
+
+    public function test_ayni_malzeme_kumesini_ucten_fazla_tarif_paylasirsa_sablon_sayilir(): void
+    {
+        $ortak = ['un', 'seker', 'tereyagi'];
+
+        foreach (['sablon-a', 'sablon-b', 'sablon-c'] as $slug) {
+            $tarif = $this->tarif($slug, 'Bu tarifin açıklaması kendine özgüdür ve '.$slug.' için ayrıca yazılmıştır.', 3, 0);
+
+            foreach ($ortak as $sira => $ad) {
+                $malzeme = Ingredient::query()->firstOrCreate(['slug' => $ad], ['name' => $ad]);
+                $tarif->recipeIngredients()->create(['ingredient_id' => $malzeme->id, 'quantity' => '1', 'unit' => 'su bardağı', 'sort_order' => $sira + 1]);
+            }
+        }
+
+        $kapi = app(RecipeQualityGateService::class);
+        $sonuncu = Recipe::query()->where('slug', 'sablon-c')->with('ingredients')->first();
+
+        $this->assertTrue($kapi->ortakMalzemeKumesi($sonuncu));
+        $this->assertTrue($kapi->eksikMi($sonuncu));
+    }
+
+    public function test_sebze_karisimi_yer_tutucusu_eksik_sayilir(): void
+    {
+        $tarif = $this->tarif('yer-tutuculu', 'Bu tarifin açıklaması kendine özgüdür ve ayrıca yazılmıştır.');
+        $malzeme = Ingredient::query()->firstOrCreate(['slug' => 'sebze-karisimi'], ['name' => 'Sebze Karışımı']);
+        $tarif->recipeIngredients()->create(['ingredient_id' => $malzeme->id, 'quantity' => '1', 'unit' => 'porsiyon', 'sort_order' => 9]);
+
+        $this->assertTrue(app(RecipeQualityGateService::class)->eksikMi($tarif->fresh()));
+    }
 }

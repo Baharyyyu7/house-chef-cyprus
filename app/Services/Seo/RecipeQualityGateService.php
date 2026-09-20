@@ -31,6 +31,12 @@ final class RecipeQualityGateService
 
     public const ASGARI_MALZEME = 3;
 
+    /** Aynı malzeme kümesini bu kadar tarif paylaşıyorsa küme şablondur. */
+    public const ORTAK_KUME_ESIGI = 3;
+
+    /** @var array<string, int>|null Tek koşuda bir kez kurulan küme sayacı. */
+    private ?array $kumeSayaci = null;
+
     /**
      * @param  Collection<int, Recipe>|null  $tarifler
      * @return array<int, array{units: int, repeated: int, share: float}>
@@ -84,7 +90,8 @@ final class RecipeQualityGateService
         return $tarif->steps()->count() < self::ASGARI_ADIM
             || $tarif->recipeIngredients()->count() < self::ASGARI_MALZEME
             || $this->yerTutucuMalzemeVar($tarif)
-            || $this->hicOlcuYok($tarif);
+            || $this->hicOlcuYok($tarif)
+            || $this->ortakMalzemeKumesi($tarif);
     }
 
     /**
@@ -95,8 +102,12 @@ final class RecipeQualityGateService
      */
     public function yerTutucuMalzemeVar(Recipe $tarif): bool
     {
+        // "Sebze Karışımı" da aynı türden bir yer tutucu: 20 Eylül 2026'da
+        // 28 tarifin tek ayırt edici malzemesi buydu ve tarifler mantar
+        // risottosundan börülce yemeğine kadar değişiyordu.
         return $tarif->ingredients()
-            ->where(fn ($q) => $q->where('slug', 'ana-malzeme')->orWhere('name', 'Ana Malzeme'))
+            ->whereIn('slug', ['ana-malzeme', 'sebze-karisimi'])
+            ->orWhereIn('name', ['Ana Malzeme', 'Sebze Karışımı'])
             ->exists();
     }
 
@@ -155,5 +166,57 @@ final class RecipeQualityGateService
         }
 
         return $malzemeler->every(static fn ($malzeme): bool => blank($malzeme->quantity) && blank($malzeme->preparation));
+    }
+
+    /**
+     * Malzeme kümesi birbirinin aynı olan tarifler şablondur.
+     *
+     * 20 Eylül 2026'da ölçüldü: 49 tarifin malzemesi harfi harfine "un,
+     * şeker, tereyağı, süt, yumurta, vanilya" idi ve aralarında Kıbrıs
+     * cevizli macunu da vardı. 28 tarifinki "zeytinyağı, soğan, sarımsak,
+     * tuz, karabiber, limon suyu, sebze karışımı" idi; mantar risottosu ile
+     * börülce yemeği aynı listeyi paylaşıyordu.
+     *
+     * İki tarifin aynı listeyi paylaşması olabilir (sade omlet ile acılı
+     * omlet), bu yüzden eşik üçtür.
+     */
+    public function ortakMalzemeKumesi(Recipe $tarif): bool
+    {
+        $kume = $this->malzemeKumesi($tarif);
+
+        if ($kume === '') {
+            return false;
+        }
+
+        $sayac = $this->kumeSayaci();
+
+        return ($sayac[$kume] ?? 0) >= self::ORTAK_KUME_ESIGI;
+    }
+
+    /** @return array<string, int> */
+    private function kumeSayaci(): array
+    {
+        if ($this->kumeSayaci !== null) {
+            return $this->kumeSayaci;
+        }
+
+        $sayac = [];
+
+        foreach (Recipe::query()->where('status', 'published')->with('ingredients:id,slug')->get(['id']) as $tarif) {
+            $kume = $this->malzemeKumesi($tarif);
+
+            if ($kume !== '') {
+                $sayac[$kume] = ($sayac[$kume] ?? 0) + 1;
+            }
+        }
+
+        return $this->kumeSayaci = $sayac;
+    }
+
+    private function malzemeKumesi(Recipe $tarif): string
+    {
+        $sluglar = $tarif->ingredients->pluck('slug')->filter()->unique()->sort()->values()->all();
+
+        return $sluglar === [] ? '' : implode('|', $sluglar);
     }
 }
