@@ -75,4 +75,28 @@ final class RankedUrlGuardTest extends TestCase
 
         $this->assertSame([], $kapananlar);
     }
+
+    public function test_esine_kanonikle_baglanan_yazi_kapali_sayilmaz(): void
+    {
+        $asil = BlogPost::query()->create([
+            'title' => 'Asıl Yazı', 'slug' => 'asil-yazi', 'excerpt' => 'Özet', 'body' => '<p>Gövde</p>',
+            'status' => 'published', 'published_at' => now()->subDay(),
+            'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved',
+        ]);
+        $kopya = BlogPost::query()->create([
+            'title' => 'Kopya Yazı', 'slug' => 'asil-yazi-ENGZ3', 'excerpt' => 'Özet', 'body' => '<p>Gövde</p>',
+            'status' => 'published', 'published_at' => now()->subDay(),
+            'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved',
+        ]);
+        $kopya->seoMetadata()->updateOrCreate([], [
+            'robots' => 'noindex,follow',
+            'canonical_override' => route('blog.show', $asil),
+        ]);
+
+        $kapananlar = app(RankedUrlGuardService::class)->kapananlar([
+            ['page' => route('blog.show', $kopya), 'impressions' => 30, 'clicks' => 0, 'position' => 8.0],
+        ]);
+
+        $this->assertSame([], $kapananlar);
+    }
 }

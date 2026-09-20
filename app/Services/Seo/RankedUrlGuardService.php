@@ -84,6 +84,15 @@ final class RankedUrlGuardService
                 return 'yayinda_degil';
             }
 
+            // Yinelenen başlıklı nüsha bilerek eşine kanonikle bağlandıysa
+            // sinyal kaybolmuyor, eşine taşınıyor; kapanma değil. Tarif
+            // tarafında zaten böyle davranıyordu.
+            $kanonik = (string) $yazi->seoMetadata?->canonical_override;
+
+            if ($kanonik !== '' && ! str_ends_with($kanonik, '/'.$yazi->slug)) {
+                return null;
+            }
+
             return str_contains(app(BlogIndexability::class)->robots($yazi), 'noindex') ? 'noindex' : null;
         }
 
