@@ -169,9 +169,13 @@ final class RecipeQualityGateTest extends TestCase
 
         $kapi = app(RecipeQualityGateService::class);
         $sonuncu = Recipe::query()->where('slug', 'sablon-c')->with('ingredients')->first();
+        $ilk = Recipe::query()->where('slug', 'sablon-a')->with('ingredients')->first();
 
         $this->assertTrue($kapi->ortakMalzemeKumesi($sonuncu));
         $this->assertTrue($kapi->eksikMi($sonuncu));
+        // Kümenin sahibi ilk yayınlanandır; makine kopyaları yüzünden özgün
+        // tarif de kapanmamalı.
+        $this->assertFalse($kapi->ortakMalzemeKumesi($ilk));
     }
 
     public function test_sebze_karisimi_yer_tutucusu_eksik_sayilir(): void

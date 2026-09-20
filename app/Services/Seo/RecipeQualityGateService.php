@@ -34,7 +34,7 @@ final class RecipeQualityGateService
     /** Aynı malzeme kümesini bu kadar tarif paylaşıyorsa küme şablondur. */
     public const ORTAK_KUME_ESIGI = 3;
 
-    /** @var array<string, int>|null Tek koşuda bir kez kurulan küme sayacı. */
+    /** @var array<string, list<int>>|null Tek koşuda bir kez kurulan küme sayacı. */
     private ?array $kumeSayaci = null;
 
     /**
@@ -105,9 +105,11 @@ final class RecipeQualityGateService
         // "Sebze Karışımı" da aynı türden bir yer tutucu: 20 Eylül 2026'da
         // 28 tarifin tek ayırt edici malzemesi buydu ve tarifler mantar
         // risottosundan börülce yemeğine kadar değişiyordu.
+        // Koşullar parantez içinde tutulur: gruplanmamış bir orWhere ilişki
+        // kısıtının dışına taşar ve sorgu bütün tarifler için doğru döner.
         return $tarif->ingredients()
-            ->whereIn('slug', ['ana-malzeme', 'sebze-karisimi'])
-            ->orWhereIn('name', ['Ana Malzeme', 'Sebze Karışımı'])
+            ->where(fn ($q) => $q->whereIn('slug', ['ana-malzeme', 'sebze-karisimi'])
+                ->orWhereIn('name', ['Ana Malzeme', 'Sebze Karışımı']))
             ->exists();
     }
 
@@ -190,10 +192,16 @@ final class RecipeQualityGateService
 
         $sayac = $this->kumeSayaci();
 
-        return ($sayac[$kume] ?? 0) >= self::ORTAK_KUME_ESIGI;
+        if (count($sayac[$kume] ?? []) < self::ORTAK_KUME_ESIGI) {
+            return false;
+        }
+
+        // Kümenin sahibi ilk yayınlanan tariftir; şablon sayılan sonrakilerdir.
+        // Aksi halde makine kopyaları yüzünden özgün tarif de kapanırdı.
+        return $sayac[$kume][0] !== $tarif->getKey();
     }
 
-    /** @return array<string, int> */
+    /** @return array<string, list<int>> Küme → yayın sırasına göre tarif kimlikleri. */
     private function kumeSayaci(): array
     {
         if ($this->kumeSayaci !== null) {
@@ -202,11 +210,15 @@ final class RecipeQualityGateService
 
         $sayac = [];
 
-        foreach (Recipe::query()->where('status', 'published')->with('ingredients:id,slug')->get(['id']) as $tarif) {
+        $tarifler = Recipe::query()->where('status', 'published')->with('ingredients:id,slug')->get(['id', 'published_at'])
+            ->sortBy(static fn (Recipe $t): array => [$t->published_at?->getTimestamp() ?? PHP_INT_MAX, $t->getKey() ?? PHP_INT_MAX])
+            ->values();
+
+        foreach ($tarifler as $tarif) {
             $kume = $this->malzemeKumesi($tarif);
 
             if ($kume !== '') {
-                $sayac[$kume] = ($sayac[$kume] ?? 0) + 1;
+                $sayac[$kume][] = $tarif->getKey();
             }
         }
 
