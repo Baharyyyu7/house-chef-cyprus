@@ -128,6 +128,9 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('geoip_update', 
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_originality_scan', fn () => Artisan::call('seo:originality-scan', ['--apply' => true])))->name('seo_originality_scan')->dailyAt('01:35')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_recipe_quality_scan', fn () => Artisan::call('seo:recipe-quality-scan', ['--apply' => true])))->name('seo_recipe_quality_scan')->dailyAt('02:05')->withoutOverlapping();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_ranked_url_guard', fn () => Artisan::call('seo:ranked-url-guard')))->name('seo_ranked_url_guard')->dailyAt('07:00')->withoutOverlapping();
+// Büyüme iddiası ancak bir önceki ölçümle yan yana konunca doğrulanabilir;
+// aynı koşu ilk yirmide görünüp tıklanmayan sayfalar için iş kaydı açar.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_daily_growth_report', fn () => Artisan::call('seo:daily-growth-report')))->name('seo_daily_growth_report')->dailyAt('07:05')->withoutOverlapping();
 
 // Dil dil büyüme. Sabah brifingden hemen önce çalışır ki brifing taze
 // tabloyu görsün. Açık ama içeriği olmayan bir dil toplamların içinde
