@@ -92,8 +92,19 @@ final class SeoAuditService
                 return;
             }
             $expected = $entity instanceof Recipe ? route('recipes.show', $entity) : route('blog.show', $entity);
-            if (rtrim((string) $metadata->canonical_override, '/') !== rtrim($expected, '/')) {
-                $this->add($detected, 'technical', 'warning', $entity, $expected, 'Canonical override, public URL ile eşleşmiyor; editoryal doğrulama gerekli.', 'canonical_conflict');
+            if (rtrim((string) $metadata->canonical_override, '/') === rtrim($expected, '/')) {
+                return;
+            }
+
+            // Kanoniğin kendi adresini göstermemesi tek başına kusur değil:
+            // kopya tarifler ve taslak inceleme nüshaları bilerek gerçek eşine
+            // bağlanır. 20 Eylül 2026'da ölçüldü, 227 teknik uyarının 191'i bu
+            // bilinçli birleştirmeydi ve gerçek kusurları görünmez ediyordu.
+            // Kusur, kanoniğin gittiği yerin kendisinin kapalı olmasıdır.
+            $sebep = $this->kanonikHedefKusuru((string) $metadata->canonical_override);
+
+            if ($sebep !== null) {
+                $this->add($detected, 'technical', 'warning', $entity, $expected, 'Canonical override kapalı bir adresi gösteriyor ('.$sebep.').', 'canonical_conflict');
             }
         });
 
@@ -120,5 +131,53 @@ final class SeoAuditService
     private function issue(string $category, string $severity, ?string $entityType, ?string $entityPublicId, ?string $url, string $message, string $fingerprint, array $metadata = []): array
     {
         return ['fingerprint' => hash('sha256', $fingerprint), 'category' => $category, 'entity_type' => $entityType, 'entity_public_id' => $entityPublicId, 'url' => $url, 'severity' => $severity, 'message' => Str::limit($message, 255, ''), 'safe_metadata' => $metadata, 'last_detected_at' => now()];
+    }
+
+    /**
+     * Kanoniğin gösterdiği adres indekslenebilir mi?
+     *
+     * Aynı sitede yayında ve indekse açık bir sayfayı gösteren kanonik
+     * birleştirmedir; sinyal kaybolmaz, eşine taşınır. Kusur sayılan üç hal:
+     * adres başka bir alan adına gidiyor, karşılığı olan kayıt yok ya da
+     * hedef sayfa kapalı.
+     */
+    private function kanonikHedefKusuru(string $adres): ?string
+    {
+        if (! str_starts_with(rtrim($adres, '/').'/', rtrim((string) config('app.url'), '/').'/')) {
+            return 'site dışı';
+        }
+
+        $parcalar = explode('/', trim((string) parse_url($adres, PHP_URL_PATH), '/'));
+        [$bolum, $slug] = [$parcalar[0] ?? '', $parcalar[1] ?? ''];
+
+        if ($slug === '') {
+            return null;
+        }
+
+        if ($bolum === 'blog') {
+            $hedef = BlogPost::query()->where('slug', $slug)->with('seoMetadata')->first();
+
+            if ($hedef === null) {
+                return 'kayıt yok';
+            }
+
+            if ($hedef->status !== 'published') {
+                return 'yayında değil';
+            }
+
+            return str_contains(app(BlogIndexability::class)->robots($hedef), 'noindex') ? 'noindex' : null;
+        }
+
+        $hedef = Recipe::query()->where('slug', $slug)->with('seoMetadata')->first();
+
+        if ($hedef === null) {
+            return 'kayıt yok';
+        }
+
+        if ($hedef->status !== 'published') {
+            return 'yayında değil';
+        }
+
+        return str_contains((string) $hedef->seoMetadata?->robots, 'noindex') ? 'noindex' : null;
     }
 }
