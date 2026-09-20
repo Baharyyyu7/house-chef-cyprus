@@ -42,7 +42,7 @@ final class BlogOriginalityService
      */
     public function olc(?Collection $yazilar = null): array
     {
-        $yazilar ??= BlogPost::query()->publiclyVisible()->get(['id', 'slug', 'body', 'published_at', 'canonical_url']);
+        $yazilar ??= BlogPost::query()->publiclyVisible()->with('seoMetadata')->get(['id', 'slug', 'body', 'published_at', 'canonical_url']);
 
         // Paragraf ilk yayınlanan yazınındır; tekrar sayılan yalnız sonrakilerdir.
         // 14 Eylül 2026'da ölçüldü: 20 yazının "-XXXXX" son ekli birebir kopyası
@@ -52,8 +52,13 @@ final class BlogOriginalityService
         // son ekli kopyalar tarihçe daha eskiydi ama kanonikleri temiz adresi
         // gösteriyordu. Tarihe bakılsa indeksten düşen temiz adres olurdu.
         // Yayında olmayan aday (published_at boş) en sona konur.
-        $yazilar = $yazilar->sortBy(static fn (BlogPost $y): array => [
-            filled($y->canonical_url) && ! str_ends_with((string) $y->canonical_url, '/blog/'.$y->slug) ? 1 : 0,
+        // Kanonik iki yerde tutulabiliyor: yazının kendi alanında ve SEO
+        // meta kaydında. 20 Eylül 2026'da yineleme birleştirmesi ikincisini
+        // yazdı; servis yalnız birincisine baktığı için sitenin en çok
+        // gösterim alan iki sayfası kendi eski kopyalarının tekrarı sayıldı
+        // ve gece taraması onları indeksten düşürecekti.
+        $yazilar = $yazilar->sortBy(fn (BlogPost $y): array => [
+            $this->sahipligiBirakir($y) ? 1 : 0,
             $y->published_at?->getTimestamp() ?? PHP_INT_MAX,
             $y->getKey() ?? PHP_INT_MAX,
         ])->values();
@@ -126,5 +131,23 @@ final class BlogOriginalityService
         }
 
         return $izler;
+    }
+
+    /**
+     * Bu yazı paragrafların sahipliğini başkasına bırakır mı?
+     *
+     * Kanoniği başka bir yazıyı gösteren ya da indekse kapalı nüsha
+     * sahiplik iddia edemez: arama sonucunda görünen o değil, gösterdiği
+     * adrestir.
+     */
+    private function sahipligiBirakir(BlogPost $yazi): bool
+    {
+        foreach ([$yazi->canonical_url, $yazi->seoMetadata?->canonical_override] as $kanonik) {
+            if (filled($kanonik) && ! str_ends_with((string) $kanonik, '/blog/'.$yazi->slug)) {
+                return true;
+            }
+        }
+
+        return str_contains((string) $yazi->seoMetadata?->robots, 'noindex');
     }
 }

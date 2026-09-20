@@ -152,4 +152,24 @@ final class BlogOriginalityIsMeasuredTest extends TestCase
 
         $this->assertTrue($servis->tekrarMi($servis->adayiOlc($taslak)));
     }
+
+    public function test_meta_kaydindaki_kanonik_de_sahipligi_birakir(): void
+    {
+        // Yineleme birleştirmesi kanoniği SeoMetadata'ya yazıyor; servis
+        // yalnız yazının kendi alanına bakınca temiz adres kendi eski
+        // kopyasının tekrarı sayılıyordu.
+        $kopya = $this->yazi('firin-dereceleri-T0ZQ1', '<p>'.self::SABLON_1.'</p><p>'.self::SABLON_2.'</p><p>'.self::SABLON_3.'</p>');
+        $kopya->forceFill(['published_at' => now()->subDays(30)])->save();
+        $temiz = $this->yazi('firin-dereceleri', $kopya->body);
+        $kopya->seoMetadata()->updateOrCreate([], [
+            'robots' => 'noindex,follow',
+            'canonical_override' => route('blog.show', $temiz),
+        ]);
+
+        $servis = app(BlogOriginalityService::class);
+        $olcum = $servis->olc();
+
+        $this->assertFalse($servis->tekrarMi($olcum[$temiz->id]));
+        $this->assertTrue($servis->tekrarMi($olcum[$kopya->id]));
+    }
 }
