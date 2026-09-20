@@ -49,9 +49,12 @@ final class SeoAuditService
     private function inspectBlogs(array &$detected): void
     {
         BlogPost::query()->whereIn('status', ['published', 'scheduled', 'approved'])->each(function (BlogPost $post) use (&$detected): void {
-            // Yayın kapısı her koşulda denetlenir: kapıdan geçmeden yayına
-            // çıkmış bir yazı, noindex olsa bile bir yayın disiplini kusurudur.
-            if ($post->status === 'published' && (! in_array($post->editorial_status, ['approved', 'verified'], true) || ! in_array($post->fact_check_status, ['passed', 'verified'], true) || ! in_array($post->originality_status, ['passed', 'clean', 'original'], true))) {
+            // Yayın kapısı kural olarak her koşulda denetlenir: kapıdan
+            // geçmeden yayına çıkmış bir yazı, noindex olsa bile bir yayın
+            // disiplini kusurudur. Tek istisna, eşine kanonikle bağlanmış
+            // nüsha: onun "tekrar" işareti kazadan değil, bilinçli bir
+            // birleştirmeden geliyor ve durum zaten kayıtlı.
+            if ($post->status === 'published' && ! $this->esineBaglanmis($post) && (! in_array($post->editorial_status, ['approved', 'verified'], true) || ! in_array($post->fact_check_status, ['passed', 'verified'], true) || ! in_array($post->originality_status, ['passed', 'clean', 'original'], true))) {
                 $this->add($detected, 'content', 'error', $post, route('blog.show', $post), 'Yayınlanan blog yazısı editoryal kalite kapısından geçmemiş.', 'blog_publish_guard');
             }
 
@@ -221,5 +224,13 @@ final class SeoAuditService
         }
 
         return $entity instanceof Recipe && str_contains((string) $entity->seoMetadata?->robots, 'noindex');
+    }
+
+    /** Yazı, eşini gösteren bir kanonikle birleştirilmiş mi? */
+    private function esineBaglanmis(BlogPost $yazi): bool
+    {
+        $kanonik = (string) $yazi->seoMetadata?->canonical_override;
+
+        return $kanonik !== '' && ! str_ends_with($kanonik, '/blog/'.$yazi->slug);
     }
 }

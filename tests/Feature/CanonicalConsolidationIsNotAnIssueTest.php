@@ -147,4 +147,25 @@ final class CanonicalConsolidationIsNotAnIssueTest extends TestCase
 
         $this->assertSame([], $eksik, 'noindex sayfa için SEO metni uyarısı açılmamalı: '.$yazi->slug);
     }
+
+    public function test_esine_baglanmis_nusha_yayin_kapisi_kusuru_uretmez(): void
+    {
+        $asil = BlogPost::query()->create([
+            'title' => 'Asıl', 'slug' => 'asil', 'excerpt' => 'Ö', 'body' => '<p>G</p>',
+            'status' => 'published', 'published_at' => now()->subDay(),
+            'meta_title' => 'Asıl', 'meta_description' => 'Açıklama',
+            'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved',
+        ]);
+        $kopya = BlogPost::query()->create([
+            'title' => 'Kopya', 'slug' => 'asil-ENGZ3', 'excerpt' => 'Ö', 'body' => '<p>G</p>',
+            'status' => 'published', 'published_at' => now()->subDay(),
+            'fact_check_status' => 'passed', 'originality_status' => 'duplicate', 'editorial_status' => 'approved',
+        ]);
+        $kopya->seoMetadata()->updateOrCreate([], ['robots' => 'noindex,follow', 'canonical_override' => route('blog.show', $asil)]);
+
+        $sonuc = app(SeoAuditService::class)->run();
+        $kapi = array_filter($sonuc['issues'], static fn (array $k): bool => str_contains((string) $k['message'], 'editoryal kalite kapısından geçmemiş'));
+
+        $this->assertSame([], $kapi);
+    }
 }
