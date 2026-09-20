@@ -125,4 +125,26 @@ final class CanonicalConsolidationIsNotAnIssueTest extends TestCase
 
         $this->assertSame([], $this->kanonikUyarilari());
     }
+
+    public function test_noindex_yazinin_eksik_seo_metni_kusur_sayilmaz(): void
+    {
+        $yazi = BlogPost::query()->create([
+            'title' => 'Kopya Yazı',
+            'slug' => 'kopya-yazi',
+            'excerpt' => 'Özet',
+            'body' => '<p>Gövde</p>',
+            'status' => 'published',
+            'published_at' => now()->subDay(),
+            'meta_title' => null,
+            'meta_description' => null,
+            'fact_check_status' => 'passed',
+            'originality_status' => 'duplicate',
+            'editorial_status' => 'approved',
+        ]);
+
+        $sonuc = app(SeoAuditService::class)->run();
+        $eksik = array_filter($sonuc['issues'], static fn (array $k): bool => str_contains((string) $k['message'], 'SEO başlığı veya açıklaması eksik'));
+
+        $this->assertSame([], $eksik, 'noindex sayfa için SEO metni uyarısı açılmamalı: '.$yazi->slug);
+    }
 }

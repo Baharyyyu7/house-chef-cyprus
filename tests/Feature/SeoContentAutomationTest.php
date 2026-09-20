@@ -27,7 +27,13 @@ final class SeoContentAutomationTest extends TestCase
 
     public function test_seo_audit_is_idempotent_and_resolves_disappearing_issues(): void
     {
-        $post = $this->makePost(['status' => 'published', 'published_at' => now(), 'meta_title' => null, 'meta_description' => null]);
+        // Kapıdan geçmiş yazı: indekse açık olduğu için eksik SEO metni
+        // gerçekten arama sonucunda görünen bir kusur.
+        $post = $this->makePost([
+            'status' => 'published', 'published_at' => now(), 'meta_title' => null, 'meta_description' => null,
+            'body' => str_repeat('House Chef Cyprus için özgün editoryal içerik. ', 60),
+            'editorial_status' => 'approved', 'fact_check_status' => 'passed', 'originality_status' => 'passed',
+        ]);
 
         $this->artisan('seo:audit --json')->assertSuccessful();
         $issue = SeoIssue::query()->firstOrFail();

@@ -49,11 +49,22 @@ final class SeoAuditService
     private function inspectBlogs(array &$detected): void
     {
         BlogPost::query()->whereIn('status', ['published', 'scheduled', 'approved'])->each(function (BlogPost $post) use (&$detected): void {
-            if (blank($post->meta_title) || blank($post->meta_description)) {
-                $this->add($detected, 'content', 'warning', $post, route('blog.show', $post), 'Blog SEO başlığı veya açıklaması eksik.', 'blog_missing_metadata');
-            }
+            // Yayın kapısı her koşulda denetlenir: kapıdan geçmeden yayına
+            // çıkmış bir yazı, noindex olsa bile bir yayın disiplini kusurudur.
             if ($post->status === 'published' && (! in_array($post->editorial_status, ['approved', 'verified'], true) || ! in_array($post->fact_check_status, ['passed', 'verified'], true) || ! in_array($post->originality_status, ['passed', 'clean', 'original'], true))) {
                 $this->add($detected, 'content', 'error', $post, route('blog.show', $post), 'Yayınlanan blog yazısı editoryal kalite kapısından geçmemiş.', 'blog_publish_guard');
+            }
+
+            // Geri kalan ölçütler sayfanın arama sonucundaki halini denetler;
+            // indekse kapalı sayfada karşılığı yok. 20 Eylül 2026'da yinelenen
+            // başlıklı 26 nüsha kanonikle eşine bağlanıp noindex yapılınca,
+            // alınan başlıkları denetim eksik alan olarak sayıyordu.
+            if ($this->kendisiKapali($post)) {
+                return;
+            }
+
+            if (blank($post->meta_title) || blank($post->meta_description)) {
+                $this->add($detected, 'content', 'warning', $post, route('blog.show', $post), 'Blog SEO başlığı veya açıklaması eksik.', 'blog_missing_metadata');
             }
             if ($post->status === 'published' && in_array($post->editorial_status, ['approved', 'verified'], true) && in_array($post->fact_check_status, ['passed', 'verified'], true) && in_array($post->originality_status, ['passed', 'clean', 'original'], true) && mb_strlen(trim((string) $post->body)) < (int) config('seo.audit.minimum_article_characters', 300)) {
                 $this->add($detected, 'content', 'warning', $post, route('blog.show', $post), 'Yayınlanan blog yazısı, ince içerik incelemesi için yeterli metin uzunluğuna ulaşmıyor.', 'blog_thin_content');
@@ -75,7 +86,15 @@ final class SeoAuditService
     /** @param list<array<string,mixed>> $detected */
     private function inspectRecipes(array &$detected): void
     {
-        Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->each(function (Recipe $recipe) use (&$detected): void {
+        Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->with('seoMetadata')->each(function (Recipe $recipe) use (&$detected): void {
+            // Kalite kapısının kapattığı tarif arama sonucunda görünmüyor:
+            // ne açıklamasının kısalığı ne görselinin eksikliği SEO kusuru.
+            // Görsel eksiği ayrıca media:gap-queue muhafızının işi ve orada
+            // kendi listesiyle duruyor.
+            if ($this->kendisiKapali($recipe)) {
+                return;
+            }
+
             if ($recipe->media()->where('visibility', 'public')->count() === 0) {
                 $this->add($detected, 'schema', 'warning', $recipe, route('recipes.show', $recipe), 'Tarif için doğrulanmış public görsel bulunmuyor; image schema gönderilmemeli.', 'recipe_missing_public_image');
             }
