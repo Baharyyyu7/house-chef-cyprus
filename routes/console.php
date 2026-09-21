@@ -115,6 +115,10 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_social_draf
 //
 // Yapılandırma kapalıyken sessizce atlanır. Dış servise istek gitmesi
 // yapılandırma kararı, kod kararı değil: INDEXNOW_ENABLED=true yeter.
+// Otonom Çok Dilli İçerik İçe Alma: Teslim edilen ve doğrulanan çevirileri
+// her gece otomatik olarak veritabanına işler; sitemap ve IndexNow anında bunları görür.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('content_import_translations', fn () => Artisan::call('content:import-translations', ['--apply' => true])))->name('content_import_translations')->dailyAt('02:20')->withoutOverlapping();
+
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_indexnow_submit', fn () => Artisan::call('seo:indexnow-submit')))->name('seo_indexnow_submit')->dailyAt('02:30')->withoutOverlapping()->when(fn (): bool => (bool) config('seo.indexnow.enabled'));
 
 // IP→ülke veritabanı (DB-IP, CC BY 4.0) ayda bir güncellenir. Komut yeni

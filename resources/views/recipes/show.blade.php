@@ -178,6 +178,26 @@
 
             <section class="mt-8 rounded-[1.5rem] bg-charcoal-950 p-5 text-white sm:p-7"><p class="hc-overline text-orange-300">{{ __('recipe.show.notes_kicker') }}</p><h2 class="hc-heading-3 mt-2">{{ __('recipe.show.notes_title') }}</h2><p class="mt-2 text-sm leading-6 text-stone-300">{{ __('recipe.show.notes_body') }}</p><a class="hc-v3-btn hc-v3-btn--primary mt-5" href="#tips">{{ __('recipe.show.notes_cta') }}</a></section>
 
+            @if(!empty($faqs))
+                <section id="faq" class="mt-8 rounded-[1.5rem] border p-5 sm:p-7 hc-scroll-target" style="border-color: var(--hc-border-default); background-color: var(--hc-surface-card, #fff)">
+                    <p class="hc-overline text-orange-600 dark:text-orange-400">{{ __('recipe.show.faq_kicker') }}</p>
+                    <h2 class="hc-heading-3 mt-2" style="color: var(--hc-text-primary)">{{ __('recipe.show.faq_title') }}</h2>
+                    <div class="mt-5 divide-y" style="border-color: var(--hc-border-subtle)">
+                        @foreach($faqs as $faq)
+                            <details class="group py-4 first:pt-0 last:pb-0" @if($loop->first) open @endif>
+                                <summary class="flex cursor-pointer items-center justify-between font-semibold text-base leading-snug list-none" style="color: var(--hc-text-primary)">
+                                    <span>{{ $faq['name'] }}</span>
+                                    <span class="ml-4 flex-shrink-0 text-orange-600 transition group-open:rotate-180" aria-hidden="true">▾</span>
+                                </summary>
+                                <p class="hc-body-sm mt-3 leading-relaxed" style="color: var(--hc-text-secondary)">
+                                    {{ $faq['acceptedAnswer']['text'] }}
+                                </p>
+                            </details>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
+
             @if($relatedRecipes->isNotEmpty())
                 <section class="mt-12"><div class="flex items-end justify-between gap-4"><div><p class="hc-kicker">{{ __('recipe.show.related_kicker') }}</p><h2 class="hc-display-lg mt-2">{{ __('recipe.show.related_title') }}</h2></div><a class="hc-v3-btn hc-v3-btn--ghost" href="{{ $cuisineUrl ?: route('recipes.index') }}">{{ __('recipe.show.related_view_all') }}</a></div><div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">@foreach($relatedRecipes as $relatedRecipe)<x-recipe-card-v3 :recipe="$relatedRecipe" :show-favorite="false" heading="h3" />@endforeach</div></section>
             @endif

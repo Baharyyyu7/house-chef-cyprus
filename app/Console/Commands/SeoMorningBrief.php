@@ -38,7 +38,25 @@ final class SeoMorningBrief extends Command
             ],
         ];
         app(IntegrityReportLog::class)->record('seo:morning-brief', 'measurement_incomplete', $payload['open_seo_issues'], $payload);
-        $this->option('json') ? $this->line((string) json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) : $this->info("SEO özeti: {$payload['open_seo_issues']} açık sorun, {$payload['content_opportunities']} fırsat.");
+        if ($this->option('json')) {
+            $this->line((string) json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        } else {
+            $this->info("SEO Özeti: {$payload['open_seo_issues']} açık sorun, {$payload['content_opportunities']} fırsat.");
+            $m = $payload['organic_metrics'] ?? [];
+            if (($m['status'] ?? '') === 'measured') {
+                $this->line("📊 GSC Organik Ölçüm: {$m['google_impressions']} gösterim, {$m['google_clicks']} tıklama (Ort. Sıra: {$m['average_position']})");
+                $v = $m['growth_velocity'] ?? [];
+                if (($v['direction'] ?? '') === 'growing') {
+                    $this->info("🚀 Büyüme İvmesi: +{$v['impression_change']} gösterim (+%{$v['growth_velocity_pct']})");
+                }
+                $sd = $m['striking_distance'] ?? [];
+                if (! empty($sd)) {
+                    $topSd = array_slice($sd, 0, 3);
+                    $sdList = implode(', ', array_map(fn ($row) => "'{$row['query']}' (#".round($row['position'], 1).")", $topSd));
+                    $this->line("🎯 Vurucu Mesafe (İlk 3'e Aday): {$sdList}");
+                }
+            }
+        }
 
         return self::SUCCESS;
     }

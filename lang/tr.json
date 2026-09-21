@@ -590,6 +590,8 @@
     "recipe.show.notes_title": "Tarif notları",
     "recipe.show.notes_body": "Bu tarifin püf noktalarını, sürelerini ve alerjen bilgilerini birlikte değerlendirin. Sağlık ve alerji kararları için profesyonel desteğin yerini tutmaz.",
     "recipe.show.notes_cta": "Püf noktalarına git",
+    "recipe.show.faq_kicker": "Sıkça Sorulan Sorular",
+    "recipe.show.faq_title": "Tarif ve Pişirme Püf Noktaları",
     "recipe.show.tips_kicker": "✦ İşe yarayan ipuçları",
     "recipe.show.tips_title": "Püf noktaları",
     "recipe.show.mistakes_kicker": "Sakin bir hatırlatma",

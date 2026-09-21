@@ -5,11 +5,46 @@ declare(strict_types=1);
 namespace App\Services\Seo;
 
 use App\Models\BlogPost;
+use App\Models\IntegrityReport;
 use App\Models\Recipe;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 final class InternalLinkService
 {
+    /**
+     * Search Console'da son dönemde gösterim alan veya vurucu mesafede olan tarif anahtarları.
+     *
+     * @return list<string>
+     */
+    public function gscTrendingKeywords(): array
+    {
+        return Cache::remember('seo:gsc:trending_keywords', 3600, function (): array {
+            $report = IntegrityReport::query()
+                ->where('guard', 'seo:search-console-measurement')
+                ->where('status', 'success')
+                ->latest('id')
+                ->first();
+
+            if ($report === null || ! is_array($report->payload['queries'] ?? null)) {
+                return [];
+            }
+
+            $keywords = [];
+            foreach ($report->payload['queries'] as $q) {
+                if (($q['impressions'] ?? 0) >= 2) {
+                    $tokens = preg_split('/\s+/', mb_strtolower(trim((string) ($q['query'] ?? ''))));
+                    foreach ($tokens as $t) {
+                        if (mb_strlen($t) >= 4) {
+                            $keywords[] = $t;
+                        }
+                    }
+                }
+            }
+
+            return array_values(array_unique($keywords));
+        });
+    }
     /**
      * Blog yazısı için en alakalı tarif önerileri.
      *
@@ -68,6 +103,19 @@ final class InternalLinkService
             if ($recipe->cuisine && $recipe->cuisine->slug === 'kibris-mutfagi') {
                 $score += 25;
                 $reasons[] = 'Kıbrıs mutfağı';
+            }
+
+            // GSC Arama Trendi bonusu (+25): Google'da gösterim alan konular
+            $trending = $this->gscTrendingKeywords();
+            if ($trending !== []) {
+                $slug = (string) $recipe->slug;
+                foreach ($trending as $kw) {
+                    if (str_contains($slug, $kw)) {
+                        $score += 25;
+                        $reasons[] = 'GSC Trendi';
+                        break;
+                    }
+                }
             }
 
             return [
@@ -187,6 +235,19 @@ final class InternalLinkService
             if ($rel->cuisine && $rel->cuisine->slug === 'kibris-mutfagi') {
                 $score += 20;
                 $reasons[] = 'Kıbrıs mutfağı';
+            }
+
+            // GSC Arama Trendi bonusu (+25): Google'da gösterim alan konular
+            $trending = $this->gscTrendingKeywords();
+            if ($trending !== []) {
+                $slug = (string) $rel->slug;
+                foreach ($trending as $kw) {
+                    if (str_contains($slug, $kw)) {
+                        $score += 25;
+                        $reasons[] = 'GSC Trendi';
+                        break;
+                    }
+                }
             }
 
             return [

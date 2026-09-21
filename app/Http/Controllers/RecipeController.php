@@ -166,6 +166,7 @@ final class RecipeController extends Controller
             'seoImageAlt' => $heroMedia?->alt_text ?? $displayMedia['alt'] ?? null,
             'cuisineUrl' => $cuisineUrl,
             'relatedGuides' => $internalLinks->recipeGuidesFor($recipe, app()->getLocale()),
+            'faqs' => $schemaService->generateRecipeFaqs($recipe, app()->getLocale()),
             'ratingSummary' => $recipe->ratingSummary(),
         ]);
     }

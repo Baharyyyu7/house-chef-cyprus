@@ -600,7 +600,7 @@ final class SeoSchemaService
      *
      * @return list<array{@type: string, name: string, acceptedAnswer: array{text: string}}>
      */
-    private function generateRecipeFaqs(Recipe $recipe, string $locale): array
+    public function generateRecipeFaqs(Recipe $recipe, string $locale): array
     {
         $title = $recipe->translated('title', $locale) ?: (string) $recipe->getRawOriginal('title');
         $questions = [];
@@ -725,6 +725,106 @@ final class SeoSchemaService
                 '@type' => 'Question',
                 'name' => $q,
                 'acceptedAnswer' => ['@type' => 'Answer', 'text' => (string) $recipe->serving_suggestions],
+            ];
+        }
+
+        // 6. Culinary fallbacks to ensure rich FAQ coverage for all recipes
+        $prep = (int) ($recipe->prep_minutes ?? 0);
+        $cook = (int) ($recipe->cook_minutes ?? 0);
+        $total = $recipe->totalMinutes();
+        if ($total > 0 && ! collect($questions)->contains(fn ($item) => str_contains($item['name'], 'dakika') || str_contains($item['name'], 'prepare') || str_contains($item['name'], 'Zubereitung'))) {
+            $diffText = match ($recipe->difficulty) {
+                'easy' => match ($locale) {
+                    'en' => 'easy', 'de' => 'einfach', 'ru' => 'простой', 'pl' => 'łatwy', 'fa' => 'آسان', 'pt' => 'fácil', default => 'kolay'
+                },
+                'hard' => match ($locale) {
+                    'en' => 'advanced', 'de' => 'anspruchsvoll', 'ru' => 'сложный', 'pl' => 'zaawansowany', 'fa' => 'پیشرفته', 'pt' => 'avançado', default => 'ileri düzey'
+                },
+                default => match ($locale) {
+                    'en' => 'medium', 'de' => 'mittelschwer', 'ru' => 'средней сложности', 'pl' => 'średni', 'fa' => 'متوسط', 'pt' => 'médio', default => 'orta seviye'
+                },
+            };
+
+            $timeQ = match ($locale) {
+                'en' => "How long does it take to prepare and cook {$title}?",
+                'de' => "Wie lange dauert die Zubereitung von {$title}?",
+                'pl' => "Ile czasu zajmuje przygotowanie i ugotowanie {$title}?",
+                'ru' => "Сколько времени занимает приготовление {$title}?",
+                'fa' => "تهیه و پخت {$title} چقدر زمان می‌برد؟",
+                'pt' => "Quanto tempo leva para preparar e cozinhar {$title}?",
+                default => "{$title} kaç dakikada pişer ve hazırlanır?",
+            };
+
+            $timeA = match ($locale) {
+                'en' => "This recipe takes about {$prep} minutes of prep and {$cook} minutes of cooking, totaling {$total} minutes. Difficulty level is {$diffText}.",
+                'de' => "Dieses Rezept benötigt etwa {$prep} Minuten Vorbereitung und {$cook} Minuten Kochzeit, insgesamt {$total} Minuten. Schwierigkeitsgrad: {$diffText}.",
+                'pl' => "Ten przepis wymaga około {$prep} minut przygotowania i {$cook} minut gotowania, łącznie {$total} minut. Poziom trudności: {$diffText}.",
+                'ru' => "На подготовку уходит около {$prep} минут, на приготовление — {$cook} минут, всего {$total} минут. Сложность: {$diffText}.",
+                'fa' => "این دستور پخت حدود {$prep} دقیقه آماده‌سازی و {$cook} دقیقه پخت نیاز دارد (در مجموع {$total} دقیقه). سطح دشواری: {$diffText}.",
+                'pt' => "Esta receita leva cerca de {$prep} minutos de preparo e {$cook} minutos de cozimento, totalizando {$total} minutos. Nível de dificuldade: {$diffText}.",
+                default => "Bu tarif {$prep} dakika hazırlık ve {$cook} dakika pişirme ile toplam yaklaşık {$total} dakikada tamamlanır. Zorluk derecesi {$diffText} seviyesindedir.",
+            };
+
+            $questions[] = [
+                '@type' => 'Question',
+                'name' => $timeQ,
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $timeA],
+            ];
+        }
+
+        if ($recipe->servings > 0 && ! collect($questions)->contains(fn ($item) => str_contains($item['name'], 'kişi') || str_contains($item['name'], 'servings') || str_contains($item['name'], 'Personen') || str_contains($item['name'], 'порций'))) {
+            $servQ = match ($locale) {
+                'en' => "How many servings does this {$title} recipe make?",
+                'de' => "Für wie viele Personen ist {$title} gedacht?",
+                'pl' => "Na ile porcji wystarcza ten przepis na {$title}?",
+                'ru' => "На сколько порций рассчитан рецепт {$title}?",
+                'fa' => "دستور پخت {$title} برای چند نفر است؟",
+                'pt' => "Quantas porções rende esta receita de {$title}?",
+                default => "{$title} kaç kişiliktir?",
+            };
+
+            $servA = match ($locale) {
+                'en' => "This recipe is measured for {$recipe->servings} servings. You can easily adjust ingredient amounts for larger or smaller groups using our on-page serving selector.",
+                'de' => "Dieses Rezept ist für {$recipe->servings} Portionen bemessen. Die Zutatenmengen können auf der Rezeptseite flexibel angepasst werden.",
+                'pl' => "Przepis jest obliczony na {$recipe->servings} porcji. Proporcje składników można dostosować za pomocą kalkulatora porcji na stronie.",
+                'ru' => "Рецепт рассчитан на {$recipe->servings} порций. Количество ингредиентов можно изменить с помощью переключателя порций на странице рецепта.",
+                'fa' => "این دستور برای {$recipe->servings} نفر در نظر گرفته شده است و مقادیر مواد را می‌توانید به تناسب تعداد نفرات تغییر دهید.",
+                'pt' => "Esta receita foi elaborada para {$recipe->servings} porções. As quantidades de ingredientes podem ser ajustadas no seletor de porções da página.",
+                default => "Bu tarif {$recipe->servings} kişilik porsiyon için tam ölçülüdür. Kişi sayısına göre malzeme oranlarını sayfamızdaki porsiyon aracından kolayca ölçekleyebilirsiniz.",
+            };
+
+            $questions[] = [
+                '@type' => 'Question',
+                'name' => $servQ,
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $servA],
+            ];
+        }
+
+        if (! filled($recipe->storage_notes) && ! collect($questions)->contains(fn ($item) => str_contains($item['name'], 'saklanır') || str_contains($item['name'], 'stored') || str_contains($item['name'], 'aufbewahrt') || str_contains($item['name'], 'хранить'))) {
+            $storeQ = match ($locale) {
+                'en' => "How should {$title} be stored and how long does it stay fresh?",
+                'de' => "Wie sollte {$title} aufbewahrt werden und wie lange bleibt es frisch?",
+                'pl' => "Jak przechowywać {$title} i jak długo zachowuje świeżość?",
+                'ru' => "Как правильно хранить {$title} и сколько дней блюдо остается свежим?",
+                'fa' => "چگونه {$title} را نگهداری کنیم و تا چند روز تازه می‌ماند؟",
+                'pt' => "Como armazenar {$title} e por quanto tempo permanece fresco?",
+                default => "{$title} nasıl saklanır ve kaç gün tazeliğini korur?",
+            };
+
+            $storeA = match ($locale) {
+                'en' => "Allow to cool to room temperature, then store in an airtight glass container in the refrigerator for 3 to 4 days.",
+                'de' => "Auf Raumtemperatur abkühlen lassen und in einem luftdichten Glasbehälter im Kühlschrank 3 bis 4 Tage aufbewahren.",
+                'pl' => "Ostudź do temperatury pokojowej i przechowuj w szczelnym szklanym pojemniku w lodówce przez 3 do 4 dni.",
+                'ru' => "Остудите до комнатной температуры и храните в герметичном контейнере в холодильнике в течение 3–4 дней.",
+                'fa' => "اجازه دهید خنک شود، سپس در ظرف دربسته شیشه‌ای به مدت ۳ تا ۴ روز در یخچال نگهداری کنید.",
+                'pt' => "Deixe esfriar em temperatura ambiente e guarde em recipiente hermético na geladeira por 3 a 4 dias.",
+                default => "Oda sıcaklığına geldikten sonra hava almayan kapaklı cam saklama kabında buzdolabında 3-4 gün boyunca tazeliğini korur.",
+            };
+
+            $questions[] = [
+                '@type' => 'Question',
+                'name' => $storeQ,
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $storeA],
             ];
         }
 

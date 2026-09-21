@@ -124,7 +124,66 @@ final class SearchConsoleMeasurementService
             'google_clicks' => (int) $data['clicks'], 'google_impressions' => (int) $data['impressions'], 'average_position' => $data['position'],
             'ctr' => $data['impressions'] > 0 ? $data['clicks'] / $data['impressions'] * 100 : 0,
             'query_sample_count' => count($data['queries']), 'start_date' => $data['start_date'], 'end_date' => $data['end_date'], 'observed_at' => $data['observed_at'],
+            'striking_distance' => $this->strikingDistanceQueries((array) ($data['queries'] ?? [])),
+            'growth_velocity' => $this->growthVelocity($report),
             'note' => ($stale ? 'Eski ölçüm: ' : '').$data['start_date'].' - '.$data['end_date'].': '.$data['clicks'].' tıklama, '.$data['impressions'].' gösterim. '.($data['source'] === 'api_import' ? 'Google API.' : 'Search Console arayüz aktarımı; kalıcı API yetkisi değildir.'),
+        ];
+    }
+
+    /**
+     * Vurucu mesafe (striking distance): Sayfa 1 sonu / Sayfa 2 başı (pozisyon 4-20) olup gösterimi yüksek olan sorgular.
+     *
+     * @param list<array{query: string, clicks: int, impressions: int, position: float}> $queries
+     * @return list<array{query: string, clicks: int, impressions: int, position: float}>
+     */
+    public function strikingDistanceQueries(array $queries = []): array
+    {
+        if ($queries === []) {
+            $report = IntegrityReport::query()->where('guard', 'seo:search-console-measurement')->where('status', 'success')
+                ->where('payload->property', $this->property())->where('payload->search_type', 'web')
+                ->orderByDesc('payload->end_date')->orderByDesc('payload->observed_at')->latest('id')->first();
+            $queries = (array) ($report?->payload['queries'] ?? []);
+        }
+
+        $filtered = array_filter($queries, static fn (array $q): bool => 
+            ($q['position'] ?? 0) >= 4.0 && ($q['position'] ?? 0) <= 20.0 && ($q['impressions'] ?? 0) >= 2
+        );
+
+        usort($filtered, static fn (array $a, array $b): int => ($b['impressions'] ?? 0) <=> ($a['impressions'] ?? 0));
+
+        return array_values(array_slice($filtered, 0, 15));
+    }
+
+    /**
+     * GSC ölçümleri arasındaki büyüme ivmesi.
+     *
+     * @return array{direction: string, impression_change: int, click_change: int, growth_velocity_pct: float}
+     */
+    public function growthVelocity(?IntegrityReport $currentReport = null): array
+    {
+        $reports = IntegrityReport::query()->where('guard', 'seo:search-console-measurement')->where('status', 'success')
+            ->where('payload->property', $this->property())->where('payload->search_type', 'web')
+            ->latest('id')->take(2)->get();
+
+        if ($reports->count() < 2) {
+            return ['direction' => 'initial', 'impression_change' => 0, 'click_change' => 0, 'growth_velocity_pct' => 0.0];
+        }
+
+        $current = $reports[0]->payload;
+        $previous = $reports[1]->payload;
+
+        $impDiff = ((int) ($current['impressions'] ?? 0)) - ((int) ($previous['impressions'] ?? 0));
+        $clickDiff = ((int) ($current['clicks'] ?? 0)) - ((int) ($previous['clicks'] ?? 0));
+        $prevImp = max(1, (int) ($previous['impressions'] ?? 0));
+        $velocity = round(($impDiff / $prevImp) * 100, 1);
+
+        $direction = $impDiff > 0 ? 'growing' : ($impDiff === 0 ? 'stable' : 'declining');
+
+        return [
+            'direction' => $direction,
+            'impression_change' => $impDiff,
+            'click_change' => $clickDiff,
+            'growth_velocity_pct' => $velocity,
         ];
     }
 
