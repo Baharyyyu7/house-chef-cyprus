@@ -150,6 +150,7 @@ final class SeoHealRedirects extends Command
             'geo-2026-serdarli-ve-gecitkale-hellimli-bitta-firin' => 'serdarli-ve-gecitkale-koylerinde-firinda-hellimli-bitta-corek-gelenegi-N8F2Z',
             'geo-2026-tahinli-patlican-salatasi-mutabbal-ve-babaganus' => 'patlican-salatasi-babaganus',
             'geo-2026-zeytinyagli-enginar-kalbi-ve-bakla-pilaki' => 'zeytinyagli-enginar',
+            'geo-2026-zeytinyagli-barbunya-pilaki-ipeksi-sos-sirri' => 'karpaz-yarimadasi-dag-kekigi-ve-yabani-akdeniz-otlari-rehberi-GVM3V',
             'geo-2026-firin-tavuk-ve-baharatli-koy-patatesi' => 'firin-tavuk-baget',
             'geo-2026-sele-zeytini-ve-siyah-zeytin-olgunlastirma' => 'kibris-cakistes-kirma-yesil-zeytin-nasil-yapilir-tatlandirma-rehberi',
             'geo-2026-uzum-sirasi-kofter-ve-sucuk-yapimi-gelenegi' => 'kibris-macunu-cevizli-sucuk',
