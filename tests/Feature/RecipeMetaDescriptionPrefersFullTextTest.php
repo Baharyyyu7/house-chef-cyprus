@@ -37,9 +37,12 @@ final class RecipeMetaDescriptionPrefersFullTextTest extends TestCase
         // meta açıklamasız kalmamalı.
         $tarif = $this->tarif(['excerpt' => 'Yalnızca özet var.', 'description' => null]);
 
-        $this->get(route('recipes.show', $tarif))
-            ->assertOk()
-            ->assertSee('name="description" content="Yalnızca özet var."', false);
+        // Meta açıklaması artık porsiyon ve süre gibi tıklanmayı artıran
+        // bir ön ek taşıyor; sabitlenen şey özetin yine de kullanıldığıdır,
+        // metnin birebir tamamı değil.
+        $icerik = (string) $this->get(route('recipes.show', $tarif))->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('/name="description" content="[^"]*Yalnızca özet var\./', $icerik);
     }
 
     public function test_the_recipe_schema_carries_the_full_description_too(): void
