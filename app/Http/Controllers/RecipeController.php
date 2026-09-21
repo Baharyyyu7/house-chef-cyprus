@@ -180,7 +180,14 @@ final class RecipeController extends Controller
 
         $displayMedia = app(\App\Services\Media\RecipeDisplayMediaService::class)->resolve($recipe);
         $hasCompletePresentation = $heroMedia !== null || ($recipe->cuisine !== null && $recipe->category !== null);
-        $schemaImageUrl = $sosyalGorsel['url'] ?? ($hasCompletePresentation ? ($displayMedia['hero_url'] ?? '') : '');
+
+        // Recipe.image yemeğin kendi fotoğrafı olmak zorunda. Eski kural
+        // "mutfağı ve kategorisi varsa yeterli" diyordu ve fotoğrafı olmayan
+        // tarifte marka varsayılanını (og-default.jpg) tarifin görseli diye
+        // ilan ediyordu. 20 Eylül 2026'da ölçüldü: indekse açık 21 tarif bu
+        // durumdaydı. Yanlış görsel bildirmektense Recipe nesnesini hiç
+        // basmamak doğru: şema servisi boş adreste zaten breadcrumb'a düşüyor.
+        $schemaImageUrl = $sosyalGorsel['url'] ?? (($displayMedia['is_fallback'] ?? true) ? '' : (string) ($displayMedia['hero_url'] ?? ''));
 
         // Şema görseli de paylaşım varyantını kullanır; Google zengin sonuç
         // için bu adresi okuyor ve ham kaynak bir tarifte 2,77 MB'tı.
