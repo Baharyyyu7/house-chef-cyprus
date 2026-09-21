@@ -319,6 +319,25 @@ final class InternalLinkService
             }
         }
 
+        $trending = $this->gscTrendingKeywords();
+        if ($trending !== [] && $posts->count() > 1) {
+            $linkedIds = $linkedPosts->pluck('id')->all();
+            $posts = $posts->sortByDesc(function (BlogPost $post) use ($trending, $linkedIds): int {
+                $score = 0;
+                if (in_array($post->id, $linkedIds, true)) {
+                    $score += 50;
+                }
+                $slug = (string) $post->slug;
+                foreach ($trending as $kw) {
+                    if (str_contains($slug, $kw)) {
+                        $score += 25;
+                        break;
+                    }
+                }
+                return $score;
+            })->take(3)->values();
+        }
+
         $localeUrl = app(LocaleUrlService::class);
 
         return $posts->map(function (BlogPost $post) use ($targetLocale, $localeUrl): array {

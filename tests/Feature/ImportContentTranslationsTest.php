@@ -141,6 +141,101 @@ final class ImportContentTranslationsTest extends TestCase
         $this->assertFalse(config('locales.supported.en.enabled'));
     }
 
+    public function test_slug_with_public_id_suffix_is_resolved(): void
+    {
+        $tarif = Recipe::query()->create([
+            'title' => 'Cennet Çamuru',
+            'slug' => 'kilis-cennet-camuru-WTQMM',
+            'excerpt' => 'Kilis tatlısı.',
+            'description' => 'Geleneksel cennet çamuru tatlısı.',
+            'status' => 'published',
+            'verification_status' => 'verified',
+            'published_at' => now(),
+        ]);
+
+        $veri = [
+            'type' => 'recipe',
+            'slug' => 'kilis-cennet-camuru',
+            'locale' => 'en',
+            'fields' => [
+                'title' => 'Cennet Camuru Dessert',
+                'excerpt' => 'Traditional shredded pastry with pistachios.',
+                'description' => 'A decadent dessert from Kilis.',
+            ],
+        ];
+        $this->dosyaYaz('recipe-kilis-cennet-camuru.json', $veri);
+
+        $this->artisan('content:import-translations', ['--apply' => true])->assertExitCode(0);
+
+        $this->assertTrue($tarif->fresh()->hasTranslation('en'));
+        $this->assertSame('Cennet Camuru Dessert', $tarif->fresh()->translated('title', 'en'));
+    }
+
+    public function test_slug_redirect_is_resolved(): void
+    {
+        $tarif = Recipe::query()->create([
+            'title' => 'Etsiz Çiğ Köfte',
+            'slug' => 'etsiz-cig-kofte-A96HF',
+            'excerpt' => 'Etsiz lezzet.',
+            'description' => 'Urfa usulü etsiz çiğ köfte.',
+            'status' => 'published',
+            'verification_status' => 'verified',
+            'published_at' => now(),
+        ]);
+
+        \App\Models\SlugRedirect::query()->create([
+            'model_type' => Recipe::class,
+            'model_id' => $tarif->id,
+            'old_slug' => 'cig-kofte-A96HF',
+        ]);
+
+        $veri = [
+            'type' => 'recipe',
+            'slug' => 'cig-kofte-A96HF',
+            'locale' => 'en',
+            'fields' => [
+                'title' => 'Vegetarian Cig Kofte',
+                'excerpt' => 'Spiced bulgur patties.',
+                'description' => 'Authentic meatless bulgur balls.',
+            ],
+        ];
+        $this->dosyaYaz('recipe-cig-kofte.json', $veri);
+
+        $this->artisan('content:import-translations', ['--apply' => true])->assertExitCode(0);
+
+        $this->assertTrue($tarif->fresh()->hasTranslation('en'));
+        $this->assertSame('Vegetarian Cig Kofte', $tarif->fresh()->translated('title', 'en'));
+    }
+
+    public function test_geo_prefix_slug_is_resolved(): void
+    {
+        $post = \App\Models\BlogPost::query()->create([
+            'title' => 'Karpaz Dağ Kekiği',
+            'slug' => 'karpaz-dag-kekigi-XYZ89',
+            'excerpt' => 'Karpaz kekik rehberi.',
+            'body' => 'Karpaz yarımadasının zengin yabani dağ kekiği gastronomi mirası...',
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+
+        $veri = [
+            'type' => 'blog',
+            'slug' => 'geo-2026-karpaz-dag-kekigi',
+            'locale' => 'en',
+            'fields' => [
+                'title' => 'Karpaz Mountain Thyme Guide',
+                'excerpt' => 'Wild Mediterranean herbs of Cyprus.',
+                'body' => 'Comprehensive culinary exploration of wild thyme from Karpaz...',
+            ],
+        ];
+        $this->dosyaYaz('blog-geo-karpaz.json', $veri);
+
+        $this->artisan('content:import-translations', ['--apply' => true])->assertExitCode(0);
+
+        $this->assertTrue($post->fresh()->hasTranslation('en'));
+        $this->assertSame('Karpaz Mountain Thyme Guide', $post->fresh()->translated('title', 'en'));
+    }
+
     /** @return array<string, mixed> */
     private function tamCeviri(): array
     {

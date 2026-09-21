@@ -9,6 +9,7 @@ use App\Models\BlogPost;
 use App\Models\ContentOpportunity;
 use App\Models\Recipe;
 use App\Models\SeoBacklinkCandidate;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -81,18 +82,28 @@ final class AutonomousGrowthEngine
             app()->setLocale($originalLocale);
         }
 
-        // 2. Continuous IndexNow Protocol Submissions
+        // 2. Ingest Latest Delivered Translations across all languages
+        Artisan::call('content:import-translations', ['--apply' => true]);
+
+        // 3. GSC Momentum & Trending Keyword Warming
+        Cache::forget('seo:gsc:trending_keywords');
+        $gscService = app(SearchConsoleMeasurementService::class);
+        $trendingKeywords = app(InternalLinkService::class)->gscTrendingKeywords();
+        $strikingQueries = $gscService->strikingDistanceQueries();
+        $velocity = $gscService->growthVelocity();
+
+        // 4. Continuous IndexNow Protocol Submissions
         $indexNowResult = config('seo.indexnow.enabled')
             ? $this->indexNow->submit()
             : ['success' => false, 'status' => 0, 'count' => 0];
 
-        // 3. Backlink Opportunity & Digital PR Prospecting
+        // 5. Backlink Opportunity & Digital PR Prospecting
         $backlinkResult = $this->backlinks->discoverAndEnrich();
 
-        // 4. RSS Feed Syndication Hub Pings
+        // 6. RSS Feed Syndication Hub Pings
         $syndicationResult = $this->backlinks->pingSyndicationHubs();
 
-        // 5. Zero-Result Search & Content Gap Mining
+        // 7. Zero-Result Search & Content Gap Mining
         $gapResult = $this->contentGaps->refresh();
 
         // Discovery does not confer editorial, image identity or licensing approval.
@@ -159,6 +170,12 @@ final class AutonomousGrowthEngine
                 'submitted' => $indexNowResult['count'],
                 'http_status' => $indexNowResult['status'],
                 'success' => $indexNowResult['success'],
+            ],
+            'gsc_momentum' => [
+                'direction' => $velocity['direction'],
+                'growth_velocity_pct' => $velocity['growth_velocity_pct'],
+                'striking_distance_count' => count($strikingQueries),
+                'trending_keywords_count' => count($trendingKeywords),
             ],
             'backlinks' => [
                 'created' => $backlinkResult['created'],

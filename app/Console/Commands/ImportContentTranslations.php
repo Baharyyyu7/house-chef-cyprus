@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Models\BlogPost;
 use App\Models\Recipe;
+use App\Models\SlugRedirect;
 use Illuminate\Console\Command;
 
 /**
@@ -97,11 +98,7 @@ final class ImportContentTranslations extends Command
                 $slug = (string) ($veri['slug'] ?? '');
                 $alanlar = is_array($veri['fields'] ?? null) ? $veri['fields'] : [];
 
-                $kayit = match ($tur) {
-                    'recipe' => Recipe::query()->where('slug', $slug)->first(),
-                    'blog' => BlogPost::query()->where('slug', $slug)->first(),
-                    default => null,
-                };
+                $kayit = $this->kayitBul($tur, $slug);
 
                 if ($kayit === null) {
                     $atlanan[$tur === '' ? 'tür belirtilmemiş' : 'kayıt bulunamadı ('.$tur.')'][] = $ad;
@@ -276,6 +273,74 @@ final class ImportContentTranslations extends Command
             }
 
             $isler[] = [$kayit, $alan, $deger];
+        }
+
+        return null;
+    }
+
+    /**
+     * Verilen tür ve slug için veritabanındaki asıl kaydı bulur.
+     * Birebir eşleşme, eski yönlendirme (SlugRedirect), public ID soneki veya önek temizleme dener.
+     */
+    private function kayitBul(string $tur, string $slug): Recipe|BlogPost|null
+    {
+        if ($tur === 'recipe') {
+            $recipe = Recipe::query()->where('slug', $slug)->first();
+            if ($recipe !== null) {
+                return $recipe;
+            }
+
+            // Public ID soneki (-XXXXX) denemesi
+            $recipe = Recipe::query()->where('slug', 'like', $slug.'-%')->first();
+            if ($recipe !== null) {
+                return $recipe;
+            }
+
+            // SlugRedirect denemesi
+            $redirect = SlugRedirect::query()
+                ->where('old_slug', $slug)
+                ->where('model_type', Recipe::class)
+                ->first();
+            if ($redirect !== null) {
+                return Recipe::query()->find($redirect->model_id);
+            }
+
+            return null;
+        }
+
+        if ($tur === 'blog') {
+            $post = BlogPost::query()->where('slug', $slug)->first();
+            if ($post !== null) {
+                return $post;
+            }
+
+            // Public ID soneki (-XXXXX) denemesi
+            $post = BlogPost::query()->where('slug', 'like', $slug.'-%')->first();
+            if ($post !== null) {
+                return $post;
+            }
+
+            // SlugRedirect denemesi
+            $redirect = SlugRedirect::query()
+                ->where('old_slug', $slug)
+                ->where('model_type', BlogPost::class)
+                ->first();
+            if ($redirect !== null) {
+                return BlogPost::query()->find($redirect->model_id);
+            }
+
+            // "geo-2026-" öneki temizleme
+            if (str_starts_with($slug, 'geo-2026-')) {
+                $clean = substr($slug, 9);
+                $post = BlogPost::query()->where('slug', $clean)->first()
+                    ?? BlogPost::query()->where('slug', 'like', $clean.'-%')->first()
+                    ?? BlogPost::query()->where('slug', 'like', '%'.$clean.'%')->first();
+                if ($post !== null) {
+                    return $post;
+                }
+            }
+
+            return null;
         }
 
         return null;

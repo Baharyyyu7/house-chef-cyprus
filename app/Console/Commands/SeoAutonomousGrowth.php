@@ -46,6 +46,12 @@ final class SeoAutonomousGrowth extends Command
         $this->info("✓ GEO Korpusu: {$geoCount} AI korpusu ({$geoLocales}) temizlendi ve en güncel verilerle ısıtıldı.");
         $this->info("✓ IndexNow: {$report['indexnow']['submitted']} URL arama motorlarına bildirildi (HTTP {$report['indexnow']['http_status']}).");
 
+        if (isset($report['gsc_momentum'])) {
+            $mom = $report['gsc_momentum'];
+            $dirIcon = $mom['direction'] === 'growing' ? '🚀' : ($mom['direction'] === 'declining' ? '⚠️' : '📊');
+            $this->info("{$dirIcon} GSC Büyüme İvmesi: %{$mom['growth_velocity_pct']} ({$mom['direction']}) · {$mom['striking_distance_count']} Vurucu Mesafe Sorgusu · {$mom['trending_keywords_count']} Trend Kelime.");
+        }
+
         $marketSummary = [];
         if (! empty($report['backlinks']['markets'])) {
             foreach ($report['backlinks']['markets'] as $pazar => $stat) {

@@ -21,20 +21,29 @@ final class SeoMetadataService
         $robots = $this->robots($metadata?->robots, $defaultRobots);
 
         if (app()->getLocale() !== config('locales.default', 'tr')) {
+            $locale = app()->getLocale();
             $translatedTitle = (string) $entity->translated('title');
-            $title = $this->formatTitleWithBrand($translatedTitle !== '' ? $translatedTitle : $fallbackTitle);
+            $rawTitle = $translatedTitle !== '' ? $translatedTitle : $fallbackTitle;
+            $title = $this->cleanBrandSuffix($rawTitle);
+
+            if ($entity instanceof Recipe && $title !== '') {
+                $lower = mb_strtolower($title);
+                $title = match ($locale) {
+                    'en' => ! str_contains($lower, 'recipe') ? $title.' Recipe' : $title,
+                    'de' => ! str_contains($lower, 'rezept') ? $title.' Rezept' : $title,
+                    'pl' => ! str_contains($lower, 'przepis') ? $title.' Przepis' : $title,
+                    'pt' => ! str_contains($lower, 'receita') ? $title.' Receita' : $title,
+                    'ru' => ! str_contains($lower, 'рецепт') ? $title.' Рецепт' : $title,
+                    'fa' => (! str_contains($title, 'طرز تهیه') && ! str_contains($title, 'دستور')) ? $title.' - طرز تهیه' : $title,
+                    default => $title,
+                };
+            }
+
+            $title = $this->formatTitleWithBrand($title);
 
             $desc = (string) ($entity instanceof Recipe ? ($entity->translated('description') ?: $entity->translated('excerpt')) : $entity->translated('excerpt'));
             if ($entity instanceof Recipe && $desc !== '' && ($metadata?->meta_description === null || trim((string) $metadata->meta_description) === '')) {
-                $totalMinutes = $entity->totalMinutes();
-                $servings = (int) $entity->servings;
-                $prefix = '';
-                if ($totalMinutes > 0) {
-                    $prefix = "⏱ {$totalMinutes} min • ";
-                    if ($servings > 0) {
-                        $prefix .= "{$servings} Servings • ";
-                    }
-                }
+                $prefix = $this->timeAndServingsPrefix($entity, $locale);
                 if ($prefix !== '' && ! str_contains($desc, '⏱')) {
                     $desc = $prefix.$desc;
                 }
@@ -54,9 +63,15 @@ final class SeoMetadataService
         $rawTitle = (string) ($metadata?->meta_title ?: $fallbackTitle);
         $title = $this->cleanBrandSuffix($rawTitle);
 
-        if ($entity instanceof Recipe && $entity->cuisine && $entity->cuisine->slug === 'kibris-mutfagi') {
-            if ($title !== '' && ! str_contains(mb_strtolower($title), 'kibris')) {
-                $title = $title.' — Kıbrıs Yemek Tarifi';
+        if ($entity instanceof Recipe) {
+            if ($entity->cuisine && $entity->cuisine->slug === 'kibris-mutfagi') {
+                if ($title !== '' && ! str_contains(mb_strtolower($title), 'kibris')) {
+                    $title = $title.' — Kıbrıs Yemek Tarifi';
+                } elseif ($title !== '' && ! str_contains(mb_strtolower($title), 'tarif')) {
+                    $title = $title.' Tarifi';
+                }
+            } elseif ($title !== '' && ! str_contains(mb_strtolower($title), 'tarif')) {
+                $title = $title.' Tarifi';
             }
         }
 
@@ -64,15 +79,7 @@ final class SeoMetadataService
 
         $description = (string) ($metadata?->meta_description ?: $fallbackDescription ?: '');
         if ($entity instanceof Recipe && ($metadata?->meta_description === null || trim((string) $metadata->meta_description) === '')) {
-            $totalMinutes = $entity->totalMinutes();
-            $servings = (int) $entity->servings;
-            $prefix = '';
-            if ($totalMinutes > 0) {
-                $prefix = "⏱ {$totalMinutes} dk • ";
-                if ($servings > 0) {
-                    $prefix .= "{$servings} Kişilik • ";
-                }
-            }
+            $prefix = $this->timeAndServingsPrefix($entity, 'tr');
             if ($prefix !== '' && $description !== '' && ! str_contains($description, '⏱')) {
                 $description = $prefix.$description;
             }
@@ -93,6 +100,44 @@ final class SeoMetadataService
         $metadata = $entity->seoMetadata()->updateOrCreate([], $attributes);
 
         return $metadata;
+    }
+
+    public function timeAndServingsPrefix(Recipe $recipe, string $locale): string
+    {
+        $totalMinutes = $recipe->totalMinutes();
+        $servings = (int) $recipe->servings;
+
+        if ($totalMinutes <= 0 && $servings <= 0) {
+            return '';
+        }
+
+        $minStr = match ($locale) {
+            'tr' => "⏱ {$totalMinutes} dk",
+            'de' => "⏱ {$totalMinutes} Min.",
+            'ru' => "⏱ {$totalMinutes} мин",
+            'fa' => "⏱ {$totalMinutes} دقیقه",
+            default => "⏱ {$totalMinutes} min",
+        };
+
+        $srvStr = match ($locale) {
+            'tr' => "{$servings} Kişilik",
+            'de' => "{$servings} Portionen",
+            'pl' => "{$servings} porcje",
+            'pt' => "{$servings} porções",
+            'ru' => "{$servings} порций",
+            'fa' => "{$servings} نفره",
+            default => "{$servings} Servings",
+        };
+
+        $parts = [];
+        if ($totalMinutes > 0) {
+            $parts[] = $minStr;
+        }
+        if ($servings > 0) {
+            $parts[] = $srvStr;
+        }
+
+        return $parts !== [] ? implode(' • ', $parts).' • ' : '';
     }
 
     private function safeCanonical(?string $candidate, string $fallback): string
