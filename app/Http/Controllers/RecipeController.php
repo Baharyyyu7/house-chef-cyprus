@@ -93,9 +93,13 @@ final class RecipeController extends Controller
         $isPublic = ($recipe->status === 'published' && $recipe->verification_status === 'verified') || $request->user()?->isAdmin();
 
         if (! $isPublic) {
+            $slugStr = (string) $recipe->slug;
             $redirect = \App\Models\SlugRedirect::query()
                 ->where('model_type', Recipe::class)
-                ->where('old_slug', $recipe->slug)
+                ->where(function ($q) use ($slugStr) {
+                    $q->where('old_slug', $slugStr)
+                        ->orWhere('old_slug', rawurldecode($slugStr));
+                })
                 ->first();
 
             if ($redirect !== null) {
@@ -114,12 +118,41 @@ final class RecipeController extends Controller
                 return redirect()->to(route('recipes.show', $twin->slug), 301);
             }
 
+            $rootSlug = (string) preg_replace('/-[A-Za-z0-9]{5}$/', '', $slugStr);
+            if ($rootSlug !== '' && $rootSlug !== $slugStr) {
+                $candidate = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')
+                    ->where(fn ($q) => $q->where('slug', $rootSlug)->orWhere('slug', 'like', $rootSlug.'-%'))
+                    ->first();
+
+                if ($candidate !== null) {
+                    return redirect()->to(route('recipes.show', $candidate->slug), 301);
+                }
+            }
+
             abort(404);
         }
         // Çevirisi olmayan tarifin o dildeki adresi yoktur. Sessizce Türkçe
         // içerik servis etmek, hreflang'in gösterdiği adresin başka dilde
         // içerik döndürmesi ve aynı içeriğin ikinci kopyası sayılması olurdu.
-        abort_unless($recipe->hasTranslation() || $request->user()?->isAdmin(), 404);
+        if (! ($recipe->hasTranslation() || $request->user()?->isAdmin())) {
+            $slugStr = (string) $recipe->slug;
+            $redirect = \App\Models\SlugRedirect::query()
+                ->where('model_type', Recipe::class)
+                ->where(function ($q) use ($slugStr) {
+                    $q->where('old_slug', $slugStr)
+                        ->orWhere('old_slug', rawurldecode($slugStr));
+                })
+                ->first();
+
+            if ($redirect !== null) {
+                $target = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->find($redirect->model_id);
+                if ($target !== null) {
+                    return redirect()->to(route('recipes.show', $target->slug), 301);
+                }
+            }
+
+            abort(404);
+        }
         $recipe->load(['cuisine', 'category', 'ingredients', 'recipeIngredients.ingredient', 'recipeIngredients.group', 'steps', 'media' => fn ($query) => $query->where('visibility', 'public'), 'provenances.contentSource']);
         // Artır/azalt butonları input ile aynı adı paylaşamaz: ikisi de gönderilir ve
         // DOM sırasına göre biri diğerini ezer. Butonlar yön bildirir, değeri burada uygularız.

@@ -144,7 +144,10 @@ Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
 
         $redirect = \App\Models\SlugRedirect::query()
             ->where('model_type', Recipe::class)
-            ->where('old_slug', $slug)
+            ->where(function ($q) use ($slug) {
+                $q->where('old_slug', $slug)
+                    ->orWhere('old_slug', rawurldecode($slug));
+            })
             ->first();
 
         if ($redirect !== null) {
@@ -154,12 +157,13 @@ Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
             }
         }
 
-        $govde = preg_replace('/-[A-Za-z0-9]{5}$/', '', $slug);
+        $govde = (string) preg_replace('/-[A-Za-z0-9]{5}$/', '', $slug);
 
         abort_if(! is_string($govde) || $govde === '' || $govde === $slug, 404);
 
         $adaylar = Recipe::query()
             ->where('status', 'published')
+            ->where('verification_status', 'verified')
             ->where(fn ($q) => $q->where('slug', $govde)->orWhere('slug', 'like', $govde.'-_____'))
             ->limit(2)
             ->get();
@@ -189,7 +193,10 @@ Route::get('/blog/{post}', [BlogController::class, 'show'])
 
         $redirect = \App\Models\SlugRedirect::query()
             ->where('model_type', BlogPost::class)
-            ->where('old_slug', $slug)
+            ->where(function ($q) use ($slug) {
+                $q->where('old_slug', $slug)
+                    ->orWhere('old_slug', rawurldecode($slug));
+            })
             ->first();
 
         if ($redirect !== null) {
@@ -201,14 +208,19 @@ Route::get('/blog/{post}', [BlogController::class, 'show'])
 
         if (str_starts_with($slug, 'geo-2026-')) {
             $clean = substr($slug, 9);
+            $cleanDecoded = rawurldecode($clean);
             $match = BlogPost::query()->publiclyVisible()
                 ->where('slug', $clean)
+                ->orWhere('slug', $cleanDecoded)
                 ->orWhere('slug', 'like', $clean.'-%')
+                ->orWhere('slug', 'like', $cleanDecoded.'-%')
                 ->first();
 
             if ($match !== null) {
                 return redirect()->route('blog.show', $match, 301);
             }
+
+            abort(404);
         }
 
         $match = BlogPost::query()->publiclyVisible()

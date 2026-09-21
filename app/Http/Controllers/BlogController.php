@@ -45,9 +45,13 @@ final class BlogController extends Controller
     public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService, PublicMediaEligibilityService $mediaEligibility, BlogIndexability $indekslenebilirlik, InternalLinkService $internalLinks): View|RedirectResponse
     {
         if (! BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists() && ! request()->user()?->isAdmin()) {
+            $slugStr = (string) $post->slug;
             $redirect = \App\Models\SlugRedirect::query()
                 ->where('model_type', BlogPost::class)
-                ->where('old_slug', $post->slug)
+                ->where(function ($q) use ($slugStr) {
+                    $q->where('old_slug', $slugStr)
+                        ->orWhere('old_slug', rawurldecode($slugStr));
+                })
                 ->first();
 
             if ($redirect !== null) {
@@ -66,12 +70,41 @@ final class BlogController extends Controller
                 return redirect()->to(route('blog.show', $twin), 301);
             }
 
+            $rootSlug = (string) preg_replace('/-(?:taslak-inceleme-)?[A-Za-z0-9]{5}$/', '', $slugStr);
+            if ($rootSlug !== '' && $rootSlug !== $slugStr) {
+                $candidate = BlogPost::query()->publiclyVisible()
+                    ->where(fn ($q) => $q->where('slug', $rootSlug)->orWhere('slug', 'like', $rootSlug.'-%'))
+                    ->first();
+
+                if ($candidate !== null) {
+                    return redirect()->to(route('blog.show', $candidate), 301);
+                }
+            }
+
             abort(404);
         }
         // Aynı kural detayda da geçerli: çevirisi olmayan yazının o dildeki
         // adresi yoktur. Sessizce Türkçe gövde servis etmek, hreflang'in
         // gösterdiği adresin başka dilde içerik döndürmesi demekti.
-        abort_unless($post->hasTranslation(), 404);
+        if (! $post->hasTranslation() && ! request()->user()?->isAdmin()) {
+            $slugStr = (string) $post->slug;
+            $redirect = \App\Models\SlugRedirect::query()
+                ->where('model_type', BlogPost::class)
+                ->where(function ($q) use ($slugStr) {
+                    $q->where('old_slug', $slugStr)
+                        ->orWhere('old_slug', rawurldecode($slugStr));
+                })
+                ->first();
+
+            if ($redirect !== null) {
+                $target = BlogPost::query()->publiclyVisible()->find($redirect->model_id);
+                if ($target !== null) {
+                    return redirect()->to(route('blog.show', $target), 301);
+                }
+            }
+
+            abort(404);
+        }
         // A blog relation can be prepared before a recipe is editorially ready.
         // Never expose that private relation as a public link: the recipe route
         // deliberately returns 404 for anything other than published + verified.

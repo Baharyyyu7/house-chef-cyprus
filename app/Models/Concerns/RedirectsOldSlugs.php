@@ -55,9 +55,13 @@ trait RedirectsOldSlugs
             return $kayit;
         }
 
+        $valueStr = (string) $value;
         $yonlendirme = SlugRedirect::query()
             ->where('model_type', $this->getMorphClass())
-            ->where('old_slug', (string) $value)
+            ->where(function ($q) use ($valueStr) {
+                $q->where('old_slug', $valueStr)
+                    ->orWhere('old_slug', rawurldecode($valueStr));
+            })
             ->first();
 
         $hedef = $yonlendirme ? static::query()->find($yonlendirme->model_id) : null;
@@ -66,7 +70,12 @@ trait RedirectsOldSlugs
             return null;
         }
 
-        $adres = app(LocaleUrlService::class)->urlFor(app()->getLocale(), route($this->showRouteName(), $hedef));
+        $currentLocale = app()->getLocale();
+        $targetLocale = method_exists($hedef, 'hasTranslation') && ! $hedef->hasTranslation($currentLocale)
+            ? (string) config('locales.default', 'tr')
+            : $currentLocale;
+
+        $adres = app(LocaleUrlService::class)->urlFor($targetLocale, route($this->showRouteName(), $hedef));
 
         throw new HttpResponseException(redirect()->to($adres, 301));
     }
