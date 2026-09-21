@@ -37,7 +37,12 @@
     // Ödeme yapan üye reklam görmez: abonelikte satılan şeylerden biri budur.
     $ucretliUye = auth()->check() && auth()->user()->isPremium();
 
-    $gosterilsin = $acik && $cmpHazir && $onayVar && $gecerliKimlik && $gecerliSlot && ! $ucretliUye;
+    // Kalite kapısının kapattığı sayfa reklam da taşımaz: kendi ölçümümüzle
+    // "aramada gösterilmeye değmez" dediğimiz sayfada reklam yayınlamak
+    // AdSense incelemesinde düşük değerli içerik olarak okunur.
+    $kapaliSayfa = (bool) request()->attributes->get('hc_page_is_noindex');
+
+    $gosterilsin = $acik && $cmpHazir && $onayVar && $gecerliKimlik && $gecerliSlot && ! $ucretliUye && ! $kapaliSayfa;
 
     // Her AdSense birimi kendi biçimini ister ve yanlış öznitelikle basılan
     // birim ya hiç dolmaz ya da bozuk görünür. Biçim yuvanın tanımından gelir.

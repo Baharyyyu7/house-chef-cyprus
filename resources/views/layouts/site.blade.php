@@ -23,6 +23,13 @@
         <link rel="alternate" hreflang="{{ $alternatif['hreflang'] }}" href="{{ $alternatif['href'] }}">
     @endforeach
     @php($isPrivateSurface = request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
+    {{-- Kendi kalite kapımızın kapattığı sayfada reklam gösterilmez. 20 Eylül
+         2026'da ölçüldü: şablon 868 tarif noindex'ti ama hepsi hâlâ halka açık
+         ve reklam yuvalarıyla birlikte yayındaydı. AdSense incelemesi arama
+         indeksine değil sayfanın kendisine bakar; "bu sayfayı arama motoruna
+         göstermeye değmez" deyip aynı sayfada reklam yayınlamak kendi
+         ölçümümüzle çelişir. --}}
+    @php($isPrivateSurface && request()->attributes->set('hc_page_is_noindex', true))
     @if ($robots || $isPrivateSurface)
         @php($effectiveRobots = $isPrivateSurface || str_contains((string) $robots, 'noindex') ? ($robots ?: 'noindex,nofollow') : ($robots ? $robots.', max-image-preview:large' : 'index,follow, max-image-preview:large'))
         <meta name="robots" content="{{ $effectiveRobots }}">

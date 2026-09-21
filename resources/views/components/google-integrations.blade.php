@@ -18,7 +18,12 @@
     // yüklenmez, betik yüklenmezse mesaj görünmez, mesaj görünmezse onay hiç
     // oluşmaz. Bu yüzden 'google' modunda betik önce yüklenir; kişisel veri
     // kapısını Consent Mode v2 varsayılanları ve TCF sinyali tutar.
-    $reklamBetigi = $adsenseEnabled && $cmpHazir && (
+    // Kendi kalite kapımızın kapattığı sayfada reklam betiği de yüklenmez:
+    // otomatik reklamlar o sayfaya kendiliğinden birim yerleştirebilir ve
+    // AdSense incelemesi arama indeksine değil sayfanın kendisine bakar.
+    $kapaliSayfa = (bool) request()->attributes->get('hc_page_is_noindex');
+
+    $reklamBetigi = $adsenseEnabled && $cmpHazir && ! $kapaliSayfa && (
         $cmpSaglayici === 'google' || request()->cookie('hc_advertising_consent') === 'granted'
     );
 @endphp

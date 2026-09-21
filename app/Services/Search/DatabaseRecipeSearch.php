@@ -63,6 +63,12 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
             ->with($relations)
             ->where('status', 'published')
             ->where('verification_status', 'verified')
+            // Kalite kapısının kapattığı tarif site içi aramada da çıkmaz.
+            // 20 Eylül 2026'da ölçüldü: "vegan" aramasının ilk sayfasındaki
+            // 20 sonucun tamamı, malzemesi "sebze karışımı" olan şablon
+            // kayıtlardı. Bu sayfaları aramaya değmez sayıp ziyaretçiye
+            // sunmak kendi ölçümümüzle çelişiyordu.
+            ->whereDoesntHave('seoMetadata', fn ($metadata) => $metadata->where('robots', 'like', '%noindex%'))
             ->when($filters['q'] ?? null, function ($query) use ($searchPlan): void {
                 if (app()->getLocale() !== config('locales.default', 'tr')) {
                     $query->whereHas('translations', fn ($translations) => $translations

@@ -167,10 +167,19 @@ final class SeoMetadataService
             $directives = array_merge($directives, ['noindex', 'nofollow']);
         }
 
-        return implode(',', array_merge([
+        $sonuc = implode(',', array_merge([
             in_array('noindex', $directives, true) ? 'noindex' : 'index',
             in_array('nofollow', $directives, true) ? 'nofollow' : 'follow',
         ], array_values(array_diff($directives, ['all', 'none', 'index', 'noindex', 'follow', 'nofollow']))));
+
+        // Sayfanın kapalı olduğu, görünüm katmanının okuyabileceği tek yere
+        // yazılır. Düzen bir Blade bileşeni olduğu için gövdesi ondan önce
+        // işleniyor; bayrağı düzende kurmak reklam yuvası için geç kalıyordu.
+        if (str_contains($sonuc, 'noindex') && app()->bound('request')) {
+            request()->attributes->set('hc_page_is_noindex', true);
+        }
+
+        return $sonuc;
     }
 
     public function cleanBrandSuffix(string $title): string
