@@ -88,4 +88,31 @@ final class SitemapOmitsNoindexPagesTest extends TestCase
 
         return $post;
     }
+
+    public function test_o_dilde_ince_kalan_ceviri_site_haritasina_girmez(): void
+    {
+        // Eşik gövdenin o dildeki çevirisine uygulanıyor; makine çevirisi
+        // çoğu zaman Türkçesinden kısa çıkıyor. Türkçesi kapıdan geçen bir
+        // yazının Farsça adresi noindex dönerken haritada duruyordu.
+        $post = $this->yazi('cok-dilli-yazi', 'index,follow');
+
+        $ingilizce = [
+            'title' => 'Multilingual Post',
+            'excerpt' => 'Summary.',
+            'body' => str_repeat('The original body of this post, long enough to carry its subject. ', 40),
+        ];
+
+        foreach ($ingilizce as $alan => $deger) {
+            $post->translations()->create(['locale' => 'en', 'field' => $alan, 'value' => $deger]);
+        }
+
+        foreach (['title' => 'پست', 'excerpt' => 'خلاصه.', 'body' => 'متن کوتاه.'] as $alan => $deger) {
+            $post->translations()->create(['locale' => 'fa', 'field' => $alan, 'value' => $deger]);
+        }
+
+        $cevap = $this->get('/sitemaps/blog.xml')->assertOk();
+
+        $cevap->assertSee('/en/blog/cok-dilli-yazi', false);
+        $cevap->assertDontSee('/fa/blog/cok-dilli-yazi', false);
+    }
 }

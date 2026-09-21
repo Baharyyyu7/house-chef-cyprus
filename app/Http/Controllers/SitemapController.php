@@ -201,7 +201,7 @@ final class SitemapController extends Controller
         $servis = app(LocaleUrlService::class);
         $diller = array_filter(
             $servis->enabledLocales(),
-            static fn (array $dil, string $kod): bool => $kayit->hasTranslation($kod),
+            fn (array $dil, string $kod): bool => $kayit->hasTranslation($kod) && $this->dildeIndekslenebilir($kayit, $kod),
             ARRAY_FILTER_USE_BOTH
         );
 
@@ -313,5 +313,30 @@ final class SitemapController extends Controller
     private function date(mixed $value): ?string
     {
         return is_string($value) && $value !== '' ? now()->parse($value)->toDateString() : null;
+    }
+
+    /**
+     * Kayıt bu dilde indekslenebilir mi?
+     *
+     * Yazının indekslenebilirliği dile bağlı: eşik gövdenin o dildeki
+     * çevirisine uygulanıyor ve makine çevirisi çoğu zaman Türkçesinden
+     * kısa çıkıyor. 20 Eylül 2026'da ölçüldü: Türkçesi kapıdan geçen bir
+     * yazının Farsça adresi noindex dönüyor ama site haritasında duruyordu.
+     * Harita "indeksle", sayfa "indeksleme" diyordu.
+     */
+    private function dildeIndekslenebilir(object $kayit, string $kod): bool
+    {
+        if (! $kayit instanceof BlogPost) {
+            return true;
+        }
+
+        $onceki = app()->getLocale();
+        app()->setLocale($kod);
+
+        try {
+            return app(BlogIndexability::class)->indekslenebilir($kayit);
+        } finally {
+            app()->setLocale($onceki);
+        }
     }
 }
