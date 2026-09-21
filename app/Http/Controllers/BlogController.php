@@ -13,6 +13,7 @@ use App\Services\Seo\InternalLinkService;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoMetadataService;
 use App\Services\Seo\SeoSchemaService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -41,9 +42,32 @@ final class BlogController extends Controller
         ]);
     }
 
-    public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService, PublicMediaEligibilityService $mediaEligibility, BlogIndexability $indekslenebilirlik, InternalLinkService $internalLinks): View
+    public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService, PublicMediaEligibilityService $mediaEligibility, BlogIndexability $indekslenebilirlik, InternalLinkService $internalLinks): View|RedirectResponse
     {
-        abort_unless(BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists(), 404);
+        if (! BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists() && ! request()->user()?->isAdmin()) {
+            $redirect = \App\Models\SlugRedirect::query()
+                ->where('model_type', BlogPost::class)
+                ->where('old_slug', $post->slug)
+                ->first();
+
+            if ($redirect !== null) {
+                $target = BlogPost::query()->publiclyVisible()->find($redirect->model_id);
+                if ($target !== null) {
+                    return redirect()->to(route('blog.show', $target), 301);
+                }
+            }
+
+            $twin = BlogPost::query()->publiclyVisible()
+                ->where('title', $post->title)
+                ->where('id', '!=', $post->id)
+                ->first();
+
+            if ($twin !== null) {
+                return redirect()->to(route('blog.show', $twin), 301);
+            }
+
+            abort(404);
+        }
         // Aynı kural detayda da geçerli: çevirisi olmayan yazının o dildeki
         // adresi yoktur. Sessizce Türkçe gövde servis etmek, hreflang'in
         // gösterdiği adresin başka dilde içerik döndürmesi demekti.

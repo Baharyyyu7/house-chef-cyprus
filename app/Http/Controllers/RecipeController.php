@@ -90,7 +90,32 @@ final class RecipeController extends Controller
 
     public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, PublicMediaEligibilityService $mediaEligibility, SeoMetadataService $seo, SeoSchemaService $schemaService, InternalLinkService $internalLinks)
     {
-        abort_unless(($recipe->status === 'published' && $recipe->verification_status === 'verified') || $request->user()?->isAdmin(), 404);
+        $isPublic = ($recipe->status === 'published' && $recipe->verification_status === 'verified') || $request->user()?->isAdmin();
+
+        if (! $isPublic) {
+            $redirect = \App\Models\SlugRedirect::query()
+                ->where('model_type', Recipe::class)
+                ->where('old_slug', $recipe->slug)
+                ->first();
+
+            if ($redirect !== null) {
+                $target = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->find($redirect->model_id);
+                if ($target !== null) {
+                    return redirect()->to(route('recipes.show', $target->slug), 301);
+                }
+            }
+
+            $twin = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')
+                ->where('title', $recipe->title)
+                ->where('id', '!=', $recipe->id)
+                ->first();
+
+            if ($twin !== null) {
+                return redirect()->to(route('recipes.show', $twin->slug), 301);
+            }
+
+            abort(404);
+        }
         // Çevirisi olmayan tarifin o dildeki adresi yoktur. Sessizce Türkçe
         // içerik servis etmek, hreflang'in gösterdiği adresin başka dilde
         // içerik döndürmesi ve aynı içeriğin ikinci kopyası sayılması olurdu.

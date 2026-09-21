@@ -1,6 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /yonetim
 Disallow: /yonetim/
+Disallow: /admin
+Disallow: /admin/
 Disallow: /profile
 Disallow: /dashboard
 Disallow: /dolabim

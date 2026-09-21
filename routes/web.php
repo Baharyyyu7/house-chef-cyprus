@@ -141,6 +141,19 @@ Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
     // ada göre tek bir karşılık varsa oraya kalıcı olarak yönlendirilir.
     ->missing(function (Request $request) {
         $slug = (string) $request->route('recipe');
+
+        $redirect = \App\Models\SlugRedirect::query()
+            ->where('model_type', Recipe::class)
+            ->where('old_slug', $slug)
+            ->first();
+
+        if ($redirect !== null) {
+            $target = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->find($redirect->model_id);
+            if ($target !== null) {
+                return redirect()->route('recipes.show', $target, 301);
+            }
+        }
+
         $govde = preg_replace('/-[A-Za-z0-9]{5}$/', '', $slug);
 
         abort_if(! is_string($govde) || $govde === '' || $govde === $slug, 404);
@@ -173,6 +186,30 @@ Route::get('/blog/{post}', [BlogController::class, 'show'])
     ->name('blog.show')
     ->missing(function (Request $request) {
         $slug = (string) $request->route('post');
+
+        $redirect = \App\Models\SlugRedirect::query()
+            ->where('model_type', BlogPost::class)
+            ->where('old_slug', $slug)
+            ->first();
+
+        if ($redirect !== null) {
+            $target = BlogPost::query()->publiclyVisible()->find($redirect->model_id);
+            if ($target !== null) {
+                return redirect()->route('blog.show', $target, 301);
+            }
+        }
+
+        if (str_starts_with($slug, 'geo-2026-')) {
+            $clean = substr($slug, 9);
+            $match = BlogPost::query()->publiclyVisible()
+                ->where('slug', $clean)
+                ->orWhere('slug', 'like', $clean.'-%')
+                ->first();
+
+            if ($match !== null) {
+                return redirect()->route('blog.show', $match, 301);
+            }
+        }
 
         $match = BlogPost::query()->publiclyVisible()
             ->where('slug', 'like', $slug.'-%')
