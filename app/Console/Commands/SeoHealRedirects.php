@@ -42,14 +42,15 @@ final class SeoHealRedirects extends Command
                     continue;
                 }
 
-                $post = BlogPost::query()->publiclyVisible()->where('title', $title)->first();
-                if ($post === null) {
+                $post = BlogPost::query()->publiclyVisible()->where('title', $title)->limit(2)->get();
+                if ($post->count() !== 1) {
                     $cleanSlug = str_replace('geo-2026-', '', $geoSlug);
                     $post = BlogPost::query()->publiclyVisible()
-                        ->where('slug', $cleanSlug)
-                        ->orWhere('slug', 'like', $cleanSlug . '-%')
-                        ->first();
+                        ->where(fn ($query) => $query->where('slug', $cleanSlug)->orWhere('slug', 'like', $cleanSlug . '-%'))
+                        ->limit(2)
+                        ->get();
                 }
+                $post = $post->count() === 1 ? $post->first() : null;
 
                 if ($post !== null) {
                     $this->registerRedirect(BlogPost::class, $geoSlug, $post->id, $apply);
@@ -78,14 +79,6 @@ final class SeoHealRedirects extends Command
                         ->where(fn ($q) => $q->where('slug', $rootSlug)->orWhere('slug', 'like', $rootSlug . '-%'))
                         ->first();
                 }
-            }
-
-            if ($twin === null && $draft->blog_category_id !== null) {
-                $twin = BlogPost::query()->publiclyVisible()->where('blog_category_id', $draft->blog_category_id)->first();
-            }
-
-            if ($twin === null) {
-                $twin = BlogPost::query()->publiclyVisible()->first();
             }
 
             if ($twin !== null) {
@@ -164,14 +157,11 @@ final class SeoHealRedirects extends Command
         ];
 
         foreach ($specificBlogMappings as $oldSlug => $targetSlug) {
-            $target = BlogPost::query()->publiclyVisible()->where('slug', $targetSlug)->first();
-            if ($target === null) {
-                $target = BlogPost::query()->publiclyVisible()->where('slug', 'like', $targetSlug.'-%')->first();
-            }
-            if ($target === null) {
-                $target = BlogPost::query()->publiclyVisible()->first();
-            }
-
+            $targets = BlogPost::query()->publiclyVisible()
+                ->where(fn ($query) => $query->where('slug', $targetSlug)->orWhere('slug', 'like', $targetSlug.'-%'))
+                ->limit(2)
+                ->get();
+            $target = $targets->count() === 1 ? $targets->first() : null;
             if ($target !== null) {
                 $this->registerRedirect(BlogPost::class, $oldSlug, $target->id, $apply);
                 $this->registerRedirect(BlogPost::class, rawurldecode($oldSlug), $target->id, $apply);
@@ -201,14 +191,11 @@ final class SeoHealRedirects extends Command
         ];
 
         foreach ($specificRecipeMappings as $oldSlug => $targetSlug) {
-            $target = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->where('slug', $targetSlug)->first();
-            if ($target === null) {
-                $target = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->where('slug', 'like', $targetSlug.'-%')->first();
-            }
-            if ($target === null) {
-                $target = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->first();
-            }
-
+            $targets = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')
+                ->where(fn ($query) => $query->where('slug', $targetSlug)->orWhere('slug', 'like', $targetSlug.'-%'))
+                ->limit(2)
+                ->get();
+            $target = $targets->count() === 1 ? $targets->first() : null;
             if ($target !== null) {
                 $this->registerRedirect(Recipe::class, $oldSlug, $target->id, $apply);
                 $this->registerRedirect(Recipe::class, rawurldecode($oldSlug), $target->id, $apply);
@@ -234,16 +221,6 @@ final class SeoHealRedirects extends Command
                 }
             }
 
-            if ($twinR === null && $draftR->category_id !== null) {
-                $twinR = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')
-                    ->where('category_id', $draftR->category_id)
-                    ->first();
-            }
-
-            if ($twinR === null) {
-                $twinR = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->first();
-            }
-
             if ($twinR !== null) {
                 $this->registerRedirect(Recipe::class, (string) $draftR->slug, $twinR->id, $apply);
                 $this->registerRedirect(Recipe::class, rawurldecode((string) $draftR->slug), $twinR->id, $apply);
@@ -266,9 +243,29 @@ final class SeoHealRedirects extends Command
         return self::SUCCESS;
     }
 
+    /** Bir hedefe bu kadar eski adres bağlanırsa eşleştirme bozulmuş demektir. */
+    public const HEDEF_BASINA_AZAMI = 5;
+
     private function registerRedirect(string $modelType, string $oldSlug, int $modelId, bool $apply): void
     {
         if (! $apply) {
+            return;
+        }
+
+        // Aynı hedefe yığılan yönlendirme eşleştirmenin bozulduğunun işareti.
+        // 22 Eylül 2026'da ölçüldü: 1.467 kaydın 1.357'si dokuz hedefe
+        // yığılmıştı; tek bir mercimek çorbası tarifine 999 ayrı adres
+        // yönleniyordu. Köz patlıcan sayfası kuru bakliyat yazısına
+        // gidiyordu. Yanlış yönlendirme, 404'ten daha zararlı.
+        $mevcut = SlugRedirect::query()
+            ->where('model_type', $modelType)
+            ->where('model_id', $modelId)
+            ->where('old_slug', '!=', $oldSlug)
+            ->count();
+
+        if ($mevcut >= self::HEDEF_BASINA_AZAMI) {
+            $this->components->warn('Atlandı, hedefe zaten '.$mevcut.' adres bağlı: '.$oldSlug);
+
             return;
         }
 
