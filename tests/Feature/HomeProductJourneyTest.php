@@ -31,6 +31,16 @@ final class HomeProductJourneyTest extends TestCase
         $this->assertSame(6, (new \DOMXPath($dom))->query('//main/section')->length);
     }
 
+    public function test_homepage_renders_the_cuisine_selection_once(): void
+    {
+        $html = $this->get(route('home'))->assertOk()->getContent();
+
+        // Blade çıktıyı kaçırıyor: başlıktaki kesme işareti HTML'de &#039;
+        // olarak duruyor. Ham metni aramak her zaman sıfır bulur ve test
+        // gerçekte kaç kez basıldığını hiç ölçmemiş olur.
+        $this->assertSame(1, substr_count($html, e(__('home.cuisines_title'))));
+    }
+
     public function test_recipe_without_eligible_media_is_not_promoted_on_home(): void
     {
         Recipe::query()->create(['title' => 'Unapproved showcase recipe', 'slug' => 'unapproved-showcase', 'servings' => 2, 'difficulty' => 'easy', 'status' => 'published', 'verification_status' => 'verified', 'published_at' => now()]);
