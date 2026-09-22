@@ -137,6 +137,9 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_ranked_url_
 // Büyüme iddiası ancak bir önceki ölçümle yan yana konunca doğrulanabilir;
 // aynı koşu ilk yirmide görünüp tıklanmayan sayfalar için iş kaydı açar.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_daily_growth_report', fn () => Artisan::call('seo:daily-growth-report')))->name('seo_daily_growth_report')->dailyAt('07:05')->withoutOverlapping();
+// Üretim verisinde bir daha olmaması gereken durumlar. Test paketi kodu
+// koruyor; bu kurallar veriyi koruyor - hiçbiri testleri kırmadan oluştu.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('app_invariants', fn () => Artisan::call('app:invariants')))->name('app_invariants')->dailyAt('07:10')->withoutOverlapping();
 
 // Dil dil büyüme. Sabah brifingden hemen önce çalışır ki brifing taze
 // tabloyu görsün. Açık ama içeriği olmayan bir dil toplamların içinde
