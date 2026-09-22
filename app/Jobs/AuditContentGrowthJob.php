@@ -7,7 +7,7 @@ namespace App\Jobs;
 use App\Models\BlogPost;
 use App\Models\Recipe;
 use App\Models\ContentOpportunity;
-use App\Services\Integrity\IntegrityReportLog;
+use App\Services\Seo\BlogIndexability;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -32,7 +32,7 @@ final class AuditContentGrowthJob implements ShouldBeUniqueUntilProcessing, Shou
         return $this->type.':'.$this->contentId;
     }
 
-    public function handle(IntegrityReportLog $reports): void
+    public function handle(): void
     {
         $model = match ($this->type) {
             'recipe' => Recipe::query()->find($this->contentId),
@@ -43,19 +43,17 @@ final class AuditContentGrowthJob implements ShouldBeUniqueUntilProcessing, Shou
             return;
         }
 
-        $locales = [];
-        $missing = 0;
+        // Kendi kalite kapımızın kapattığı sayfaya çeviri işi açmanın anlamı
+        // yok: o sayfa aramada görünmüyor. 22 Eylül 2026'da ölçüldü: 6.495
+        // açık çeviri işinin 5.207'si noindex içeriğe aitti ve gerçekten
+        // yapılacak 1.288 işi gömüyordu.
+        $indekslenebilir = $this->indekslenebilir($model);
+
         foreach ((array) config('locales.supported', []) as $locale => $settings) {
             $translated = $model->hasTranslation((string) $locale);
-            $locales[$locale] = [
-                'enabled' => (bool) ($settings['enabled'] ?? false),
-                'translation_complete' => $translated,
-                'publication_review_required' => true,
-            ];
-            $missing += (int) ! $translated;
             $key = 'translation-'.$this->type.'-'.$this->contentId.'-'.$locale;
             $opportunity = ContentOpportunity::query()->firstOrNew(['normalized_key' => $key]);
-            if (! $translated && (! $opportunity->exists || (in_array($opportunity->status, ['open', 'resolved'], true) && $opportunity->reviewed_at === null))) {
+            if (! $translated && $indekslenebilir && (! $opportunity->exists || (in_array($opportunity->status, ['open', 'resolved'], true) && $opportunity->reviewed_at === null))) {
                 $opportunity->fill([
                     'kind' => 'translation_gap',
                     'title' => $locale.': '.(string) $model->getRawOriginal('title'),
@@ -64,17 +62,25 @@ final class AuditContentGrowthJob implements ShouldBeUniqueUntilProcessing, Shou
                     'status' => 'open', 'related_public_ids' => [$model->public_id],
                     'evidence' => ['locale' => $locale, 'source' => 'content_translation_audit', 'publication_requires_human_review' => true],
                 ])->save();
-            } elseif ($translated && $opportunity->exists && $opportunity->status === 'open' && $opportunity->reviewed_at === null) {
+            } elseif (($translated || ! $indekslenebilir) && $opportunity->exists && $opportunity->status === 'open' && $opportunity->reviewed_at === null) {
                 $opportunity->update(['status' => 'resolved']);
             }
         }
 
-        $reports->record('seo:content-growth', $missing > 0 ? 'incomplete' : 'success', $missing, [
-            'content_type' => $this->type,
-            'public_id' => $model->public_id,
-            'source_updated_at' => $model->updated_at?->toIso8601String(),
-            'locales' => $locales,
-            'scope' => 'translation_coverage_not_editorial_approval',
-        ]);
+        // Burada bütünlük raporu yazılmıyor. Bu iş her içerik kaydı için bir
+        // kez koşuyor; rapor yazınca tek günde 9.899 satır birikti ve
+        // muhafız günlüğünü boğdu. Çeviri kapsamının manşet sayısı
+        // content:translation-readiness muhafızında, tek satır olarak duruyor;
+        // yapılacak işin kendisi ContentOpportunity kaydında.
+    }
+
+    /** İçerik aramada görünüyor mu? */
+    private function indekslenebilir(Recipe|BlogPost $model): bool
+    {
+        if ($model instanceof BlogPost) {
+            return ! str_contains(app(BlogIndexability::class)->robots($model), 'noindex');
+        }
+
+        return ! str_contains((string) $model->seoMetadata?->robots, 'noindex');
     }
 }
