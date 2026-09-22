@@ -99,4 +99,28 @@ final class RankedUrlGuardTest extends TestCase
 
         $this->assertSame([], $kapananlar);
     }
+
+    public function test_yayinda_olmayan_nusha_yonlendiriliyorsa_kapali_sayilmaz(): void
+    {
+        $canli = BlogPost::query()->create([
+            'title' => 'Canlı Yazı', 'slug' => 'canli-yazi', 'excerpt' => 'Ö', 'body' => '<p>G</p>',
+            'status' => 'published', 'published_at' => now()->subDay(),
+            'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved',
+        ]);
+        $taslak = BlogPost::query()->create([
+            'title' => 'Canlı Yazı', 'slug' => 'canli-yazi-09MMS', 'excerpt' => 'Ö', 'body' => '<p>G</p>',
+            'status' => 'draft',
+        ]);
+        \App\Models\SlugRedirect::query()->create([
+            'model_type' => $taslak->getMorphClass(),
+            'old_slug' => $taslak->slug,
+            'model_id' => $canli->id,
+        ]);
+
+        $kapananlar = app(RankedUrlGuardService::class)->kapananlar([
+            ['page' => route('blog.show', $taslak), 'impressions' => 46, 'clicks' => 0, 'position' => 8.0],
+        ]);
+
+        $this->assertSame([], $kapananlar);
+    }
 }

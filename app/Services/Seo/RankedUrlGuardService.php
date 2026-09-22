@@ -81,7 +81,11 @@ final class RankedUrlGuardService
             }
 
             if ($yazi->status !== 'published' || $yazi->published_at === null || $yazi->published_at->isFuture()) {
-                return 'yayinda_degil';
+                // Yayında olmayan nüshanın adresi yönlendiriliyorsa sayfa
+                // kapanmış değil. 22 Eylül 2026'da ölçüldü: yönlendirmesi
+                // kurulmuş dört adres hâlâ kapalı raporlanıyordu, çünkü kayıt
+                // bulunduğu için yönlendirmeye hiç bakılmıyordu.
+                return $this->yonlendiriliyor(BlogPost::class, $slug) ? null : 'yayinda_degil';
             }
 
             // Yinelenen başlıklı nüsha bilerek eşine kanonikle bağlandıysa
@@ -104,7 +108,7 @@ final class RankedUrlGuardService
             }
 
             if ($tarif->status !== 'published') {
-                return 'yayinda_degil';
+                return $this->yonlendiriliyor(Recipe::class, $slug) ? null : 'yayinda_degil';
             }
 
             // Kopya tarif bilinçli olarak gerçek eşine bağlandıysa (noindex +
