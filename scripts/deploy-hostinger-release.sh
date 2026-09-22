@@ -345,6 +345,12 @@ if ! run "$PHP_BIN" "$CURRENT_LINK/artisan" app:post-deploy-smoke --json; then
     hostinger_404_diagnostic
     fail 'HOSTINGER_POST_SWITCH_SMOKE_FAILED'
 fi
+# Üretim verisi kurallari her yayinda goruntulenir. Yayin bunlara takilip
+# geri donmez: bunlar icerik ve veri durumu, kod saglığı degil. Ama her
+# yayinda ekrana gelmesi, bir kusurun sessizce buyumesini engelliyor.
+log 'Reporting production data invariants (informational, never blocks the release).'
+"$PHP_BIN" "$CURRENT_LINK/artisan" app:invariants || log 'NOTE: invariant violations reported above; review them, the release itself is healthy.'
+
 run "$PHP_BIN" "$CURRENT_LINK/artisan" app:database-readiness --json
 run "$PHP_BIN" "$CURRENT_LINK/artisan" backup:health --json
 
