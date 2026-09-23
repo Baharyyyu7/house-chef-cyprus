@@ -28,4 +28,11 @@ final class RouteFunctionalityAuditTest extends TestCase
             ->expectsOutputToContain('"issues"')
             ->assertSuccessful();
     }
+
+    public function test_command_is_inventory_only_unless_probe_is_explicitly_requested(): void
+    {
+        $this->artisan('route:functionality-audit', ['--json' => true])
+            ->expectsOutputToContain('"inventory_only": 423')
+            ->assertSuccessful();
+    }
 }

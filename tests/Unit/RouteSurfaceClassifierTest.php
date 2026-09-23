@@ -39,4 +39,12 @@ final class RouteSurfaceClassifierTest extends TestCase
         self::assertFalse($classifier->isSafelyProbeable(new Route(['GET'], 'tarifler/{recipe}', fn () => null)));
         self::assertTrue($classifier->isSafelyProbeable(new Route(['GET'], 'tarifler', fn () => null)));
     }
+
+    public function test_it_normalizes_the_root_probe_path(): void
+    {
+        $classifier = new RouteSurfaceClassifier;
+
+        self::assertSame('/', $classifier->path(new Route(['GET'], '/', fn () => null)));
+        self::assertSame('/tarifler', $classifier->path(new Route(['GET'], 'tarifler', fn () => null)));
+    }
 }

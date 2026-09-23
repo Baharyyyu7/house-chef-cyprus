@@ -19,14 +19,25 @@ final class RouteFunctionalityAudit extends Command
         {--json : Makine okunabilir çıktı}
         {--output= : JSON raporunun yazılacağı proje içi yol}
         {--include-admin : Yönetim GET rotalarını da güvenli biçimde dene}
-        {--no-probe : Hiçbir HTTP isteği çalıştırmadan yalnız envanter çıkar}';
+        {--probe : Güvenli statik GET rotalarını HTTP çekirdeğiyle dene}
+        {--limit=25 : Tek çalıştırmada denenecek azami rota}
+        {--no-probe : Eski çağrılar için; yalnız envanter çıkar}';
 
     protected $description = 'Tüm rotaları sınıflandırır ve yalnız güvenli GET yüzeylerini işlevsellik açısından denetler.';
 
     public function handle(RouteSurfaceClassifier $classifier, Kernel $kernel): int
     {
+        $remainingProbes = max(0, (int) $this->option('limit'));
         $rows = collect(RouteFacade::getRoutes()->getRoutes())
-            ->map(fn (Route $route): array => $this->row($route, $classifier, $kernel))
+            ->map(function (Route $route) use ($classifier, $kernel, &$remainingProbes): array {
+                $allowProbe = (bool) $this->option('probe') && ! (bool) $this->option('no-probe') && $remainingProbes > 0;
+                $row = $this->row($route, $classifier, $kernel, $allowProbe);
+                if ($row['observed_status'] !== null) {
+                    $remainingProbes--;
+                }
+
+                return $row;
+            })
             ->values();
 
         $report = [
@@ -56,10 +67,10 @@ final class RouteFunctionalityAudit extends Command
         return self::SUCCESS;
     }
 
-    private function row(Route $route, RouteSurfaceClassifier $classifier, Kernel $kernel): array
+    private function row(Route $route, RouteSurfaceClassifier $classifier, Kernel $kernel, bool $allowProbe): array
     {
         $surface = $classifier->classify($route);
-        $probe = ! $this->option('no-probe')
+        $probe = $allowProbe
             && $classifier->isSafelyProbeable($route)
             && in_array($surface, ['public', 'machine'], true)
             && ($surface !== 'admin' || $this->option('include-admin'))
@@ -69,7 +80,7 @@ final class RouteFunctionalityAudit extends Command
 
         if ($probe) {
             try {
-                $request = Request::create('/'.$route->uri(), 'GET');
+                $request = Request::create($classifier->path($route), 'GET');
                 $response = $kernel->handle($request);
                 $observed = $response->getStatusCode();
                 $kernel->terminate($request, $response);

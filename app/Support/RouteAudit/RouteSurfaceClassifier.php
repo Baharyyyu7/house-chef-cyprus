@@ -48,6 +48,13 @@ final class RouteSurfaceClassifier
             && ! str_contains($route->uri(), '{');
     }
 
+    public function path(Route $route): string
+    {
+        $uri = trim($route->uri(), '/');
+
+        return $uri === '' ? '/' : '/'.$uri;
+    }
+
     private function isMachineReadable(string $uri): bool
     {
         return $uri === 'health'
