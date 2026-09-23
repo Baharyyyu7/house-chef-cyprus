@@ -12,6 +12,7 @@ use App\Models\ContentRevision;
 use App\Models\Recipe;
 use App\Services\Seo\ContentQualityService;
 use App\Services\Seo\ContentSimilarityService;
+use App\Services\Seo\BlogPublicationReadinessService;
 use App\Services\Seo\SeoMetadataService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -76,10 +77,10 @@ final class BlogPostController extends Controller
         return back()->with('status', 'Blog yazısı güncellendi.');
     }
 
-    public function publish(BlogPost $post, ContentQualityService $quality, ContentSimilarityService $similarity): RedirectResponse
+    public function publish(BlogPost $post, BlogPublicationReadinessService $readiness, ContentSimilarityService $similarity): RedirectResponse
     {
         $this->admin();
-        $assessment = $quality->evaluate($post);
+        $assessment = $readiness->evaluate($post);
         $similarityResult = $similarity->inspect($post);
         abort_unless($assessment['passed'], 422, implode(' ', $assessment['issues']));
         abort_unless($similarityResult['status'] === 'passed', 422, 'İçerik benzerliği editoryal inceleme gerektiriyor.');

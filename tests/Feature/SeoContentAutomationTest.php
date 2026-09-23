@@ -62,8 +62,12 @@ final class SeoContentAutomationTest extends TestCase
         $post->recipes()->sync([$recipe->id]);
         $post->update([
             'content_purpose' => 'Ev mutfağı için özgün rehber', 'search_intent' => 'informational', 'primary_keyword' => 'ev mutfağı',
+            'secondary_keywords' => ['ev mutfağı rehberi', 'mutfak teknikleri', 'doğrulanmış tarif'],
+            'faq_blocks' => [['question' => 'Nedir?', 'answer' => 'Rehberdir.'], ['question' => 'Nasıl?', 'answer' => 'Adımlarla.'], ['question' => 'Neden?', 'answer' => 'Doğruluk için.']],
+            'body' => '## Temel bilgiler'.PHP_EOL.implode(' ', array_fill(0, 896, 'kelime')).PHP_EOL.'## Uygulama adımları',
             'source_notes' => ['editorial_note' => 'Birincil kaynaklar ve editoryal notlar kontrol edildi.'], 'fact_check_status' => 'passed',
-            'originality_status' => 'passed', 'editorial_status' => 'approved', 'meta_title' => 'Ev mutfağı rehberi', 'meta_description' => 'Özgün, kısa ve yararlı ev mutfağı rehberi açıklaması.',
+            'originality_status' => 'passed', 'editorial_status' => 'approved', 'meta_title' => 'Ev mutfağı rehberi', 'meta_description' => str_repeat('a', 150),
+            'human_approved_at' => now(), 'human_approved_by_user_id' => $admin->id,
         ]);
 
         $this->actingAs($admin)->withSession(['_token' => 'test-csrf'])->post(route('admin.blog.publish', $post), ['_token' => 'test-csrf'])->assertRedirect();
@@ -73,11 +77,54 @@ final class SeoContentAutomationTest extends TestCase
     public function test_scheduled_publication_requires_all_approval_states(): void
     {
         $approved = $this->makePost(['slug' => 'onayli-planli-yazi', 'status' => 'scheduled', 'scheduled_at' => now()->subMinute(), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved']);
+        $this->completeForPublication($approved);
         $blocked = $this->makePost(['slug' => 'engelli-planli-yazi', 'status' => 'scheduled', 'scheduled_at' => now()->subMinute(), 'fact_check_status' => 'pending', 'originality_status' => 'passed', 'editorial_status' => 'approved']);
 
         $this->artisan('blog:publish-scheduled --json')->expectsOutputToContain('"published":1')->assertSuccessful();
         $this->assertSame('published', $approved->fresh()->status);
         $this->assertSame('scheduled', $blocked->fresh()->status);
+    }
+
+    public function test_scheduled_publication_rejects_short_post_without_human_approval(): void
+    {
+        $post = $this->makePost([
+            'status' => 'scheduled', 'scheduled_at' => now()->subMinute(),
+            'editorial_status' => 'approved', 'fact_check_status' => 'passed', 'originality_status' => 'passed',
+        ]);
+
+        $this->artisan('blog:publish-scheduled --json')->expectsOutputToContain('"published":0')->assertSuccessful();
+        $this->assertSame('scheduled', $post->fresh()->status);
+    }
+
+    public function test_auto_drip_dry_run_never_changes_a_draft(): void
+    {
+        $post = $this->makePost([
+            'editorial_status' => 'approved', 'fact_check_status' => 'passed', 'originality_status' => 'passed',
+        ]);
+
+        $this->artisan('seo:auto-drip --dry-run --limit=3')->assertSuccessful();
+        $this->assertSame('draft', $post->fresh()->status);
+        $this->assertNull($post->fresh()->published_at);
+    }
+
+    public function test_draft_readiness_report_is_read_only(): void
+    {
+        $post = $this->makePost(['status' => 'draft']);
+        $updatedAt = $post->updated_at;
+
+        $this->artisan('seo:blog-draft-readiness --json --limit=5')
+            ->expectsOutputToContain('"drafts":1')
+            ->assertSuccessful();
+
+        $this->assertTrue($updatedAt->equalTo($post->fresh()->updated_at));
+        $this->assertSame('draft', $post->fresh()->status);
+    }
+
+    public function test_auto_drip_schedule_uses_daily_limit_of_three(): void
+    {
+        $source = file_get_contents(base_path('routes/console.php'));
+
+        $this->assertStringContainsString("Artisan::call('seo:auto-drip', ['--limit' => 3])", $source);
     }
 
     public function test_zero_result_queries_are_anonymous_and_can_create_safe_opportunities(): void
@@ -127,5 +174,23 @@ final class SeoContentAutomationTest extends TestCase
             'title' => 'Özgün blog rehberi '.str()->random(8), 'slug' => 'ozgun-blog-rehberi-'.str()->lower(str()->random(8)),
             'excerpt' => 'Özgün ve faydalı kısa içerik özeti.', 'body' => 'House Chef Cyprus için özgün editoryal içerik.', 'status' => 'draft',
         ], $overrides));
+    }
+
+    private function completeForPublication(BlogPost $post): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $recipe = Recipe::query()->create([
+            'title' => 'Planlı doğrulanmış tarif', 'slug' => 'planli-dogrulanmis-tarif', 'excerpt' => 'Özgün tarif özeti',
+            'description' => 'Doğrulanmış tarif açıklaması', 'status' => 'published', 'verification_status' => 'verified', 'published_at' => now(),
+        ]);
+        $post->recipes()->sync([$recipe->id]);
+        $post->update([
+            'body' => '## Temel bilgiler'.PHP_EOL.implode(' ', array_fill(0, 896, 'kelime')).PHP_EOL.'## Uygulama adımları',
+            'content_purpose' => 'Doğrulanmış mutfak rehberi', 'search_intent' => 'informational', 'primary_keyword' => 'mutfak rehberi',
+            'secondary_keywords' => ['mutfak rehberi', 'pişirme tekniği', 'doğrulanmış tarif'],
+            'faq_blocks' => [['question' => 'Nedir?', 'answer' => 'Rehberdir.'], ['question' => 'Nasıl?', 'answer' => 'Adımlarla.'], ['question' => 'Neden?', 'answer' => 'Doğruluk için.']],
+            'source_notes' => ['editorial_note' => 'Kaynaklar doğrulandı.'], 'meta_title' => 'Doğrulanmış mutfak rehberi', 'meta_description' => str_repeat('a', 150),
+            'human_approved_at' => now(), 'human_approved_by_user_id' => $admin->id,
+        ]);
     }
 }

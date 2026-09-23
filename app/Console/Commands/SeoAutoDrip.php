@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\BlogPost;
+use App\Services\Seo\BlogPublicationReadinessService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 
 /**
  * SEO Auto Drip — Hazır draft blogları kalite kapısından geçirerek
@@ -26,7 +26,7 @@ final class SeoAutoDrip extends Command
 
     protected $description = 'Kalite kapısından geçmiş draft blogları günlük limitli olarak yayına alır.';
 
-    public function handle(): int
+    public function handle(BlogPublicationReadinessService $readiness): int
     {
         $limit    = (int) $this->option('limit');
         $dryRun   = (bool) $this->option('dry-run');
@@ -70,23 +70,21 @@ final class SeoAutoDrip extends Command
                 break;
             }
 
-            // Karakter kontrolü (strip_tags sonrası)
-            $cleanBody = mb_strlen(trim(preg_replace('/\s+/u', ' ', strip_tags($post->body ?? ''))));
-
-            if ($cleanBody < $minChars) {
-                $this->warn("  ✗ Atlandı (ince içerik {$cleanBody} karakter): {$post->slug}");
+            $assessment = $readiness->evaluate($post);
+            if (! $assessment['passed']) {
+                $this->warn("  Atlandı: {$post->slug} - ".implode(' ', $assessment['issues']));
                 $skipped++;
                 continue;
             }
 
             if ($dryRun) {
-                $this->line("  [DRY] Yayınlanacak: {$post->slug} ({$cleanBody} karakter)");
+                $this->line("  [DRY] Yayınlanacak: {$post->slug} ({$assessment['metrics']['word_count']} kelime)");
             } else {
                 $post->update([
                     'status'       => 'published',
                     'published_at' => now(),
                 ]);
-                $this->info("  ✓ Yayınlandı: {$post->slug} ({$cleanBody} karakter)");
+                $this->info("  Yayınlandı: {$post->slug} ({$assessment['metrics']['word_count']} kelime)");
             }
 
             $published++;
