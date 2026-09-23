@@ -23,7 +23,7 @@
         >
             <span class="grid h-7 w-7 place-items-center rounded-xl bg-orange-500 text-xs shrink-0 font-black">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</span>
             <span class="whitespace-nowrap font-bold">Hesabım</span>
-            <span class="text-[.6rem] transition-transform duration-300 shrink-0" :class="acik ? 'rotate-180' : ''" aria-hidden="true">▾</span>
+            <span class="transition-transform duration-300 shrink-0" :class="acik ? 'rotate-180' : ''" aria-hidden="true"><x-ui.icon name="chevron-down" size="14" /></span>
         </button>
 
         {{-- Perde: dışarı dokunmak kapatır. Görünmez ama tıklanabilir. --}}
@@ -57,15 +57,15 @@
             <div class="hc-user-menu__rule"></div>
 
             @foreach ([
-                ['dashboard', 'Hesabım', '◈'],
-                ['pantry.index', 'Dolabım', '▦'],
-                ['favorites.index', 'Favorilerim', '♡'],
-                ['collections.index', 'Koleksiyonlarım', '❏'],
-                ['profile', 'Profil ayarları', '⚙'],
+                ['dashboard', 'Hesabım', 'gauge'],
+                ['pantry.index', 'Dolabım', 'archive'],
+                ['favorites.index', 'Favorilerim', 'heart'],
+                ['collections.index', 'Koleksiyonlarım', 'book'],
+                ['profile', 'Profil ayarları', 'sliders'],
             ] as [$rota, $etiket, $simge])
                 @if (Route::has($rota))
                     <a href="{{ route($rota) }}" class="hc-user-menu__item" role="menuitem">
-                        <span class="hc-user-menu__icon" aria-hidden="true">{{ $simge }}</span>{{ $etiket }}
+                        <span class="hc-user-menu__icon" aria-hidden="true"><x-ui.icon :name="$simge" size="16" /></span>{{ $etiket }}
                     </a>
                 @endif
             @endforeach
@@ -73,7 +73,7 @@
             @if (! auth()->user()->isPremium() && Route::has('pricing'))
                 <div class="hc-user-menu__rule"></div>
                 <a href="{{ route('pricing') }}" class="hc-user-menu__item hc-user-menu__item--accent" role="menuitem">
-                    <span class="hc-user-menu__icon" aria-hidden="true">★</span>Premium'a geç
+                    <span class="hc-user-menu__icon" aria-hidden="true"><x-ui.icon name="sparkles" size="16" /></span>Premium'a geç
                     <span class="hc-user-menu__badge ml-auto">Reklamsız</span>
                 </a>
             @endif
@@ -86,7 +86,7 @@
             <form method="post" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="hc-user-menu__item w-full text-left" role="menuitem">
-                    <span class="hc-user-menu__icon" aria-hidden="true">⏻</span>Çıkış yap
+                    <span class="hc-user-menu__icon" aria-hidden="true"><x-ui.icon name="log-out" size="16" /></span>Çıkış yap
                 </button>
             </form>
         </div>

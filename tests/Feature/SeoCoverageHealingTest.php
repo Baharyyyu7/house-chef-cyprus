@@ -134,4 +134,69 @@ final class SeoCoverageHealingTest extends TestCase
         $this->artisan('seo:heal-redirects', ['--apply' => true])
             ->assertSuccessful();
     }
+
+    public function test_heal_command_does_not_redirect_drafts_to_an_unrelated_category_post(): void
+    {
+        $author = User::factory()->create();
+        $category = \App\Models\BlogCategory::query()->create(['name' => 'A', 'slug' => 'a-'.uniqid()]);
+
+        BlogPost::query()->create([
+            'author_id' => $author->id,
+            'title' => 'Yayındaki Başlık',
+            'slug' => 'yayin-basligi-ABC12',
+            'excerpt' => 'Özet.',
+            'body' => str_repeat('Metin. ', 10),
+            'status' => 'published',
+            'published_at' => now()->subDay(),
+            'blog_category_id' => $category->id,
+        ]);
+        $draft = BlogPost::query()->create([
+            'author_id' => $author->id,
+            'title' => 'İlişkisiz Taslak',
+            'slug' => 'iliskisiz-taslak',
+            'excerpt' => 'Özet.',
+            'body' => 'Taslak.',
+            'status' => 'draft',
+            'blog_category_id' => $category->id,
+        ]);
+
+        $this->artisan('seo:heal-redirects', ['--apply' => true])->assertSuccessful();
+
+        $this->assertDatabaseMissing('slug_redirects', [
+            'model_type' => BlogPost::class,
+            'old_slug' => $draft->slug,
+        ]);
+    }
+
+    public function test_unmatched_draft_blog_does_not_redirect_to_an_unrelated_post(): void
+    {
+        $author = User::factory()->create();
+
+        BlogPost::query()->create([
+            'author_id' => $author->id,
+            'title' => 'Tamamen Farklı Yayın',
+            'slug' => 'tamamen-farkli-yayin-ABC12',
+            'excerpt' => 'Özet.',
+            'body' => str_repeat('Özgün editoryal metin. ', 40),
+            'status' => 'published',
+            'published_at' => now()->subDay(),
+        ]);
+
+        $draft = BlogPost::query()->create([
+            'author_id' => $author->id,
+            'title' => 'Eşleşmesi Olmayan Taslak',
+            'slug' => 'eslesmesi-olmayan-taslak',
+            'excerpt' => 'Özet.',
+            'body' => 'Gövde.',
+            'status' => 'draft',
+        ]);
+
+        $this->artisan('seo:heal-redirects', ['--apply' => true])
+            ->assertSuccessful();
+
+        $this->assertDatabaseMissing('slug_redirects', [
+            'model_type' => BlogPost::class,
+            'old_slug' => $draft->slug,
+        ]);
+    }
 }

@@ -20,8 +20,8 @@
                     <div class="relative" x-data="{ acik: false }" @keydown.escape.window="acik = false">
                         <button type="button" @click="acik = !acik" :aria-expanded="acik" aria-haspopup="menu"
                                 @class(['nav-link inline-flex items-center gap-1 whitespace-nowrap', 'nav-link-active' => request()->routeIs('private-chef.*', 'catering.*', 'cooking-classes.*', 'meal-plans.*')])>
-                            ✨ Hizmetler
-                            <span class="text-[.6rem] transition-transform duration-300" :class="acik ? 'rotate-180' : ''" aria-hidden="true">▾</span>
+                            <x-ui.icon name="sparkles" size="15" /> Hizmetler
+                            <span class="transition-transform duration-300" :class="acik ? 'rotate-180' : ''" aria-hidden="true"><x-ui.icon name="chevron-down" size="14" /></span>
                         </button>
                         <div x-cloak x-show="acik" @click="acik = false" class="fixed inset-0 z-40" aria-hidden="true"></div>
                         <div x-cloak x-show="acik"
@@ -74,7 +74,7 @@
                             <button type="button" @click="acik = !acik" :aria-expanded="acik" aria-haspopup="menu"
                                     @class(['nav-link inline-flex items-center gap-1 whitespace-nowrap', 'nav-link-active' => request()->routeIs('ingredients.explore', 'ai-kitchen.*', 'pantry.*', 'favorites.*', 'collections.*')])>
                                 {{ __('nav.my_kitchen') }}
-                                <span class="text-[.6rem] transition-transform duration-300" :class="acik ? 'rotate-180' : ''" aria-hidden="true">▾</span>
+                                <span class="transition-transform duration-300" :class="acik ? 'rotate-180' : ''" aria-hidden="true"><x-ui.icon name="chevron-down" size="14" /></span>
                             </button>
 
                             <div x-cloak x-show="acik" @click="acik = false" class="fixed inset-0 z-40" aria-hidden="true"></div>
@@ -127,16 +127,16 @@
                          secici cubuktan cikip cekmeceye giriyor. --}}
                     <div class="hidden sm:block"><x-locale-switcher /></div>
                     <x-theme-switch class="hc-nav-control shrink-0" />
-                    <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl border border-white/20 bg-charcoal-900/80 text-white backdrop-blur-md transition duration-200 active:scale-95 hover:border-white/40 dark:border-stone-700/80 dark:bg-stone-800/80" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="{{ __('ux.open_menu') }}"><x-ui.icon name="menu" size="20" /></button>
+                    <button type="button" @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl border border-white/20 bg-charcoal-900/80 text-white backdrop-blur-md transition duration-200 active:scale-95 hover:border-white/40 dark:border-stone-700/80 dark:bg-stone-800/80" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="{{ __('ux.open_menu') }}"><x-ui.icon name="menu" size="20" /></button>
                 </div>
             </nav>
             {{-- Çekmece kendini modal ilan ediyor; o hâlde arkası gerçekten
                  kararmalı ve sayfa altında kaymamalı. Perdeye dokunmak kapatır. --}}
-            <div x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="menuOpen = false" class="hc-drawer-scrim fixed inset-0 -z-10 xl:hidden" aria-hidden="true"></div>
+            <div x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="menuOpen = false" class="hc-drawer-scrim fixed inset-0 z-30 xl:hidden" aria-hidden="true"></div>
             {{-- Giriş aşağı kayarak olur; çıkış aynı yolu geri izler. --}}
-            <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-y-3 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0 opacity-100" x-transition:leave-end="-translate-y-3 opacity-0" @keydown.escape.window="menuOpen = false" x-init="$watch('menuOpen', open => { if (open) { $nextTick(() => $refs.publicDrawer.querySelector('[data-public-drawer-close]')?.focus()) } })" @keydown.tab.prevent="const items = [...$el.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex=\'-1\'])')].filter(item => !item.hidden); const current = items.indexOf(document.activeElement); const next = $event.shiftKey ? (current <= 0 ? items.length - 1 : current - 1) : (current === items.length - 1 ? 0 : current + 1); items[next]?.focus()" class="hc-mobile-drawer border-t px-5 py-5 shadow-xl xl:hidden" role="dialog" aria-modal="true" aria-label="{{ __('ux.menu') }}">
+            <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-y-3 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0 opacity-100" x-transition:leave-end="-translate-y-3 opacity-0" @keydown.escape.window="menuOpen = false" x-init="$watch('menuOpen', open => { if (open) { $nextTick(() => $refs.publicDrawer.querySelector('[data-public-drawer-close]')?.focus()) } })" @keydown.tab.prevent="const items = [...$el.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex=\'-1\'])')].filter(item => !item.hidden); const current = items.indexOf(document.activeElement); const next = $event.shiftKey ? (current <= 0 ? items.length - 1 : current - 1) : (current === items.length - 1 ? 0 : current + 1); items[next]?.focus()" class="hc-mobile-drawer relative z-40 border-t px-5 py-5 shadow-xl xl:hidden" role="dialog" aria-modal="true" aria-label="{{ __('ux.menu') }}">
                 <div x-ref="publicDrawer" class="mx-auto max-w-7xl">
-                    <div class="mb-3 flex justify-end"><button data-public-drawer-close @click="menuOpen = false" class="hc-icon-button !h-10 !w-10 !rounded-xl" aria-label="{{ __('ux.close_menu') }}"><x-ui.icon name="close" size="18" /></button></div>
+                    <div class="mb-3 flex justify-end"><button type="button" data-public-drawer-close @click="menuOpen = false" class="hc-icon-button !h-10 !w-10 !rounded-xl" aria-label="{{ __('ux.close_menu') }}"><x-ui.icon name="close" size="18" /></button></div>
                 <div class="grid gap-2 text-sm font-semibold">
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('home')]) href="{{ localized_route('home') }}" @click="menuOpen = false" @if(request()->routeIs('home')) aria-current="page" @endif>{{ __('nav.home') }}</a>
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('recipes.*')]) href="{{ localized_route('recipes.index') }}" @click="menuOpen = false" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>{{ __('nav.recipes') }}</a>

@@ -57,4 +57,22 @@ final class MobileHeaderFitsTheScreenTest extends TestCase
             ->assertOk()
             ->assertSee('sm:hidden', false);
     }
+
+    public function test_mobile_menu_controls_are_buttons_and_the_scrim_has_a_visible_stack_level(): void
+    {
+        $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression(
+            '/<button[^>]*type="button"[^>]*aria-controls="mobile-nav"/',
+            $icerik,
+            'Mobil menü tetikleyicisi bir form gönderme düğmesi olmamalı.'
+        );
+        $this->assertMatchesRegularExpression(
+            '/<button[^>]*type="button"[^>]*data-public-drawer-close/',
+            $icerik,
+            'Mobil menü kapatma düğmesi bir form gönderme düğmesi olmamalı.'
+        );
+        $this->assertStringContainsString('class="hc-drawer-scrim fixed inset-0 z-30 xl:hidden"', $icerik);
+        $this->assertStringContainsString('class="hc-mobile-drawer relative z-40 border-t px-5 py-5 shadow-xl xl:hidden"', $icerik);
+    }
 }

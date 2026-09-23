@@ -11,7 +11,9 @@
 // data-alpine-owner ile bildiriyor ve Alpine yalniz sahipsiz sayfalarda
 // buradan baslatiliyor.
 import Alpine from 'alpinejs';
+import collapse from '@alpinejs/collapse';
 window.Alpine = Alpine;
+Alpine.plugin(collapse);
 window.__HC_VERSION__ = '2026.09.11.3';
 import './webmcp.js';
 let chartLibrary;

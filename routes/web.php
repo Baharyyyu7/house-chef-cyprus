@@ -209,12 +209,15 @@ Route::get('/blog/{post}', [BlogController::class, 'show'])
         if (str_starts_with($slug, 'geo-2026-')) {
             $clean = substr($slug, 9);
             $cleanDecoded = rawurldecode($clean);
-            $match = BlogPost::query()->publiclyVisible()
-                ->where('slug', $clean)
-                ->orWhere('slug', $cleanDecoded)
-                ->orWhere('slug', 'like', $clean.'-%')
-                ->orWhere('slug', 'like', $cleanDecoded.'-%')
-                ->first();
+            $matches = BlogPost::query()->publiclyVisible()
+                ->where(fn ($query) => $query
+                    ->where('slug', $clean)
+                    ->orWhere('slug', $cleanDecoded)
+                    ->orWhere('slug', 'like', $clean.'-%')
+                    ->orWhere('slug', 'like', $cleanDecoded.'-%'))
+                ->limit(2)
+                ->get();
+            $match = $matches->count() === 1 ? $matches->first() : null;
 
             if ($match !== null) {
                 return redirect()->route('blog.show', $match, 301);
@@ -223,10 +226,14 @@ Route::get('/blog/{post}', [BlogController::class, 'show'])
             abort(404);
         }
 
-        $match = BlogPost::query()->publiclyVisible()
+        $matches = BlogPost::query()->publiclyVisible()
             ->where('slug', 'like', $slug.'-%')
             ->orderByRaw('LENGTH(slug)')
-            ->first();
+            ->limit(50)
+            ->get();
+        $shortestLength = $matches->min(fn (BlogPost $post): int => strlen((string) $post->slug));
+        $shortest = $matches->filter(fn (BlogPost $post): bool => strlen((string) $post->slug) === $shortestLength);
+        $match = $shortest->count() === 1 ? $shortest->first() : null;
 
         abort_if($match === null, 404);
 

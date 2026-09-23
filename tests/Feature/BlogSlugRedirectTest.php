@@ -36,6 +36,14 @@ final class BlogSlugRedirectTest extends TestCase
             ->assertRedirect(route('blog.show', $dogru));
     }
 
+    public function test_an_ambiguous_prefix_does_not_redirect_to_an_arbitrary_post(): void
+    {
+        $this->publish('ayni-kok-ABC12');
+        $this->publish('ayni-kok-DEF34');
+
+        $this->get('/blog/ayni-kok')->assertNotFound();
+    }
+
     public function test_an_unknown_slug_still_returns_404(): void
     {
         $this->get('/blog/hic-var-olmayan-bir-yazi')->assertNotFound();
@@ -53,6 +61,22 @@ final class BlogSlugRedirectTest extends TestCase
         ]);
 
         $this->get('/blog/gizli-yazi')->assertNotFound();
+    }
+
+    public function test_an_ambiguous_old_slug_stays_404_instead_of_picking_a_post(): void
+    {
+        $this->publish('mercimek-corbasinda-puf-noktalari-A1B2C');
+        $this->publish('mercimek-corbasinda-puf-noktalari-D3E4F');
+
+        $this->get('/blog/mercimek-corbasinda-puf-noktalari')->assertNotFound();
+    }
+
+    public function test_an_ambiguous_geo_slug_stays_404_instead_of_picking_a_post(): void
+    {
+        $this->publish('kibris-zeytinyagli-enginar-A1B2C');
+        $this->publish('kibris-zeytinyagli-enginar-D3E4F');
+
+        $this->get('/blog/geo-2026-kibris-zeytinyagli-enginar')->assertNotFound();
     }
 
     private function publish(string $slug): BlogPost

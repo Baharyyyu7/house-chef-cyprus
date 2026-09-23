@@ -122,7 +122,7 @@ class="relative z-40">
                             x-on:click="open = false" 
                             class="rounded-full p-2 text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:hover:bg-stone-800 dark:hover:text-stone-200"
                             aria-label="Kapat">
-                        <span class="text-xl" aria-hidden="true">✕</span>
+                        <x-ui.icon name="close" size="20" />
                     </button>
                 </div>
 

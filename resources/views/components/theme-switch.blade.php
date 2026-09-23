@@ -4,8 +4,8 @@
     data-theme-switch
     @click="window.hcTemaDegistir(() => dark = !dark)"
     :aria-checked="dark.toString()"
-    :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"
-    :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"
+    :aria-label="dark ? @js(__('theme.switch_to_light')) : @js(__('theme.switch_to_dark'))"
+    :title="dark ? @js(__('theme.switch_to_light')) : @js(__('theme.switch_to_dark'))"
     {{ $attributes->class(['hc-theme-switch']) }}
 >
     <span class="hc-theme-switch__knob" aria-hidden="true">
