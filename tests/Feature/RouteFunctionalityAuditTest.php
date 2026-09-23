@@ -14,7 +14,7 @@ final class RouteFunctionalityAuditTest extends TestCase
         $expected = Route::getRoutes()->count();
 
         $this->artisan('route:functionality-audit', ['--json' => true, '--no-probe' => true])
-            ->expectsOutputToContain('"total":'.$expected)
+            ->expectsOutputToContain('"total": '.$expected)
             ->assertSuccessful();
     }
 
@@ -31,8 +31,10 @@ final class RouteFunctionalityAuditTest extends TestCase
 
     public function test_command_is_inventory_only_unless_probe_is_explicitly_requested(): void
     {
+        $expected = Route::getRoutes()->count();
+
         $this->artisan('route:functionality-audit', ['--json' => true])
-            ->expectsOutputToContain('"inventory_only": 423')
+            ->expectsOutputToContain('"inventory_only": '.$expected)
             ->assertSuccessful();
     }
 }
