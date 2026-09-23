@@ -53,7 +53,9 @@ final class SeoContentAutomationTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
         $post = $this->makePost();
 
-        $this->actingAs($admin)->withSession(['_token' => 'test-csrf'])->post(route('admin.blog.publish', $post), ['_token' => 'test-csrf'])->assertStatus(422);
+        $this->actingAs($admin)->withSession(['_token' => 'test-csrf'])->post(route('admin.blog.publish', $post), ['_token' => 'test-csrf'])
+            ->assertRedirect()
+            ->assertSessionHasErrors('publication');
 
         $recipe = Recipe::query()->create([
             'title' => 'Doğrulanmış tarif', 'slug' => 'dogrulanmis-tarif', 'excerpt' => 'Özgün tarif özeti', 'description' => 'Doğrulanmış tarif açıklaması',
@@ -72,6 +74,56 @@ final class SeoContentAutomationTest extends TestCase
 
         $this->actingAs($admin)->withSession(['_token' => 'test-csrf'])->post(route('admin.blog.publish', $post), ['_token' => 'test-csrf'])->assertRedirect();
         $this->assertSame('published', $post->fresh()->status);
+    }
+
+    public function test_failed_single_publication_returns_to_blog_list_with_reasons(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $post = $this->makePost();
+
+        $this->actingAs($admin)
+            ->from(route('admin.blog.index'))
+            ->post(route('admin.blog.publish', $post))
+            ->assertRedirect(route('admin.blog.index'))
+            ->assertSessionHasErrors('publication');
+
+        $this->assertSame('draft', $post->fresh()->status);
+    }
+
+    public function test_blog_index_has_a_separate_safe_bulk_publication_section(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+
+        $this->actingAs($admin)->get(route('admin.blog.index'))
+            ->assertOk()
+            ->assertSee('Uygun olanların tümünü yayınla')
+            ->assertSee(route('admin.blog.publish-ready'), false);
+    }
+
+    public function test_bulk_publication_publishes_only_ready_posts_and_reports_skipped_count(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $ready = $this->makePost([
+            'slug' => 'toplu-yayina-hazir',
+            'fact_check_status' => 'passed',
+            'originality_status' => 'passed',
+            'editorial_status' => 'approved',
+        ]);
+        $this->completeForPublication($ready);
+        $blocked = $this->makePost([
+            'title' => 'Tamamen farklı ve eksik bir içerik',
+            'slug' => 'toplu-yayina-uygun-degil',
+            'excerpt' => 'Bu kayıt kalite alanları eksik olduğu için atlanmalıdır.',
+        ]);
+        $assessment = app(\App\Services\Seo\BlogPublicationReadinessService::class)->evaluate($ready->fresh());
+        $this->assertTrue($assessment['passed'], json_encode($assessment['issues'], JSON_UNESCAPED_UNICODE));
+
+        $this->actingAs($admin)->post(route('admin.blog.publish-ready'))
+            ->assertRedirect(route('admin.blog.index'))
+            ->assertSessionHas('status', '1 yazı yayınlandı. 1 yazı atlandı.');
+
+        $this->assertSame('published', $ready->fresh()->status);
+        $this->assertSame('draft', $blocked->fresh()->status);
     }
 
     public function test_scheduled_publication_requires_all_approval_states(): void

@@ -11,8 +11,7 @@ use App\Models\BlogTag;
 use App\Models\ContentRevision;
 use App\Models\Recipe;
 use App\Services\Seo\ContentQualityService;
-use App\Services\Seo\ContentSimilarityService;
-use App\Services\Seo\BlogPublicationReadinessService;
+use App\Services\Seo\BlogPublicationService;
 use App\Services\Seo\SeoMetadataService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,8 +29,9 @@ final class BlogPostController extends Controller
             ->when($request->filled('q'), fn ($query) => $query->where('title', 'like', '%'.$request->string('q')->toString().'%'))
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
             ->latest()->paginate(20)->withQueryString();
+        $publicationCandidateCount = BlogPost::query()->whereNotIn('status', ['published', 'archived'])->count();
 
-        return view('admin.blog.index', compact('posts'));
+        return view('admin.blog.index', compact('posts', 'publicationCandidateCount'));
     }
 
     public function create(): View
@@ -77,16 +77,26 @@ final class BlogPostController extends Controller
         return back()->with('status', 'Blog yazısı güncellendi.');
     }
 
-    public function publish(BlogPost $post, BlogPublicationReadinessService $readiness, ContentSimilarityService $similarity): RedirectResponse
+    public function publish(BlogPost $post, BlogPublicationService $publication): RedirectResponse
     {
         $this->admin();
-        $assessment = $readiness->evaluate($post);
-        $similarityResult = $similarity->inspect($post);
-        abort_unless($assessment['passed'], 422, implode(' ', $assessment['issues']));
-        abort_unless($similarityResult['status'] === 'passed', 422, 'İçerik benzerliği editoryal inceleme gerektiriyor.');
-        $post->update(['status' => 'published', 'published_at' => now(), 'scheduled_at' => null]);
+        $result = $publication->publish($post);
+        if (! $result['published']) {
+            return back()->withErrors(['publication' => implode(' ', $result['issues'])]);
+        }
 
         return back()->with('status', 'Yazı yayınlandı.');
+    }
+
+    public function publishReady(BlogPublicationService $publication): RedirectResponse
+    {
+        $this->admin();
+        $result = $publication->publishAllReady();
+
+        return to_route('admin.blog.index')->with([
+            'status' => $result['published'].' yazı yayınlandı. '.$result['skipped'].' yazı atlandı.',
+            'publication_reasons' => $result['reasons'],
+        ]);
     }
 
     public function archive(BlogPost $post): RedirectResponse
