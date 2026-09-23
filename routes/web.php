@@ -143,7 +143,6 @@ Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
         $slug = (string) $request->route('recipe');
 
         $redirect = \App\Models\SlugRedirect::query()
-            ->where('model_type', Recipe::class)
             ->where(function ($q) use ($slug) {
                 $q->where('old_slug', $slug)
                     ->orWhere('old_slug', rawurldecode($slug));
@@ -151,9 +150,16 @@ Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
             ->first();
 
         if ($redirect !== null) {
-            $target = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->find($redirect->model_id);
-            if ($target !== null) {
-                return redirect()->route('recipes.show', $target, 301);
+            if ($redirect->model_type === BlogPost::class) {
+                $blogTarget = BlogPost::query()->publiclyVisible()->find($redirect->model_id);
+                if ($blogTarget !== null) {
+                    return redirect()->route('blog.show', $blogTarget, 301);
+                }
+            } else {
+                $target = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->find($redirect->model_id);
+                if ($target !== null) {
+                    return redirect()->route('recipes.show', $target, 301);
+                }
             }
         }
 
@@ -192,7 +198,6 @@ Route::get('/blog/{post}', [BlogController::class, 'show'])
         $slug = (string) $request->route('post');
 
         $redirect = \App\Models\SlugRedirect::query()
-            ->where('model_type', BlogPost::class)
             ->where(function ($q) use ($slug) {
                 $q->where('old_slug', $slug)
                     ->orWhere('old_slug', rawurldecode($slug));
@@ -200,9 +205,16 @@ Route::get('/blog/{post}', [BlogController::class, 'show'])
             ->first();
 
         if ($redirect !== null) {
-            $target = BlogPost::query()->publiclyVisible()->find($redirect->model_id);
-            if ($target !== null) {
-                return redirect()->route('blog.show', $target, 301);
+            if ($redirect->model_type === Recipe::class) {
+                $recipeTarget = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->find($redirect->model_id);
+                if ($recipeTarget !== null) {
+                    return redirect()->route('recipes.show', $recipeTarget, 301);
+                }
+            } else {
+                $target = BlogPost::query()->publiclyVisible()->find($redirect->model_id);
+                if ($target !== null) {
+                    return redirect()->route('blog.show', $target, 301);
+                }
             }
         }
 

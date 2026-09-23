@@ -77,4 +77,35 @@ final class SlugRedirectTest extends TestCase
     {
         $this->get('/tarifler/hic-olmamis-tarif')->assertNotFound();
     }
+
+    public function test_blogdan_tarife_capraz_yonlendirme_calisir(): void
+    {
+        $tarif = $this->tarif('kibris-usulu-flaouna');
+        \App\Models\SlugRedirect::query()->create([
+            'model_type' => Recipe::class,
+            'model_id' => $tarif->id,
+            'old_slug' => 'kibris-usulu-pilavuna-nasil-yapilir',
+        ]);
+
+        $this->get('/blog/kibris-usulu-pilavuna-nasil-yapilir')
+            ->assertStatus(301)
+            ->assertRedirect(url('/tarifler/kibris-usulu-flaouna'));
+    }
+
+    public function test_tariften_bloga_capraz_yonlendirme_calisir(): void
+    {
+        $yazi = BlogPost::query()->create([
+            'title' => 'Kıbrıs Mezeleri Rehberi', 'slug' => 'kibris-meze-rehberi', 'excerpt' => 'Özet.',
+            'body' => str_repeat('Özgün meze içeriği. ', 50), 'status' => 'published', 'published_at' => now()->subDay(),
+        ]);
+        \App\Models\SlugRedirect::query()->create([
+            'model_type' => BlogPost::class,
+            'model_id' => $yazi->id,
+            'old_slug' => 'kibris-meze-tarifi',
+        ]);
+
+        $this->get('/tarifler/kibris-meze-tarifi')
+            ->assertStatus(301)
+            ->assertRedirect(url('/blog/kibris-meze-rehberi'));
+    }
 }

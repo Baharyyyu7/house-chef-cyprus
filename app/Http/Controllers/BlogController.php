@@ -47,7 +47,6 @@ final class BlogController extends Controller
         if (! BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists() && ! request()->user()?->isAdmin()) {
             $slugStr = (string) $post->slug;
             $redirect = \App\Models\SlugRedirect::query()
-                ->where('model_type', BlogPost::class)
                 ->where(function ($q) use ($slugStr) {
                     $q->where('old_slug', $slugStr)
                         ->orWhere('old_slug', rawurldecode($slugStr));
@@ -55,9 +54,26 @@ final class BlogController extends Controller
                 ->first();
 
             if ($redirect !== null) {
-                $target = BlogPost::query()->publiclyVisible()->find($redirect->model_id);
-                if ($target !== null) {
-                    return redirect()->to(route('blog.show', $target), 301);
+                if ($redirect->model_type === \App\Models\Recipe::class) {
+                    $recipeTarget = \App\Models\Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->find($redirect->model_id);
+                    if ($recipeTarget !== null) {
+                        return redirect()->to(route('recipes.show', $recipeTarget->slug), 301);
+                    }
+                } else {
+                    $target = BlogPost::query()->publiclyVisible()->find($redirect->model_id);
+                    if ($target !== null) {
+                        return redirect()->to(route('blog.show', $target), 301);
+                    }
+                }
+            }
+
+            $rootSlug = (string) preg_replace('/-(?:taslak-inceleme-)?[A-Za-z0-9]{5}$/', '', $slugStr);
+            if ($rootSlug !== '' && $rootSlug !== $slugStr) {
+                $twin = BlogPost::query()->publiclyVisible()
+                    ->where(fn ($q) => $q->where('slug', $rootSlug)->orWhere('slug', 'like', $rootSlug . '-%'))
+                    ->first();
+                if ($twin !== null) {
+                    return redirect()->to(route('blog.show', $twin), 301);
                 }
             }
 
@@ -89,7 +105,6 @@ final class BlogController extends Controller
         if (! $post->hasTranslation() && ! request()->user()?->isAdmin()) {
             $slugStr = (string) $post->slug;
             $redirect = \App\Models\SlugRedirect::query()
-                ->where('model_type', BlogPost::class)
                 ->where(function ($q) use ($slugStr) {
                     $q->where('old_slug', $slugStr)
                         ->orWhere('old_slug', rawurldecode($slugStr));
@@ -97,9 +112,16 @@ final class BlogController extends Controller
                 ->first();
 
             if ($redirect !== null) {
-                $target = BlogPost::query()->publiclyVisible()->find($redirect->model_id);
-                if ($target !== null) {
-                    return redirect()->to(route('blog.show', $target), 301);
+                if ($redirect->model_type === \App\Models\Recipe::class) {
+                    $recipeTarget = \App\Models\Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->find($redirect->model_id);
+                    if ($recipeTarget !== null) {
+                        return redirect()->to(route('recipes.show', $recipeTarget->slug), 301);
+                    }
+                } else {
+                    $target = BlogPost::query()->publiclyVisible()->find($redirect->model_id);
+                    if ($target !== null) {
+                        return redirect()->to(route('blog.show', $target), 301);
+                    }
                 }
             }
 

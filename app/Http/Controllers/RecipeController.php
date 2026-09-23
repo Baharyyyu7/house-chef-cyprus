@@ -95,7 +95,6 @@ final class RecipeController extends Controller
         if (! $isPublic) {
             $slugStr = (string) $recipe->slug;
             $redirect = \App\Models\SlugRedirect::query()
-                ->where('model_type', Recipe::class)
                 ->where(function ($q) use ($slugStr) {
                     $q->where('old_slug', $slugStr)
                         ->orWhere('old_slug', rawurldecode($slugStr));
@@ -103,9 +102,16 @@ final class RecipeController extends Controller
                 ->first();
 
             if ($redirect !== null) {
-                $target = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->find($redirect->model_id);
-                if ($target !== null) {
-                    return redirect()->to(route('recipes.show', $target->slug), 301);
+                if ($redirect->model_type === BlogPost::class) {
+                    $blogTarget = BlogPost::query()->publiclyVisible()->find($redirect->model_id);
+                    if ($blogTarget !== null) {
+                        return redirect()->to(route('blog.show', $blogTarget), 301);
+                    }
+                } else {
+                    $target = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->find($redirect->model_id);
+                    if ($target !== null) {
+                        return redirect()->to(route('recipes.show', $target->slug), 301);
+                    }
                 }
             }
 
@@ -137,7 +143,6 @@ final class RecipeController extends Controller
         if (! ($recipe->hasTranslation() || $request->user()?->isAdmin())) {
             $slugStr = (string) $recipe->slug;
             $redirect = \App\Models\SlugRedirect::query()
-                ->where('model_type', Recipe::class)
                 ->where(function ($q) use ($slugStr) {
                     $q->where('old_slug', $slugStr)
                         ->orWhere('old_slug', rawurldecode($slugStr));
@@ -145,9 +150,16 @@ final class RecipeController extends Controller
                 ->first();
 
             if ($redirect !== null) {
-                $target = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->find($redirect->model_id);
-                if ($target !== null) {
-                    return redirect()->to(route('recipes.show', $target->slug), 301);
+                if ($redirect->model_type === BlogPost::class) {
+                    $blogTarget = BlogPost::query()->publiclyVisible()->find($redirect->model_id);
+                    if ($blogTarget !== null) {
+                        return redirect()->to(route('blog.show', $blogTarget), 301);
+                    }
+                } else {
+                    $target = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->find($redirect->model_id);
+                    if ($target !== null) {
+                        return redirect()->to(route('recipes.show', $target->slug), 301);
+                    }
                 }
             }
 
