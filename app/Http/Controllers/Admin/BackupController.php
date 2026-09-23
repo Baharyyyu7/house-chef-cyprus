@@ -7,16 +7,36 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\BackupService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 final class BackupController extends Controller
 {
-    public function index(BackupService $service): View
+    public function index(Request $request, BackupService $service): View
     {
         $this->admin();
 
-        return view('admin.backups.index', ['backups' => $service->list()]);
+        $allBackups = collect($service->list());
+        $perPage = 25;
+        $page = max(1, $request->integer('page', 1));
+        $backups = new LengthAwarePaginator(
+            $allBackups->forPage($page, $perPage)->values(),
+            $allBackups->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()],
+        );
+
+        return view('admin.backups.index', [
+            'backups' => $backups,
+            'backupSummary' => [
+                'latest' => $allBackups->first(),
+                'total' => $allBackups->count(),
+                'verified' => $allBackups->where('status', 'verified')->count(),
+            ],
+        ]);
     }
 
     public function create(BackupService $service): RedirectResponse

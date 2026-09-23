@@ -9,8 +9,8 @@
          * O cevap artık en üstte duruyor. Liste altında kalıyor ve karar için
          * gerekmeyen alanlar (ULID, sürüm hash'i) ikincil satıra iniyor.
          */
-        $sonYedek = collect($backups)->first();
-        $dogrulanmis = collect($backups)->where('status', 'verified')->count();
+        $sonYedek = $backupSummary['latest'];
+        $dogrulanmis = $backupSummary['verified'];
         $sonZaman = $sonYedek ? \Illuminate\Support\Carbon::parse($sonYedek['created_at']) : null;
         $sonSaglam = ($sonYedek['status'] ?? null) === 'verified';
         $bayat = $sonZaman?->lt(now()->subDay()) ?? true;
@@ -55,7 +55,7 @@
                 </div>
                 <p class="hc-body-sm mt-3" style="color: var(--hc-text-secondary)">
                     {{ $sonZaman->translatedFormat('d F Y, H:i') }} · {{ $boyut($sonYedek['database_size'] ?? 0) }} ·
-                    toplam {{ count($backups) }} yedek, {{ $dogrulanmis }} tanesi doğrulanmış
+                    toplam {{ $backupSummary['total'] }} yedek, {{ $dogrulanmis }} tanesi doğrulanmış
                 </p>
             @else
                 <p class="hc-heading-3">Henüz yedek yok.</p>
@@ -63,7 +63,7 @@
             @endif
         </div>
 
-        @if(!empty($backups))
+        @if($backups->isNotEmpty())
             <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
                 <h2 class="hc-heading-3">Geçmiş</h2>
                 <form method="post" action="{{ route('admin.backups.cleanup') }}">
@@ -76,7 +76,7 @@
                 @foreach($backups as $backup)
                     @php($zaman = \Illuminate\Support\Carbon::parse($backup['created_at']))
                     @php($saglam = ($backup['status'] ?? null) === 'verified')
-                    <article class="hc-v3-card flex flex-wrap items-center gap-x-5 gap-y-3 p-4">
+                    <article data-backup-row class="hc-v3-card flex flex-wrap items-center gap-x-5 gap-y-3 p-4">
                         <span class="min-w-[9rem] flex-1">
                             <span class="block font-bold">{{ $zaman->translatedFormat('j M Y, H:i') }}</span>
                             <span class="hc-caption block" style="color: var(--hc-text-muted)">{{ $zaman->diffForHumans() }}</span>
@@ -106,6 +106,10 @@
                     </article>
                 @endforeach
             </div>
+
+            @if($backups->hasPages())
+                <div class="mt-6">{{ $backups->links() }}</div>
+            @endif
         @endif
     </section>
 </x-layouts.site>
