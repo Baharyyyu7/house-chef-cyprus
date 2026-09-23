@@ -26,7 +26,8 @@ use Illuminate\Support\Facades\DB;
 final class LocaleGrowthService
 {
     public function __construct(
-        private readonly LocaleUrlService $diller
+        private readonly LocaleUrlService $diller,
+        private readonly SearchConsoleMeasurementService $arama
     ) {
     }
 
@@ -56,28 +57,23 @@ final class LocaleGrowthService
      */
     public function aramaPerformansi(int $gun = 28): array
     {
-        $satirlar = DB::table('search_performance_daily')
-            ->whereBetween('performance_date', [Carbon::now()->subDays(max(1, min(90, $gun)))->toDateString(), Carbon::yesterday()->toDateString()])
-            ->select('page', 'clicks', 'impressions', 'average_position')
-            ->get();
-
         $toplam = [];
 
-        foreach ($satirlar as $satir) {
-            $dil = $this->adresinDili((string) $satir->page);
+        foreach ($this->olcumSatirlari($gun) as $satir) {
+            $dil = $this->adresinDili((string) $satir['page']);
 
             $toplam[$dil] ??= ['clicks' => 0, 'impressions' => 0, 'pages' => [], 'siraToplami' => 0.0, 'siraAdedi' => 0];
-            $toplam[$dil]['clicks'] += (int) $satir->clicks;
-            $toplam[$dil]['impressions'] += (int) $satir->impressions;
-            $toplam[$dil]['pages'][(string) $satir->page] = true;
+            $toplam[$dil]['clicks'] += (int) $satir['clicks'];
+            $toplam[$dil]['impressions'] += (int) $satir['impressions'];
+            $toplam[$dil]['pages'][(string) $satir['page']] = true;
 
             // Sıra ortalaması gösterimle ağırlıklandırılır. Düz ortalama,
             // bir kez gösterilen bir sayfayı binlerce kez gösterilen bir
             // sayfayla eşit sayar ve tabloyu gerçekten okunmayan sayfalar
             // belirler.
-            if ($satir->average_position !== null && (int) $satir->impressions > 0) {
-                $toplam[$dil]['siraToplami'] += (float) $satir->average_position * (int) $satir->impressions;
-                $toplam[$dil]['siraAdedi'] += (int) $satir->impressions;
+            if ((float) $satir['position'] > 0.0 && (int) $satir['impressions'] > 0) {
+                $toplam[$dil]['siraToplami'] += (float) $satir['position'] * (int) $satir['impressions'];
+                $toplam[$dil]['siraAdedi'] += (int) $satir['impressions'];
             }
         }
 
@@ -94,6 +90,46 @@ final class LocaleGrowthService
         }
 
         return $sonuc;
+    }
+
+    /**
+     * Ölçüm satırları: önce canlı Search Console, sonra yerel tablo.
+     *
+     * Bu servis kurulduğunda yalnız search_performance_daily okunuyordu ve o
+     * tabloya yazan tek bir kod yolu yok; üretimde sıfır satırla çalışıyordu.
+     * Sonuç, yedi dilin yedisinde de "ölçüm yok" yazan ve hiçbir zaman
+     * değişmeyecek bir tabloydu. Günlük büyüme raporu aynı veriyi API'den
+     * çoktan alıyor; dil kırılımının ayrı ve ölü bir kaynağa bağlı kalması
+     * için bir sebep yok. Tablo yine de okunuyor: API kapalıyken ya da
+     * kotaya takıldığında ileride doldurulursa ölçüm kendiliğinden döner.
+     *
+     * @return list<array{page: string, impressions: int, clicks: int, position: float}>
+     */
+    private function olcumSatirlari(int $gun): array
+    {
+        $gun = max(1, min(90, $gun));
+
+        try {
+            $satirlar = $this->arama->pageRows($gun);
+        } catch (\Throwable) {
+            $satirlar = [];
+        }
+
+        if ($satirlar !== []) {
+            return $satirlar;
+        }
+
+        return DB::table('search_performance_daily')
+            ->whereBetween('performance_date', [Carbon::now()->subDays($gun)->toDateString(), Carbon::yesterday()->toDateString()])
+            ->select('page', 'clicks', 'impressions', 'average_position')
+            ->get()
+            ->map(static fn ($s): array => [
+                'page' => (string) $s->page,
+                'impressions' => (int) $s->impressions,
+                'clicks' => (int) $s->clicks,
+                'position' => (float) ($s->average_position ?? 0),
+            ])
+            ->all();
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Models\Recipe;
 use App\Services\Seo\LocaleGrowthService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /**
@@ -175,6 +176,52 @@ final class GrowthIsMeasuredPerLocaleTest extends TestCase
         $tablo = app(LocaleGrowthService::class)->tablo();
 
         $this->assertStringContainsString('tıklanmıyor', $tablo['en']['darbogaz']);
+    }
+
+    /**
+     * Dil kırılımı canlı ölçümü okur.
+     *
+     * Bu servis kurulduğunda tek kaynağı search_performance_daily tablosuydu
+     * ve o tabloya yazan hiçbir kod yolu yok: üretimde sıfır satırla
+     * çalışıyor, yedi dilin yedisinde de "ölçüm yok" yazıyordu. Tablo boş
+     * kaldığı sürece bu satırlar hiçbir zaman değişmeyeceği için dil dil
+     * büyüme ölçümü diye bir şey fiilen yoktu. Günlük rapor aynı veriyi
+     * Search Console'dan zaten alıyor; kırılımın da oradan okuması gerekir.
+     */
+    public function test_tablo_bos_olsa_da_canli_olcum_dile_bolunur(): void
+    {
+        config()->set('seo.search_console.enabled', true);
+        config()->set('seo.search_console.client_id', 'x');
+        config()->set('seo.search_console.client_secret', 'y');
+        config()->set('seo.search_console.refresh_token', 'z');
+
+        Http::fake([
+            'oauth2.googleapis.com/*' => Http::response(['access_token' => 'jeton']),
+            'www.googleapis.com/webmasters/*' => Http::response(['rows' => [
+                ['keys' => ['https://x.test/tarifler/a'], 'clicks' => 9, 'impressions' => 300, 'position' => 7.0],
+                ['keys' => ['https://x.test/en/recipes/a'], 'clicks' => 0, 'impressions' => 120, 'position' => 9.0],
+            ]]),
+        ]);
+
+        // Yerel tabloda tek satır yok; üretimdeki durum bu.
+        $this->assertSame(0, DB::table('search_performance_daily')->count());
+
+        $p = app(LocaleGrowthService::class)->aramaPerformansi();
+
+        $this->assertSame(9, $p['tr']['clicks']);
+        $this->assertSame(120, $p['en']['impressions']);
+        $this->assertSame(0, $p['en']['clicks']);
+    }
+
+    public function test_canli_olcum_yoksa_yerel_tabloya_dusulur(): void
+    {
+        // API kapalıyken ölçüm kaybolmaz: tablo ileride doldurulursa dil
+        // kırılımı kendiliğinden geri döner.
+        $this->olcum('https://x.test/de/rezepte/a', 4, 80, 6.0);
+
+        $p = app(LocaleGrowthService::class)->aramaPerformansi();
+
+        $this->assertSame(4, $p['de']['clicks']);
     }
 
     public function test_kapali_dil_tabloda_yer_almaz(): void
