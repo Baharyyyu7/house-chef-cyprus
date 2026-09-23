@@ -35,9 +35,13 @@ final class MediaGenerationQueueCommand extends Command
             $args[] = '--reason=' . escapeshellarg((string) $this->option('reason'));
         }
 
-        $script = escapeshellarg(base_path('scripts/image-queue.php'));
-        $cmd = 'php ' . $script . ' ' . implode(' ', $args);
-        passthru($cmd, $exitCode);
+        if (! function_exists('passthru')) {
+            $this->error('passthru() fonksiyonu bu ortamda (disable_functions) devre dışı. Lütfen scripts/image-queue.php betiğini doğrudan CLI üzerinden çalıştırın.');
+
+            return 1;
+        }
+
+        \passthru($cmd, $exitCode);
 
         return $exitCode;
     }
