@@ -12,6 +12,7 @@ use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoSchemaService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -155,6 +156,31 @@ final class IngredientHubController extends Controller
     }
 
     /** @return Collection<int, Recipe> */
+    /**
+     * Bu malzemenin bu dilde sayfası var mı?
+     *
+     * 23 Eylül 2026'da ölçüldü: alt bilgideki "Hellim" bağlantısı sitenin
+     * her sayfasında duruyordu ve İngilizcede 404 veriyordu. Eşik dile göre
+     * değişiyor, çünkü tarif sayımı o dile çevrilmiş tarifler üzerinden
+     * yapılıyor; bağlantıyı basan yer de aynı ölçüte bakmak zorunda.
+     */
+    public static function sayfasiVarMi(string $slug): bool
+    {
+        if (in_array($slug, self::KONU_OLMAYANLAR, true)) {
+            return false;
+        }
+
+        return Cache::remember(
+            'ingredient-hub-var:'.app()->getLocale().':'.$slug,
+            now()->addMinutes(10),
+            static function () use ($slug): bool {
+                $malzeme = Ingredient::query()->where('slug', $slug)->first();
+
+                return $malzeme !== null && (new self)->tarifleriIcin($malzeme)->count() >= self::ASGARI_TARIF;
+            }
+        );
+    }
+
     private function tarifleriIcin(Ingredient $malzeme): Collection
     {
         return Recipe::query()

@@ -56,7 +56,13 @@
                         @else
                             <span class="font-semibold text-gold-300">Kıbrıs Yemekleri</span>
                         @endif
-                        <a class="hover:text-orange-300" href="{{ route('ingredients.hub.show', 'hellim') }}">Hellim</a>
+                        {{-- Bağlantı yalnız sayfa o dilde gerçekten varken basılır:
+                             eşik çevrilmiş tarif sayısına bakıyor ve İngilizcede
+                             hellim sayfası açılmıyordu. Alt bilgi her sayfada
+                             olduğu için bu, site genelinde kırık bir bağlantıydı. --}}
+                        @if(\App\Http\Controllers\IngredientHubController::sayfasiVarMi('hellim'))
+                            <a class="hover:text-orange-300" href="{{ route('ingredients.hub.show', 'hellim') }}">Hellim</a>
+                        @endif
                         <a class="hover:text-orange-300" href="{{ route('blog.index', ['q' => 'Kıbrıs']) }}">Kıbrıs Rehberleri</a>
                     </div>
                 </div>
