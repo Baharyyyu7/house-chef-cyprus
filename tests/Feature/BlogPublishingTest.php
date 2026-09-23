@@ -91,18 +91,85 @@ final class BlogPublishingTest extends TestCase
         $this->assertDatabaseHas('seo_metadata', ['seoable_type' => BlogPost::class, 'seoable_id' => $post->id]);
         $recipe = Recipe::query()->create(['title' => 'İlgili doğrulanmış tarif', 'slug' => 'ilgili-dogrulanmis-tarif', 'status' => 'published', 'verification_status' => 'verified', 'published_at' => now()]);
         $post->recipes()->sync([$recipe->id]);
-        $post->update(['content_purpose' => 'Özgün rehber', 'search_intent' => 'informational', 'primary_keyword' => 'kıbrıs mutfağı', 'source_notes' => ['editorial_note' => 'Kontrol edildi'], 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved', 'meta_title' => 'Kıbrıs mutfağına giriş', 'meta_description' => 'Kıbrıs mutfağına özgün ve güvenli giriş rehberi.']);
+        // Yayın kapısı 23 Eylül 2026'da sıkılaştırıldı: en az 900 kelime,
+        // 3-6 ikincil anahtar, 3-6 SSS, en az iki H2, 140-158 karakter SEO
+        // açıklaması ve insan onayı kaydı isteniyor. Test bu sözleşmeyi
+        // karşılayan bir yazıyla akışın hâlâ çalıştığını sabitler.
+        $post->update([
+            'content_purpose' => 'Özgün rehber', 'search_intent' => 'informational',
+            'primary_keyword' => 'kıbrıs mutfağı',
+            'secondary_keywords' => ['hellim', 'molohiya', 'kolokas', 'şeftali kebabı'],
+            'source_notes' => ['editorial_note' => 'Kontrol edildi'],
+            'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved',
+            'meta_title' => 'Kıbrıs mutfağına giriş',
+            'meta_description' => 'Kıbrıs mutfağına giriş rehberi: hellim, molohiya, kolokas ve şeftali kebabı gibi ada klasiklerinin evde nasıl pişirildiğini adım adım anlatıyor.',
+            'faq_blocks' => [
+                ['question' => 'Kıbrıs mutfağı nedir?', 'answer' => 'Akdeniz mutfağının ada koşullarında biçimlenmiş hali.'],
+                ['question' => 'Hellim nasıl pişirilir?', 'answer' => 'Kurulanmış dilimler kızgın tavada her yüzü iki üç dakika.'],
+                ['question' => 'Molohiya ne zaman yenir?', 'answer' => 'Kışın, tavuk ya da kuzu etiyle.'],
+            ],
+            'body' => "## Ada mutfağının temeli\n\n".str_repeat('Kıbrıs mutfağı ada koşullarında biçimlenmiş bir Akdeniz mutfağıdır ve malzemesini mevsiminde kullanır. ', 60)."\n\n## Nereden başlamalı\n\n".str_repeat('Hellim, molohiya ve kolokas bu mutfağın ilk öğrenilen üç yemeğidir ve üçü de sabır ister. ', 60),
+            'human_approved_at' => now(),
+            'human_approved_by_user_id' => $admin->id,
+        ]);
         $this->actingAs($admin)->withSession(['_token' => 'test-csrf'])->post(route('admin.blog.publish', $post), ['_token' => 'test-csrf'])->assertRedirect();
         $this->get(route('blog.show', $post->fresh()))->assertOk();
     }
 
     public function test_scheduled_posts_only_publish_when_their_time_has_arrived(): void
     {
-        $due = BlogPost::create(['title' => 'Zamanı gelen yazı', 'slug' => 'zamani-gelen-yazi', 'excerpt' => 'Özet', 'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'scheduled', 'scheduled_at' => now()->subMinute(), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved']);
-        $future = BlogPost::create(['title' => 'Gelecek yazı', 'slug' => 'gelecek-yazi', 'excerpt' => 'Özet', 'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'scheduled', 'scheduled_at' => now()->addHour(), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved']);
+        $due = $this->yayinaHazirYazi('zamani-gelen-yazi', now()->subMinute());
+        $future = $this->yayinaHazirYazi('gelecek-yazi', now()->addHour());
 
         $this->artisan('blog:publish-scheduled --json')->expectsOutputToContain('"published":1')->assertSuccessful();
         $this->assertSame('published', $due->fresh()->status);
         $this->assertSame('scheduled', $future->fresh()->status);
+    }
+
+    /**
+     * Sıkılaştırılmış yayın kapısını geçen bir zamanlanmış yazı.
+     *
+     * Kapı 23 Eylül 2026'da en az 900 kelime, 3-6 ikincil anahtar, 3-6 SSS,
+     * iki H2, 140-158 karakterlik SEO açıklaması ve insan onayı istemeye
+     * başladı. Zamanlayıcı da aynı kapıya bakıyor.
+     */
+    private function yayinaHazirYazi(string $slug, \DateTimeInterface $zaman): BlogPost
+    {
+        $onaylayan = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+
+        $yazi = BlogPost::create([
+            'title' => 'Yazı '.$slug,
+            'slug' => $slug,
+            'excerpt' => 'Özgün kısa özet.',
+            'body' => "## Birinci bölüm\n\n".str_repeat('Bu yazının gövdesi kapının istediği uzunluğa ulaşacak kadar ayrıntı taşıyor ve konusunu anlatıyor. ', 60)."\n\n## İkinci bölüm\n\n".str_repeat('İkinci bölüm konunun uygulama tarafını ölçülerle ve sürelerle anlatmayı sürdürüyor. ', 60),
+            'status' => 'scheduled',
+            'scheduled_at' => $zaman,
+            'fact_check_status' => 'passed',
+            'originality_status' => 'passed',
+            'editorial_status' => 'approved',
+            'primary_keyword' => 'kıbrıs mutfağı',
+            'secondary_keywords' => ['hellim', 'molohiya', 'kolokas', 'fava'],
+            'meta_title' => 'Yazı '.$slug,
+            'meta_description' => 'Bu yazı yayın kapısının istediği bütün ölçütleri karşılayan bir örnek olarak yazıldı; arama sonucunda görünecek açıklaması da doğru uzunlukta tutuldu.',
+            'faq_blocks' => [
+                ['question' => 'Birinci soru?', 'answer' => 'Birinci cevap.'],
+                ['question' => 'İkinci soru?', 'answer' => 'İkinci cevap.'],
+                ['question' => 'Üçüncü soru?', 'answer' => 'Üçüncü cevap.'],
+            ],
+            'content_purpose' => 'Özgün rehber',
+            'search_intent' => 'informational',
+            'source_notes' => ['editorial_note' => 'Kontrol edildi'],
+            'human_approved_at' => now(),
+            'human_approved_by_user_id' => $onaylayan->id,
+        ]);
+
+        // Kapı, yazının doğrulanmış bir tarife bağlanmasını da istiyor.
+        $tarif = Recipe::query()->create([
+            'title' => 'İlgili tarif '.$slug, 'slug' => 'ilgili-tarif-'.$slug,
+            'status' => 'published', 'verification_status' => 'verified', 'published_at' => now(),
+        ]);
+        $yazi->recipes()->sync([$tarif->id]);
+
+        return $yazi->fresh();
     }
 }
