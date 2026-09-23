@@ -115,7 +115,14 @@ elif "$DRY_RUN"; then
     adim '[dry-run] testler atlandi.'
 else
     adim 'Tam test paketi kosuluyor (temiz kopyada).'
-    ( cd "$WORKTREE" && php artisan test ) || hata 'Testler gecmedi; yayin durduruldu.'
+    # Dogrudan phpunit cagriliyor, "php artisan test" degil. Ikisi ayni
+    # paketi ayni yapilandirmayla kosar; fark sarmalayicida. Collision'in
+    # sarmalayicisi testleri ayri bir surecte calistiriyor ve bazi
+    # ortamlarda o surec kosu ortasinda SIGTERM aliyor: yayin "testler
+    # gecmedi" diyerek duruyor ama aslinda tek bir test bile basarisiz
+    # olmus degil. Kapinin yanlis sebeple kapanmasi, kapinin acik
+    # kalmasindan daha az zararli degil - ikisi de gercek sonucu gizliyor.
+    ( cd "$WORKTREE" && php vendor/bin/phpunit ) || hata 'Testler gecmedi; yayin durduruldu.'
 fi
 
 # --- 5. Artefakt -----------------------------------------------------------
