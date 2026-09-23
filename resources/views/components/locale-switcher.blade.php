@@ -17,6 +17,18 @@
     // kullanıcıya bir şey sunmaz; bağlantısındaki hreflang niteliği ise tek dil
     // açıkken sayfada hreflang varmış görüntüsü verir.
     $enabledLanguages = array_filter($languages, fn (array $dil): bool => ($dil['enabled'] ?? false) === true);
+
+    // Sayfa belirli bir içeriğe aitse, o içeriğin çevirisi olmayan dile
+    // bağlantı verilmez: hedef 404 verir. Ölçüt hreflang ve sitemap ile
+    // aynı olmak zorunda, yoksa üç yer üç farklı şey söyler.
+    $icerik = request()->attributes->get('hc_seo_content');
+    $dildeVar = function (string $kod) use ($icerik, $currentLocale): bool {
+        if ($kod === $currentLocale || $icerik === null || ! method_exists($icerik, 'hasTranslation')) {
+            return true;
+        }
+
+        return (bool) $icerik->hasTranslation($kod);
+    };
 @endphp
 
 @if (count($enabledLanguages) > 1)
@@ -54,7 +66,7 @@
             aria-label="{{ __('language.switcher_label') }}"
         >
             @foreach ($languages as $locale => $language)
-                @if (($language['enabled'] ?? false) === true)
+                @if (($language['enabled'] ?? false) === true && $dildeVar((string) $locale))
                     @php($hedefUrl = app(\App\Services\Seo\LocaleUrlService::class)->urlFor($locale, request()->getRequestUri()))
                     <a href="{{ $hedefUrl }}"
                        role="menuitem"
@@ -69,6 +81,12 @@
                             <span class="hc-locale__check" aria-hidden="true"><x-ui.icon name="check" size="16" /></span>
                         @endif
                     </a>
+                @elseif (($language['enabled'] ?? false) === true)
+                    <span class="hc-locale__option is-pending" aria-disabled="true" title="{{ __('language.not_translated_yet') }}">
+                        <span class="hc-locale__flag" aria-hidden="true">{{ $language['flag'] ?? '🏳️' }}</span>
+                        <span class="hc-locale__name">{{ $language['native_label'] }}</span>
+                        <span class="hc-locale__status">{{ __('language.not_translated_yet') }}</span>
+                    </span>
                 @else
                     <span class="hc-locale__option is-pending" aria-disabled="true" title="{{ __('language.coming_soon') }}">
                         <span class="hc-locale__flag" aria-hidden="true">{{ $language['flag'] ?? '🏳️' }}</span>

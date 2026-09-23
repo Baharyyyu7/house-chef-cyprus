@@ -276,6 +276,8 @@
     "nav.dashboard": "حساب کاربری",
     "nav.admin": "مدیریت",
     "nav.logout": "خروج",
+    "theme.switch_to_dark": "فعال کردن حالت تاریک",
+    "theme.switch_to_light": "فعال کردن حالت روشن",
     "footer.about_short": "گرمی و طعم‌های اصیل قبرس را به آشپزخانه‌های مدرن می‌آوریم. هر دستور پخت برای لذت دور هم بودن.",
     "footer.social_notice": "شبکه‌های اجتماعی پس از تأیید حساب‌های رسمی در اینجا درج خواهند شد.",
     "footer.explore": "کاوش",
@@ -689,5 +691,6 @@
     "recipe.show.guides_title": "مقالات مرتبط و نکات آشپزی",
     "recipe.show.guides_view_all": "مشاهده همه راهنماها",
     "recipe.decrease_servings": "کاهش تعداد پرس",
-    "recipe.increase_servings": "افزایش تعداد پرس"
+    "recipe.increase_servings": "افزایش تعداد پرس",
+    "language.not_translated_yet": "در این زبان موجود نیست"
 }

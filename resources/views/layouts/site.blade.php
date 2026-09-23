@@ -1,4 +1,9 @@
 @props(['title' => 'House Chef Cyprus', 'metaDescription' => "Kıbrıs'tan ilham alan tarifler, malzeme dolabı ve dengeli beslenme rehberi.", 'structuredData' => null, 'canonicalUrl' => null, 'socialImage' => null, 'socialImageWidth' => null, 'socialImageHeight' => null, 'socialImageAlt' => null, 'robots' => null, 'livewire' => false, 'seoContent' => null])
+{{-- Dil seçici, sayfanın hangi dillerde gerçekten var olduğunu bilmeli.
+     23 Eylül 2026'da ölçüldü: yalnız Türkçe ve İngilizcesi olan bir yazının
+     seçicisinde beş dil daha görünüyor ve hepsi 404 veriyordu. hreflang
+     kümesi bu ölçütü zaten uyguluyordu; seçici uygulamıyordu. --}}
+@php(request()->attributes->set('hc_seo_content', $seoContent))
 @php($activeLanguage = config('locales.supported.'.app()->getLocale(), config('locales.supported.'.config('locales.default', 'tr'), [])))
 <!DOCTYPE html>
 <html lang="{{ $activeLanguage['html_locale'] ?? 'tr' }}" dir="{{ $activeLanguage['direction'] ?? 'ltr' }}" class="scroll-smooth">

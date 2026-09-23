@@ -276,6 +276,8 @@
     "nav.dashboard": "Hesabım",
     "nav.admin": "Yönetim",
     "nav.logout": "Çıkış Yap",
+    "theme.switch_to_dark": "Koyu temaya geç",
+    "theme.switch_to_light": "Açık temaya geç",
     "footer.about_short": "Kıbrıs sıcaklığını modern mutfak deneyimiyle bir araya getiriyoruz. Her tarif, daha keyifli bir ev sofrası için.",
     "footer.social_notice": "Sosyal kanallar yalnız doğrulanmış kurumsal hesaplar yayına alındığında burada yer alır.",
     "footer.explore": "Keşfet",
@@ -689,5 +691,6 @@
     "recipe.show.guides_kicker": "Mutfak ve Kültür Rehberleri",
     "recipe.show.guides_title": "Bu Tarif Hakkında İlgili Yazılar ve İpuçları",
     "recipe.show.guides_view_all": "Tüm Rehberleri Keşfet",
-    "recipe.show.representative_image": "Temsilî görsel — bu yemeğe örnek fotoğraf"
+    "recipe.show.representative_image": "Temsilî görsel — bu yemeğe örnek fotoğraf",
+    "language.not_translated_yet": "Bu sayfa bu dilde yok"
 }

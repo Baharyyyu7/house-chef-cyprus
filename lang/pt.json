@@ -276,6 +276,8 @@
     "nav.dashboard": "Minha Conta",
     "nav.admin": "Administração",
     "nav.logout": "Terminar sessão",
+    "theme.switch_to_dark": "Ativar modo escuro",
+    "theme.switch_to_light": "Ativar modo claro",
     "footer.about_short": "Trazemos o calor de Chipre para a cozinha moderna. Cada receita criada para a alegria da mesa em família.",
     "footer.social_notice": "Os canais sociais serão listados aqui apenas quando as contas corporativas verificadas forem publicadas.",
     "footer.explore": "Explorar",
@@ -689,5 +691,6 @@
     "recipe.show.guides_title": "Artigos relacionados e dicas gastronômicas",
     "recipe.show.guides_view_all": "Ver todos os guias",
     "recipe.decrease_servings": "Diminuir porções",
-    "recipe.increase_servings": "Aumentar porções"
+    "recipe.increase_servings": "Aumentar porções",
+    "language.not_translated_yet": "Indisponível neste idioma"
 }

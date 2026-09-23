@@ -560,6 +560,8 @@
     "nav.home": "Home",
     "nav.login": "Log In",
     "nav.logout": "Log Out",
+    "theme.switch_to_dark": "Switch to dark mode",
+    "theme.switch_to_light": "Switch to light mode",
     "nav.my_kitchen": "My Kitchen",
     "nav.pantry": "Pantry",
     "nav.premium": "Premium",
@@ -791,5 +793,6 @@
     "recipe.show.guides_kicker": "Culinary & Culture Guides",
     "recipe.show.guides_title": "Related Culinary Guides & Expert Notes",
     "recipe.show.guides_view_all": "Explore All Guides",
-    "recipe.show.representative_image": "Representative photo — illustrative example"
+    "recipe.show.representative_image": "Representative photo — illustrative example",
+    "language.not_translated_yet": "Not available in this language"
 }
