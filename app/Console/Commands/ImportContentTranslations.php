@@ -132,6 +132,29 @@ final class ImportContentTranslations extends Command
                     continue;
                 }
 
+                // Birebir kopya yakalanıyordu ama asıl kaçak bu değildi:
+                // "Türkçe Başlık – Kompletny przewodnik" gibi, kaynağın
+                // tamamını içinde taşıyıp sonuna çevrilmiş bir kuyruk ekleyen
+                // başlıklar eşitlik testini geçiyordu. Ölçüldüğünde
+                // indekslenebilir sayfaların 590 başlığı bu durumdaydı:
+                // Rusça arayan kullanıcı Türkçe bir başlık görüyordu ve
+                // Rusça 334 gösterimde %0,3 tıklanma alıyordu. Kuyruk
+                // eklemek çeviri değildir; kaynağın kendisi başlığın içinde
+                // duruyorsa alan çevrilmemiştir.
+                $gomulu = array_values(array_filter(
+                    $gerekli,
+                    fn (string $alan): bool => $this->kaynagiIcindeTasiyor(
+                        (string) $alanlar[$alan],
+                        (string) $kayit->getAttribute($alan)
+                    )
+                ));
+
+                if ($gomulu !== []) {
+                    $atlanan['kaynak metin çevirinin içinde: '.implode(', ', $gomulu)][] = $ad;
+
+                    continue;
+                }
+
                 // Tarifin gövdesi kendi sütunlarında değil, adımlarında ve
                 // malzemelerinde durur. Başlığı İngilizce, yönergesi Türkçe
                 // bir sayfa çevrilmemiş sayfanın kendisidir; dosya da öyle.
@@ -282,6 +305,31 @@ final class ImportContentTranslations extends Command
      * Verilen tür ve slug için veritabanındaki asıl kaydı bulur.
      * Birebir eşleşme, eski yönlendirme (SlugRedirect), public ID soneki veya önek temizleme dener.
      */
+    /**
+     * Çeviri, kaynak metni olduğu gibi içinde taşıyor mu?
+     *
+     * Yalnız başlık ve özet gibi kısa alanlar için anlamlı. Gövdede bir
+     * özel adın ya da alıntının aynen geçmesi olağandır; başlıkta kaynağın
+     * tamamının geçmesi ise çeviri yapılmadığının kanıtıdır.
+     */
+    private function kaynagiIcindeTasiyor(string $ceviri, string $kaynak): bool
+    {
+        $kaynak = trim($kaynak);
+        $ceviri = trim($ceviri);
+
+        if ($kaynak === '' || $ceviri === '' || $ceviri === $kaynak) {
+            return false;
+        }
+
+        // Çok kısa kaynaklar tesadüfen eşleşebilir; "Hellim" başlıklı bir
+        // tarifin adı çeviride de geçebilir ve bu doğrudur.
+        if (mb_strlen($kaynak) < 20) {
+            return false;
+        }
+
+        return mb_strpos($ceviri, $kaynak) !== false;
+    }
+
     private function kayitBul(string $tur, string $slug): Recipe|BlogPost|null
     {
         if ($tur === 'recipe') {

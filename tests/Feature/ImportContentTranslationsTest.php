@@ -114,6 +114,42 @@ final class ImportContentTranslationsTest extends TestCase
         $this->assertSame(0, $tarif->fresh()->translations()->count());
     }
 
+    public function test_a_title_that_carries_the_source_inside_it_is_refused(): void
+    {
+        // Asıl kaçak birebir kopya değildi. "Türkçe Başlık – Kompletny
+        // przewodnik" gibi, kaynağın tamamını içinde taşıyıp sonuna
+        // çevrilmiş bir kuyruk ekleyen başlıklar eşitlik testini geçiyordu.
+        // Ölçüldüğünde indekslenebilir sayfaların 590 başlığı bu
+        // durumdaydı ve Rusça 334 gösterimde %0,3 tıklanma alıyordu:
+        // Rusça arayan kullanıcı sonuçta Türkçe bir başlık görüyordu.
+        $tarif = $this->tarif();
+        $veri = $this->tamCeviri();
+        $veri['fields']['title'] = 'Izgarada Dağılmadan Kızaran Hellim - A Complete Guide';
+        $tarif->forceFill(['title' => 'Izgarada Dağılmadan Kızaran Hellim'])->save();
+        $this->dosyaYaz('recipe-hellim-izgara.json', $veri);
+
+        $this->artisan('content:import-translations', ['--apply' => true])
+            ->expectsOutputToContain('kaynak metin çevirinin içinde')
+            ->assertExitCode(0);
+
+        $this->assertSame(0, $tarif->fresh()->translations()->count());
+    }
+
+    public function test_a_short_source_name_may_legitimately_appear_in_the_translation(): void
+    {
+        // "Hellim" gibi kısa bir özel ad çeviride de geçer ve bu doğrudur;
+        // kural yalnız kaynağın tamamını taşıyan başlıkları reddetmeli.
+        $tarif = $this->tarif();
+        $tarif->forceFill(['title' => 'Hellim'])->save();
+        $veri = $this->tamCeviri();
+        $veri['fields']['title'] = 'Grilled Hellim from Cyprus';
+        $this->dosyaYaz('recipe-hellim-izgara.json', $veri);
+
+        $this->artisan('content:import-translations', ['--apply' => true])->assertExitCode(0);
+
+        $this->assertSame(3, $tarif->fresh()->translations()->count());
+    }
+
     public function test_php_files_are_never_executed(): void
     {
         $isaret = storage_path('translation-import-rce-marker');
