@@ -167,6 +167,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::get('medya', [AdminMediaController::class, 'index'])->name('media.index');
     Route::resource('blog', AdminBlogPostController::class)->parameters(['blog' => 'post'])->only(['index', 'create', 'store', 'edit', 'update']);
     Route::get('blog/{post}/inceleme', [AdminBlogPostController::class, 'review'])->name('blog.review');
+    Route::post('blog/tumunu-yayinla', [AdminBlogPostController::class, 'publishAll'])->name('blog.publish-all');
     Route::post('blog/{post}/yayinla', [AdminBlogPostController::class, 'publish'])->name('blog.publish');
     Route::post('blog/{post}/arsivle', [AdminBlogPostController::class, 'archive'])->name('blog.archive');
     Route::get('seo', [SeoOperationsController::class, 'index'])->name('seo.index');
