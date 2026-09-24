@@ -424,6 +424,11 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('blog/{post}/yayinla', [AdminBlogPostController::class, 'publish'])->name('blog.publish');
     Route::post('blog/{post}/arsivle', [AdminBlogPostController::class, 'archive'])->name('blog.archive');
     Route::get('seo', [SeoOperationsController::class, 'index'])->name('seo.index');
+    Route::get('seo/coni-bot', [SeoOperationsController::class, 'coniBot'])->name('seo.coni-bot');
+    Route::post('seo/coni-bot/hesapla', [SeoOperationsController::class, 'coniBotEvaluate'])->name('seo.coni-bot.evaluate');
+    Route::get('seo/machina-loop', [SeoOperationsController::class, 'machinaLoop'])->name('seo.machina-loop');
+    Route::post('seo/machina-loop/denetle', [SeoOperationsController::class, 'machinaAudit'])->name('seo.machina-loop.audit');
+    Route::post('seo/machina-loop/onayla', [SeoOperationsController::class, 'machinaApproveFix'])->name('seo.machina-loop.approve');
     Route::get('seo/buyume', [SeoOperationsController::class, 'growth'])->name('seo.growth');
     Route::post('seo/buyume/yenile', [SeoOperationsController::class, 'refreshGrowth'])->name('seo.growth.refresh');
     Route::post('seo/buyume/csv', [SeoOperationsController::class, 'importBacklinks'])->name('seo.growth.import');

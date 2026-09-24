@@ -18,8 +18,12 @@ use App\Services\Seo\LlmStructureOptimizerService;
 use App\Services\Seo\OrganicGrowthService;
 use App\Services\Seo\SeoAuditService;
 use App\Services\Seo\SeoAuthorityService;
+use App\Services\Seo\ConiCommercialSeoService;
+use App\Services\Seo\MachinaAeoAutomationService;
+use App\Services\Seo\PrePublishSafetyHook;
 use App\Services\Seo\SeoProviderHealthService;
 use App\Services\Seo\WeeklySeoReportService;
+use Illuminate\Support\Facades\File;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -285,6 +289,106 @@ final class SeoOperationsController extends Controller
         $report = $service->generate();
 
         return view('admin.seo.weekly-report', $report);
+    }
+
+    public function coniBot(Request $request, ConiCommercialSeoService $service): View
+    {
+        $this->admin();
+
+        $customKeyword = $request->query('keyword');
+        $customResult = null;
+        if (! empty($customKeyword)) {
+            $customResult = $service->evaluateKeyword((string) $customKeyword, [
+                'locale' => $request->query('locale', 'tr'),
+                'volume' => $request->filled('volume') ? (int) $request->query('volume') : null,
+                'intent' => $request->query('intent'),
+                'product_fit' => $request->filled('product_fit') ? (float) $request->query('product_fit') : null,
+            ]);
+        }
+
+        $summary = $service->getPortfolioSummary();
+
+        return view('admin.seo.coni-bot', [
+            'summary' => $summary,
+            'customResult' => $customResult,
+            'customKeyword' => $customKeyword,
+        ]);
+    }
+
+    public function coniBotEvaluate(Request $request, ConiCommercialSeoService $service): RedirectResponse
+    {
+        $this->admin();
+        $validated = $request->validate([
+            'keyword' => ['required', 'string', 'max:255'],
+            'locale' => ['nullable', 'string', 'in:tr,en,ru,de'],
+            'volume' => ['nullable', 'integer', 'min:0'],
+            'intent' => ['nullable', 'string', 'in:TRANSACTIONAL,COMMERCIAL,INFORMATIONAL,NAVIGATIONAL'],
+            'product_fit' => ['nullable', 'numeric', 'between:0,1'],
+        ]);
+
+        return redirect()->route('admin.seo.coni-bot', array_filter($validated));
+    }
+
+    public function machinaLoop(Request $request, MachinaAeoAutomationService $service): View
+    {
+        $this->admin();
+
+        $targetUrl = $request->query('url', 'https://housechefcyprus.com/private-chef');
+        $primaryKeyword = $request->query('query', 'kıbrıs özel şef');
+
+        $audit = $service->runFourPassAudit($targetUrl, $primaryKeyword);
+        $toolStatus = $service->getToolConnectionsStatus();
+
+        $stateContent = File::exists(base_path('.agents/seo-aeo/state.md')) ? File::get(base_path('.agents/seo-aeo/state.md')) : '';
+        $logContent = File::exists(base_path('.agents/seo-aeo/log.md')) ? File::get(base_path('.agents/seo-aeo/log.md')) : '';
+        $briefContent = File::exists(base_path('.agents/seo-aeo/brief.md')) ? File::get(base_path('.agents/seo-aeo/brief.md')) : '';
+
+        return view('admin.seo.machina-loop', [
+            'targetUrl' => $targetUrl,
+            'primaryKeyword' => $primaryKeyword,
+            'audit' => $audit,
+            'toolStatus' => $toolStatus,
+            'stateContent' => $stateContent,
+            'logContent' => $logContent,
+            'briefContent' => $briefContent,
+        ]);
+    }
+
+    public function machinaAudit(Request $request, MachinaAeoAutomationService $service): RedirectResponse
+    {
+        $this->admin();
+        $validated = $request->validate([
+            'url' => ['required', 'url', 'max:500'],
+            'query' => ['required', 'string', 'max:255'],
+            'save_to_log' => ['nullable', 'boolean'],
+        ]);
+
+        if (! empty($validated['save_to_log'])) {
+            $service->runWeeklyLoop(false);
+        }
+
+        return redirect()->route('admin.seo.machina-loop', [
+            'url' => $validated['url'],
+            'query' => $validated['query'],
+        ])->with('status', '4-Geçişli denetim başarıyla tamamlandı.');
+    }
+
+    public function machinaApproveFix(Request $request, MachinaAeoAutomationService $service, PrePublishSafetyHook $hook): RedirectResponse
+    {
+        $this->admin();
+        $validated = $request->validate([
+            'action_type' => ['required', 'string'],
+            'summary' => ['required', 'string'],
+        ]);
+
+        $hook->assertCanExecute(
+            PrePublishSafetyHook::ACTION_PUBLISH_PAGE,
+            $validated['summary'],
+            true,
+            (string) ($request->user()?->email ?? 'Admin')
+        );
+
+        return back()->with('status', 'Haftalık önerilen değişiklik insan onayıyla (Human-in-the-loop) onaylandı ve kuyruğa alındı.');
     }
 
     private function admin(): void

@@ -11,6 +11,8 @@ return [
     'nutrition' => 'Besin Değerleri',
     'quality' => 'Veri Kontrolü',
     'overview' => 'Özet',
+    'coni_bot' => 'ConiSEOBot (Ticari Değer)',
+    'machina_loop' => 'Machina (SEO & AEO)',
     'links' => 'Bağlantılar',
     'work' => 'İş Listesi',
     'issues' => 'Sorunlar',

@@ -15,6 +15,8 @@ return [
         'icon' => 'search',
         'tabs' => [
             'overview' => ['route' => 'admin.seo.index', 'matches' => ['admin.seo.index', 'admin.seo.audit']],
+            'coni_bot' => ['route' => 'admin.seo.coni-bot', 'matches' => ['admin.seo.coni-bot*']],
+            'machina_loop' => ['route' => 'admin.seo.machina-loop', 'matches' => ['admin.seo.machina-loop*']],
             'links' => ['route' => 'admin.seo.growth', 'matches' => ['admin.seo.growth*']],
             'work' => ['route' => 'admin.seo.opportunities', 'matches' => ['admin.seo.opportunities*']],
             'issues' => ['route' => 'admin.seo.issues', 'matches' => ['admin.seo.issues*']],

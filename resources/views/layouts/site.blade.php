@@ -312,7 +312,7 @@
         }
     })();
     </script>
-    @unless($isPrivateSurface)<x-google-integrations />@endunless
+    @unless($isPrivateSurface)<x-google-integrations /><x-conversion-event-tracker />@endunless
 </head>
 <body data-alpine-owner="{{ $livewire ? 'livewire' : 'app' }}" x-data="{ dark: localStorage.theme === 'dark', menuOpen: false, adminMenuOpen: false, adminSidebarCollapsed: localStorage.hcAdminSidebarCollapsed === 'true', adminSidebarQuery: '', scrolled: false }"
     x-init="document.documentElement.classList.toggle('dark', dark); $watch('dark', value => { document.documentElement.classList.toggle('dark', value); localStorage.theme = value ? 'dark' : 'light'; window.dispatchEvent(new CustomEvent('hc-theme-changed')); }); $watch('adminSidebarCollapsed', value => localStorage.hcAdminSidebarCollapsed = value); $watch('adminMenuOpen', value => document.body.classList.toggle('overflow-hidden', value)); $watch('menuOpen', value => document.body.classList.toggle('overflow-hidden', value))"

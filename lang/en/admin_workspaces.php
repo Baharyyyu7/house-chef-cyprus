@@ -11,6 +11,8 @@ return [
     'nutrition' => 'Nutrition Data',
     'quality' => 'Data Checks',
     'overview' => 'Overview',
+    'coni_bot' => 'ConiSEOBot (Commercial Value)',
+    'machina_loop' => 'Machina (SEO & AEO)',
     'links' => 'Links',
     'work' => 'Work List',
     'issues' => 'Issues',
