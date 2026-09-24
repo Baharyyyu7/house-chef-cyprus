@@ -7,9 +7,12 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\ConiAction;
 use App\Models\Cuisine;
+use App\Models\Ingredient;
+use App\Models\IntegrityReport;
 use App\Models\Recipe;
 use App\Services\Seo\RecipeTranslationGate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 /**
@@ -114,6 +117,33 @@ final class RecipeTranslationGateTest extends TestCase
         $this->assertSame('sablon', (new RecipeTranslationGate)->engel(Recipe::query()->firstOrFail(), 'en'));
         $this->assertSame('Cennet Çamuru', Recipe::query()->firstOrFail()->translated('title', 'en'));
         $this->assertSame('Step 2', Recipe::query()->firstOrFail()->steps()->orderBy('position')->get()[1]->translated('title', 'en'));
+        unlink($dosya);
+    }
+
+    /**
+     * Malzeme adları kelime parçası değiştirilerek üretilmişti: "Taze
+     * Fasulye" → "Taze Fawasserlye". Düzeltme kuyruğu da tıkamamalı.
+     */
+    public function test_malzeme_adlari_olaysiz_duzeltilir_ve_geri_alinir(): void
+    {
+        $malzeme = Ingredient::query()->create(['name' => 'Taze Fasulye', 'slug' => 'taze-fasulye']);
+        $malzeme->translations()->create(['locale' => 'de', 'field' => 'name', 'value' => 'Taze Fawasserlye']);
+        $dosya = tempnam(sys_get_temp_dir(), 'coni');
+        file_put_contents($dosya, (string) json_encode([(string) $malzeme->id => ['de' => 'Grüne Bohnen', 'en' => 'Green beans', 'tr' => 'yok sayılır']]));
+        Queue::fake();
+
+        $this->artisan('coni:malzeme', ['dosya' => $dosya])->assertSuccessful();
+
+        $this->assertSame('Grüne Bohnen', $malzeme->fresh()->translated('name', 'de'));
+        $this->assertSame('Green beans', $malzeme->fresh()->translated('name', 'en'));
+        $this->assertSame('Taze Fasulye', $malzeme->fresh()->getRawOriginal('name'));
+        Queue::assertNothingPushed();
+
+        $rapor = IntegrityReport::query()->where('guard', 'coni:malzeme')->firstOrFail();
+        $this->artisan('coni:malzeme', ['--geri-al' => $rapor->id])->assertSuccessful();
+
+        $this->assertSame('Taze Fawasserlye', $malzeme->fresh()->translated('name', 'de'));
+        $this->assertNull($malzeme->fresh()->translated('name', 'en'));
         unlink($dosya);
     }
 
