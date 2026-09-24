@@ -19,7 +19,9 @@ use App\Services\Measurements\RecipeIngredientDisplayService;
 use App\Services\Media\HubCoverPicker;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\NutritionService;
+use App\Services\Coni\ConiOdakKumesi;
 use App\Services\Seo\InternalLinkService;
+use App\Services\Seo\RecipeTranslationGate;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoMetadataService;
 use App\Services\Seo\SeoSchemaService;
@@ -210,6 +212,11 @@ final class RecipeController extends Controller
             // kalite kapisini gecene kadar arama motoruna aday gosterilmez.
             $metadata['robots'] = 'noindex,follow';
         }
+        // Yabancı dilde adımları kalıp çeviri ya da eksik olan tarif o dilde
+        // aranabilir değil; gerçek çeviri gelince kendiliğinden açılır.
+        if (app(RecipeTranslationGate::class)->engel($recipe, app()->getLocale()) !== null) {
+            $metadata['robots'] = 'noindex,follow';
+        }
 
         return view('recipes.show', [
             'recipe' => $recipe,
@@ -221,7 +228,8 @@ final class RecipeController extends Controller
             'isFavorited' => $request->user()?->favoriteRecipes()->whereKey($recipe->id)->exists() ?? false,
             'recipeCollections' => $request->user()?->recipeCollections()->latest()->limit(5)->get() ?? collect(),
             'ingredientLines' => $ingredientDisplay->forRecipe($recipe->recipeIngredients, (int) $recipe->servings, $servings),
-            'relatedRecipes' => Recipe::query()
+            // Claude Coni'nin bu dildeki odak tarifi aynı kategori ya da mutfaktansa öne alınır.
+            'relatedRecipes' => app(ConiOdakKumesi::class)->tariflereEkle(Recipe::query()
                 ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'verification_status'])
                 ->with(['cuisine:id,public_id,name,slug', 'category:id,public_id,name,slug', 'media' => fn ($query) => $query->select(['id', 'mediable_type', 'mediable_id', 'kind', 'disk', 'path', 'source_name', 'source_url', 'provider_metadata', 'alt_text', 'is_placeholder', 'visibility', 'media_status', 'verification_status', 'license_review_status', 'attribution_review_status', 'generated_by_ai', 'responsive_variants', 'sort_order', 'fidelity_status', 'fidelity_confidence', 'checksum_sha256', 'perceptual_hash', 'media_reviewer_user_id', 'media_reviewed_at', 'approved_by_user_id', 'approved_at'])->where('visibility', 'public'), 'dietaryTags:id,code,name'])
                 ->where('status', 'published')
@@ -233,7 +241,7 @@ final class RecipeController extends Controller
                 })
                 ->orderByRaw('case when category_id = ? then 0 else 1 end', [$recipe->category_id])
                 ->limit(4)
-                ->get(),
+                ->get(), $recipe, app()->getLocale(), 4),
             'seoSchema' => $schema,
             'metadata' => $metadata,
             // Paylaşım görseli: onaylı görsel varsa onun OG varyantı, yoksa yüksek çözünürlüklü gastronomi görseli

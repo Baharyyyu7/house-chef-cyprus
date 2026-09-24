@@ -8,6 +8,7 @@ use App\Models\BlogPost;
 use App\Models\Recipe;
 use App\Services\Localization\CulinaryTranslationService;
 use App\Services\Seo\LocaleUrlService;
+use App\Services\Seo\RecipeTranslationGate;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
@@ -535,7 +536,10 @@ final class LlmsTxtController extends Controller
                 ->translatedInto($locale)
                 ->latest('published_at')
                 ->limit(25)
-                ->get();
+                ->get()
+                // Adımları kalıp çeviri olan tarif o dilde noindex; yapay zekâ
+                // korpusuna da "doğrulanmış" diye girmez. Bkz. RecipeTranslationGate.
+                ->filter(fn (Recipe $tarif): bool => app(RecipeTranslationGate::class)->hazir($tarif, $locale));
 
             $yazilar = BlogPost::query()
                 ->publiclyVisible()
@@ -633,7 +637,8 @@ final class LlmsTxtController extends Controller
                 ->translatedInto($locale)
                 ->with(['cuisine', 'category', 'steps'])
                 ->orderBy('title')
-                ->get();
+                ->get()
+                ->filter(fn (Recipe $tarif): bool => app(RecipeTranslationGate::class)->hazir($tarif, $locale));
 
             $yazilar = BlogPost::query()
                 ->publiclyVisible()

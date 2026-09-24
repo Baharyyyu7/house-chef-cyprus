@@ -10,6 +10,7 @@ use App\Models\Recipe;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\BlogIndexability;
 use App\Services\Seo\LocaleUrlService;
+use App\Services\Seo\RecipeTranslationGate;
 use App\Services\Seo\SeoMetadataService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
@@ -326,6 +327,12 @@ final class SitemapController extends Controller
      */
     private function dildeIndekslenebilir(object $kayit, string $kod): bool
     {
+        // Tarifin o dildeki adımları kalıp çeviriyse sayfa o dilde noindex;
+        // harita da onu ilan etmez. Bkz. RecipeTranslationGate.
+        if ($kayit instanceof Recipe) {
+            return app(RecipeTranslationGate::class)->hazir($kayit, $kod);
+        }
+
         if (! $kayit instanceof BlogPost) {
             return true;
         }

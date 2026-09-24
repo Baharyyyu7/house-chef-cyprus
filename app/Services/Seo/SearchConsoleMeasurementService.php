@@ -246,6 +246,59 @@ final class SearchConsoleMeasurementService
      */
     public function pageRows(int $gun = 28): array
     {
+        return $this->pageRowsBetween(now()->subDays($gun)->toDateString(), now()->toDateString(), 'all');
+    }
+
+    /**
+     * Sayfa bazında, iki tarih arasındaki ölçüm.
+     *
+     * Bir değişikliğin etkisi ancak eşit uzunlukta iki pencere yan yana
+     * konunca görülür: değişiklikten önceki iki hafta ve sonraki iki hafta.
+     * Karşılaştırmada "final" veri kullanılır; son iki üç günün geçici
+     * sayıları sonradan değişiyor.
+     *
+     * @return list<array{page: string, impressions: int, clicks: int, position: float}>
+     */
+    public function pageRowsBetween(string $baslangic, string $bitis, string $veriDurumu = 'final'): array
+    {
+        if (! config('seo.search_console.enabled') || ! $this->configured()) {
+            return [];
+        }
+
+        $token = Http::asForm()->withoutRedirecting()->connectTimeout(5)->timeout(10)->post('https://oauth2.googleapis.com/token', [
+            'client_id' => config('seo.search_console.client_id'), 'client_secret' => config('seo.search_console.client_secret'),
+            'refresh_token' => config('seo.search_console.refresh_token'), 'grant_type' => 'refresh_token',
+        ]);
+        $this->requireSuccess($token);
+
+        // Satır sınırı 1000 iken 28 günlük sayfa listesi kesiliyordu: site
+        // bir haftada 873 ayrı sayfada gösterim alıyor.
+        $url = 'https://www.googleapis.com/webmasters/v3/sites/'.rawurlencode($this->property()).'/searchAnalytics/query';
+        $cevap = Http::withToken((string) $token->json('access_token'))->withoutRedirecting()->connectTimeout(5)->timeout(15)->post($url, [
+            'startDate' => $baslangic, 'endDate' => $bitis,
+            'type' => 'web', 'dataState' => $veriDurumu, 'dimensions' => ['page'], 'rowLimit' => 5000,
+        ]);
+        $this->requireSuccess($cevap);
+
+        return array_values(array_map(static fn (array $r): array => [
+            'page' => (string) ($r['keys'][0] ?? ''),
+            'impressions' => (int) ($r['impressions'] ?? 0),
+            'clicks' => (int) ($r['clicks'] ?? 0),
+            'position' => (float) ($r['position'] ?? 0),
+        ], (array) $cevap->json('rows', [])));
+    }
+
+    /**
+     * Tek bir sayfanın hangi sorgularda göründüğü.
+     *
+     * Başlık sayfanın konusuna değil, sayfanın gerçekten göründüğü aramaya
+     * cevap vermeli. Site genelindeki sorgu listesi hangi sorgunun hangi
+     * sayfaya düştüğünü söylemiyor; bu söylüyor.
+     *
+     * @return list<array{query: string, impressions: int, clicks: int, position: float}>
+     */
+    public function pageQueries(string $sayfa, int $gun = 28): array
+    {
         if (! config('seo.search_console.enabled') || ! $this->configured()) {
             return [];
         }
@@ -259,15 +312,16 @@ final class SearchConsoleMeasurementService
         $url = 'https://www.googleapis.com/webmasters/v3/sites/'.rawurlencode($this->property()).'/searchAnalytics/query';
         $cevap = Http::withToken((string) $token->json('access_token'))->withoutRedirecting()->connectTimeout(5)->timeout(15)->post($url, [
             'startDate' => now()->subDays($gun)->toDateString(), 'endDate' => now()->toDateString(),
-            'type' => 'web', 'dataState' => 'all', 'dimensions' => ['page'], 'rowLimit' => 1000,
+            'type' => 'web', 'dataState' => 'all', 'dimensions' => ['query'], 'rowLimit' => 50,
+            'dimensionFilterGroups' => [['filters' => [['dimension' => 'page', 'operator' => 'equals', 'expression' => $sayfa]]]],
         ]);
         $this->requireSuccess($cevap);
 
         return array_values(array_map(static fn (array $r): array => [
-            'page' => (string) ($r['keys'][0] ?? ''),
+            'query' => (string) ($r['keys'][0] ?? ''),
             'impressions' => (int) ($r['impressions'] ?? 0),
             'clicks' => (int) ($r['clicks'] ?? 0),
-            'position' => (float) ($r['position'] ?? 0),
+            'position' => round((float) ($r['position'] ?? 0), 1),
         ], (array) $cevap->json('rows', [])));
     }
 

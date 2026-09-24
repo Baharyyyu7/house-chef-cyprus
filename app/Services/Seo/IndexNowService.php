@@ -195,11 +195,14 @@ final class IndexNowService
         $diller = app(LocaleUrlService::class);
         $varsayilan = $diller->defaultLocale();
         $adresler = [];
+        $ceviriKapisi = null;
 
         foreach (array_keys($diller->enabledLocales()) as $dil) {
             if ($dil === $varsayilan) {
                 continue;
             }
+
+            $ceviriKapisi ??= app(RecipeTranslationGate::class);
 
             // Listeleme sayfaları ve AI keşif korpusları her açık dilde vardır; içerik kapısına
             // takılmazlar çünkü kendi metinleri dil dosyalarından veya çeviri motorundan gelir.
@@ -214,8 +217,12 @@ final class IndexNowService
                 ->latest('updated_at')
                 ->limit(150)
                 ->get()
-                ->each(function (Recipe $tarif) use (&$adresler, $diller, $dil): void {
-                    $adresler[] = $diller->urlFor($dil, '/tarifler/'.$tarif->slug);
+                ->each(function (Recipe $tarif) use (&$adresler, $diller, $dil, $ceviriKapisi): void {
+                    // Adımları kalıp çeviri olan tarif o dilde noindex; arama
+                    // motoruna "hemen tara" demek çelişki olur.
+                    if ($ceviriKapisi->hazir($tarif, $dil)) {
+                        $adresler[] = $diller->urlFor($dil, '/tarifler/'.$tarif->slug);
+                    }
                 });
 
             BlogPost::query()
