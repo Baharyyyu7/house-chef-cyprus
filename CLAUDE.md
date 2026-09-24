@@ -36,6 +36,30 @@
 
 ---
 
+## Nerede durulur, nerede devam edilir
+
+- Bir adım için girdime ihtiyaç yoksa devam et. Durum notunu ayrı bir
+  mesaja değil, bir sonraki eylemin yanına yaz.
+- Yalnız iki durumda dur ve sor: bensiz devam edemiyorsan, ya da geri
+  alınması zor bir şeyin eşiğindeysen - üretim verisi silmek, force-push,
+  bu deponun dışına çıkan değişiklik, para harcayan bir adım.
+- "Devam edeyim mi?" diye sorma. Seçenekleri sıralayıp beklemek de bir
+  duraktır; iş devam ederken sıralanabiliyorsa durak değildir.
+- Kapsamın bir kısmı tıkandıysa geri kalanını bitir, sonra neyi neden
+  bırakdığını söyle. İşi küçültme kararı bana ait.
+
+Her turun sonunda üç başlık:
+
+- **Bende kalan**: benim yapmam gereken, senin yapamadığın şeyler
+- **Değişen**: bu turda gerçekten değişen ve doğrulanan şeyler
+- **Bulunan**: ölçtüğün ama henüz düzeltilmemiş kusurlar
+
+Uzun bir işte görev listesini `.claude/TASKS.md` dosyasında tut ve
+ilerledikçe güncelle. Oturum uzayınca bağlam özetleniyor; dosyadaki liste
+o özetten sağ çıkar, sohbet geçmişi çıkmaz.
+
+---
+
 ## Ajanlar arası kurallar
 
 Bu depoda Codex ve Antigravity de çalışıyor. Dosya üretmeden önce
