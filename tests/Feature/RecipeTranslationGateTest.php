@@ -147,6 +147,23 @@ final class RecipeTranslationGateTest extends TestCase
         unlink($dosya);
     }
 
+    public function test_toplu_ceviri_kalibi_acar_gercek_ceviriyi_ezmez(): void
+    {
+        $this->tarif(self::KALIP);
+        $this->tarif(self::GERCEK, 'cennet-camuru-2');
+        $klasor = sys_get_temp_dir().'/coni-toplu-'.uniqid();
+        mkdir($klasor);
+        file_put_contents($klasor.'/cennet-camuru.json', (string) json_encode(['en' => ['steps' => self::GERCEK]]));
+        file_put_contents($klasor.'/cennet-camuru-2.json', (string) json_encode(['en' => ['steps' => ['Bir.', 'İki farklı adım.', 'Üçüncü başka adım.']]]));
+
+        $this->artisan('coni:ceviri-toplu', ['klasor' => $klasor])->expectsOutputToContain('1 yazıldı, 1 dizine açıldı, 1 atlandı')->assertSuccessful();
+
+        $this->assertNull((new RecipeTranslationGate)->engel(Recipe::query()->where('slug', 'cennet-camuru')->firstOrFail(), 'en'));
+        $this->assertSame(self::GERCEK[0], Recipe::query()->where('slug', 'cennet-camuru-2')->firstOrFail()->steps()->orderBy('position')->first()->translated('instruction', 'en'));
+        array_map('unlink', glob($klasor.'/*.json'));
+        rmdir($klasor);
+    }
+
     public function test_kalip_ya_da_eksik_ceviri_kabul_edilmez(): void
     {
         $this->tarif(self::KALIP);
