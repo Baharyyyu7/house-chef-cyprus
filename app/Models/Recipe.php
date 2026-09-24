@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $public_id
  * @property array<string, float|int|string>|null $nutrition
+ * @property Carbon|null $published_at
  */
 class Recipe extends Model
 {
@@ -126,6 +128,12 @@ class Recipe extends Model
     public function collections(): BelongsToMany
     {
         return $this->belongsToMany(RecipeCollection::class, 'recipe_collection_items')->withTimestamps();
+    }
+
+    /** @return HasMany<RecipeTranslation, $this> */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(RecipeTranslation::class);
     }
 
     public function totalMinutes(): int

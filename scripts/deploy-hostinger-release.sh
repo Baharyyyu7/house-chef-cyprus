@@ -318,6 +318,8 @@ if [[ -f "$RELEASE_DIR/storage/app/media-import/approved-media-manifest.json" ]]
     log 'Importing the manifest-approved private recipe or blog media.'
     artisan media:import-approved --replace-fallbacks --json
 fi
+log 'Importing the versioned English recipe and blog translations.'
+artisan content:import-translations --locale=en --json
 artisan config:cache
 artisan route:cache
 artisan view:cache

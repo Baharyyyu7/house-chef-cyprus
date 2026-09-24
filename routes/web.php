@@ -38,6 +38,9 @@ use App\Http\Controllers\HealthController;
 use App\Http\Controllers\InformationPageController;
 use App\Http\Controllers\IngredientExplorerController;
 use App\Http\Controllers\LegalInformationCenterController;
+use App\Http\Controllers\Localized\LocalizedBlogController;
+use App\Http\Controllers\Localized\LocalizedPageController;
+use App\Http\Controllers\Localized\LocalizedRecipeController;
 use App\Http\Controllers\PantryController;
 use App\Http\Controllers\PersonalizationController;
 use App\Http\Controllers\RecipeCollectionController;
@@ -58,6 +61,7 @@ Route::get('/sitemaps/pages.xml', [SitemapController::class, 'pages'])->name('si
 Route::get('/sitemaps/recipes.xml', [SitemapController::class, 'recipes'])->name('sitemap.recipes');
 Route::get('/sitemaps/blog.xml', [SitemapController::class, 'blog'])->name('sitemap.blog');
 Route::get('/sitemaps/images.xml', [SitemapController::class, 'images'])->name('sitemap.images');
+Route::get('/sitemaps/en.xml', [SitemapController::class, 'english'])->name('sitemap.en');
 Route::view('/robots.txt', 'robots')->name('robots');
 Route::get('/yasal-bilgilendirme', [LegalInformationCenterController::class, 'index'])->name('legal.center');
 Route::post('/yasal-bilgilendirme/iletisim', [ContactRequestController::class, 'store'])->middleware('throttle:contact-request')->name('legal.center.contact.store');
@@ -70,6 +74,17 @@ Route::redirect('/kaynak-ve-veri-guven-politikasi', '/yasal-bilgilendirme#icerik
 Route::get('/{page}', [InformationPageController::class, 'show'])
     ->whereIn('page', ['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'gorsel-ve-kaynak-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'iletisim'])
     ->name('information.show');
+
+// English edition for international search. Turkish remains at the root so
+// existing indexed URLs are untouched; each page links its counterpart via hreflang.
+Route::prefix('en')->name('en.')->middleware('locale:en')->group(function (): void {
+    Route::get('/', [LocalizedPageController::class, 'home'])->name('home');
+    Route::get('/about', [LocalizedPageController::class, 'about'])->name('about');
+    Route::get('/recipes', [LocalizedRecipeController::class, 'index'])->name('recipes.index');
+    Route::get('/recipes/{slug}', [LocalizedRecipeController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('recipes.show');
+    Route::get('/blog', [LocalizedBlogController::class, 'index'])->name('blog.index');
+    Route::get('/blog/{slug}', [LocalizedBlogController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('blog.show');
+});
 
 Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
