@@ -113,16 +113,21 @@ Sıra: tr, en, de, ru, pl, pt, fa (LOG'daki son dilden devam).
 test yaz, düzelt, yalnız kendi dosyalarını `git add <yol>` ile ekle
 (`git add -A` yasak; başka ajanların işi var), commit et, yayınla.
 
+Çalışma kopyası: `/Users/kaganbahar/Documents/Yemek Projesi/.worktrees/claude-coni`
+(dal `claude/coni`). Test için bir kez: ana kopyadaki `.env`'i kopyala,
+`composer install`, `npm ci && npm run build`. Testleri `php vendor/bin/phpunit`
+ile koş (`artisan test` bu makinede SIGTERM alıyor).
+
 Yayın: başka bir `release.sh` koşuyorsa (`ps aux | grep release.sh`) bitmesini
-bekle. Kendi worktree'nden:
+bekle; onun push'unu bozma.
 
 ```bash
 git fetch origin visual-redesign-v2
-git rebase origin/visual-redesign-v2     # ya da merge --ff-only
+git rebase origin/visual-redesign-v2
 php vendor/bin/phpunit <dokunulan testler>
 git push origin HEAD:visual-redesign-v2
-git push origin HEAD:<kendi dalın>
-BRANCH=<kendi dalın> scripts/release.sh
+git push -f origin HEAD:claude/coni
+BRANCH=claude/coni scripts/release.sh   # tam paketi temiz kopyada koşar (~1,5 saat)
 ```
 
 Yayından sonra canlıda doğrula: değişen sayfa, `app:invariants`,
