@@ -82,4 +82,23 @@ final class BlogPublishingTest extends TestCase
         $this->assertSame('published', $due->fresh()->status);
         $this->assertSame('scheduled', $future->fresh()->status);
     }
+
+    public function test_admin_can_publish_all_unpublished_posts_at_once(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $member = User::factory()->create(['role' => 'member', 'email_verified_at' => now()]);
+        $draft = BlogPost::create(['title' => 'Toplu taslak', 'slug' => 'toplu-taslak', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'draft']);
+        $review = BlogPost::create(['title' => 'Toplu inceleme', 'slug' => 'toplu-inceleme', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'editorial_review']);
+        $archived = BlogPost::create(['title' => 'Arşiv yazısı', 'slug' => 'arsiv-yazisi', 'excerpt' => 'Özet', 'body' => 'İçerik', 'status' => 'archived']);
+
+        $this->actingAs($member)->withSession(['_token' => 'test-csrf'])->post(route('admin.blog.publish-all'), ['_token' => 'test-csrf'])->assertForbidden();
+        $this->assertSame('draft', $draft->fresh()->status);
+
+        $this->actingAs($admin)->withSession(['_token' => 'test-csrf'])->post(route('admin.blog.publish-all'), ['_token' => 'test-csrf'])->assertRedirect();
+
+        $this->assertSame('published', $draft->fresh()->status);
+        $this->assertSame('published', $review->fresh()->status);
+        $this->assertSame('archived', $archived->fresh()->status);
+        $this->get(route('blog.show', $draft->fresh()))->assertOk();
+    }
 }
