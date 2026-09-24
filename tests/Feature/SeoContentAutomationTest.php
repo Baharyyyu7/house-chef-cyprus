@@ -126,6 +126,25 @@ final class SeoContentAutomationTest extends TestCase
         $this->assertSame('draft', $blocked->fresh()->status);
     }
 
+    public function test_admin_can_publish_all_unpublished_posts_without_gates(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $member = User::factory()->create(['role' => 'member', 'email_verified_at' => now()]);
+        $draft = $this->makePost(['slug' => 'kontrolsuz-taslak']);
+        $archived = $this->makePost(['title' => 'Arşivdeki ayrı yazı', 'slug' => 'kontrolsuz-arsiv', 'status' => 'archived']);
+
+        $this->actingAs($admin)->get(route('admin.blog.index'))->assertOk()->assertSee(route('admin.blog.publish-all'), false);
+        $this->actingAs($member)->post(route('admin.blog.publish-all'))->assertForbidden();
+        $this->assertSame('draft', $draft->fresh()->status);
+
+        $this->actingAs($admin)->post(route('admin.blog.publish-all'))
+            ->assertRedirect(route('admin.blog.index'))
+            ->assertSessionHas('status', '1 yazı kontroller atlanarak yayınlandı.');
+
+        $this->assertSame('published', $draft->fresh()->status);
+        $this->assertSame('archived', $archived->fresh()->status);
+    }
+
     public function test_scheduled_publication_requires_all_approval_states(): void
     {
         $approved = $this->makePost(['slug' => 'onayli-planli-yazi', 'status' => 'scheduled', 'scheduled_at' => now()->subMinute(), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved']);

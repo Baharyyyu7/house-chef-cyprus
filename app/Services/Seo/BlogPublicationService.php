@@ -62,4 +62,12 @@ final class BlogPublicationService
 
         return $result;
     }
+
+    /** Publishes every unpublished, non-archived post without running the publication gates. */
+    public function publishAllUnchecked(): int
+    {
+        return BlogPost::query()
+            ->whereNotIn('status', ['published', 'archived'])
+            ->update(['status' => 'published', 'published_at' => now(), 'scheduled_at' => null]);
+    }
 }

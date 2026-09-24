@@ -24,6 +24,10 @@
                     @csrf
                     <button class="hc-v3-btn hc-v3-btn--primary" @disabled($publicationCandidateCount === 0)>Kontrol et ve uygunları yayınla</button>
                 </form>
+                <form method="post" action="{{ route('admin.blog.publish-all') }}" onsubmit="return confirm('Yayınlanmamış {{ $publicationCandidateCount }} yazının tamamı kalite, SEO ve onay kontrolleri atlanarak hemen yayınlanacak. Emin misiniz?')">
+                    @csrf
+                    <button class="hc-v3-btn hc-v3-btn--danger" @disabled($publicationCandidateCount === 0)>Kontrolsüz tümünü yayınla</button>
+                </form>
             </div>
 
             @if(session('publication_reasons'))

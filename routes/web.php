@@ -419,6 +419,7 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::delete('basarisiz-isler/{uuid}', [FailedJobController::class, 'forget'])->name('failed-jobs.forget');
     Route::get('medya', [AdminMediaController::class, 'index'])->name('media.index');
     Route::resource('blog', AdminBlogPostController::class)->parameters(['blog' => 'post'])->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::post('blog/tumunu-yayinla', [AdminBlogPostController::class, 'publishAll'])->name('blog.publish-all');
     Route::post('blog/uygun-olanlari-yayinla', [AdminBlogPostController::class, 'publishReady'])->name('blog.publish-ready');
     Route::get('blog/{post}/inceleme', [AdminBlogPostController::class, 'review'])->name('blog.review');
     Route::post('blog/{post}/yayinla', [AdminBlogPostController::class, 'publish'])->name('blog.publish');

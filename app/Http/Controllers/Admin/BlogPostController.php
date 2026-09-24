@@ -99,6 +99,14 @@ final class BlogPostController extends Controller
         ]);
     }
 
+    public function publishAll(BlogPublicationService $publication): RedirectResponse
+    {
+        $this->admin();
+        $count = $publication->publishAllUnchecked();
+
+        return to_route('admin.blog.index')->with('status', $count.' yazı kontroller atlanarak yayınlandı.');
+    }
+
     public function archive(BlogPost $post): RedirectResponse
     {
         $this->admin();
