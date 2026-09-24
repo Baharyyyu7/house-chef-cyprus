@@ -20,6 +20,8 @@ final class PostDeploySmokeTest extends Command
         '/' => 200,
         '/tarifler' => 200,
         '/blog' => 200,
+        '/en' => 200,
+        '/sitemaps/en.xml' => 200,
         '/login' => 200,
         '/register' => 200,
         '/robots.txt' => 200,

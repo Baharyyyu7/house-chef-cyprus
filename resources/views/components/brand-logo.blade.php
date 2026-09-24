@@ -20,7 +20,7 @@
 @endphp
 
 @if ($linked)
-    <a href="{{ route('home') }}" {{ $attributes->merge(['class' => 'hc-brand-logo inline-flex shrink-0 items-center']) }} aria-label="{{ $alt }} ana sayfa">
+    <a href="{{ app()->getLocale() === 'en' ? route('en.home') : route('home') }}" {{ $attributes->merge(['class' => 'hc-brand-logo inline-flex shrink-0 items-center']) }} aria-label="{{ $alt }} {{ app()->getLocale() === 'en' ? 'home' : 'ana sayfa' }}">
 @else
     <span {{ $attributes->merge(['class' => 'hc-brand-logo inline-flex shrink-0 items-center']) }}>
 @endif

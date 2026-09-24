@@ -101,6 +101,12 @@ final class BlogPost extends Model
         return $this->hasMany(ContentRevision::class);
     }
 
+    /** @return HasMany<BlogPostTranslation, $this> */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(BlogPostTranslation::class);
+    }
+
     /** @return HasMany<SocialDistributionDraft, $this> */
     public function socialDrafts(): HasMany
     {

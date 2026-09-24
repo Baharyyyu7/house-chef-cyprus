@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Seo;
 
 use App\Models\BlogPost;
+use App\Models\BlogPostTranslation;
 use App\Models\Recipe;
+use App\Models\RecipeTranslation;
 
 /** Builds schemas from already-public, visible editorial data only. */
 final class SeoSchemaService
@@ -57,6 +59,62 @@ final class SeoSchemaService
         ]);
         $faqBlocks = $post->getAttribute('faq_blocks');
         $questions = collect(is_array($faqBlocks) ? $faqBlocks : [])->filter(fn (mixed $faq): bool => is_array($faq) && filled($faq['question'] ?? null) && filled($faq['answer'] ?? null))->map(fn (array $faq): array => ['@type' => 'Question', 'name' => $faq['question'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq['answer']]])->values()->all();
+        if ($questions !== []) {
+            $graph['@graph'][] = ['@type' => 'FAQPage', 'mainEntity' => $questions];
+        }
+
+        return $graph;
+    }
+
+    /** @return array<string,mixed> */
+    public function localizedRecipe(RecipeTranslation $translation, string $imageUrl = ''): array
+    {
+        $recipe = $translation->recipe;
+        $url = route($translation->locale.'.recipes.show', $translation->slug);
+        $publisher = ['@type' => 'Organization', 'name' => config('brand.name'), 'url' => url('/'), 'logo' => url(config('brand.assets.mark_light'))];
+        $recipeNode = [
+            '@type' => 'Recipe', 'name' => $translation->title,
+            'description' => $translation->excerpt ?: $translation->description,
+            'url' => $url, 'mainEntityOfPage' => $url, 'inLanguage' => $translation->locale,
+            'author' => $publisher, 'publisher' => $publisher,
+            'datePublished' => $recipe?->published_at?->toAtomString(),
+            'dateModified' => $translation->updated_at?->toAtomString(),
+            'recipeCuisine' => $translation->cuisine_label,
+            'recipeCategory' => $translation->category_label,
+            'keywords' => implode(', ', (array) $translation->keywords),
+            'prepTime' => 'PT'.$translation->prepMinutes().'M', 'cookTime' => 'PT'.$translation->cookMinutes().'M',
+            'totalTime' => 'PT'.$translation->totalMinutes().'M',
+            'recipeYield' => $translation->servingCount().' '.($translation->servingCount() === 1 ? 'serving' : 'servings'),
+            'recipeIngredient' => collect((array) $translation->ingredients)->pluck('text')->filter()->values()->all(),
+            'recipeInstructions' => collect((array) $translation->steps)->values()->map(fn (array $step, int $index): array => ['@type' => 'HowToStep', 'position' => $index + 1, 'name' => $step['title'] ?? '', 'text' => $step['text'] ?? '', 'url' => $url.'#step-'.($index + 1)])->all(),
+        ];
+        if ($imageUrl !== '') {
+            $recipeNode['image'] = [$imageUrl];
+        }
+
+        return $this->graph(array_filter($recipeNode, fn (mixed $value): bool => $value !== null && $value !== '' && $value !== []), [
+            ['name' => 'Home', 'url' => route($translation->locale.'.home')],
+            ['name' => 'Recipes', 'url' => route($translation->locale.'.recipes.index')],
+            ['name' => $translation->title, 'url' => $url],
+        ]);
+    }
+
+    /** @return array<string,mixed> */
+    public function localizedArticle(BlogPostTranslation $translation, string $imageUrl = ''): array
+    {
+        $post = $translation->post;
+        $url = route($translation->locale.'.blog.show', $translation->slug);
+        $publisher = ['@type' => 'Organization', 'name' => config('brand.name'), 'url' => url('/'), 'logo' => url(config('brand.assets.mark_light'))];
+        $article = ['@type' => 'BlogPosting', 'headline' => $translation->title, 'description' => $translation->excerpt, 'datePublished' => $post?->published_at?->toAtomString(), 'dateModified' => $translation->updated_at?->toAtomString(), 'mainEntityOfPage' => $url, 'author' => $publisher, 'publisher' => $publisher, 'inLanguage' => $translation->locale, 'keywords' => implode(', ', (array) $translation->keywords)];
+        if ($imageUrl !== '') {
+            $article['image'] = [$imageUrl];
+        }
+        $graph = $this->graph(array_filter($article, fn (mixed $value): bool => $value !== null && $value !== ''), [
+            ['name' => 'Home', 'url' => route($translation->locale.'.home')],
+            ['name' => 'Blog', 'url' => route($translation->locale.'.blog.index')],
+            ['name' => $translation->title, 'url' => $url],
+        ]);
+        $questions = collect((array) $translation->faq_blocks)->filter(fn (mixed $faq): bool => is_array($faq) && filled($faq['question'] ?? null) && filled($faq['answer'] ?? null))->map(fn (array $faq): array => ['@type' => 'Question', 'name' => $faq['question'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq['answer']]])->values()->all();
         if ($questions !== []) {
             $graph['@graph'][] = ['@type' => 'FAQPage', 'mainEntity' => $questions];
         }

@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             HouseChefSeeder::class,
             ProductionBlogCatalogueSeeder::class,
             ContentFactoryDraftSeeder::class,
+            ContentTranslationSeeder::class,
         ]);
     }
 }

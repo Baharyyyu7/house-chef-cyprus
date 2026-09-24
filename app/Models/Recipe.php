@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * @property string $public_id
  * @property array<string, float|int|string>|null $nutrition
+ * @property \Illuminate\Support\Carbon|null $published_at
  */
 class Recipe extends Model
 {
@@ -126,6 +127,12 @@ class Recipe extends Model
     public function collections(): BelongsToMany
     {
         return $this->belongsToMany(RecipeCollection::class, 'recipe_collection_items')->withTimestamps();
+    }
+
+    /** @return HasMany<RecipeTranslation, $this> */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(RecipeTranslation::class);
     }
 
     public function totalMinutes(): int

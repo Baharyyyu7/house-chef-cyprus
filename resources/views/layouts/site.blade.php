@@ -1,6 +1,14 @@
-@props(['title' => 'House Chef Cyprus', 'metaDescription' => "Kıbrıs'tan ilham alan tarifler, malzeme dolabı ve dengeli beslenme rehberi.", 'structuredData' => null, 'canonicalUrl' => null, 'socialImage' => null, 'socialImageWidth' => null, 'socialImageHeight' => null, 'socialImageAlt' => null, 'robots' => null])
+@props(['title' => 'House Chef Cyprus', 'metaDescription' => "Kıbrıs'tan ilham alan tarifler, malzeme dolabı ve dengeli beslenme rehberi.", 'structuredData' => null, 'canonicalUrl' => null, 'socialImage' => null, 'socialImageWidth' => null, 'socialImageHeight' => null, 'socialImageAlt' => null, 'robots' => null, 'alternates' => null])
+@php
+    $siteLocale = app()->getLocale();
+    $isEnglish = $siteLocale === 'en';
+    $localeConfig = (array) config('localization.locales', []);
+    $homeRoute = $isEnglish ? route('en.home') : route('home');
+    $recipesRoute = $isEnglish ? route('en.recipes.index') : route('recipes.index');
+    $blogRoute = $isEnglish ? route('en.blog.index') : route('blog.index');
+@endphp
 <!DOCTYPE html>
-<html lang="tr" class="scroll-smooth">
+<html lang="{{ $siteLocale }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,9 +23,16 @@
     @if ($robots || $isPrivateSurface)
         <meta name="robots" content="{{ $robots ?: 'noindex,nofollow' }}">
     @endif
+    @php($hreflangs = ($isPrivateSurface || str_contains((string) $robots, 'noindex')) ? [] : ($alternates ?? app(\App\Services\Localization\LanguageAlternates::class)->forRequest(request())))
+    @foreach($hreflangs as $hreflang => $alternateUrl)
+        <link rel="alternate" hreflang="{{ $hreflang }}" href="{{ $alternateUrl }}">
+    @endforeach
     @unless ($isPrivateSurface || str_contains((string) $robots, 'noindex'))
         <meta property="og:type" content="{{ request()->routeIs('blog.show') ? 'article' : 'website' }}">
-        <meta property="og:locale" content="tr_TR">
+        <meta property="og:locale" content="{{ $localeConfig[$siteLocale]['og_locale'] ?? 'tr_TR' }}">
+        @foreach($localeConfig as $alternateLocale => $alternateConfig)
+            @if($alternateLocale !== $siteLocale && isset($hreflangs[$alternateConfig['hreflang']]))<meta property="og:locale:alternate" content="{{ $alternateConfig['og_locale'] }}">@endif
+        @endforeach
         <meta property="og:title" content="{{ $title }}">
         <meta property="og:description" content="{{ $metaDescription }}">
         <meta property="og:url" content="{{ $canonicalUrl ?: url()->current() }}">
@@ -35,7 +50,7 @@
     @endunless
     @if($structuredData)<script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>@endif
     @if(!request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
-        <script type="application/ld+json">{"\u0040context":"https://schema.org","\u0040graph":[{"\u0040type":"Organization","name":"House Chef Cyprus","url":"{{ url('/') }}","logo":"{{ url(config('brand.assets.mark_light')) }}"},{"\u0040type":"WebSite","name":"House Chef Cyprus","url":"{{ url('/') }}","inLanguage":"tr","publisher":{"\u0040type":"Organization","name":"House Chef Cyprus","logo":"{{ url(config('brand.assets.mark_light')) }}"},"potentialAction":{"\u0040type":"SearchAction","target":"{{ route('recipes.index') }}?q={search_term_string}","query-input":"required name=search_term_string"}}]}</script>
+        <script type="application/ld+json">{"\u0040context":"https://schema.org","\u0040graph":[{"\u0040type":"Organization","name":"House Chef Cyprus","url":"{{ url('/') }}","logo":"{{ url(config('brand.assets.mark_light')) }}"},{"\u0040type":"WebSite","name":"House Chef Cyprus","url":"{{ $homeRoute }}","inLanguage":"{{ $siteLocale }}","publisher":{"\u0040type":"Organization","name":"House Chef Cyprus","logo":"{{ url(config('brand.assets.mark_light')) }}"},"potentialAction":{"\u0040type":"SearchAction","target":"{{ $recipesRoute }}?q={search_term_string}","query-input":"required name=search_term_string"}}]}</script>
     @endif
     <link rel="icon" type="image/svg+xml" href="{{ asset(config('brand.assets.favicon')) }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset(config('brand.assets.favicon_32')) }}">
@@ -99,14 +114,20 @@
             </div>
         </div>
     @else
-        <a href="#main-content" class="hc-skip-link">İçeriğe geç</a>
+        <a href="#main-content" class="hc-skip-link">{{ __('İçeriğe geç') }}</a>
+        @if(! $isEnglish && isset($hreflangs['en']))
+            <div x-data="{ show: false, init() { try { this.show = !(navigator.language || '').toLowerCase().startsWith('tr') && localStorage.getItem('hc_en_hint') !== 'dismissed' } catch (e) { this.show = false } }, dismiss() { this.show = false; try { localStorage.setItem('hc_en_hint', 'dismissed') } catch (e) {} } }" x-show="show" x-cloak class="hc-language-hint border-b bg-orange-50 text-sm text-orange-950 dark:bg-orange-500/10 dark:text-orange-100" style="border-color: var(--hc-border-subtle)" lang="en">
+                <div class="hc-container flex flex-wrap items-center justify-between gap-2 py-2"><p>This page is also available in English.</p><div class="flex items-center gap-2"><a class="font-extrabold underline" href="{{ $hreflangs['en'] }}" hreflang="en">Read in English →</a><button type="button" class="rounded-lg px-2 py-1 font-bold hover:bg-orange-100 dark:hover:bg-orange-500/20" @click="dismiss()" aria-label="Dismiss language suggestion">×</button></div></div>
+            </div>
+        @endif
         <header @scroll.window="scrolled = window.scrollY > 16" :class="{ 'is-scrolled': scrolled }" class="hc-public-header sticky top-0 z-40 border-b backdrop-blur-xl transition-all duration-300">
-            <nav :class="scrolled ? 'h-[4.25rem]' : 'h-[5.25rem]'" class="hc-container flex items-center justify-between gap-4 transition-all duration-300" aria-label="Ana menü">
+            <nav :class="scrolled ? 'h-[4.25rem]' : 'h-[5.25rem]'" class="hc-container flex items-center justify-between gap-4 transition-all duration-300" aria-label="{{ __('Ana menü') }}">
                 <x-brand-logo class="scale-105" />
                 <div class="hidden items-center gap-6 text-sm font-bold xl:flex">
-                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}" @if(request()->routeIs('home')) aria-current="page" @endif>Ana Sayfa</a>
-                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>Tarifler</a>
-                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif>Blog</a>
+                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('home', 'en.home')]) href="{{ $homeRoute }}" @if(request()->routeIs('home', 'en.home')) aria-current="page" @endif>{{ __('Ana Sayfa') }}</a>
+                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('recipes.*', 'en.recipes.*')]) href="{{ $recipesRoute }}" @if(request()->routeIs('recipes.*', 'en.recipes.*')) aria-current="page" @endif>{{ __('Tarifler') }}</a>
+                    <a @class(['nav-link', 'nav-link-active' => request()->routeIs('blog.*', 'en.blog.*')]) href="{{ $blogRoute }}" @if(request()->routeIs('blog.*', 'en.blog.*')) aria-current="page" @endif>Blog</a>
+                    @if($isEnglish)<a @class(['nav-link', 'nav-link-active' => request()->routeIs('en.about')]) href="{{ route('en.about') }}" @if(request()->routeIs('en.about')) aria-current="page" @endif>About</a>@endif
                     @auth
                         <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>Ne Pişirebilirim?</a>
                         <a @class(['nav-link', 'nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ route('ai-kitchen.index') }}" @if(request()->routeIs('ai-kitchen.*')) aria-current="page" @endif>AI Mutfak</a>
@@ -114,28 +135,32 @@
                     @endauth
                 </div>
                 <div class="hidden items-center gap-2 xl:flex">
+                    @php($switchLocale = $isEnglish ? 'tr' : 'en')
+                    <a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm font-extrabold" href="{{ $hreflangs[$switchLocale] ?? ($isEnglish ? route('home') : route('en.home')) }}" hreflang="{{ $switchLocale }}" lang="{{ $switchLocale }}" title="{{ $isEnglish ? 'Türkçe' : 'English' }}" aria-label="{{ $isEnglish ? 'Türkçe sürüm' : 'English version' }}">{{ $isEnglish ? 'TR' : 'EN' }}</a>
                     <button @click="dark = !dark" class="hc-theme-button" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"><span x-show="dark"><x-ui.icon name="sun" size="20" /></span><span x-show="!dark"><x-ui.icon name="moon" size="20" /></span></button>
                     @auth
                         <a href="{{ route('favorites.index') }}" class="hc-icon-button" aria-label="Favoriler"><x-ui.icon name="heart" size="20" /></a>
                         @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline">Yönetim</a>@endif
                         <a href="{{ route('dashboard') }}" class="inline-flex h-11 items-center gap-2 rounded-2xl bg-charcoal-900 py-2 pl-2 pr-4 text-sm font-extrabold text-white transition hover:bg-orange-600"><span class="grid h-7 w-7 place-items-center rounded-xl bg-orange-500 text-xs">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</span> Hesabım</a>
                     @else
-                        <a href="{{ route('login') }}" class="hc-btn hc-btn-outline">Giriş Yap</a>
-                        <a href="{{ route('register') }}" class="hc-btn hc-btn-gold">Üye Ol</a>
+                        <a href="{{ route('login') }}" class="hc-btn hc-btn-outline">{{ __('Giriş Yap') }}</a>
+                        <a href="{{ route('register') }}" class="hc-btn hc-btn-gold">{{ __('Üye Ol') }}</a>
                     @endauth
                 </div>
                 <div class="flex items-center gap-2 xl:hidden">
+                    <a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm font-extrabold" href="{{ $hreflangs[$isEnglish ? 'tr' : 'en'] ?? ($isEnglish ? route('home') : route('en.home')) }}" hreflang="{{ $isEnglish ? 'tr' : 'en' }}" lang="{{ $isEnglish ? 'tr' : 'en' }}" aria-label="{{ $isEnglish ? 'Türkçe sürüm' : 'English version' }}">{{ $isEnglish ? 'TR' : 'EN' }}</a>
                     <button @click="dark = !dark" class="hc-theme-button !h-10 !w-10 !rounded-xl" :aria-label="dark ? 'Açık temaya geç' : 'Koyu temaya geç'" :title="dark ? 'Açık temaya geç' : 'Koyu temaya geç'"><span x-show="dark"><x-ui.icon name="sun" size="18" /></span><span x-show="!dark"><x-ui.icon name="moon" size="18" /></span></button>
-                    <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="Menüyü aç"><x-ui.icon name="menu" size="20" /></button>
+                    <button @click="menuOpen = !menuOpen" class="grid h-10 w-10 place-items-center rounded-xl bg-charcoal-900 text-white" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="{{ __('Menüyü aç') }}"><x-ui.icon name="menu" size="20" /></button>
                 </div>
             </nav>
-            <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-y-2 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" x-init="$watch('menuOpen', open => { if (open) { $nextTick(() => $refs.publicDrawer.querySelector('[data-public-drawer-close]')?.focus()) } })" @keydown.tab.prevent="const items = [...$el.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex=\'-1\'])')].filter(item => !item.hidden); const current = items.indexOf(document.activeElement); const next = $event.shiftKey ? (current <= 0 ? items.length - 1 : current - 1) : (current === items.length - 1 ? 0 : current + 1); items[next]?.focus()" class="hc-mobile-drawer border-t px-5 py-5 shadow-xl xl:hidden" role="dialog" aria-modal="true" aria-label="Ana menü">
+            <div id="mobile-nav" x-cloak x-show="menuOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-y-2 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" x-init="$watch('menuOpen', open => { if (open) { $nextTick(() => $refs.publicDrawer.querySelector('[data-public-drawer-close]')?.focus()) } })" @keydown.tab.prevent="const items = [...$el.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex=\'-1\'])')].filter(item => !item.hidden); const current = items.indexOf(document.activeElement); const next = $event.shiftKey ? (current <= 0 ? items.length - 1 : current - 1) : (current === items.length - 1 ? 0 : current + 1); items[next]?.focus()" class="hc-mobile-drawer border-t px-5 py-5 shadow-xl xl:hidden" role="dialog" aria-modal="true" aria-label="{{ __('Ana menü') }}">
                 <div x-ref="publicDrawer" class="mx-auto max-w-7xl">
-                    <div class="mb-3 flex justify-end"><button data-public-drawer-close @click="menuOpen = false" class="hc-icon-button !h-10 !w-10 !rounded-xl" aria-label="Menüyü kapat"><x-ui.icon name="close" size="18" /></button></div>
+                    <div class="mb-3 flex justify-end"><button data-public-drawer-close @click="menuOpen = false" class="hc-icon-button !h-10 !w-10 !rounded-xl" aria-label="{{ __('Menüyü kapat') }}"><x-ui.icon name="close" size="18" /></button></div>
                 <div class="grid gap-2 text-sm font-semibold">
-                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('home')]) href="{{ route('home') }}" @click="menuOpen = false" @if(request()->routeIs('home')) aria-current="page" @endif>Ana Sayfa</a>
-                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('recipes.*')]) href="{{ route('recipes.index') }}" @click="menuOpen = false" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>Tarifler</a>
-                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('blog.*')]) href="{{ route('blog.index') }}" @click="menuOpen = false" @if(request()->routeIs('blog.*')) aria-current="page" @endif>Blog</a>
+                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('home', 'en.home')]) href="{{ $homeRoute }}" @click="menuOpen = false" @if(request()->routeIs('home', 'en.home')) aria-current="page" @endif>{{ __('Ana Sayfa') }}</a>
+                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('recipes.*', 'en.recipes.*')]) href="{{ $recipesRoute }}" @click="menuOpen = false" @if(request()->routeIs('recipes.*', 'en.recipes.*')) aria-current="page" @endif>{{ __('Tarifler') }}</a>
+                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('blog.*', 'en.blog.*')]) href="{{ $blogRoute }}" @click="menuOpen = false" @if(request()->routeIs('blog.*', 'en.blog.*')) aria-current="page" @endif>Blog</a>
+                    @if($isEnglish)<a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('en.about')]) href="{{ route('en.about') }}" @click="menuOpen = false" @if(request()->routeIs('en.about')) aria-current="page" @endif>About</a>@endif
                     @auth
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ route('ingredients.explore') }}" @click="menuOpen = false" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>Ne Pişirebilirim?</a>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ route('ai-kitchen.index') }}" @click="menuOpen = false" @if(request()->routeIs('ai-kitchen.*')) aria-current="page" @endif>AI Mutfak</a>
@@ -145,8 +170,8 @@
                         @if(auth()->user()->isAdmin())<a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('admin.*')]) href="{{ route('admin.dashboard') }}" @click="menuOpen = false" @if(request()->routeIs('admin.*')) aria-current="page" @endif>Yönetim</a>@endif
                         <form method="post" action="{{ route('logout') }}">@csrf<button class="mobile-nav-link w-full text-left" type="submit">Çıkış yap</button></form>
                     @else
-                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('login')]) href="{{ route('login') }}" @click="menuOpen = false" @if(request()->routeIs('login')) aria-current="page" @endif>Giriş Yap</a>
-                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('register'), 'text-gold-700']) href="{{ route('register') }}" @click="menuOpen = false" @if(request()->routeIs('register')) aria-current="page" @endif>Üye Ol</a>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('login')]) href="{{ route('login') }}" @click="menuOpen = false" @if(request()->routeIs('login')) aria-current="page" @endif>{{ __('Giriş Yap') }}</a>
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('register'), 'text-gold-700']) href="{{ route('register') }}" @click="menuOpen = false" @if(request()->routeIs('register')) aria-current="page" @endif>{{ __('Üye Ol') }}</a>
                     @endauth
                 </div>
                 </div>
@@ -163,6 +188,17 @@
             {{ $slot }}
         </main>
 
+        @if($isEnglish)
+        <footer class="hc-footer mt-20" lang="en">
+            <div class="hc-container grid gap-10 py-14 md:grid-cols-[1.35fr_.8fr_.8fr_1fr]">
+                <div><x-brand-logo variant="dark" /><p class="hc-footer-muted mt-5 max-w-sm text-sm leading-7">Cypriot warmth meets a modern home kitchen. Every recipe is written and checked for a better table at home.</p></div>
+                <div><p class="text-sm font-extrabold text-orange-300">Explore</p><div class="hc-footer-muted mt-4 grid gap-3 text-sm"><a class="hover:text-orange-300" href="{{ route('en.recipes.index') }}">Recipes</a><a class="hover:text-orange-300" href="{{ route('en.blog.index') }}">Blog</a><a class="hover:text-orange-300" href="{{ route('en.about') }}">About us</a></div></div>
+                <div><p class="text-sm font-extrabold text-orange-300">Platform</p><div class="hc-footer-muted mt-4 grid gap-3 text-sm"><a class="hover:text-orange-300" href="{{ route('home') }}" hreflang="tr" lang="tr">Türkçe site</a><a class="hover:text-orange-300" href="{{ route('legal.center') }}#gizlilik-ve-kisisel-veriler">Privacy (Turkish)</a><a class="hover:text-orange-300" href="{{ route('legal.center') }}#iletisim-ve-geri-bildirim">Contact (Turkish)</a></div></div>
+                <div><p class="text-sm font-extrabold text-orange-300">Newsletter</p><p class="hc-footer-muted mt-4 text-sm leading-6">New recipes and kitchen inspiration from Cyprus.</p><a href="{{ route('register') }}" class="hc-btn hc-btn-primary mt-5">Join for free</a></div>
+            </div>
+            <div class="border-t border-white/10"><div class="hc-container hc-footer-muted flex flex-col gap-2 py-5 text-xs sm:flex-row sm:items-center sm:justify-between"><span>© {{ date('Y') }} House Chef Cyprus</span><span>Original editorial content · Privacy-first platform</span></div></div>
+        </footer>
+        @else
         <footer class="hc-footer mt-20">
             <div class="hc-container grid gap-10 py-14 md:grid-cols-[1.35fr_.8fr_.8fr_1fr]">
                 <div><x-brand-logo variant="dark" /><p class="hc-footer-muted mt-5 max-w-sm text-sm leading-7">Kıbrıs sıcaklığını modern mutfak deneyimiyle bir araya getiriyoruz. Her tarif, daha keyifli bir ev sofrası için.</p><p class="hc-footer-muted mt-6 text-xs leading-5">Sosyal kanallar yalnız doğrulanmış kurumsal hesaplar yayına alındığında burada yer alır.</p></div>
@@ -172,6 +208,7 @@
             </div>
             <div class="border-t border-white/10"><div class="hc-container hc-footer-muted flex flex-col gap-2 py-5 text-xs sm:flex-row sm:items-center sm:justify-between"><span>© {{ date('Y') }} House Chef Cyprus</span><span>Özgün editoryal içerik · Gizlilik odaklı platform</span></div></div>
         </footer>
+        @endif
         <x-analytics-consent />
     @endif
     @livewireScripts
