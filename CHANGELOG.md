@@ -6,6 +6,7 @@
 
 ## Unreleased
 
+- Added an English edition under `/en` (home, 50 recipes, 20 blog guides, about) with reciprocal `hreflang`/`x-default`, localized `lang`/`og:locale`/schema `inLanguage`, an English sitemap with `xhtml:link` alternates, a language switcher and a non-redirecting English suggestion banner; translations are versioned in `resources/translations/en` and imported by `content:import-translations` during deploy.
 - Added a secret-safe Hostinger Mail operations center, cached SPF/DKIM/DMARC readiness flags, delivery-count visibility, synthetic template previews and branded HTML/plain-text fallbacks for application-owned transactional mail.
 - Hardened Hostinger PHP by disabling version exposure and enabling server error logging; added immutable browser-cache headers for versioned public assets.
 

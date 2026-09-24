@@ -11,6 +11,7 @@ run composer install --no-dev --prefer-dist --optimize-autoloader --no-interacti
 run npm ci
 run npm run build
 run php artisan migrate --force --no-interaction
+run php artisan content:import-translations --locale=en --json
 run php artisan storage:link --force
 run php artisan config:cache
 run php artisan route:cache
