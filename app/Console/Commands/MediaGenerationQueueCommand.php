@@ -41,6 +41,8 @@ final class MediaGenerationQueueCommand extends Command
             return 1;
         }
 
+        $script = escapeshellarg(base_path('scripts/image-queue.php'));
+        $cmd = 'php ' . $script . ' ' . implode(' ', $args);
         \passthru($cmd, $exitCode);
 
         return $exitCode;
