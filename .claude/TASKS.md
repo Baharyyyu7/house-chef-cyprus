@@ -9,14 +9,25 @@ Sohbet geçmişi değil, burası okunur. İlerledikçe güncellenir.
 
 - [ ] **GPTBot engeli** - Hostinger hPanel → CDN. Destek talebi açıldı,
       mühendise iletildi, yanıt bekleniyor. Site Bing'de sıfır görünürlükte.
-- [ ] **21 tarif görselsiz.** Gerçek fotoğraf gerekiyor. Uydurma görsel
-      (AI/stok) yasak - sitenin geçmişinde sahte medya olayı var.
+- [ ] **22 indeksli tarif görselsiz** (403 yayındaki toplam). Gerçek
+      fotoğraf gerekiyor. Uydurma görsel (AI/stok) yasak - sitenin
+      geçmişinde sahte medya olayı var. İçerikleri sağlam: 403'ün tamamı
+      tarif kalite kapısından geçiyor, eksik olan yalnız fotoğraf.
+      Flaouna, Kolokotisi, Şeftali Kebabı, Paluze, Tarhana Çorbası gibi
+      gerçek Kıbrıs yemekleri.
 - [ ] **Ses malzemesi.** Yazıları "doğru bilgi"den "sadece bu sitede olan
       bilgi"ye çevirmek için: yaşanmış 5-10 Kıbrıs mutfak olayı, gerçek
       sayılar (kaç yıl, kaç etkinlik), tartışmalı mutfak görüşleri.
       Bunlar olmadan da devam ediliyor, sonuç rakiplerle aynı seviyede kalıyor.
 
 ## Sırada
+
+- [ ] **Alakasız malzeme ataması.** Ölçü dönüşümünü incelerken çıktı:
+      "Yoğurtlu Yulaf Kasesi" tarifinde 3 adet tavuk yazıyor. Zeytinli
+      açma, sebzeli kiş, zaatarlı pide dilimleri de aynı durumda. Şablon
+      üretimi malzemeleri alakasız tariflere bağlamış. 471 şablon adlı
+      tarif taslağa alındı ama bunların adı bir yemeği tarif ettiği için
+      o temizlikte kapsam dışında kaldılar. Ölçülmedi, ayrı iş.
 
 - [ ] **590 başlık çevrilmemiş.** İndekslenebilir sayfalarda başlık hâlâ
       Türkçe metni içinde taşıyor, sonuna çevrilmiş kuyruk eklenmiş.
@@ -50,6 +61,20 @@ Sohbet geçmişi değil, burası okunur. İlerledikçe güncellenir.
 - [x] İnce yazı reklam taşımıyor (`52e599f`) - 110 yazının reklamı kalktı,
       yükleyici betiği de aynı kapıya bağlandı (otomatik reklamlar yuvaya
       bakmadan yerleştiriyor).
+- [x] Yönetim panelindeki "Dikkat gerekenler" 5 maddesinden 4'ü kapandı
+      (veri düzeltmesi, kod değil). Yedek:
+      `shared/storage/app/yedekler/panel-duzeltme-yedek-20260924-123644.json`
+      - 9 mükerrer medya kaydı silindi (aynı tarife aynı dosya).
+      - 471 şablon adlı tarif taslağa alındı ("Fırın", "Acılı", "Peynirli"
+        bir yemek adı değil; kodun kendi yorumu bunlara scaled content
+        diyor). Yayındaki tarif 1007 → 536.
+      - 13 ölçü dönüşümü yöntemi yazılarak doğrulandı (su bardağı 200 ml,
+        yemek kaşığı 15 ml; yoğunluk hesabı). "Tavuk 1 adet → 180 g"
+        doğrulanmadı, kapatıldı: bütün tavuk 1200-1500 g, bir parça
+        150-200 g, tek sayı yazılamaz.
+      - Mantar besin değerleri düzeltildi. `origin=ai_estimated` idi ve
+        100 g'da 160 kcal yazıyordu; doğrusu 22 kcal. Sekiz değerin hepsi
+        çiğ kültür mantarı referansıyla değiştirildi.
 
 ## Ölçümler
 
