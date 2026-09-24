@@ -23,7 +23,14 @@
     // AdSense incelemesi arama indeksine değil sayfanın kendisine bakar.
     $kapaliSayfa = (bool) request()->attributes->get('hc_page_is_noindex');
 
-    $reklamBetigi = $adsenseEnabled && $cmpHazir && ! $kapaliSayfa && (
+    // İnce sayfada da yüklenmez ve burada yuvayı kapatmak yetmiyor:
+    // otomatik reklamlar yuvaya bakmadan, doğrudan bu betik üzerinden
+    // birim yerleştirir. Yuva kapalı ama betik açık bir sayfa, politika
+    // bakımından reklamlı sayfadır.
+    $reklamKarari = request()->attributes->get('hc_page_ads_allowed');
+    $inceSayfa = $reklamKarari !== null && $reklamKarari === false;
+
+    $reklamBetigi = $adsenseEnabled && $cmpHazir && ! $kapaliSayfa && ! $inceSayfa && (
         $cmpSaglayici === 'google' || request()->cookie('hc_advertising_consent') === 'granted'
     );
 @endphp

@@ -31,6 +31,33 @@ final class BlogIndexability
     /** PublishedContentGuard ile aynı eşik; ikisi aynı şeyi ölçüyor. */
     public const ASGARI_KARAKTER = 2000;
 
+    /**
+     * Reklam taşımak için gereken asgari gövde.
+     *
+     * İndekslenebilir olmak ile reklam taşımaya uygun olmak aynı şey değil
+     * ve eşiğin tek olması bu ikisini karıştırıyordu. 2000 karakter (~350
+     * kelime) bir yazının aramada görünmesi için yeterli olabilir; AdSense
+     * politikası "düşük değerli içerik" derken bundan fazlasını kastediyor.
+     * Eşik dağılımdan okundu, yuvarlak sayı seçilerek değil. 2026-09-24'te
+     * yayındaki 156 yazının gövde uzunluğu iki tepe yapıyor: 3000-3500
+     * karakterde sıkışan kalabalık bir küme (makine üretimi parti, hepsi
+     * birbirine yakın uzunlukta) ve 4000'in üstünde duran 46 gerçek
+     * makale. Sınır tam bu ikisinin arasına düşüyor; ortanca 3375.
+     *
+     * Hesap o sırada incelemedeydi ve 110 yazı hem indekste hem reklamlı
+     * hem de o kümenin içindeydi.
+     *
+     * Sayfa yayında ve okunabilir kalır; yalnız reklam basılmaz. Yazı
+     * derinleşince kural kendiliğinden gevşer.
+     */
+    public const REKLAM_ASGARI_KARAKTER = 4000;
+
+    public function reklamTasiyabilir(BlogPost $yazi): bool
+    {
+        return $this->indekslenebilir($yazi)
+            && mb_strlen(trim(strip_tags((string) $yazi->translated('body')))) >= self::REKLAM_ASGARI_KARAKTER;
+    }
+
     public function indekslenebilir(BlogPost $yazi): bool
     {
         return $this->engeller($yazi) === [];

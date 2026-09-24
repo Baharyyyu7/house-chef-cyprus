@@ -20,6 +20,19 @@ final class SeoMetadataService
         $candidateCanonical = is_string($metadata?->canonical_override) ? $metadata->canonical_override : null;
         $robots = $this->robots($metadata?->robots, $defaultRobots);
 
+        // Reklam uygunluğu indekslenebilirlikten ayrı ölçülür. Aramada
+        // görünmeye değen bir yazı reklam taşımaya uygun olmayabilir ve
+        // 2026-09-24'te yayındaki 156 yazının 100'ü tam olarak bu
+        // durumdaydı: indekste, reklamlı ve 700 kelimenin altında.
+        // Bayrak burada kurulur çünkü reklam yuvası düzenden önce
+        // işleniyor; düzene yazmak ona geç kalıyor.
+        if ($entity instanceof BlogPost && app()->bound('request')) {
+            request()->attributes->set(
+                'hc_page_ads_allowed',
+                app(BlogIndexability::class)->reklamTasiyabilir($entity)
+            );
+        }
+
         if (app()->getLocale() !== config('locales.default', 'tr')) {
             $locale = app()->getLocale();
             $translatedTitle = (string) $entity->translated('title');

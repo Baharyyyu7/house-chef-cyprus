@@ -42,7 +42,15 @@
     // AdSense incelemesinde düşük değerli içerik olarak okunur.
     $kapaliSayfa = (bool) request()->attributes->get('hc_page_is_noindex');
 
-    $gosterilsin = $acik && $cmpHazir && $onayVar && $gecerliKimlik && $gecerliSlot && ! $ucretliUye && ! $kapaliSayfa;
+    // İnce sayfa da reklam taşımaz. Kapalı olmak ile ince olmak ayrı şeyler:
+    // indekste duran ama 700 kelimenin altındaki bir yazı aramada görünür,
+    // reklam politikası bakımından yine de düşük değerli içeriktir. Bayrak
+    // yoksa karar verilemez demektir ve o zaman engellenmez; ana sayfa,
+    // liste ve tarif sayfaları bu kuralın kapsamı dışında kalır.
+    $reklamKarari = request()->attributes->get('hc_page_ads_allowed');
+    $inceSayfa = $reklamKarari !== null && $reklamKarari === false;
+
+    $gosterilsin = $acik && $cmpHazir && $onayVar && $gecerliKimlik && $gecerliSlot && ! $ucretliUye && ! $kapaliSayfa && ! $inceSayfa;
 
     // Her AdSense birimi kendi biçimini ister ve yanlış öznitelikle basılan
     // birim ya hiç dolmaz ya da bozuk görünür. Biçim yuvanın tanımından gelir.
