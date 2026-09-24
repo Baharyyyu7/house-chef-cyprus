@@ -19,8 +19,9 @@ use Illuminate\Support\Carbon;
  * @property string|null $public_id
  * @property Carbon|null $last_login_at
  * @property Carbon|null $last_activity_at
+ * @property Carbon|null $premium_expires_at
  */
-#[Fillable(['name', 'first_name', 'last_name', 'email', 'phone', 'country', 'city_or_region', 'preferred_language', 'registration_source', 'terms_accepted_at', 'password', 'role', 'account_status'])]
+#[Fillable(['name', 'first_name', 'last_name', 'email', 'phone', 'country', 'city_or_region', 'preferred_language', 'registration_source', 'terms_accepted_at', 'password', 'role', 'account_status', 'social_provider', 'social_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -42,6 +43,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'last_activity_at' => 'datetime',
             'terms_accepted_at' => 'datetime',
             'marketing_consent_at' => 'datetime',
+            'is_premium' => 'boolean',
+            'premium_expires_at' => 'datetime',
+            'ai_usage_last_reset_at' => 'date',
             'password' => 'hashed',
         ];
     }
@@ -153,5 +157,85 @@ class User extends Authenticatable implements MustVerifyEmail
     public function personalizationExportRequests(): HasMany
     {
         return $this->hasMany(PersonalizationExportRequest::class);
+    }
+
+    /** @return HasMany<UserSubscription, $this> */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    /** @return HasMany<DigitalOrder, $this> */
+    public function digitalOrders(): HasMany
+    {
+        return $this->hasMany(DigitalOrder::class);
+    }
+
+    /** @return HasMany<TipContribution, $this> */
+    public function tips(): HasMany
+    {
+        return $this->hasMany(TipContribution::class);
+    }
+
+    public function isPremium(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if ($this->is_premium) {
+            $notExpired = $this->premium_expires_at === null || $this->premium_expires_at->isFuture();
+            $hasVerifiedSubscription = $this->subscriptions()
+                ->get()
+                ->contains(fn (UserSubscription $subscription) => $subscription->isActive() && $subscription->isPaymentVerified());
+
+            return $notExpired && $hasVerifiedSubscription;
+        }
+
+        return false;
+    }
+
+    public function canUseAiKitchen(): bool
+    {
+        if ($this->isPremium()) {
+            return true;
+        }
+
+        $this->checkAndResetAiDailyUsage();
+
+        // Ücretsiz kullanıcılar için günde 5 AI sorgusu hakkı
+        return $this->ai_daily_usage_count < 5;
+    }
+
+    public function incrementAiUsage(): void
+    {
+        if ($this->isPremium()) {
+            return;
+        }
+
+        $this->checkAndResetAiDailyUsage();
+        $this->increment('ai_daily_usage_count');
+    }
+
+    public function remainingDailyAiQueries(): int
+    {
+        if ($this->isPremium()) {
+            return 999;
+        }
+
+        $this->checkAndResetAiDailyUsage();
+
+        return max(0, 5 - (int) $this->ai_daily_usage_count);
+    }
+
+    protected function checkAndResetAiDailyUsage(): void
+    {
+        $today = Carbon::today();
+        if ($this->ai_usage_last_reset_at === null || Carbon::parse($this->ai_usage_last_reset_at)->lt($today)) {
+            $this->update([
+                'ai_daily_usage_count' => 0,
+                'ai_usage_last_reset_at' => $today,
+            ]);
+        }
     }
 }

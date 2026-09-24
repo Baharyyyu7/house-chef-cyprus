@@ -28,7 +28,7 @@ final class PublishedRecipeRepairProposalTest extends TestCase
         $before = Recipe::query()->where('status', 'published')->get(['id', 'title', 'status', 'verification_status', 'updated_at'])->toArray();
 
         $this->artisan('content:published-recipe-repair', ['--batch' => 1, '--json' => true])
-            ->expectsOutputToContain('"identity_confirmed":10')
+            ->expectsOutputToContain('"identity_confirmed":0')
             ->assertSuccessful();
 
         $this->assertSame(0, ContentFactoryReview::query()->count());

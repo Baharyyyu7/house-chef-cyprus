@@ -1,9 +1,11 @@
-<x-app-layout>
-    <x-slot name="header">
+<x-layouts.site title="Sizin için">
+    <section class="hc-container pt-10">
         <p class="text-sm font-semibold uppercase tracking-[0.18em] text-orange-600">Kişisel mutfak</p>
         <h1 class="mt-2 text-3xl font-bold tracking-tight text-stone-950 dark:text-white">Sizin için</h1>
         <p class="mt-2 max-w-2xl text-stone-600 dark:text-stone-300">Tercihleriniz yalnız sizin kontrolünüzdeki verilerle önerileri sıralar. Alerjen ve hariç tuttuğunuz malzemeler asla yumuşatılmaz.</p>
-    </x-slot>
+    </section>
+
+    
 
     <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
         @if (session('status'))
@@ -81,4 +83,4 @@
 
         <section class="hc-panel p-6" aria-labelledby="privacy-heading"><h2 id="privacy-heading" class="text-xl font-bold">Gizlilik kontrolleri</h2><p class="mt-1 text-sm text-stone-600 dark:text-stone-300">Açık tercihler ve sistemin öğrendiği sinyaller birbirinden ayrıdır. Bu ayarlar yeni çıkarımları durdurabilir.</p><form class="mt-4 grid gap-3 sm:grid-cols-2" method="POST" action="{{ route('personalization.settings') }}">@csrf @method('PATCH') @foreach(['history_usage'=>'Pişirme geçmişini kullan','pantry_usage'=>'Dolabımı kullan','favorites_usage'=>'Favorilerimi kullan','cooking_history_usage'=>'Oturum geçmişini kullan','ai_memory_usage'=>'AI hafızasını kullan','inferred_preferences'=>'Öğrenilmiş tercihleri kullan'] as $key=>$label)<label class="flex items-center gap-2 text-sm"><input name="{{ $key }}" type="checkbox" value="1" @checked(($profile->settings[$key] ?? false))>{{ $label }}</label>@endforeach<div class="sm:col-span-2"><button class="hc-button-secondary" type="submit">Gizlilik ayarlarını kaydet</button></div></form><form class="mt-4" method="POST" action="{{ route('personalization.export') }}">@csrf<button class="text-sm font-semibold underline" type="submit">Verilerim için dışa aktarma talebi oluştur</button></form></section>
     </div>
-</x-app-layout>
+</x-layouts.site>

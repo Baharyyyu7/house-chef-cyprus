@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataQualityController;
 use App\Http\Controllers\Admin\EditorialOperationsController;
 use App\Http\Controllers\Admin\FailedJobController;
+use App\Http\Controllers\Admin\ImageRequestController;
 use App\Http\Controllers\Admin\IngredientController as AdminIngredientController;
 use App\Http\Controllers\Admin\IntegrationCenterController;
 use App\Http\Controllers\Admin\MailOperationsController;
@@ -29,62 +30,215 @@ use App\Http\Controllers\Admin\RestoreHistoryController;
 use App\Http\Controllers\Admin\SeoOperationsController;
 use App\Http\Controllers\Admin\SystemEventController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\AiKitchenController;
+use App\Http\Controllers\Auth\SocialLoginController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\BlogCoverController;
+use App\Http\Controllers\CategoryHubController;
 use App\Http\Controllers\ContactRequestController;
 use App\Http\Controllers\CookingSessionController;
+use App\Http\Controllers\CuisineHubController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\InformationPageController;
 use App\Http\Controllers\IngredientExplorerController;
+use App\Http\Controllers\IngredientHubController;
 use App\Http\Controllers\LegalInformationCenterController;
-use App\Http\Controllers\Localized\LocalizedBlogController;
-use App\Http\Controllers\Localized\LocalizedPageController;
-use App\Http\Controllers\Localized\LocalizedRecipeController;
+use App\Http\Controllers\LlmsTxtController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PantryController;
 use App\Http\Controllers\PersonalizationController;
+use App\Http\Controllers\PolicyPageController;
 use App\Http\Controllers\RecipeCollectionController;
+use App\Http\Controllers\RecipeCollectionLandingController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\RecipeRatingController;
+use App\Http\Controllers\RssFeedController;
+use App\Http\Controllers\SchedulerTriggerController;
+use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\TipController;
+use App\Models\BlogPost;
+use App\Models\Recipe;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Monetization & Gelir Kanalları Route'ları
+|--------------------------------------------------------------------------
+*/
+Route::get('/fiyatlandirma', [SubscriptionController::class, 'pricing'])->name('pricing');
+Route::post('/abone-ol', [SubscriptionController::class, 'checkout'])->name('subscription.checkout')->middleware(['auth', 'throttle:payment-attempt']);
+Route::post('/abonelik-iptal', [SubscriptionController::class, 'cancel'])->name('subscription.cancel')->middleware(['auth', 'throttle:payment-attempt']);
+Route::post('/abonelik-yonet', [SubscriptionController::class, 'billingPortal'])->name('subscription.portal')->middleware(['auth', 'throttle:payment-attempt']);
+
+Route::get('/magaza', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/magaza/{product:slug}', [ShopController::class, 'show'])->name('shop.show');
+Route::post('/magaza/satin-al/{product:slug}', [ShopController::class, 'checkout'])->name('shop.checkout')->middleware('throttle:payment-attempt');
+Route::get('/magaza/onay/{orderUuid}', [ShopController::class, 'success'])->middleware('signed')->name('shop.success');
+Route::get('/magaza/indir/{downloadToken}', [ShopController::class, 'download'])->name('shop.download')->middleware('throttle:digital-download');
+
+Route::get('/go/{slug}', [AffiliateController::class, 'redirect'])->name('affiliate.redirect');
+Route::post('/destek-ol', [TipController::class, 'process'])->name('tip.process')->middleware('throttle:payment-attempt');
+
+// Not: burada bir zamanlar `if (! Route::has('pricing'))` koşuluyla ikinci bir
+// /fiyatlandirma rotası vardı. Route::has kayıt sırasında ad tablosunu henüz
+// görmediği için koşul her zaman doğru çıkıyor, fallback yukarıdaki gerçek
+// rotayı eziyordu: Stripe akışını taşıyan sayfaya hiç ulaşılamıyordu.
+// Ödeme hazır değilken sayfayı görünür tutma işini zaten SubscriptionController
+// yapıyor ($paymentsEnabled false iken düğmeler "Yakında" olur).
+
 Route::get('/', [RecipeController::class, 'index'])->name('home');
+Route::get('/haftalik-menu', [\App\Http\Controllers\WeeklyMenuController::class, 'index'])->name('weekly-menu.index');
+Route::post('/dil', LocaleController::class)->middleware('throttle:20,1')->name('locale.update');
+// Sosyal giriş. Sağlayıcı yapılandırılmamışsa controller 404 döner ve düğme
+// zaten basılmaz; anahtarsız bir düğme herkesi hata sayfasına götürür.
+Route::get('/giris/{provider}/yonlendir', [SocialLoginController::class, 'redirect'])
+    ->whereIn('provider', ['google', 'github'])
+    ->middleware('throttle:20,1')
+    ->name('social.redirect');
+Route::get('/giris/{provider}/geri-donus', [SocialLoginController::class, 'callback'])
+    ->whereIn('provider', ['google', 'github'])
+    ->middleware('throttle:20,1')
+    ->name('social.callback');
+
 Route::get('/health', HealthController::class)->name('health');
 Route::get('/tarifler', [RecipeController::class, 'index'])->name('recipes.index');
-Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])->name('recipes.show');
+// Malzemeye göre tarif eşleştirme herkese açıktır; dolap entegrasyonu üye olanlara özel kalır.
+Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])->name('ingredients.explore');
+
+// Malzeme sayfaları: "Hellim ile ne yapılır?" Sayfa yalnız arkasında yeterli
+// tarif varsa açılır; eşiğin altındaki malzeme 404 verir.
+// Mutfak sayfalari: sitenin kendi arama kaydi "kibris mutfagi"ni 24 kez
+// olctu ama indekslenebilir tek bir mutfak sayfasi yoktu.
+// Kıbrıs 5'li varyant için kısa/anahtar kelime URL'leri — hepsi kanonik hub'a 301
+// "Kıbrıs", "Kıbrıs Yemek", "Kıbrıs Yemek Tarif", "Yemek Kıbrıs", "Kıbrıs Yemekleri" tek sayfada toplanır
+foreach (['kibris','kibris-yemek','kibris-yemekleri','kibris-yemek-tarifi','kibris-yemek-tarifleri','yemek-kibris'] as $kisa) {
+    Route::redirect('/'.$kisa, '/mutfaklar/kibris-mutfagi', 301)->name('kibris.alias.'.$kisa);
+    Route::redirect('/en/'.$kisa, '/en/mutfaklar/kibris-mutfagi', 301);
+}
+Route::get('/mutfaklar', [CuisineHubController::class, 'index'])->name('cuisines.index');
+Route::get('/mutfaklar/{slug}', [CuisineHubController::class, 'show'])->name('cuisines.show');
+Route::get('/kategoriler', [CategoryHubController::class, 'index'])->name('categories.index');
+Route::get('/kategoriler/{slug}', [CategoryHubController::class, 'show'])->name('categories.show');
+// /sure/30-dakika yayindaydi ama /sure 404 donuyordu: alt sayfasi olan ust
+// sayfa eksikti. Diger uc hub index + show ciftiyle duruyor.
+Route::get('/sure', [RecipeCollectionLandingController::class, 'sureler'])->name('collections.sure.index');
+Route::get('/zorluk', [RecipeCollectionLandingController::class, 'zorluklar'])->name('collections.zorluk.index');
+Route::get('/sure/{slug}', [RecipeCollectionLandingController::class, 'sure'])->name('collections.sure');
+Route::get('/zorluk/{slug}', [RecipeCollectionLandingController::class, 'zorluk'])->name('collections.zorluk');
+Route::get('/malzemeler', [IngredientHubController::class, 'index'])->name('ingredients.hub.index');
+Route::get('/malzemeler/{slug}', [IngredientHubController::class, 'show'])->name('ingredients.hub.show');
+Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
+    ->name('recipes.show')
+    // Tarif slug'ları rastgele bir sonek taşıyor ("adana-kebabi-MT5XA") ve tek
+    // bir toplu içerik çalışması 678 tarifin 628'inin sonekini değiştirebiliyor.
+    // Sonek değiştiğinde paylaşılmış ve indekslenmiş her adres 404 verir; asıl
+    // ada göre tek bir karşılık varsa oraya kalıcı olarak yönlendirilir.
+    ->missing(function (Request $request) {
+        $slug = (string) $request->route('recipe');
+        $govde = preg_replace('/-[A-Za-z0-9]{5}$/', '', $slug);
+
+        abort_if(! is_string($govde) || $govde === '' || $govde === $slug, 404);
+
+        $adaylar = Recipe::query()
+            ->where('status', 'published')
+            ->where(fn ($q) => $q->where('slug', $govde)->orWhere('slug', 'like', $govde.'-_____'))
+            ->limit(2)
+            ->get();
+
+        abort_unless($adaylar->count() === 1, 404);
+
+        return redirect()->route('recipes.show', $adaylar->first(), 301);
+    });
+Route::post('/tarifler/{recipe:slug}/oyla', [RecipeRatingController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('recipes.rate');
+Route::get('/embed/recipes/{recipe:slug}', [RecipeController::class, 'embed'])->name('recipes.embed');
+Route::get('/embed/tarif/{recipe:slug}', [RecipeController::class, 'embed'])->name('recipes.embed.tr');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/kategori/{category}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/blog/etiket/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
-Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
+// Bir yazının slug'ı sonradan uzatılırsa (ör. sonuna ayırt edici bir ek gelirse)
+// eski adres sessizce 404 olur ve indekslenmiş bağlantılar kırılır. Eski slug'la
+// başlayan yayındaki yazıya kalıcı yönlendirme yapılır; bulunamazsa 404 sürer.
+// Her yazının sosyal paylaşım görseli kendi başlığından üretilir; 216 yazının
+// aynı varsayılan marka görselini paylaşması yerine.
+Route::get('/blog/{post}/kapak.png', BlogCoverController::class)->name('blog.cover');
+Route::get('/blog/{post}', [BlogController::class, 'show'])
+    ->name('blog.show')
+    ->missing(function (Request $request) {
+        $slug = (string) $request->route('post');
+
+        $match = BlogPost::query()->publiclyVisible()
+            ->where('slug', 'like', $slug.'-%')
+            ->orderByRaw('LENGTH(slug)')
+            ->first();
+
+        abort_if($match === null, 404);
+
+        return redirect()->route('blog.show', $match, 301);
+    });
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemaps/pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
 Route::get('/sitemaps/recipes.xml', [SitemapController::class, 'recipes'])->name('sitemap.recipes');
 Route::get('/sitemaps/blog.xml', [SitemapController::class, 'blog'])->name('sitemap.blog');
 Route::get('/sitemaps/images.xml', [SitemapController::class, 'images'])->name('sitemap.images');
-Route::get('/sitemaps/en.xml', [SitemapController::class, 'english'])->name('sitemap.en');
+Route::get('/feed', [RssFeedController::class, 'index'])->name('feed');
+Route::get('/feed.xml', [RssFeedController::class, 'index']);
+Route::get('/rss.xml', [RssFeedController::class, 'index']);
+Route::get('/en/feed', [RssFeedController::class, 'en'])->name('feed.en');
+Route::get('/en/feed.xml', [RssFeedController::class, 'en']);
+Route::get('/en/rss.xml', [RssFeedController::class, 'en']);
+
+Route::get('/llms.txt', [LlmsTxtController::class, 'index'])->name('llms.txt');
+Route::get('/llms-full.txt', [LlmsTxtController::class, 'full'])->name('llms.full');
+Route::get('/en/llms.txt', [LlmsTxtController::class, 'en'])->name('llms.txt.en');
+Route::get('/en/llms-full.txt', [LlmsTxtController::class, 'enFull'])->name('llms.full.en');
+// Türkçe ve İngilizce korpusları elle yazıldı ve daha zengin; geri kalan her
+// açık dil buradan otomatik korpus alır. Yeni bir dil açıldığında burada
+// yapılacak bir iş yok - altyapının kendi kendine büyümesi bu demek.
+Route::get('/{locale}/llms.txt', [LlmsTxtController::class, 'locale'])
+    ->where('locale', '[a-z]{2}')
+    ->name('llms.txt.locale');
+Route::get('/{locale}/llms-full.txt', [LlmsTxtController::class, 'localeFull'])
+    ->where('locale', '[a-z]{2}')
+    ->name('llms.full.locale');
+
+Route::get('/opensearch.xml', fn () => response()->view('opensearch', ['locale' => 'tr'])->header('Content-Type', 'application/opensearchdescription+xml; charset=UTF-8')->header('Cache-Control', 'public, max-age=86400'))->name('opensearch');
+Route::get('/en/opensearch.xml', fn () => response()->view('opensearch', ['locale' => 'en'])->header('Content-Type', 'application/opensearchdescription+xml; charset=UTF-8')->header('Cache-Control', 'public, max-age=86400'))->name('opensearch.en');
+
+Route::get('/manifest.webmanifest', fn () => response(file_get_contents(public_path('brand/site.webmanifest')), 200, ['Content-Type' => 'application/manifest+json; charset=UTF-8']));
+Route::get('/en/manifest.webmanifest', fn () => response(file_get_contents(public_path('brand/site-en.webmanifest')), 200, ['Content-Type' => 'application/manifest+json; charset=UTF-8']))->name('manifest.en');
+Route::get('/en/site.webmanifest', fn () => response(file_get_contents(public_path('brand/site-en.webmanifest')), 200, ['Content-Type' => 'application/manifest+json; charset=UTF-8']));
+Route::get('/c032a1e8e8214371b658ef9c7e0b57e1.txt', fn () => response(config('services.indexnow.key', 'c032a1e8e8214371b658ef9c7e0b57e1'), 200, ['Content-Type' => 'text/plain; charset=UTF-8']));
 Route::view('/robots.txt', 'robots')->name('robots');
+
+// Zamanlayıcı tetikleme ucu. Hostinger cron'u 2 Ağustos 2026'dan beri
+// çalışmıyor; bu uç dışarıdan bir zamanlayıcının uygulamayı dürtmesini
+// sağlıyor. Token tanımlı değilse 404 döner, yani varsayılan kapalıdır.
+Route::get('/_zamanlayici/{token}', SchedulerTriggerController::class)
+    ->middleware('throttle:6,1')
+    ->name('scheduler.trigger');
 Route::get('/yasal-bilgilendirme', [LegalInformationCenterController::class, 'index'])->name('legal.center');
+// İletişim formu yasal metnin içine gömülüydü; kendi sayfası oldu.
+Route::view('/iletisim', 'contact.index')->name('contact.index');
 Route::post('/yasal-bilgilendirme/iletisim', [ContactRequestController::class, 'store'])->middleware('throttle:contact-request')->name('legal.center.contact.store');
-Route::redirect('/kullanim-kosullari', '/yasal-bilgilendirme#kullanim-kosullari', 301);
-Route::redirect('/gizlilik', '/yasal-bilgilendirme#gizlilik-ve-kisisel-veriler', 301);
-Route::redirect('/cerezler', '/yasal-bilgilendirme#cerez-politikasi', 301);
-Route::redirect('/cerez-politikasi', '/yasal-bilgilendirme#cerez-politikasi', 301);
+// Bu üç politika kendi sayfasında duruyor. Bölümler yasal merkezden
+// taşındı, kopyalanmadı: aynı metin iki adreste dururken ikisi de
+// yinelenen içerik sayılır.
+Route::get('/gizlilik', PolicyPageController::class)->defaults('sayfa', 'gizlilik')->name('policy.gizlilik');
+Route::get('/cerezler', PolicyPageController::class)->defaults('sayfa', 'cerezler')->name('policy.cerezler');
+Route::get('/kullanim-kosullari', PolicyPageController::class)->defaults('sayfa', 'kullanim-kosullari')->name('policy.kullanim-kosullari');
+Route::redirect('/cerez-politikasi', '/cerezler', 301);
 Route::redirect('/kaynak-politikasi', '/yasal-bilgilendirme#icerik-ve-kaynak-politikasi', 301);
 Route::redirect('/kaynak-ve-veri-guven-politikasi', '/yasal-bilgilendirme#icerik-ve-kaynak-politikasi', 301);
 Route::get('/{page}', [InformationPageController::class, 'show'])
     ->whereIn('page', ['hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'gorsel-ve-kaynak-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'iletisim'])
     ->name('information.show');
-
-// English edition for international search. Turkish remains at the root so
-// existing indexed URLs are untouched; each page links its counterpart via hreflang.
-Route::prefix('en')->name('en.')->middleware('locale:en')->group(function (): void {
-    Route::get('/', [LocalizedPageController::class, 'home'])->name('home');
-    Route::get('/about', [LocalizedPageController::class, 'about'])->name('about');
-    Route::get('/recipes', [LocalizedRecipeController::class, 'index'])->name('recipes.index');
-    Route::get('/recipes/{slug}', [LocalizedRecipeController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('recipes.show');
-    Route::get('/blog', [LocalizedBlogController::class, 'index'])->name('blog.index');
-    Route::get('/blog/{slug}', [LocalizedBlogController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('blog.show');
-});
 
 Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
@@ -109,7 +263,6 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::post('/ai-mutfak/menu/{plan:public_id}/alisveris', [AiKitchenController::class, 'shopping'])->name('ai-kitchen.shopping');
     Route::post('/ai-mutfak/tarifler/{recipe:public_id}/porsiyon', [AiKitchenController::class, 'portion'])->name('ai-kitchen.portion');
     Route::post('/ai-mutfak/tarifler/{recipe:public_id}/beslenme', [AiKitchenController::class, 'nutrition'])->name('ai-kitchen.nutrition');
-    Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])->name('ingredients.explore');
     Route::get('/favoriler', [FavoriteController::class, 'index'])->name('favorites.index');
     Route::post('/tarifler/{recipe:slug}/favori', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
     Route::get('/koleksiyonlar', [RecipeCollectionController::class, 'index'])->name('collections.index');
@@ -182,16 +335,26 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::get('medya', [AdminMediaController::class, 'index'])->name('media.index');
     Route::resource('blog', AdminBlogPostController::class)->parameters(['blog' => 'post'])->only(['index', 'create', 'store', 'edit', 'update']);
     Route::get('blog/{post}/inceleme', [AdminBlogPostController::class, 'review'])->name('blog.review');
-    Route::post('blog/tumunu-yayinla', [AdminBlogPostController::class, 'publishAll'])->name('blog.publish-all');
     Route::post('blog/{post}/yayinla', [AdminBlogPostController::class, 'publish'])->name('blog.publish');
     Route::post('blog/{post}/arsivle', [AdminBlogPostController::class, 'archive'])->name('blog.archive');
     Route::get('seo', [SeoOperationsController::class, 'index'])->name('seo.index');
+    Route::get('seo/buyume', [SeoOperationsController::class, 'growth'])->name('seo.growth');
+    Route::post('seo/buyume/yenile', [SeoOperationsController::class, 'refreshGrowth'])->name('seo.growth.refresh');
+    Route::post('seo/buyume/csv', [SeoOperationsController::class, 'importBacklinks'])->name('seo.growth.import');
+    Route::post('seo/buyume/{candidate:public_id}/incele', [SeoOperationsController::class, 'reviewBacklink'])->name('seo.growth.review');
+    Route::post('seo/firsatlar/{opportunity:public_id}/incele', [SeoOperationsController::class, 'reviewOpportunity'])->name('seo.opportunities.review');
     Route::get('seo/sorunlar', [SeoOperationsController::class, 'issues'])->name('seo.issues');
     Route::get('seo/firsatlar', [SeoOperationsController::class, 'opportunities'])->name('seo.opportunities');
     Route::post('seo/denetle', [SeoOperationsController::class, 'runAudit'])->name('seo.audit');
     Route::post('seo/firsatlari-yenile', [SeoOperationsController::class, 'refreshOpportunities'])->name('seo.opportunities.refresh');
     Route::post('seo/sorunlar/{issue}/coz', [SeoOperationsController::class, 'resolve'])->name('seo.issues.resolve');
     Route::post('seo/sorunlar/{issue}/yeniden-ac', [SeoOperationsController::class, 'reopen'])->name('seo.issues.reopen');
+    Route::post('seo/firsatlar/{opportunity}/durum', [SeoOperationsController::class, 'updateOpportunityStatus'])->name('seo.opportunities.update-status');
+    Route::get('seo/ai-notlar', [SeoOperationsController::class, 'aiMentions'])->name('seo.ai-mentions');
+    Route::get('seo/citation-boslarlari', [SeoOperationsController::class, 'citationGaps'])->name('seo.citation-gaps');
+    Route::get('seo/llm-yapi', [SeoOperationsController::class, 'llmStructure'])->name('seo.llm-structure');
+    Route::get('seo/haftalik-rapor', [SeoOperationsController::class, 'weeklyReport'])->name('seo.weekly-report');
+    Route::get('gorsel-talepleri', [ImageRequestController::class, 'index'])->name('image-requests.index');
     Route::get('ai-gorsel-studyosu', [AiImageStudioController::class, 'index'])->name('ai-image-studio.index');
     Route::get('ai-gorsel-studyosu/{generation}', [AiImageStudioController::class, 'show'])->name('ai-image-studio.show');
     Route::get('ai-gorsel-studyosu/{generation}/onizleme', [AiImageStudioController::class, 'preview'])->name('ai-image-studio.preview');
@@ -211,11 +374,17 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::post('ai-gorsel-studyosu/unsplash-aday/{candidate:public_id}/onayla', [AiImageStudioController::class, 'approveUnsplashCandidate'])->name('ai-image-studio.unsplash-candidates.approve');
     Route::get('medya/yukle', [AdminMediaController::class, 'create'])->name('media.create');
     Route::post('medya', [AdminMediaController::class, 'store'])->name('media.store');
+    // İçe aktarma ağır bir iş: aynı anda iki kez başlatmanın anlamı yok.
+    Route::post('medya/ice-aktar', [AdminMediaController::class, 'intake'])
+        ->middleware('throttle:6,1')
+        ->name('media.intake');
     Route::post('medya/orphan-tara', [AdminMediaController::class, 'scanOrphans'])->name('media.scan-orphans');
     Route::post('medya/gecici-temizle', [AdminMediaController::class, 'cleanupTemporary'])->name('media.cleanup-temporary');
     Route::get('medya/{publicId}', [AdminMediaController::class, 'show'])->name('media.show');
     Route::get('medya/{publicId}/indir', [AdminMediaController::class, 'downloadPrivate'])->name('media.download-private');
     Route::post('medya/{publicId}/thumbnail', [AdminMediaController::class, 'regenerate'])->name('media.regenerate');
+    Route::post('medya/toplu-onayla', [AdminMediaController::class, 'approveMany'])->name('media.approve-many');
+    Route::post('medya/{publicId}/onayla', [AdminMediaController::class, 'approve'])->name('media.approve');
     Route::delete('medya/{publicId}', [AdminMediaController::class, 'destroy'])->name('media.destroy');
     Route::get('veri-kalitesi', [DataQualityController::class, 'index'])->name('data-quality.index');
     Route::get('veri-kalitesi/{issue}', [DataQualityController::class, 'show'])->name('data-quality.show');
@@ -325,3 +494,28 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
 });
 
 require __DIR__.'/auth.php';
+
+// Yönetim, üyelik ve kullanıcı dostu URL uyumluluk yönlendirmeleri
+Route::redirect('/admin', '/yonetim', 301);
+Route::redirect('/admin/{path}', '/yonetim/{path}', 301)->where('path', '.*');
+Route::redirect('/giris', '/login', 301);
+Route::redirect('/oturum-ac', '/login', 301);
+Route::redirect('/kayit', '/register', 301);
+Route::redirect('/uye-ol', '/register', 301);
+Route::redirect('/panel', '/dashboard', 301);
+Route::redirect('/profil', '/profile', 301);
+Route::redirect('/hesabim', '/profile', 301);
+Route::redirect('/yasal', '/yasal-bilgilendirme', 301);
+Route::redirect('/contact', '/iletisim', 301);
+Route::redirect('/recipes', '/tarifler', 301);
+Route::redirect('/about', '/hakkimizda', 301);
+Route::redirect('/privacy', '/gizlilik', 301);
+Route::redirect('/terms', '/kullanim-kosullari', 301);
+Route::redirect('/cookies', '/cerezler', 301);
+Route::redirect('/faq', '/sss', 301);
+Route::redirect('/pantry', '/dolabim', 301);
+Route::redirect('/dolap', '/dolabim', 301);
+Route::redirect('/favorites', '/favoriler', 301);
+Route::redirect('/koleksiyonlarim', '/koleksiyonlar', 301);
+Route::redirect('/pricing', '/fiyatlandirma', 301);
+Route::redirect('/shop', '/magaza', 301);

@@ -17,7 +17,19 @@ final class DashboardController extends Controller
 {
     public function __invoke(AdminDashboardService $dashboard): View
     {
-        return view('admin.dashboard', $dashboard->dashboard((int) request('period', 7)));
+        $veri = $dashboard->dashboard((int) request('period', 7));
+
+        // Haritanın dönemi paneldekinden bağımsız seçilir; seçilmemişse
+        // panel dönemini izler.
+        $harita = request()->integer('harita', (int) $veri['period']);
+
+        if (array_key_exists($harita, AdminDashboardService::MAP_PERIODS)) {
+            $veri['audienceMap'] = $dashboard->audienceMapForPeriod($harita);
+        }
+
+        $veri['audienceMapPeriods'] = AdminDashboardService::MAP_PERIODS;
+
+        return view('admin.dashboard', $veri);
     }
 
     public function refreshQueue(QueueHealthService $queue): RedirectResponse

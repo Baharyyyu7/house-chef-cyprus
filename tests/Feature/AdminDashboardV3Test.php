@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\AuditLog;
 use App\Models\BlogPost;
 use App\Models\ContactRequest;
+use App\Models\Cuisine;
 use App\Models\Ingredient;
 use App\Models\PersonalizationExportRequest;
 use App\Models\Recipe;
@@ -26,7 +27,10 @@ final class AdminDashboardV3Test extends TestCase
 
         $this->actingAs($admin)->get(route('admin.dashboard', ['period' => 30]))
             ->assertOk()
-            ->assertSee('YÖNETİM / GENEL BAKIŞ')
+            // Konum bilgisi üst çubuktaki breadcrumb'da bir kez verilir; sayfa
+            // başlığının üstünde ikinci kez tekrarlanmaz.
+            ->assertSee('aria-label="Breadcrumb"', false)
+            ->assertDontSee('YÖNETİM / GENEL BAKIŞ')
             ->assertSee('İçerik ve operasyon özeti')
             ->assertSee('Toplam tarif')
             ->assertSee('Son 30 gün')
@@ -109,6 +113,82 @@ final class AdminDashboardV3Test extends TestCase
         $this->assertNotEmpty($available['charts'][1]['summary']);
     }
 
+    public function test_cuisine_distribution_excludes_deleted_recipes_like_the_catalog_totals(): void
+    {
+        $cuisine = Cuisine::create(['name' => 'Kıbrıs Mutfağı', 'slug' => 'kibris-mutfagi']);
+        Recipe::create(['title' => 'Aktif tarif', 'slug' => 'aktif-tarif', 'cuisine_id' => $cuisine->id]);
+        $deleted = Recipe::create(['title' => 'Silinen tarif', 'slug' => 'silinen-tarif', 'cuisine_id' => $cuisine->id]);
+        $deleted->delete();
+        Cache::flush();
+
+        $dashboard = app(AdminDashboardService::class)->dashboard(7);
+        $chart = $dashboard['charts'][1];
+
+        $this->assertSame(['Kıbrıs Mutfağı'], $chart['labels']);
+        $this->assertSame([1], $chart['values']);
+        $this->assertSame(collect($dashboard['cards'])->keyBy('key')['toplam_tarif']['current_value'], array_sum($chart['values']));
+    }
+
+    public function test_period_comparison_reports_a_decrease_when_new_records_fall(): void
+    {
+        User::factory()->count(4)->create(['created_at' => now()->subDays(10)]);
+        User::factory()->count(2)->create(['created_at' => now()->subDay()]);
+        Cache::flush();
+
+        $card = collect(app(AdminDashboardService::class)->dashboard(7)['cards'])->keyBy('key')['kullanicilar'];
+
+        $this->assertSame(6, $card['current_value']);
+        $this->assertSame(-2, $card['absolute_change']);
+        $this->assertSame(-50.0, $card['percentage_change']);
+        $this->assertSame('down', $card['trend_direction']);
+    }
+
+    public function test_period_comparison_is_neutral_for_equal_counts_and_unknown_without_a_baseline(): void
+    {
+        User::factory()->count(2)->create(['created_at' => now()->subDays(10)]);
+        User::factory()->count(2)->create(['created_at' => now()->subDay()]);
+        Cache::flush();
+        $cards = collect(app(AdminDashboardService::class)->dashboard(7)['cards'])->keyBy('key');
+
+        $this->assertSame(0.0, $cards['kullanicilar']['percentage_change']);
+        $this->assertSame('neutral', $cards['kullanicilar']['trend_direction']);
+        $this->assertNull($cards['toplam_tarif']['percentage_change']);
+    }
+
+    public function test_dashboard_uses_only_aggregate_active_member_country_profiles_for_the_world_activity_map(): void
+    {
+        User::factory()->create(['last_activity_at' => now(), 'last_country_code' => 'TR']);
+        User::factory()->create(['last_activity_at' => now(), 'country' => 'Türkiye']);
+        User::factory()->create(['last_activity_at' => now()->subDays(8), 'last_country_code' => 'DE']);
+        Cache::flush();
+
+        $map = app(AdminDashboardService::class)->dashboard(7)['audienceMap'];
+
+        $this->assertSame('available', $map['data_status']);
+        $this->assertSame(2, $map['total_members']);
+        $this->assertSame('TR', $map['countries'][0]['country_code']);
+        $this->assertSame('Türkiye', $map['countries'][0]['label']);
+        $this->assertSame('member_profile_aggregate', $map['source']);
+
+        $this->actingAs($this->admin())->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('Ülke bazlı hareketlilik')
+            ->assertSee('Google Analytics ziyaretçi raporu değildir.')
+            ->assertDontSee('last_country_code');
+    }
+
+    public function test_dashboard_world_activity_map_is_explicitly_empty_without_active_country_profiles(): void
+    {
+        User::factory()->create(['last_activity_at' => now(), 'country' => null, 'last_country_code' => null]);
+        Cache::flush();
+
+        $map = app(AdminDashboardService::class)->dashboard(7)['audienceMap'];
+
+        $this->assertSame('empty', $map['data_status']);
+        $this->assertSame(0, $map['total_members']);
+        $this->assertSame('Konum özeti için yeterli ziyaretçi verisi yok.', $map['summary']);
+    }
+
     public function test_dashboard_analytics_are_cached_per_period_and_refresh_after_invalidation(): void
     {
         Recipe::create(['title' => 'Önbellek tarifi', 'slug' => 'onbellek-tarifi', 'servings' => 2, 'difficulty' => 'Kolay', 'status' => 'published', 'verification_status' => 'verified']);
@@ -133,8 +213,14 @@ final class AdminDashboardV3Test extends TestCase
             'user_id' => $admin->id,
             'action' => 'recipe.updated',
             'auditable_type' => Recipe::class,
-            'auditable_id' => 987,
-            'metadata' => ['authorization' => 'hidden-value', 'internal_id' => 987, 'recipe_public_id' => '01JSAFEACTIVITY000000000000'],
+            // Dahili numara, sayfadaki başka hiçbir şeyde rastgele geçemeyecek
+            // kadar uzun seçildi. 987 idi; panel dünya haritasının SVG yol
+            // verisini içeriyor ve Miller projeksiyonuna geçince "598.7" gibi
+            // koordinatlarda "987" alt dizisi belirdi. Test sızıntı yokken
+            // kırmızıya döndü; kırmızı olması gereken tek durum numaranın
+            // metin olarak basılmasıdır.
+            'auditable_id' => 987654321,
+            'metadata' => ['authorization' => 'hidden-value', 'internal_id' => 987654321, 'recipe_public_id' => '01JSAFEACTIVITY000000000000'],
         ]);
         Cache::flush();
 
@@ -144,7 +230,7 @@ final class AdminDashboardV3Test extends TestCase
             ->assertSee('01JSAFEACTIVITY000000000000')
             ->assertDontSee('hidden-value')
             ->assertDontSee('internal_id')
-            ->assertDontSee('987');
+            ->assertDontSee('987654321');
     }
 
     public function test_dashboard_operational_refreshes_create_a_safe_audit_event(): void

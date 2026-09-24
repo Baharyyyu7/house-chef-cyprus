@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\BlogPost;
+use App\Models\ContentOpportunity;
 use App\Models\Recipe;
 use App\Models\SeoIssue;
 use App\Models\User;
@@ -20,7 +21,7 @@ final class SeoContentAutomationTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
         $member = User::factory()->create(['role' => 'member']);
 
-        $this->actingAs($admin)->get(route('admin.seo.index'))->assertOk()->assertSee('SEO operasyon merkezi');
+        $this->actingAs($admin)->get(route('admin.seo.index'))->assertOk()->assertSee('SEO ve Büyüme');
         $this->actingAs($member)->get(route('admin.seo.index'))->assertForbidden();
     }
 
@@ -75,12 +76,34 @@ final class SeoContentAutomationTest extends TestCase
 
     public function test_zero_result_queries_are_anonymous_and_can_create_safe_opportunities(): void
     {
-        $this->get(route('recipes.index', ['q' => 'limonlu nohut kasesi']))->assertOk();
+        // Fırsat üretimi artık tekrar şartına bağlı: tek seferlik test
+        // aramaları editoryal öneri listesine giriyordu. Eşiği aşacak kadar
+        // arama yapılıyor.
+        $esik = (int) config('seo.audit.minimum_zero_result_searches', 5);
+
+        for ($i = 0; $i < $esik; $i++) {
+            $this->get(route('recipes.index', ['q' => 'limonlu nohut kasesi']))->assertOk();
+        }
+
         $this->artisan('seo:content-opportunities --json')->assertSuccessful();
 
         $this->assertDatabaseHas('zero_result_searches', ['normalized_query' => 'limonlu nohut kasesi']);
         $this->assertDatabaseHas('content_opportunities', ['normalized_key' => 'zero-limonlu nohut kasesi']);
         $this->assertDatabaseMissing('zero_result_searches', ['normalized_query' => '127.0.0.1']);
+    }
+
+    public function test_generated_content_opportunities_are_editorial_candidates_and_never_publication_instructions(): void
+    {
+        $this->artisan('seo:content-opportunities --json')->assertSuccessful();
+
+        $opportunity = ContentOpportunity::query()
+            ->where('normalized_key', 'cluster-kibris-mutfagi')
+            ->sole();
+
+        $this->assertSame('open', $opportunity->status);
+        $this->assertTrue($opportunity->evidence['publication_requires_human_review']);
+        $this->assertSame('draft_only', $opportunity->evidence['delivery_policy']);
+        $this->assertArrayHasKey('collected_at', $opportunity->evidence);
     }
 
     public function test_safe_seo_commands_never_call_external_providers_by_default(): void

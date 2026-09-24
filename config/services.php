@@ -35,4 +35,31 @@ return [
         ],
     ],
 
+    /*
+     * Sosyal giriş. Anahtarlar yoksa config/social_login.php sağlayıcıyı
+     * kapalı sayar ve düğme hiç basılmaz.
+     */
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('APP_URL').'/giris/google/geri-donus',
+    ],
+
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'redirect' => env('APP_URL').'/giris/github/geri-donus',
+    ],
+
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'live_mode' => env('STRIPE_LIVE_MODE', false),
+        'require_terms_consent' => env('STRIPE_REQUIRE_TERMS_CONSENT', true),
+    ],
+
+    'indexnow' => [
+        'key' => env('INDEXNOW_KEY', 'c032a1e8e8214371b658ef9c7e0b57e1'),
+    ],
+
 ];

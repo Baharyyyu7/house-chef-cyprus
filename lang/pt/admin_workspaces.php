@@ -1,0 +1,23 @@
+<?php
+
+return [
+    'catalogue' => 'Ingredientes e medidas',
+    'search' => 'SEO e crescimento',
+    'experience' => 'Verificações do site',
+    'tabs' => 'Navegação da secção',
+    'ingredients' => 'Ingredientes',
+    'units' => 'Unidades',
+    'conversions' => 'Conversões',
+    'nutrition' => 'Dados nutricionais',
+    'quality' => 'Verificação de dados',
+    'overview' => 'Resumo',
+    'links' => 'Ligações',
+    'work' => 'Tarefas',
+    'issues' => 'Problemas',
+    'ai_mentions' => 'Menções de IA',
+    'citation_gaps' => 'Lacunas de citação',
+    'llm_structure' => 'Estrutura LLM',
+    'weekly_report' => 'Relatório semanal',
+    'interface' => 'Verificação da interface',
+    'recommendations' => 'Recomendações',
+];

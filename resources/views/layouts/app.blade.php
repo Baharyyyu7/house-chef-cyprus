@@ -3,7 +3,11 @@
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex,nofollow">
-    <meta name="theme-color" content="#ff6b00"><link rel="icon" type="image/svg+xml" href="{{ asset(config('brand.assets.favicon')) }}"><link rel="apple-touch-icon" sizes="180x180" href="{{ asset(config('brand.assets.apple_touch_icon')) }}"><link rel="manifest" href="{{ asset('brand/site.webmanifest') }}">
+    <meta name="theme-color" content="#ff6b00"><link rel="icon" type="image/png" sizes="32x32" href="{{ asset(config('brand.assets.favicon_32')) }}"><link rel="icon" type="image/png" sizes="16x16" href="{{ asset(config('brand.assets.favicon_16')) }}"><link rel="apple-touch-icon" sizes="180x180" href="{{ asset(config('brand.assets.apple_touch_icon')) }}"><link rel="manifest" href="{{ asset('brand/site.webmanifest') }}">
+    {{-- Auth/admin surfaces use noindex,nofollow — hreflang is not emitted here.
+         Emitting the same URL for every locale would create 7 identical
+         alternates and mislead crawlers. Public pages emit correct hreflang
+         via layouts/site.blade.php + LocaleUrlService::alternates(). --}}
     <link rel="preconnect" href="https://fonts.bunny.net"><link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&family=playfair-display:500,600,700&display=swap" rel="stylesheet" />
     <title>Hesabım · House Chef Cyprus</title>@vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

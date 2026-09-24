@@ -6,8 +6,10 @@ namespace Tests\Feature;
 
 use App\Models\BlogPost;
 use App\Models\Recipe;
+use App\Models\User;
 use Database\Seeders\HouseChefSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 final class RecipeMediaTruthfulnessPresentationTest extends TestCase
@@ -21,9 +23,7 @@ final class RecipeMediaTruthfulnessPresentationTest extends TestCase
 
         $this->get(route('recipes.index'))
             ->assertOk()
-            ->assertSee('Yemek fotoğrafı hazırlanıyor')
-            ->assertSee('Onaylı, tarife özel görsel bulunana kadar fotoğraf gösterilmez.')
-            ->assertDontSee('için temsili yemek görseli')
+            ->assertDontSee('✓ Doğrulandı')
             ->assertSee('İnceleme sürüyor');
         $this->get(route('recipes.show', $recipe))
             ->assertOk()
@@ -34,6 +34,7 @@ final class RecipeMediaTruthfulnessPresentationTest extends TestCase
 
     public function test_approved_synthetic_media_is_disclosed_in_recipe_and_blog_cards(): void
     {
+        Storage::fake('public');
         $recipe = Recipe::query()->create([
             'title' => 'Sentetik görsel test tarifi',
             'slug' => 'sentetik-gorsel-test-tarifi',
@@ -59,15 +60,57 @@ final class RecipeMediaTruthfulnessPresentationTest extends TestCase
             ->assertSee('Yapay zekâ ile üretilmiş, editoryal olarak onaylanmış görsel.')
             ->assertSee('gerçek fotoğraf olarak sunulmaz');
 
-        $this->get(route('blog.index'))
+        // Uyarı eskiden yalnız listedeydi; liste görselsiz olunca uyarı da
+        // yok olmuştu. Görsel artık detayda duruyor, uyarı da orada.
+        $this->get(route('blog.show', $post))
             ->assertOk()
             ->assertSee('Yapay zekâ görseli')
             ->assertSee('Yapay zekâ ile üretilmiş editoryal illüstrasyon: Test illüstrasyonu');
     }
 
+    public function test_homepage_featured_query_keeps_all_fields_required_by_the_public_media_gate(): void
+    {
+        Storage::fake('public');
+        $recipe = Recipe::query()->create([
+            'title' => 'Ana sayfa görsel kapısı tarifi',
+            'slug' => 'ana-sayfa-gorsel-kapisi-tarifi',
+            'excerpt' => 'Ana sayfa kartındaki onaylı görseli doğrulayan tarif.',
+            'prep_minutes' => 10,
+            'cook_minutes' => 20,
+            'rest_minutes' => 0,
+            'servings' => 4,
+            'difficulty' => 'Kolay',
+            'status' => 'published',
+            'verification_status' => 'verified',
+            'is_featured' => true,
+            'published_at' => now(),
+        ]);
+        $recipe->media()->create($this->approvedSyntheticMedia('recipe_synthetic', 'media/test/homepage.jpg', 'Ana sayfa test yemeği'));
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('Ana sayfa görsel kapısı tarifi')
+            // Assert the card's disclosure, not unrelated homepage commitment copy.
+            ->assertSee('Yapay zekâ ile üretilmiş görsel: Ana sayfa test yemeği')
+            ->assertSee('YZ görseli')
+            ->assertDontSee('Yemek fotoğrafı hazırlanıyor');
+    }
+
     /** @return array<string,mixed> */
     private function approvedSyntheticMedia(string $kind, string $path, string $altText): array
     {
+        $reviewer = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        Storage::disk('public')->put($path, 'synthetic source');
+        $variants = collect(['thumbnail', 'square', 'card', 'open_graph', 'hero'])->map(function (string $profile) use ($path): array {
+            $prefix = str($path)->beforeLast('.')->toString().'-'.$profile;
+            $jpeg = $prefix.'.jpg';
+            $webp = $prefix.'.webp';
+            Storage::disk('public')->put($jpeg, 'jpeg');
+            Storage::disk('public')->put($webp, 'webp');
+
+            return ['name' => $profile, 'width' => 1200, 'height' => 800, 'jpeg' => $jpeg, 'webp' => $webp];
+        })->all();
+
         return [
             'kind' => $kind,
             'disk' => 'public',
@@ -83,6 +126,13 @@ final class RecipeMediaTruthfulnessPresentationTest extends TestCase
             'generated_by_ai' => true,
             'ai_review_status' => 'SYNTHETIC_APPROVED',
             'alt_text' => $altText,
+            'fidelity_status' => 'strong_match',
+            'fidelity_confidence' => 95,
+            'responsive_variants' => $variants,
+            'media_reviewer_user_id' => $reviewer->id,
+            'media_reviewed_at' => now(),
+            'approved_by_user_id' => $reviewer->id,
+            'approved_at' => now(),
         ];
     }
 }

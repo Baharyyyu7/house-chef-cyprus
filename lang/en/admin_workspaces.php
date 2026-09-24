@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'catalogue' => 'Ingredients and Measures',
+    'search' => 'SEO and Growth',
+    'experience' => 'Site Checks',
+    'tabs' => 'Section navigation',
+    'ingredients' => 'Ingredients',
+    'units' => 'Units',
+    'conversions' => 'Conversions',
+    'nutrition' => 'Nutrition Data',
+    'quality' => 'Data Checks',
+    'overview' => 'Overview',
+    'links' => 'Links',
+    'work' => 'Work List',
+    'issues' => 'Issues',
+    'ai_mentions' => 'AI mentions',
+    'citation_gaps' => 'Citation gaps',
+    'llm_structure' => 'LLM structure',
+    'weekly_report' => 'Weekly report',
+    'ai_mentions' => 'AI Mentions',
+    'citation_gaps' => 'Citation Gaps',
+    'llm_structure' => 'LLM Structure',
+    'weekly_report' => 'Weekly Report',
+    'interface' => 'Interface Checks',
+    'recommendations' => 'Recommendations',
+];

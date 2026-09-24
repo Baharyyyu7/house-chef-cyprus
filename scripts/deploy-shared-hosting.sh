@@ -18,6 +18,6 @@ run mkdir -p "$RELEASE_DIR/storage/app/private" "$RELEASE_DIR/storage/app/public
 run ln -sfn "$RELEASE_DIR/public" "$WEB_ROOT"
 run bash -lc "cd $(printf %q "$RELEASE_DIR") && php artisan app:environment-check --environment=production --strict --json"
 run bash -lc "cd $(printf %q "$RELEASE_DIR") && php artisan migrate --force --no-interaction"
-run bash -lc "cd $(printf %q "$RELEASE_DIR") && php artisan content:import-translations --locale=en --json"
+run bash -lc "cd $(printf %q "$RELEASE_DIR") && php artisan content:import-translations --locale=en --apply"
 run bash -lc "cd $(printf %q "$RELEASE_DIR") && php artisan optimize"
 run bash -lc "cd $(printf %q "$RELEASE_DIR") && php artisan app:post-deploy-smoke --json"

@@ -1,0 +1,32 @@
+{
+  "agent": {
+    "id": "muse-spark-1.2-contributor-free",
+    "name": "Muse Spark — Profesör Seviye Sistemci",
+    "family": "Muse Spark (Meta MSL) / OpenCode",
+    "role": "GEO + SEO + Parasız Backlink Entegre Büyüme",
+    "project": "House Chef Cyprus",
+    "domain": "https://housechefcyprus.com",
+    "vps": "147.93.93.105",
+    "repo": "Yemek Projesi",
+    "branch": "visual-redesign-v2",
+    "commit": "94fba00",
+    "date": "2026-09-14T13:18:00Z",
+    "authority": "full etki, full onay — para harcama YASAK",
+    "languages": ["tr","en","de","fa","pl","ru","pt"],
+    "corpora": ["/llms.txt","/llms-full.txt","/en/llms.txt","/en/llms-full.txt","/{locale}/llms.txt","/{locale}/llms-full.txt"],
+    "sitemap": "/sitemap.xml",
+    "robots": "/robots.txt",
+    "capabilities": ["GEO","Technical SEO","Parasız Backlink PR","Schema.org","hreflang","Internal Linking"],
+    "constraints": ["never_spend_money","draft_only","no_bulk_approve","no_local_media_accumulation"],
+    "manifest": "/docs/AI_AGENT_TANIMA_RAPORU.md"
+  },
+  "execution": {
+    "triage": "180 duplicate drafted, sitemap 97/2210 indexable, noindex shield active",
+    "geo": "14 AI corpora, heritage fallback, nutrition+sameAs+speakable+FAQ schema",
+    "seo": "7-locale hreflang, 5 sitemap sources, internal link engine, H1 fix",
+    "backlink": "453 prospects draft_only, market-aware, Kıbrıs moat (Flaouna/Kolokas/Molohiya)",
+    "autonomous_loop": "12 cron, hourly growth, daily audit",
+    "build": "public/build/manifest.json OK",
+    "tests": "LlmsTxt 8/8, BacklinkMarket 10/10"
+  }
+}

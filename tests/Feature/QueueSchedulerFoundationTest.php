@@ -120,7 +120,7 @@ final class QueueSchedulerFoundationTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
         $member = User::factory()->create(['role' => 'member', 'email_verified_at' => now()]);
 
-        $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk()->assertSee('Queue yenile')->assertSee('Scheduler yenile')->assertSee('Cache yenile');
+        $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk()->assertSee('İş kuyruğunu yenile')->assertSee('Zamanlayıcıyı yenile')->assertSee('Önbelleği yenile');
         $this->actingAs($admin)->post(route('admin.system-status.refresh-queue'))->assertRedirect();
         $this->assertNotNull(Cache::get('admin.system_health.last_refresh_at'));
         $this->actingAs($member)->post(route('admin.system-status.refresh-cache'))->assertForbidden();

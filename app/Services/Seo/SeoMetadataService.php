@@ -18,12 +18,36 @@ final class SeoMetadataService
         $metadata = $entity->relationLoaded('seoMetadata') ? $entity->getRelation('seoMetadata') : $entity->seoMetadata()->first();
 
         $candidateCanonical = is_string($metadata?->canonical_override) ? $metadata->canonical_override : null;
+        $robots = $this->robots($metadata?->robots, $defaultRobots);
+
+        if (app()->getLocale() !== config('locales.default', 'tr')) {
+            return [
+                'title' => Str::limit((string) $entity->translated('title').' · House Chef Cyprus', 70, ''),
+                'description' => Str::limit((string) ($entity instanceof Recipe ? ($entity->translated('description') ?: $entity->translated('excerpt')) : $entity->translated('excerpt')), 160, ''),
+                'canonical' => app(LocaleUrlService::class)->urlFor(app()->getLocale(), $canonical),
+                'robots' => $robots,
+            ];
+        }
+
+        // Kıbrıs mutfağı tariflerinde başlığa "Kıbrıs Yemek Tarifi" ekle:
+        // "Hellim Kızartması" → "Hellim Kızartması — Kıbrıs Yemek Tarifi | House Chef Cyprus"
+        // "Kıbrıs Usulü Kleftiko" → "Kıbrıs Usulü Kleftiko · House Chef Cyprus"
+        $title = $metadata?->meta_title ?: $fallbackTitle;
+        if ($entity instanceof Recipe && $entity->cuisine && $entity->cuisine->slug === 'kibris-mutfagi') {
+            $baseTitle = $metadata?->meta_title ?: $fallbackTitle;
+            // Başlıkta zaten "Kıbrıs" yoksa ekle
+            if ($baseTitle !== '' && ! str_contains(mb_strtolower($baseTitle), 'kibris')) {
+                $title = $baseTitle . ' — Kıbrıs Yemek Tarifi | House Chef Cyprus';
+            } else {
+                $title = $baseTitle . ' · House Chef Cyprus';
+            }
+        }
 
         return [
-            'title' => Str::limit((string) ($metadata?->meta_title ?: $fallbackTitle), 70, ''),
+            'title' => Str::limit((string) $title, 70, ''),
             'description' => Str::limit((string) ($metadata?->meta_description ?: $fallbackDescription ?: ''), 160, ''),
             'canonical' => $this->safeCanonical($candidateCanonical, $canonical),
-            'robots' => config('seo.indexing_enabled') ? ($metadata?->robots ?: $defaultRobots) : 'noindex,nofollow',
+            'robots' => $robots,
         ];
     }
 
@@ -44,6 +68,27 @@ final class SeoMetadataService
         $candidateHost = parse_url($candidate, PHP_URL_HOST);
         $applicationHost = parse_url(url('/'), PHP_URL_HOST);
 
-        return is_string($candidateHost) && is_string($applicationHost) && hash_equals($applicationHost, $candidateHost) ? $candidate : $fallback;
+        return in_array(parse_url($candidate, PHP_URL_SCHEME), ['http', 'https'], true)
+            && parse_url($candidate, PHP_URL_USER) === null
+            && parse_url($candidate, PHP_URL_PASS) === null
+            && parse_url($candidate, PHP_URL_FRAGMENT) === null
+            && is_string($candidateHost) && is_string($applicationHost)
+            && strcasecmp($applicationHost, $candidateHost) === 0 ? $candidate : $fallback;
+    }
+
+    public function robots(?string $override, string $defaults = 'index,follow'): string
+    {
+        if (! config('seo.indexing_enabled')) {
+            return 'noindex,nofollow';
+        }
+
+        $directives = array_unique(array_filter(array_map('trim', explode(',', strtolower(($override ?: '').','.$defaults)))));
+        if (in_array('none', $directives, true)) {
+            $directives = array_merge($directives, ['noindex', 'nofollow']);
+        }
+        return implode(',', array_merge([
+            in_array('noindex', $directives, true) ? 'noindex' : 'index',
+            in_array('nofollow', $directives, true) ? 'nofollow' : 'follow',
+        ], array_values(array_diff($directives, ['all', 'none', 'index', 'noindex', 'follow', 'nofollow']))));
     }
 }

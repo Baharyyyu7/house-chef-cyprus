@@ -16,6 +16,14 @@ return [
         'openai' => ['enabled' => (bool) env('OPENAI_AI_KITCHEN_ENABLED', false), 'model' => env('OPENAI_AI_KITCHEN_MODEL', ''), 'key' => env('OPENAI_API_KEY')],
         'claude' => ['enabled' => (bool) env('CLAUDE_AI_KITCHEN_ENABLED', false), 'model' => env('CLAUDE_AI_KITCHEN_MODEL', ''), 'key' => env('ANTHROPIC_API_KEY')],
         'openrouter' => ['enabled' => (bool) env('OPENROUTER_AI_KITCHEN_ENABLED', false), 'model' => env('OPENROUTER_AI_KITCHEN_MODEL', ''), 'key' => env('OPENROUTER_API_KEY')],
+        'nvidia' => [
+            'enabled' => (bool) env('NVIDIA_AI_KITCHEN_ENABLED', false),
+            'model' => env('NVIDIA_AI_KITCHEN_MODEL', 'nvidia/nemotron-3-nano-30b-a3b'),
+            'key' => env('NVIDIA_API_KEY'),
+            'base_url' => env('NVIDIA_BASE_URL', 'https://integrate.api.nvidia.com/v1'),
+            'timeout_seconds' => (int) env('NVIDIA_TIMEOUT_SECONDS', 12),
+            'max_tokens' => (int) env('NVIDIA_MAX_TOKENS', 800),
+        ],
         'ollama' => ['enabled' => (bool) env('OLLAMA_AI_KITCHEN_ENABLED', false), 'model' => env('OLLAMA_AI_KITCHEN_MODEL', ''), 'url' => env('OLLAMA_URL', 'http://127.0.0.1:11434')],
     ],
 ];

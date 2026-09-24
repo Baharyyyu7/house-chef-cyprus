@@ -55,7 +55,7 @@ final class ProductionTransitionTest extends TestCase
         $this->actingAs($member)->post(route('admin.production-content.rescan'))->assertForbidden();
         $this->actingAs($admin)->get(route('admin.production-content.index'))
             ->assertOk()
-            ->assertSee('Production İçerik Merkezi')
+            ->assertSee('Canlı İçerik Merkezi')
             ->assertSee('Otomatik kontroller geçti')
             ->assertDontSee('passed automated checks');
         $this->actingAs($admin)->post(route('admin.production-content.rescan'))->assertRedirect();

@@ -1,6 +1,9 @@
 <?php
 
 use App\Contracts\Observability\ErrorReporterInterface;
+use App\Http\Middleware\CanonicalHost;
+use App\Http\Middleware\LocaleUrlPrefix;
+use App\Http\Middleware\RecordAudienceCountry;
 use App\Http\Middleware\RequestContext;
 use App\Http\Middleware\SecureHeaders;
 use App\Http\Middleware\SetLocale;
@@ -26,9 +29,28 @@ return Application::configure(basePath: dirname(__DIR__))
         __DIR__.'/../app/Console/Commands',
     ])
     ->withMiddleware(function (Middleware $middleware): void {
+        // These preferences are intentionally written by browser-side JavaScript so a
+        // tag is loaded only after a visitor has opted in. They contain no account or
+        // session data and must therefore remain readable by Laravel.
+        //
+        // hc_advertising_consent belongs here for the same reason as the analytics one:
+        // left encrypted, Laravel could never read what the browser wrote, the ad slot
+        // saw a null consent on every request, and no advertising could ever render —
+        // silently, with the configuration looking correct.
+        $middleware->encryptCookies(except: ['hc_analytics_consent', 'hc_advertising_consent']);
+        $middleware->validateCsrfTokens(except: ['tarifler/*/oyla']);
+        // Gerçek ziyaretçi IP'si CDN arkasında X-Forwarded-For'dan okunur;
+        // güvenilen proxy listesi çalışma anında yapılandırmadan gelir.
+        // Ayrıntı: App\Http\Middleware\TrustCdnProxies.
+        $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustCdnProxies::class);
+        // Canonical alan adı yönlendirmesi (www -> non-www 301)
+        $middleware->prepend(CanonicalHost::class);
+        // Yönlendirmeden önce çalışmalı: dil önekini istek yolundan çıkarıp
+        // normal rotaya düşürüyor, böylece rotalar ikinci kez tanımlanmıyor.
+        $middleware->prepend(LocaleUrlPrefix::class);
+        $middleware->web(append: [SetLocale::class, RecordAudienceCountry::class]);
         $middleware->append(RequestContext::class);
         $middleware->append(SecureHeaders::class);
-        $middleware->alias(['locale' => SetLocale::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

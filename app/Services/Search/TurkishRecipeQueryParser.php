@@ -99,7 +99,7 @@ final class TurkishRecipeQueryParser
             'method' => $method,
             'meal_type' => $mealType,
             'cuisine' => $cuisine,
-            'difficulty' => str_contains($normalized, 'kolay') ? 'Kolay' : null,
+            'difficulty' => str_contains($normalized, 'kolay') ? 'easy' : null,
             'matched_tokens' => array_values(array_unique($matched)),
             'ignored_tokens' => $ignored,
             'confidence' => min(100, count($matched) * 20 + count($ingredients) * 15),

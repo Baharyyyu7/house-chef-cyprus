@@ -20,6 +20,39 @@ use Illuminate\Support\Facades\Cache;
 
 final class DataQualityService
 {
+    /**
+     * Skorlar açık issue kayıtlarının cezasından türetilir. Hiç tarama
+     * yapılmadığında kayıt da olmaz ve her kategori %100 görünür; yani "%100"
+     * sağlıklı değil, "hiç bakılmadı" anlamına gelir. Panel bu ikisini
+     * ayırabilsin diye son tarama zamanı saklanır.
+     */
+    private const LAST_SCAN_KEY = 'data_quality.last_scanned_at';
+
+    public function lastScannedAt(): ?\DateTimeImmutable
+    {
+        $stamp = Cache::get(self::LAST_SCAN_KEY);
+
+        if (! is_string($stamp) || $stamp === '') {
+            return null;
+        }
+
+        try {
+            return new \DateTimeImmutable($stamp);
+        } catch (\Exception) {
+            return null;
+        }
+    }
+
+    /**
+     * Zaman damgası önbellekte tutulur, ama önbellek her deploy'da temizlenir;
+     * yalnız ona bakmak taranmış bir katalogu "hiç bakılmadı" göstermeye yeter.
+     * Bulgu kaydının varlığı taramanın çalıştığının kalıcı kanıtıdır.
+     */
+    public function hasEverScanned(): bool
+    {
+        return $this->lastScannedAt() !== null || DataQualityIssue::query()->exists();
+    }
+
     /** @return list<array<string,mixed>> */
     public function report(): array
     {
@@ -206,6 +239,7 @@ final class DataQualityService
         $previous = Cache::get('data_quality.last_score');
         $score = $this->score();
         Cache::forever('data_quality.last_score', $score);
+        Cache::forever(self::LAST_SCAN_KEY, now()->toIso8601String());
 
         return ['new' => $new, 'updated' => $updated, 'resolved' => $resolved, 'score' => $score, 'previous_score' => is_int($previous) ? $previous : null];
     }
@@ -216,9 +250,17 @@ final class DataQualityService
     }
 
     /** @return array<string, int> */
+    /**
+     * Olculmeyen kategori null donuyor: bu kategorileri uretecek hicbir
+     * kontrol yok ve ceza alamadiklari icin sonsuza kadar %100
+     * gorunuyorlardi. Cagiran tarafin "skor yok" ile "sifir skor" arasindaki
+     * farki gormesi gerekiyor.
+     *
+     * @return array<string, int|null>
+     */
     public function categoryScores(): array
     {
-        return collect($this->breakdown())->map(fn (array $item): int => $item['score'])->all();
+        return collect($this->breakdown())->map(fn (array $item): ?int => $item['score'])->all();
     }
 
     /** @return array<string, array{label:string,weight:int,score:int,open:int,failed:int,warning:int,critical:int,reasons:list<string>}> */
@@ -227,14 +269,29 @@ final class DataQualityService
         $issues = DataQualityIssue::query()->where('resolution_status', 'open')->get();
         $rows = [];
         $weightedScore = 0.0;
+        $olculenAgirlik = 0;
         foreach (config('data_quality.categories') as $key => $definition) {
             $categoryIssues = $issues->filter(fn (DataQualityIssue $issue): bool => ($issue->category ?: $this->categoryFor($issue->issue_type, $issue->entity_type)) === $key);
             $loss = $categoryIssues->sum(fn (DataQualityIssue $issue): int => (int) config('data_quality.penalties.'.$issue->severity, 0));
             $score = max(0, 100 - $loss);
             $weight = (int) $definition['weight'];
-            $weightedScore += $score * ($weight / 100);
+
+            // Skor 100'den başlayıp yalnız bulgu oldukça düşüyor. Arkasında
+            // hiç kontrol olmayan kategori ceza alamıyor ve sonsuza kadar
+            // %100 görünüyordu. Ölçülmeyen kategori skor bildirmiyor ve
+            // ortalamaya girmiyor; yoksa ölçülmemiş olan, ölçülmüş olanı
+            // yukarı çekiyor.
+            $olculuyor = ($definition['measured'] ?? true) === true;
+
+            if ($olculuyor) {
+                $olculenAgirlik += $weight;
+                $weightedScore += $score * $weight;
+            }
+
             $rows[$key] = [
-                'label' => (string) $definition['label'], 'weight' => $weight, 'score' => $score,
+                'label' => (string) $definition['label'], 'weight' => $weight,
+                'measured' => $olculuyor,
+                'score' => $olculuyor ? $score : null,
                 'open' => $categoryIssues->count(),
                 'failed' => $categoryIssues->whereIn('severity', ['critical', 'error'])->count(),
                 'warning' => $categoryIssues->where('severity', 'warning')->count(),
@@ -242,7 +299,11 @@ final class DataQualityService
                 'reasons' => $categoryIssues->sortByDesc(fn (DataQualityIssue $issue): int => (int) config('data_quality.penalties.'.$issue->severity, 0))->pluck('message')->unique()->take(3)->values()->all(),
             ];
         }
-        $rows['overall'] = ['label' => 'Genel skor', 'weight' => 100, 'score' => (int) round($weightedScore), 'open' => $issues->count(), 'failed' => $issues->whereIn('severity', ['critical', 'error'])->count(), 'warning' => $issues->where('severity', 'warning')->count(), 'critical' => $issues->where('severity', 'critical')->count(), 'reasons' => $issues->sortByDesc(fn (DataQualityIssue $issue): int => (int) config('data_quality.penalties.'.$issue->severity, 0))->pluck('message')->unique()->take(5)->values()->all()];
+        // Ağırlıklar ölçülenler üzerinden normalize ediliyor: ölçülmeyen
+        // kategorilerin payı genel skoru ne yukarı ne aşağı çekmeli.
+        $genel = $olculenAgirlik > 0 ? (int) round($weightedScore / $olculenAgirlik) : 0;
+
+        $rows['overall'] = ['label' => 'Genel skor', 'weight' => 100, 'measured' => $olculenAgirlik > 0, 'score' => $genel, 'open' => $issues->count(), 'failed' => $issues->whereIn('severity', ['critical', 'error'])->count(), 'warning' => $issues->where('severity', 'warning')->count(), 'critical' => $issues->where('severity', 'critical')->count(), 'reasons' => $issues->sortByDesc(fn (DataQualityIssue $issue): int => (int) config('data_quality.penalties.'.$issue->severity, 0))->pluck('message')->unique()->take(5)->values()->all()];
 
         return $rows;
     }

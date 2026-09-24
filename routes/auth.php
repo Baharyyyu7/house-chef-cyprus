@@ -6,8 +6,15 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::middleware('guest')->group(function () {
+    // İstek sınırı rotada değil, kayıt işleminin kendisinde
+    // (pages.auth.register::register, IP başına saatte 5 deneme).
+    //
+    // Rotadaki throttle:registration yalnız SAYFAYI GÖRÜNTÜLEMEYİ sayıyordu:
+    // form Livewire üzerinden gönderildiği için hiçbir kayıt denemesini
+    // korumuyor, bir saatte altıncı kez sayfayı açan ziyaretçiye 429
+    // veriyordu. 14 Eylül 2026'da art arda yayınların duman testi de aynı
+    // sayfayı açtığı için iki yayın geri alındı.
     Volt::route('register', 'pages.auth.register')
-        ->middleware('throttle:registration')
         ->name('register');
 
     Volt::route('login', 'pages.auth.login')

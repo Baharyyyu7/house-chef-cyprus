@@ -87,9 +87,15 @@ class AuthenticationTest extends TestCase
 
         $response = $this->get('/dashboard');
 
+        // Üye sayfaları ayrı bir düzen ve ayrı bir menü kullanıyordu; artık
+        // sitenin kendi başlık çubuğunu kullanıyorlar. Test menünün varlığını
+        // ve çıkış yolunun durduğunu doğruluyor, hangi bileşenden geldiğini
+        // değil.
         $response
             ->assertOk()
-            ->assertSeeVolt('layout.navigation')
+            ->assertSee('hc-public-header', false)
+            ->assertSee('hc-user-trigger', false)
+            ->assertSee(route('logout'), false)
             ->assertSee('<title>Hesabım · House Chef Cyprus</title>', false)
             ->assertDontSee('<title>Laravel</title>', false);
     }

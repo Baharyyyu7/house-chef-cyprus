@@ -11,11 +11,23 @@ use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 final class VisualDesignPhaseTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_public_design_has_one_vite_css_source(): void
+    {
+        $vite = (string) file_get_contents(base_path('vite.config.js'));
+        $layout = (string) file_get_contents(resource_path('views/layouts/site.blade.php'));
+
+        $this->assertStringContainsString("'resources/css/app.css'", $vite);
+        $this->assertStringNotContainsString('improvements.css', $vite);
+        $this->assertStringNotContainsString('improvements.css', $layout);
+        $this->assertFileDoesNotExist(resource_path('css/improvements.css'));
+    }
 
     public function test_public_navigation_and_mobile_navigation_are_available(): void
     {
@@ -37,16 +49,48 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('mobile-nav', false);
     }
 
-    public function test_v2_homepage_uses_the_real_food_hero_and_keeps_search_and_primary_calls_to_action(): void
+    public function test_v2_homepage_uses_video_hero_and_keeps_search_and_primary_calls_to_action(): void
     {
-        $this->get(route('home'))
+        // Metin değil davranış doğrulanıyor. Kahraman bölümündeki çağrı
+        // metinleri tasarım turlarında yeniden yazılıyor ve birebir dizeye
+        // bağlı bir test, kasıtlı bir metin değişikliğinde kırılıp gerçek
+        // bir hata varmış gibi görünüyordu.
+        // Video tek başına sahnedir; kapak görseli kalmamalı.
+        Storage::fake('public');
+        Storage::disk('public')->put('videos/hero-quality-20260908.mp4', 'sahte-video');
+
+        $icerik = (string) $this->get(route('home'))
             ->assertOk()
-            ->assertSee('house-chef-hero-v2.png', false)
-            ->assertSee('Tarifleri keşfet')
-            ->assertSee('Elindekilerle tarif bul')
-            ->assertSee('Akıllı arama')
-            ->assertSee('hero-search', false)
-            ->assertDontSee('∞ ilham');
+            // Video tek başına sahnedir; kapak görseli kalmamalı.
+            ->assertDontSee('house-chef-hero-v2', false)
+            ->assertSee('data-hero-video', false)
+            // Arama kutusunun kendisi aranıyor, üstündeki başlık değil:
+            // başlık metni tasarım turlarında yeniden yazılıyor.
+            ->assertSee('hero-ingredient', false)
+            ->assertDontSee('∞ ilham')
+            ->getContent();
+
+        // Arama gerçekten tarif listesine gönderiyor mu.
+        $this->assertMatchesRegularExpression(
+            '/<form[^>]*action="[^"]*ne-pisirebilirim[^"]*"/',
+            $icerik,
+            'Ana sayfadaki malzeme seçimi gerçek eşleştirmeye gitmeli.'
+        );
+
+        // Birincil çağrı: tarif listesine götüren bir düğme.
+        $this->assertMatchesRegularExpression(
+            '/<a[^>]*hc-btn-primary[^>]*href="[^"]*#hero-ingredient[^"]*"/',
+            $icerik,
+            'Kahraman bölümünde tariflere götüren birincil çağrı olmalı.'
+        );
+
+        // İkincil çağrı: malzemeden tarife giden yol. Ziyaretçi girişliyse
+        // malzeme keşfine, değilse kayda gider.
+        $this->assertMatchesRegularExpression(
+            '/<a[^>]*hc-hero-secondary[^>]*href="[^"]*tarifler[^"]*"/i',
+            $icerik,
+            'Kahraman bölümünde malzemeden başlatan ikincil çağrı olmalı.'
+        );
     }
 
     public function test_homepage_renders_an_explicit_featured_recipe_empty_state_when_no_recipes_exist(): void
@@ -77,7 +121,11 @@ final class VisualDesignPhaseTest extends TestCase
         $this->actingAs($admin)->get(route('admin.dashboard'))
             ->assertOk()
             ->assertSee('Yönetim alanı')
-            ->assertSee('Veri Kalitesi')
+            // Menü 14 Eylül 2026'da (46571b0) üç çalışma alanında birleşti;
+            // sabit "Veri Kalitesi" etiketi kalktı, veri kalitesi "katalog"
+            // alanının sekmesi oldu. Etiket artık çeviri dosyasından geliyor,
+            // test de oradan okuyor ki bir sonraki adlandırmada yine kırılmasın.
+            ->assertSee(__('admin_workspaces.catalogue'))
             ->assertSee(route('admin.recipes.index'), false);
 
         $this->actingAs($member)->get(route('admin.dashboard'))->assertForbidden();
@@ -103,7 +151,7 @@ final class VisualDesignPhaseTest extends TestCase
         $this->actingAs($admin)->get(route('admin.dashboard'))
             ->assertOk()
             ->assertSee('hc-v3-card', false)
-            ->assertSee('hc-display-lg', false);
+            ->assertSee('hc-heading-1', false);
     }
 
     public function test_profile_pilot_uses_turkish_labels_and_does_not_render_the_old_english_headings(): void
@@ -142,8 +190,28 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('hc-recipe-detail-hero', false)
             ->assertSee('Ev ölçüleri')
             ->assertSee('Kaynak ve güncellik')
-            ->assertSee('Pişirme rehberi')
-            ->assertSee('fetchpriority="high"', false);
+            ->assertSee('Pişirme rehberi');
+
+        // Yüksek öncelik yalnız LCP görseline aittir; logo onu hero'dan çalmaz.
+        $this->assertLessThanOrEqual(1, substr_count((string) $this->get(route('recipes.show', $recipe))->getContent(), 'fetchpriority="high"'));
+    }
+
+    public function test_recipe_servings_controls_use_a_separate_increment_contract_without_overwriting_the_typed_value(): void
+    {
+        $this->seed();
+        $recipe = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->firstOrFail();
+
+        // route()'un üçüncü argümanı $absolute'tur; sorgu parametreleri parametre
+        // dizisinin içinde verilmezse URL'e hiç eklenmez ve test sessizce anlamsızlaşır.
+        $this->get(route('recipes.show', ['recipe' => $recipe, 'servings' => 4]))
+            ->assertOk()
+            ->assertSee('name="servings" value="4"', false)
+            ->assertSee('name="servings_step" value="-1"', false)
+            ->assertSee('name="servings_step" value="1"', false);
+
+        $this->get(route('recipes.show', ['recipe' => $recipe, 'servings' => 4, 'servings_step' => 1]))
+            ->assertOk()
+            ->assertSee('name="servings" value="5"', false);
     }
 
     public function test_recipe_archive_keeps_advanced_filter_values_in_the_public_url_and_exposes_removable_filter_controls(): void

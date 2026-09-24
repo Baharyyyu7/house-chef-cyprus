@@ -10,6 +10,7 @@ use App\Models\SeoIssue;
 use App\Models\User;
 use App\Services\Seo\SeoMetadataService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 final class SeoAuthorityProgramTest extends TestCase
@@ -19,12 +20,16 @@ final class SeoAuthorityProgramTest extends TestCase
     public function test_public_recipe_emits_recipe_and_breadcrumb_schema_without_ratings_or_reviews(): void
     {
         $recipe = $this->recipe();
+        $this->makeRecipePubliclyEligible($recipe);
 
         $this->get(route('recipes.show', $recipe))
             ->assertOk()
             ->assertSee('"@type":"Recipe"', false)
             ->assertSee('"@type":"BreadcrumbList"', false)
-            ->assertSee('"mainEntityOfPage":"'.route('recipes.show', $recipe).'"', false)
+            // mainEntityOfPage düz adres yerine WebPage nesnesi olarak basılıyor
+            // (94fba00). İki biçim de schema.org'da geçerli; korunan şey alanın
+            // tarifin kendi kanonik adresini göstermesi.
+            ->assertSee('"mainEntityOfPage":{"@type":"WebPage","@id":"'.route('recipes.show', $recipe).'"}', false)
             ->assertSee('"dateModified"', false)
             ->assertDontSee('aggregateRating', false)
             ->assertDontSee('reviewRating', false);
@@ -34,7 +39,7 @@ final class SeoAuthorityProgramTest extends TestCase
     {
         $post = BlogPost::query()->create([
             'title' => 'Kıbrıs mutfağı rehberi', 'slug' => 'kibris-mutfagi-rehberi', 'excerpt' => 'Gerçek editoryal kaynaklara dayalı kısa rehber.',
-            'body' => str_repeat('Özgün editoryal bilgi. ', 30), 'status' => 'published', 'published_at' => now(),
+            'body' => str_repeat('Özgün editoryal bilgi. ', 100), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'published', 'published_at' => now(),
         ]);
 
         $this->get(route('blog.show', $post))
@@ -46,14 +51,26 @@ final class SeoAuthorityProgramTest extends TestCase
 
     public function test_only_approved_public_media_contributes_social_image_metadata(): void
     {
+        Storage::fake('public');
         $post = BlogPost::query()->create([
             'title' => 'Onaylı görsel rehberi', 'slug' => 'onayli-gorsel-rehberi', 'excerpt' => 'Görsel kaynakları hakkında kısa rehber.',
-            'body' => str_repeat('Özgün editoryal bilgi. ', 30), 'status' => 'published', 'published_at' => now(),
+            'body' => str_repeat('Özgün editoryal bilgi. ', 100), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'published', 'published_at' => now(),
         ]);
+        $reviewer = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        Storage::disk('public')->put('media/blog/approved.jpg', 'source');
+        $variants = [];
+        foreach (['thumbnail', 'square', 'card', 'open_graph', 'hero'] as $profile) {
+            $jpeg = "media/blog/approved-{$profile}.jpg";
+            $webp = "media/blog/approved-{$profile}.webp";
+            Storage::disk('public')->put($jpeg, 'jpeg');
+            Storage::disk('public')->put($webp, 'webp');
+            $variants[] = ['name' => $profile, 'width' => 1600, 'height' => 900, 'jpeg' => $jpeg, 'webp' => $webp];
+        }
         $media = $post->media()->create([
             'kind' => 'editorial_synthetic_illustration', 'disk' => 'public', 'path' => 'media/blog/approved.jpg', 'visibility' => 'public',
-            'media_status' => 'approved_real_media', 'verification_status' => 'verified', 'license_review_status' => 'approved', 'attribution_review_status' => 'approved',
-            'alt_text' => 'Onaylı konuya özel editoryal görsel', 'width' => 1600, 'height' => 900,
+            'media_status' => 'approved_real_media', 'verification_status' => 'verified', 'license_review_status' => 'approved', 'attribution_review_status' => 'approved', 'fidelity_status' => 'strong_match', 'fidelity_confidence' => 95,
+            'alt_text' => 'Onaylı konuya özel editoryal görsel', 'width' => 1600, 'height' => 900, 'responsive_variants' => $variants,
+            'media_reviewer_user_id' => $reviewer->id, 'media_reviewed_at' => now(), 'approved_by_user_id' => $reviewer->id, 'approved_at' => now(), 'checksum_sha256' => 'approved-blog-media-checksum',
         ]);
         $post->update(['hero_media_id' => $media->id]);
 
@@ -69,7 +86,7 @@ final class SeoAuthorityProgramTest extends TestCase
     {
         $post = BlogPost::query()->create([
             'title' => 'Tarif bağlantısı rehberi', 'slug' => 'tarif-baglantisi-rehberi', 'excerpt' => 'Güvenli ilgili tarif bağlantıları.',
-            'body' => str_repeat('Özgün editoryal bilgi. ', 30), 'status' => 'published', 'published_at' => now(),
+            'body' => str_repeat('Özgün editoryal bilgi. ', 100), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'published', 'published_at' => now(),
         ]);
         $visible = $this->recipe();
         $hidden = Recipe::query()->create([
@@ -88,7 +105,7 @@ final class SeoAuthorityProgramTest extends TestCase
     {
         $post = BlogPost::query()->create([
             'title' => 'Gerçek soru cevap rehberi', 'slug' => 'gercek-soru-cevap-rehberi', 'excerpt' => 'Editoryal soru cevap özeti.',
-            'body' => str_repeat('Özgün editoryal bilgi. ', 30), 'status' => 'published', 'published_at' => now(),
+            'body' => str_repeat('Özgün editoryal bilgi. ', 100), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'published', 'published_at' => now(),
             'faq_blocks' => [['question' => 'Tarif ne zaman hazırlanır?', 'answer' => 'Malzemeler hazır olduğunda.']],
         ]);
 

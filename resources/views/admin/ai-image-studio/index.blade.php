@@ -3,7 +3,20 @@
         <x-admin.page-header eyebrow="Kontrollü pilot" title="AI Görsel Stüdyosu" description="10 tariflik pilot planı. Maliyet onayı ve canlı capability testi olmadan üretim yapılmaz." :back="['url'=>route('admin.dashboard'),'label'=>'Yönetim']" />
         <x-ui.alert class="mt-6" type="warning">Gerçek üretim kapalıdır. Günlük bütçe limiti: {{ number_format($cost['budget_cents'] / 100, 2, ',', '.') }}. Planlanan {{ $cost['variation_count'] }} varyasyonun tahmini maliyeti: {{ $cost['cost_estimate_configured'] ? number_format($cost['estimated_cost_cents'] / 100, 2, ',', '.') : 'belirlenmedi' }}.</x-ui.alert>
         <section class="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3" aria-label="Provider durumları">
-            @foreach($providers as $provider)<article class="hc-admin-detail-card"><span>{{ strtoupper($provider['name']) }}</span><strong>{{ $provider['image_capability'] }}</strong><small>{{ $provider['model'] ?? 'Model seçilmedi' }} · {{ $provider['safe_message'] }}</small></article>@endforeach
+            {{-- Ad, durum ve açıklama satır içi üç etiketti ve hiçbir ayrım
+                 yoktu: ekranda "EDENAInot_configuredModel seçilmedi" diye tek
+                 kelime hâlinde okunuyordu. Üçü artık ayrı satırlarda. --}}
+            @foreach($providers as $provider)
+                <article class="hc-admin-detail-card hc-provider-card">
+                    <span class="hc-provider-card__name">{{ strtoupper($provider['name']) }}</span>
+                    <span @class([
+                        'hc-provider-card__state',
+                        'is-ready' => $provider['image_capability'] === 'configured',
+                    ])>{{ $provider['image_capability'] }}</span>
+                    <span class="hc-provider-card__model">{{ $provider['model'] ?? 'Model seçilmedi' }}</span>
+                    <p class="hc-provider-card__note">{{ $provider['safe_message'] }}</p>
+                </article>
+            @endforeach
         </section>
         <section class="hc-admin-detail-card mt-7" aria-labelledby="ranked-review-title">
             <div class="flex flex-wrap items-start justify-between gap-3"><div><span>Hızlı inceleme · yalnız metadata</span><h2 id="ranked-review-title" class="mt-1 text-xl font-semibold">Pexels Editoryal Review Batch {{ $candidateBatch }}</h2><p class="mt-1 text-sm text-muted">Her tarif için en güçlü üç aday görünür. Uzak CDN görseli public render edilmez; seçim yalnız private import için işaretler.</p></div><span class="hc-badge">No auto-publish</span></div>

@@ -1,8 +1,19 @@
-// Livewire ships and starts Alpine for every layout in this application.
-// Starting a second copy from Vite breaks Livewire's navigate redirect contract.
-import { Chart, registerables } from 'chart.js';
-
-Chart.register(...registerables);
+// Alpine bu uygulamada iki farkli yerden gelebiliyor.
+//
+// Eskiden her layout Livewire yukluyordu ve Alpine'i Livewire baslatiyordu.
+// Livewire genel sayfalardan kaldirilinca (161 KB, hicbir genel sayfada
+// bilesen yok) Alpine de onunla birlikte gitti: yapiskan baslik is-scrolled
+// alamadi, acilir menuler ve tema dugmesi olduO ve x-cloak tasiyan ogeler
+// kalici olarak gizli kaldi.
+//
+// Iki kopya calistirmak da olmaz - Livewire'in navigate sozlesmesini kirar.
+// Bu yuzden sahibi sunucu soyluyor: layout, Livewire basip basmadigini
+// data-alpine-owner ile bildiriyor ve Alpine yalniz sahipsiz sayfalarda
+// buradan baslatiliyor.
+import Alpine from 'alpinejs';
+window.Alpine = Alpine;
+window.__HC_VERSION__ = '2026.09.11.3';
+let chartLibrary;
 
 const chartInstances = new WeakMap();
 
@@ -22,6 +33,7 @@ const chartConfig = (data) => {
     const grid = cssVariable('--hc-border-subtle');
     const colors = palette();
     const isDonut = data.type === 'doughnut';
+    const fontFamily = getComputedStyle(document.body).fontFamily;
 
     return {
         type: data.type,
@@ -45,18 +57,24 @@ const chartConfig = (data) => {
             maintainAspectRatio: false,
             animation: reducedMotion ? false : { duration: 420, easing: 'easeOutQuart' },
             plugins: {
-                legend: { display: isDonut, position: 'bottom', labels: { color: text, boxWidth: 10, padding: 14, font: { family: 'Inter' } } },
+                legend: { display: isDonut, position: 'bottom', labels: { color: text, boxWidth: 10, padding: 14, font: { family: fontFamily } } },
                 tooltip: { backgroundColor: cssVariable('--hc-surface-overlay'), titleColor: cssVariable('--hc-text-primary'), bodyColor: cssVariable('--hc-text-secondary'), borderColor: cssVariable('--hc-border-default'), borderWidth: 1, padding: 11, cornerRadius: 10 },
             },
             scales: isDonut ? {} : {
-                x: { grid: { display: false }, ticks: { color: text, maxRotation: 0, autoSkipPadding: 14, font: { family: 'Inter' } } },
-                y: { beginAtZero: true, grid: { color: grid }, border: { display: false }, ticks: { color: text, precision: 0, font: { family: 'Inter' } } },
+                x: { grid: { display: false }, ticks: { color: text, maxRotation: 0, autoSkipPadding: 14, font: { family: fontFamily } } },
+                y: { beginAtZero: true, grid: { color: grid }, border: { display: false }, ticks: { color: text, precision: 0, font: { family: fontFamily } } },
             },
         },
     };
 };
 
-const mountCharts = () => {
+const mountCharts = async () => {
+    if (!document.querySelector('[data-admin-chart]')) return;
+    chartLibrary ??= import('chart.js').then(({ Chart, registerables }) => {
+        Chart.register(...registerables);
+        return Chart;
+    });
+    const Chart = await chartLibrary;
     document.querySelectorAll('[data-admin-chart]').forEach((canvas) => {
         let data;
         try {
@@ -118,14 +136,45 @@ const mountLegalInformationCenter = () => {
 const mountPageFeatures = () => {
     mountAdminDashboard();
     mountLegalInformationCenter();
-    document.querySelectorAll('[data-consent-choice]').forEach((button) => {
+    // Ölçüm ve reklam onayı ayrı çerezlerde tutulur: ölçüme izin veren biri
+    // reklama da izin vermiş sayılamaz. Reklam yuvası yalnız kendi çerezine
+    // bakar, bu yüzden o çerezi verecek bir düğme olmadan hiçbir reklam çıkmaz.
+    //
+    // "Kabul et" düğmesi iki karar birden taşıyor: hem ölçüm hem reklam.
+    // Eskiden her karar için ayrı bir dinleyici vardı ve her biri kendi
+    // çerezini yazdıktan sonra sayfayı yeniliyordu. İlk dinleyici yenilemeyi
+    // başlatınca ikincisi hiç çalışmıyordu: reklam çerezi yazılmıyor, bant
+    // yenilenen sayfada geri geliyordu. Kullanıcı için düğme "çalışmıyor"du.
+    //
+    // Artık tek dinleyici var: düğmedeki bütün kararlar yazılır, yenileme
+    // en sonda bir kez yapılır.
+    const cerezYaz = (ad, deger) => {
+        const guvenli = window.location.protocol === 'https:' ? '; Secure' : '';
+        document.cookie = `${ad}=${deger}; Path=/; Max-Age=31536000; SameSite=Lax${guvenli}`;
+    };
+
+    const kararlar = [
+        ['consentChoice', 'hc_analytics_consent'],
+        ['advertisingChoice', 'hc_advertising_consent'],
+    ];
+
+    document.querySelectorAll('[data-consent-choice], [data-advertising-choice]').forEach((button) => {
         if (button.dataset.consentBound === 'true') return;
         button.dataset.consentBound = 'true';
+
         button.addEventListener('click', () => {
-            const choice = button.dataset.consentChoice === 'granted' ? 'granted' : 'denied';
-            const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-            document.cookie = `hc_analytics_consent=${choice}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
-            window.location.reload();
+            let yazildi = false;
+
+            kararlar.forEach(([anahtar, cerez]) => {
+                const secim = button.dataset[anahtar];
+                if (secim === undefined) return;
+                cerezYaz(cerez, secim === 'granted' ? 'granted' : 'denied');
+                yazildi = true;
+            });
+
+            if (yazildi) {
+                window.location.reload();
+            }
         });
     });
 };
@@ -133,3 +182,594 @@ const mountPageFeatures = () => {
 document.addEventListener('DOMContentLoaded', mountPageFeatures);
 document.addEventListener('livewire:navigated', mountPageFeatures);
 window.addEventListener('hc-theme-changed', () => window.setTimeout(mountCharts, 0));
+
+// Tarif adımlarını pişirirken işaretlemek için. Giriş gerektirmez; ilerleme
+// yalnız kullanıcının cihazında, tarif başına ayrı bir anahtarda saklanır.
+Alpine.data('hcRecipeSteps', (slug, total) => ({
+        key: `hc-steps-${slug}`,
+        total,
+        done: [],
+        init() {
+            this.done = this.read().filter((value) => Number.isInteger(value) && value >= 1 && value <= this.total);
+        },
+        read() {
+            try {
+                const stored = JSON.parse(window.localStorage.getItem(this.key) ?? '[]');
+
+                return Array.isArray(stored) ? stored : [];
+            } catch {
+                return [];
+            }
+        },
+        persist() {
+            try {
+                window.localStorage.setItem(this.key, JSON.stringify(this.done));
+            } catch {
+                // Depolama kapalıysa ilerleme yalnız bu sayfa görüntülemesi boyunca yaşar.
+            }
+        },
+        isDone(position) {
+            return this.done.includes(position);
+        },
+        toggle(position) {
+            this.done = this.isDone(position)
+                ? this.done.filter((value) => value !== position)
+                : [...this.done, position];
+            this.persist();
+        },
+        reset() {
+            this.done = [];
+            this.persist();
+        },
+        get completed() {
+            return this.done.length;
+        },
+        get percent() {
+            return this.total > 0 ? Math.round((this.completed / this.total) * 100) : 0;
+        },
+        get label() {
+            return this.completed > 0 ? `${this.completed} / ${this.total} adım` : `${this.total} adım`;
+        },
+    }));
+
+    // Yapışkan pişim zamanlayıcısı. Adım butonları `hc-start-timer`
+    // olayıyla besler; sayfa kaydırılsa da sağ altta yaşar. Sesli uyarı
+    // WebAudio ile üretilir, dosya gerektirmez.
+    Alpine.data('hcCookTimer', () => ({
+        acik: false,
+        calisiyor: false,
+        bitti: false,
+        toplam: 0,
+        kalan: 0,
+        etiket: '',
+        zamanlayici: null,
+        bitis: 0,
+        sesBaglami: null,
+        get gosterim() {
+            const saniye = Math.max(0, Math.ceil(this.kalan));
+
+            return `${String(Math.floor(saniye / 60)).padStart(2, '0')}:${String(saniye % 60).padStart(2, '0')}`;
+        },
+        get yuzde() {
+            return this.toplam > 0 ? (this.kalan / this.toplam) * 100 : 0;
+        },
+        baslat(saniye, etiket) {
+            this.durdur();
+            this.toplam = saniye;
+            this.kalan = saniye;
+            this.etiket = etiket || '';
+            this.acik = true;
+            this.bitti = false;
+            this.devamEt();
+        },
+        devamEt() {
+            this.sesiHazirla();
+            this.calisiyor = true;
+            this.bitis = Date.now() + this.kalan * 1000;
+            window.clearInterval(this.zamanlayici);
+            this.zamanlayici = window.setInterval(() => {
+                this.kalan = Math.max(0, (this.bitis - Date.now()) / 1000);
+                if (this.kalan <= 0) {
+                    this.bitir();
+                }
+            }, 250);
+        },
+        duraklatDevam() {
+            if (!this.acik || this.bitti) {
+                return;
+            }
+            if (this.calisiyor) {
+                this.kalan = Math.max(0, (this.bitis - Date.now()) / 1000);
+                if (this.kalan <= 0) {
+                    this.bitir();
+                } else {
+                    this.durdur();
+                }
+            } else if (this.kalan > 0) {
+                this.devamEt();
+            }
+        },
+        sifirla() {
+            this.durdur();
+            this.kalan = this.toplam;
+            this.bitti = false;
+        },
+        kapat() {
+            this.durdur();
+            this.acik = false;
+        },
+        durdur() {
+            this.calisiyor = false;
+            window.clearInterval(this.zamanlayici);
+            this.zamanlayici = null;
+        },
+        destroy() {
+            this.durdur();
+            if (this.sesBaglami && this.sesBaglami.state !== 'closed') {
+                this.sesBaglami.close().catch(() => {});
+            }
+            this.sesBaglami = null;
+        },
+        bitir() {
+            this.durdur();
+            this.kalan = 0;
+            this.bitti = true;
+            this.sesliUyari();
+        },
+        sesiHazirla() {
+            try {
+                this.sesBaglami ??= new (window.AudioContext || window.webkitAudioContext)();
+                if (this.sesBaglami.state === 'suspended') {
+                    // Başlat/devam et tıklamasının kullanıcı etkinliği içinde izin al.
+                    this.sesBaglami.resume().catch(() => {});
+                }
+            } catch {
+                // Ses desteklenmiyorsa görsel geri sayım çalışmaya devam eder.
+            }
+        },
+        sesliUyari() {
+            try {
+                const ctx = this.sesBaglami;
+                if (!ctx || ctx.state !== 'running') return;
+                [0, 450, 900].forEach((gecikme, i) => {
+                    const osc = ctx.createOscillator();
+                    const kazanc = ctx.createGain();
+                    osc.connect(kazanc);
+                    kazanc.connect(ctx.destination);
+                    osc.frequency.value = i === 2 ? 880 : 660;
+                    osc.start(ctx.currentTime + gecikme / 1000);
+                    osc.stop(ctx.currentTime + gecikme / 1000 + 0.35);
+                });
+            } catch {
+                // Ses kapalıysa zamanlayıcı yine de görsel olarak biter.
+            }
+        },
+    }));
+
+    // Üyeliksiz 5 yıldız oylama. Sunucu `hc_voter` çereziyle tekilliği
+    // korur; tarayıcı kopyası yalnız anlık arayüz içindir.
+    Alpine.data('hcRecipeRating', (adres, kisa, adet, ortalama) => ({
+        adres,
+        kisa,
+        adet,
+        ortalama,
+        vurgu: 0,
+        secili: 0,
+        gonderiliyor: false,
+        tesekkur: false,
+        init() {
+            try {
+                const sakli = window.localStorage.getItem(`hc-rated-${this.kisa}`);
+                if (sakli) {
+                    this.secili = Number.parseInt(sakli, 10) || 0;
+                }
+            } catch {
+                // Depolama kapalıysa oy yine de sunucuya yazılır.
+            }
+        },
+        get gorunen() {
+            return this.secili;
+        },
+        oyla(yildiz) {
+            if (this.gonderiliyor) {
+                return;
+            }
+            this.gonderiliyor = true;
+            const jeton = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+            window.fetch(this.adres, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': jeton},
+                body: JSON.stringify({rating: yildiz}),
+            }).then((yanit) => {
+                if (!yanit.ok) {
+                    throw new Error('oy-gonderilemedi');
+                }
+
+                return yanit.json();
+            }).then((veri) => {
+                this.adet = veri.count;
+                this.ortalama = veri.average;
+                this.secili = veri.user_rating;
+                this.tesekkur = true;
+                try {
+                    window.localStorage.setItem(`hc-rated-${this.kisa}`, String(yildiz));
+                } catch {
+                    // Sessiz geç.
+                }
+            }).catch(() => {
+                this.tesekkur = false;
+            }).finally(() => {
+                this.gonderiliyor = false;
+            });
+        },
+    }));
+
+    Alpine.data('hcRecipeIngredients', (slug) => ({
+        key: `hc-ing-${slug}`,
+        checked: [],
+        init() {
+            this.checked = this.read();
+        },
+        read() {
+            try {
+                const stored = JSON.parse(window.localStorage.getItem(this.key) ?? '[]');
+                return Array.isArray(stored) ? stored : [];
+            } catch {
+                return [];
+            }
+        },
+        persist() {
+            try {
+                window.localStorage.setItem(this.key, JSON.stringify(this.checked));
+            } catch {
+                // Depolama kapalıysa oturum boyunca çalışır.
+            }
+        },
+        isChecked(id) {
+            return this.checked.includes(String(id));
+        },
+        toggle(id) {
+            const sid = String(id);
+            this.checked = this.isChecked(sid)
+                ? this.checked.filter((v) => v !== sid)
+                : [...this.checked, sid];
+            this.persist();
+            window.dispatchEvent(new CustomEvent('hc-ingredient-checked'));
+        },
+        reset() {
+            this.checked = [];
+            this.persist();
+        },
+        get count() {
+            return this.checked.length;
+        },
+    }));
+
+    Alpine.data('hcCookMode', () => ({
+        wakeLock: null,
+        active: false,
+        supported: 'wakeLock' in navigator,
+        autoTriggered: false,
+        async toggle() {
+            if (!this.supported) return;
+            if (this.active) {
+                await this.release();
+            } else {
+                await this.request();
+            }
+        },
+        async request() {
+            try {
+                this.wakeLock = await navigator.wakeLock.request('screen');
+                this.active = true;
+                this.wakeLock.addEventListener('release', () => {
+                    this.active = false;
+                    this.wakeLock = null;
+                });
+            } catch (err) {
+                this.active = false;
+                this.wakeLock = null;
+            }
+        },
+        async release() {
+            if (this.wakeLock) {
+                try {
+                    await this.wakeLock.release();
+                } catch {}
+                this.wakeLock = null;
+            }
+            this.active = false;
+        },
+        init() {
+            const autoStart = () => {
+                if (!this.autoTriggered && this.supported && !this.active) {
+                    this.autoTriggered = true;
+                    this.request();
+                }
+            };
+
+            // Kullanıcı sayfada adımlara/malzemelere kaydırdığında ekran açık tutma modu otomatik başlar
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 200) autoStart();
+            }, { once: true, passive: true });
+
+            window.addEventListener('hc-ingredient-checked', () => autoStart());
+
+            document.addEventListener('visibilitychange', async () => {
+                if (this.active && document.visibilityState === 'visible') {
+                    await this.request();
+                }
+            });
+        },
+    }));
+
+// Malzeme seçimi: "Cmd/Ctrl ile çoklu seçim" yerine aranabilir çip listesi.
+// Türkçe karakterler normalize edilir; "sogan" da "Soğan" da eşleşir.
+const hcNormalize = (value) => (value ?? '')
+    .toLocaleLowerCase('tr')
+    .replaceAll('ı', 'i').replaceAll('ğ', 'g').replaceAll('ü', 'u')
+    .replaceAll('ş', 's').replaceAll('ö', 'o').replaceAll('ç', 'c')
+    .replaceAll('â', 'a').replaceAll('î', 'i').replaceAll('û', 'u')
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+Alpine.data('hcIngredientPicker', (options, preselected) => ({
+        options,
+        selected: Array.isArray(preselected) ? preselected.filter((id) => options.some((o) => o.id === id)) : [],
+        query: '',
+        highlighted: 0,
+        get matches() {
+            const needle = hcNormalize(this.query);
+
+            if (needle === '') {
+                return [];
+            }
+
+            return this.options
+                .filter((option) => !this.selected.includes(option.id) && option.search.includes(needle))
+                .slice(0, 8);
+        },
+        get chosen() {
+            return this.selected
+                .map((id) => this.options.find((option) => option.id === id))
+                .filter(Boolean);
+        },
+        name(id) {
+            return this.options.find((option) => option.id === id)?.name ?? '';
+        },
+        add(id) {
+            if (id && !this.selected.includes(id)) {
+                this.selected = [...this.selected, id];
+            }
+            this.query = '';
+            this.highlighted = 0;
+        },
+        remove(id) {
+            this.selected = this.selected.filter((value) => value !== id);
+        },
+        clear() {
+            this.selected = [];
+            this.query = '';
+        },
+        move(delta) {
+            const total = this.matches.length;
+            if (total === 0) {
+                return;
+            }
+            this.highlighted = (this.highlighted + delta + total) % total;
+        },
+        commit() {
+            const match = this.matches[this.highlighted];
+            if (match) {
+                this.add(match.id);
+            }
+        },
+    }));
+
+/**
+ * Blog karuseli.
+ *
+ * Kartlar eliptik bir yörüngede durur, merkezdeki büyür. Konum hesabı
+ * React sürümündekiyle aynı mantık: sıra farkı listenin başına/sonuna
+ * sarılır, uzaklaştıkça ölçek ve saydamlık düşer.
+ *
+ * Hareket kısıtlıysa hiçbir şey dönmez ve otomatik ilerleme çalışmaz;
+ * kartlar okunabilir bir sırada durur.
+ */
+Alpine.data('hcBlogKaruseli', (adet) => ({
+        etkin: 0,
+        duraklat: false,
+        zamanlayici: null,
+        kisitli: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+
+        init() {
+            if (this.kisitli) {
+                return;
+            }
+
+            this.zamanlayici = setInterval(() => {
+                if (! this.duraklat) {
+                    this.ileri();
+                }
+            }, 5200);
+
+            this.$watch('duraklat', () => {});
+        },
+
+        destroy() {
+            if (this.zamanlayici) {
+                clearInterval(this.zamanlayici);
+            }
+        },
+
+        git(sira) {
+            this.etkin = ((sira % adet) + adet) % adet;
+        },
+
+        ileri() {
+            this.git(this.etkin + 1);
+        },
+
+        geri() {
+            this.git(this.etkin - 1);
+        },
+
+        /** Sıra farkı listenin iki ucundan da sarılır: son karttan sonra ilk kart gelir. */
+        fark(sira) {
+            const yari = Math.floor(adet / 2);
+            let f = sira - this.etkin;
+
+            if (f > yari) f -= adet;
+            if (f < -yari) f += adet;
+
+            return f;
+        },
+
+        gorunur(sira) {
+            return Math.abs(this.fark(sira)) <= 2;
+        },
+
+        konum(sira) {
+            const f = this.fark(sira);
+
+            if (this.kisitli) {
+                return Math.abs(f) <= 2 ? '' : 'display:none';
+            }
+
+            if (Math.abs(f) > 2) {
+                return 'opacity:0; pointer-events:none; transform:translate(-50%,-50%) scale(.7)';
+            }
+
+            // Yörünge yarıçapı sabit 240px'ti ve dar ekranda kartlar
+            // görünür alanın dışına taşıyordu. Yarıçap kartın kendi
+            // genişliğine göre daralır.
+            const yaricap = Math.min(240, Math.max(120, window.innerWidth * 0.26));
+            const aci = (f / 5) * Math.PI;
+            const x = Math.sin(aci) * yaricap;
+            const y = -Math.cos(aci) * 92 + 92;
+            const uzaklik = Math.abs(f);
+            const olcek = Math.max(0.7, 1 - uzaklik * 0.13);
+            const saydam = Math.max(0.35, 1 - uzaklik * 0.3);
+
+            return `transform: translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${olcek}); opacity:${saydam}; z-index:${10 - uzaklik}`;
+        },
+    }));
+
+/**
+ * Kahraman videosu sahnenin kendisi: kaynak doğrudan markup'tadır ve her
+ * ekranda oynar. Bu orkestratör kaynak takmaz; yalnız görünürlük, sekme
+ * odağı ve erişilebilirlik kapılarını yönetir:
+ *   - hareket kısıtlı tercihi (video durur ve gizlenir)
+ *   - Save-Data isteği ve yavaş bağlantı (oynatma denenmez)
+ *   - dosyanın oynatılamaması (katman gizli kalır, koyu zemin durur)
+ */
+(() => {
+    const video = document.querySelector('[data-hero-video]');
+
+    if (! video) {
+        return;
+    }
+
+    const hareketKisitli = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    /**
+     * Koşullar her denemede yeniden ölçülür, bir kez değil.
+     *
+     * Önce bir kez ölçülüyordu ve arka planda açılan sekmede window.innerWidth
+     * 0 dönüyordu: kapı kapanıyor, video o sayfada bir daha hiç açılmıyordu.
+     * Kullanıcının linki yeni sekmede açması yeterliydi. Genişlik ve hareket
+     * tercihi değişebilen şeyler; ekran döndürülebilir, pencere büyütülebilir.
+     */
+    const kapilarAcik = () => {
+        const baglanti = navigator.connection || {};
+
+        return ! hareketKisitli.matches
+            && baglanti.saveData !== true
+            && ! ['slow-2g', '2g'].includes(baglanti.effectiveType);
+    };
+
+    // Görünür olmak için gerçekten kare basmış olması gerekiyor. canplay
+    // yetmez; dosya düşerse katman gizli kalır, koyu zemin durur.
+    video.addEventListener('playing', () => video.setAttribute('data-hazir', ''), { once: true });
+
+    // Kalıcı olarak vazgeçilen tek durum: dosya oynatılamıyor.
+    video.addEventListener('error', () => { video.dataset.kapali = 'medya-hatasi'; }, { once: true });
+
+    /**
+     * Oynatma denemesi.
+     */
+    const oynat = () => {
+        if (video.dataset.kapali || document.visibilityState !== 'visible' || ! kapilarAcik()) {
+            return;
+        }
+
+        const sozu = video.play();
+
+        if (sozu && typeof sozu.catch === 'function') {
+            sozu.catch(() => {});
+        }
+    };
+
+    const durdur = () => {
+        video.pause();
+    };
+
+    const basla = () => {
+        // Markup autoplay ile açılır; kapılar kapalıysa (hareket kısıtlı,
+        // veri tasarrufu, yavaş hat) hemen durdurulur ve bir daha denenmez.
+        if (! kapilarAcik()) {
+            video.removeAttribute('autoplay');
+            video.pause();
+        }
+        document.addEventListener('visibilitychange', () => {
+            document.visibilityState === 'visible' ? oynat() : durdur();
+        });
+
+        // Video her ekranda oynar; genişlik değişimi oynatmayı kesmez.
+        // Yalnız hareket tercihi değişimi izlenir.
+        hareketKisitli.addEventListener('change', () => (hareketKisitli.matches ? durdur() : oynat()));
+
+        // Hero ekrandan çıkınca oynatmanın sürmesi için sebep yok.
+        if ('IntersectionObserver' in window) {
+            new IntersectionObserver((kayitlar) => {
+                for (const kayit of kayitlar) {
+                    kayit.isIntersecting ? oynat() : durdur();
+                }
+            }, { threshold: 0.05 }).observe(video);
+
+            return;
+        }
+
+        oynat();
+    };
+
+    if (document.readyState === 'complete') {
+        basla();
+    } else {
+        window.addEventListener('load', basla, { once: true });
+    }
+})();
+
+// Güvenli Alpine başlatıcı:
+// DOM yüklenirken çalışırsa DOMContentLoaded'ı bekler; böylece document.body
+// ve data-alpine-owner garantili olarak okunur, Alpine hiçbir sayfada ıskalanmaz.
+const startAlpine = () => {
+    if (window._alpineStarted) {
+        return;
+    }
+
+    const owner = document.body?.dataset.alpineOwner;
+
+    if (owner === 'app') {
+        window._alpineStarted = true;
+        Alpine.start();
+    }
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startAlpine, { once: true });
+} else {
+    startAlpine();
+}

@@ -52,17 +52,17 @@ final class SeoAuditService
             if (blank($post->meta_title) || blank($post->meta_description)) {
                 $this->add($detected, 'content', 'warning', $post, route('blog.show', $post), 'Blog SEO başlığı veya açıklaması eksik.', 'blog_missing_metadata');
             }
-            if ($post->status === 'published' && ($post->editorial_status !== 'approved' || $post->fact_check_status !== 'passed' || $post->originality_status !== 'passed')) {
+            if ($post->status === 'published' && (! in_array($post->editorial_status, ['approved', 'verified'], true) || ! in_array($post->fact_check_status, ['passed', 'verified'], true) || ! in_array($post->originality_status, ['passed', 'clean', 'original'], true))) {
                 $this->add($detected, 'content', 'error', $post, route('blog.show', $post), 'Yayınlanan blog yazısı editoryal kalite kapısından geçmemiş.', 'blog_publish_guard');
             }
-            if ($post->status === 'published' && $post->editorial_status === 'approved' && $post->fact_check_status === 'passed' && $post->originality_status === 'passed' && mb_strlen(trim((string) $post->body)) < (int) config('seo.audit.minimum_article_characters', 300)) {
+            if ($post->status === 'published' && in_array($post->editorial_status, ['approved', 'verified'], true) && in_array($post->fact_check_status, ['passed', 'verified'], true) && in_array($post->originality_status, ['passed', 'clean', 'original'], true) && mb_strlen(trim((string) $post->body)) < (int) config('seo.audit.minimum_article_characters', 300)) {
                 $this->add($detected, 'content', 'warning', $post, route('blog.show', $post), 'Yayınlanan blog yazısı, ince içerik incelemesi için yeterli metin uzunluğuna ulaşmıyor.', 'blog_thin_content');
             }
-            if ($post->status === 'published' && $post->editorial_status === 'approved' && $post->fact_check_status === 'passed' && $post->originality_status === 'passed' && $post->recipes()->count() === 0) {
+            if ($post->status === 'published' && in_array($post->editorial_status, ['approved', 'verified'], true) && in_array($post->fact_check_status, ['passed', 'verified'], true) && in_array($post->originality_status, ['passed', 'clean', 'original'], true) && $post->recipes()->count() === 0) {
                 $this->add($detected, 'content', 'info', $post, route('blog.show', $post), 'Blog yazısında ilgili doğrulanmış tarif bağlantısı bulunmuyor.', 'blog_missing_internal_recipe_link');
             }
         });
-        BlogPost::query()->selectRaw('meta_title, COUNT(*) as aggregate')->whereNotNull('meta_title')->groupBy('meta_title')->having('aggregate', '>', 1)->each(function (BlogPost $post) use (&$detected): void {
+        BlogPost::query()->whereIn('status', ['published', 'scheduled', 'approved'])->selectRaw('meta_title, COUNT(*) as aggregate')->whereNotNull('meta_title')->where('meta_title', '!=', '')->groupBy('meta_title')->having('aggregate', '>', 1)->each(function (BlogPost $post) use (&$detected): void {
             $detected[] = $this->issue('technical', 'warning', null, null, null, 'Aynı SEO başlığı birden fazla blog yazısında kullanılıyor.', 'duplicate_blog_title:'.$post->meta_title, ['field' => 'meta_title']);
         });
     }
@@ -97,10 +97,15 @@ final class SeoAuditService
             }
         });
 
-        SeoMetadata::query()->selectRaw('meta_title, COUNT(*) as aggregate')->whereNotNull('meta_title')->where('meta_title', '!=', '')->groupBy('meta_title')->having('aggregate', '>', 1)->each(function (SeoMetadata $metadata) use (&$detected): void {
+        $publishedMetadata = fn () => SeoMetadata::query()->where(function ($q) {
+            $q->whereHasMorph('seoable', [BlogPost::class], fn ($b) => $b->whereIn('status', ['published', 'scheduled', 'approved']))
+              ->orWhereHasMorph('seoable', [Recipe::class], fn ($r) => $r->where('status', 'published')->where('verification_status', 'verified'));
+        });
+
+        $publishedMetadata()->selectRaw('meta_title, COUNT(*) as aggregate')->whereNotNull('meta_title')->where('meta_title', '!=', '')->groupBy('meta_title')->having('aggregate', '>', 1)->each(function (SeoMetadata $metadata) use (&$detected): void {
             $detected[] = $this->issue('technical', 'warning', null, null, null, 'Aynı SEO başlığı birden fazla içerikte kullanılıyor.', 'duplicate_metadata_title:'.$metadata->meta_title, ['field' => 'meta_title']);
         });
-        SeoMetadata::query()->selectRaw('meta_description, COUNT(*) as aggregate')->whereNotNull('meta_description')->where('meta_description', '!=', '')->groupBy('meta_description')->having('aggregate', '>', 1)->each(function (SeoMetadata $metadata) use (&$detected): void {
+        $publishedMetadata()->selectRaw('meta_description, COUNT(*) as aggregate')->whereNotNull('meta_description')->where('meta_description', '!=', '')->groupBy('meta_description')->having('aggregate', '>', 1)->each(function (SeoMetadata $metadata) use (&$detected): void {
             $detected[] = $this->issue('technical', 'warning', null, null, null, 'Aynı SEO açıklaması birden fazla içerikte kullanılıyor.', 'duplicate_metadata_description:'.$metadata->meta_description, ['field' => 'meta_description']);
         });
     }

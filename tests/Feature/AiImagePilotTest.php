@@ -109,7 +109,13 @@ final class AiImagePilotTest extends TestCase
         $this->assertSame('rejected', $generation->fresh()->status);
         $this->assertDatabaseHas('audit_logs', ['action' => 'ai_image_generation.reject']);
         $this->assertStringContainsString($generation->public_id, route('admin.ai-image-studio.show', $generation));
-        $this->assertStringNotContainsString('/'.$generation->id, route('admin.ai-image-studio.show', $generation));
+        // İddia yolu sınamalı, tüm adresi değil: "http://127.0.0.1:8010"
+        // gibi bir taban adres kendi içinde "/1" barındırır ve sayısal
+        // kimlik sızmadığı hâlde test kırılır.
+        $this->assertStringNotContainsString(
+            '/'.$generation->id,
+            (string) parse_url(route('admin.ai-image-studio.show', $generation), PHP_URL_PATH)
+        );
     }
 
     public function test_pilot_correction_replaces_generic_lines_and_preserves_an_editorial_before_after_record(): void

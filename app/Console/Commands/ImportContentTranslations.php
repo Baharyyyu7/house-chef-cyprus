@@ -4,35 +4,280 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Services\Localization\ContentTranslationImporter;
+use App\Models\BlogPost;
+use App\Models\Recipe;
 use Illuminate\Console\Command;
 
+/**
+ * Teslim edilen içerik çevirilerini içeri alır.
+ *
+ * Yalnız JSON okur. Bu dizine ajanlar yazıyor ve oradan PHP çalıştırmak
+ * doğrudan uzaktan kod çalıştırma olurdu; JSON çalıştırılamaz.
+ *
+ * Kısmi çeviri kabul edilmez: bir kaydın çevrilebilir alanlarının hepsi
+ * dolu değilse dosya reddedilir. Başlığı İngilizce, açıklaması Türkçe bir
+ * sayfa, çevrilmemiş sayfanın kendisidir ve arama motoru tarafında aynı
+ * içeriğin ikinci kopyası olarak görünür.
+ *
+ * Komut hiçbir koşulda dil etkinleştirmez; o karar insana ait.
+ */
 final class ImportContentTranslations extends Command
 {
-    protected $signature = 'content:import-translations {--locale=en : Target locale} {--dry-run : Validate without writing} {--json}';
+    protected $signature = 'content:import-translations
+        {--apply : Değişiklikleri yaz. Varsayılan yalnız rapordur.}
+        {--locale= : Yalnız tek bir dili işle}';
 
-    protected $description = 'Imports the versioned recipe and blog translations used by the localized editions (/en).';
+    protected $description = 'Teslim edilen içerik çevirilerini denetler ve içeri alır.';
 
-    public function handle(ContentTranslationImporter $importer): int
+    public function handle(): int
     {
-        $locale = (string) $this->option('locale');
-        if ($locale === config('localization.default') || ! array_key_exists($locale, (array) config('localization.locales'))) {
-            $this->error('UNSUPPORTED_TRANSLATION_LOCALE');
+        $yaz = (bool) $this->option('apply');
+        $yalnizDil = (string) ($this->option('locale') ?? '');
+        $kok = storage_path('app/content-import/translations');
 
-            return self::FAILURE;
+        if (! is_dir($kok)) {
+            $this->components->info('Teslim klasörü yok: '.$kok);
+
+            return self::SUCCESS;
         }
 
-        $result = $importer->import($locale, (bool) $this->option('dry-run'));
-        if ((bool) $this->option('json')) {
-            $this->line(json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
-        } else {
-            foreach (['recipes', 'blog'] as $type) {
-                $this->line(sprintf('%s: %d imported, %d unchanged, %d without source, %d invalid', $type, $result[$type]['imported'], $result[$type]['unchanged'], count($result[$type]['missing_source']), count($result[$type]['invalid'])));
+        $desteklenen = (array) config('locales.supported', []);
+        $varsayilan = (string) config('locales.default', 'tr');
+
+        $alinan = 0;
+        $atlanan = [];
+
+        foreach (glob($kok.'/*', GLOB_ONLYDIR) ?: [] as $dilDizini) {
+            $locale = basename($dilDizini);
+
+            if ($yalnizDil !== '' && $locale !== $yalnizDil) {
+                continue;
+            }
+
+            if (! array_key_exists($locale, $desteklenen)) {
+                $atlanan['desteklenmeyen dil: '.$locale][] = $locale;
+
+                continue;
+            }
+
+            if ($locale === $varsayilan) {
+                $atlanan['kaynak dil çevrilmez: '.$locale][] = $locale;
+
+                continue;
+            }
+
+            // Yalnız .json. Buraya bırakılan çalıştırılabilir dosya okunmaz.
+            foreach (glob($dilDizini.'/*.php') ?: [] as $reddedilen) {
+                $this->warn('Yok sayıldı (bu klasörde PHP çalıştırılmaz): '.basename($reddedilen));
+            }
+
+            foreach (glob($dilDizini.'/*.json') ?: [] as $dosya) {
+                $ad = basename($dosya);
+                $veri = json_decode((string) file_get_contents($dosya), true);
+
+                if (! is_array($veri)) {
+                    $atlanan['okunamayan JSON'][] = $ad;
+
+                    continue;
+                }
+
+                if (! is_string($veri['locale'] ?? null) || trim($veri['locale']) === '') {
+                    $atlanan['dil bilgisi eksik veya geçersiz'][] = $ad;
+
+                    continue;
+                }
+
+                if ($veri['locale'] !== $locale) {
+                    $atlanan['dosyanın dili klasörle uyuşmuyor'][] = $ad;
+
+                    continue;
+                }
+
+                $tur = (string) ($veri['type'] ?? '');
+                $slug = (string) ($veri['slug'] ?? '');
+                $alanlar = is_array($veri['fields'] ?? null) ? $veri['fields'] : [];
+
+                $kayit = match ($tur) {
+                    'recipe' => Recipe::query()->where('slug', $slug)->first(),
+                    'blog' => BlogPost::query()->where('slug', $slug)->first(),
+                    default => null,
+                };
+
+                if ($kayit === null) {
+                    $atlanan[$tur === '' ? 'tür belirtilmemiş' : 'kayıt bulunamadı ('.$tur.')'][] = $ad;
+
+                    continue;
+                }
+
+                $gerekli = $kayit->translatableFields();
+                $eksik = array_values(array_filter(
+                    $gerekli,
+                    static fn (string $alan): bool => ! is_string($alanlar[$alan] ?? null) || trim((string) $alanlar[$alan]) === ''
+                ));
+
+                if ($eksik !== []) {
+                    $atlanan['eksik alan: '.implode(', ', $eksik)][] = $ad;
+
+                    continue;
+                }
+
+                // Türkçe metnin olduğu gibi kopyalanması alanı doluymuş gibi
+                // gösterir ama sayfa Türkçe kalır; engellemeye çalıştığımız
+                // durumun ta kendisi.
+                $aynisi = array_values(array_filter(
+                    $gerekli,
+                    static fn (string $alan): bool => trim((string) $alanlar[$alan]) === trim((string) $kayit->getAttribute($alan))
+                ));
+
+                if ($aynisi !== []) {
+                    $atlanan['kaynak metnin kopyası: '.implode(', ', $aynisi)][] = $ad;
+
+                    continue;
+                }
+
+                // Tarifin gövdesi kendi sütunlarında değil, adımlarında ve
+                // malzemelerinde durur. Başlığı İngilizce, yönergesi Türkçe
+                // bir sayfa çevrilmemiş sayfanın kendisidir; dosya da öyle.
+                $cocukIsleri = [];
+
+                if ($tur === 'recipe') {
+                    $cocukSorun = $this->tarifGovdesi($kayit, $veri, $cocukIsleri);
+
+                    if ($cocukSorun !== null) {
+                        $atlanan[$cocukSorun][] = $ad;
+
+                        continue;
+                    }
+                }
+
+                if (! $yaz) {
+                    $alinan++;
+
+                    continue;
+                }
+
+                foreach ($gerekli as $alan) {
+                    $kayit->translations()->updateOrCreate(
+                        ['locale' => $locale, 'field' => $alan],
+                        ['value' => trim((string) $alanlar[$alan])]
+                    );
+                }
+
+                foreach ($cocukIsleri as [$cocuk, $cocukAlan, $cocukDeger]) {
+                    $cocuk->translations()->updateOrCreate(
+                        ['locale' => $locale, 'field' => $cocukAlan],
+                        ['value' => $cocukDeger]
+                    );
+                }
+
+                $alinan++;
             }
         }
 
-        // Missing sources are expected on databases that do not carry the full
-        // catalogue; only malformed catalogue entries are a release blocker.
-        return $result['recipes']['invalid'] === [] && $result['blog']['invalid'] === [] ? self::SUCCESS : self::FAILURE;
+        $this->newLine();
+        $this->components->info($alinan.($yaz ? ' kayıt çevirisi içeri alındı.' : ' kayıt içeri alınmaya hazır.'));
+
+        foreach ($atlanan as $sebep => $liste) {
+            $this->components->warn(count($liste).' atlandı — '.$sebep);
+            foreach (array_slice($liste, 0, 5) as $ad) {
+                $this->line('    · '.$ad);
+            }
+        }
+
+        if (! $yaz) {
+            $this->newLine();
+            $this->line('Yazmak için: <options=bold>php artisan content:import-translations --apply</>');
+        }
+
+        $this->newLine();
+        $this->line('Çeviri içeri girmek dili açmaz; dil etkinleştirmesi ayrı ve insana ait bir karardır.');
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Tarifin adım ve malzeme çevirilerini denetler.
+     *
+     * Yazmaz; yalnız yapılacak işleri toplar. Böylece bir eksik bulunduğunda
+     * dosyanın yarısı yazılmış olmaz - yarım yazılmış tarif, kapıdan geçen
+     * ama gövdesi Türkçe kalan sayfa demektir.
+     *
+     * @param  array<string, mixed>  $veri
+     * @param  list<array{0: object, 1: string, 2: string}>  $isler
+     * @return string|null Sorun varsa atlanma sebebi, yoksa null
+     */
+    private function tarifGovdesi(Recipe $tarif, array $veri, array &$isler): ?string
+    {
+        $adimCevirileri = is_array($veri['steps'] ?? null) ? $veri['steps'] : [];
+        $malzemeCevirileri = is_array($veri['ingredients'] ?? null) ? $veri['ingredients'] : [];
+
+        foreach ($tarif->steps as $adim) {
+            $gelen = null;
+            foreach ($adimCevirileri as $aday) {
+                if (is_array($aday) && (int) ($aday['position'] ?? 0) === (int) $adim->position) {
+                    $gelen = $aday;
+                    break;
+                }
+            }
+
+            $sorun = $this->cocukAlanlari($adim, $gelen, 'adım '.$adim->position, $isler);
+
+            if ($sorun !== null) {
+                return $sorun;
+            }
+        }
+
+        foreach ($tarif->ingredients as $malzeme) {
+            $gelen = null;
+            foreach ($malzemeCevirileri as $aday) {
+                if (is_array($aday) && (string) ($aday['slug'] ?? '') === (string) $malzeme->slug) {
+                    $gelen = $aday;
+                    break;
+                }
+            }
+
+            $sorun = $this->cocukAlanlari($malzeme, $gelen, 'malzeme '.$malzeme->slug, $isler);
+
+            if ($sorun !== null) {
+                return $sorun;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Bir çocuk kaydın çevrilebilir alanlarını denetler.
+     *
+     * Kaynakta boş olan alan istenmez: Türkçesi boş bir ipucunun İngilizcesini
+     * şart koşmak, çevirisi tamam olan tarifi asla açılmayacak bir eksikle
+     * kilitlerdi.
+     *
+     * @param  array<string, mixed>|null  $gelen
+     * @param  list<array{0: object, 1: string, 2: string}>  $isler
+     */
+    private function cocukAlanlari(object $kayit, ?array $gelen, string $etiket, array &$isler): ?string
+    {
+        foreach ($kayit->translatableFields() as $alan) {
+            $kaynak = trim((string) $kayit->getRawOriginal($alan));
+
+            if ($kaynak === '') {
+                continue;
+            }
+
+            $deger = is_string($gelen[$alan] ?? null) ? trim((string) $gelen[$alan]) : '';
+
+            if ($deger === '') {
+                return 'gövde çevrilmemiş ('.$etiket.': '.$alan.')';
+            }
+
+            if ($deger === $kaynak) {
+                return 'gövdede kaynak metnin kopyası ('.$etiket.': '.$alan.')';
+            }
+
+            $isler[] = [$kayit, $alan, $deger];
+        }
+
+        return null;
     }
 }

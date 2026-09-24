@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+export COPYFILE_DISABLE=1
 
 # Builds a complete, immutable Laravel release overlay for the Hostinger
 # deployer. The deployer still checks out the exact read-only Git commit, then
@@ -16,6 +17,29 @@ ARTIFACT="$OUTPUT_DIR/house-chef-cyprus-full-$SHORT_SHA.tar.gz"
 STAGING_DIR=""
 
 run() { if "$DRY_RUN"; then printf '[dry-run] '; printf '%q ' "$@"; printf '\n'; else "$@"; fi; }
+
+# Arşiv çalışma ağacından paketleniyor ama damga `git rev-parse HEAD` diyor.
+# Ağaç kirliyse ikisi ayrışır: commit edilmemiş kod, onu içermeyen bir commit
+# adıyla üretime gider. Bu depoda birden fazla ajan çalıştığı için sessizce
+# başkasının yarım işini yayınlamak somut bir risk - bir kez gerçekleşti.
+#
+# Sürüm dosyaları temiz olmalı. Kasıtlı bir istisna gerekiyorsa
+# ALLOW_DIRTY_BUILD=1 ile açıkça belirtilir.
+surum_yollari=(artisan composer.json composer.lock app bootstrap config database public resources routes scripts storage lang)
+kirli="$(git -C "$ROOT" status --porcelain -- "${surum_yollari[@]}" | grep -v '^?? ' || true)"
+
+# Kuru kosu hicbir sey uretmiyor, dolayisiyla kirli agac zararsiz: koruma
+# "commit edilmemis kod yayina gitmesin" icin var. Kontrolu kuru kosuda da
+# uygulamak, bu depoda surekli yanlis alarm demekti - uc ajan ayni agacta
+# calisiyor ve birinin commit etmemis dosyasi digerinin kuru kosusunu
+# dusuruyordu.
+if [[ -n "$kirli" && "$DRY_RUN" == "false" && "${ALLOW_DIRTY_BUILD:-0}" != "1" ]]; then
+    printf 'HATA: calisma agacinda commit edilmemis surum dosyalari var.\n' >&2
+    printf 'Artefakt calisma agacindan paketlenir; bunlar %s damgasiyla uretime giderdi.\n' "${COMMIT_SHA:0:7}" >&2
+    printf '%s\n' "$kirli" >&2
+    printf 'Temiz bir kopyadan uretin (git worktree) ya da bilerek yapiyorsaniz ALLOW_DIRTY_BUILD=1 verin.\n' >&2
+    exit 1
+fi
 
 cd "$ROOT"
 cleanup() { [[ -z "$STAGING_DIR" ]] || rm -rf "$STAGING_DIR"; }

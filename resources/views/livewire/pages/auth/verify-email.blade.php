@@ -25,7 +25,7 @@ new #[Layout('layouts.guest')] class extends Component
         $throttleKey = 'verification-resend|'.$user->getAuthIdentifier().'|'.request()->ip();
         if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
             throw ValidationException::withMessages([
-                'verification' => 'Çok fazla doğrulama bağlantısı istendi. Lütfen daha sonra tekrar deneyin.',
+                'verification' => __('ux.verification_throttle'),
             ]);
         }
 
@@ -49,23 +49,23 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
-    <p class="hc-kicker">Son adım</p>
-    <h1 class="mt-2 hc-display-lg">E-posta adresinizi doğrulayın</h1>
-    <p class="mt-2 text-sm leading-6 text-muted">Başlamadan önce e-posta adresinize gönderilen doğrulama bağlantısına tıklayın. Mesajı göremiyorsanız yeni bir bağlantı gönderebiliriz.</p>
+    <p class="hc-kicker">{{ __('ux.last_step') }}</p>
+    <h1 class="mt-2 hc-display-lg">{{ __('ux.verify_email') }}</h1>
+    <p class="mt-2 text-sm leading-6 text-muted">{{ __('ux.verify_email_intro') }}</p>
 
     @if (session('status') == 'verification-link-sent')
         <div class="mb-4 mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-medium text-emerald-800 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-200">
-            Yeni doğrulama bağlantısı e-posta adresinize gönderildi.
+            {{ __('ux.verification_sent') }}
         </div>
     @endif
 
     <div class="mt-7 flex items-center justify-between gap-4">
         <x-primary-button wire:click="sendVerification">
-            Bağlantıyı yeniden gönder
+            {{ __('ux.resend') }}
         </x-primary-button>
 
         <button wire:click="logout" type="button" class="rounded-md text-sm font-semibold text-gold-700 underline outline-none hover:text-gold-600 focus-visible:ring-2 focus-visible:ring-gold-500">
-            Çıkış yap
+            {{ __('ux.logout') }}
         </button>
     </div>
     <x-input-error :messages="$errors->get('verification')" class="mt-4" />

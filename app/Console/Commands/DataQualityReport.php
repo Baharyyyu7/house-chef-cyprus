@@ -16,7 +16,9 @@ final class DataQualityReport extends Command
     {
         $issues = $quality->report();
         $breakdown = $quality->breakdown();
-        $scores = collect($breakdown)->map(fn (array $item): int => $item['score'])->all();
+        // Ölçülmeyen kategori null döndürüyor; "skor yok" ile "sıfır skor"
+        // aynı şey değil.
+        $scores = collect($breakdown)->map(fn (array $item): ?int => $item["score"])->all();
         $counts = collect($issues)->countBy('severity')->sortKeys()->all();
         $lastScan = DataQualityIssue::max('last_detected_at');
         if ($this->option('json')) {

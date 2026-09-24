@@ -1,4 +1,4 @@
-<x-layouts.site title="Ürün Deneyimi Sağlığı">
+<x-layouts.site :title="__('admin_workspaces.interface')">
     @php
         $status = $report['status'] === 'attention_required' ? 'İnceleme gerekli' : 'Tarayıcı QA bekliyor';
         $labels = ['overall' => 'Genel', 'public' => 'Public', 'member' => 'Üye', 'admin' => 'Yönetim'];
@@ -6,8 +6,8 @@
     <section class="hc-admin-dashboard hc-v3-section-reveal">
         <div class="hc-admin-page-header">
             <div>
-                <p class="hc-kicker">ÜRÜN DENEYİMİ</p>
-                <h1 class="hc-heading-1 mt-2">UX sağlık özeti</h1>
+                <p class="hc-kicker">{{ __('admin_workspaces.experience') }}</p>
+                <h1 class="hc-heading-1 mt-2">{{ __('admin_workspaces.interface') }}</h1>
                 <p class="hc-body-sm mt-3 max-w-2xl" style="color:var(--hc-text-secondary)">Bu ekran, tasarım sistemi ve kullanıcı durumları için otomatik ön kontrolü gösterir. Gerçek tarayıcı, ekran okuyucu ve Core Web Vitals doğrulaması yerine geçmez.</p>
             </div>
             <a href="{{ route('admin.dashboard') }}#system-status" class="hc-v3-btn hc-v3-btn--outline">Sistem durumuna dön</a>

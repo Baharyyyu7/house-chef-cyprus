@@ -41,6 +41,13 @@ final class GenerateMediaThumbnailsJob implements ShouldBeUnique, ShouldQueue
         if ($media === null || $media->path === null) {
             return;
         }
+        // Yer tutucular SVG ve küçük görsel üretilecek dosyalar değil;
+        // üretici izin verilen MIME listesinde olmadıkları için
+        // MEDIA_SOURCE_UNAVAILABLE atıyor. Bu iş üç kez denenip kalıcı
+        // olarak düşüyor ve kuyrukta ölü iş bırakıyordu.
+        if ($media->is_placeholder || str_starts_with($media->path, 'fallbacks/')) {
+            return;
+        }
         $media->update(['thumbnail_status' => 'processing', 'processing_status' => 'processing', 'processing_error_code' => null, 'processing_error_message' => null]);
         $paths = $generator->generate($media);
         $media->update(['thumbnail_paths' => $paths, 'thumbnail_status' => 'ready', 'processing_status' => 'ready', 'processed_at' => now()]);

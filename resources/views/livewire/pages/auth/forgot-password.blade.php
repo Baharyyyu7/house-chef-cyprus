@@ -23,7 +23,7 @@ new #[Layout('layouts.guest')] class extends Component
         $throttleKey = 'password-reset:'.hash('sha256', strtolower(trim($this->email)).'|'.request()->ip());
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
-            $this->addError('email', 'Bu işlem için lütfen birkaç dakika bekleyin.');
+            $this->addError('email', __('ux.wait'));
 
             return;
         }
@@ -52,14 +52,14 @@ new #[Layout('layouts.guest')] class extends Component
         }
 
         $this->reset('email');
-        session()->flash('status', 'İşlem talebiniz alındı. Hesabınız mevcutsa şifre sıfırlama bağlantısı e-posta adresinize gönderilecektir.');
+        session()->flash('status', __('ux.reset_sent'));
     }
 }; ?>
 
 <div>
-    <p class="hc-kicker">Hesap erişimi</p>
-    <h1 class="mt-2 hc-display-lg">Şifrenizi yenileyin</h1>
-    <p class="mt-2 text-sm leading-6 text-muted">E-posta adresinizi girin. Hesabınız varsa parolanızı yenilemeniz için güvenli bir bağlantı gönderilecektir.</p>
+    <p class="hc-kicker">{{ __('ux.recovery') }}</p>
+    <h1 class="mt-2 hc-display-lg">{{ __('ux.reset_title') }}</h1>
+    <p class="mt-2 text-sm leading-6 text-muted">{{ __('ux.reset_intro') }}</p>
 
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -67,15 +67,15 @@ new #[Layout('layouts.guest')] class extends Component
     <form wire:submit="sendPasswordResetLink" class="mt-7">
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" value="E-posta adresi" />
+            <x-input-label for="email" :value="__('ux.email')" />
             <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <div class="mt-6 flex items-center justify-between gap-4">
-            <a href="{{ route('login') }}" class="text-sm font-semibold text-gold-700 hover:text-gold-600">Girişe dön</a>
+            <a href="{{ route('login') }}" class="text-sm font-semibold text-gold-700 hover:text-gold-600">{{ __('ux.back_login') }}</a>
             <x-primary-button>
-                Sıfırlama bağlantısı gönder
+                {{ __('ux.send_reset') }}
             </x-primary-button>
         </div>
     </form>

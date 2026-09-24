@@ -296,7 +296,10 @@ final class BackupService
             throw new RuntimeException('BACKUP_GZIP_STREAM_FAILED');
         }
 
-        $limit = max(1048576, (int) config('observability.backup_verify_max_sql_bytes', 33554432));
+        // Varsayılan 1 GiB. Eski 32 MiB sınırı, veritabanı büyüyüp alfabetik
+        // dökümde `migrations` tablosu ileri kayınca sağlam yedeği geçersiz
+        // saydırdı ve deploy'u durdurdu (bkz. config/observability.php).
+        $limit = max(1048576, (int) config('observability.backup_verify_max_sql_bytes', 1073741824));
         $read = 0;
         $sample = '';
         try {

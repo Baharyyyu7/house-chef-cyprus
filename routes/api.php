@@ -10,8 +10,11 @@ use App\Http\Controllers\Api\V1\RecipeMatchController;
 use App\Http\Controllers\Api\V1\RecipeNutritionController;
 use App\Http\Controllers\Api\V1\VersionController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Middleware\RequireJsonApi;
 use Illuminate\Support\Facades\Route;
+
+Route::post('stripe/webhook', StripeWebhookController::class)->name('api.stripe.webhook');
 
 Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
     Route::get('health', HealthController::class);

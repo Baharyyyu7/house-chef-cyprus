@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasPublicId;
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,7 +12,18 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 /** @property string $public_id */
 class Ingredient extends Model
 {
-    use HasPublicId;
+    use HasPublicId, HasTranslations;
+
+    /**
+     * Malzeme adı tarif sayfasının yarısıdır ve malzemeler tarifler arasında
+     * paylaşılır: bir kez çevrilen "hellim" bütün tariflerde çevrilmiş olur.
+     *
+     * @return list<string>
+     */
+    public function translatableFields(): array
+    {
+        return ['name'];
+    }
 
     protected $fillable = ['name', 'canonical_name', 'slug', 'category', 'aliases', 'allergens', 'default_unit', 'default_unit_id', 'is_active', 'is_allergen', 'is_perishable', 'typical_shelf_life_days', 'storage_type', 'notes', 'icon_key', 'icon_label', 'icon_status'];
 

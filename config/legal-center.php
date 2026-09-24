@@ -2,7 +2,50 @@
 
 declare(strict_types=1);
 
+/*
+ * Reklam bölümü yalnız reklam gerçekten açıkken metne girer.
+ *
+ * Bu belgenin kendi ilkesi var ve gizlilik bölümünde yazılı:
+ * "Kullanılmayan analiz, reklam veya takip sistemleri bu metinde
+ * kullanılıyormuş gibi gösterilmez." Reklam kapalıyken bölüm hiç
+ * görünmez, açıldığı anda görünür; böylece metin iki durumda da doğrudur.
+ *
+ * Google, gizlilik politikasının üçüncü taraf reklam çerezlerini açıkça
+ * anlatmasını şart koşuyor. Bölüm o şartı karşılamak için var.
+ */
+$reklamAcik = (bool) env('GOOGLE_ADSENSE_ENABLED', false);
+
+/*
+ * Üç politika kendi sayfasına taşındı: /gizlilik, /cerezler,
+ * /kullanim-kosullari. Bölümler kopyalanmaz, taşınır - aynı metin iki
+ * adreste durursa yinelenen içerik olur ve ikisi de zayıflar. Yasal merkez
+ * kalan bölümleri tutar ve bu üçüne bağlanır.
+ *
+ * Reklam açıklaması bilerek gizlilik sayfasında: Google reklam çerezlerinin
+ * anlatıldığını gizlilik politikasında arar, çerez sayfasına taşımak o şartı
+ * karşılamaz hâle getirir.
+ */
+$ayriSayfalar = [
+    'gizlilik' => [
+        'baslik' => 'Gizlilik ve Kişisel Veriler',
+        'ozet' => 'Hangi verileri neden işlediğimiz, kimlerle paylaştığımız, ne kadar sakladığımız ve reklamların bu tabloda nerede durduğu.',
+        'bolumler' => ['gizlilik-ve-kisisel-veriler', 'reklam-ve-ucuncu-taraflar', 'kullanici-haklari'],
+    ],
+    'cerezler' => [
+        'baslik' => 'Çerez Politikası',
+        'ozet' => 'Hangi çerezler zorunlu, hangileri izne bağlı ve tercihinizi nasıl değiştirirsiniz.',
+        'bolumler' => ['cerez-politikasi'],
+    ],
+    'kullanim-kosullari' => [
+        'baslik' => 'Kullanım Koşulları',
+        'ozet' => 'Siteyi kullanırken geçerli olan kurallar ve tarafların sorumlulukları.',
+        'bolumler' => ['kullanim-kosullari'],
+    ],
+];
+
 return [
+    'standalone_pages' => $ayriSayfalar,
+
     'title' => 'House Chef Cyprus Kullanım Koşulları, Gizlilik, Çerez ve İçerik Politikası',
     'updated_at' => 'Son güncelleme: 3 Ağustos 2026',
     'introduction' => 'Bu metin, House Chef Cyprus internet sitesinin kullanım koşullarını, tarif ve blog içeriklerine ilişkin bilgilendirmeleri, kullanıcı hesaplarını, kişisel verilerin işlenmesini, çerez kullanımını, telif haklarını, kullanıcı tarafından gönderilen içerikleri ve iletişim süreçlerini açıklamaktadır. House Chef Cyprus internet sitesini ziyaret eden, üyelik oluşturan veya sitedeki hizmetlerden yararlanan kullanıcılar, aşağıda yer alan koşulları okuduklarını ve kabul ettiklerini beyan ederler. House Chef Cyprus; yemek tarifleri, mutfak bilgileri, blog yazıları, kullanıcı hesapları, favoriler, alışveriş listeleri, kişiselleştirilmiş öneriler ve benzeri dijital hizmetler sunabilir. Site adresi https://housechefcyprus.com, iletişim e-posta adresi ise info@housechefcyprus.com şeklindedir.',
@@ -57,7 +100,7 @@ return [
             'id' => 'gizlilik-ve-kisisel-veriler',
             'title' => 'Gizlilik ve Kişisel Veriler',
             'paragraphs' => [
-                'Kullanılan özelliklere göre ad ve soyadı, e-posta adresi, hesap ve profil bilgileri, şifrelenmiş parola bilgisi, favoriler, tarif ve blog tercihleri, kullanıcı tarafından gönderilen içerikler, yorumlar, IP adresi, tarayıcı ve cihaz bilgileri, oturum kayıtları, güvenlik kayıtları, çerez tercihleri, iletişim ve destek talepleri ile e-posta gönderim bilgileri işlenebilir. Bu veriler kullanıcı hesabı oluşturmak, oturum açmayı sağlamak, hesap güvenliğini korumak, e-posta doğrulamak, şifre sıfırlama işlemi yapmak, favorileri ve kişisel tercihleri saklamak, kullanıcı destek taleplerine cevap vermek, kötüye kullanımı önlemek, site performansını geliştirmek, teknik hataları tespit etmek, yasal yükümlülükleri yerine getirmek, kullanıcı deneyimini geliştirmek ve izin verilmişse bilgilendirme mesajları göndermek amacıyla kullanılabilir.',
+                'Kullanılan özelliklere göre ad ve soyadı, e-posta adresi, hesap ve profil bilgileri, şifrelenmiş parola bilgisi, favoriler, tarif ve blog tercihleri, kullanıcı tarafından gönderilen içerikler, yorumlar, IP adresi, tarayıcı ve cihaz bilgileri, oturum kayıtları, güvenlik kayıtları, çerez tercihleri, iletişim ve destek talepleri ile e-posta gönderim bilgileri işlenebilir. Bu veriler kullanıcı hesabı oluşturmak, oturum açmayı sağlamak, hesap güvenliğini korumak, e-posta doğrulamak, şifre sıfırlama işlemi yapmak, favorileri ve kişisel tercihleri saklamak, kullanıcı destek taleplerine cevap vermek, kötüye kullanımı önlemek, site performansını geliştirmek, teknik hataları tespit etmek, yasal yükümlülükleri yerine getirmek, kullanıcı deneyimini geliştirmek ve izin verilmişse bilgilendirme mesajları göndermek amacıyla kullanılabilir. Ziyaret istatistikleri için IP adresinden yalnızca ülke bilgisi, sunucudaki yerel bir veritabanıyla o istek sırasında çıkarılır; IP adresi bu amaçla saklanmaz, kaydedilmez ve üçüncü taraflara gönderilmez. Kayda yalnızca gün ve ülke bazında toplam ziyaret sayısı geçer.',
                 'Kişisel veriler yalnızca hizmetin sunulması için gerekli olduğu ölçüde hosting ve sunucu hizmetleri, e-posta gönderim hizmetleri, güvenlik hizmetleri, hata ve performans izleme araçları, yedekleme ve depolama hizmetleri, analiz araçları ve yasal olarak yetkili kurumlarla paylaşılabilir. Kullanılmayan analiz, reklam veya takip sistemleri bu metinde kullanılıyormuş gibi gösterilmez. Kişisel veriler yalnızca gerekli olduğu süre boyunca saklanır. Saklama süresi sona erdiğinde veriler silinebilir, anonim hâle getirilebilir, yasal zorunluluk nedeniyle sınırlı süreyle arşivlenebilir veya yedekleme döngüsü sonunda tamamen kaldırılabilir. Hesap silme talebi, verilerin tüm teknik yedeklerden anında silineceği anlamına gelmeyebilir. Yedeklerde bulunan veriler normal yedekleme döngüsü içinde silinir.',
                 'House Chef Cyprus kullanıcı verilerini korumak amacıyla HTTPS bağlantısı, güvenli parola hash’leme, yetki ve rol sistemi, güvenlik kayıtları, oturum güvenliği, yazılım güncellemeleri, yedekleme, giriş denemesi sınırlama, kötüye kullanım tespiti ve veritabanı erişim kontrolü gibi önlemler uygulayabilir. Hiçbir internet sistemi mutlak güvenlik garantisi veremez. Kullanıcıların kendi cihazlarını ve parolalarını koruması gerekir.',
             ],
@@ -70,6 +113,15 @@ return [
                 'House Chef Cyprus başka internet sitelerine bağlantılar verebilir. Bu sitelerin içerikleri, güvenlikleri, çerezleri, gizlilik politikaları ve veri işleme faaliyetleri House Chef Cyprus’un kontrolünde değildir. Kullanıcıların yönlendirildikleri sitelerin politikalarını ayrıca incelemesi önerilir. House Chef Cyprus, uygulanabilir hukukta ebeveyn izni gerektiren yaşın altındaki çocuklardan bilerek kişisel veri toplamayı amaçlamaz. Bir çocuğa ait verinin izinsiz olarak işlendiği düşünülüyorsa info@housechefcyprus.com adresi üzerinden bildirim yapılabilir.',
             ],
         ],
+        ...($reklamAcik ? [[
+            'id' => 'reklam-ve-ucuncu-taraflar',
+            'title' => 'Reklamlar ve Üçüncü Taraflar',
+            'paragraphs' => [
+                'House Chef Cyprus sitesinde Google tarafından sunulan reklamlar gösterilebilir. Google dâhil üçüncü taraf sağlayıcılar, kullanıcıların bu siteye ve başka sitelere yaptığı önceki ziyaretlere dayanarak reklam sunmak amacıyla çerez kullanabilir. Reklam çerezleri, reklamların gösterilmesi, tekrar gösterim sayısının sınırlanması, reklam performansının ölçülmesi ve kötüye kullanımın engellenmesi amacıyla kullanılabilir. Bu kapsamda IP adresi, tarayıcı ve cihaz bilgileri, yaklaşık konum ve site içi gezinme bilgileri reklam sağlayıcısına iletilebilir. House Chef Cyprus reklam sağlayıcısına ad, soyad, e-posta adresi veya parola gibi doğrudan kimlik bilgisi göndermez.',
+                'Avrupa Ekonomik Alanı, Birleşik Krallık ve İsviçre kullanıcıları için reklam ve ölçüm izni, Google tarafından sertifikalandırılmış bir izin yönetim platformu üzerinden ayrıca alınır. İzin verilmediği sürece kişiselleştirilmiş reklam isteği yapılmaz. Kullanıcılar kararlarını istedikleri zaman değiştirebilir; izin ekranı site üzerinden yeniden açılabilir. Ölçüm iznine verilen onay, reklam izni sayılmaz ve iki tercih ayrı tutulur.',
+                'Kullanıcılar kişiselleştirilmiş reklamları https://adssettings.google.com adresinden kapatabilir. Google’ın reklam amacıyla veri kullanımı hakkında ayrıntılı bilgi https://policies.google.com/technologies/ads adresinde yer alır. Üçüncü taraf sağlayıcıların genel tercih yönetimi için https://www.aboutads.info/choices ve https://www.youronlinechoices.com/tr adresleri kullanılabilir. Ücretli üyelik kullanan hesaplara reklam gösterilmez.',
+            ],
+        ]] : []),
         [
             'id' => 'kullanici-haklari',
             'title' => 'Kullanıcı Hakları',

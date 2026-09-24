@@ -132,7 +132,50 @@ class Media extends Model
         return $items->isEmpty() ? null : $items->implode(', ');
     }
 
-    /** @return list<array{jpeg?:string,width?:int,height?:int,webp?:string,avif?:string}> */
+    /**
+     * Paylaşım ve zengin sonuç görseli.
+     *
+     * og:image, twitter:image ve tarif şeması ham kaynağı gösteriyordu -
+     * bir tarifte 2,77 MB'lık PNG. O dosyayı WhatsApp, Facebook ve X her
+     * paylaşım önizlemesinde yeniden çekiyor, Google zengin sonuç için
+     * okuyor. Hattın ürettiği open_graph varyantı (1200x630) tam bu iş
+     * için var ve kullanılmıyordu.
+     *
+     * Biçim bilerek jpeg: paylaşım tarayıcılarının bir kısmı avif ve webp
+     * okumuyor, okumadığında da önizleme boş çıkıyor.
+     *
+     * @return array{url:string,width:?int,height:?int}|null
+     */
+    public function socialImage(): ?array
+    {
+        $url = $this->publicUrl();
+
+        if ($url === null) {
+            return null;
+        }
+
+        if ($this->isApprovedRealMedia() && $this->disk === 'public') {
+            foreach ($this->responsiveVariants() as $variant) {
+                if (($variant['name'] ?? null) !== 'open_graph') {
+                    continue;
+                }
+
+                $path = $variant['jpeg'] ?? null;
+
+                if (is_string($path) && $path !== '') {
+                    return [
+                        'url' => Storage::disk('public')->url($path),
+                        'width' => $variant['width'] ?? null,
+                        'height' => $variant['height'] ?? null,
+                    ];
+                }
+            }
+        }
+
+        return ['url' => $url, 'width' => $this->width, 'height' => $this->height];
+    }
+
+    /** @return list<array{name?:string,jpeg?:string,width?:int,height?:int,webp?:string,avif?:string}> */
     private function responsiveVariants(): array
     {
         $raw = $this->getRawOriginal('responsive_variants');

@@ -8,6 +8,7 @@ use App\Contracts\Observability\ErrorReporterInterface;
 use App\Contracts\Search\RecipeSearchInterface;
 use App\Events\MemberRegistered;
 use App\Listeners\SendNewMemberAdminNotification;
+use App\Models\BlogPost;
 use App\Models\ContentFactoryIssue;
 use App\Models\EditorialReviewPack;
 use App\Models\IngredientUnitConversion;
@@ -16,7 +17,9 @@ use App\Models\NutritionFact;
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
 use App\Models\RecipeMediaCandidate;
+use App\Observers\BlogPostObserver;
 use App\Observers\IngredientUnitConversionObserver;
+use App\Observers\MediaObserver;
 use App\Observers\NutritionFactObserver;
 use App\Observers\RecipeIngredientObserver;
 use App\Observers\RecipeObserver;
@@ -29,6 +32,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -62,6 +66,13 @@ class AppServiceProvider extends ServiceProvider
         NutritionFact::observe(NutritionFactObserver::class);
         IngredientUnitConversion::observe(IngredientUnitConversionObserver::class);
         Recipe::observe(RecipeObserver::class);
+        BlogPost::observe(BlogPostObserver::class);
+        Recipe::observe(\App\Observers\ContentGrowthObserver::class);
+        BlogPost::observe(\App\Observers\ContentGrowthObserver::class);
+        \App\Models\ContentTranslation::observe(\App\Observers\ContentGrowthObserver::class);
+        \App\Models\RecipeStep::observe(\App\Observers\ContentGrowthObserver::class);
+        \App\Models\Ingredient::observe(\App\Observers\ContentGrowthObserver::class);
+        Media::observe(MediaObserver::class);
         Gate::define('access-admin', fn ($user): bool => $user->isAdmin());
         Gate::define('access-ai-operations', fn ($user): bool => $user->isAdmin() && ! $user->isSystemReviewer());
         Gate::define('access-media-operations', fn ($user): bool => in_array($user->role, ['admin', 'media_reviewer'], true) && ! $user->isSystemReviewer());
@@ -137,5 +148,21 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
         RateLimiter::for('registration', fn (Request $request) => Limit::perHour(5)->by($request->ip()));
         RateLimiter::for('contact-request', fn (Request $request) => Limit::perHour(5)->by(hash('sha256', (string) $request->ip().'|'.mb_strtolower((string) $request->input('email')))));
+        RateLimiter::for('payment-attempt', fn (Request $request) => Limit::perMinute(5)->by($request->user()?->id ?: $request->ip()));
+        RateLimiter::for('digital-download', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+
+        URL::macro('localizedRoute', function (string $name, array $parameters = [], bool $absolute = true) {
+            $locale = app()->getLocale();
+            $defaultLocale = config('locales.default', 'tr');
+
+            $route = route($name, $parameters, $absolute);
+
+            if ($locale === $defaultLocale) {
+                return $route;
+            }
+
+            $localeUrlService = app(\App\Services\Seo\LocaleUrlService::class);
+            return $localeUrlService->urlFor($locale, $route);
+        });
     }
 }

@@ -47,17 +47,26 @@ final class ImportApprovedMedia extends Command
         $publish = (bool) $this->option('strict') && (bool) $this->option('replace-fallbacks') && ! (bool) $this->option('dry-run') && ! (bool) $this->option('preview-only') && ! (bool) $this->option('no-publish');
         $results = [];
         $failed = 0;
+        $withdrawn = 0;
         foreach ($entries as $entry) {
             try {
                 $results[] = $publish
                     ? $service->import($entry, (bool) $this->option('allow-controlled-resample'), (float) $this->option('max-upscale-factor'), true, true)
                     : $service->preview($entry, (bool) $this->option('allow-controlled-resample'), (float) $this->option('max-upscale-factor'));
             } catch (\Throwable $exception) {
+                // Yayından çekilmiş içerik deploy'u durdurmaz: manifest sabit,
+                // yayın durumu değişken. İçe aktarma yine yapılmıyor.
+                if (in_array($exception->getMessage(), ['MEDIA_CONTENT_WITHDRAWN', 'MEDIA_CONTENT_MISSING'], true)) {
+                    $withdrawn++;
+                    $results[] = ['public_id' => $entry['public_id'] ?? null, 'status' => 'SKIPPED', 'reason' => ['code' => $exception->getMessage()]];
+
+                    continue;
+                }
                 $failed++;
                 $results[] = ['public_id' => $entry['public_id'] ?? null, 'status' => 'FAILED', 'error' => ['code' => $exception->getMessage()]];
             }
         }
-        $payload = ['status' => $failed === 0 ? 'ok' : 'failed', 'mode' => $publish ? 'import' : 'dry-run', 'count' => $entries->count(), 'failed' => $failed, 'results' => $results];
+        $payload = ['status' => $failed === 0 ? 'ok' : 'failed', 'mode' => $publish ? 'import' : 'dry-run', 'count' => $entries->count(), 'failed' => $failed, 'withdrawn' => $withdrawn, 'results' => $results];
 
         return $this->result($payload, $failed === 0 ? self::SUCCESS : self::FAILURE);
     }

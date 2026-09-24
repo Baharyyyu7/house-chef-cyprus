@@ -19,7 +19,9 @@ final class PantryController extends Controller
         $editing = request()->integer('edit');
 
         return view('pantry.index', [
-            'items' => auth()->user()->pantryItems()->with('ingredient')->orderBy('expires_at')->get(),
+            // Tarihi olmayanlar önce gelirse süresi dolmak üzere olanlar listenin dibine
+            // düşüyordu; dolap sayfasının asıl işi bunun tersini göstermek.
+            'items' => auth()->user()->pantryItems()->with('ingredient')->orderByRaw('expires_at IS NULL, expires_at ASC')->get(),
             'ingredients' => Ingredient::orderBy('name')->get(),
             'units' => Unit::query()->where('is_active', true)->where('is_user_visible', true)->orderBy('sort_order')->get(),
             'editingItem' => $editing > 0 ? auth()->user()->pantryItems()->find($editing) : null,

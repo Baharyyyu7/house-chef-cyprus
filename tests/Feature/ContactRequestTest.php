@@ -16,6 +16,28 @@ final class ContactRequestTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_commercial_request_is_captured_without_creating_a_sale(): void
+    {
+        Mail::fake();
+        config(['contact-requests.captcha.enabled' => false]);
+        $this->post(route('legal.center.contact.store'), [
+            ...$this->payload(), 'subject' => 'menu_content', 'source_page' => route('contact.index'),
+        ])->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('contact_requests', ['subject' => 'menu_content', 'source_page' => route('contact.index')]);
+        $this->assertDatabaseCount('digital_orders', 0);
+        $this->assertDatabaseCount('user_subscriptions', 0);
+    }
+
+    public function test_contact_form_renders_enabled_captcha_and_selected_commercial_subject(): void
+    {
+        config(['contact-requests.captcha.enabled' => true, 'contact-requests.captcha.site_key' => 'test-site-key']);
+        $this->get(route('contact.index', ['subject' => 'hospitality']))->assertOk()
+            ->assertSee('data-response-field-name="captcha_token"', false)
+            ->assertSee('value="hospitality" selected', false)
+            ->assertSee('name="source_page" value="'.route('contact.index').'"', false);
+    }
+
     public function test_guest_can_submit_a_privacy_consented_contact_request_without_registration(): void
     {
         Mail::fake();

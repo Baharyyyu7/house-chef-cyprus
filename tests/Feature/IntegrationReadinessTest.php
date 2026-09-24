@@ -27,10 +27,26 @@ final class IntegrationReadinessTest extends TestCase
         config()->set('integrations.google.analytics.enabled', true);
         config()->set('integrations.google.analytics.measurement_id', 'G-ABC123');
 
-        $this->get('/')->assertOk()->assertDontSee('GTM-ABC123')->assertSee('Analitik tercihiniz');
-        $response = $this->withCookie('hc_analytics_consent', 'granted')->get('/')->assertOk();
+        $this->get('/')->assertOk()->assertDontSee('GTM-ABC123')->assertSee('data-analytics-consent', false);
+        $response = $this->withUnencryptedCookie('hc_analytics_consent', 'granted')->get('/')->assertOk();
         $response->assertSee('GTM-ABC123')->assertDontSee('gtag/js?id=G-ABC123');
+        $response->assertSee("'analytics_storage':'granted'", false)
+            ->assertSee("'ad_storage':'denied'", false);
         $this->assertStringContainsString('https://www.googletagmanager.com', (string) $response->headers->get('Content-Security-Policy'));
+    }
+
+    public function test_direct_ga_collects_page_views_only_after_explicit_analytics_consent(): void
+    {
+        config()->set('integrations.google.tag_manager.enabled', false);
+        config()->set('integrations.google.analytics.enabled', true);
+        config()->set('integrations.google.analytics.measurement_id', 'G-ABC123');
+
+        $this->get('/')->assertOk()->assertDontSee('gtag/js?id=G-ABC123');
+        $this->withUnencryptedCookie('hc_analytics_consent', 'granted')->get('/')
+            ->assertOk()
+            ->assertSee('gtag/js?id=G-ABC123')
+            ->assertSee("'analytics_storage':'granted'", false)
+            ->assertDontSee("'send_page_view':false", false);
     }
 
     public function test_site_verification_meta_is_production_only(): void
@@ -39,6 +55,42 @@ final class IntegrationReadinessTest extends TestCase
         $this->app->detectEnvironment(fn (): string => 'production');
 
         $this->get('/')->assertOk()->assertSee('google-site-verification')->assertSee('public-verification-token');
+    }
+
+    public function test_adsense_verification_meta_is_production_only_and_requires_a_valid_publisher_id(): void
+    {
+        config()->set('integrations.google.adsense.verification_meta_enabled', true);
+        config()->set('integrations.google.adsense.client_id', 'ca-pub-1614195335767159');
+        $this->app->detectEnvironment(fn (): string => 'production');
+
+        $this->get('/')->assertOk()
+            ->assertSee('google-adsense-account')
+            ->assertSee('ca-pub-1614195335767159');
+
+        config()->set('integrations.google.adsense.client_id', 'not-a-publisher-id');
+        $this->get('/')->assertOk()->assertDontSee('google-adsense-account');
+    }
+
+    public function test_adsense_never_loads_until_a_certified_cmp_is_explicitly_configured(): void
+    {
+        config()->set('integrations.google.adsense.enabled', true);
+        config()->set('integrations.google.adsense.client_id', 'ca-pub-1614195335767159');
+
+        config()->set('integrations.google.adsense.certified_cmp_enabled', false);
+
+        $analyticsOnly = $this->withUnencryptedCookie('hc_analytics_consent', 'granted')
+            ->withUnencryptedCookie('hc_advertising_consent', 'granted')
+            ->get('/')
+            ->assertOk();
+        $this->assertStringNotContainsString('<script async src="https://pagead2.googlesyndication.com/', $analyticsOnly->getContent());
+    }
+
+    public function test_ads_txt_contains_the_exact_authorized_seller_line(): void
+    {
+        $adsTxt = file_get_contents(public_path('ads.txt'));
+
+        $this->assertIsString($adsTxt);
+        $this->assertSame("google.com, pub-1614195335767159, DIRECT, f08c47fec0942fa0\n", $adsTxt);
     }
 
     public function test_integration_center_is_admin_only_and_never_displays_secrets(): void

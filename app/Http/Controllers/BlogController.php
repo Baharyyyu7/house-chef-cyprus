@@ -7,6 +7,9 @@ namespace App\Http\Controllers;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\BlogTag;
+use App\Services\Media\PublicMediaEligibilityService;
+use App\Services\Seo\BlogIndexability;
+use App\Services\Seo\InternalLinkService;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoMetadataService;
 use App\Services\Seo\SeoSchemaService;
@@ -15,18 +18,36 @@ use Illuminate\View\View;
 
 final class BlogController extends Controller
 {
-    public function index(Request $request, SeoIndexabilityService $indexability): View
+    public function index(Request $request, SeoIndexabilityService $indexability, SeoSchemaService $schema): View
     {
-        $posts = BlogPost::query()->publiclyVisible()->with(['category', 'tags', 'heroMedia'])
+        // Çevirisi olmayan yazı o dilin sitesinde yoktur. Listelenseydi
+        // /en/blog altında Türkçe başlıklar çıkardı; Google sayfanın dilini
+        // görünen içerikten belirler ve bu aynı içeriğin ikinci kopyası
+        // olurdu. Liste, sitemap ve hreflang aynı tanımı paylaşmak zorunda.
+        $posts = BlogPost::query()->publiclyVisible()->translatedInto()->with(['category', 'tags', 'heroMedia', 'media'])
             ->when($request->filled('q'), fn ($query) => $query->where(fn ($nested) => $nested->where('title', 'like', '%'.$request->string('q')->toString().'%')->orWhere('excerpt', 'like', '%'.$request->string('q')->toString().'%')))
             ->latest('published_at')->paginate(12)->withQueryString();
 
-        return view('blog.index', ['posts' => $posts, 'title' => 'Blog · House Chef Cyprus', 'seoIndexability' => $indexability->forRequest($request, route('blog.index'))]);
+        $description = 'Mutfak teknikleri, malzeme rehberleri ve Kıbrıs mutfağı üzerine editoryal yazılar.';
+
+        return view('blog.index', [
+            'posts' => $posts,
+            'title' => 'Blog · House Chef Cyprus',
+            'seoIndexability' => $indexability->forRequest($request, route('blog.index')),
+            'seoSchema' => $schema->blogCollectionPage('Mutfak rehberi', $description, route('blog.index'), $posts->items(), [
+                ['name' => 'Ana Sayfa', 'url' => route('home')],
+                ['name' => 'Blog', 'url' => route('blog.index')],
+            ]),
+        ]);
     }
 
-    public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService): View
+    public function show(BlogPost $post, SeoMetadataService $seo, SeoSchemaService $schemaService, PublicMediaEligibilityService $mediaEligibility, BlogIndexability $indekslenebilirlik, InternalLinkService $internalLinks): View
     {
         abort_unless(BlogPost::query()->publiclyVisible()->whereKey($post->id)->exists(), 404);
+        // Aynı kural detayda da geçerli: çevirisi olmayan yazının o dildeki
+        // adresi yoktur. Sessizce Türkçe gövde servis etmek, hreflang'in
+        // gösterdiği adresin başka dilde içerik döndürmesi demekti.
+        abort_unless($post->hasTranslation(), 404);
         // A blog relation can be prepared before a recipe is editorially ready.
         // Never expose that private relation as a public link: the recipe route
         // deliberately returns 404 for anything other than published + verified.
@@ -38,30 +59,44 @@ final class BlogController extends Controller
             'recipes' => fn ($query) => $query
                 ->where('status', 'published')
                 ->where('verification_status', 'verified')
+                ->translatedInto()
                 ->with(['media' => fn ($media) => $media->where('visibility', 'public')]),
         ]);
-        $relatedPosts = BlogPost::query()->publiclyVisible()
+        $relatedPosts = BlogPost::query()->publiclyVisible()->translatedInto()
             ->whereKeyNot($post->id)
             ->when($post->blog_category_id !== null, fn ($query) => $query->where('blog_category_id', $post->blog_category_id))
-            ->with(['category', 'heroMedia'])
+            ->with(['category', 'heroMedia', 'media'])
             ->latest('published_at')
             ->limit(3)
             ->get();
 
-        $schema = $schemaService->article($post, $post->heroMedia?->isApprovedRealMedia() ? ($post->heroMedia->publicUrl() ?: '') : '');
+        $heroMedia = $mediaEligibility->heroOrFirstEligible($post->heroMedia, $post->media);
+        $sosyalGorsel = $heroMedia?->socialImage();
+        // Paylaşım ve şema görseli 1200x630 varyantını kullanır, ham kaynağı değil.
+        $schema = $schemaService->article($post, $sosyalGorsel['url'] ?? '');
 
         $metadata = $seo->for($post, $post->meta_title ?: $post->title.' · House Chef Cyprus', $post->meta_description ?: $post->excerpt, route('blog.show', $post));
 
-        return view('blog.show', compact('post', 'schema', 'metadata', 'relatedPosts'));
+        // Editoryal kapılar kayıtta vardı ama indekslemeye etkisi yoktu:
+        // olgu denetimi ve özgünlüğü "pending" olan bir yazı da index,follow
+        // olarak dizine giriyordu. Yazı yayında kalıyor, yalnız kendi
+        // kapılarından geçene kadar aranabilir olmuyor.
+        $metadata['robots'] = $indekslenebilirlik->robots($post);
+
+        $suggestedRecipes = $post->recipes->isNotEmpty()
+            ? $post->recipes
+            : $internalLinks->recommendedRecipesFor($post, app()->getLocale());
+
+        return view('blog.show', compact('post', 'schema', 'metadata', 'relatedPosts', 'heroMedia', 'suggestedRecipes'));
     }
 
     public function category(BlogCategory $category): View
     {
-        return view('blog.index', ['posts' => $category->posts()->publiclyVisible()->with(['category', 'tags', 'heroMedia'])->latest('published_at')->paginate(12), 'title' => $category->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.category', $category), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
+        return view('blog.index', ['posts' => $category->posts()->publiclyVisible()->translatedInto()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12), 'title' => $category->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.category', $category), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
     }
 
     public function tag(BlogTag $tag): View
     {
-        return view('blog.index', ['posts' => $tag->posts()->publiclyVisible()->with(['category', 'tags', 'heroMedia'])->latest('published_at')->paginate(12), 'title' => '#'.$tag->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.tag', $tag), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
+        return view('blog.index', ['posts' => $tag->posts()->publiclyVisible()->translatedInto()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12), 'title' => '#'.$tag->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.tag', $tag), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
     }
 }

@@ -176,10 +176,59 @@ final class ApprovedMediaImportService
             $model = $query->where('slug', $this->sourceSlug($contentType, $sourceFilename))->first();
         }
         if (! $model instanceof Model) {
-            throw new \RuntimeException('MEDIA_CONTENT_NOT_PUBLISHED_OR_VERIFIED');
+            // İçerik var ama yayından çekilmişse bu bir bütünlük ihlali değil,
+            // beklenen kayma: manifest sabit, yayın durumu değişken. İkisini
+            // ayırmazsak "onaylı görseli olan bir tarifi asla yayından
+            // alamazsın" kuralı doğuyor ve deploy duruyor.
+            //
+            // Güvenlik özelliği aynen duruyor: iki durumda da içe aktarma
+            // yapılmıyor, yalnızca deploy'u durdurup durdurmayacağı değişiyor.
+            // İçerik yayından çekilmişse ya da tamamen silinmişse içe
+            // aktarılacak bir şey yok - bu bir hata değil, boş işlem.
+            // Manifest sabit, içerik değişken: kapı bu kaymayı hata sayınca
+            // deploy kalıcı olarak bloke oluyordu.
+            throw new \RuntimeException(
+                $this->contentExistsUnpublished($contentType, $publicId, $sourceFilename)
+                    ? 'MEDIA_CONTENT_WITHDRAWN'
+                    : 'MEDIA_CONTENT_MISSING'
+            );
         }
 
         return $model;
+    }
+
+    /**
+     * Kayıt gerçekten var mı, yoksa yalnız yayında mı değil?
+     *
+     * Yayın filtresi olmadan aranır. Bulunursa içerik duruyor ama yayından
+     * çekilmiş demektir; bulunmazsa manifest var olmayan bir kaydı işaret
+     * ediyordur ve bu gerçek bir hatadır.
+     */
+    private function contentExistsUnpublished(string $contentType, string $publicId, string $sourceFilename): bool
+    {
+        // withTrashed: soft-delete edilmiş kayıt hâlâ vardır, yalnız
+        // yayından çekilmiştir.
+        $sorgu = match ($contentType) {
+            'recipe' => Recipe::withTrashed(),
+            'blog' => BlogPost::withTrashed(),
+            default => null,
+        };
+
+        if ($sorgu === null) {
+            return false;
+        }
+
+        if ((clone $sorgu)->where('public_id', $publicId)->exists()) {
+            return true;
+        }
+
+        try {
+            $slug = $this->sourceSlug($contentType, $sourceFilename);
+        } catch (\RuntimeException) {
+            return false;
+        }
+
+        return $sorgu->where('slug', $slug)->exists();
     }
 
     private function sourceSlug(string $contentType, string $filename): string

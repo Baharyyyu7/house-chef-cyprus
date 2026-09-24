@@ -1,6 +1,6 @@
-<x-layouts.site title="Malzeme Yönetimi">
+<x-layouts.site :title="__('admin_workspaces.ingredients')">
     <section class="hc-admin-crud-page">
-        <x-admin.page-header eyebrow="Malzeme verisi" title="Malzemeler" description="Alias, dönüşüm, beslenme ve alerjen verilerini malzeme bağlamında denetleyin.">
+        <x-admin.page-header :eyebrow="__('admin_workspaces.catalogue')" :title="__('admin_workspaces.ingredients')">
             <x-slot:actions><a class="hc-v3-btn hc-v3-btn--secondary" href="{{ route('admin.measurements.conversions') }}">Dönüşümler</a></x-slot:actions>
         </x-admin.page-header>
         <x-admin.filter-bar class="mt-6"><label class="sr-only" for="ingredient-search">Malzeme ara</label><input id="ingredient-search" class="hc-input" name="q" value="{{ request('q') }}" placeholder="Malzeme ara"><select class="hc-input" name="category"><option value="">Tüm kategoriler</option>@foreach($categories as $category)<option value="{{ $category }}" @selected(request('category') === $category)>{{ $category }}</option>@endforeach</select><select class="hc-input" name="status"><option value="">Tüm durumlar</option><option value="active" @selected(request('status') === 'active')>Aktif</option><option value="inactive" @selected(request('status') === 'inactive')>Pasif</option></select></x-admin.filter-bar>
