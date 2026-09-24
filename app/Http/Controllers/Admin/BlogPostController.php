@@ -88,6 +88,15 @@ final class BlogPostController extends Controller
         return back()->with('status', 'Yazı yayınlandı.');
     }
 
+    public function publishAll(): RedirectResponse
+    {
+        $this->admin();
+        $count = BlogPost::query()->whereNotIn('status', ['published', 'archived'])
+            ->update(['status' => 'published', 'published_at' => now(), 'scheduled_at' => null]);
+
+        return back()->with('status', $count.' blog yazısı yayınlandı.');
+    }
+
     public function archive(BlogPost $post): RedirectResponse
     {
         $this->admin();
