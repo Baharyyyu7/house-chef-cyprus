@@ -18,6 +18,8 @@
                     <p class="hc-body-sm mt-2 text-muted">
                         {{ $publicationCandidateCount }} yayınlanmamış yazı kalite, SEO, insan onayı ve benzerlik kapılarından geçirilecek.
                         Koşulları karşılamayanlar taslak kalır.
+                        Otomatik üretilmiş kısa taslakların toplu yayını arama sonuçlarında spam sinyali oluşturduğu için bu kapılar bilerek kapatılamaz;
+                        bir taslağı yayına almak için düzenleyip eksiklerini tamamlayın ve tek tek yayınlayın.
                     </p>
                 </div>
                 <form method="post" action="{{ route('admin.blog.publish-ready') }}" onsubmit="return confirm('Yalnız tüm yayın kapılarını geçen yazılar yayınlansın mı?')">
@@ -27,8 +29,8 @@
             </div>
 
             @if(session('publication_reasons'))
-                <details class="mt-4">
-                    <summary class="cursor-pointer font-semibold">Atlanma nedenlerini göster</summary>
+                <details class="mt-4" open>
+                    <summary class="cursor-pointer font-semibold">Taslakların neden yayınlanmadığı</summary>
                     <ul class="mt-3 list-disc space-y-1 pl-5 text-sm text-muted">
                         @foreach(session('publication_reasons') as $reason => $count)
                             <li>{{ $reason }} ({{ $count }} yazı)</li>

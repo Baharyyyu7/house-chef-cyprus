@@ -93,8 +93,14 @@ final class BlogPostController extends Controller
         $this->admin();
         $result = $publication->publishAllReady();
 
+        // Hiçbir yazı yayınlanmadıysa "0 yazı yayınlandı" düğme bozukmuş gibi
+        // okunuyor. Taslaklar bilerek taslak kalıyor; mesaj bunu söylemeli.
+        $status = $result['published'] === 0 && $result['skipped'] > 0
+            ? 'Yayına hazır yazı bulunamadı: '.$result['skipped'].' taslak kalite ve onay kapılarını henüz geçmiyor, bu yüzden taslak olarak bırakıldı. Nedenler aşağıda.'
+            : $result['published'].' yazı yayınlandı. '.$result['skipped'].' yazı atlandı.';
+
         return to_route('admin.blog.index')->with([
-            'status' => $result['published'].' yazı yayınlandı. '.$result['skipped'].' yazı atlandı.',
+            'status' => $status,
             'publication_reasons' => $result['reasons'],
         ]);
     }
