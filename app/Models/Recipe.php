@@ -10,11 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $public_id
  * @property array<string, float|int|string>|null $nutrition
- * @property \Illuminate\Support\Carbon|null $published_at
+ * @property Carbon|null $published_at
  */
 class Recipe extends Model
 {

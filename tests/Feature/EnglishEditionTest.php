@@ -124,7 +124,7 @@ final class EnglishEditionTest extends TestCase
 
         $this->get(route('en.recipes.show', $translation->slug))->assertNotFound();
         $this->get('/sitemaps/en.xml')->assertOk()->assertDontSee($translation->slug);
-        $this->get('/en/recipes/not-a-real-recipe')->assertNotFound();
+        $this->get('/en/recipes/not-a-real-recipe')->assertNotFound()->assertSee('We couldn’t find that recipe or page')->assertSee('<html lang="en"', false);
     }
 
     public function test_sitemaps_advertise_the_english_edition_with_hreflang(): void
