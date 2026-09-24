@@ -71,3 +71,42 @@ teslim kaydı: `docs/seo/2026-09-16-ai-worker-1-delivery-report.md`.
 | GLOB-009 | Yüksek | Seeder gerçek ziyaretçi oyu olmadan 14-36 puan üretiyor; canlıda 1.007 tarifte 24.874 eşleşme var | AI-Worker-1 / AI-Worker-8 | Kapatıldı | 2026-09-18 canlı sürüm `58571b3`: üretici engellendi, 1.462 PHP testi ve 7 JS testi geçti, 24.874 sentetik oy özel sunucu arşivine alındı ve canlı DB'den kaldırıldı. Son kontrol: sentetik eşleşme 0, toplam oy 0, örnek tarif JSON-LD çıktılarında `aggregateRating` yok. Arşiv SHA256 `32d5622bb9af7c7b04bf8020d6d19e8790c951b22f5465538e53ba22b0facfd0` |
 | GLOB-010 | Yüksek | `SeoAutoDrip` günlük taslak yayınlıyor; ayrı insan yayın kararı yerine içerik kalite alanlarını yeterli sayıyor | Sonraki otomasyon kontrolü | Açık | `app/Console/Commands/SeoAutoDrip.php`, `routes/console.php` içindeki günlük `seo_auto_drip` |
 | GLOB-011 | Takip | Yedi dil etkin, bu durum her dilde bütün içerik ve arayüzlerin hazır olduğunu kanıtlamaz | Koordinatör | Kapsam doğrulaması açık | 2026-09-18 `config/locales.php`: tr/en/de/fa/pl/ru/pt; bu tur hiçbir ayar değiştirilmedi |
+
+## 2026-09-23 13:17 UTC otomasyon kontrolü
+
+- Canlı sürüm `737bebf`, yerel HEAD `46e39cb`; başka ajanın takipli
+  arayüz/rota/test değişiklikleri ve çalışan test süiti var. Bu tur deploy
+  veya uygulama kodu değişikliği yapılmadı.
+- Sınırlı teslim: `kibris-hellimli-gozleme-6QTYM` için tek 4:3 görsel
+  üretildi, 1920x1620 PNG sunucu teslimi ve stage dry-run doğrulandı,
+  yerel geçiciler silindi, atomik kuyruk işi kapatıldı. İnsan onayı ve
+  canlı görünürlük bekliyor. Ayrıntılar teslim raporunun 23 Eylül kaydında.
+- Güncel PublicMediaEligibilityService: 1.007 tarif, 128 uygun görselli,
+  879 uygun görselsiz. Teslim sayısı bu ölçümün yerine kullanılmadı.
+- GLOB-010 **açık**: `737bebf` kalite kapısı human_approved_at ve
+  human_approved_by_user_id istiyor; ContentFactoryController::approve
+  bunları doldururken auto_publish=false kaydediyor ve taslak kaldığını
+  bildiriyor. SeoAutoDrip yine draft seçip published yapıyor; günlük
+  08:00/limit 3 görev sürüyor. Ayrı yayın kararı kontrolü ve onaylı
+  taslağın taslak kalacağı regresyon testi eksik. AI-Worker-10 salt
+  okunur incelemesi koordinatör tarafından koddan doğrulandı.
+- Yeni kalite kapısı canlıda olsa da GLOB-010 kapanmış sayılmadı.
+  GLOB-011 dil kapsamı doğrulaması açık; yedi etkin dilin hazır olduğu
+  iddia edilmedi. Son GSC ölçümünün mülk/dönem/kaynak/gözlem bilgileri
+  teslim raporuna eklendi; dil/pazar kırılımı bu tur alınmadı.
+
+## 2026-09-24: kuyruk komutunun yeniden çalıştırılması
+
+| Kimlik | Önem | Bulgu | Sahip | Durum | Kanıt |
+| --- | --- | --- | --- | --- | --- |
+| GLOB-012 | Yüksek | `a7fa88b` passthru korumasını eklerken script/komut tanımını kaldırmış; yerelde `media:queue status` dahil bütün işler Undefined variable $cmd ile duruyor | AI-Worker-1 | Yerelde düzeltildi; tam süit doğrulaması sürüyor | Eksik iki satır geri eklendi, kapalı passthru korundu. Yeni feature testleri önce aynı hatayla 2/3 başarısız, düzeltme sonrası feature + kuyruk unit testleri 8/8, 42 assertion geçti. AI-Worker-11 salt okunur incelemesinde engelleyici bulgu yok. |
+
+- Başlangıç yerel HEAD `bea2f8f`; canlı `7ee21100c410e06d183e8053b2db875b8190d4cd`.
+  Blog hazırlık/yayın işinin dosyalarına girilmedi; GLOB-010 açık kalıyor.
+- Düzeltilen yerel komutla uçtan uca gerçek iş: `kibris-kolokoti` claim,
+  canlı tarif kimliği kontrolü, tek görsel üretimi/inceleme, sunucu teslimi,
+  boyut/checksum/stage doğrulaması ve complete başarılı. İnsan onayı verilmedi.
+- 2026-09-24 06:05:39 UTC PublicMediaEligibilityService: 1.007 tarif,
+  130 uygun görselli, 877 uygun görselsiz. Önceki gözleme teslimi artık
+  uygun; bu tur yapılan onay işlemi değildir. Kolokoti yalnız teslim edildi.
+- Yeni ölçüm, test sonucu ve dosya konumu teslim raporunun 24 Eylül kaydında.

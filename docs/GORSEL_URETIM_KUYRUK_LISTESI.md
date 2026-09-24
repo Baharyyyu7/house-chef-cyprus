@@ -1,7 +1,7 @@
 # 🍽️ Görsel Üretim Dağıtık Koordinasyon ve Canlı Kilit Sistemi
 
-> **Canlı İlerleme:** `%2.2` Tamamlandı | **Tamamlanan:** `8` / `366` | **İşleniyor:** `1` | **Boşta:** `352`
-> **Son Güncelleme:** 2026-09-18 06:58:27
+> **Canlı İlerleme:** `%2.7` Tamamlandı | **Tamamlanan:** `10` / `366` | **İşleniyor:** `1` | **Boşta:** `350`
+> **Son Güncelleme:** 2026-09-24 06:05:39
 > **Kurallar:** [docs/GORSEL_URETIM_MASTER_PROMPT.md](GORSEL_URETIM_MASTER_PROMPT.md) ve [docs/AJAN_CALISMA_KURALLARI.md](AJAN_CALISMA_KURALLARI.md)
 
 ## 1. Dağıtık Kilit Protokolü ("Ben Yapacağım" Mekanizması)
@@ -34,8 +34,8 @@ Engellenen kayıtlar: `5`. `block --slug=... --worker=... --reason=...` ile eksi
 | 12 | `! Engelli` | - | **Limonlu Balık Tepsisi (Canlı tarif status=draft; yayın koşulu sağlanmadığından görsel üretilmedi.)** | Kıbrıs Mutfağı | Ana Yemek | `recipe--limonlu-balik-tepsisi.png` |
 | 13 | `! Engelli` | - | **Peynirli Kraker (Canlı tarifte peynir yok; malzemeler un/yumurta/süt/yoğurt ve adımlar jenerik tencere-tava. Peynirli kraker kimliği doğrulanamadı.)** | Kıbrıs Mutfağı | Atıştırmalık / Pratik | `recipe--peynirli-kraker.png` |
 | 14 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Hellimli Gözleme** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-hellimli-gozleme.png` |
-| 15 | `[ ] Boşta` | - | **Kıbrıs Hellimli Gözleme** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-hellimli-gozleme-6QTYM.png` |
-| 16 | `[ ] Boşta` | - | **Kıbrıs Kolokoti** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-kolokoti.png` |
+| 15 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Hellimli Gözleme** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-hellimli-gozleme-6QTYM.png` |
+| 16 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Kolokoti** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-kolokoti.png` |
 | 17 | `[ ] Boşta` | - | **Kıbrıs Kolokoti** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-kolokoti-03VHY.png` |
 | 18 | `[ ] Boşta` | - | **Kıbrıs Usulü Flaouna** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-usulu-flaouna.png` |
 | 19 | `[ ] Boşta` | - | **Kıbrıs Usulü Flaouna** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-usulu-flaouna-4546F.png` |
