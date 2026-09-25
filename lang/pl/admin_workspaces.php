@@ -20,4 +20,6 @@ return [
     'weekly_report' => 'Raport tygodniowy',
     'interface' => 'Kontrola interfejsu',
     'recommendations' => 'Rekomendacje',
+    'coni_bot' => 'ConiSEOBot (wartość komercyjna)',
+    'machina_loop' => 'Machina (SEO i AEO)',
 ];

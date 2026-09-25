@@ -20,4 +20,6 @@ return [
     'weekly_report' => 'گزارش هفتگی',
     'interface' => 'بررسی رابط کاربری',
     'recommendations' => 'پیشنهادها',
+    'coni_bot' => 'ConiSEOBot (ارزش تجاری)',
+    'machina_loop' => 'Machina (SEO و AEO)',
 ];
