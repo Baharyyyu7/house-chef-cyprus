@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -28,5 +29,15 @@ class ThemeAndPremiumNavigationTest extends TestCase
             ->assertOk()
             ->assertSee('Henüz ödeme almıyoruz.')
             ->assertDontSee('Hemen Başlat');
+    }
+
+    public function test_desktop_header_groups_account_controls_under_one_visual_system(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)->get('/')
+            ->assertOk()
+            ->assertSee('hc-nav-actions', false)
+            ->assertSee('hc-nav-control', false);
     }
 }

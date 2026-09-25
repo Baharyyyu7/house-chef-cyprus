@@ -108,8 +108,8 @@
                     @endif
                 </div>
 
-                <div class="hidden items-center gap-2.5 xl:flex shrink-0">
-                    <x-locale-switcher />
+                <div class="hc-nav-actions hidden items-center gap-2.5 xl:flex shrink-0">
+                    <x-locale-switcher class="hc-nav-control" />
                     <x-theme-switch class="hc-nav-control shrink-0" />
                     @auth
                         @if (auth()->user()->isAdmin())<a href="{{ route('admin.dashboard') }}" class="hc-btn hc-btn-outline hc-nav-control whitespace-nowrap shrink-0 !px-3">{{ __('nav.admin') }}</a>@endif

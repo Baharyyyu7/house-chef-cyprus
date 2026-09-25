@@ -1049,6 +1049,48 @@ a.hc-nav-control {
    aynı sıradaki şeyleri iki gruba bölüyordu. */
 .hc-theme-switch.hc-nav-control { border-color: var(--hc-line); }
 
+/* Masaüstü başlık eylemleri tek bir kontrol ailesidir. İçerikleri farklı
+   olsa da yükseklik, yüzey, kenar, köşe ve tipografi aynı kalır. */
+.hc-nav-actions .hc-locale__trigger,
+.hc-nav-actions .hc-theme-switch,
+.hc-nav-actions > a.hc-nav-control,
+.hc-nav-actions .hc-user-trigger {
+    height: 2.75rem;
+    min-height: 2.75rem;
+    border: 1px solid var(--hc-line);
+    border-radius: 9999px;
+    background: var(--hc-surface);
+    color: var(--hc-text-primary);
+    box-shadow: none;
+    font-size: .875rem;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+.hc-nav-actions .hc-theme-switch { width: 2.75rem; padding: .25rem; justify-content: center; }
+.hc-nav-actions .hc-theme-switch .hc-theme-switch__knob { width: 2.125rem; height: 2.125rem; transform: none; }
+.hc-nav-actions .hc-theme-switch[aria-checked="true"] .hc-theme-switch__knob { transform: none; }
+.hc-nav-actions .hc-user-trigger { padding-inline: .3rem .85rem; }
+.hc-nav-actions .hc-locale__trigger:hover,
+.hc-nav-actions .hc-theme-switch:hover,
+.hc-nav-actions > a.hc-nav-control:hover,
+.hc-nav-actions .hc-user-trigger:hover {
+    border-color: color-mix(in srgb, var(--hc-brand-primary) 55%, var(--hc-line));
+    background: var(--hc-surface-soft);
+    color: var(--hc-text-primary);
+}
+.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions .hc-locale__trigger,
+.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions .hc-theme-switch,
+.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions > a.hc-nav-control,
+.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions .hc-user-trigger {
+    border-color: rgba(255,255,255,.28);
+    background: rgba(255,255,255,.1);
+    color: #fff;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions .hc-locale__caret { color: rgba(255,255,255,.72); }
+.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions .hc-theme-switch__knob { background: rgba(255,255,255,.12); box-shadow: none; }
+
 
 /* Tema geçişi: tarayıcı iki kareyi çapraz geçirir. Süre kısa, çünkü bu bir
    durum değişimi; yolculuk değil. */
