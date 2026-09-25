@@ -92,6 +92,15 @@ final class RecipeController extends Controller
 
     public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, PublicMediaEligibilityService $mediaEligibility, SeoMetadataService $seo, SeoSchemaService $schemaService, InternalLinkService $internalLinks)
     {
+        // MySQL harf duyarsız eşleşiyor: "...-FY1DJ" de "...-fy1dj" tarifini
+        // 200 ile basıyordu. Slug'lar 20 Eylül sonrası küçük harfe çekildi,
+        // 174 kopyanın kanoniği eski yazımda kaldı ve o adres ikinci bir
+        // nüsha olarak yanıt veriyordu.
+        $istenen = (string) $request->route()?->originalParameter('recipe');
+        if ($istenen !== '' && rawurldecode($istenen) !== (string) $recipe->slug) {
+            return redirect()->route('recipes.show', $recipe, 301);
+        }
+
         $isPublic = ($recipe->status === 'published' && $recipe->verification_status === 'verified') || $request->user()?->isAdmin();
 
         if (! $isPublic) {
