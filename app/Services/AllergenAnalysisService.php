@@ -12,9 +12,8 @@ final class AllergenAnalysisService
     public function analyse(Recipe $recipe): array
     {
         $groups = ['contains' => [], 'may_contain' => [], 'cross_contamination_risk' => [], 'derived_from' => [], 'unverified' => []];
-        $lines = $recipe->relationLoaded('recipeIngredients')
-            ? $recipe->recipeIngredients
-            : $recipe->recipeIngredients()->with('ingredient.allergenDetails.allergen')->get();
+        $recipe->loadMissing('recipeIngredients.ingredient.allergenDetails.allergen');
+        $lines = $recipe->recipeIngredients;
         foreach ($lines as $line) {
             $ingredient = $line->relationLoaded('ingredient') ? $line->ingredient : $line->ingredient()->firstOrFail();
             $details = $ingredient->relationLoaded('allergenDetails') ? $ingredient->allergenDetails : $ingredient->allergenDetails()->with('allergen')->get();

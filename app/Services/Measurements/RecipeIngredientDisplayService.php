@@ -16,10 +16,13 @@ final class RecipeIngredientDisplayService
     {
         $factor = bcdiv((string) max(1, $servings), (string) max(1, $baseServings), 4);
 
-        return collect($lines)->sortBy(fn (RecipeIngredient $line): string => sprintf('%05d-%05d', $line->recipe_ingredient_group_id === null ? 0 : (int) $line->group->sort_order, (int) $line->sort_order))->map(function (RecipeIngredient $line) use ($factor): array {
+        $lines = collect($lines);
+        $units = Unit::query()->whereIn('code', $lines->pluck('display_measure_code')->filter()->unique()->values())->get()->keyBy('code');
+
+        return $lines->sortBy(fn (RecipeIngredient $line): string => sprintf('%05d-%05d', $line->recipe_ingredient_group_id === null ? 0 : (int) $line->group->sort_order, (int) $line->sort_order))->map(function (RecipeIngredient $line) use ($factor, $units): array {
             $quantity = $line->display_quantity ?? $line->quantity;
             $scaled = $quantity === null ? null : bcmul((string) $quantity, $factor, 4);
-            $unit = $line->display_measure_code ? Unit::query()->where('code', $line->display_measure_code)->first() : null;
+            $unit = $line->display_measure_code ? $units->get($line->display_measure_code) : null;
             $display = trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $this->formatter->measureLabel($unit, $scaled), $line->preparation_note ?: $line->display_note ?: $line->preparation, $line->ingredient?->name])));
             $canonical = $line->canonical_quantity ?? $line->grams;
 

@@ -72,9 +72,7 @@ final class NutritionService
     /** @return array<string, mixed> */
     private function calculateFresh(Recipe $recipe, int $servings, bool $includeOptional): array
     {
-        if (! $recipe->relationLoaded('recipeIngredients')) {
-            $recipe->load('recipeIngredients.ingredient.nutritionFacts.nutrient');
-        }
+        $recipe->loadMissing('recipeIngredients.ingredient.nutritionFacts.nutrient');
         $totals = [];
         $missing = [];
         $coveredWeight = '0';

@@ -75,9 +75,10 @@ trait HasTranslations
             return parent::getAttribute($field);
         }
 
-        $ceviri = $this->relationLoaded('translations')
-            ? $this->translations->firstWhere(fn (ContentTranslation $t): bool => $t->locale === $locale && $t->field === $field)
-            : $this->translations()->where('locale', $locale)->where('field', $field)->first();
+        // Bir sayfa aynı kayıt için birçok alan/dil soruyor (hreflang, başlık,
+        // özet...). Her soru ayrı sorgu olunca tarif sayfası 24 sorgu yapıyordu.
+        $this->loadMissing('translations');
+        $ceviri = $this->translations->firstWhere(fn (ContentTranslation $t): bool => $t->locale === $locale && $t->field === $field);
 
         $deger = $ceviri?->value;
 

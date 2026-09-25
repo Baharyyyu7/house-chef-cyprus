@@ -90,7 +90,8 @@ final class RecipeCollectionLandingController extends Controller
         return collect(['sure' => self::SURELER, 'zorluk' => self::ZORLUKLAR])
             ->flatMap(function (array $tanimlar, string $tur) use ($controller): array {
                 return collect($tanimlar)->map(function (array $tanim, string $slug) use ($controller, $tur): ?array {
-                    if (! self::sayfasiVar($controller->sorgu($tur, $tanim)->count())) {
+                    $adet = $controller->sorgu($tur, $tanim)->count();
+                    if (! self::sayfasiVar($adet)) {
                         return null;
                     }
 
@@ -102,7 +103,7 @@ final class RecipeCollectionLandingController extends Controller
                         'description' => $tanim['description'],
                         'url' => route('collections.'.$tur, $slug),
                         'lastmod' => $controller->sonYayinTarihi($tur, $tanim),
-                        'count' => $controller->sorgu($tur, $tanim)->count(),
+                        'count' => $adet,
                     ];
                 })->filter()->values()->all();
             })->values();
