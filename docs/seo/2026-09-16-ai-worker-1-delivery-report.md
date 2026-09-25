@@ -214,3 +214,54 @@ teslim kapanışına yazılmadan canlı düzeltme tamamlanmış sayılmaz.
   Her dilin içerik/arayüz/adım/malzeme/canonical/hreflang/sitemap/schema
   kapsamı bu tur yeniden test edilmedi. Yeni blog teslimi, backlink
   iletişimi veya yeni doğrulanmış backlink iddiası yok.
+
+## 2026-09-25 05:46 UTC: Flaouna teslimi ve canlı ölçüm
+
+- Yerel dal `visual-redesign-v2`, başlangıç HEAD `050c6ea`; canlı sürüm
+  `7ee21100c410e06d183e8053b2db875b8190d4cd`. Canlıdaki takipli ek fark
+  `public/.htaccess` içinde ads.txt için MIME/CORS başlıklarıydı; bu tur
+  dosyaya veya deploya müdahale edilmedi. Scheduler-health 05:42:34 UTC,
+  son görev queue_drain, status healthy, task_count 2.
+- `Automation-Images-20260916` başlangıçta aktif işe sahip değildi.
+  Atomik claim tam slug `kibris-usulu-flaouna` döndürdü. Canlı tarif ID
+  837, public_id `01M2MFDTWZV56HX96JQX92BFWR`, published/verified;
+  görünür başlık `Kıbrıs Usulü Flaouna (Pilavuna)`. PublicMediaEligibilityService
+  uygun medya bulmadı; aynı teslim dosyası ve manifest kaydı yoktu.
+- Kimlik canlı içerikten doğrulandı: nor peyniri, hellim, yumurta, mahlep,
+  damla sakızı, irmik ve susam; mayalı hamurun üç kenardan katlanarak
+  ortası açık üçgen yapılması, yumurta sarısı ve susamla fırınlanması.
+- Yerleşik image_gen ile 1448x1086, tam 4:3 tek yemek fotoğrafı üretildi.
+  Görsel tek tek incelendi: üçgen açık merkez, peynir-nane dolgusu ve
+  susamlı koyu altın kabuk tarifle uyumlu; yazı, logo, filigran, çerçeve
+  ve kolaj yok. Kullanılan yöntem yerleşik imagegen, CLI/API fallback değil.
+- `scripts/upload-recipe-image.sh` sonrası sunucu dosyası 1920x1620 PNG,
+  4.583.854 bayt, SHA256
+  `bd8ce6ce07d2ff9666d4e2d701256ae804a69f9791074c177fc98b4158a3c053`.
+  Konum:
+  `/home/u584361532/domains/housechefcyprus.com/shared/storage/app/media-import/recipes/recipe--kibris-usulu-flaouna.png`.
+- 05:45:29 UTC sunucuda ölçü, MIME, bayt ve checksum doğrulandı.
+  Salt okunur `media:stage-delivered` exit 0 ve hedef dosya `hazır`;
+  genel sonuç 2 hazır / 253 atlanan. Diğer dosyalar çözülmüş sayılmadı.
+  Ardından complete başarılı. Yerel kaynak ve /tmp ara dosyası silindi.
+  Manifest/insan onayı değiştirilmedi; teslim canlı görünürlük değildir.
+- Son kuyruk: 366 toplam, 12 tamamlanan, 348 bekleyen, 5 engelli,
+  AI-Worker-4 üzerinde 1 kilit. Automation-Images-20260916 aktif kilidi 0.
+- 05:46:28 UTC PublicMediaEligibilityService ölçümü: 536 published/verified
+  tarif, 135 uygun görselli, 401 uygun görselsiz. Yayındaki tarif toplamı
+  önceki 1.007 ölçümden veri kalite çalışmasıyla 536'ya düşmüştür; eski
+  130/877 sayısı güncel sonuç olarak kullanılmadı. Flaouna dosyası henüz
+  onaylanmadığı için bu uygun sayı teslim başarısı olarak sunulmuyor.
+- Search Console mevcut snapshot: mülk `sc-domain:housechefcyprus.com`,
+  `api_import`, web; dönem 2026-08-25 - 2026-09-21; kaynak gözlemi
+  2026-09-25 00:00:07 UTC, bu tur okuma 05:46:28 UTC. 52 tıklama,
+  4.306 gösterim, ortalama konum 9,943799349744543; 436 sorguluk örneklem.
+  İlgili en yüksek sorgular: `kıbrıs mezesi` 28/1/7,36; `molohiya`
+  16/0/7,88; `home made cypriot restaurant` 15/0/46,93; `kıbrıs nor
+  peyniri` 11/0/10,27; `kıbrıs mezeleri` 10/0/8,3
+  (gösterim/tıklama/konum). Snapshotta dil, ülke/pazar ve sayfa kırılımı
+  yok; sorgu metninden pazar tahmin edilmedi.
+- Canlı config/locales.php: tr/en/de/fa/pl/ru/pt etkin; hiçbir enabled
+  alanı değiştirilmedi. Dil başına bütün içerik, arayüz, tarif adımı,
+  malzeme, canonical, karşılıklı hreflang, sitemap ve schema kapsamı bu
+  tur yeniden test edilmedi. Blog taslağı, backlink adayı/iletişimi veya
+  doğrulanmış backlink eklenmedi.

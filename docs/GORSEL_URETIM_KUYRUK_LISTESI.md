@@ -1,7 +1,7 @@
 # 🍽️ Görsel Üretim Dağıtık Koordinasyon ve Canlı Kilit Sistemi
 
-> **Canlı İlerleme:** `%2.7` Tamamlandı | **Tamamlanan:** `10` / `366` | **İşleniyor:** `1` | **Boşta:** `350`
-> **Son Güncelleme:** 2026-09-24 06:05:39
+> **Canlı İlerleme:** `%3.3` Tamamlandı | **Tamamlanan:** `12` / `366` | **İşleniyor:** `1` | **Boşta:** `348`
+> **Son Güncelleme:** 2026-09-25 05:45:36
 > **Kurallar:** [docs/GORSEL_URETIM_MASTER_PROMPT.md](GORSEL_URETIM_MASTER_PROMPT.md) ve [docs/AJAN_CALISMA_KURALLARI.md](AJAN_CALISMA_KURALLARI.md)
 
 ## 1. Dağıtık Kilit Protokolü ("Ben Yapacağım" Mekanizması)
@@ -36,8 +36,8 @@ Engellenen kayıtlar: `5`. `block --slug=... --worker=... --reason=...` ile eksi
 | 14 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Hellimli Gözleme** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-hellimli-gozleme.png` |
 | 15 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Hellimli Gözleme** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-hellimli-gozleme-6QTYM.png` |
 | 16 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Kolokoti** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-kolokoti.png` |
-| 17 | `[ ] Boşta` | - | **Kıbrıs Kolokoti** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-kolokoti-03VHY.png` |
-| 18 | `[ ] Boşta` | - | **Kıbrıs Usulü Flaouna** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-usulu-flaouna.png` |
+| 17 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Kolokoti** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-kolokoti-03VHY.png` |
+| 18 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Usulü Flaouna** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-usulu-flaouna.png` |
 | 19 | `[ ] Boşta` | - | **Kıbrıs Usulü Flaouna** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-usulu-flaouna-4546F.png` |
 | 20 | `[ ] Boşta` | - | **Soğanlı Çörek** | Kıbrıs Mutfağı | Hamur İşi | `recipe--soganli-corek.png` |
 | 21 | `[ ] Boşta` | - | **Soğanlı Çörek** | Kıbrıs Mutfağı | Hamur İşi | `recipe--soganli-corek-Y92V8.png` |
