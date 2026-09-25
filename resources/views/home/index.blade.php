@@ -1,19 +1,27 @@
 {{-- Homepage: editorial hero, pantry matching, collections, trust and close. --}}
-<section class="hc-home-hero hc-home-hero--future relative isolate -mt-[var(--hc-header-h)] overflow-hidden">
-    <div class="hc-home-hero__media absolute inset-0 -z-30 pointer-events-none" aria-hidden="true"><x-hero-video /></div>
-    <div class="hc-home-hero__mesh absolute inset-0 -z-20 pointer-events-none" aria-hidden="true"></div>
-    <div class="hc-home-hero__glow hc-home-hero__glow--one absolute -z-10 pointer-events-none" aria-hidden="true"></div>
-    <div class="hc-home-hero__glow hc-home-hero__glow--two absolute -z-10 pointer-events-none" aria-hidden="true"></div>
-    <div class="hc-container relative flex min-h-[48rem] flex-col justify-between pb-8 pt-[calc(var(--hc-header-h)+5rem)] sm:min-h-[55rem] sm:pb-10 sm:pt-[calc(var(--hc-header-h)+7rem)] lg:min-h-[min(58rem,100svh)]">
-        <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(22rem,.7fr)] lg:gap-20">
-            <div class="max-w-3xl">
-                <div class="hc-home-hero__signal hc-animate-fade-up"><span class="hc-home-hero__signal-dot" aria-hidden="true"></span><span>{{ __('home.kicker') }}</span></div>
-                <h1 class="hc-home-hero__title hc-animate-fade-up">{{ __('home.hero_title') }}</h1>
-                <p class="hc-home-hero__subtitle hc-animate-fade-up">{{ __('home.hero_subtitle') }}</p>
-                <div class="hc-home-hero__actions hc-animate-fade-up"><a class="hc-future-btn hc-future-btn--primary hc-btn-primary" href="#hero-ingredient"><span>{{ __('home.hero_cta') }}</span><span aria-hidden="true">↗</span></a><a class="hc-future-btn hc-future-btn--quiet hc-hero-secondary" href="{{ route('recipes.index') }}"><span>{{ __('home.browse_archive') }}</span><span aria-hidden="true">→</span></a></div>
-                <div class="hc-home-hero__proof hc-animate-fade-up" aria-label="{{ __('home.trust_title') }}"><span><b aria-hidden="true">01</b> {{ __('home.editorial_verified_only') }}</span><span><b aria-hidden="true">02</b> {{ __('home.step_3') }}</span></div>
-            </div>
+<section class="hc-hero relative isolate -mt-[var(--hc-header-h)] overflow-hidden">
+    <div class="hc-hero__ground" aria-hidden="true"></div>
+    <div class="hc-hero__grain" aria-hidden="true"></div>
+    <div class="hc-container relative flex min-h-[44rem] flex-col justify-between gap-12 pb-8 pt-[calc(var(--hc-header-h)+4.5rem)] sm:min-h-[48rem] sm:pb-10 lg:min-h-[min(52rem,100svh)]">
+        <div class="hc-hero__copy">
+            <h1 class="hc-hero__title hc-animate-fade-up">{{ __('home.hero_title') }}</h1>
+            <p class="hc-hero__lede hc-animate-fade-up">{{ __('home.hero_subtitle') }}</p>
+            <div class="hc-hero__actions hc-animate-fade-up"><a class="hc-hero__cta" href="#hero-ingredient"><span>{{ __('home.hero_cta') }}</span><x-ui.icon name="arrow-right" size="18" /></a><a class="hc-hero__link" href="{{ route('recipes.index') }}"><span>{{ __('home.browse_archive') }}</span><x-ui.icon name="arrow-right" size="16" /></a></div>
+            <p class="hc-hero__proof hc-animate-fade-up">{{ __('home.editorial_verified_only') }}</p>
         </div>
+        @if(count($homeIngredients) > 7)
+            <div class="hc-hero__rail" aria-hidden="true">
+                <div class="hc-hero__rail-track">
+                    @foreach([1, 2] as $tur)
+                        <ul class="hc-hero__rail-set">
+                            @foreach(array_slice($homeIngredients, 0, 14) as $malzeme)
+                                <li>{{ $malzeme['name'] }}</li>
+                            @endforeach
+                        </ul>
+                    @endforeach
+                </div>
+            </div>
+        @endif
         <div id="kesfet" class="hc-home-command hc-animate-scale-in" x-data="{ activeSearchTab: 'ingredients' }">
             <div class="hc-home-command__header"><div><p class="hc-home-command__eyebrow">{{ __('home.search_kicker') }}</p><h2 class="hc-home-command__title"><span x-show="activeSearchTab === 'ingredients'">{{ __('home.search_title') }}</span><span x-show="activeSearchTab === 'recipes'" x-cloak>{{ __('home.search_recipes_title') }}</span></h2></div><div class="hc-home-command__tabs" role="tablist" aria-label="{{ __('home.search_mode_label') }}"><button type="button" role="tab" @click="activeSearchTab = 'ingredients'" :aria-selected="activeSearchTab === 'ingredients'" :class="activeSearchTab === 'ingredients' ? 'is-active' : ''"><x-ui.icon name="sparkles" size="15" /> {{ __('home.search_tab_ingredients') }}</button><button type="button" role="tab" @click="activeSearchTab = 'recipes'" :aria-selected="activeSearchTab === 'recipes'" :class="activeSearchTab === 'recipes' ? 'is-active' : ''"><x-ui.icon name="search" size="15" /> {{ __('home.search_tab_recipes') }}</button></div></div>
             <div x-show="activeSearchTab === 'ingredients'" x-transition.opacity><form id="home-ingredients" class="hc-home-command__form" action="{{ route('ingredients.explore') }}" method="get"><label class="sr-only" for="hero-ingredient">{{ __('home.select_ingredient_label') }}</label><span class="hc-home-command__form-icon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span><select id="hero-ingredient" class="hc-home-command__input" name="ingredients[]" required><option value="">{{ __('home.ingredient_placeholder_example') }}</option>@foreach($homeIngredients as $ingredient)<option value="{{ $ingredient['public_id'] }}">{{ $ingredient['name'] }}</option>@endforeach</select><button class="hc-home-command__submit" type="submit"><span>{{ __('home.what_can_i_cook') }}</span><span aria-hidden="true">↗</span></button></form></div>

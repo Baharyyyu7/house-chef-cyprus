@@ -1,6 +1,9 @@
         <header :class="{ 'is-scrolled': scrolled }" @class([
             'hc-public-header sticky top-0 z-40 transition-all duration-300',
-            'hc-header-over-hero' => request()->routeIs('home', 'recipes.show'),
+            {{-- Bu kip çubuğu koyu bir hero'nun üstünde okunur kılmak için
+                 metni beyaza çeviriyor. Ana sayfa hero'su artık açık zeminli;
+                 kip açık kalsaydı menü krem üstünde beyaz kalırdı. --}}
+            'hc-header-over-hero' => request()->routeIs('recipes.show'),
         ])>
             <nav class="mx-auto flex h-[4.75rem] w-full max-w-[92rem] items-center justify-between gap-2 px-4 transition-colors duration-300 sm:px-6 lg:px-8 xl:gap-4" aria-label="{{ __('ux.menu') }}">
                 <x-brand-logo class="scale-100 sm:scale-105 shrink-0" />
