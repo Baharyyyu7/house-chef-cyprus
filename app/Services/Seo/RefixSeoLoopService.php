@@ -122,7 +122,7 @@ final class RefixSeoLoopService
             IntegrityReport::query()->create([
                 'guard' => 'seo:refix-loop',
                 'status' => 'success',
-                'headline' => count($evaluated).' actionable SEO opportunities identified',
+                'headline' => count($evaluated),
                 'payload' => [
                     'total_queries' => count($currentRows),
                     'flag_counts' => $flagCounts,
