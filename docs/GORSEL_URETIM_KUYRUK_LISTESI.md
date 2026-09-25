@@ -1,7 +1,7 @@
 # 🍽️ Görsel Üretim Dağıtık Koordinasyon ve Canlı Kilit Sistemi
 
-> **Canlı İlerleme:** `%3.6` Tamamlandı | **Tamamlanan:** `13` / `366` | **İşleniyor:** `1` | **Boşta:** `346`
-> **Son Güncelleme:** 2026-09-25 12:51:45
+> **Canlı İlerleme:** `%4.1` Tamamlandı | **Tamamlanan:** `15` / `366` | **İşleniyor:** `2` | **Boşta:** `343`
+> **Son Güncelleme:** 2026-09-25 13:24:27
 > **Kurallar:** [docs/GORSEL_URETIM_MASTER_PROMPT.md](GORSEL_URETIM_MASTER_PROMPT.md) ve [docs/AJAN_CALISMA_KURALLARI.md](AJAN_CALISMA_KURALLARI.md)
 
 ## 1. Dağıtık Kilit Protokolü ("Ben Yapacağım" Mekanizması)
@@ -40,9 +40,9 @@ Engellenen kayıtlar: `6`. `block --slug=... --worker=... --reason=...` ile eksi
 | 18 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Usulü Flaouna** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-usulu-flaouna.png` |
 | 19 | `! Engelli` | - | **Kıbrıs Usulü Flaouna (2026-09-25 12:48 UTC canlı denetim: tarif ID 1325 draft; exact canlı slug kibris-usulu-flaouna-4546f, kuyruktaki büyük F ile eşleşmiyor. Yayın durumu ve slug koordinatörce düzeltilmeden üretilemez.)** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-usulu-flaouna-4546F.png` |
 | 20 | `✓ Bitti` | **Automation-Images-20260916** | **Soğanlı Çörek** | Kıbrıs Mutfağı | Hamur İşi | `recipe--soganli-corek.png` |
-| 21 | `[ ] Boşta` | - | **Soğanlı Çörek** | Kıbrıs Mutfağı | Hamur İşi | `recipe--soganli-corek-Y92V8.png` |
-| 22 | `[ ] Boşta` | - | **Izgara Hellimli Köy Ekmeği** | Kıbrıs Mutfağı | Kahvaltı | `recipe--izgara-hellimli-koy-ekmegi-5CAJQ.png` |
-| 23 | `[ ] Boşta` | - | **Kıbrıs Usulü Pişi (Lokisi)** | Kıbrıs Mutfağı | Kahvaltı | `recipe--kibris-usulu-pisi-lokisi-AVVJ1.png` |
+| 21 | `✓ Bitti` | **Antigravity** | **Soğanlı Çörek** | Kıbrıs Mutfağı | Hamur İşi | `recipe--soganli-corek-Y92V8.png` |
+| 22 | `✓ Bitti` | **Antigravity** | **Izgara Hellimli Köy Ekmeği** | Kıbrıs Mutfağı | Kahvaltı | `recipe--izgara-hellimli-koy-ekmegi-5CAJQ.png` |
+| 23 | `⏳ İşleniyor` | **Antigravity** | **Kıbrıs Usulü Pişi (Lokisi)** | Kıbrıs Mutfağı | Kahvaltı | `recipe--kibris-usulu-pisi-lokisi-AVVJ1.png` |
 | 24 | `[ ] Boşta` | - | **Kıbrıs Usulü Pişi (Lokisi)** | Kıbrıs Mutfağı | Kahvaltı | `recipe--kibris-usulu-pisi-lokisi-HQ1AZ.png` |
 | 25 | `[ ] Boşta` | - | **Geleneksel Tahinli** | Kıbrıs Mutfağı | Salata / Meze | `recipe--geleneksel-tahinli-V9X0W.png` |
 | 26 | `[ ] Boşta` | - | **Kıbrıs Usulü** | Kıbrıs Mutfağı | Salata / Meze | `recipe--kibris-usulu-TEAG6.png` |
