@@ -54,17 +54,17 @@ final class BrokenMediaFallbackDoesNotEatGoodImagesTest extends TestCase
         $this->assertStringContainsString("img.setAttribute('aria-hidden', 'true')", $betik);
     }
 
-    public function test_the_home_page_serves_the_video_hero_without_a_cover_image(): void
+    public function test_the_home_page_has_neither_a_cover_image_nor_a_video(): void
     {
-        // Kapak görseli kalktı: anasayfada v2 hero görseli basılmamalı,
-        // video katmanı dosya varken gelmeli.
+        // Kapak görseli ve hero videosu ikisi de kalktı. Video dosyası
+        // diskte dursa bile ana sayfa onu basmamalı.
         Storage::fake('public');
         Storage::disk('public')->put('videos/hero-quality-20260908.mp4', 'sahte-video');
 
         $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
 
         $this->assertStringNotContainsString('house-chef-hero-v2', $icerik);
-        $this->assertStringContainsString('data-hero-video', $icerik);
+        $this->assertStringNotContainsString('data-hero-video', $icerik);
     }
 
     private function betik(): string

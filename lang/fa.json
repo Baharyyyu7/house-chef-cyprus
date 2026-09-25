@@ -693,10 +693,10 @@
     "recipe.decrease_servings": "کاهش تعداد پرس",
     "recipe.increase_servings": "افزایش تعداد پرس",
     "language.not_translated_yet": "در این زبان موجود نیست",
-    "home.demo_pantry": "یخچال تو",
-    "home.demo_can_cook_prefix": "قابل پخت:",
-    "home.demo_minutes": "دقیقه",
-    "home.demo_ready": "آماده پخت",
-    "home.demo_open": "رفتن به دستور",
-    "home.demo_aria_prefix": "نمونه تطبیق، رفتن به دستور:"
+    "home.match_pantry": "یخچال تو",
+    "home.match_can_cook_prefix": "قابل پخت:",
+    "home.match_minutes": "دقیقه",
+    "home.match_ready": "آماده پخت",
+    "home.match_open": "رفتن به دستور",
+    "home.match_aria_prefix": "نمونه تطبیق، رفتن به دستور:"
 }

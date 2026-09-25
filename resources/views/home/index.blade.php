@@ -2,20 +2,19 @@
 <section class="hc-hero relative isolate -mt-[var(--hc-header-h)] overflow-hidden">
     <div class="hc-hero__ground" aria-hidden="true"></div>
     <div class="hc-hero__grain" aria-hidden="true"></div>
-    <x-hero-video />
     <div class="hc-container relative flex min-h-[44rem] flex-col justify-between gap-12 pb-8 pt-[calc(var(--hc-header-h)+4.5rem)] sm:min-h-[48rem] sm:pb-10 lg:min-h-[min(52rem,100svh)]">
-        <div @class(['hc-hero__layout', 'hc-hero__layout--demo' => ! empty($homeMatchDemo)])>
+        <div @class(['hc-hero__layout', 'hc-hero__layout--match' => ! empty($homeMatchShowcase)])>
         <div class="hc-hero__copy">
             <h1 class="hc-hero__title hc-animate-fade-up">{{ __('home.hero_title') }}</h1>
             <p class="hc-hero__lede hc-animate-fade-up">{{ __('home.hero_subtitle') }}</p>
             <div class="hc-hero__actions hc-animate-fade-up"><a class="hc-hero__cta hc-btn-primary" href="#hero-ingredient"><span>{{ __('home.hero_cta') }}</span><x-ui.icon name="arrow-right" size="18" /></a><a class="hc-hero__link hc-hero-secondary" href="{{ route('recipes.index') }}"><span>{{ __('home.browse_archive') }}</span><x-ui.icon name="arrow-right" size="16" /></a></div>
             <p class="hc-hero__proof hc-animate-fade-up">{{ __('home.editorial_verified_only') }}</p>
         </div>
-        @if(! empty($homeMatchDemo))
-            <div class="hc-match" x-data="hcMatchDemo(@js($homeMatchDemo), @js(['aria' => __('home.demo_aria_prefix'), 'pisir' => __('home.demo_can_cook_prefix'), 'dk' => __('home.demo_minutes')]))" @mouseenter="dur()" @mouseleave="devam()" @focusin="dur()" @focusout="devam()" :class="{ 'is-done': bitti, 'is-out': evre === 'cikis' }">
+        @if(! empty($homeMatchShowcase))
+            <div class="hc-match" x-data="hcMatchShowcase(@js($homeMatchShowcase), @js(['aria' => __('home.match_aria_prefix'), 'pisir' => __('home.match_can_cook_prefix'), 'dk' => __('home.match_minutes')]))" @mouseenter="dur()" @mouseleave="devam()" @focusin="dur()" @focusout="devam()" :class="{ 'is-done': bitti, 'is-out': evre === 'cikis' }">
                 <a class="hc-match__card" :href="senaryo.recipe.url" :aria-label="metin.aria + ' ' + senaryo.recipe.title">
                     <div class="hc-match__head" aria-hidden="true">
-                        <span class="hc-match__label"><span class="hc-match__pulse"></span>{{ __('home.demo_pantry') }}</span>
+                        <span class="hc-match__label"><span class="hc-match__pulse"></span>{{ __('home.match_pantry') }}</span>
                         <span class="hc-match__count" x-show="pisirilebilir > 1" x-cloak x-text="metin.pisir + ' ' + pisirilebilir"></span>
                     </div>
 
@@ -40,15 +39,15 @@
                     </div>
 
                     <div class="hc-match__done" aria-hidden="true">
-                        <span class="hc-match__done-badge"><x-ui.icon name="check" size="16" />{{ __('home.demo_ready') }}</span>
-                        <span class="hc-match__done-go">{{ __('home.demo_open') }}<x-ui.icon name="arrow-right" size="14" /></span>
+                        <span class="hc-match__done-badge"><x-ui.icon name="check" size="16" />{{ __('home.match_ready') }}</span>
+                        <span class="hc-match__done-go">{{ __('home.match_open') }}<x-ui.icon name="arrow-right" size="14" /></span>
                     </div>
                 </a>
             </div>
         @endif
         </div>
         {{-- Gösteri varken bant ikinci bir hareket olur ve aynı şeyi söyler. --}}
-        @if(empty($homeMatchDemo) && count($homeIngredients) > 7)
+        @if(empty($homeMatchShowcase) && count($homeIngredients) > 7)
             <div class="hc-hero__rail" aria-hidden="true">
                 <div class="hc-hero__rail-track">
                     @foreach([1, 2] as $tur)

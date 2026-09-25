@@ -2314,8 +2314,8 @@ html.dark .hc-hero__grain { mix-blend-mode: screen; opacity: .26; }
    dilde) tek sütun kalır ve sağ yarıyı başlık taşır. */
 .hc-hero__layout { display: grid; gap: 3rem; align-items: center; }
 @media (min-width: 1100px) {
-  .hc-hero__layout--demo { grid-template-columns: minmax(0, 1.08fr) minmax(24rem, .92fr); gap: 4.5rem; }
-  .hc-hero__layout--demo .hc-hero__title { font-size: clamp(3.4rem, 4.6vw, 4.75rem); }
+  .hc-hero__layout--match { grid-template-columns: minmax(0, 1.08fr) minmax(24rem, .92fr); gap: 4.5rem; }
+  .hc-hero__layout--match .hc-hero__title { font-size: clamp(3.4rem, 4.6vw, 4.75rem); }
 }
 
 /* ── Eşleştirme gösterisi ─────────────────────────────────────────

@@ -190,12 +190,12 @@ window.addEventListener('hc-theme-changed', () => window.setTimeout(mountCharts,
 //
 // Dolaba gerçek malzemeler tek tek düşer, hedef tarifin eşleşme ölçeri
 // dolar ve %100'de tarif "tam yapılabilir" olur. Veri sunucudan gelir
-// (HomeMatchDemoService); burada yalnız zamanlama ve hareket var.
+// (HomeMatchShowcaseService); burada yalnız zamanlama ve hareket var.
 //
 // Yüzde bir yay ile ilerler, sabit süreli bir tweenle değil: yeni hedef
 // geldiğinde o anki değerden ve o anki hızdan devam eder, zıplamaz.
 // Sekme gizliyken, fare üstündeyken ya da odak içerideyken durur.
-Alpine.data('hcMatchDemo', (senaryolar, metin) => ({
+Alpine.data('hcMatchShowcase', (senaryolar, metin) => ({
     senaryolar,
     metin,
     sira: 0,

@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
  * eşleştiricisi; malzeme ekledikçe pişirilebilecek tarif artar. Tersini
  * göstermek ürünü yanlış anlatırdı.
  */
-final class HomeMatchDemoService
+final class HomeMatchShowcaseService
 {
     /** Gösteride tek bir tarifin kaç zorunlu malzemesi olabilir. */
     private const EN_AZ = 3;

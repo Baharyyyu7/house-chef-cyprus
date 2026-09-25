@@ -693,10 +693,10 @@
     "recipe.show.guides_view_all": "Tüm Rehberleri Keşfet",
     "recipe.show.representative_image": "Temsilî görsel — bu yemeğe örnek fotoğraf",
     "language.not_translated_yet": "Bu sayfa bu dilde yok",
-    "home.demo_pantry": "Dolabın",
-    "home.demo_can_cook_prefix": "tam yapılabilir tarif:",
-    "home.demo_minutes": "dk",
-    "home.demo_ready": "Tam yapılabilir",
-    "home.demo_open": "Tarife git",
-    "home.demo_aria_prefix": "Örnek eşleşme, tarife git:"
+    "home.match_pantry": "Dolabın",
+    "home.match_can_cook_prefix": "tam yapılabilir tarif:",
+    "home.match_minutes": "dk",
+    "home.match_ready": "Tam yapılabilir",
+    "home.match_open": "Tarife git",
+    "home.match_aria_prefix": "Örnek eşleşme, tarife git:"
 }

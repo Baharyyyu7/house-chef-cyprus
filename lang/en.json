@@ -795,10 +795,10 @@
     "recipe.show.guides_view_all": "Explore All Guides",
     "recipe.show.representative_image": "Representative photo — illustrative example",
     "language.not_translated_yet": "Not available in this language",
-    "home.demo_pantry": "Your pantry",
-    "home.demo_can_cook_prefix": "ready to cook:",
-    "home.demo_minutes": "min",
-    "home.demo_ready": "Ready to cook",
-    "home.demo_open": "Open recipe",
-    "home.demo_aria_prefix": "Example match, open recipe:"
+    "home.match_pantry": "Your pantry",
+    "home.match_can_cook_prefix": "ready to cook:",
+    "home.match_minutes": "min",
+    "home.match_ready": "Ready to cook",
+    "home.match_open": "Open recipe",
+    "home.match_aria_prefix": "Example match, open recipe:"
 }

@@ -693,10 +693,10 @@
     "recipe.decrease_servings": "Zmniejsz liczbę porcji",
     "recipe.increase_servings": "Zwiększ liczbę porcji",
     "language.not_translated_yet": "Niedostępne w tym języku",
-    "home.demo_pantry": "Twoja spiżarnia",
-    "home.demo_can_cook_prefix": "gotowe do ugotowania:",
-    "home.demo_minutes": "min",
-    "home.demo_ready": "Gotowe do ugotowania",
-    "home.demo_open": "Otwórz przepis",
-    "home.demo_aria_prefix": "Przykładowe dopasowanie, otwórz przepis:"
+    "home.match_pantry": "Twoja spiżarnia",
+    "home.match_can_cook_prefix": "gotowe do ugotowania:",
+    "home.match_minutes": "min",
+    "home.match_ready": "Gotowe do ugotowania",
+    "home.match_open": "Otwórz przepis",
+    "home.match_aria_prefix": "Przykładowe dopasowanie, otwórz przepis:"
 }

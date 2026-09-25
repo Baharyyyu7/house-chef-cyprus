@@ -49,21 +49,22 @@ final class VisualDesignPhaseTest extends TestCase
             ->assertSee('mobile-nav', false);
     }
 
-    public function test_v2_homepage_uses_video_hero_and_keeps_search_and_primary_calls_to_action(): void
+    public function test_v2_homepage_has_no_video_and_keeps_search_and_primary_calls_to_action(): void
     {
         // Metin değil davranış doğrulanıyor. Kahraman bölümündeki çağrı
         // metinleri tasarım turlarında yeniden yazılıyor ve birebir dizeye
         // bağlı bir test, kasıtlı bir metin değişikliğinde kırılıp gerçek
         // bir hata varmış gibi görünüyordu.
-        // Video tek başına sahnedir; kapak görseli kalmamalı.
+        // Hero videosu kullanıcının kararıyla kaldırıldı (2026-09-25): 6 MB
+        // indiriyor, %42 opaklıkta yemeği göstermiyordu. Dosya diskte dursa
+        // bile ana sayfa onu yüklememeli.
         Storage::fake('public');
         Storage::disk('public')->put('videos/hero-quality-20260908.mp4', 'sahte-video');
 
         $icerik = (string) $this->get(route('home'))
             ->assertOk()
-            // Video tek başına sahnedir; kapak görseli kalmamalı.
             ->assertDontSee('house-chef-hero-v2', false)
-            ->assertSee('data-hero-video', false)
+            ->assertDontSee('data-hero-video', false)
             // Arama kutusunun kendisi aranıyor, üstündeki başlık değil:
             // başlık metni tasarım turlarında yeniden yazılıyor.
             ->assertSee('hero-ingredient', false)

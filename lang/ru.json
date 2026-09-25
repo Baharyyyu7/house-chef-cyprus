@@ -693,10 +693,10 @@
     "recipe.decrease_servings": "Уменьшить порции",
     "recipe.increase_servings": "Увеличить порции",
     "language.not_translated_yet": "Недоступно на этом языке",
-    "home.demo_pantry": "Твои продукты",
-    "home.demo_can_cook_prefix": "можно приготовить:",
-    "home.demo_minutes": "мин",
-    "home.demo_ready": "Можно готовить",
-    "home.demo_open": "Открыть рецепт",
-    "home.demo_aria_prefix": "Пример совпадения, открыть рецепт:"
+    "home.match_pantry": "Твои продукты",
+    "home.match_can_cook_prefix": "можно приготовить:",
+    "home.match_minutes": "мин",
+    "home.match_ready": "Можно готовить",
+    "home.match_open": "Открыть рецепт",
+    "home.match_aria_prefix": "Пример совпадения, открыть рецепт:"
 }

@@ -50,7 +50,7 @@ final class HomepageHasAnAdSlotTest extends TestCase
         $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
 
         $reklam = mb_strpos($icerik, 'class="adsbygoogle"');
-        $hero = mb_strpos($icerik, 'hc-home-hero');
+        $hero = mb_strpos($icerik, 'class="hc-hero ');
 
         $this->assertNotFalse($reklam);
         $this->assertNotFalse($hero);
