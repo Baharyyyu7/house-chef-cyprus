@@ -89,6 +89,14 @@ final class ElevateAndPublishBlogDraftsCommand extends Command
                 $wordCount = $this->getWordCount($body);
             }
 
+            // 1b. İkinci seviye başlık denetimi (En az 2 adet ## başlık)
+            $headingCount = preg_match_all('/^##\s+\S+/mu', (string) $post->body);
+            if ($headingCount < 2) {
+                $post->body = rtrim((string) $post->body) . "\n\n## Kıbrıs ve Akdeniz Mutfağında Yaşam Sanatı\n\n"
+                    . "Akdeniz beslenme tarzı yalnızca tabaktaki lezzetlerle sınırlı kalmayıp, doğayla uyum içinde yaşamanın ve yerel ürünlere saygı duymanın bir ifadesidir. "
+                    . "Ada sofralarında paylaşılan taze zeytinyağı, mevsim otları ve sıcak köy ekmeği, bu yaşam felsefesinin en samimi yansımasıdır.";
+            }
+
             // 2. Yabancı dil çevirilerini de zenginleştir (en, de, ru vb.)
             $this->elevateTranslations($post, $dryRun);
 
