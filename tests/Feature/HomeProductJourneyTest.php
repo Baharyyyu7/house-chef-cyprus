@@ -41,6 +41,15 @@ final class HomeProductJourneyTest extends TestCase
         $this->assertSame(1, substr_count($html, e(__('home.cuisines_title'))));
     }
 
+    public function test_hero_uses_a_compact_cypriot_cuisine_link_instead_of_the_decorative_orbit(): void
+    {
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('hc-home-cuisine-card', false)
+            ->assertSee(route('cuisines.show', 'kibris-mutfagi'), false)
+            ->assertDontSee('hc-home-orbit', false);
+    }
+
     public function test_recipe_without_eligible_media_is_not_promoted_on_home(): void
     {
         Recipe::query()->create(['title' => 'Unapproved showcase recipe', 'slug' => 'unapproved-showcase', 'servings' => 2, 'difficulty' => 'easy', 'status' => 'published', 'verification_status' => 'verified', 'published_at' => now()]);
