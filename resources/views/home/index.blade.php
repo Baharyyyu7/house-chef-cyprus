@@ -13,15 +13,6 @@
                 <div class="hc-home-hero__actions hc-animate-fade-up"><a class="hc-future-btn hc-future-btn--primary hc-btn-primary" href="#hero-ingredient"><span>{{ __('home.hero_cta') }}</span><span aria-hidden="true">↗</span></a><a class="hc-future-btn hc-future-btn--quiet hc-hero-secondary" href="{{ route('recipes.index') }}"><span>{{ __('home.browse_archive') }}</span><span aria-hidden="true">→</span></a></div>
                 <div class="hc-home-hero__proof hc-animate-fade-up" aria-label="{{ __('home.trust_title') }}"><span><b aria-hidden="true">01</b> {{ __('home.editorial_verified_only') }}</span><span><b aria-hidden="true">02</b> {{ __('home.step_3') }}</span></div>
             </div>
-            <a class="hc-home-cuisine-card hc-animate-scale-in" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">
-                <span class="hc-home-cuisine-card__mark" aria-hidden="true">🇨🇾</span>
-                <span class="hc-home-cuisine-card__copy">
-                    <span class="hc-home-cuisine-card__eyebrow">{{ __('home.cuisines_kicker') }}</span>
-                    <strong>{{ __('home.cypriot_cuisine') }}</strong>
-                    <span>House Chef Cyprus</span>
-                </span>
-                <span class="hc-home-cuisine-card__arrow" aria-hidden="true">↗</span>
-            </a>
         </div>
         <div id="kesfet" class="hc-home-command hc-animate-scale-in" x-data="{ activeSearchTab: 'ingredients' }">
             <div class="hc-home-command__header"><div><p class="hc-home-command__eyebrow">{{ __('home.search_kicker') }}</p><h2 class="hc-home-command__title"><span x-show="activeSearchTab === 'ingredients'">{{ __('home.search_title') }}</span><span x-show="activeSearchTab === 'recipes'" x-cloak>{{ __('home.search_recipes_title') }}</span></h2></div><div class="hc-home-command__tabs" role="tablist" aria-label="{{ __('home.search_mode_label') }}"><button type="button" role="tab" @click="activeSearchTab = 'ingredients'" :aria-selected="activeSearchTab === 'ingredients'" :class="activeSearchTab === 'ingredients' ? 'is-active' : ''"><x-ui.icon name="sparkles" size="15" /> {{ __('home.search_tab_ingredients') }}</button><button type="button" role="tab" @click="activeSearchTab = 'recipes'" :aria-selected="activeSearchTab === 'recipes'" :class="activeSearchTab === 'recipes' ? 'is-active' : ''"><x-ui.icon name="search" size="15" /> {{ __('home.search_tab_recipes') }}</button></div></div>

@@ -41,12 +41,11 @@ final class HomeProductJourneyTest extends TestCase
         $this->assertSame(1, substr_count($html, e(__('home.cuisines_title'))));
     }
 
-    public function test_hero_uses_a_compact_cypriot_cuisine_link_instead_of_the_decorative_orbit(): void
+    public function test_hero_has_no_decorative_cuisine_promo(): void
     {
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('hc-home-cuisine-card', false)
-            ->assertSee(route('cuisines.show', 'kibris-mutfagi'), false)
+            ->assertDontSee('hc-home-cuisine-card', false)
             ->assertDontSee('hc-home-orbit', false);
     }
 
