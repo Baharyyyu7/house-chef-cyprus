@@ -121,6 +121,13 @@ final class DatabaseRecipeSearch implements RecipeSearchInterface
             $query->whereDoesntHave('ingredients', fn ($ingredients) => $ingredients->where('name', 'like', "%{$term}%"));
         }
 
+        // Gerçek (YZ olmayan) onaylı fotoğrafı olan, eksiksiz tarifler her
+        // sıralamada önce gelir; sonra YZ görselli olanlar, en son görselsizler.
+        $approvedMedia = "select 1 from media where media.mediable_type = ? and media.mediable_id = recipes.id and media.visibility = 'public' and coalesce(media.is_placeholder, 0) = 0 and media.verification_status = 'verified' and media.media_status = 'approved_real_media' and media.license_review_status = 'approved' and media.attribution_review_status = 'approved'";
+        $query->orderByRaw("case when exists ({$approvedMedia} and coalesce(media.generated_by_ai, 0) = 0) then 0 when exists ({$approvedMedia}) then 1 else 2 end", [Recipe::class, Recipe::class])
+            ->orderByRaw("case when completeness_status = 'publishable' then 0 else 1 end")
+            ->orderByDesc('completeness_score');
+
         if (($filters['sort'] ?? null) === 'time') {
             $query->orderByRaw('(prep_minutes + cook_minutes + rest_minutes)');
         } else {

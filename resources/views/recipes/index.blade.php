@@ -13,8 +13,9 @@
     // yalniz sonucu soruyoruz. Bes sayim sorgusu her istekte donmesin diye
     // kisa sureli onbellek: yeni nitelenen sayfa cipte birkac dakika sonra
     // gorunur, sitemap zaten ham listeyi kullaniyor.
-    $koleksiyonlar = cache()->remember('koleksiyon-baglantilari', now()->addMinutes(10), fn (): array => \App\Http\Controllers\RecipeCollectionLandingController::sayfasiOlanlar()
-        ->mapWithKeys(fn (array $k): array => [$k['type'].':'.$k['slug'] => $k['url']])->all());
+    $koleksiyonListesi = cache()->remember('koleksiyon-listesi', now()->addMinutes(10), fn (): array => \App\Http\Controllers\RecipeCollectionLandingController::sayfasiOlanlar()
+        ->map(fn (array $k): array => ['type' => $k['type'], 'slug' => $k['slug'], 'url' => $k['url'], 'title' => $k['title']])->all());
+    $koleksiyonlar = collect($koleksiyonListesi)->mapWithKeys(fn (array $k): array => [$k['type'].':'.$k['slug'] => $k['url']])->all();
 
     $koleksiyonBaglantisi = fn (string $tur, string $slug): ?string => $koleksiyonlar[$tur.':'.$slug] ?? null;
     $sayfaBasligi = $anaSayfa
@@ -79,7 +80,7 @@
         </div>
         @if($koleksiyonlar !== [])
             <nav class="mt-5 flex flex-wrap gap-2" aria-label="Tarif seçkileri">
-                @foreach(\App\Http\Controllers\RecipeCollectionLandingController::sayfasiOlanlar() as $koleksiyon)
+                @foreach($koleksiyonListesi as $koleksiyon)
                     <a class="hc-v3-badge" href="{{ $koleksiyon['url'] }}">{{ __($koleksiyon['title']) }}</a>
                 @endforeach
             </nav>

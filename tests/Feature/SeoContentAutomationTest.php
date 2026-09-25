@@ -126,6 +126,29 @@ final class SeoContentAutomationTest extends TestCase
         $this->assertSame('draft', $blocked->fresh()->status);
     }
 
+    public function test_bulk_publication_with_no_ready_posts_explains_why_and_shows_reasons(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $blocked = $this->makePost([
+            'title' => 'Otomatik üretilmiş kısa taslak',
+            'slug' => 'otomatik-kisa-taslak',
+            'excerpt' => 'Bu kayıt kalite alanları eksik olduğu için taslak kalmalıdır.',
+        ]);
+
+        $this->actingAs($admin)->post(route('admin.blog.publish-ready'))
+            ->assertRedirect(route('admin.blog.index'))
+            ->assertSessionHas('status', 'Yayına hazır yazı bulunamadı: 1 taslak kalite ve onay kapılarını henüz geçmiyor, bu yüzden taslak olarak bırakıldı. Nedenler aşağıda.');
+
+        $this->assertSame('draft', $blocked->fresh()->status);
+
+        $this->actingAs($admin)
+            ->withSession(['status' => 'x', 'publication_reasons' => ['İnsan yayın onayı kaydı gerekli.' => 1]])
+            ->get(route('admin.blog.index'))
+            ->assertOk()
+            ->assertSee('<details class="mt-4" open>', false)
+            ->assertSee('İnsan yayın onayı kaydı gerekli. (1 yazı)');
+    }
+
     public function test_scheduled_publication_requires_all_approval_states(): void
     {
         $approved = $this->makePost(['slug' => 'onayli-planli-yazi', 'status' => 'scheduled', 'scheduled_at' => now()->subMinute(), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 'editorial_status' => 'approved']);
