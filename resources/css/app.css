@@ -2310,6 +2310,183 @@ html.dark .hc-hero__grain { mix-blend-mode: screen; opacity: .26; }
 @keyframes hc-hero-rail { to { transform: translateX(-50%); } }
 .hc-hero:hover .hc-hero__rail-track { animation-play-state: paused; }
 
+/* Metin ve gösteri yan yana. Gösteri yoksa (temiz senaryo çıkmayan
+   dilde) tek sütun kalır ve sağ yarıyı başlık taşır. */
+.hc-hero__layout { display: grid; gap: 3rem; align-items: center; }
+@media (min-width: 1100px) {
+  .hc-hero__layout--demo { grid-template-columns: minmax(0, 1.08fr) minmax(24rem, .92fr); gap: 4.5rem; }
+  .hc-hero__layout--demo .hc-hero__title { font-size: clamp(3.4rem, 4.6vw, 4.75rem); }
+}
+
+/* ── Eşleştirme gösterisi ─────────────────────────────────────────
+   Açık hero'nun üstünde koyu bir yüzey: gözün duracağı tek yer burası.
+   Derinlik gerçek bir gölgeyle, üst kenardaki ince ışık da yüzeyin
+   kalınlığını söylüyor. */
+.hc-match {
+  --m-bg: #1c130d;
+  --m-ink: #fdf3e9;
+  --m-soft: #bfa897;
+  --m-line: rgba(253, 243, 233, .12);
+  --m-accent: #fb923c;
+  --m-ok: #86efac;
+  position: relative;
+  animation: hc-match-in .9s cubic-bezier(.16, 1, .3, 1) .25s both;
+}
+/* Tamamlanınca kartın arkasında sıcak bir ışık açılır. Yalnız o an. */
+.hc-match::before {
+  content: '';
+  position: absolute;
+  inset: 8% 4% -6%;
+  z-index: -1;
+  border-radius: 2rem;
+  background: radial-gradient(closest-side, rgba(251, 146, 60, .55), transparent);
+  filter: blur(34px);
+  opacity: 0;
+  transform: scale(.85);
+  transition: opacity .9s cubic-bezier(.16, 1, .3, 1), transform .9s cubic-bezier(.16, 1, .3, 1);
+}
+.hc-match.is-done::before { opacity: 1; transform: scale(1); }
+
+.hc-match__card {
+  display: block;
+  border-radius: 1.75rem;
+  background: var(--m-bg);
+  padding: 1.6rem;
+  color: var(--m-ink);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .07),
+    0 2rem 3.5rem -1.5rem rgba(58, 26, 8, .55),
+    0 .75rem 1.5rem -.75rem rgba(58, 26, 8, .35);
+  transition: transform .5s cubic-bezier(.16, 1, .3, 1), box-shadow .5s ease, filter .46s ease, opacity .46s ease;
+}
+.hc-match__card:hover { transform: translateY(-4px); }
+.hc-match.is-out .hc-match__card { opacity: .35; filter: blur(3px); }
+.hc-match__card:focus-visible { outline: 2px solid var(--m-accent); outline-offset: 4px; }
+
+.hc-match__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.hc-match__label { display: inline-flex; align-items: center; gap: .6rem; color: var(--m-soft); font-size: .78rem; font-weight: 700; }
+.hc-match__pulse { position: relative; width: .5rem; height: .5rem; border-radius: 50%; background: var(--m-accent); }
+.hc-match__pulse::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--m-accent); animation: hc-match-pulse 2s cubic-bezier(.16, 1, .3, 1) infinite; }
+.hc-match__count { color: var(--m-ok); font-size: .75rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* Dolap: boş yuvalar kesikli çizgiyle bekler, malzeme düşünce yuva
+   dolar. Düşüşte hafif aşım var, çünkü düşen bir şeyin momentumu var;
+   başka hiçbir yerde aşım yok. */
+.hc-match__pantry { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
+/* Yuva baştan yerinde durur ve boyu içine düşecek malzemenin adı kadardır;
+   düşen şey yuvanın kendisi değil, adı. Böylece "dolap doluyor" hissi
+   ilk karede kurulur: beş boş yuva, sırayla dolar. */
+.hc-match__chip {
+  border: 1px dashed rgba(253, 243, 233, .24);
+  border-radius: 999px;
+  padding: .5rem .9rem;
+  font-size: .82rem;
+  font-weight: 700;
+  transition: border-color .35s ease, background-color .35s ease;
+}
+.hc-match__chip > span {
+  display: block;
+  color: var(--m-ink);
+  transform: translateY(-.85rem) scale(.9);
+  filter: blur(6px);
+  opacity: 0;
+  transition:
+    transform .62s cubic-bezier(.34, 1.56, .64, 1),
+    filter .42s cubic-bezier(.16, 1, .3, 1),
+    opacity .3s ease;
+}
+.hc-match__chip.is-in { border-style: solid; border-color: rgba(251, 146, 60, .4); background: rgba(251, 146, 60, .14); }
+.hc-match__chip.is-in > span { transform: none; filter: none; opacity: 1; }
+.hc-match.is-done .hc-match__chip.is-in { border-color: rgba(134, 239, 172, .42); background: rgba(134, 239, 172, .1); }
+
+/* Ölçer */
+.hc-match__meter { display: flex; align-items: center; gap: 1.35rem; margin-top: 1.4rem; border-top: 1px solid var(--m-line); padding-top: 1.4rem; }
+.hc-match__ring { position: relative; width: 7.25rem; height: 7.25rem; flex: 0 0 auto; }
+.hc-match__ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.hc-match__ring-track { fill: none; stroke: var(--m-line); stroke-width: 9; }
+.hc-match__ring-fill {
+  fill: none;
+  stroke: var(--m-accent);
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-dasharray: 326.73;
+  stroke-dashoffset: 326.73;
+  transition: stroke .6s ease;
+}
+.hc-match.is-done .hc-match__ring-fill { stroke: var(--m-ok); }
+.hc-match__pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Manrope, sans-serif;
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums;
+}
+.hc-match__pct small { align-self: flex-start; margin-top: .45rem; margin-left: .1rem; color: var(--m-soft); font-size: .9rem; font-weight: 700; }
+
+.hc-match__recipe { display: grid; gap: .45rem; min-width: 0; }
+.hc-match__recipe-title {
+  font-family: Manrope, sans-serif;
+  font-size: clamp(1.2rem, 1.55vw, 1.45rem);
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: -.025em;
+  text-wrap: balance;
+}
+.hc-match__recipe-meta { display: inline-flex; align-items: center; gap: .4rem; color: var(--m-soft); font-size: .8rem; font-weight: 600; }
+
+/* Tamamlanma: rozet yayla belirir. */
+.hc-match__done { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.4rem; min-height: 2.5rem; }
+.hc-match__done-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  border-radius: 999px;
+  background: var(--m-ok);
+  padding: .5rem .95rem;
+  color: #052e16;
+  font-size: .82rem;
+  font-weight: 800;
+  opacity: 0;
+  transform: scale(.7) translateY(.4rem);
+  transition: opacity .3s ease, transform .55s cubic-bezier(.34, 1.56, .64, 1);
+}
+.hc-match__done-go {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  color: var(--m-ink);
+  font-size: .82rem;
+  font-weight: 800;
+  opacity: 0;
+  transform: translateX(-.5rem);
+  transition: opacity .4s ease .12s, transform .5s cubic-bezier(.16, 1, .3, 1) .12s;
+}
+.hc-match.is-done .hc-match__done-badge { opacity: 1; transform: none; }
+.hc-match.is-done .hc-match__done-go { opacity: 1; transform: none; }
+
+@keyframes hc-match-in { from { opacity: 0; transform: translateY(1.5rem) scale(.97); filter: blur(8px); } }
+@keyframes hc-match-pulse { to { transform: scale(3); opacity: 0; } }
+
+@media (max-width: 1099px) {
+  .hc-match { max-width: 34rem; }
+}
+@media (max-width: 639px) {
+  .hc-match__card { padding: 1.25rem; border-radius: 1.4rem; }
+  .hc-match__ring { width: 6rem; height: 6rem; }
+  .hc-match__pct { font-size: 1.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hc-match, .hc-match::before, .hc-match__card, .hc-match__chip, .hc-match__chip > span, .hc-match__ring-fill,
+  .hc-match__done-badge, .hc-match__done-go { animation: none; transition: none; }
+  .hc-match__pulse::after { animation: none; }
+  .hc-match__card:hover { transform: none; }
+}
+
 /* Tarayıcının kendi yüzeyleri de bu dünyaya ait. */
 .hc-hero ::selection { background: color-mix(in srgb, var(--hero-accent) 24%, transparent); color: var(--hero-ink); }
 .hc-hero a:focus-visible { outline: 2px solid var(--hero-accent); outline-offset: 3px; border-radius: 999px; }

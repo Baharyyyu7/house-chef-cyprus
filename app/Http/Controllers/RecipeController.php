@@ -76,6 +76,9 @@ final class RecipeController extends Controller
             $mediaEligibility = app(PublicMediaEligibilityService::class);
             $viewData['homeHighlights'] = $catalogue->lazy()->filter(fn (Recipe $recipe): bool => $mediaEligibility->firstEligible($recipe->media) !== null)->take(4)->collect();
             $viewData['homeIngredients'] = cache()->remember('home-ingredients-v2:'.app()->getLocale(), now()->addMinutes(5), fn () => Ingredient::query()->where('is_active', true)->orderBy('name')->get(['public_id', 'name'])->toArray());
+            // Hero'daki eşleştirme gösterisi. Temiz senaryo çıkmayan dilde
+            // boş döner ve panel hiç basılmaz.
+            $viewData['homeMatchDemo'] = cache()->remember('home-match-demo-v1:'.app()->getLocale(), now()->addMinutes(30), fn () => app(\App\Services\HomeMatchDemoService::class)->senaryolar(3));
             // Anasayfa daha önce WebSite şemasız basılıyordu: webSite()
             // tanımlıydı ama hiçbir çağrısı yoktu. Google site adı + site
             // içi arama kutusu zengin sonucunu yalnız bu şema açar.

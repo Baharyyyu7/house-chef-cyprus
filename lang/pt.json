@@ -692,5 +692,11 @@
     "recipe.show.guides_view_all": "Ver todos os guias",
     "recipe.decrease_servings": "Diminuir porções",
     "recipe.increase_servings": "Aumentar porções",
-    "language.not_translated_yet": "Indisponível neste idioma"
+    "language.not_translated_yet": "Indisponível neste idioma",
+    "home.demo_pantry": "A tua despensa",
+    "home.demo_can_cook_prefix": "prontas a cozinhar:",
+    "home.demo_minutes": "min",
+    "home.demo_ready": "Pronto a cozinhar",
+    "home.demo_open": "Abrir receita",
+    "home.demo_aria_prefix": "Exemplo de correspondência, abrir receita:"
 }

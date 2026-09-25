@@ -1,7 +1,7 @@
 # 🍽️ Görsel Üretim Dağıtık Koordinasyon ve Canlı Kilit Sistemi
 
-> **Canlı İlerleme:** `%3.3` Tamamlandı | **Tamamlanan:** `12` / `366` | **İşleniyor:** `1` | **Boşta:** `348`
-> **Son Güncelleme:** 2026-09-25 05:45:36
+> **Canlı İlerleme:** `%3.6` Tamamlandı | **Tamamlanan:** `13` / `366` | **İşleniyor:** `1` | **Boşta:** `346`
+> **Son Güncelleme:** 2026-09-25 12:51:45
 > **Kurallar:** [docs/GORSEL_URETIM_MASTER_PROMPT.md](GORSEL_URETIM_MASTER_PROMPT.md) ve [docs/AJAN_CALISMA_KURALLARI.md](AJAN_CALISMA_KURALLARI.md)
 
 ## 1. Dağıtık Kilit Protokolü ("Ben Yapacağım" Mekanizması)
@@ -14,7 +14,7 @@ Birden fazla yapay zeka ajanının aynı anda güvenle çalışabilmesi için:
    - Durum `completed` olarak kaydedilir ve ajana yeni iş verilir.
 4. **Zaman Aşımı / Hata (Timeout):** Kilitler otomatik dağıtılmaz. Aynı worker claim ile işine devam eder; renew ile zamanı yeniler. release ve block için sahip worker zorunludur.
 
-Engellenen kayıtlar: `5`. `block --slug=... --worker=... --reason=...` ile eksik kimlik açıklanır.
+Engellenen kayıtlar: `6`. `block --slug=... --worker=... --reason=...` ile eksik kimlik açıklanır.
 
 ## 2. Canlı Kuyruk Listesi
 
@@ -38,8 +38,8 @@ Engellenen kayıtlar: `5`. `block --slug=... --worker=... --reason=...` ile eksi
 | 16 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Kolokoti** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-kolokoti.png` |
 | 17 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Kolokoti** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-kolokoti-03VHY.png` |
 | 18 | `✓ Bitti` | **Automation-Images-20260916** | **Kıbrıs Usulü Flaouna** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-usulu-flaouna.png` |
-| 19 | `[ ] Boşta` | - | **Kıbrıs Usulü Flaouna** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-usulu-flaouna-4546F.png` |
-| 20 | `[ ] Boşta` | - | **Soğanlı Çörek** | Kıbrıs Mutfağı | Hamur İşi | `recipe--soganli-corek.png` |
+| 19 | `! Engelli` | - | **Kıbrıs Usulü Flaouna (2026-09-25 12:48 UTC canlı denetim: tarif ID 1325 draft; exact canlı slug kibris-usulu-flaouna-4546f, kuyruktaki büyük F ile eşleşmiyor. Yayın durumu ve slug koordinatörce düzeltilmeden üretilemez.)** | Kıbrıs Mutfağı | Hamur İşi | `recipe--kibris-usulu-flaouna-4546F.png` |
+| 20 | `✓ Bitti` | **Automation-Images-20260916** | **Soğanlı Çörek** | Kıbrıs Mutfağı | Hamur İşi | `recipe--soganli-corek.png` |
 | 21 | `[ ] Boşta` | - | **Soğanlı Çörek** | Kıbrıs Mutfağı | Hamur İşi | `recipe--soganli-corek-Y92V8.png` |
 | 22 | `[ ] Boşta` | - | **Izgara Hellimli Köy Ekmeği** | Kıbrıs Mutfağı | Kahvaltı | `recipe--izgara-hellimli-koy-ekmegi-5CAJQ.png` |
 | 23 | `[ ] Boşta` | - | **Kıbrıs Usulü Pişi (Lokisi)** | Kıbrıs Mutfağı | Kahvaltı | `recipe--kibris-usulu-pisi-lokisi-AVVJ1.png` |

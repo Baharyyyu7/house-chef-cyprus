@@ -126,3 +126,25 @@ teslim kaydı: `docs/seo/2026-09-16-ai-worker-1-delivery-report.md`.
 - Canlıdaki `public/.htaccess` takipli farkı başka çalışmaya aittir ve
   değiştirilmedi. Dil etkinlik ayarları ve başka işçinin Molohiya kilidi
   korunmuştur. Bu tur kod/deploy/blog/backlink iletişimi yapılmadı.
+
+## 2026-09-25 12:53 UTC otomasyon kontrolü
+
+Önceki hazır/yeşil kayıtları tarihli geçmiş kanıttır; bu turun veya bütün
+dillerin güncel hazırlık sonucu değildir. Yerel `adf6440`, canlı `e554e43`;
+başka ajanın takipli kod/dil/tasarım değişiklikleri sürüyor, deploy yapılmadı.
+
+| Kimlik | Önem | Bulgu | Sahip | Durum | Kanıt |
+| --- | --- | --- | --- | --- | --- |
+| GLOB-013 | Yüksek | Medya kuyruğu canlı tariflerden eski: 347 pending kaydın 309'unda exact slug harf farkı, 145'inde taslak/doğrulanmamış kayıt, 2'sinde tarif yok | Koordinatör | Açık; ilk geçersiz iş ayrıldı | 12:49:25 UTC canlı eşleştirme. Kategoriler örtüşür. kibris-usulu-flaouna-4546F kendi worker kilidiyle block; diğer işler değiştirilmedi. |
+| GLOB-014 | Takip | Dil performansı rolling 29 dahil tarih/all verisini, kayıtlı toplam final/28 günlük veriden ayırmıyor; fallback kaynak bilgisini korumuyor | SEO ölçüm koordinatörü | Açık | pageRows(28), LocaleGrowthService::olcumSatirlari; AI-Worker-2 salt okunur kontrolü. Aynı döneme ait yeni kaynaklı tablo teslim raporuna eklendi. |
+
+- `soganli-corek` için tek 4:3 görsel üretildi; sunucu 1920x1620 PNG,
+  boyut/MIME/checksum/staging hazır doğrulandı. Atomik complete başarılı,
+  yerel geçiciler silindi, kendi açık kilit sayısı 0. İnsan onayı bekler.
+- Canlı uygunluk 536 tarifte 136 uygun/400 eksik; teslimden önce ölçüldü.
+- TR/EN önceleme gerçek final sayfa ölçümünden: TR ön ısıtma 304 gösterim,
+  fırın dereceleri 253; EN cennet çamuru 105, kıymalı bezelye 56.
+  Hepsinde bu dönemde 0 tıklama. Ülke/pazar verisi alınmadı.
+- Dil etkinliği, medya onayı ve yayın değişmedi. Yeni backlink iddiası
+  yok. Kod test/deploy yapılmadı; dosya ve kuyruk işlemleri doğrulandı.
+  Ayrıntılı kaynak/dönem/gözlem ve sunucu dosya konumu teslim raporunda.

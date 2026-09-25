@@ -692,5 +692,11 @@
     "recipe.show.guides_view_all": "Все статьи и гиды",
     "recipe.decrease_servings": "Уменьшить порции",
     "recipe.increase_servings": "Увеличить порции",
-    "language.not_translated_yet": "Недоступно на этом языке"
+    "language.not_translated_yet": "Недоступно на этом языке",
+    "home.demo_pantry": "Твои продукты",
+    "home.demo_can_cook_prefix": "можно приготовить:",
+    "home.demo_minutes": "мин",
+    "home.demo_ready": "Можно готовить",
+    "home.demo_open": "Открыть рецепт",
+    "home.demo_aria_prefix": "Пример совпадения, открыть рецепт:"
 }

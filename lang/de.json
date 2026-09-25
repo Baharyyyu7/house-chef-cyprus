@@ -692,5 +692,11 @@
     "recipe.show.guides_view_all": "Alle Ratgeber entdecken",
     "recipe.decrease_servings": "Portionen verringern",
     "recipe.increase_servings": "Portionen erhöhen",
-    "language.not_translated_yet": "In dieser Sprache nicht verfügbar"
+    "language.not_translated_yet": "In dieser Sprache nicht verfügbar",
+    "home.demo_pantry": "Dein Vorrat",
+    "home.demo_can_cook_prefix": "sofort kochbar:",
+    "home.demo_minutes": "Min.",
+    "home.demo_ready": "Sofort kochbar",
+    "home.demo_open": "Zum Rezept",
+    "home.demo_aria_prefix": "Beispieltreffer, zum Rezept:"
 }

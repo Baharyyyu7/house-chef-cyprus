@@ -794,5 +794,11 @@
     "recipe.show.guides_title": "Related Culinary Guides & Expert Notes",
     "recipe.show.guides_view_all": "Explore All Guides",
     "recipe.show.representative_image": "Representative photo — illustrative example",
-    "language.not_translated_yet": "Not available in this language"
+    "language.not_translated_yet": "Not available in this language",
+    "home.demo_pantry": "Your pantry",
+    "home.demo_can_cook_prefix": "ready to cook:",
+    "home.demo_minutes": "min",
+    "home.demo_ready": "Ready to cook",
+    "home.demo_open": "Open recipe",
+    "home.demo_aria_prefix": "Example match, open recipe:"
 }

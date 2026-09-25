@@ -265,3 +265,87 @@ teslim kapanışına yazılmadan canlı düzeltme tamamlanmış sayılmaz.
   malzeme, canonical, karşılıklı hreflang, sitemap ve schema kapsamı bu
   tur yeniden test edilmedi. Blog taslağı, backlink adayı/iletişimi veya
   doğrulanmış backlink eklenmedi.
+
+## 2026-09-25 12:53 UTC: Soğanlı Çörek teslimi ve eski kuyruk kayıtları
+
+- Başlangıç yerel `visual-redesign-v2/adf6440`, canlı `e554e43`.
+  `e0422c3` header düzeltmesi ikisinin de atasıdır; bekleyen eski deploy
+  yeniden çalıştırılmadı. RecipeController, ApprovedMediaImportService,
+  yedi dil dosyası, home Blade/CSS/JS ve HomeMatchDemoService başka
+  çalışmanın alanıdır; dosyalara/test sürecine müdahale edilmedi.
+  Eski main-transition dosyası bu checkout'ta yok; yeniden oluşturulmadı.
+- Kuyruk ve yükleme scriptleri ile canlı PublicMediaEligibilityService
+  yeniden doğrulandı. Başlangıçta bu worker'ın açık kilidi yoktu.
+  Claim `kibris-usulu-flaouna-4546F` döndürdü: canlı ID 1325 taslak,
+  canlı slug `kibris-usulu-flaouna-4546f`. Aynı worker ile gerekçeli
+  block yapıldı; tarif durumu veya slug değiştirilmedi.
+- 12:49:25 UTC salt okunur kuyruk/canlı eşleştirmesinde o andaki 347
+  pending kaydın 309'unda exact slug harf farkı, 145'inde taslak veya
+  doğrulanmamış durum, 2'sinde bulunamayan tarif, 2'sinde aynı adlı
+  teslim dosyası bulundu. Kategoriler örtüşür; toplam olarak toplanamaz.
+  Başka işçilerin kilitleri veya diğer kuyruk satırları değiştirilmedi.
+- İkinci atomik claim: `soganli-corek`, ID 839, public_id
+  `01M2MFDTZ69Q81740A3RSFBWNC`, Soğanlı Çörek, published/verified.
+  Tam slug eşit, yemek adı geçerli, uygun medya/önceki teslim/manifest
+  eşleşmesi yok. Canlı tarif süt, tereyağı ve yumurtalı mayalı hamurun
+  hafif karamelize soğanla doldurulup yuvarlanmasını ve fırınlanmasını
+  tarif ediyor.
+- Yerleşik imagegen ile tek 1448x1086 (tam 4:3) fotoğraf üretildi ve
+  tek tek incelendi: tek tabakta yuvarlak altın kabuklu çörekler, kesik
+  çörekte soğan dolgusu; yazı/logo/filigran/çerçeve/kolaj yok.
+- `upload-recipe-image.sh` teslimi: 1920x1620 PNG, 4.372.088 bayt;
+  SHA256 `e3d4c12ff84458fd4d0e119130e605696051f49743edcc04269dfea7eef511cf`.
+  Sunucu konumu:
+  `/home/u584361532/domains/housechefcyprus.com/shared/storage/app/media-import/recipes/recipe--soganli-corek.png`.
+  12:51:33 UTC getimagesize/MIME/bayt/checksum ve salt okunur staging
+  exit 0 doğrulandı; hedef satır hazır. Genel 2 hazır / 254 atlanan
+  sonucu diğer dosyaların çözüldüğü anlamına gelmez.
+- Complete worker doğrulamasıyla başarılı. Kaynak generated_images
+  dosyası ve /tmp ara PNG silinmiş olarak kontrol edildi. Son kuyruk:
+  366 toplam, 13 tamamlanan, 346 pending, 6 blocked, AI-Worker-4 üzerinde
+  1 claimed; Automation-Images-20260916 açık kilidi 0. Onay/manifest
+  değiştirilmedi. Teslim, insan onayı veya canlı görünürlük değildir.
+- 12:49:25 UTC canlı uygunluk: 536 published/verified, 136 uygun
+  görselli, 400 uygun görselsiz. Bu ölçüm Soğanlı Çörek tesliminden
+  öncedir ve teslim sonrasındaki yayın artışı olarak sunulamaz.
+- Scheduler 12:48:28 UTC okundu: son tamamlanma 12:47:30 UTC,
+  queue_drain, healthy, task_count 2. Diğer SEO işlerinin sağlığına
+  genellenmedi. tr/en/de/fa/pl/ru/pt enabled true; ayarlar değişmedi.
+
+### Aynı dönemdeki gerçek Search Console dil kırılımı
+
+Mülk `sc-domain:housechefcyprus.com`; web; 2026-08-25 - 2026-09-21
+(28 gün). Kayıtlı `api_import` toplamı 52 tıklama / 4.306 gösterim,
+konum 9,9438; kaynak gözlemi 2026-09-25 06:45:43 UTC, okuma 12:48:28 UTC.
+Karşılaştırılabilir yeni tek API çağrısı `pageRowsBetween` ile aynı
+tarihleri ve `dataState=final` kullandı: kaynak live_api, dimension page,
+gözlem 12:52:47 UTC, 842 satır (5.000 satır sınırına ulaşılmadı).
+Dil URL öneklerinden sınıflandırıldı; ziyaretçi dili veya ülkesi değildir.
+
+| URL dili | Tıklama | Gösterim | Gösterim ağırlıklı konum |
+| --- | ---: | ---: | ---: |
+| tr | 28 | 2366 | 9,916 |
+| en | 7 | 786 | 11,198 |
+| de | 5 | 638 | 9,555 |
+| fa | 8 | 113 | 6,106 |
+| pl | 3 | 117 | 8,581 |
+| ru | 0 | 278 | 8,417 |
+| pt | 2 | 109 | 11,963 |
+
+Sayfa satırları toplamı 53/4.407; mülk toplamından ayrı agregasyondur.
+Ülke/pazar boyutu istenmedi, veri yok. Öncelik adayı TR fırın ön ısıtma
+yazısı (304 gösterim/0 tıklama/8,08) ve fırın dereceleri yazısı
+(253/0/7,91); EN Kilis cennet çamuru tarifi (105/0/8,52) ve kıymalı
+bezelye tarifi (56/0/11,45). Bu gözlemler revizyon önerisidir; metin veya
+yayın değişmedi. Diğer dillerin içerik/arayüz/adım/malzeme/canonical/
+hreflang/sitemap/schema hazırlığı bu tur yeniden doğrulanmadı.
+
+TASKS.md içindeki 69/6.439 ile bu ölçümler aynı pencere olarak
+karşılaştırılmamalı: pageRows(28) 28 Ağustos - 25 Eylül arası 29 dahil
+tarihi ve geçici `all` verisini ister. LocaleGrowthService hata/boşlukta
+yerel tabloya geçer, dönen sonuca kaynak/tarih eklemez. AI-Worker-2
+koddan bağımsız doğruladı; uygulama koduna bu tur girilmedi.
+
+Yeni backlink, iletişim, blog taslağı, yayın veya deploy yok. Kod
+değişmediğinden tam PHP süiti çalıştırılmadı ve yeşil iddiası yapılmadı;
+gerçek kuyruk claim/block/complete ve dosya/staging kontrolleri geçti.
