@@ -40,4 +40,13 @@ class ThemeAndPremiumNavigationTest extends TestCase
             ->assertSee('hc-nav-actions', false)
             ->assertSee('hc-nav-control', false);
     }
+
+    public function test_desktop_header_renders_utility_controls_as_separate_peers(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)->get('/')
+            ->assertOk()
+            ->assertSee('hc-nav-actions--separate', false);
+    }
 }
