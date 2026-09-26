@@ -61,11 +61,11 @@ class ThemeAndPremiumNavigationTest extends TestCase
             ->assertSee('Tema');
     }
 
-    public function test_desktop_utility_controls_use_one_fixed_width(): void
+    public function test_desktop_utility_controls_use_compact_content_widths(): void
     {
         $css = file_get_contents(resource_path('css/app.css'));
 
-        $this->assertStringContainsString('--hc-nav-utility-width: 9.5rem', $css);
-        $this->assertStringContainsString('width: var(--hc-nav-utility-width)', $css);
+        $this->assertStringNotContainsString('--hc-nav-utility-width', $css);
+        $this->assertStringContainsString('padding-inline: .75rem', $css);
     }
 }
