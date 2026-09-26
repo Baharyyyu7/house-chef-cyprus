@@ -77,6 +77,23 @@ final class BlogDraftReadinessPipelineTest extends TestCase
         $this->actingAs($member)->post(route('admin.blog.prepare'))->assertForbidden();
     }
 
+    public function test_batch_moves_past_prepared_records_instead_of_reprocessing_them(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        foreach (range(1, 3) as $number) {
+            BlogPost::query()->create([
+                'author_id' => $admin->id, 'title' => 'Hazırlanabilir taslak '.$number,
+                'slug' => 'hazirlanabilir-taslak-'.$number, 'excerpt' => str_repeat('Mevcut açıklama ', 15),
+                'body' => 'Kısa içerik', 'status' => 'draft',
+            ]);
+        }
+
+        $service = app(BlogDraftPreparationService::class);
+        $this->assertSame(2, $service->prepareBatch(2)['changed']);
+        $this->assertSame(1, $service->prepareBatch(2)['changed']);
+        $this->assertSame(0, $service->prepareBatch(2)['processed']);
+    }
+
     public function test_blog_index_renders_distinct_scan_prepare_and_publish_controls(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

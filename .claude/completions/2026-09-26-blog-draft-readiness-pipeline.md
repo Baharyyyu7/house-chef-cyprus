@@ -10,6 +10,7 @@ değiştirmez. `BlogDraftPreparationService` en fazla 100 kayıtta yalnız boş 
 başlığı, uygun uzunlukta SEO açıklaması ve ana konuyu mevcut başlık/özetten
 türetir. Kaynak, SSS, fact-check, özgünlük, editoryal onay ve insan onayı
 uydurulmaz; durum ve yayın tarihi değiştirilmez. Tekrar çalıştırma idempotenttir.
+Hazırlanan kayıtlar sonraki 100'lük çalışmada yeniden seçilmez; kuyruk ilerler.
 
 Canlı ön denetim: 1.196 yayınlanmamış kayıt, 0 hazır, 1.196 engelli. En yüksek
 eksikler: özgünlük denetimi 1.190, insan onayı 1.047, gerçek SSS 1.035, içerik

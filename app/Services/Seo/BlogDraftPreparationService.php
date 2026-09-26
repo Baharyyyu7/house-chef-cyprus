@@ -46,7 +46,21 @@ final class BlogDraftPreparationService
         $summary = ['processed' => 0, 'changed' => 0, 'ready' => 0, 'blocked' => 0];
         $limit = max(1, min(100, $limit));
 
-        BlogPost::query()->whereNotIn('status', ['published', 'archived'])->orderBy('id')->limit($limit)->get()
+        BlogPost::query()
+            ->whereNotIn('status', ['published', 'archived'])
+            ->where(function ($query): void {
+                $query->where(function ($query): void {
+                    $query->where(fn ($query) => $query->whereNull('meta_title')->orWhere('meta_title', ''))
+                        ->whereNotNull('title')->where('title', '!=', '');
+                })->orWhere(function ($query): void {
+                    $query->where(fn ($query) => $query->whereNull('primary_keyword')->orWhere('primary_keyword', ''))
+                        ->whereNotNull('title')->where('title', '!=', '');
+                })->orWhere(function ($query): void {
+                    $query->where(fn ($query) => $query->whereNull('meta_description')->orWhere('meta_description', ''))
+                        ->whereRaw("LENGTH(COALESCE(NULLIF(excerpt, ''), body, '')) >= 140");
+                });
+            })
+            ->orderBy('id')->limit($limit)->get()
             ->each(function (BlogPost $post) use (&$summary): void {
                 $result = $this->prepare($post);
                 $summary['processed']++;
