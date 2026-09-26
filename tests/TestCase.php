@@ -11,6 +11,43 @@ abstract class TestCase extends BaseTestCase
 {
     private bool $publicTestDiskIsReady = false;
 
+    private static bool $sinifKaynagiDogrulandi = false;
+
+    /**
+     * Testler bu deponun kodunu mu koşuyor?
+     *
+     * vendor/composer/autoload_classmap.php başka bir çalışma kopyasının
+     * yolunu gösterebiliyor: bu depoda birden çok ajan çalışıyor ve biri
+     * kendi worktree'sinde composer çalıştırınca harita onun yoluna göre
+     * yeniden yazılıyor. O zaman App\* sınıfları oradan yükleniyor ve testler
+     * yeşil dönerken aslında başka birinin kodunu doğruluyor. 2026-09-23 ve
+     * 2026-09-26'da iki kez oldu; ikisinde de bir düzeltme "çalışmıyor"
+     * göründü, çünkü koşulan kod o düzeltmeyi hiç içermiyordu.
+     *
+     * Sessizce yanlış kodu koşmak yerine burada dur.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if (self::$sinifKaynagiDogrulandi) {
+            return;
+        }
+
+        $kok = realpath(dirname(__DIR__)) ?: dirname(__DIR__);
+        $dosya = (string) (new \ReflectionClass(Recipe::class))->getFileName();
+        $gercek = realpath($dosya) ?: $dosya;
+
+        if (! str_starts_with($gercek, $kok.DIRECTORY_SEPARATOR)) {
+            throw new \RuntimeException(
+                "Uygulama sınıfları bu deponun dışından yükleniyor: {$gercek}\n"
+                ."Testler başka bir çalışma kopyasının kodunu doğrulardı. Düzeltmek için: composer dump-autoload"
+            );
+        }
+
+        self::$sinifKaynagiDogrulandi = true;
+    }
+
     /** Build the complete public-media contract used by production. */
     protected function makeRecipePubliclyEligible(Recipe $recipe): void
     {

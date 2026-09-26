@@ -53,6 +53,33 @@ final class BlogDuplicateTitleConsolidationTest extends TestCase
         $this->assertStringNotContainsString('noindex', app(BlogIndexability::class)->robots($temiz));
     }
 
+    public function test_uzun_ama_sablon_olan_govde_gercek_makalenin_yerine_gecmez(): void
+    {
+        // 2026-09-26'da ölçüldü: temiz adreslerdeki şablon sürümler %88'i
+        // ortak paragraf olan dolguyla daha uzundu, gerçek makaleler son
+        // ekli "taslak-inceleme" adreslerinde duruyordu. Yalnız uzunluğa
+        // bakan kural şablonu seçti ve gerçek makaleleri noindex'e itti.
+        $sablonParagraflari = collect(range(1, 8))->map(fn (int $i): string => '<p>Bu ortak şablon paragrafı her makine yazısında aynen tekrar ediyor ve hiçbir konuya ait değil; numarası '.$i.' ama geri kalanı birebir aynı, ne okuyana ne arama motoruna yeni bir şey söylüyor.</p>')->implode('');
+
+        // Aynı şablonu taşıyan iki yazı daha: şablon paragrafları korpusta
+        // tekrar ediyor, dolayısıyla ölçülebilir biçimde özgün değil.
+        $this->yazi('baska-sablon-yazi-bir', 'Başka Konu Bir', $sablonParagraflari, '-40 days');
+        $this->yazi('baska-sablon-yazi-iki', 'Başka Konu İki', $sablonParagraflari, '-41 days');
+
+        $sablon = $this->yazi('kuru-bakliyat-saklama', 'Kuru Bakliyat Saklama', $sablonParagraflari.$sablonParagraflari);
+        $gercek = $this->yazi('kuru-bakliyat-saklama-Q9VS4', 'Kuru Bakliyat Saklama',
+            '<p>Kuru baklagiller nemden uzak, hava almayan cam kavanozda ve serin bir dolapta altı ila on iki ay dayanır; kavanozun dibine bir defne yaprağı koymak böcek riskini azaltır.</p>'
+            .'<p>Satın aldıktan sonra paketi açıp bir hafta dondurucuda bekletmek, içinde kalmış olabilecek yumurtaları öldürür; bu adım özellikle nohut ve barbunya için önemlidir.</p>'
+            .'<p>Eski ve yeni bakliyatı aynı kavanozda karıştırmayın: pişme süreleri farklı olur ve bir kısmı lapa olurken diğeri sert kalır.</p>',
+            '-20 days');
+
+        $this->assertGreaterThan(mb_strlen((string) $gercek->body), mb_strlen((string) $sablon->body), 'Test kurgusu: şablon daha uzun olmalı.');
+
+        $this->artisan('seo:blog-duplicate-title-consolidation --apply')->assertSuccessful();
+
+        $this->assertStringContainsString('defne yaprağı', (string) $sablon->fresh()->body, 'Temiz adrese gerçek makale taşınmalıydı.');
+    }
+
     public function test_rapor_modu_hicbir_seyi_yazmaz(): void
     {
         $kopya = $this->yazi('konu-XY12Z', 'Ortak Başlık', '<p>Gövde.</p>');
