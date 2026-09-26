@@ -2,6 +2,7 @@
 <section class="hc-hero relative isolate -mt-[var(--hc-header-h)] overflow-hidden">
     <div class="hc-hero__ground" aria-hidden="true"></div>
     <div class="hc-hero__grain" aria-hidden="true"></div>
+    <canvas class="hc-hero__embers" data-hc-embers aria-hidden="true"></canvas>
     <div class="hc-container relative flex min-h-[44rem] flex-col justify-between gap-12 pb-8 pt-[calc(var(--hc-header-h)+4.5rem)] sm:min-h-[48rem] sm:pb-10 lg:min-h-[min(52rem,100svh)]">
         <div @class(['hc-hero__layout', 'hc-hero__layout--match' => ! empty($homeMatchShowcase)])>
         <div class="hc-hero__copy">

@@ -16,6 +16,7 @@ window.Alpine = Alpine;
 Alpine.plugin(collapse);
 window.__HC_VERSION__ = '2026.09.11.3';
 import './webmcp.js';
+import './motion.js';
 let chartLibrary;
 
 const chartInstances = new WeakMap();

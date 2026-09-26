@@ -119,7 +119,19 @@
         if (kisitli) { uygula(); return; }
 
         if (typeof document.startViewTransition === 'function') {
-            document.startViewTransition(uygula);
+            // Yeni tema, tıklanan noktadan açılan bir daire olarak yayılır.
+            var kok = document.documentElement;
+            var nokta = window.hcSonIsaret || { x: window.innerWidth - 40, y: 32 };
+            var yaricap = Math.hypot(Math.max(nokta.x, window.innerWidth - nokta.x), Math.max(nokta.y, window.innerHeight - nokta.y));
+            kok.classList.add('hc-vt-theme');
+            var gecis = document.startViewTransition(uygula);
+            gecis.ready.then(function () {
+                kok.animate(
+                    { clipPath: ['circle(0px at ' + nokta.x + 'px ' + nokta.y + 'px)', 'circle(' + yaricap + 'px at ' + nokta.x + 'px ' + nokta.y + 'px)'] },
+                    { duration: 640, easing: 'cubic-bezier(.16, 1, .3, 1)', pseudoElement: '::view-transition-new(root)' }
+                );
+            }).catch(function () {});
+            gecis.finished.finally(function () { kok.classList.remove('hc-vt-theme'); });
 
             return;
         }
@@ -239,6 +251,7 @@
                     // Kademeli gecikme yalnız ilk satırlar için: uzun listede
                     // sona kalan kart saniyelerce beklemesin.
                     cocuk.style.transitionDelay = Math.min(sira, 5) * 55 + 'ms';
+                    cocuk.style.setProperty('--hc-gecikme', Math.min(sira, 5) * 55 + 'ms');
                     gozlemci.observe(cocuk);
                 });
             });
@@ -382,6 +395,7 @@
              saydam durur ve içeriğini koyu zemine göre okutur. --}}
         @include('layouts.partials.public-header')
 
+        <div class="hc-scroll-fire" aria-hidden="true"></div>
         <main id="main-content" tabindex="-1">
             @php($isHeroPage = request()->routeIs('home', 'recipes.show'))
             @if (session('status'))
