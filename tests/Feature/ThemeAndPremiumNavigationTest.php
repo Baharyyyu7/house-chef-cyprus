@@ -60,4 +60,12 @@ class ThemeAndPremiumNavigationTest extends TestCase
             ->assertSee('hc-theme-switch__label', false)
             ->assertSee('Tema');
     }
+
+    public function test_desktop_utility_controls_use_one_fixed_width(): void
+    {
+        $css = file_get_contents(resource_path('css/app.css'));
+
+        $this->assertStringContainsString('--hc-nav-utility-width: 9.5rem', $css);
+        $this->assertStringContainsString('width: var(--hc-nav-utility-width)', $css);
+    }
 }
