@@ -49,4 +49,15 @@ class ThemeAndPremiumNavigationTest extends TestCase
             ->assertOk()
             ->assertSee('hc-nav-actions--separate', false);
     }
+
+    public function test_desktop_utility_controls_share_one_labelled_motion_system(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)->get('/')
+            ->assertOk()
+            ->assertSee('hc-nav-actions--unified', false)
+            ->assertSee('hc-theme-switch__label', false)
+            ->assertSee('Tema');
+    }
 }

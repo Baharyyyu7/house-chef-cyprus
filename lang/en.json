@@ -560,6 +560,7 @@
     "nav.home": "Home",
     "nav.login": "Log In",
     "nav.logout": "Log Out",
+    "theme.label": "Theme",
     "theme.switch_to_dark": "Switch to dark mode",
     "theme.switch_to_light": "Switch to light mode",
     "nav.my_kitchen": "My Kitchen",

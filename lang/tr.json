@@ -276,6 +276,7 @@
     "nav.dashboard": "Hesabım",
     "nav.admin": "Yönetim",
     "nav.logout": "Çıkış Yap",
+    "theme.label": "Tema",
     "theme.switch_to_dark": "Koyu temaya geç",
     "theme.switch_to_light": "Açık temaya geç",
     "footer.about_short": "Kıbrıs sıcaklığını modern mutfak deneyimiyle bir araya getiriyoruz. Her tarif, daha keyifli bir ev sofrası için.",

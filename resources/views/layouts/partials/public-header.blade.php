@@ -111,7 +111,7 @@
                     @endif
                 </div>
 
-                <div class="hc-nav-actions hc-nav-actions--separate hidden items-center xl:flex shrink-0">
+                <div class="hc-nav-actions hc-nav-actions--separate hc-nav-actions--unified hidden items-center xl:flex shrink-0">
                     <x-locale-switcher class="hc-nav-control" />
                     <x-theme-switch class="hc-nav-control shrink-0" />
                     @auth
