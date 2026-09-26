@@ -30,6 +30,25 @@ final class RecipeEmbedTest extends TestCase
         $this->assertStringContainsString('frame-ancestors *', $csp);
     }
 
+    /**
+     * Gömme sürümü aramada tarifin ikinci kopyası olarak yarışmamalı.
+     * 24 Eylül 2026: /fa/embed/ ve /ru/embed/ Search Console'da gösterim
+     * alıyordu ve kanonikleri 301 veren /ru/tarifler/ yazımına gidiyordu.
+     */
+    public function test_embed_dizine_kapali_ve_kanonigi_dilin_kendi_adresi(): void
+    {
+        $recipe = $this->createRecipe();
+
+        $this->get(route('recipes.embed', $recipe))
+            ->assertOk()
+            ->assertSee('<meta name="robots" content="noindex,follow">', false);
+
+        $this->get('/ru/embed/recipes/'.$recipe->slug)
+            ->assertOk()
+            ->assertSee('<link rel="canonical" href="'.url('/ru/recepty/'.$recipe->slug).'">', false)
+            ->assertDontSee('/ru/tarifler/', false);
+    }
+
     public function test_embed_supports_english_language(): void
     {
         $recipe = $this->createRecipe();

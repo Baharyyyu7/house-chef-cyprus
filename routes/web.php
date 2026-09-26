@@ -420,6 +420,8 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
     Route::get('medya', [AdminMediaController::class, 'index'])->name('media.index');
     Route::resource('blog', AdminBlogPostController::class)->parameters(['blog' => 'post'])->only(['index', 'create', 'store', 'edit', 'update']);
     Route::post('blog/tumunu-yayinla', [AdminBlogPostController::class, 'publishAll'])->name('blog.publish-all');
+    Route::post('blog/hazirlik-denetimi', [AdminBlogPostController::class, 'readinessScan'])->name('blog.readiness-scan');
+    Route::post('blog/guvenli-alanlari-hazirla', [AdminBlogPostController::class, 'prepare'])->name('blog.prepare');
     Route::post('blog/uygun-olanlari-yayinla', [AdminBlogPostController::class, 'publishReady'])->name('blog.publish-ready');
     Route::get('blog/{post}/inceleme', [AdminBlogPostController::class, 'review'])->name('blog.review');
     Route::post('blog/{post}/yayinla', [AdminBlogPostController::class, 'publish'])->name('blog.publish');

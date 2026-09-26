@@ -7,6 +7,7 @@ namespace App\Services\Seo;
 use App\Models\BlogPost;
 use App\Models\IntegrityReport;
 use App\Models\Recipe;
+use App\Services\Coni\ConiOdakKumesi;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 
@@ -337,6 +338,9 @@ final class InternalLinkService
                 return $score;
             })->take(3)->values();
         }
+
+        // Claude Coni'nin bu dildeki odak yazısı tarifle aynı konudaysa ilk rehber olur.
+        $posts = app(ConiOdakKumesi::class)->yazilaraEkle(collect($posts), $recipe, $targetLocale, 3, ['category']);
 
         $localeUrl = app(LocaleUrlService::class);
 

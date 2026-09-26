@@ -23,12 +23,14 @@ final class NvidiaAiKitchenProvider implements AiKitchenProviderInterface
     public function health(): array
     {
         $settings = $this->settings();
-        $configured = $this->key() !== '' && $this->model() !== '';
+        $enabled = (bool) ($settings['enabled'] ?? false);
+        $hasKey = $this->key() !== '';
+        $hasModel = $this->model() !== '';
 
         return [
             'provider' => $this->name(),
-            'status' => (bool) ($settings['enabled'] ?? false) && $configured ? 'ready' : ($configured ? 'configured_not_activated' : 'disabled'),
-            'configured' => $configured,
+            'status' => $enabled && $hasModel ? 'healthy' : 'disabled',
+            'configured' => $hasKey && $hasModel,
             'model' => $this->model(),
             'billable' => true,
         ];

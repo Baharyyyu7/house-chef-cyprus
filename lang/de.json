@@ -276,6 +276,7 @@
     "nav.dashboard": "Mein Konto",
     "nav.admin": "Verwaltung",
     "nav.logout": "Abmelden",
+    "theme.label": "Design",
     "theme.switch_to_dark": "Dunklen Modus aktivieren",
     "theme.switch_to_light": "Hellen Modus aktivieren",
     "footer.about_short": "Wir bringen die Wärme Zyperns in die moderne Küche. Jedes Rezept für ein genussvolles Zuhause.",
@@ -370,7 +371,7 @@
     "home.easy_recipes": "Einfache Rezepte",
     "home.whats_for_dinner": "Was koche ich heute?",
     "home.next_great_plate": "Ihr nächstes Lieblingsgericht.",
-    "home.editorial_verified_only": "Ausschließlich redaktionell geprüfte Rezepte mit verifizierten Bildern.",
+    "home.editorial_verified_only": "Ausschließlich redaktionell geprüfte Rezepte.",
     "home.featured_empty_title": "Ausgewählte Rezepte werden vorbereitet.",
     "home.featured_empty_subtitle": "Sobald neue Rezepte hinzugefügt werden, finden Sie hier kulinarische Empfehlungen.",
     "home.go_to_archive": "Zum Rezeptarchiv",
@@ -692,5 +693,12 @@
     "recipe.show.guides_view_all": "Alle Ratgeber entdecken",
     "recipe.decrease_servings": "Portionen verringern",
     "recipe.increase_servings": "Portionen erhöhen",
-    "language.not_translated_yet": "In dieser Sprache nicht verfügbar"
+    "language.not_translated_yet": "In dieser Sprache nicht verfügbar",
+    "home.match_pantry": "Dein Vorrat",
+    "home.match_can_cook_prefix": "sofort kochbar:",
+    "home.match_minutes": "Min.",
+    "home.match_ready": "Sofort kochbar",
+    "home.match_open": "Zum Rezept",
+    "home.match_aria_prefix": "Beispieltreffer, zum Rezept:",
+    "home.match_missing": "Fehlt:"
 }

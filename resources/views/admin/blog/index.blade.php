@@ -12,23 +12,45 @@
         @endif
 
         <section class="hc-admin-form-card mt-6" aria-labelledby="bulk-publication-title">
-            <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap items-start justify-between gap-5">
                 <div>
-                    <h2 id="bulk-publication-title" class="hc-heading-3">Uygun olanların tümünü yayınla</h2>
+                    <h2 id="bulk-publication-title" class="hc-heading-3">Taslak hazırlık ve yayın</h2>
+                    <span class="sr-only">Uygun olanların tümünü yayınla</span>
                     <p class="hc-body-sm mt-2 text-muted">
-                        {{ $publicationCandidateCount }} yayınlanmamış yazı kalite, SEO, insan onayı ve benzerlik kapılarından geçirilecek.
-                        Koşulları karşılamayanlar taslak kalır.
+                        {{ $publicationCandidateCount }} yayınlanmamış yazıyı önce denetleyin, sonra yalnız mevcut metinden üretilebilen güvenli SEO alanlarını hazırlayın.
+                        Kaynak, özgünlük, editoryal ve insan onayı otomatik verilmez.
                     </p>
                 </div>
-                <form method="post" action="{{ route('admin.blog.publish-ready') }}" onsubmit="return confirm('Yalnız tüm yayın kapılarını geçen yazılar yayınlansın mı?')">
-                    @csrf
-                    <button class="hc-v3-btn hc-v3-btn--primary" @disabled($publicationCandidateCount === 0)>Kontrol et ve uygunları yayınla</button>
-                </form>
-                <form method="post" action="{{ route('admin.blog.publish-all') }}" onsubmit="return confirm('Yayınlanmamış {{ $publicationCandidateCount }} yazının tamamı kalite, SEO ve onay kontrolleri atlanarak hemen yayınlanacak. Emin misiniz?')">
-                    @csrf
-                    <button class="hc-v3-btn hc-v3-btn--danger" @disabled($publicationCandidateCount === 0)>Kontrolsüz tümünü yayınla</button>
-                </form>
+                <div class="flex flex-wrap gap-2">
+                    <form method="post" action="{{ route('admin.blog.readiness-scan') }}">@csrf
+                        <button class="hc-v3-btn hc-v3-btn--ghost" @disabled($publicationCandidateCount === 0)>Taslakları denetle</button>
+                    </form>
+                    <form method="post" action="{{ route('admin.blog.prepare') }}" onsubmit="return confirm('En fazla 100 taslağın yalnız güvenli alanları hazırlansın mı?')">@csrf
+                        <button class="hc-v3-btn hc-v3-btn--secondary" @disabled($publicationCandidateCount === 0)>Güvenli alanları hazırla</button>
+                    </form>
+                    <form method="post" action="{{ route('admin.blog.publish-ready') }}" onsubmit="return confirm('Yalnız tüm yayın kapılarını geçen yazılar yayınlansın mı?')">@csrf
+                        <button class="hc-v3-btn hc-v3-btn--primary" @disabled($publicationCandidateCount === 0)>Hazır olanları yayınla</button>
+                    </form>
+                    <form method="post" action="{{ route('admin.blog.publish-all') }}" onsubmit="return confirm('Yayınlanmamış {{ $publicationCandidateCount }} yazının tamamı kalite, SEO ve onay kontrolleri atlanarak hemen yayınlanacak. Emin misiniz?')">@csrf
+                        <button class="hc-v3-btn hc-v3-btn--danger" @disabled($publicationCandidateCount === 0)>Kontrolsüz tümünü yayınla</button>
+                    </form>
+                </div>
             </div>
+
+            @if(session('readiness_snapshot'))
+                @php($snapshot = session('readiness_snapshot'))
+                <div class="mt-4 rounded-xl border border-subtle p-4" role="status">
+                    <strong>{{ $snapshot['ready'] }} hazır · {{ $snapshot['blocked'] }} hazırlık bekliyor</strong>
+                    @if($snapshot['ready'] === 0)<p class="hc-body-sm mt-1 text-muted">Şu anda yayın kapılarının tamamını geçen yazı yok. Aşağıdaki eksikler tamamlanmadan yayın yapılmaz.</p>@endif
+                    @if($snapshot['reasons'] !== [])
+                        <details class="mt-3"><summary class="cursor-pointer font-semibold">Hazırlık eksiklerini göster</summary>
+                            <ul class="mt-3 list-disc space-y-1 pl-5 text-sm text-muted">
+                                @foreach($snapshot['reasons'] as $reason => $count)<li>{{ $reason }} ({{ $count }} yazı)</li>@endforeach
+                            </ul>
+                        </details>
+                    @endif
+                </div>
+            @endif
 
             @if(session('publication_reasons'))
                 <details class="mt-4">

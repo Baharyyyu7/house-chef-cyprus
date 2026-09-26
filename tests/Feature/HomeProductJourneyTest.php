@@ -41,6 +41,14 @@ final class HomeProductJourneyTest extends TestCase
         $this->assertSame(1, substr_count($html, e(__('home.cuisines_title'))));
     }
 
+    public function test_hero_has_no_decorative_cuisine_promo(): void
+    {
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertDontSee('hc-home-cuisine-card', false)
+            ->assertDontSee('hc-home-orbit', false);
+    }
+
     public function test_recipe_without_eligible_media_is_not_promoted_on_home(): void
     {
         Recipe::query()->create(['title' => 'Unapproved showcase recipe', 'slug' => 'unapproved-showcase', 'servings' => 2, 'difficulty' => 'easy', 'status' => 'published', 'verification_status' => 'verified', 'published_at' => now()]);

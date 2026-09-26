@@ -62,6 +62,21 @@ final class SeoMetadataService
                 }
             }
 
+            // Arama sonucuna elle yazılmış dile özgü başlık ve açıklama
+            // (Claude Coni'nin coni:serp işi). Sayfanın H1'i ve gövdesi aynı
+            // kalır; yalnız arama sonucunda görünen metin değişir. Elle
+            // yazıldığı için "Recipe" eki ve süre öneki eklenmez.
+            $serpTitle = trim((string) $entity->translated('seo_title'));
+            $serpDescription = trim((string) $entity->translated('seo_description'));
+
+            if ($serpTitle !== '') {
+                $title = $this->formatTitleWithBrand($serpTitle);
+            }
+
+            if ($serpDescription !== '') {
+                $desc = $serpDescription;
+            }
+
             return [
                 'title' => $title,
                 'description' => Str::limit($desc, 160, ''),

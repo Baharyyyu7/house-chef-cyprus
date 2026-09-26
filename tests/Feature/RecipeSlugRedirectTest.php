@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Recipe;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 /**
@@ -59,6 +60,20 @@ final class RecipeSlugRedirectTest extends TestCase
         ]);
 
         $this->get('/tarifler/taslak-tarif-WWWWW')->assertNotFound();
+    }
+
+    public function test_a_different_letter_case_redirects_to_the_real_address(): void
+    {
+        // Üretimdeki MySQL slug'ı harf duyarsız eşler; SQLite eşlemez. Bu
+        // bağlama üretimin davranışını taklit eder.
+        Route::bind('recipe', fn (string $deger) => Recipe::query()->whereRaw('lower(slug) = lower(?)', [$deger])->firstOrFail());
+        $recipe = $this->publish('kibris-usulu-molohiya-fy1dj');
+
+        $this->get('/tarifler/kibris-usulu-molohiya-FY1DJ')
+            ->assertStatus(301)
+            ->assertRedirect(route('recipes.show', $recipe));
+
+        $this->get('/tarifler/kibris-usulu-molohiya-fy1dj')->assertOk();
     }
 
     private function publish(string $slug): Recipe

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\BlogPost;
+use App\Services\Seo\BlogOriginalityService;
 use Illuminate\Console\Command;
 
 /**
@@ -85,9 +86,15 @@ final class SeoBlogDuplicateTitleConsolidation extends Command
                     continue;
                 }
 
-                // Uzun olan gövde asıl adreste kalmalı: iyi metnin kötü
-                // adreste kalması iki kaybı birden getirir.
-                if (mb_strlen((string) $kopya->body) > mb_strlen((string) $asil->body)) {
+                // İyi olan gövde asıl adreste kalmalı: iyi metnin kötü
+                // adreste kalması iki kaybı birden getirir. "İyi" önce
+                // özgünlük, ancak eşitse uzunluk. Yalnız uzunluğa bakan
+                // kural 2026-09-26'da tam tersini yaptı: şablon sürümler
+                // %88'i ortak paragraf olan dolguyla ~7.450 karakterdi,
+                // gerçek makaleler 4.200-5.600. Temiz adreslerde şablon
+                // kaldı, gerçek makaleler "taslak-inceleme" adreslerinde
+                // noindex'e itildi.
+                if ($this->dahaIyiGovde($kopya, $asil)) {
                     $asil->forceFill(['body' => $kopya->body, 'excerpt' => $kopya->excerpt, 'last_refreshed_at' => now()])->save();
                 }
 
@@ -111,6 +118,25 @@ final class SeoBlogDuplicateTitleConsolidation extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Kopyanın gövdesi asıl adrestekinden daha mı iyi?
+     *
+     * Tekrarlanan paragraf oranı belirgin biçimde düşük olan kazanır.
+     * Oranlar birbirine yakınsa (beş puan içinde) uzun olan kazanır.
+     */
+    private function dahaIyiGovde(BlogPost $kopya, BlogPost $asil): bool
+    {
+        $olcer = app(BlogOriginalityService::class);
+        $kopyaPay = $olcer->adayiOlc($kopya)['share'];
+        $asilPay = $olcer->adayiOlc($asil)['share'];
+
+        if (abs($kopyaPay - $asilPay) > 0.05) {
+            return $kopyaPay < $asilPay;
+        }
+
+        return mb_strlen((string) $kopya->body) > mb_strlen((string) $asil->body);
     }
 
     /**

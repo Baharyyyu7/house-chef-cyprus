@@ -89,10 +89,21 @@ final class SeoDailyGrowthReport extends Command
         return self::SUCCESS;
     }
 
-    /** @return array{clicks: int, impressions: int, pages: int, ctr: float, position: float}|null */
+    /**
+     * Önceki GÜNÜN son ölçümü.
+     *
+     * Eskiden en son rapor alınıyordu. 24 Eylül 2026'da ölçüldü: görev
+     * 07:05'te iki kez koşuyor ve ikinci koşu 37 saniye önceki birinciyle
+     * karşılaştırılıyordu; "dünden büyüdük mü" sorusunun cevabı her sabah
+     * "aynı" çıkıyordu. Gün içindeki elle koşular da aynı hatayı yapıyordu.
+     *
+     * @return array{clicks: int, impressions: int, pages: int, ctr: float, position: float}|null
+     */
     private function oncekiToplam(): ?array
     {
-        $rapor = IntegrityReport::query()->where('guard', 'seo_daily_growth')->latest('id')->first();
+        $rapor = IntegrityReport::query()->where('guard', 'seo_daily_growth')
+            ->where('created_at', '<', now()->startOfDay())
+            ->latest('id')->first();
         $bugun = $rapor?->payload['today'] ?? null;
 
         return is_array($bugun) ? $bugun : null;

@@ -141,6 +141,15 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_daily_growt
 // koruyor; bu kurallar veriyi koruyor - hiçbiri testleri kırmadan oluştu.
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('app_invariants', fn () => Artisan::call('app:invariants')))->name('app_invariants')->dailyAt('07:10')->withoutOverlapping();
 
+// Claude Coni: SEO, GEO ve backlink çalışanı. Her açık dilde ölçer,
+// süresi dolan değişiklikleri önce/sonra penceresiyle değerlendirir ve
+// odağı olmayan dile tek sayfa seçip konu komşularından iç bağlantı verir.
+// Servis doğrudan çağrılıyor: tetikleme ucu HTTP içinden koşuyor ve orada
+// özel Artisan komutları her zaman bulunamıyor. onOneServer aynı dakikada
+// iki tetiklemenin görevi iki kez koşturmasını da engelliyor; 07:05
+// görevi bu yüzden her sabah iki kez koşuyordu.
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('claude_coni', fn () => app(\App\Services\Coni\ClaudeConi::class)->calis()))->name('claude_coni')->dailyAt('07:20')->withoutOverlapping()->onOneServer();
+
 // Dil dil büyüme. Sabah brifingden hemen önce çalışır ki brifing taze
 // tabloyu görsün. Açık ama içeriği olmayan bir dil toplamların içinde
 // kaybolur; burada kaybolmuyor.

@@ -276,6 +276,7 @@
     "nav.dashboard": "Moje konto",
     "nav.admin": "Panel admina",
     "nav.logout": "Wyloguj się",
+    "theme.label": "Motyw",
     "theme.switch_to_dark": "Włącz tryb ciemny",
     "theme.switch_to_light": "Włącz tryb jasny",
     "footer.about_short": "Wnosimy ciepło Cypru do nowoczesnych kuchni. Każdy przepis stworzony dla domowej radości.",
@@ -370,7 +371,7 @@
     "home.easy_recipes": "Łatwe przepisy",
     "home.whats_for_dinner": "Co dziś na obiad?",
     "home.next_great_plate": "Twoje kolejne wspaniałe danie.",
-    "home.editorial_verified_only": "Wyłącznie zweryfikowane przepisy ze sprawdzonymi zdjęciami.",
+    "home.editorial_verified_only": "Wyłącznie przepisy zweryfikowane przez redakcję.",
     "home.featured_empty_title": "Wybrane przepisy są przygotowywane.",
     "home.featured_empty_subtitle": "Wkrótce pojawią się tu nowe propozycje kulinarne.",
     "home.go_to_archive": "Do archiwum przepisów",
@@ -692,5 +693,12 @@
     "recipe.show.guides_view_all": "Odkryj wszystkie przewodniki",
     "recipe.decrease_servings": "Zmniejsz liczbę porcji",
     "recipe.increase_servings": "Zwiększ liczbę porcji",
-    "language.not_translated_yet": "Niedostępne w tym języku"
+    "language.not_translated_yet": "Niedostępne w tym języku",
+    "home.match_pantry": "Twoja spiżarnia",
+    "home.match_can_cook_prefix": "gotowe do ugotowania:",
+    "home.match_minutes": "min",
+    "home.match_ready": "Gotowe do ugotowania",
+    "home.match_open": "Otwórz przepis",
+    "home.match_aria_prefix": "Przykładowe dopasowanie, otwórz przepis:",
+    "home.match_missing": "Brakuje:"
 }

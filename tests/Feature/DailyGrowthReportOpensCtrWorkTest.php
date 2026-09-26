@@ -47,11 +47,12 @@ final class DailyGrowthReportOpensCtrWorkTest extends TestCase
         $this->assertSame('https://housechefcyprus.com/blog/gorunen', $kayitlar->first()->evidence['page']);
     }
 
-    public function test_ikinci_kosu_bir_oncekiyle_karsilastirir(): void
+    public function test_ikinci_kosu_bir_onceki_gunle_karsilastirir(): void
     {
         $this->gscVer();
 
         $this->artisan('seo:daily-growth-report')->assertSuccessful();
+        IntegrityReport::query()->where('guard', 'seo_daily_growth')->update(['created_at' => now()->subDay()]);
         $this->artisan('seo:daily-growth-report')->assertSuccessful();
 
         $son = IntegrityReport::query()->where('guard', 'seo_daily_growth')->latest('id')->first();
@@ -59,6 +60,25 @@ final class DailyGrowthReportOpensCtrWorkTest extends TestCase
         $this->assertSame('ayni', $son->payload['delta']['direction']);
         $this->assertSame(3, $son->payload['today']['clicks']);
         $this->assertSame(1, $son->payload['zero_click_pages']);
+    }
+
+    /**
+     * Görev 07:05'te iki kez koşuyordu ve ikincisi 37 saniye önceki
+     * birinciyle karşılaştırılıyordu: her sabah "aynı".
+     */
+    public function test_ayni_gunun_onceki_kosusu_dun_sayilmaz(): void
+    {
+        $this->gscVer();
+        IntegrityReport::query()->create(['guard' => 'seo_daily_growth', 'status' => 'ok', 'headline' => 1, 'payload' => ['today' => ['clicks' => 1, 'impressions' => 50, 'pages' => 1, 'ctr' => 2.0, 'position' => 9.0]]])
+            ->forceFill(['created_at' => now()->subDay()])->save();
+
+        $this->artisan('seo:daily-growth-report')->assertSuccessful();
+        $this->artisan('seo:daily-growth-report')->assertSuccessful();
+
+        $son = IntegrityReport::query()->where('guard', 'seo_daily_growth')->latest('id')->first();
+
+        $this->assertSame('buyudu', $son->payload['delta']['direction']);
+        $this->assertSame(2, $son->payload['delta']['clicks']);
     }
 
     public function test_veri_yoksa_rapor_yazilmaz(): void

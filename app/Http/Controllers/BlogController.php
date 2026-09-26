@@ -9,6 +9,7 @@ use App\Models\BlogPost;
 use App\Models\BlogTag;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\BlogIndexability;
+use App\Services\Coni\ConiOdakKumesi;
 use App\Services\Seo\InternalLinkService;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoMetadataService;
@@ -148,6 +149,8 @@ final class BlogController extends Controller
             ->latest('published_at')
             ->limit(3)
             ->get();
+        // Claude Coni'nin bu dildeki odak yazısı konu komşusuysa öne alınır.
+        $relatedPosts = app(ConiOdakKumesi::class)->yazilaraEkle($relatedPosts, $post, app()->getLocale(), 3, ['category', 'heroMedia', 'media']);
 
         $heroMedia = $mediaEligibility->heroOrFirstEligible($post->heroMedia, $post->media);
         $sosyalGorsel = $heroMedia?->socialImage();

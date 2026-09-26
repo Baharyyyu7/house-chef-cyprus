@@ -276,6 +276,7 @@
     "nav.dashboard": "Minha Conta",
     "nav.admin": "Administração",
     "nav.logout": "Terminar sessão",
+    "theme.label": "Tema",
     "theme.switch_to_dark": "Ativar modo escuro",
     "theme.switch_to_light": "Ativar modo claro",
     "footer.about_short": "Trazemos o calor de Chipre para a cozinha moderna. Cada receita criada para a alegria da mesa em família.",
@@ -370,7 +371,7 @@
     "home.easy_recipes": "Receitas fáceis",
     "home.whats_for_dinner": "O que fazer para o jantar?",
     "home.next_great_plate": "O seu próximo prato memorável.",
-    "home.editorial_verified_only": "Apenas receitas verificadas editorialmente com imagens aprovadas.",
+    "home.editorial_verified_only": "Apenas receitas verificadas editorialmente.",
     "home.featured_empty_title": "Receitas selecionadas em preparação.",
     "home.featured_empty_subtitle": "Assim que novas receitas forem adicionadas, verá aqui sugestões deliciosas.",
     "home.go_to_archive": "Ir para o arquivo de receitas",
@@ -692,5 +693,12 @@
     "recipe.show.guides_view_all": "Ver todos os guias",
     "recipe.decrease_servings": "Diminuir porções",
     "recipe.increase_servings": "Aumentar porções",
-    "language.not_translated_yet": "Indisponível neste idioma"
+    "language.not_translated_yet": "Indisponível neste idioma",
+    "home.match_pantry": "A tua despensa",
+    "home.match_can_cook_prefix": "prontas a cozinhar:",
+    "home.match_minutes": "min",
+    "home.match_ready": "Pronto a cozinhar",
+    "home.match_open": "Abrir receita",
+    "home.match_aria_prefix": "Exemplo de correspondência, abrir receita:",
+    "home.match_missing": "Falta:"
 }

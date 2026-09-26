@@ -276,6 +276,7 @@
     "nav.dashboard": "Мой аккаунт",
     "nav.admin": "Управление",
     "nav.logout": "Выйти",
+    "theme.label": "Тема",
     "theme.switch_to_dark": "Включить тёмную тему",
     "theme.switch_to_light": "Включить светлую тему",
     "footer.about_short": "Мы приносим тепло Кипра в современный дом. Каждый рецепт создан для семейного уюта.",
@@ -370,7 +371,7 @@
     "home.easy_recipes": "Простые рецепты",
     "home.whats_for_dinner": "Что приготовить на ужин?",
     "home.next_great_plate": "Ваше следующее любимое блюдо.",
-    "home.editorial_verified_only": "Только проверенные шеф-поварами рецепты с верифицированными фотографиями.",
+    "home.editorial_verified_only": "Только рецепты, проверенные редакцией.",
     "home.featured_empty_title": "Избранные рецепты готовятся к показу.",
     "home.featured_empty_subtitle": "Скоро здесь появятся персональные гастрономические рекомендации.",
     "home.go_to_archive": "Перейти в каталог",
@@ -692,5 +693,12 @@
     "recipe.show.guides_view_all": "Все статьи и гиды",
     "recipe.decrease_servings": "Уменьшить порции",
     "recipe.increase_servings": "Увеличить порции",
-    "language.not_translated_yet": "Недоступно на этом языке"
+    "language.not_translated_yet": "Недоступно на этом языке",
+    "home.match_pantry": "Твои продукты",
+    "home.match_can_cook_prefix": "можно приготовить:",
+    "home.match_minutes": "мин",
+    "home.match_ready": "Можно готовить",
+    "home.match_open": "Открыть рецепт",
+    "home.match_aria_prefix": "Пример совпадения, открыть рецепт:",
+    "home.match_missing": "Не хватает:"
 }

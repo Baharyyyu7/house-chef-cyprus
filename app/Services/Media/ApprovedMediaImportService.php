@@ -245,7 +245,7 @@ final class ApprovedMediaImportService
     {
         $this->sourceSlug($contentType, $filename);
         $expected = $contentType.'--'.$slug;
-        if (pathinfo($filename, PATHINFO_FILENAME) !== $expected) {
+        if (strtolower(pathinfo($filename, PATHINFO_FILENAME)) !== strtolower($expected)) {
             throw new \RuntimeException('MEDIA_SOURCE_SLUG_MISMATCH');
         }
         $root = realpath(storage_path('app/'.self::SOURCE_ROOT.'/'.$contentType.'s'));

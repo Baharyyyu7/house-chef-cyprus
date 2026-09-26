@@ -65,4 +65,14 @@ return [
         'keyword_region' => env('DISTRIBB_KEYWORD_REGION', 'CY'),
         'content_pillars' => ['https://housechefcyprus.com/tr/kibris-mutlagi', 'https://housechefcyprus.com/tr/mediterranean-recipes'],
     ],
+    // Neil Agarwal Refix Autonomous SEO Loop
+    'refix' => [
+        'enabled' => (bool) env('REFIX_SEO_ENABLED', true),
+        'almost_there_min_pos' => (float) env('REFIX_ALMOST_THERE_MIN_POS', 3.0),
+        'almost_there_max_pos' => (float) env('REFIX_ALMOST_THERE_MAX_POS', 20.0),
+        'no_clicks_min_impressions' => (int) env('REFIX_NO_CLICKS_MIN_IMP', 20),
+        'no_clicks_max_ctr' => (float) env('REFIX_NO_CLICKS_MAX_CTR', 0.005),
+        'decaying_drop_pct' => (float) env('REFIX_DECAYING_DROP_PCT', 30.0),
+        'ai_mode_min_words' => (int) env('REFIX_AI_MODE_MIN_WORDS', 7),
+    ],
 ];

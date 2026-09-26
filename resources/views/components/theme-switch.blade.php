@@ -16,4 +16,5 @@
             <x-ui.icon name="moon" size="15" />
         </span>
     </span>
+    <span class="hc-theme-switch__label">{{ __('theme.label') }}</span>
 </button>

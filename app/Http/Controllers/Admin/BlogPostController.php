@@ -11,6 +11,8 @@ use App\Models\BlogTag;
 use App\Models\ContentRevision;
 use App\Models\Recipe;
 use App\Services\Seo\ContentQualityService;
+use App\Services\Seo\BlogDraftPreparationService;
+use App\Services\Seo\BlogDraftReadinessSnapshotService;
 use App\Services\Seo\BlogPublicationService;
 use App\Services\Seo\SeoMetadataService;
 use Illuminate\Http\RedirectResponse;
@@ -105,6 +107,28 @@ final class BlogPostController extends Controller
         $count = $publication->publishAllUnchecked();
 
         return to_route('admin.blog.index')->with('status', $count.' yazı kontroller atlanarak yayınlandı.');
+    }
+
+    public function readinessScan(BlogDraftReadinessSnapshotService $snapshots): RedirectResponse
+    {
+        $this->admin();
+        $snapshot = $snapshots->snapshot();
+
+        return to_route('admin.blog.index')->with([
+            'status' => $snapshot['ready'].' yazı yayına hazır; '.$snapshot['blocked'].' yazı hazırlık bekliyor.',
+            'readiness_snapshot' => $snapshot,
+        ]);
+    }
+
+    public function prepare(BlogDraftPreparationService $preparation): RedirectResponse
+    {
+        $this->admin();
+        $result = $preparation->prepareBatch(100);
+
+        return to_route('admin.blog.index')->with([
+            'status' => $result['processed'].' taslak denetlendi; '.$result['changed'].' taslağın güvenli alanları hazırlandı. '.$result['ready'].' hazır, '.$result['blocked'].' engelli.',
+            'preparation_summary' => $result,
+        ]);
     }
 
     public function archive(BlogPost $post): RedirectResponse

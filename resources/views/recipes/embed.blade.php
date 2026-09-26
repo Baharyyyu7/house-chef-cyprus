@@ -4,8 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $recipe->title }} · House Chef Cyprus</title>
-    <link rel="canonical" href="{{ route('recipes.show', $recipe) }}">
-    <meta name="robots" content="index,follow">
+    {{-- Gömme sürümü başka sitelerin iframe'i için; tarifin ikinci bir
+         kopyası olarak aramada yarışmamalı. 24 Eylül 2026'da /fa/embed/ ve
+         /ru/embed/ adresleri Search Console'da ayrı sayfa olarak gösterim
+         alıyordu ve kanonikleri 301 veren eski /fa/tarifler/ yazımına
+         gidiyordu. Kanonik artık dilin kendi yazımı; bağlantılar izlenir. --}}
+    @php($tarifAdresi = app(\App\Services\Seo\LocaleUrlService::class)->urlFor(app()->getLocale(), '/tarifler/'.$recipe->slug))
+    <link rel="canonical" href="{{ $tarifAdresi }}">
+    <meta name="robots" content="noindex,follow">
     <style>
         *, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -178,7 +184,7 @@
                             {{ $locale === 'en' ? 'Verified Recipe' : 'Doğrulanmış' }}
                         </span>
                     </div>
-                    <a href="{{ route('recipes.show', $recipe) }}" target="_blank" rel="noopener" class="card-title">
+                    <a href="{{ $tarifAdresi }}" target="_blank" rel="noopener" class="card-title">
                         {{ $recipe->title }}
                     </a>
                 </div>
@@ -211,7 +217,7 @@
             <a href="{{ route('home') }}" target="_blank" rel="noopener" class="brand-link">
                 🏛️ House Chef Cyprus
             </a>
-            <a href="{{ route('recipes.show', $recipe) }}" target="_blank" rel="noopener" class="action-btn">
+            <a href="{{ $tarifAdresi }}" target="_blank" rel="noopener" class="action-btn">
                 {{ $locale === 'en' ? 'View Recipe & Steps →' : 'Tarife Git →' }}
             </a>
         </div>

@@ -1,20 +1,73 @@
 {{-- Homepage: editorial hero, pantry matching, collections, trust and close. --}}
-<section class="hc-home-hero hc-home-hero--future relative isolate -mt-[var(--hc-header-h)] overflow-hidden">
-    <div class="hc-home-hero__media absolute inset-0 -z-30 pointer-events-none" aria-hidden="true"><x-hero-video /></div>
-    <div class="hc-home-hero__mesh absolute inset-0 -z-20 pointer-events-none" aria-hidden="true"></div>
-    <div class="hc-home-hero__glow hc-home-hero__glow--one absolute -z-10 pointer-events-none" aria-hidden="true"></div>
-    <div class="hc-home-hero__glow hc-home-hero__glow--two absolute -z-10 pointer-events-none" aria-hidden="true"></div>
-    <div class="hc-container relative flex min-h-[48rem] flex-col justify-between pb-8 pt-[calc(var(--hc-header-h)+5rem)] sm:min-h-[55rem] sm:pb-10 sm:pt-[calc(var(--hc-header-h)+7rem)] lg:min-h-[min(58rem,100svh)]">
-        <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(22rem,.7fr)] lg:gap-20">
-            <div class="max-w-3xl">
-                <div class="hc-home-hero__signal hc-animate-fade-up"><span class="hc-home-hero__signal-dot" aria-hidden="true"></span><span>{{ __('home.kicker') }}</span></div>
-                <h1 class="hc-home-hero__title hc-animate-fade-up">{{ __('home.hero_title') }}</h1>
-                <p class="hc-home-hero__subtitle hc-animate-fade-up">{{ __('home.hero_subtitle') }}</p>
-                <div class="hc-home-hero__actions hc-animate-fade-up"><a class="hc-future-btn hc-future-btn--primary hc-btn-primary" href="#hero-ingredient"><span>{{ __('home.hero_cta') }}</span><span aria-hidden="true">↗</span></a><a class="hc-future-btn hc-future-btn--quiet hc-hero-secondary" href="{{ route('recipes.index') }}"><span>{{ __('home.browse_archive') }}</span><span aria-hidden="true">→</span></a></div>
-                <div class="hc-home-hero__proof hc-animate-fade-up" aria-label="{{ __('home.trust_title') }}"><span><b aria-hidden="true">01</b> {{ __('home.editorial_verified_only') }}</span><span><b aria-hidden="true">02</b> {{ __('home.step_3') }}</span></div>
-            </div>
-            <div class="hc-home-orbit hc-animate-scale-in" aria-hidden="true"><div class="hc-home-orbit__halo"></div><div class="hc-home-orbit__ring hc-home-orbit__ring--outer"></div><div class="hc-home-orbit__ring hc-home-orbit__ring--inner"></div><div class="hc-home-orbit__core"><span class="hc-home-orbit__eyebrow">HOUSE CHEF</span><strong>CYPRUS</strong><span class="hc-home-orbit__line"></span><span class="hc-home-orbit__caption">{{ __('home.cypriot_cuisine') }}</span></div><span class="hc-home-orbit__label hc-home-orbit__label--top">{{ __('home.cuisines_kicker') }}</span><span class="hc-home-orbit__label hc-home-orbit__label--side">{{ __('home.step_3') }}</span></div>
+<section class="hc-hero relative isolate -mt-[var(--hc-header-h)] overflow-hidden">
+    <div class="hc-hero__ground" aria-hidden="true"></div>
+    <div class="hc-hero__grain" aria-hidden="true"></div>
+    <div class="hc-container relative flex min-h-[44rem] flex-col justify-between gap-12 pb-8 pt-[calc(var(--hc-header-h)+4.5rem)] sm:min-h-[48rem] sm:pb-10 lg:min-h-[min(52rem,100svh)]">
+        <div @class(['hc-hero__layout', 'hc-hero__layout--match' => ! empty($homeMatchShowcase)])>
+        <div class="hc-hero__copy">
+            <h1 class="hc-hero__title hc-animate-fade-up">{{ __('home.hero_title') }}</h1>
+            <p class="hc-hero__lede hc-animate-fade-up">{{ __('home.hero_subtitle', ['count' => number_format((int) ($homeRecipeCount ?? 0), 0, ',', '.')]) }}</p>
+            <div class="hc-hero__actions hc-animate-fade-up"><a class="hc-hero__cta hc-btn-primary" href="#hero-ingredient"><span>{{ __('home.hero_cta') }}</span><x-ui.icon name="arrow-right" size="18" /></a><a class="hc-hero__link hc-hero-secondary" href="{{ route('recipes.index') }}"><span>{{ __('home.browse_archive') }}</span><x-ui.icon name="arrow-right" size="16" /></a></div>
+            <p class="hc-hero__proof hc-animate-fade-up">{{ __('home.editorial_verified_only') }}</p>
         </div>
+        @if(! empty($homeMatchShowcase))
+            <div class="hc-match" x-data="hcMatchShowcase(@js($homeMatchShowcase), @js(['aria' => __('home.match_aria_prefix'), 'pisir' => __('home.match_can_cook_prefix'), 'dk' => __('home.match_minutes')]))" @mouseenter="dur()" @mouseleave="devam()" @focusin="dur()" @focusout="devam()" :class="{ 'is-done': bitti, 'is-out': evre === 'cikis' }">
+                <a class="hc-match__card" :href="senaryo.recipe.url" :aria-label="metin.aria + ' ' + senaryo.recipe.title">
+                    <div class="hc-match__head" aria-hidden="true">
+                        <span class="hc-match__label"><span class="hc-match__pulse"></span>{{ __('home.match_pantry') }}</span>
+                        <span class="hc-match__count" x-show="pisirilebilir > 1" x-cloak x-text="metin.pisir + ' ' + pisirilebilir"></span>
+                    </div>
+
+                    <ul class="hc-match__pantry" aria-hidden="true">
+                        <template x-for="(a, i) in adimlar" :key="sira + '-' + i">
+                            <li class="hc-match__chip" :class="{ 'is-in': eklendi(i) }"><span x-text="a.ingredient"></span></li>
+                        </template>
+                    </ul>
+
+                    <div class="hc-match__meter" aria-hidden="true">
+                        <div class="hc-match__ring">
+                            <svg viewBox="0 0 120 120" class="hc-match__ring-svg">
+                                <circle class="hc-match__ring-track" cx="60" cy="60" r="52" />
+                                <circle class="hc-match__ring-fill" cx="60" cy="60" r="52" :style="'stroke-dashoffset:' + (326.73 * (1 - yuzde / 100)).toFixed(2)" />
+                            </svg>
+                            <span class="hc-match__pct"><span class="hc-match__num"><span x-text="Math.round(yuzde)">0</span><small>%</small></span></span>
+                        </div>
+                        <div class="hc-match__recipe">
+                            <strong class="hc-match__recipe-title" x-text="senaryo.recipe.title"></strong>
+                            <span class="hc-match__recipe-meta"><x-ui.icon name="clock" size="14" /><span x-text="senaryo.recipe.minutes + ' ' + metin.dk"></span></span>
+                        </div>
+                    </div>
+
+                    <div class="hc-match__foot" aria-hidden="true">
+                        <div class="hc-match__missing">
+                            <span class="hc-match__missing-label">{{ __('home.match_missing') }}</span>
+                            <template x-for="(a, i) in adimlar" :key="sira + '-e-' + i">
+                                <span class="hc-match__missing-item" :class="{ 'is-gone': eklendi(i) }" x-text="a.ingredient"></span>
+                            </template>
+                        </div>
+                        <div class="hc-match__done">
+                            <span class="hc-match__done-badge"><x-ui.icon name="check" size="16" />{{ __('home.match_ready') }}</span>
+                            <span class="hc-match__done-go">{{ __('home.match_open') }}<x-ui.icon name="arrow-right" size="14" /></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        @endif
+        </div>
+        {{-- Gösteri varken bant ikinci bir hareket olur ve aynı şeyi söyler. --}}
+        @if(empty($homeMatchShowcase) && count($homeIngredients) > 7)
+            <div class="hc-hero__rail" aria-hidden="true">
+                <div class="hc-hero__rail-track">
+                    @foreach([1, 2] as $tur)
+                        <ul class="hc-hero__rail-set">
+                            @foreach(array_slice($homeIngredients, 0, 14) as $malzeme)
+                                <li>{{ $malzeme['name'] }}</li>
+                            @endforeach
+                        </ul>
+                    @endforeach
+                </div>
+            </div>
+        @endif
         <div id="kesfet" class="hc-home-command hc-animate-scale-in" x-data="{ activeSearchTab: 'ingredients' }">
             <div class="hc-home-command__header"><div><p class="hc-home-command__eyebrow">{{ __('home.search_kicker') }}</p><h2 class="hc-home-command__title"><span x-show="activeSearchTab === 'ingredients'">{{ __('home.search_title') }}</span><span x-show="activeSearchTab === 'recipes'" x-cloak>{{ __('home.search_recipes_title') }}</span></h2></div><div class="hc-home-command__tabs" role="tablist" aria-label="{{ __('home.search_mode_label') }}"><button type="button" role="tab" @click="activeSearchTab = 'ingredients'" :aria-selected="activeSearchTab === 'ingredients'" :class="activeSearchTab === 'ingredients' ? 'is-active' : ''"><x-ui.icon name="sparkles" size="15" /> {{ __('home.search_tab_ingredients') }}</button><button type="button" role="tab" @click="activeSearchTab = 'recipes'" :aria-selected="activeSearchTab === 'recipes'" :class="activeSearchTab === 'recipes' ? 'is-active' : ''"><x-ui.icon name="search" size="15" /> {{ __('home.search_tab_recipes') }}</button></div></div>
             <div x-show="activeSearchTab === 'ingredients'" x-transition.opacity><form id="home-ingredients" class="hc-home-command__form" action="{{ route('ingredients.explore') }}" method="get"><label class="sr-only" for="hero-ingredient">{{ __('home.select_ingredient_label') }}</label><span class="hc-home-command__form-icon" aria-hidden="true"><x-ui.icon name="search" size="20" /></span><select id="hero-ingredient" class="hc-home-command__input" name="ingredients[]" required><option value="">{{ __('home.ingredient_placeholder_example') }}</option>@foreach($homeIngredients as $ingredient)<option value="{{ $ingredient['public_id'] }}">{{ $ingredient['name'] }}</option>@endforeach</select><button class="hc-home-command__submit" type="submit"><span>{{ __('home.what_can_i_cook') }}</span><span aria-hidden="true">↗</span></button></form></div>

@@ -186,6 +186,150 @@ document.addEventListener('DOMContentLoaded', mountPageFeatures);
 document.addEventListener('livewire:navigated', mountPageFeatures);
 window.addEventListener('hc-theme-changed', () => window.setTimeout(mountCharts, 0));
 
+// Ana sayfa hero'sundaki eşleştirme gösterisi.
+//
+// Dolaba gerçek malzemeler tek tek düşer, hedef tarifin eşleşme ölçeri
+// dolar ve %100'de tarif "tam yapılabilir" olur. Veri sunucudan gelir
+// (HomeMatchShowcaseService); burada yalnız zamanlama ve hareket var.
+//
+// Yüzde bir yay ile ilerler, sabit süreli bir tweenle değil: yeni hedef
+// geldiğinde o anki değerden ve o anki hızdan devam eder, zıplamaz.
+// Sekme gizliyken, fare üstündeyken ya da odak içerideyken durur.
+Alpine.data('hcMatchShowcase', (senaryolar, metin) => ({
+    senaryolar,
+    metin,
+    sira: 0,
+    adim: -1,
+    evre: 'dolum',
+    yuzde: 0,
+    hedef: 0,
+    hiz: 0,
+    durdu: false,
+    _zaman: null,
+    _kare: null,
+    _son: 0,
+
+    get senaryo() { return this.senaryolar[this.sira] || null; },
+    get adimlar() { return this.senaryo ? this.senaryo.steps : []; },
+    get bitti() { return this.evre === 'tamam'; },
+    get pisirilebilir() {
+        const a = this.adimlar[this.adim];
+        return a ? a.can_cook : 0;
+    },
+    eklendi(i) { return i <= this.adim; },
+
+    init() {
+        if (!this.senaryo) return;
+
+        const hareketsiz = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (hareketsiz) {
+            // Hareket istemeyen ziyaretçi son hâli görür: gösterinin
+            // söylediği şey sonuçtu, yolculuk değil.
+            this.adim = this.adimlar.length - 1;
+            this.yuzde = this.hedef = 100;
+            this.evre = 'tamam';
+            return;
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            document.hidden ? this.dur() : this.devam();
+        });
+
+        this._zaman = window.setTimeout(() => this.ilerle(), 700);
+    },
+
+    ilerle() {
+        if (this.durdu) return;
+
+        if (this.evre === 'cikis') {
+            this.sira = (this.sira + 1) % this.senaryolar.length;
+            this.adim = -1;
+            this.yuzde = this.hedef = this.hiz = 0;
+            this.evre = 'dolum';
+            this._zaman = window.setTimeout(() => this.ilerle(), 520);
+            return;
+        }
+
+        if (this.evre === 'tamam') {
+            this.evre = 'cikis';
+            this._zaman = window.setTimeout(() => this.ilerle(), 460);
+            return;
+        }
+
+        if (this.adim < this.adimlar.length - 1) {
+            this.adim++;
+            this.yayla(this.adimlar[this.adim].percent);
+            // Son malzemede tamamlanmayı yay tetikler, halka %100'e vardığı
+            // anda. Eskiden sabit 820 ms bekleniyordu ve halka her döngüde
+            // %100'de turuncu kalıp takılmış gibi duruyordu. Buradaki süre
+            // yalnız yedek: gizli sekmede yay kare alamazsa tamamlanma yine olur.
+            const sonAdim = this.adim === this.adimlar.length - 1;
+            this._zaman = window.setTimeout(() => (sonAdim ? this.tamamla() : this.ilerle()), sonAdim ? 1400 : 880);
+            return;
+        }
+
+        // Son adımda duraklatılıp devam edildiyse buraya düşülür.
+        this.tamamla();
+    },
+
+    tamamla() {
+        if (this.evre !== 'dolum' || this.adim < this.adimlar.length - 1) return;
+        window.clearTimeout(this._zaman);
+        this.evre = 'tamam';
+        this._zaman = window.setTimeout(() => this.ilerle(), 2800);
+    },
+
+    // Kritik sönümlü yay: aşım yok, hedefe o anki hızdan devam eder.
+    yayla(yeni) {
+        this.hedef = yeni;
+        if (this._kare) return;
+        this._son = performance.now();
+
+        const adim = (simdi) => {
+            const dt = Math.min(0.064, (simdi - this._son) / 1000);
+            this._son = simdi;
+            const sertlik = 120;
+            const sonum = 2 * Math.sqrt(sertlik);
+            const ivme = sertlik * (this.hedef - this.yuzde) - sonum * this.hiz;
+            this.hiz += ivme * dt;
+            this.yuzde += this.hiz * dt;
+
+            // Ekranda "100" 99,5'te beliriyor; yayın tam durulması yarım
+            // saniye daha sürüyor. Tamamlanma ekranda görünene bağlanır.
+            if (this.hedef >= 100 && this.yuzde >= 99.5 && !this.durdu) this.tamamla();
+
+            if (Math.abs(this.hedef - this.yuzde) < 0.05 && Math.abs(this.hiz) < 0.05) {
+                this.yuzde = this.hedef;
+                this.hiz = 0;
+                this._kare = null;
+                return;
+            }
+
+            this._kare = window.requestAnimationFrame(adim);
+        };
+
+        this._kare = window.requestAnimationFrame(adim);
+    },
+
+    dur() {
+        this.durdu = true;
+        window.clearTimeout(this._zaman);
+    },
+
+    devam() {
+        if (!this.durdu || document.hidden) return;
+        this.durdu = false;
+        window.clearTimeout(this._zaman);
+        this._zaman = window.setTimeout(() => this.ilerle(), 500);
+    },
+
+    destroy() {
+        window.clearTimeout(this._zaman);
+        if (this._kare) window.cancelAnimationFrame(this._kare);
+    },
+}));
+
 // Tarif adımlarını pişirirken işaretlemek için. Giriş gerektirmez; ilerleme
 // yalnız kullanıcının cihazında, tarif başına ayrı bir anahtarda saklanır.
 Alpine.data('hcRecipeSteps', (slug, total) => ({
