@@ -148,3 +148,18 @@ başka ajanın takipli kod/dil/tasarım değişiklikleri sürüyor, deploy yapı
 - Dil etkinliği, medya onayı ve yayın değişmedi. Yeni backlink iddiası
   yok. Kod test/deploy yapılmadı; dosya ve kuyruk işlemleri doğrulandı.
   Ayrıntılı kaynak/dönem/gözlem ve sunucu dosya konumu teslim raporunda.
+
+## 2026-09-26: Search Console istek bekleme koruması
+
+| Kimlik | Önem | Bulgu | Sahip | Durum | Kanıt |
+| --- | --- | --- | --- | --- | --- |
+| GLOB-015 | Orta | pageRowsBetween ve pageQueries, 429/503 sonrası kaydedilen Retry-After süresini okumadan yeniden OAuth/API isteği gönderiyordu | AI-Worker-1; inceleme AI-Worker-12 | Yerelde düzeltildi; tam test ve yayın doğrulaması bekliyor | İki giriş noktasına mevcut ortak cache kontrolü eklendi. 2 yeni regresyon senaryosu, ilgili toplam 18 test/72 assertion geçti. |
+
+- GLOB-014 tarih aralığı/kaynak ayrımı bu sınırlı düzeltmeyle kapanmaz.
+- 17:02:59 UTC canlı okuma: scheduler son işi queue_drain, tamamlanma
+  17:02:22 UTC, healthy. Bu, bütün SEO görevlerinin sonucu değildir.
+- GSC snapshot: sc-domain:housechefcyprus.com, api_import, web,
+  26 Ağustos - 22 Eylül, kaynak gözlemi 26 Eylül 06:45:32 UTC;
+  58 tıklama / 4.908 gösterim / ortalama konum 9,925835.
+  Bu tur yeni dil/pazar kırılımı alınmadı; önceki farklı dönemle artış
+  hesabı yapılmadı. Dil ayarları, içerik ve medya onayı değiştirilmedi.
