@@ -98,6 +98,23 @@ final class HomeMatchShowcaseTest extends TestCase
         $this->assertSame([], app(HomeMatchShowcaseService::class)->senaryolar());
     }
 
+    public function test_the_hero_states_the_real_recipe_count_and_makes_no_photo_claim(): void
+    {
+        // 2026-09-26: alt metin "1.000'den fazla doğrulanmış tarif" diyordu,
+        // yayında 534 tarif vardı. Kanıt satırı "onaylı görseli bulunan
+        // tarifler" diyordu, tariflerin %26'sının fotoğrafı vardı. İkisi de
+        // artık doğru: sayı canlı veriden gelir, fotoğraf iddiası yok.
+        foreach (['Bir', 'İki', 'Üç'] as $i => $ad) {
+            $this->tarif('Tarif '.$ad, [$this->malzeme('Malzeme '.$ad.' A'), $this->malzeme('Malzeme '.$ad.' B'), $this->malzeme('Malzeme '.$ad.' C')], 10 + $i);
+        }
+
+        $icerik = (string) $this->get(route('home'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('3 doğrulanmış', $icerik);
+        $this->assertStringNotContainsString("1.000'den fazla", $icerik);
+        $this->assertStringNotContainsString('onaylı görseli', $icerik);
+    }
+
     public function test_the_home_page_renders_the_showcase_only_when_there_is_a_clean_scenario(): void
     {
         $this->get(route('home'))->assertOk()->assertDontSee('hcMatchShowcase', false);

@@ -370,7 +370,7 @@
     "home.easy_recipes": "Receitas fáceis",
     "home.whats_for_dinner": "O que fazer para o jantar?",
     "home.next_great_plate": "O seu próximo prato memorável.",
-    "home.editorial_verified_only": "Apenas receitas verificadas editorialmente com imagens aprovadas.",
+    "home.editorial_verified_only": "Apenas receitas verificadas editorialmente.",
     "home.featured_empty_title": "Receitas selecionadas em preparação.",
     "home.featured_empty_subtitle": "Assim que novas receitas forem adicionadas, verá aqui sugestões deliciosas.",
     "home.go_to_archive": "Ir para o arquivo de receitas",
@@ -698,5 +698,6 @@
     "home.match_minutes": "min",
     "home.match_ready": "Pronto a cozinhar",
     "home.match_open": "Abrir receita",
-    "home.match_aria_prefix": "Exemplo de correspondência, abrir receita:"
+    "home.match_aria_prefix": "Exemplo de correspondência, abrir receita:",
+    "home.match_missing": "Falta:"
 }

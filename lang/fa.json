@@ -370,7 +370,7 @@
     "home.easy_recipes": "دستورهای آسان",
     "home.whats_for_dinner": "امروز چی درست کنم؟",
     "home.next_great_plate": "غذای لذیذ بعدی شما.",
-    "home.editorial_verified_only": "فقط دستورهای پخت تأییدشده با تصاویر معتبر.",
+    "home.editorial_verified_only": "فقط دستورهای پختی که ویراستاران تأیید کرده‌اند.",
     "home.featured_empty_title": "دستورهای پخت منتخب در حال آماده‌سازی هستند.",
     "home.featured_empty_subtitle": "به زودی پیشنهادهای جدید برای سلیقه شما در اینجا قرار می‌گیرد.",
     "home.go_to_archive": "رفتن به آرشیو",
@@ -698,5 +698,6 @@
     "home.match_minutes": "دقیقه",
     "home.match_ready": "آماده پخت",
     "home.match_open": "رفتن به دستور",
-    "home.match_aria_prefix": "نمونه تطبیق، رفتن به دستور:"
+    "home.match_aria_prefix": "نمونه تطبیق، رفتن به دستور:",
+    "home.match_missing": "کم دارد:"
 }

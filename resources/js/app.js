@@ -251,22 +251,33 @@ Alpine.data('hcMatchShowcase', (senaryolar, metin) => ({
             return;
         }
 
+        if (this.evre === 'tamam') {
+            this.evre = 'cikis';
+            this._zaman = window.setTimeout(() => this.ilerle(), 460);
+            return;
+        }
+
         if (this.adim < this.adimlar.length - 1) {
             this.adim++;
             this.yayla(this.adimlar[this.adim].percent);
+            // Son malzemede tamamlanmayı yay tetikler, halka %100'e vardığı
+            // anda. Eskiden sabit 820 ms bekleniyordu ve halka her döngüde
+            // %100'de turuncu kalıp takılmış gibi duruyordu. Buradaki süre
+            // yalnız yedek: gizli sekmede yay kare alamazsa tamamlanma yine olur.
             const sonAdim = this.adim === this.adimlar.length - 1;
-            this._zaman = window.setTimeout(() => this.ilerle(), sonAdim ? 820 : 880);
+            this._zaman = window.setTimeout(() => (sonAdim ? this.tamamla() : this.ilerle()), sonAdim ? 1400 : 880);
             return;
         }
 
-        if (this.evre === 'dolum') {
-            this.evre = 'tamam';
-            this._zaman = window.setTimeout(() => this.ilerle(), 2800);
-            return;
-        }
+        // Son adımda duraklatılıp devam edildiyse buraya düşülür.
+        this.tamamla();
+    },
 
-        this.evre = 'cikis';
-        this._zaman = window.setTimeout(() => this.ilerle(), 460);
+    tamamla() {
+        if (this.evre !== 'dolum' || this.adim < this.adimlar.length - 1) return;
+        window.clearTimeout(this._zaman);
+        this.evre = 'tamam';
+        this._zaman = window.setTimeout(() => this.ilerle(), 2800);
     },
 
     // Kritik sönümlü yay: aşım yok, hedefe o anki hızdan devam eder.
@@ -283,6 +294,10 @@ Alpine.data('hcMatchShowcase', (senaryolar, metin) => ({
             const ivme = sertlik * (this.hedef - this.yuzde) - sonum * this.hiz;
             this.hiz += ivme * dt;
             this.yuzde += this.hiz * dt;
+
+            // Ekranda "100" 99,5'te beliriyor; yayın tam durulması yarım
+            // saniye daha sürüyor. Tamamlanma ekranda görünene bağlanır.
+            if (this.hedef >= 100 && this.yuzde >= 99.5 && !this.durdu) this.tamamla();
 
             if (Math.abs(this.hedef - this.yuzde) < 0.05 && Math.abs(this.hiz) < 0.05) {
                 this.yuzde = this.hedef;

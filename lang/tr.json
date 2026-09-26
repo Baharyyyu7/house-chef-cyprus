@@ -357,7 +357,7 @@
     "card.add_to_favorites_aria": ":title tarifini favorilere ekle",
     "home.kicker": "1.000+ Doğrulanmış Ada Tarifi · Kıbrıs'ın 1 Numaralı Gastronomi Portalı",
     "home.hero_title": "Elindeki malzemeden güvenilir akşam yemeğine.",
-    "home.hero_subtitle": "1.000'den fazla doğrulanmış Kıbrıs ve Akdeniz tarifi arasından malzemeni seç; dilersen ada genelinde villana özel şef teklifini anında al.",
+    "home.hero_subtitle": ":count doğrulanmış Kıbrıs ve Akdeniz tarifi arasından malzemeni seç; dilersen ada genelinde villana özel şef teklifini anında al.",
     "home.hero_cta": "Malzememle başla",
     "home.browse_archive": "Tarif arşivine göz at",
     "home.search_kicker": "Mutfak kararını kolaylaştırın",
@@ -372,7 +372,7 @@
     "home.easy_recipes": "Kolay tarifler",
     "home.whats_for_dinner": "Bugün ne pişirsem?",
     "home.next_great_plate": "Bir sonraki güzel tabak.",
-    "home.editorial_verified_only": "Yalnız editoryal doğrulamadan geçmiş, onaylı görseli bulunan tarifler.",
+    "home.editorial_verified_only": "Yalnız editoryal doğrulamadan geçmiş tarifler.",
     "home.featured_empty_title": "Seçilmiş tarifler hazırlanıyor.",
     "home.featured_empty_subtitle": "Yeni tarifler eklendiğinde burada mutfağınıza uygun öneriler göreceksiniz.",
     "home.go_to_archive": "Tarif arşivine git",
@@ -698,5 +698,6 @@
     "home.match_minutes": "dk",
     "home.match_ready": "Tam yapılabilir",
     "home.match_open": "Tarife git",
-    "home.match_aria_prefix": "Örnek eşleşme, tarife git:"
+    "home.match_aria_prefix": "Örnek eşleşme, tarife git:",
+    "home.match_missing": "Eksik:"
 }

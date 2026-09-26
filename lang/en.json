@@ -513,7 +513,7 @@
     "home.discovery_title": "How would you like to explore?",
     "home.cypriot_cuisine": "Cypriot cuisine",
     "home.easy_recipes": "Easy recipes",
-    "home.editorial_verified_only": "Only editorially verified recipes with approved photography.",
+    "home.editorial_verified_only": "Only editorially verified recipes.",
     "home.featured_empty_subtitle": "As new recipes are added, tailored recommendations will appear here.",
     "home.featured_empty_title": "Curated recipes are being prepared.",
     "home.go_to_archive": "Browse recipes",
@@ -800,5 +800,6 @@
     "home.match_minutes": "min",
     "home.match_ready": "Ready to cook",
     "home.match_open": "Open recipe",
-    "home.match_aria_prefix": "Example match, open recipe:"
+    "home.match_aria_prefix": "Example match, open recipe:",
+    "home.match_missing": "Missing:"
 }

@@ -370,7 +370,7 @@
     "home.easy_recipes": "Einfache Rezepte",
     "home.whats_for_dinner": "Was koche ich heute?",
     "home.next_great_plate": "Ihr nächstes Lieblingsgericht.",
-    "home.editorial_verified_only": "Ausschließlich redaktionell geprüfte Rezepte mit verifizierten Bildern.",
+    "home.editorial_verified_only": "Ausschließlich redaktionell geprüfte Rezepte.",
     "home.featured_empty_title": "Ausgewählte Rezepte werden vorbereitet.",
     "home.featured_empty_subtitle": "Sobald neue Rezepte hinzugefügt werden, finden Sie hier kulinarische Empfehlungen.",
     "home.go_to_archive": "Zum Rezeptarchiv",
@@ -698,5 +698,6 @@
     "home.match_minutes": "Min.",
     "home.match_ready": "Sofort kochbar",
     "home.match_open": "Zum Rezept",
-    "home.match_aria_prefix": "Beispieltreffer, zum Rezept:"
+    "home.match_aria_prefix": "Beispieltreffer, zum Rezept:",
+    "home.match_missing": "Fehlt:"
 }

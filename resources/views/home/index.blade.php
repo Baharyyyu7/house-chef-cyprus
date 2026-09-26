@@ -6,7 +6,7 @@
         <div @class(['hc-hero__layout', 'hc-hero__layout--match' => ! empty($homeMatchShowcase)])>
         <div class="hc-hero__copy">
             <h1 class="hc-hero__title hc-animate-fade-up">{{ __('home.hero_title') }}</h1>
-            <p class="hc-hero__lede hc-animate-fade-up">{{ __('home.hero_subtitle') }}</p>
+            <p class="hc-hero__lede hc-animate-fade-up">{{ __('home.hero_subtitle', ['count' => number_format((int) ($homeRecipeCount ?? 0), 0, ',', '.')]) }}</p>
             <div class="hc-hero__actions hc-animate-fade-up"><a class="hc-hero__cta hc-btn-primary" href="#hero-ingredient"><span>{{ __('home.hero_cta') }}</span><x-ui.icon name="arrow-right" size="18" /></a><a class="hc-hero__link hc-hero-secondary" href="{{ route('recipes.index') }}"><span>{{ __('home.browse_archive') }}</span><x-ui.icon name="arrow-right" size="16" /></a></div>
             <p class="hc-hero__proof hc-animate-fade-up">{{ __('home.editorial_verified_only') }}</p>
         </div>
@@ -30,7 +30,7 @@
                                 <circle class="hc-match__ring-track" cx="60" cy="60" r="52" />
                                 <circle class="hc-match__ring-fill" cx="60" cy="60" r="52" :style="'stroke-dashoffset:' + (326.73 * (1 - yuzde / 100)).toFixed(2)" />
                             </svg>
-                            <span class="hc-match__pct"><span x-text="Math.round(yuzde)">0</span><small>%</small></span>
+                            <span class="hc-match__pct"><span class="hc-match__num"><span x-text="Math.round(yuzde)">0</span><small>%</small></span></span>
                         </div>
                         <div class="hc-match__recipe">
                             <strong class="hc-match__recipe-title" x-text="senaryo.recipe.title"></strong>
@@ -38,9 +38,17 @@
                         </div>
                     </div>
 
-                    <div class="hc-match__done" aria-hidden="true">
-                        <span class="hc-match__done-badge"><x-ui.icon name="check" size="16" />{{ __('home.match_ready') }}</span>
-                        <span class="hc-match__done-go">{{ __('home.match_open') }}<x-ui.icon name="arrow-right" size="14" /></span>
+                    <div class="hc-match__foot" aria-hidden="true">
+                        <div class="hc-match__missing">
+                            <span class="hc-match__missing-label">{{ __('home.match_missing') }}</span>
+                            <template x-for="(a, i) in adimlar" :key="sira + '-e-' + i">
+                                <span class="hc-match__missing-item" :class="{ 'is-gone': eklendi(i) }" x-text="a.ingredient"></span>
+                            </template>
+                        </div>
+                        <div class="hc-match__done">
+                            <span class="hc-match__done-badge"><x-ui.icon name="check" size="16" />{{ __('home.match_ready') }}</span>
+                            <span class="hc-match__done-go">{{ __('home.match_open') }}<x-ui.icon name="arrow-right" size="14" /></span>
+                        </div>
                     </div>
                 </a>
             </div>

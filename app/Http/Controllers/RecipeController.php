@@ -72,6 +72,9 @@ final class RecipeController extends Controller
                 ->orderByDesc('published_at')
                 ->get();
 
+            // Hero alt metnindeki sayı. Eskiden "1.000'den fazla" sabit yazıyordu,
+            // yayında 534 tarif varken; o dilde gerçekten görünen sayı basılır.
+            $viewData['homeRecipeCount'] = $catalogue->count();
             // Never cache approval decisions: a revoked image leaves the showcase immediately.
             $mediaEligibility = app(PublicMediaEligibilityService::class);
             $viewData['homeHighlights'] = $catalogue->lazy()->filter(fn (Recipe $recipe): bool => $mediaEligibility->firstEligible($recipe->media) !== null)->take(4)->collect();

@@ -370,7 +370,7 @@
     "home.easy_recipes": "Łatwe przepisy",
     "home.whats_for_dinner": "Co dziś na obiad?",
     "home.next_great_plate": "Twoje kolejne wspaniałe danie.",
-    "home.editorial_verified_only": "Wyłącznie zweryfikowane przepisy ze sprawdzonymi zdjęciami.",
+    "home.editorial_verified_only": "Wyłącznie przepisy zweryfikowane przez redakcję.",
     "home.featured_empty_title": "Wybrane przepisy są przygotowywane.",
     "home.featured_empty_subtitle": "Wkrótce pojawią się tu nowe propozycje kulinarne.",
     "home.go_to_archive": "Do archiwum przepisów",
@@ -698,5 +698,6 @@
     "home.match_minutes": "min",
     "home.match_ready": "Gotowe do ugotowania",
     "home.match_open": "Otwórz przepis",
-    "home.match_aria_prefix": "Przykładowe dopasowanie, otwórz przepis:"
+    "home.match_aria_prefix": "Przykładowe dopasowanie, otwórz przepis:",
+    "home.match_missing": "Brakuje:"
 }

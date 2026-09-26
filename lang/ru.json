@@ -370,7 +370,7 @@
     "home.easy_recipes": "Простые рецепты",
     "home.whats_for_dinner": "Что приготовить на ужин?",
     "home.next_great_plate": "Ваше следующее любимое блюдо.",
-    "home.editorial_verified_only": "Только проверенные шеф-поварами рецепты с верифицированными фотографиями.",
+    "home.editorial_verified_only": "Только рецепты, проверенные редакцией.",
     "home.featured_empty_title": "Избранные рецепты готовятся к показу.",
     "home.featured_empty_subtitle": "Скоро здесь появятся персональные гастрономические рекомендации.",
     "home.go_to_archive": "Перейти в каталог",
@@ -698,5 +698,6 @@
     "home.match_minutes": "мин",
     "home.match_ready": "Можно готовить",
     "home.match_open": "Открыть рецепт",
-    "home.match_aria_prefix": "Пример совпадения, открыть рецепт:"
+    "home.match_aria_prefix": "Пример совпадения, открыть рецепт:",
+    "home.match_missing": "Не хватает:"
 }
