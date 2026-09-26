@@ -349,3 +349,26 @@ koddan bağımsız doğruladı; uygulama koduna bu tur girilmedi.
 Yeni backlink, iletişim, blog taslağı, yayın veya deploy yok. Kod
 değişmediğinden tam PHP süiti çalıştırılmadı ve yeşil iddiası yapılmadı;
 gerçek kuyruk claim/block/complete ve dosya/staging kontrolleri geçti.
+
+## 2026-09-26 23:05 UTC: Search Console bekleme koruması teslimi
+
+- Önceki Soğanlı Çörek kaydı e52ddf6 içinde kayıtlı; yeniden teslim
+  edilmedi. Yerel/canlı fc7cc3f üzerinden yalnız GLOB-015 düzeltildi.
+  pageRowsBetween/pageQueries artık 429/503 sonrasındaki ortak Retry-After
+  süresinde yeni OAuth/API isteği göndermiyor. pageRows aynı korumayı alır.
+- İlgili testler 18/18, 72 assertion; tam PHP süiti 1.661/1.661,
+  9.166 assertion, 0 error/failure. AI-Worker-12 bağımsız incelemesi temiz.
+- Canlı f0cbaac, normal release akışı exit 0. Dokuz HTTP uç noktası
+  geçti. Sunucuda RAM cache/fake HTTP ile yalıtılmış tekrar kontrolü:
+  üç giriş noktası ertelendi, 0 dış istek. Google'a test isteği atılmadı.
+  Bu sürümün geçici çalışma kopyası ve paketi temizlendi.
+- Kuyruk 366 toplam/15 tamamlanan/343 pending/6 blocked/2 başkasına ait
+  kilit; kendi aktif kilidi 0. Yeni claim yok. Sıradaki HQ1AZ son ekli
+  işin canlı slug'ı küçük harfli hq1az olduğundan GLOB-013 açık.
+- GLOB-014 tarih/kaynak ayrımı bu değişiklikle çözülmedi. En son okunan
+  GSC snapshot sc-domain:housechefcyprus.com, api_import/web,
+  2026-08-26 - 2026-09-22; kaynak gözlemi 06:45:32 UTC, okuma 17:02:59
+  UTC; 58 tıklama, 4.908 gösterim, konum 9,925835. Yeni dil/pazar
+  kırılımı alınmadı; bu sayı farklı dönemle büyüme hesabında kullanılmadı.
+- Tam kanıt ve log konumları:
+  .claude/completions/2026-09-26-gsc-page-backoff.md.

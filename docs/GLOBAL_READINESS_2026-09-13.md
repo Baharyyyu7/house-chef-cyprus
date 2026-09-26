@@ -153,7 +153,7 @@ başka ajanın takipli kod/dil/tasarım değişiklikleri sürüyor, deploy yapı
 
 | Kimlik | Önem | Bulgu | Sahip | Durum | Kanıt |
 | --- | --- | --- | --- | --- | --- |
-| GLOB-015 | Orta | pageRowsBetween ve pageQueries, 429/503 sonrası kaydedilen Retry-After süresini okumadan yeniden OAuth/API isteği gönderiyordu | AI-Worker-1; inceleme AI-Worker-12 | Yerelde düzeltildi; tam test ve yayın doğrulaması bekliyor | İki giriş noktasına mevcut ortak cache kontrolü eklendi. 2 yeni regresyon senaryosu, ilgili toplam 18 test/72 assertion geçti. |
+| GLOB-015 | Orta | pageRowsBetween ve pageQueries, 429/503 sonrası kaydedilen Retry-After süresini okumadan yeniden OAuth/API isteği gönderiyordu | AI-Worker-1; inceleme AI-Worker-12 | Kapatıldı: canlı f0cbaac, 26 Eylül 23:05 UTC | İlgili 18 test/72 assertion, tam PHP süiti 1.661 test/9.166 assertion geçti. Dokuz canlı HTTP kontrolü başarılı; sunucuda yalıtılmış cache/HTTP kontrolü üç girişte 0 dış isteği doğruladı. |
 
 - GLOB-014 tarih aralığı/kaynak ayrımı bu sınırlı düzeltmeyle kapanmaz.
 - 17:02:59 UTC canlı okuma: scheduler son işi queue_drain, tamamlanma
