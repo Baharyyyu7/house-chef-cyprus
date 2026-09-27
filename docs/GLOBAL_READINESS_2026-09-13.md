@@ -163,3 +163,21 @@ başka ajanın takipli kod/dil/tasarım değişiklikleri sürüyor, deploy yapı
   58 tıklama / 4.908 gösterim / ortalama konum 9,925835.
   Bu tur yeni dil/pazar kırılımı alınmadı; önceki farklı dönemle artış
   hesabı yapılmadı. Dil ayarları, içerik ve medya onayı değiştirilmedi.
+
+## 2026-09-27: backlink kontrollerinde ortak günlük sınır
+
+| Kimlik | Önem | Bulgu | Sahip | Durum | Kanıt |
+| --- | --- | --- | --- | --- | --- |
+| GLOB-016 | Orta | Backlink doğrulamasında sınır yalnız çağrı başınaydı; günlük 20 isteyen scheduler ve ayrıca 3 isteyen GrowthSystem ortak günlük sayım kullanmıyordu | AI-Worker-1; test/inceleme AI-Worker-12 | Yerelde düzeltildi; tam test/yayın doğrulaması bekliyor | Aynı kilit altında bugünkü checked_at kayıtları sayılıyor, varsayılan günlük 20 sınırı paylaşılmış oluyor. İlgili 21 test/86 assertion geçti. |
+
+- 08:38 UTC canlı: bugünkü üç doğrulama kaydı 3+9+2=14 aday kontrolü.
+  Kontrol sayısı dış HTTP isteği sayısı değildir; engellenen aday da sayılır.
+  Bu tur yeni backlink doğrulama isteği gönderilmedi; limit bir hedef değil.
+- 670 adayda check_status=present kaydı yok. Adaylar edinilmiş backlink
+  değildir; iletişim veya link edinimi yapılmadı.
+- PublicMediaEligibilityService: 534 published/verified tarifte 139 uygun,
+  395 eksik. Bu tur görsel teslimi/insan onayı yok. Kuyruktaki eski slug
+  uyumsuzluğu ve başkasına ait kilitler korundu (GLOB-013 açık).
+- GSC aynı final dönemde page+country kırılımı kayda alındı. Kaynak,
+  tarih, gözlem ve kapsam farkları .claude/completions/2026-09-27-backlink-daily-budget.md
+  içinde; GLOB-014 uygulamadaki kaynak/tarih tutarsızlığı açık.

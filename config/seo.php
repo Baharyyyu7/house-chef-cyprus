@@ -11,6 +11,7 @@ return [
     'max_drafts_per_day' => (int) env('CONTENT_MAX_DRAFTS_PER_DAY', 5),
     'max_refresh_drafts_per_day' => (int) env('CONTENT_MAX_REFRESH_DRAFTS_PER_DAY', 5),
     'max_social_drafts_per_day' => (int) env('CONTENT_MAX_SOCIAL_DRAFTS_PER_DAY', 10),
+    'backlink_verification_daily_limit' => (int) env('SEO_BACKLINK_VERIFICATION_DAILY_LIMIT', 20),
     'audit' => [
         'max_internal_links_per_document' => 8,
         'duplicate_title_limit' => 70,
