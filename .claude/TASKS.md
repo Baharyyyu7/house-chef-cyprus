@@ -60,20 +60,22 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
 - [ ] **Lahmacun Türkçe'de baştan yazılmalı.** Malzemeler "1 adet peynir,
       2 adet tavuk, 3 adet kırmızı et, 4 adet balık", adımlar genel şablon.
       Türkçe'de noindex ama Rusça'da 40 gösterim alıyor; çok aranan bir yemek.
-- [ ] **Yabancı dil tarif çevirisi (asıl büyüme işi).** 134 tarifin yabancı
-      sayfalarının neredeyse hepsi kalıp adım çevirisiydi ("In step 1,
-      carefully proceed with the culinary preparation..."); 27 Eylül'den beri
-      o dilde 404. Gerçek çeviri gelince kendiliğinden açılır. Yöntem:
-      `coni:ceviri-toplu <klasör>` (dosya `{slug}.json`, dil başına title,
-      excerpt, description, step_titles, steps). Parti 1 (8 tarif x 6 dil)
-      yazıldı: menemen, imam-bayildi, ispanakli-gozleme, peynirli-borek,
-      coban-salata, kibris-usulu-seftali-kebabi, cacik, domates-corbasi.
-      Sırada kalan 126 tarif, talep sırasıyla.
-- [ ] **Malzeme adları 6 dilde temizlenmeli** (220 malzeme, 1.257 ad):
-      "Biberiye" → "Pepperiye", "Fasulye" → "Fawaterlye" gibi parça
-      değiştirme ürünleri. Harita hazır: `coni:malzeme <dosya>` (geri
-      alınabilir). Kod yayınından SONRA uygulanmalı: eski kod kalıp adımlı
-      tarifi çevrilmiş sayıyor.
+- [ ] **Yabancı dil tarif çevirisi (asıl büyüme işi).** 27 Eylül'de 28 tarif
+      x 6 dil = 168 sayfa gerçek çeviriyle açıldı (3 parti: yabancı talep,
+      sonra TR gösterim sırası). Kalan 106 tarif. Yöntem: `coni:ceviri-toplu
+      <klasör>`, dosya `{slug}.json`, dil başına title, excerpt, description,
+      step_titles, steps. **Sonra her tarif x dil için `hasTranslation` ölç**:
+      "dizine açıldı" sayacı yalnız kapıya bakıyor, dolu `chef_tip` çevrilmezse
+      sayfa 404 kalıyor. Türkçe kaynakta şablon dolgu cümlesi varsa ("Taze
+      malzemeleri, dengeli baharat uyumu...") çeviriye taşıma.
+- [ ] **Türkçe kaynakta kalan şablon dolgu**: zeytinyagli-nohutlu-pilav,
+      nohutlu-akdeniz-kasesi, limonlu-akdeniz-makarnasi açıklamaları ("Taze
+      malzemeleri, dengeli baharat uyumu ve geleneksel pişirme tekniğiyle...")
+      ve baklava-dilimi ("Bu özgün ev mutfağı sürümü..."). Çeviriler dolgusuz.
+- [ ] **Olası kopya tarifler** (yayında, ikisi de açık): kibris-usulu-flaouna
+      ile kibris-usulu-flaouna-q4hmp, sutlac ile sutlac-kibris,
+      hellim-ve-domatesli-kahvalti-tavasi ile hellimli-kahvalti-tavas.
+      İçerikleri farklı; kanibalizasyon ölçülüp karar verilmeli.
 - [ ] **Taslaktaki 400 tariften talep görenler yeniden yazılmalı.** 28 günde
       64'ü gösterim aldı (toplam 206). Başta: Kıbrıs cevizli macunu,
       hellimli sigara böreği, ekmek kadayıfı, kazandibi, lokma, irmik
@@ -111,6 +113,12 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
 - [x] 27 Eylül: **Hareket katmanı** (`31a07a6`): kinetik başlıklar, 3B kartlar,
       eğim, patlamalar, konfeti, okuma çizgisi, sayfalar arası morf.
       Adım zamanlayıcı düğmeleri hiç çalışmıyordu (tırnak hatası), düzeldi.
+- [x] 27 Eylül: malzeme adları 6 dilde temizlendi (220 malzeme, 1.257 ad;
+      geri alma `coni:malzeme --geri-al=29945`). Birim, kesir, hazırlık notu
+      ve 25 arayüz dizesi 6 dilde (`bd7ffb4`, sonraki commit). Türkçe kaynakta
+      Pastırmalı Yumurta'nın kalıp adımları gerçekleriyle, Kıbrıs Sütlacı'nın
+      çelişen özeti düzeltildi; 684 adımdan şablon şef ipucu silindi (yedek:
+      `yedekler/2026-09-27-kalip-sef-ipucu.json`).
 - [x] Dil dil büyüme ölçümü ölü tabloya bağlıydı (`46e39cb`).
 - [x] Kaynağı içinde taşıyan başlık çeviri sayılmıyor (`f3f9282`).
 - [x] Yayın test kapısı yanlış sebeple kapanıyordu (`9d86237`).
