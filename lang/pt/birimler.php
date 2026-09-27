@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'adet' => '',
+    'yemek_kasigi' => 'colher de sopa|colheres de sopa',
+    'gram' => 'g',
+    'g' => 'g',
+    'su_bardagi' => 'copo|copos',
+    'tatli_kasigi' => 'colher de sobremesa|colheres de sobremesa',
+    'cay_kasigi' => 'colher de chá|colheres de chá',
+    'mililitre' => 'ml',
+    'ml' => 'ml',
+    'dis' => 'dente|dentes',
+    'demet' => 'molho|molhos',
+    'dal' => 'raminho|raminhos',
+    'cay_bardagi' => 'copo de chá|copos de chá',
+    'paket' => 'embalagem|embalagens',
+    'dilim' => 'fatia|fatias',
+    'litre' => 'l',
+    'tutam' => 'pitada|pitadas',
+    'kilogram' => 'kg',
+    'kg' => 'kg',
+    'kutu' => 'lata|latas',
+    'avuc' => 'mão-cheia|mãos-cheias',
+];

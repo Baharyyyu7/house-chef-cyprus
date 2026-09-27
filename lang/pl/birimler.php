@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'adet' => '',
+    'yemek_kasigi' => 'łyżka|łyżki|łyżek',
+    'gram' => 'g',
+    'g' => 'g',
+    'su_bardagi' => 'szklanka|szklanki|szklanek',
+    'tatli_kasigi' => 'łyżka deserowa|łyżki deserowe|łyżek deserowych',
+    'cay_kasigi' => 'łyżeczka|łyżeczki|łyżeczek',
+    'mililitre' => 'ml',
+    'ml' => 'ml',
+    'dis' => 'ząbek|ząbki|ząbków',
+    'demet' => 'pęczek|pęczki|pęczków',
+    'dal' => 'gałązka|gałązki|gałązek',
+    'cay_bardagi' => 'szklaneczka|szklaneczki|szklaneczek',
+    'paket' => 'opakowanie|opakowania|opakowań',
+    'dilim' => 'plaster|plastry|plastrów',
+    'litre' => 'l',
+    'tutam' => 'szczypta|szczypty|szczypt',
+    'kilogram' => 'kg',
+    'kg' => 'kg',
+    'kutu' => 'puszka|puszki|puszek',
+    'avuc' => 'garść|garście|garści',
+];

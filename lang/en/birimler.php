@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'adet' => '',
+    'yemek_kasigi' => 'tbsp',
+    'gram' => 'g',
+    'g' => 'g',
+    'su_bardagi' => 'glass|glasses',
+    'tatli_kasigi' => 'dessertspoon|dessertspoons',
+    'cay_kasigi' => 'tsp',
+    'mililitre' => 'ml',
+    'ml' => 'ml',
+    'dis' => 'clove|cloves',
+    'demet' => 'bunch|bunches',
+    'dal' => 'sprig|sprigs',
+    'cay_bardagi' => 'tea glass|tea glasses',
+    'paket' => 'pack|packs',
+    'dilim' => 'slice|slices',
+    'litre' => 'l',
+    'tutam' => 'pinch|pinches',
+    'kilogram' => 'kg',
+    'kg' => 'kg',
+    'kutu' => 'can|cans',
+    'avuc' => 'handful|handfuls',
+];
