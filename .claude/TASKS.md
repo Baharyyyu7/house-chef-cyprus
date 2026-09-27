@@ -3,7 +3,7 @@
 Uzun koşularda bağlam özetleniyor; bu dosya o özetten sağ çıkıyor.
 Sohbet geçmişi değil, burası okunur.
 
-**Son ölçüm: 2026-09-26**
+**Son ölçüm: 2026-09-27**
 
 ## Durum
 
@@ -19,7 +19,8 @@ Sohbet geçmişi değil, burası okunur.
 
 Toplam **81 tıklama / 7.407 gösterim** (28 gün). Önceki gün 69 / 6.439.
 
-Yayındaki tarif 534, yayındaki yazı 237.
+Yayındaki tarif **134** (534'ten), yayındaki yazı **192** (237'den). 27 Eylül'de
+AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey taslağa alındı.
 `app:invariants` temiz. Açık veri kalitesi kaydı yok.
 
 ## Dışarıdan gelen
@@ -29,6 +30,10 @@ Yayındaki tarif 534, yayındaki yazı 237.
   bu güncellemenin hedefi. Temizlik bu yüzden acildi.
 
 ## Bende değil, kullanıcıda
+
+- [ ] **AdSense "İnceleme iste"**: temizlik yayında olduktan sonra kullanıcı
+      "Sorunları giderdiğimi onaylıyorum" kutusunu işaretleyip istemeli.
+      Form kullanıcının hesabında; ben göndermem.
 
 - [ ] **GPTBot engeli** - Hostinger hPanel → CDN. Destek talebi mühendise
       iletildi, yanıt bekleniyor. Site Bing'de sıfır görünürlükte.
@@ -55,11 +60,30 @@ Yayındaki tarif 534, yayındaki yazı 237.
 - [ ] **Lahmacun Türkçe'de baştan yazılmalı.** Malzemeler "1 adet peynir,
       2 adet tavuk, 3 adet kırmızı et, 4 adet balık", adımlar genel şablon.
       Türkçe'de noindex ama Rusça'da 40 gösterim alıyor; çok aranan bir yemek.
-- [ ] **Şablon malzeme kümesi.** Yayındaki 536 tarifin yalnız 57'sinin
-      zorunlu malzeme kümesi benzersiz; 451'i en az iki tarifle birebir
-      aynı kümeyi paylaşıyor (en büyük grup 50 tarif, "Ana Malzeme" yer
-      tutuculu). 364'ü zaten noindex. Hepsini taslağa almak siteyi ~85
-      tarife indirir: bu ürün kararı, kullanıcıda.
+- [ ] **Yabancı dil tarif çevirisi (asıl büyüme işi).** 134 tarifin yabancı
+      sayfalarının neredeyse hepsi kalıp adım çevirisiydi ("In step 1,
+      carefully proceed with the culinary preparation..."); 27 Eylül'den beri
+      o dilde 404. Gerçek çeviri gelince kendiliğinden açılır. Yöntem:
+      `coni:ceviri-toplu <klasör>` (dosya `{slug}.json`, dil başına title,
+      excerpt, description, step_titles, steps). Parti 1 (8 tarif x 6 dil)
+      yazıldı: menemen, imam-bayildi, ispanakli-gozleme, peynirli-borek,
+      coban-salata, kibris-usulu-seftali-kebabi, cacik, domates-corbasi.
+      Sırada kalan 126 tarif, talep sırasıyla.
+- [ ] **Malzeme adları 6 dilde temizlenmeli** (220 malzeme, 1.257 ad):
+      "Biberiye" → "Pepperiye", "Fasulye" → "Fawaterlye" gibi parça
+      değiştirme ürünleri. Harita hazır: `coni:malzeme <dosya>` (geri
+      alınabilir). Kod yayınından SONRA uygulanmalı: eski kod kalıp adımlı
+      tarifi çevrilmiş sayıyor.
+- [ ] **Taslaktaki 400 tariften talep görenler yeniden yazılmalı.** 28 günde
+      64'ü gösterim aldı (toplam 206). Başta: Kıbrıs cevizli macunu,
+      hellimli sigara böreği, ekmek kadayıfı, kazandibi, lokma, irmik
+      helvası, revani, anari tatlısı. Ölçülü, özgün adımlı yazılıp
+      yayınlanmalı; kalite kapısı ve otomatik yayın yolu artık ölçüsüz ya
+      da şablon kümeli tarifi geçirmiyor.
+- [ ] **Taslağa alınan 10 eşsiz yazı** (tavuk suyu, köfter/sucuk, peynirli
+      kraker, özel şef x2 vb.) 25 Eylül toplu yayınıyla gelmiş, hiç
+      incelenmemişti. İncelenip derinleştirilirse açılabilir; özel şef
+      yazısı sitenin vermediği bir hizmeti anlatıyor.
 - [ ] **Başlığı yanlış vaat eden 2 tarif noindex'te, düzeltme bekliyor:**
       Antalya Usulü Tahinli Piyaz (ne malzemede ne adımda tahin var) ve
       Kıymalı Kol Böreği (adımlar peynirli harç diyor). Düzeltilmiş içerik
@@ -80,6 +104,13 @@ Yayındaki tarif 534, yayındaki yazı 237.
 
 ## Bitti
 
+- [x] 27 Eylül: **AdSense düşük değer temizliği** (`a250242`). 400 tarif + 45
+      noindex yazı taslağa (yedek: `yedekler/2026-09-27-*.json`), kalıp
+      çevirili tarif sayfaları o dilde 404, otomatik yayın yolu kalite
+      kapısına bağlandı, 23 kırık tarif bağlantısı onarıldı.
+- [x] 27 Eylül: **Hareket katmanı** (`31a07a6`): kinetik başlıklar, 3B kartlar,
+      eğim, patlamalar, konfeti, okuma çizgisi, sayfalar arası morf.
+      Adım zamanlayıcı düğmeleri hiç çalışmıyordu (tırnak hatası), düzeldi.
 - [x] Dil dil büyüme ölçümü ölü tabloya bağlıydı (`46e39cb`).
 - [x] Kaynağı içinde taşıyan başlık çeviri sayılmıyor (`f3f9282`).
 - [x] Yayın test kapısı yanlış sebeple kapanıyordu (`9d86237`).
