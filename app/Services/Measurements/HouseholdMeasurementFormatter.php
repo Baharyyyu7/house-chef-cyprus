@@ -61,6 +61,22 @@ final class HouseholdMeasurementFormatter
     }
 
     /**
+     * Kanonik birim kodunun ("g", "ml", "adet") o dildeki etiketi.
+     * Türkçede kod aynen döner; yabancı dilde karşılığı boşsa ("adet")
+     * boş döner ve satır basılmaz, sayı zaten ana satırda yazıyor.
+     */
+    public function birimKodu(string $kod, string|int|float|null $miktar = null): string
+    {
+        if ($this->turkce()) {
+            return $kod;
+        }
+
+        $satir = $this->sozluk('birimler')[$kod] ?? null;
+
+        return $satir === null ? $kod : ($satir === '' ? '' : (new MessageSelector)->choose($satir, $this->cogulSayisi($miktar), app()->getLocale()));
+    }
+
+    /**
      * Hazırlık notunun o dildeki karşılığı; sözlükte yoksa null.
      *
      * Not ("rendelenmiş", "halka doğranmış") tarif satırında Türkçe

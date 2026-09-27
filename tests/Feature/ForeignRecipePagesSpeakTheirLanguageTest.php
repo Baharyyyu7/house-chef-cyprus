@@ -56,6 +56,21 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
         $this->assertSame('стакана', $bicim->measureLabel($this->birim('su_bardagi'), '0.5'));
     }
 
+    public function test_canonical_unit_code_is_localized_or_dropped(): void
+    {
+        $bicim = app(HouseholdMeasurementFormatter::class);
+
+        app()->setLocale('tr');
+        $this->assertSame('adet', $bicim->birimKodu('adet', '4'));
+
+        app()->setLocale('en');
+        $this->assertSame('', $bicim->birimKodu('adet', '4'));
+        $this->assertSame('ml', $bicim->birimKodu('ml', '45'));
+
+        app()->setLocale('ru');
+        $this->assertSame('г', $bicim->birimKodu('g', '100'));
+    }
+
     public function test_a_note_without_a_translation_is_dropped_not_printed_in_turkish(): void
     {
         app()->setLocale('de');
