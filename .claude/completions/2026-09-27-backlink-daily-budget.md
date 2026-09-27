@@ -30,7 +30,10 @@ Eski main-transition kaydı bu dalda yok; yeniden oluşturulmadı.
   sonrası ilgili 21 test, 86 assertion geçti. PHP sözdizimi ve diff temiz.
 - AI-Worker-12 bağımsız üretim kodu incelemesi: engelleyici bulgu yok.
 - Tam süit logu /tmp/housechef-20260927-backlink-budget-full.log,
-  JUnit /tmp/housechef-20260927-backlink-budget-full.xml; sonuç bekleniyor.
+  JUnit /tmp/housechef-20260927-backlink-budget-full.xml: 1.665 test,
+  9.188 assertion geçti, 0 error/failure, 954,117 saniye. Dört yeni günlük
+  sınır testi JUnit içinde doğrulandı. Bu koşu 325ecea düzeltmesine aittir;
+  sonraki başka ajan değişikliklerinin tam süit sonucu diye kullanılamaz.
 - GLOB-016 bu düzeltmedir. GLOB-013 ve GLOB-014 ayrı açık kalır.
 
 ## Aynı dönemde gerçek Search Console ülke ve URL dili kırılımı
@@ -93,3 +96,22 @@ kalitesi doğrulanmalıdır. Özellikle İngilizce tarif ölçümleri eski
   hreflang, sitemap ve schema kapsamının tam hazırlığı bu tur test edilmedi.
   Eksik çeviri hazır veya yayınlanabilir sayılmadı. Blog/çeviri taslağı,
   medya onayı veya içerik yayını yapılmadı.
+
+## 14:31 UTC canlı kapanış
+
+- Canlı sürüm c34134ab7ff3ecd44d6b476c8f227625b3d6f2ca; başka ajanın
+  yeni sürümü 325ecea düzeltmesini içeriyor. Tekrar deploy yapılmadı.
+  BacklinkVerificationService, config/seo.php ve SeoBacklinksVerify canlı
+  SHA256 değerleri test edilen yerel dosyalarla birebir aynı.
+- Canlı yapılandırma günlük 20; bugün 14 kontrol kayıtlı. Test için yalnız
+  CLI sürecinde limit0, RAM cache ve fake HTTP kullanıldı: deferred,
+  reason=daily_limit, checked0, HTTP0, retry_at 28 Eylül 00:00 UTC.
+  Üretilen test logu DB transaction rollback ile geri alındı; kalıcı
+  ayar veya aday kaydı değiştirilmedi, yayıncılara istek gönderilmedi.
+- Scheduler son queue_drain işi 14:31:22 UTC healthy. Bu, diğer tüm
+  görevlerin tek tek doğrulanması değildir.
+- Measurements servisleri, beş dil JSON'u, birimler/hazırlık çeviri
+  dosyaları ve ForeignRecipePagesSpeakTheirLanguageTest başka ajanın
+  sürmekte olan çalışmasıdır; dosyalar ve test süreçleri korunmuştur.
+- Bu oturumda yalnız dry-run yayın ön kontrolü yapıldığından yeni yayın
+  paketi yok; başkasının ara çıktıları silinmedi. GLOB-016 kapatıldı.

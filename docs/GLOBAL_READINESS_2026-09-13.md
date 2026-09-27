@@ -168,7 +168,7 @@ başka ajanın takipli kod/dil/tasarım değişiklikleri sürüyor, deploy yapı
 
 | Kimlik | Önem | Bulgu | Sahip | Durum | Kanıt |
 | --- | --- | --- | --- | --- | --- |
-| GLOB-016 | Orta | Backlink doğrulamasında sınır yalnız çağrı başınaydı; günlük 20 isteyen scheduler ve ayrıca 3 isteyen GrowthSystem ortak günlük sayım kullanmıyordu | AI-Worker-1; test/inceleme AI-Worker-12 | Yerelde düzeltildi; tam test/yayın doğrulaması bekliyor | Aynı kilit altında bugünkü checked_at kayıtları sayılıyor, varsayılan günlük 20 sınırı paylaşılmış oluyor. İlgili 21 test/86 assertion geçti. |
+| GLOB-016 | Orta | Backlink doğrulamasında sınır yalnız çağrı başınaydı; günlük 20 isteyen scheduler ve ayrıca 3 isteyen GrowthSystem ortak günlük sayım kullanmıyordu | AI-Worker-1; test/inceleme AI-Worker-12 | Kapatıldı; 27 Eylül 14:31 UTC canlı c34134a içinde doğrulandı | 325ecea düzeltmesinde tam süit 1.665 test/9.188 assertion geçti. Üç üretim dosyasının canlı checksum'u test edilen kodla aynı. Canlı günlük sınır 20; yalıtılmış sıfır bütçe kontrolünde 0 HTTP isteği, test kaydı rollback edildi. |
 
 - 08:38 UTC canlı: bugünkü üç doğrulama kaydı 3+9+2=14 aday kontrolü.
   Kontrol sayısı dış HTTP isteği sayısı değildir; engellenen aday da sayılır.

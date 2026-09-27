@@ -372,3 +372,25 @@ gerçek kuyruk claim/block/complete ve dosya/staging kontrolleri geçti.
   kırılımı alınmadı; bu sayı farklı dönemle büyüme hesabında kullanılmadı.
 - Tam kanıt ve log konumları:
   .claude/completions/2026-09-26-gsc-page-backoff.md.
+
+## 2026-09-27 14:31 UTC: ortak günlük backlink sınırı doğrulandı
+
+- 325ecea ile yapılan sınırlı düzeltme tüm backlink kontrol çağrılarına
+  ortak günlük sınır uygular. Varsayılan 20, mevcut günlük scheduler
+  sınırıyla aynı; bugün yapılmış kontroller de bu sayıdan düşülür.
+- İlgili 21 test/86 assertion, tam süit 1.665 test/9.188 assertion geçti.
+  Tam koşu bu düzeltme içindir; sonraki değişiklikler için genel yeşil
+  iddiası değildir. AI-Worker-12 bağımsız incelemesi temiz.
+- Başka ajan canlıyı c34134a'ya ilerletmiş; düzeltme o sürümde mevcut.
+  Üç üretim dosyasının SHA256 değeri test edilen kodla aynı. Tekrar
+  deploy yapılmadı; sürmekte olan çeviri/Measurements işi korunmuştur.
+- Canlı limit20, bugün14 kontrol. CLI içinde limit0/RAM cache/fake HTTP
+  testi deferred ve sıfır istekle geçti; test raporu transaction rollback
+  ile geri alındı. Yeni dış yayıncı kontrolü veya iletişim yapılmadı.
+- 08:37 UTC gerçek GSC page+country kırılımı, dönem/mülk/kaynak/gözlem
+  bilgileriyle tamamlanma raporunda. Dönen kırılım 11/2.207, aynı dönemin
+  kayıtlı mülk toplamı 67/5.548; fark açıklanmış veya tam kapsam kabul
+  edilmedi. Ülke API'den, dil URL'den; TR/EN öncelikler ayrıca yazıldı.
+- Yeni görsel üretimi/onayı, içerik yayını veya dil etkinleştirme yok.
+  GLOB-016 kapandı; kuyruk kimliği ve GSC kaynak/tarih sorunları açık.
+  Kanıt: .claude/completions/2026-09-27-backlink-daily-budget.md.
