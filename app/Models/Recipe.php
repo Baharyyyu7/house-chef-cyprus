@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasPublicId;
 use App\Models\Concerns\HasTranslations;
+use App\Services\Seo\RecipeTranslationGate;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -80,7 +81,11 @@ class Recipe extends Model
             }
         }
 
-        return true;
+        // Her adımı "In step 1, carefully proceed with the culinary
+        // preparation..." diye başlayan çeviri, çeviri değil. 27 Eylül
+        // 2026'da AdSense siteyi "düşük değerli içerik" diye reddettiğinde
+        // altı dilde ~530 tarif sayfası böyleydi; noindex'tiler ama açıktılar.
+        return app(RecipeTranslationGate::class)->engel($this, $locale) === null;
     }
 
     /**
@@ -120,7 +125,9 @@ class Recipe extends Model
             }
         }
 
-        return $query;
+        $kalip = app(RecipeTranslationGate::class)->kalipTarifleri($locale);
+
+        return $kalip === [] ? $query : $query->whereNotIn($this->qualifyColumn('id'), $kalip);
     }
 
     protected $fillable = ['cuisine_id', 'category_id', 'content_factory_batch_id', 'data_source_id', 'external_id', 'content_origin', 'original_hash', 'first_imported_at', 'last_verified_at', 'title', 'slug', 'excerpt', 'description', 'country', 'region', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'dietary_tags', 'allergens', 'nutrition', 'storage_notes', 'source_name', 'source_url', 'reliability_score', 'status', 'is_featured', 'verification_status', 'editorial_status', 'content_factory_state', 'fact_check_required', 'completeness_score', 'completeness_status', 'content_factory_readiness_score', 'content_factory_rule_version', 'content_factory_checked_at', 'content_factory_metadata', 'editorial_reviewed_at', 'editorial_reviewed_by_user_id', 'human_approved_by_user_id', 'human_approved_at', 'published_at', 'equipment', 'tips', 'common_mistakes', 'serving_suggestions', 'reheating_notes', 'freezing_notes', 'cultural_notes', 'seasonality', 'image_status', 'image_license', 'image_attribution', 'image_reviewed_at'];

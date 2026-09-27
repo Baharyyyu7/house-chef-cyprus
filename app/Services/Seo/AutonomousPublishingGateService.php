@@ -212,6 +212,19 @@ final class AutonomousPublishingGateService
                 continue;
             }
 
+            // 27 Eylül 2026: AdSense siteyi "düşük değerli içerik" diye
+            // reddetti; yayındaki 534 tarifin 380'i ölçüsüz, yer tutuculu ya
+            // da şablon malzeme kümeli çıktı ve taslağa alındı. Sayım
+            // kapıları bunların hepsinden geçiyordu, bu yol onları geri
+            // yayınlardı.
+            if (app(RecipeQualityGateService::class)->eksikMi($recipe)) {
+                $heldBackRecipes[] = [
+                    'slug' => $recipe->slug,
+                    'reason' => 'Tarif kalite kapısından geçmiyor: ölçüsüz, yer tutuculu ya da şablon malzeme kümeli.',
+                ];
+                continue;
+            }
+
             // Passed 100% Quality Threshold -> Promote to Published
             if (! $dryRun) {
                 $recipe->update([

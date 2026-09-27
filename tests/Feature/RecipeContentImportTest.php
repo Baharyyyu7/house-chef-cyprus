@@ -167,9 +167,11 @@ final class RecipeContentImportTest extends TestCase
         foreach (['title' => 'Halloumi Pan', 'excerpt' => 'Summary.', 'description' => 'Description.'] as $alan => $deger) {
             $tarif->translations()->create(['locale' => 'en', 'field' => $alan, 'value' => $deger]);
         }
-        foreach ($tarif->steps as $adim) {
+        // Adımlar birbirinden farklı olmalı: hepsi aynı cümleyse çeviri
+        // kalıptır ve 27 Eylül 2026'dan beri çeviri sayılmıyor.
+        foreach ($tarif->steps->values() as $sira => $adim) {
             $adim->translations()->create(['locale' => 'en', 'field' => 'title', 'value' => 'Step']);
-            $adim->translations()->create(['locale' => 'en', 'field' => 'instruction', 'value' => 'Old instruction text.']);
+            $adim->translations()->create(['locale' => 'en', 'field' => 'instruction', 'value' => ['Warm the pan.', 'Slice the halloumi.', 'Fry it golden.', 'Add the tomatoes.', 'Serve at once.', 'Season to taste.'][$sira]]);
         }
         foreach ($tarif->ingredients as $malzeme) {
             $malzeme->translations()->create(['locale' => 'en', 'field' => 'name', 'value' => 'Placeholder']);
