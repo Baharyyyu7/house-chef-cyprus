@@ -25,12 +25,15 @@ final class RecipeInteractiveElementsTest extends TestCase
     public function test_sureli_adimda_zamanlayici_dugmesi_vardir(): void
     {
         $tarif = $this->tarif();
-        $this->adim($tarif, ['title' => 'Fırında pişir', 'instruction' => 'Tepsiyi fırına verin.', 'duration_seconds' => 900]);
+        $this->adim($tarif, ['title' => "Anne'nin fırını", 'instruction' => 'Tepsiyi fırına verin.', 'duration_seconds' => 900]);
 
         $icerik = (string) $this->get(route('recipes.show', $tarif))->assertOk()->getContent();
 
-        $this->assertStringContainsString('$dispatch("hc-start-timer"', $icerik);
-        $this->assertStringContainsString('seconds: 900', $icerik);
+        // 27 Eylül 2026'ya kadar öznitelik tek tırnakla açılıyordu ve @js de
+        // tek tırnaklı dize üretiyordu: ifade "label: " da kesiliyor, hiçbir
+        // zamanlayıcı düğmesi çalışmıyordu. Bu test o kesik hâli arıyordu.
+        $this->assertStringContainsString('x-on:click="$dispatch(\'hc-start-timer\', { seconds: 900, label: \'Anne\u0027nin f', $icerik);
+        $this->assertStringContainsString(' })">', $icerik);
     }
 
     public function test_yonergedeki_sure_dugmeye_donusebilir(): void
@@ -40,8 +43,7 @@ final class RecipeInteractiveElementsTest extends TestCase
 
         $icerik = (string) $this->get(route('recipes.show', $tarif))->assertOk()->getContent();
 
-        $this->assertStringContainsString('$dispatch("hc-start-timer"', $icerik);
-        $this->assertStringContainsString('seconds: 1200', $icerik);
+        $this->assertStringContainsString('x-on:click="$dispatch(\'hc-start-timer\', { seconds: 1200, label: \'Pişir\' })"', $icerik);
     }
 
     public function test_suresiz_adimda_dugme_yoktur(): void

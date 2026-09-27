@@ -217,53 +217,11 @@
     </script>
     <script>
     (function () {
-        // Kaydırıldıkça açılma. Başlangıç durumu buradan eklenir: betik
-        // çalışmazsa hiçbir şey gizlenmez, sayfa olduğu gibi görünür.
-        var azalt = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (azalt || typeof IntersectionObserver !== 'function') { return; }
-
-        var gozlemci = new IntersectionObserver(function (girisler) {
-            girisler.forEach(function (giris) {
-                if (!giris.isIntersecting) { return; }
-                giris.target.classList.add('is-revealed');
-                gozlemci.unobserve(giris.target);
-            });
-        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
-
-        function kur() {
-            document.querySelectorAll('[data-reveal-group]').forEach(function (grup) {
-                var cocuklar = Array.prototype.slice.call(grup.children);
-                cocuklar.forEach(function (cocuk, sira) {
-                    if (cocuk.hasAttribute('data-reveal')) { return; }
-                    cocuk.setAttribute('data-reveal', '');
-                    // Kademeli gecikme yalnız ilk satırlar için: uzun listede
-                    // sona kalan kart saniyelerce beklemesin.
-                    cocuk.style.transitionDelay = Math.min(sira, 5) * 55 + 'ms';
-                    gozlemci.observe(cocuk);
-                });
-            });
-            document.querySelectorAll('[data-reveal]:not(.is-revealed)').forEach(function (el) {
-                gozlemci.observe(el);
-            });
-        }
-
-        // Gizleme yalnız bu sınıf varken geçerli. Betik buraya kadar gelmediyse
-        // hiçbir blok gizlenmez; sayfa efektsiz ama eksiksiz görünür.
-        document.documentElement.classList.add('hc-reveal-on');
-
-        // Emniyet ağı: Gözlemci beklenmedik bir nedenle tetiklenmezse
-        // içerik görünmez kalmasın; yüklemeden kısa bir süre sonra kalan her blok açılır.
-        // Kaydırma sırasında getBoundingClientRect çağrılmaz, forced reflow ve scroll kasması önlenir.
-        function emniyetAc() {
-            var kalan = document.querySelectorAll('[data-reveal]:not(.is-revealed)');
-            for (var i = 0; i < kalan.length; i++) {
-                kalan[i].classList.add('is-revealed');
-            }
-        }
-
-        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', kur); } else { kur(); }
-        document.addEventListener('livewire:navigated', kur);
-        window.addEventListener('load', function () { setTimeout(emniyetAc, 1500); });
+        // Kaydırıldıkça açılma artık resources/js/motion.js'te. Buradaki
+        // eski hâl ekranın altındakileri yüklemeden 1,5 sn sonra topluca
+        // açıyordu ve hareket kısıtlıyken en başta dönüyordu: aynı
+        // fonksiyondaki başlık gözcüsü o kullanıcılar için hiç kurulmuyor,
+        // başlık kaydırınca da hero üstü saydam stilinde kalıyordu.
 
         // Yapiskan baslik durumu artik kaydirma olayina bagli degil.
         //

@@ -1,6 +1,6 @@
 <x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : route('blog.cover', $post)" :social-image-width="$heroMedia?->publicUrl() ? $heroMedia->width : 1200" :social-image-height="$heroMedia?->publicUrl() ? $heroMedia->height : 630" :social-image-alt="$heroMedia?->alt_text ?: $post->translated('title')" :structured-data="$schema" :seo-content="$post">
     <section class="hc-container py-10 sm:py-16">
-        <article class="mx-auto max-w-3xl">
+        <article class="mx-auto max-w-3xl" data-hc-okuma>
             <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider" style="color: var(--hc-text-muted)" aria-label="Breadcrumb">
                 <a class="hover:text-orange-600 transition-colors" href="{{ route('blog.index') }}">Blog</a>
                 @if($post->category)

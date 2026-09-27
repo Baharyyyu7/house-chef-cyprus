@@ -300,14 +300,6 @@ html.dark .admin-shell input, html.dark .admin-shell select, html.dark .admin-sh
 html.dark .admin-shell input::placeholder, html.dark .admin-shell textarea::placeholder { color:var(--hc-text-muted); }
 html.dark .admin-shell input:-webkit-autofill, html.dark .admin-shell input:-webkit-autofill:hover, html.dark .admin-shell input:-webkit-autofill:focus { -webkit-text-fill-color:var(--hc-text-primary); -webkit-box-shadow:0 0 0 1000px var(--hc-surface-default) inset; }
 
-/* Sayfa açılışında hepsi birden beliren içerik, ekranın altındaki kartların
-   animasyonunu kimse görmediği için boşa harcar. Kaydırıldıkça açılma
-   IntersectionObserver ile kurulur ve başlangıç durumunu JavaScript ekler:
-   betik çalışmazsa içerik olduğu gibi görünür, gizli kalmaz. */
-.hc-reveal-on [data-reveal] {             transform: translateY(14px); will-change: opacity, transform; }
-.hc-reveal-on [data-reveal].is-revealed {                              }
-[data-reveal-stagger] > * { transition-delay: var(--hc-reveal-delay, 0ms); }
-@media (prefers-reduced-motion: reduce) { [data-reveal] {             transform: none; transition: none; } }
 
 /* 21st.dev'deki sütunlu yorum ritmini Blade üzerinde, harici hareket
    bağımlılığı olmadan kurar. İkinci grup yalnız kesintisiz döngü içindir. */
@@ -671,16 +663,6 @@ textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
     }
 }
 
-/* --- Ortaya çıkış: taşıma yok, yalnız yumuşak oturma ------------------ */
-
-/* Gizleme durumu betiğin koyduğu sınıfa bağlı: betik çalışmazsa içerik
-   gizli kalmaz. Efekt kaybolur, içerik kaybolmaz. */
-.hc-reveal-on [data-reveal] {
-    opacity: 0;
-    transform: translate3d(0,16px,0);
-    transition: opacity .62s var(--hc-spring-smooth), transform .62s var(--hc-spring-smooth);
-}
-.hc-reveal-on [data-reveal].is-revealed { opacity: 1; transform: none; }
 
 /* Kahraman videosu sahnenin kendisidir (kapak görseli yok). Kaynak
    doğrudan markup'tadır; ilk kare basılana kadar görünmez durur, oynayınca
@@ -2620,3 +2602,120 @@ html.dark .hc-hero__grain { mix-blend-mode: screen; opacity: .26; }
   .hc-hero__cta:hover { transform: none; }
   .hc-hero__cta:hover svg, .hc-hero__link:hover svg { transform: none; }
 }
+
+/* ═══════════════════════════════════════════════
+   30. HAREKET (resources/js/motion.js)
+   Açılışta ekranda olan öğe gizlenmez; gizleme yalnız betiğin koyduğu
+   .hc-m-gizli ile ve yalnız ekran dışındaki öğeye. Yerleşim hiç
+   canlandırılmaz: transform, opacity, filter, clip-path.
+   ═══════════════════════════════════════════════ */
+
+/* !important: öğede fill-mode'lu bir CSS animasyonu varsa (hc-v3-stagger)
+   gizleme onun son karesine yenilmesin. */
+.hc-m-gizli { opacity: 0 !important; animation: none !important; }
+@media print { .hc-m-gizli { opacity: 1 !important; } }
+
+.hc-kw { display: inline-block; transform-origin: 0 100%; }
+
+/* Kart: fareyi izleyen eğim, kalkış ve üstünden geçen ışık. */
+.hc-motion .hc-v3-card--interactive {
+  transform: perspective(900px) rotateX(var(--hc-rx, 0deg)) rotateY(var(--hc-ry, 0deg)) translate3d(0, var(--hc-lift, 0px), 0);
+  transition: transform .75s cubic-bezier(.16, 1.3, .3, 1), box-shadow .3s ease, border-color .2s ease;
+}
+.hc-motion .hc-v3-card--interactive:hover { --hc-lift: -8px; }
+.hc-motion .hc-v3-card--interactive.is-egiliyor { transition: transform .14s ease-out, box-shadow .3s ease, border-color .2s ease; }
+.hc-motion .hc-v3-card--interactive:active { --hc-lift: -2px; }
+.hc-motion .hc-v3-card--interactive::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--hc-gx, 50%) var(--hc-gy, 0%), rgba(255, 255, 255, .42), rgba(255, 255, 255, 0) 58%);
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s ease;
+}
+.hc-motion .hc-v3-card--interactive.is-egiliyor::after { opacity: 1; }
+.hc-motion .hc-v3-card--interactive img { transition: transform .9s cubic-bezier(.16, 1.2, .3, 1), filter .5s ease; }
+.hc-motion .hc-v3-card--interactive:hover img { transform: scale(1.12) rotate(.8deg); filter: saturate(1.15); }
+
+/* Düğme: basınca çöker, üstünden ışık geçer. */
+.hc-motion .hc-v3-btn:active { transform: scale(.95); }
+.hc-motion .hc-hero__cta { position: relative; overflow: hidden; transform: translate3d(var(--hc-mx, 0px), var(--hc-my, 0px), 0); }
+.hc-motion .hc-hero__cta:hover { transform: translate3d(var(--hc-mx, 0px), calc(var(--hc-my, 0px) - 2px), 0); }
+.hc-motion .hc-v3-btn--primary::before,
+.hc-motion .hc-hero__cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .5), transparent);
+  opacity: 0;
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.hc-motion .hc-v3-btn--primary:hover::before,
+.hc-motion .hc-hero__cta:hover::before { animation: hc-parilti .8s cubic-bezier(.2, .8, .2, 1); }
+@keyframes hc-parilti {
+  from { opacity: 1; transform: skewX(-20deg) translateX(0); }
+  to { opacity: 1; transform: skewX(-20deg) translateX(430%); }
+}
+
+/* Patlama: tıklama noktasından saçılan parçacıklar ve şok halkası. */
+.hc-burst { position: fixed; z-index: 2147483000; width: 0; height: 0; pointer-events: none; }
+.hc-burst__ring { position: absolute; left: 0; top: 0; width: 92px; height: 92px; border: 3px solid; border-radius: 50%; }
+.hc-burst__p { position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 50%; }
+.hc-burst__p--cizgi { width: 15px; height: 3px; border-radius: 3px; }
+.hc-burst__p--konfeti { width: 8px; height: 13px; border-radius: 2px; }
+
+/* Okuma çizgisi: uzun tarif ve yazı sayfalarında. */
+.hc-okuma { position: fixed; inset: 0 0 auto 0; z-index: 80; height: 3px; pointer-events: none; }
+.hc-okuma span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #ea580c, #fb923c 45%, #fde047);
+  box-shadow: 0 0 14px rgba(249, 115, 22, .75);
+  transform: scaleX(var(--hc-okuma, 0));
+  transform-origin: 0 50%;
+}
+
+/* Adım ilerlemesi: yayla dolar, parlar. */
+.hc-motion .hc-step-progress { overflow: hidden; }
+.hc-motion .hc-step-progress__bar {
+  background: linear-gradient(90deg, #15803d, #22c55e 55%, #86efac);
+  box-shadow: 0 0 16px rgba(34, 197, 94, .6);
+  transition: width .7s cubic-bezier(.16, 1.2, .3, 1);
+}
+
+/* Açılış: CSS ilk karede başlar, betiği beklemez; görünürlüğe dokunmaz. */
+@media (prefers-reduced-motion: no-preference) {
+  .hc-recipe-detail-hero > img,
+  .hc-recipe-detail-hero picture img { animation: hc-kenburns 2.8s cubic-bezier(.2, .8, .2, 1) both; }
+  #main-content h1:not(.hc-hero__title) { animation: hc-baslik-gir 1.1s cubic-bezier(.16, 1.3, .3, 1) both; }
+  .hc-recipe-detail-hero .hc-v3-badge { animation: hc-rozet-pat .75s cubic-bezier(.16, 1.5, .3, 1) both; }
+  .hc-recipe-detail-hero .hc-v3-badge:nth-child(1) { animation-delay: .25s; }
+  .hc-recipe-detail-hero .hc-v3-badge:nth-child(2) { animation-delay: .32s; }
+  .hc-recipe-detail-hero .hc-v3-badge:nth-child(3) { animation-delay: .39s; }
+  .hc-recipe-detail-hero .hc-v3-badge:nth-child(4) { animation-delay: .46s; }
+  .hc-recipe-detail-hero .hc-v3-badge:nth-child(n+5) { animation-delay: .53s; }
+}
+@keyframes hc-kenburns { from { transform: scale(1.16); } to { transform: scale(1); } }
+@keyframes hc-baslik-gir { from { transform: translate3d(0, .45em, 0) skewY(4deg); filter: blur(10px); } }
+@keyframes hc-rozet-pat { from { transform: translate3d(0, 14px, 0) scale(.7); } }
+
+/* Sayfalar arası: eski sayfa geri çekilir, yenisi yükselir; başlık yerinde
+   kalır, tıklanan kartın görseli tarifin kahraman görseline dönüşür.
+   Tür adı tema düğmesinin aynı belge geçişini ayırır. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; types: hc-gezinme; }
+}
+header.hc-public-header { view-transition-name: hc-baslik; }
+html:active-view-transition-type(hc-gezinme)::view-transition-old(root) { animation: hc-vt-cik .3s cubic-bezier(.4, 0, 1, 1) both; }
+html:active-view-transition-type(hc-gezinme)::view-transition-new(root) { animation: hc-vt-gir .6s cubic-bezier(.16, 1, .3, 1) both; }
+::view-transition-group(hc-kahraman) { animation-duration: .65s; animation-timing-function: cubic-bezier(.2, .9, .2, 1); }
+@keyframes hc-vt-cik { to { opacity: 0; transform: scale(.965); filter: blur(6px); } }
+@keyframes hc-vt-gir { from { opacity: 0; transform: translate3d(0, 28px, 0) scale(1.012); } }
