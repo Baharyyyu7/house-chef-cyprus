@@ -66,6 +66,32 @@ final class CategoryHubController extends Controller
     }
 
     /** @return Collection<int, Recipe> */
+    public static function sayfasiVar(?int $tarifSayisi): bool
+    {
+        return (int) $tarifSayisi >= self::ASGARI_TARIF;
+    }
+
+    /**
+     * Bu dilde çevrilmiş yayındaki tarif sayısı, slug'a göre.
+     *
+     * Ana sayfa hub'lara sabit bağlantı veriyordu; tarifler o dile
+     * çevrilmemişse hub 404 veriyor ve bağlantı kırılıyordu (27 Eylül 2026:
+     * /en/kategoriler/corba, /en/mutfaklar/akdeniz-mutfagi). Sayım
+     * tarifleriIcin() ile aynı tanımı kullanır.
+     *
+     * @return array<string, int>
+     */
+    public static function ceviriSayilari(): array
+    {
+        return cache()->remember('hub-ceviri-sayilari:kategori:'.app()->getLocale(), now()->addMinutes(10), static function (): array {
+            $sayilar = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')
+                ->translatedInto()->whereNotNull('category_id')->pluck('category_id')->countBy();
+
+            return Category::query()->whereIn('id', $sayilar->keys())->pluck('slug', 'id')
+                ->mapWithKeys(static fn (string $slug, int $id): array => [$slug => (int) $sayilar[$id]])->all();
+        });
+    }
+
     private function tarifleriIcin(Category $category): Collection
     {
         return Recipe::query()->where('status', 'published')->where('verification_status', 'verified')
