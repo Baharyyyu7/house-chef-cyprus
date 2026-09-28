@@ -394,3 +394,19 @@ gerçek kuyruk claim/block/complete ve dosya/staging kontrolleri geçti.
 - Yeni görsel üretimi/onayı, içerik yayını veya dil etkinleştirme yok.
   GLOB-016 kapandı; kuyruk kimliği ve GSC kaynak/tarih sorunları açık.
   Kanıt: .claude/completions/2026-09-27-backlink-daily-budget.md.
+
+## 2026-09-28 05:21 UTC: geçersiz kuyruk işleri ayrıldı
+
+- Canlı bd7ffb4, yerel 9c169fe; hub/home değişiklikleri başka ajana ait.
+  Uygulama kodu, paralel iş veya deploya müdahale edilmedi.
+- Tam canlı kimlik kontrolünden sonra kendi atomik claim/block akışıyla
+  kibris-usulu-pisi-lokisi-HQ1AZ, geleneksel-tahinli-V9X0W ve
+  kibris-usulu-TEAG6 ayrıldı. Üçü draft ve canlı slug'ları küçük harfli.
+  Sonuncunun yemek adı eksik; görüntü içeriği tahmin edilmedi.
+- 8 kuyruk testi/42 assertion geçti. Kendi kilidi0; başkasına ait2
+  kilit değişmedi. Completed15, pending340, blocked9. Görsel teslimi yok.
+- Güncel PublicMediaEligibilityService ölçümü 134 tarif/116 uygun/18
+  eksik. Önceki geniş tarif kapsamıyla karıştırılmamalı; fark bu turun
+  üretimi değildir. Üretim kuyruğunun366 sayısı güncel eksik sayı değildir.
+- GSC mülk/dönem/kaynak/gözlem, dil kapsamı sınırları ve tam işlem kaydı:
+  .claude/completions/2026-09-28-media-queue-hygiene.md.

@@ -1,7 +1,7 @@
 # 🍽️ Görsel Üretim Dağıtık Koordinasyon ve Canlı Kilit Sistemi
 
-> **Canlı İlerleme:** `%4.1` Tamamlandı | **Tamamlanan:** `15` / `366` | **İşleniyor:** `2` | **Boşta:** `343`
-> **Son Güncelleme:** 2026-09-25 13:24:27
+> **Canlı İlerleme:** `%4.1` Tamamlandı | **Tamamlanan:** `15` / `366` | **İşleniyor:** `2` | **Boşta:** `340`
+> **Son Güncelleme:** 2026-09-28 05:22:55
 > **Kurallar:** [docs/GORSEL_URETIM_MASTER_PROMPT.md](GORSEL_URETIM_MASTER_PROMPT.md) ve [docs/AJAN_CALISMA_KURALLARI.md](AJAN_CALISMA_KURALLARI.md)
 
 ## 1. Dağıtık Kilit Protokolü ("Ben Yapacağım" Mekanizması)
@@ -14,7 +14,7 @@ Birden fazla yapay zeka ajanının aynı anda güvenle çalışabilmesi için:
    - Durum `completed` olarak kaydedilir ve ajana yeni iş verilir.
 4. **Zaman Aşımı / Hata (Timeout):** Kilitler otomatik dağıtılmaz. Aynı worker claim ile işine devam eder; renew ile zamanı yeniler. release ve block için sahip worker zorunludur.
 
-Engellenen kayıtlar: `6`. `block --slug=... --worker=... --reason=...` ile eksik kimlik açıklanır.
+Engellenen kayıtlar: `9`. `block --slug=... --worker=... --reason=...` ile eksik kimlik açıklanır.
 
 ## 2. Canlı Kuyruk Listesi
 
@@ -43,9 +43,9 @@ Engellenen kayıtlar: `6`. `block --slug=... --worker=... --reason=...` ile eksi
 | 21 | `✓ Bitti` | **Antigravity** | **Soğanlı Çörek** | Kıbrıs Mutfağı | Hamur İşi | `recipe--soganli-corek-Y92V8.png` |
 | 22 | `✓ Bitti` | **Antigravity** | **Izgara Hellimli Köy Ekmeği** | Kıbrıs Mutfağı | Kahvaltı | `recipe--izgara-hellimli-koy-ekmegi-5CAJQ.png` |
 | 23 | `⏳ İşleniyor` | **Antigravity** | **Kıbrıs Usulü Pişi (Lokisi)** | Kıbrıs Mutfağı | Kahvaltı | `recipe--kibris-usulu-pisi-lokisi-AVVJ1.png` |
-| 24 | `[ ] Boşta` | - | **Kıbrıs Usulü Pişi (Lokisi)** | Kıbrıs Mutfağı | Kahvaltı | `recipe--kibris-usulu-pisi-lokisi-HQ1AZ.png` |
-| 25 | `[ ] Boşta` | - | **Geleneksel Tahinli** | Kıbrıs Mutfağı | Salata / Meze | `recipe--geleneksel-tahinli-V9X0W.png` |
-| 26 | `[ ] Boşta` | - | **Kıbrıs Usulü** | Kıbrıs Mutfağı | Salata / Meze | `recipe--kibris-usulu-TEAG6.png` |
+| 24 | `! Engelli` | - | **Kıbrıs Usulü Pişi (Lokisi) (2026-09-28 05:21:58 UTC canlı denetim: ID 1391 / public_id 01M2MGK610GTXBC65PZ6TD8551 taslak; canlı exact slug kibris-usulu-pisi-lokisi-hq1az. Yayın ve kuyruk kimliği düzeltilmeden görsel üretilemez.)** | Kıbrıs Mutfağı | Kahvaltı | `recipe--kibris-usulu-pisi-lokisi-HQ1AZ.png` |
+| 25 | `! Engelli` | - | **Geleneksel Tahinli (2026-09-28 05:21:58 UTC canlı denetim: ID 833 / public_id 01M2MFDF080Z8VWW3ANSJV9X0W taslak; canlı exact slug geleneksel-tahinli-v9x0w. Yayın ve kuyruk kimliği düzeltilmeden görsel üretilemez.)** | Kıbrıs Mutfağı | Salata / Meze | `recipe--geleneksel-tahinli-V9X0W.png` |
+| 26 | `! Engelli` | - | **Kıbrıs Usulü (2026-09-28 05:21:58 UTC canlı denetim: ID 1425 / public_id 01M2MGK6WQAX0PK40KWB5FE76H taslak; canlı slug kibris-usulu-teag6. Başlık yalnız Kıbrıs Usulü, yemek adı eksik; yemek kimliği tahmin edilmedi.)** | Kıbrıs Mutfağı | Salata / Meze | `recipe--kibris-usulu-TEAG6.png` |
 | 27 | `[ ] Boşta` | - | **Kıbrıs Macunu (Cevizli Sucuk)** | Kıbrıs Mutfağı | Tatlı | `recipe--kibris-macunu-cevizli-sucuk-PF01Y.png` |
 | 28 | `[ ] Boşta` | - | **Kıbrıs Macunu (Cevizli Sucuk)** | Kıbrıs Mutfağı | Tatlı | `recipe--kibris-macunu-cevizli-sucuk-H98M0.png` |
 | 29 | `[ ] Boşta` | - | **Kıbrıs Tatlısı (Şerbetli & Kremalı)** | Kıbrıs Mutfağı | Tatlı | `recipe--kibris-tatlisi-serbetli-kremali-5GT27.png` |

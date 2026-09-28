@@ -181,3 +181,22 @@ başka ajanın takipli kod/dil/tasarım değişiklikleri sürüyor, deploy yapı
 - GSC aynı final dönemde page+country kırılımı kayda alındı. Kaynak,
   tarih, gözlem ve kapsam farkları .claude/completions/2026-09-27-backlink-daily-budget.md
   içinde; GLOB-014 uygulamadaki kaynak/tarih tutarsızlığı açık.
+
+## 2026-09-28 05:21 UTC: eski görsel kuyruğundan üç geçersiz iş ayrıldı
+
+- 27 Eylül 20:31 heartbeat kontrolünün gerçek canlı gözlemi 28 Eylül
+  05:21:58 UTC'dir. Yerel 9c169fe, canlı bd7ffb4; hub/home dosyaları
+  başka ajanın yarım işidir. Dal değişikliği veya deploy yapılmadı.
+- PublicMediaEligibilityService: 134 published/verified tarif, 116 uygun
+  görselli, 18 uygun görselsiz. Önceki 534 tarif/395 eksik sonucu güncel
+  değildir. Azalma görsel üretim başarısı değil, tarif kapsamındaki
+  değişiklikle birlikte değerlendirilmelidir.
+- GLOB-013 açık: canlı ID/public_id ile eşlenen sıradaki üç kayıt draft
+  ve exact slug harfleri farklı. HQ1AZ, V9X0W, TEAG6 son ekli işler
+  yalnız kendi atomik claim'i sonrası worker doğrulamalı block ile
+  ayrıldı. TEAG6 başlığı yalnız "Kıbrıs Usulü"; yemek adı tahmin edilmedi.
+- Kendi açık iş 0; diğer iki işçinin kilidi/tarihi değişmedi. Kuyruk
+  15 completed/340 pending/9 blocked/2 claimed. Üretim/teslim/onay yok.
+- Kuyruk unit+feature testleri 8/8, 42 assertion geçti. Uygulama kodu
+  değişmedi; başka ajanın devam eden koduna tam süit yeşil iddiası yok.
+  Ayrıntılar .claude/completions/2026-09-28-media-queue-hygiene.md içinde.
