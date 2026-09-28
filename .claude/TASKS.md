@@ -68,24 +68,25 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
       "dizine açıldı" sayacı yalnız kapıya bakıyor, dolu `chef_tip` çevrilmezse
       sayfa 404 kalıyor. Türkçe kaynakta şablon dolgu cümlesi varsa ("Taze
       malzemeleri, dengeli baharat uyumu...") çeviriye taşıma.
-- [ ] **Yabancı sayfalarda sabit Türkçe arayüz** (28 Eylül canlı tarama,
-      /en/, /de/, /fa/). Öncelik sırasıyla:
-      1. Tarif filtresi tüm malzemeleri ham Türkçe adla listeliyor, "Ana
-         Malzeme"/"Sebze Karışımı" yer tutucuları dahil. Yalnız o dilde
-         yayındaki tariflerin malzemeleri, çevrilmiş adla.
-      2. Başlık/alt bilgi/menü: "İçeriğe geç", "Giriş yap", "e-posta ile üye
-         ol", "Kıbrıs Özel Şef", "Haftalık Menü", "Kıbrıs Rehberleri".
-      3. Özel şef fiyat widget'ı ("1. İstenen Hizmet", "2 - 4 Kişi") tamamen
-         Türkçe; villa kiralayan yabancı turist tam hedef kitle.
-      4. Tarif sayfası: ekipman/affiliate kutusu, alerjen uyarısı, saklama
-         notu varsayılanı; `tips`, `common_mistakes`, `equipment`,
-         `storage_notes` alanları çevrilmiyor (HasTranslations dışında).
-      5. Blog kartı: "Yazıyı oku", "Yazıya özel görsel hazırlanıyor",
-         "Tüm yazılar"; ana sayfa "Malzeme dolabı", "Elindekilerle eşleştirme".
-      6. Farsça: bazı tarif başlıkları "... (دستور پخت اصیل مدیترانه‌ای)", blog
-         açıklamaları "بررسی تخصصی... در زمینه <Türkçe başlık>" kalıbı.
-      Tarama betiği: sayfa metninde ı/ş/ğ/İ ve "ve/için/ile" arayan basit
-      tarayıcı; oturum 27-28 Eylül'de scratchpad'de.
+- [ ] **Yabancı sayfalarda kalan Türkçe** (28 Eylül ikinci tarama sonrası).
+      Arayüz, çerez bandı, malzeme seçicisi, taksonomi, diyet adları, blog
+      dizini ve SSS düzeldi; ticari bloklar yabancı dilde gizli. Kalan:
+      blog kategori adları (BlogCategory çevrilmiyor), Farsça blog
+      açıklamalarındaki kalıp ("بررسی تخصصی... در زمینه <Türkçe başlık>"),
+      tarifin ipucu/sık hata/saklama alanlarının çevirisi (şimdilik yabancı
+      dilde gizli). Özel şef/catering hizmetinin yabancı dilde sunulması
+      kullanıcı kararı.
+- [ ] **Tarif tutarlılığı**: adımda geçip listede olmayan malzeme. 28 Eylül'de
+      31 tariften 15'i düzeltildi (27 satır, yedek
+      `yedekler/2026-09-28-eksik-malzeme-eklenen.json`). Kalan 16'nın çoğu
+      yanlış alarm ("krema kıvamı", "tereyağına döner"); gerçek olanlar:
+      ezogelin tereyağı, babagannuş maydanoz, Ali Nazik ve mercimek köftesi
+      salça, havuç çorbası dereotu, lahana sarması tarçın, ev açması yumurta,
+      bazlama tereyağı, ayva tatlısı limon. Denetim betiği scratchpad'de
+      (denetim2.php); `İ` küçültmesi "İrmik"i kaçırıyor.
+- [ ] **100 tarifte Türkçe adım başlığı "Adım 1..N"** kalıbı. Çeviri
+      partilerinde başlıklar gerçekleriyle yazılıyor; Türkçesi ayrıca
+      düzeltilmeli.
 - [ ] **Türkçe kaynakta kalan şablon dolgu**: zeytinyagli-nohutlu-pilav,
       nohutlu-akdeniz-kasesi, limonlu-akdeniz-makarnasi açıklamaları ("Taze
       malzemeleri, dengeli baharat uyumu ve geleneksel pişirme tekniğiyle...")
@@ -131,6 +132,10 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
 - [x] 27 Eylül: **Hareket katmanı** (`31a07a6`): kinetik başlıklar, 3B kartlar,
       eğim, patlamalar, konfeti, okuma çizgisi, sayfalar arası morf.
       Adım zamanlayıcı düğmeleri hiç çalışmıyordu (tırnak hatası), düzeldi.
+- [x] 28 Eylül: gece çeviri içe aktarımı (02:20) düzeltilmiş 1.257 malzeme
+      adını eski dosyalardaki çöple geri yazıyordu; içe aktarıcı artık dolu
+      malzeme adını ezmiyor (`bff1d38`), adlar yeniden uygulandı.
+- [x] 28 Eylül: 2 kopya tarif taslağa + eşine 301 (132 tarif yayında).
 - [x] 27 Eylül: malzeme adları 6 dilde temizlendi (220 malzeme, 1.257 ad;
       geri alma `coni:malzeme --geri-al=29945`). Birim, kesir, hazırlık notu
       ve 25 arayüz dizesi 6 dilde (`bd7ffb4`, sonraki commit). Türkçe kaynakta
