@@ -1,5 +1,6 @@
 @props(['class' => 'mt-8'])
 
+@if(turkce_sayfa())
 <aside {{ $attributes->merge(['class' => "hc-v3-card {$class} p-6 sm:p-8 border border-amber-300/80 dark:border-amber-500/30 bg-gradient-to-br from-amber-50/70 via-white to-orange-50/50 dark:from-stone-900 dark:via-stone-900 dark:to-stone-850 shadow-md relative overflow-hidden"]) }} aria-label="Dijital Mutfak E-Kitabı">
     <!-- Arka plan süsleme deseni -->
     <div class="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-amber-400/10 blur-2xl" aria-hidden="true"></div>
@@ -58,3 +59,4 @@
         </div>
     </div>
 </aside>
+@endif

@@ -68,13 +68,13 @@ final class IngredientExplorerController extends Controller
             }
         }
 
-        $ingredients = Ingredient::query()->where('is_active', true)->with('aliases')->orderBy('name')->get();
+        $ingredients = Ingredient::dileGoreSirala(Ingredient::query()->yayindaKullanilan()->with('aliases')->get());
 
         return view('ingredients.explore', [
             'ingredients' => $ingredients,
             // Boş ekranda kullanıcıya somut bir başlangıç sunar: en çok tarifte geçen malzemeler.
             'popularIngredients' => Ingredient::query()
-                ->where('is_active', true)
+                ->yayindaKullanilan()
                 ->withCount('recipeIngredients')
                 ->orderByDesc('recipe_ingredients_count')
                 ->orderBy('name')

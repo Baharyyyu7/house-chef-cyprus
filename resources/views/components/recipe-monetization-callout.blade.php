@@ -1,5 +1,6 @@
 @props(['recipe'])
 
+@if(turkce_sayfa())
 @php
     $isCypriot = ($recipe->cuisine?->slug === 'kibris-mutfagi');
 @endphp
@@ -72,3 +73,4 @@
         </aside>
     @endif
 </div>
+@endif

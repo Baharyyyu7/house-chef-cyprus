@@ -18,11 +18,11 @@
             @click="acik = !acik"
             :aria-expanded="acik"
             aria-haspopup="menu"
-            aria-label="Hesap menüsü"
+            aria-label="{{ __('ui.account_menu') }}"
             class="hc-user-trigger hc-nav-control inline-flex items-center gap-2 rounded-2xl bg-charcoal-900 py-1.5 pl-1.5 pr-3 text-sm font-extrabold text-white transition hover:bg-orange-600 shrink-0 whitespace-nowrap"
         >
             <span class="grid h-7 w-7 place-items-center rounded-xl bg-orange-500 text-xs shrink-0 font-black">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</span>
-            <span class="whitespace-nowrap font-bold">Hesabım</span>
+            <span class="whitespace-nowrap font-bold">{{ __('ui.my_account') }}</span>
             <span class="transition-transform duration-300 shrink-0" :class="acik ? 'rotate-180' : ''" aria-hidden="true"><x-ui.icon name="chevron-down" size="14" /></span>
         </button>
 
@@ -57,7 +57,7 @@
             <div class="hc-user-menu__rule"></div>
 
             @foreach ([
-                ['dashboard', 'Hesabım', 'gauge'],
+                ['dashboard', __('ui.my_account'), 'gauge'],
                 ['pantry.index', 'Dolabım', 'archive'],
                 ['favorites.index', 'Favorilerim', 'heart'],
                 ['collections.index', 'Koleksiyonlarım', 'book'],
@@ -73,8 +73,8 @@
             @if (! auth()->user()->isPremium() && Route::has('pricing'))
                 <div class="hc-user-menu__rule"></div>
                 <a href="{{ route('pricing') }}" class="hc-user-menu__item hc-user-menu__item--accent" role="menuitem">
-                    <span class="hc-user-menu__icon" aria-hidden="true"><x-ui.icon name="sparkles" size="16" /></span>Premium'a geç
-                    <span class="hc-user-menu__badge ml-auto">Reklamsız</span>
+                    <span class="hc-user-menu__icon" aria-hidden="true"><x-ui.icon name="sparkles" size="16" /></span>{{ __('ui.go_premium') }}
+                    <span class="hc-user-menu__badge ml-auto">{{ __('ui.ad_free') }}</span>
                 </a>
             @endif
 
@@ -86,7 +86,7 @@
             <form method="post" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="hc-user-menu__item w-full text-left" role="menuitem">
-                    <span class="hc-user-menu__icon" aria-hidden="true"><x-ui.icon name="log-out" size="16" /></span>Çıkış yap
+                    <span class="hc-user-menu__icon" aria-hidden="true"><x-ui.icon name="log-out" size="16" /></span>{{ __('ui.logout') }}
                 </button>
             </form>
         </div>

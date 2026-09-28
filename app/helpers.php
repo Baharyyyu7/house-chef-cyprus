@@ -4,6 +4,21 @@ declare(strict_types=1);
 
 use App\Services\Seo\LocaleUrlService;
 
+if (! function_exists('turkce_sayfa')) {
+    /**
+     * Sayfa varsayılan dilde mi.
+     *
+     * Türkiye pazarına özgü ticari bloklar (Türkçe e-kitap, Amazon TR
+     * ortaklık kutusu, Kuzey Kıbrıs özel şef ve catering hizmetleri) yalnız
+     * Türkçe sayfada basılır; yabancı sayfada Türkçe metinle ve Türkçe
+     * sayfalara giden bağlantılarla görünüyorlardı.
+     */
+    function turkce_sayfa(): bool
+    {
+        return app()->getLocale() === (string) config('locales.default', 'tr');
+    }
+}
+
 if (! function_exists('localized_route')) {
     /**
      * Generate a locale-prefixed route URL.

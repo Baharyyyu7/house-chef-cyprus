@@ -15,19 +15,19 @@
 
     // Yalnız gerçekten var olan yollar teklif edilir.
     $ucretsizFaydalar = collect([
-        ['pantry.index', 'Malzeme dolabı', 'Evdekileri gir, yapabileceğin tarifleri gör.'],
-        ['favorites.index', 'Favoriler', 'Beğendiklerini kendi listende topla.'],
-        ['ingredients.explore', 'Elindekilerle eşleştirme', 'Eksikleri ve alternatifleri açıkça gör.'],
+        ['pantry.index', __('ui.benefit_pantry'), __('ui.benefit_pantry_desc')],
+        ['favorites.index', __('ui.benefit_favorites'), __('ui.benefit_favorites_desc')],
+        ['ingredients.explore', __('ui.benefit_match'), __('ui.benefit_match_desc')],
     ])->filter(fn ($f) => Route::has($f[0]));
 @endphp
 
 @if (! $premium)
     <section class="hc-v3-card p-5 sm:p-6" aria-labelledby="uyelik-daveti-baslik">
         @if (! $uye)
-            <p class="hc-overline" style="color: var(--hc-text-muted)">Ücretsiz hesap</p>
+            <p class="hc-overline" style="color: var(--hc-text-muted)">{{ __('ui.free_account') }}</p>
             <h2 id="uyelik-daveti-baslik" class="hc-heading-3 mt-2">Bu tarifi kaydedin.</h2>
             <p class="hc-body-sm mt-2" style="color: var(--hc-text-secondary)">
-                Ücretsiz hesap, mutfağınızı siteye tanıtır.
+                {{ __('ui.free_account_intro') }}
             </p>
             <ul class="mt-4 grid gap-3">
                 @foreach ($ucretsizFaydalar as [$rota, $baslik, $aciklama])
@@ -48,24 +48,24 @@
                         <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
                         <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C42 35 44 30 44 24c0-2.6-.2-5.2-.4-3.9z"/>
                     </svg>
-                    <span>Google ile Tek Tıkla Bağlan</span>
+                    <span>{{ __('ui.google_connect') }}</span>
                 </a>
                 <p class="hc-caption mt-3 text-center" style="color: var(--hc-text-muted)">
-                    veya <a class="font-bold underline underline-offset-2" href="{{ route('register') }}">e-posta ile üye ol</a> · <a class="font-bold underline underline-offset-2" href="{{ route('login') }}">Giriş yap</a>
+                    {{ __('ui.or') }} <a class="font-bold underline underline-offset-2" href="{{ route('register') }}">{{ __('ui.register_email') }}</a> · <a class="font-bold underline underline-offset-2" href="{{ route('login') }}">{{ __('ui.login') }}</a>
                 </p>
             @else
-                <a class="hc-btn hc-btn-primary mt-5 w-full" href="{{ route('register') }}">Ücretsiz üye ol</a>
+                <a class="hc-btn hc-btn-primary mt-5 w-full" href="{{ route('register') }}">{{ __('ui.register_free') }}</a>
                 <p class="hc-caption mt-3 text-center" style="color: var(--hc-text-muted)">
-                    Zaten üye misiniz? <a class="font-bold underline underline-offset-2" href="{{ route('login') }}">Giriş yapın</a>
+                    {{ __('ui.already_member') }} <a class="font-bold underline underline-offset-2" href="{{ route('login') }}">{{ __('ui.login_formal') }}</a>
                 </p>
             @endif
         @elseif (Route::has('pricing'))
             <p class="hc-overline" style="color: var(--hc-text-muted)">Premium</p>
-            <h2 id="uyelik-daveti-baslik" class="hc-heading-3 mt-2">Reklamsız pişirin.</h2>
+            <h2 id="uyelik-daveti-baslik" class="hc-heading-3 mt-2">{{ __('ui.cook_ad_free') }}</h2>
             <p class="hc-body-sm mt-2" style="color: var(--hc-text-secondary)">
-                Premium üyelikte sitede hiç reklam görünmez ve AI Mutfak sınırsız açılır.
+                {{ __('ui.premium_pitch') }}
             </p>
-            <a class="hc-btn hc-btn-primary mt-5 w-full" href="{{ route('pricing') }}">Planları gör</a>
+            <a class="hc-btn hc-btn-primary mt-5 w-full" href="{{ route('pricing') }}">{{ __('ui.see_plans') }}</a>
         @endif
     </section>
 @endif

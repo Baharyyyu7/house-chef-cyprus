@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasPublicId;
 use App\Models\Concerns\HasTranslations;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -33,6 +34,34 @@ class Ingredient extends Model
     }
 
     /** @return HasMany<RecipeIngredient, $this> */
+    /**
+     * Bu dilde yayındaki bir tarifte geçen malzemeler.
+     *
+     * Seçiciler bütün aktif malzemeleri listeliyordu: taslaktaki şablon
+     * tariflerin "Ana Malzeme" ve "Sebze Karışımı" yer tutucuları dahil,
+     * yabancı sayfada ham Türkçe adla. Seçilince hiçbir tarif getirmeyen
+     * malzeme seçenek değil.
+     */
+    public function scopeYayindaKullanilan(Builder $query): Builder
+    {
+        return $query->where('is_active', true)->whereHas('recipeIngredients.recipe', static fn (Builder $tarif): Builder => $tarif
+            ->where('status', 'published')->where('verification_status', 'verified')->translatedInto());
+    }
+
+    /**
+     * Seçici için sıralı liste; ad o dilde, sıralama o dilin alfabesiyle.
+     *
+     * @param  \Illuminate\Support\Collection<int, self>  $malzemeler
+     * @return \Illuminate\Support\Collection<int, self>
+     */
+    public static function dileGoreSirala($malzemeler)
+    {
+        $harmanlayici = class_exists(\Collator::class) ? new \Collator(app()->getLocale()) : null;
+
+        return $malzemeler->sort(static fn (self $a, self $b): int => $harmanlayici?->compare((string) $a->name, (string) $b->name)
+            ?? strcmp((string) $a->name, (string) $b->name))->values();
+    }
+
     public function recipeIngredients(): HasMany
     {
         return $this->hasMany(RecipeIngredient::class);

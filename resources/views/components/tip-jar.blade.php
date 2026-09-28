@@ -3,6 +3,7 @@
     'subtitle' => 'İçeriklerimizi faydalı buluyorsanız, bize bir kahve ısmarlayarak mutfağımızın sürdürülebilirliğine katkıda bulunabilirsiniz.',
 ])
 
+@if(turkce_sayfa())
 <div class="tip-jar-card rounded-2xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-amber-500/10 border border-amber-500/20 p-6 shadow-sm dark:bg-neutral-800/80 my-8">
     <div class="flex items-start gap-4">
         <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center text-2xl flex-shrink-0">
@@ -37,3 +38,4 @@
         </div>
     </div>
 </div>
+@endif

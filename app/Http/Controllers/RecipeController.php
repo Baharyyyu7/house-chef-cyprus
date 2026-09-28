@@ -78,7 +78,8 @@ final class RecipeController extends Controller
             // Never cache approval decisions: a revoked image leaves the showcase immediately.
             $mediaEligibility = app(PublicMediaEligibilityService::class);
             $viewData['homeHighlights'] = $catalogue->lazy()->filter(fn (Recipe $recipe): bool => $mediaEligibility->firstEligible($recipe->media) !== null)->take(4)->collect();
-            $viewData['homeIngredients'] = cache()->remember('home-ingredients-v2:'.app()->getLocale(), now()->addMinutes(5), fn () => Ingredient::query()->where('is_active', true)->orderBy('name')->get(['public_id', 'name'])->toArray());
+            $viewData['homeIngredients'] = cache()->remember('home-ingredients-v3:'.app()->getLocale(), now()->addMinutes(5), fn () => Ingredient::dileGoreSirala(Ingredient::query()->yayindaKullanilan()->get(['id', 'public_id', 'name']))
+                ->map(fn (Ingredient $malzeme): array => ['public_id' => $malzeme->public_id, 'name' => $malzeme->name])->all());
             // Hero'daki eşleştirme gösterisi. Temiz senaryo çıkmayan dilde
             // boş döner ve panel hiç basılmaz.
             $viewData['homeMatchShowcase'] = cache()->remember('home-match-showcase-v1:'.app()->getLocale(), now()->addMinutes(30), fn () => app(\App\Services\HomeMatchShowcaseService::class)->senaryolar(3));

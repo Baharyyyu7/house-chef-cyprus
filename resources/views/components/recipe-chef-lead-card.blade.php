@@ -1,5 +1,6 @@
 @props(['recipe' => null, 'post' => null, 'postTitle' => null])
 
+@if(turkce_sayfa())
 @php
     $whatsappNumber = config('contact-requests.whatsapp_number', '905338000000');
     $dishTitle = $postTitle ?? $post?->translated('title') ?? $recipe?->title ?? 'Özel Kıbrıs Menüsü';
@@ -84,3 +85,4 @@
         </div>
     </div>
 </aside>
+@endif

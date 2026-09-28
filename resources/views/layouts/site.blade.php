@@ -280,7 +280,7 @@
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ urlencode((string) config('integrations.google.tag_manager.container_id')) }}" height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe></noscript>
     @endif
     @if (request()->routeIs('admin.*'))
-        <a href="#admin-main-content" class="hc-skip-link">İçeriğe geç</a>
+        <a href="#admin-main-content" class="hc-skip-link">{{ __('ui.skip_to_content') }}</a>
         {{-- Izgara sutunlari ve kenar cubugu genisligi yalniz Alpine
              baglamasindan geliyordu. Alpine calismadigi anda sutun tanimi hic
              olusmuyor, sabit konumlu kenar cubugu da icerigin ustune biniyordu:
@@ -334,7 +334,7 @@
             </div>
         </div>
     @else
-        <a href="#main-content" class="hc-skip-link">İçeriğe geç</a>
+        <a href="#main-content" class="hc-skip-link">{{ __('ui.skip_to_content') }}</a>
         {{-- Koyu açılışı olan sayfalarda hero başlığın altından başlar. Sayfa
              tepesindeyken çubuk kendi zeminini basmaz; görüntünün üstünde
              saydam durur ve içeriğini koyu zemine göre okutur. --}}
