@@ -65,3 +65,10 @@ Ayrıntılı durum üretimde: `php artisan coni:durum --json`.
   babaganus (26), yayla-corbasi (26), kibris-kleftiko (22), kirmizi-mercimek-corbasi (22),
   yesil-mercimek-corbasi (22), supangle (22), katmer (18 gösterim).
 - Bekleyen: kalan ~46 tarif (sıradaki 10 impression listelenmeli).
+
+## 2026-09-28 (son)
+- Yayınlanan: patlican-kozlemesi-CDW76 (gerçek adımlar; 8 GSC gösterim).
+- atom-mezesi-w1nnc: 6 dilde çeviri + SERP başlığı düzeltildi (#227-#233).
+- app:invariants: tüm kurallar sağlandı.
+- Bekleyen redirect: kibris-macunu-ceviz (16), kazandibi (11), lokma-kibris (10) — şablon adımlar; SlugRedirect polimorfik, tarif listesine yönlendirme için yeni rota gerekiyor.
+- Release.sh çalışıyor (PID 78124, 14:32'den beri).
