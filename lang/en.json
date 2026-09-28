@@ -802,5 +802,21 @@
     "home.match_ready": "Ready to cook",
     "home.match_open": "Open recipe",
     "home.match_aria_prefix": "Example match, open recipe:",
-    "home.match_missing": "Missing:"
+    "home.match_missing": "Missing:",
+    "consent.region_label": "Your cookie preferences",
+    "consent.always_on": "Cookies that make the site work are always on.",
+    "consent.ask_before": "We ask for your permission for ",
+    "consent.ask_measure_ads": "measurement and advertising cookies",
+    "consent.ask_measure": "measurement cookies",
+    "consent.ask_after": ".",
+    "consent.customize": "Customise",
+    "consent.essential_only": "Essential only",
+    "consent.accept": "Accept",
+    "consent.measurement": "Measurement",
+    "consent.measurement_desc": "Which pages are read",
+    "consent.ads": "Advertising",
+    "consent.ads_desc": "Ads suited to you",
+    "consent.no": "No",
+    "consent.allow": "Allow",
+    "consent.read_policy": "Read the cookie policy"
 }

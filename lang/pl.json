@@ -700,5 +700,21 @@
     "home.match_ready": "Gotowe do ugotowania",
     "home.match_open": "Otwórz przepis",
     "home.match_aria_prefix": "Przykładowe dopasowanie, otwórz przepis:",
-    "home.match_missing": "Brakuje:"
+    "home.match_missing": "Brakuje:",
+    "consent.region_label": "Twoje ustawienia plików cookie",
+    "consent.always_on": "Pliki cookie niezbędne do działania strony są zawsze włączone.",
+    "consent.ask_before": "Prosimy o zgodę na ",
+    "consent.ask_measure_ads": "pliki cookie pomiarowe i reklamowe",
+    "consent.ask_measure": "pliki cookie pomiarowe",
+    "consent.ask_after": ".",
+    "consent.customize": "Dostosuj",
+    "consent.essential_only": "Tylko niezbędne",
+    "consent.accept": "Akceptuję",
+    "consent.measurement": "Pomiar",
+    "consent.measurement_desc": "Które strony są czytane",
+    "consent.ads": "Reklama",
+    "consent.ads_desc": "Reklamy dopasowane do Ciebie",
+    "consent.no": "Nie",
+    "consent.allow": "Zezwól",
+    "consent.read_policy": "Przeczytaj politykę cookie"
 }

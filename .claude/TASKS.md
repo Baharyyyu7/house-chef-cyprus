@@ -68,6 +68,24 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
       "dizine açıldı" sayacı yalnız kapıya bakıyor, dolu `chef_tip` çevrilmezse
       sayfa 404 kalıyor. Türkçe kaynakta şablon dolgu cümlesi varsa ("Taze
       malzemeleri, dengeli baharat uyumu...") çeviriye taşıma.
+- [ ] **Yabancı sayfalarda sabit Türkçe arayüz** (28 Eylül canlı tarama,
+      /en/, /de/, /fa/). Öncelik sırasıyla:
+      1. Tarif filtresi tüm malzemeleri ham Türkçe adla listeliyor, "Ana
+         Malzeme"/"Sebze Karışımı" yer tutucuları dahil. Yalnız o dilde
+         yayındaki tariflerin malzemeleri, çevrilmiş adla.
+      2. Başlık/alt bilgi/menü: "İçeriğe geç", "Giriş yap", "e-posta ile üye
+         ol", "Kıbrıs Özel Şef", "Haftalık Menü", "Kıbrıs Rehberleri".
+      3. Özel şef fiyat widget'ı ("1. İstenen Hizmet", "2 - 4 Kişi") tamamen
+         Türkçe; villa kiralayan yabancı turist tam hedef kitle.
+      4. Tarif sayfası: ekipman/affiliate kutusu, alerjen uyarısı, saklama
+         notu varsayılanı; `tips`, `common_mistakes`, `equipment`,
+         `storage_notes` alanları çevrilmiyor (HasTranslations dışında).
+      5. Blog kartı: "Yazıyı oku", "Yazıya özel görsel hazırlanıyor",
+         "Tüm yazılar"; ana sayfa "Malzeme dolabı", "Elindekilerle eşleştirme".
+      6. Farsça: bazı tarif başlıkları "... (دستور پخت اصیل مدیترانه‌ای)", blog
+         açıklamaları "بررسی تخصصی... در زمینه <Türkçe başlık>" kalıbı.
+      Tarama betiği: sayfa metninde ı/ş/ğ/İ ve "ve/için/ile" arayan basit
+      tarayıcı; oturum 27-28 Eylül'de scratchpad'de.
 - [ ] **Türkçe kaynakta kalan şablon dolgu**: zeytinyagli-nohutlu-pilav,
       nohutlu-akdeniz-kasesi, limonlu-akdeniz-makarnasi açıklamaları ("Taze
       malzemeleri, dengeli baharat uyumu ve geleneksel pişirme tekniğiyle...")

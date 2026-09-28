@@ -700,5 +700,21 @@
     "home.match_ready": "Sofort kochbar",
     "home.match_open": "Zum Rezept",
     "home.match_aria_prefix": "Beispieltreffer, zum Rezept:",
-    "home.match_missing": "Fehlt:"
+    "home.match_missing": "Fehlt:",
+    "consent.region_label": "Ihre Cookie-Einstellungen",
+    "consent.always_on": "Cookies, die die Website betreiben, sind immer aktiv.",
+    "consent.ask_before": "Wir bitten um Ihre Zustimmung zu ",
+    "consent.ask_measure_ads": "Mess- und Werbe-Cookies",
+    "consent.ask_measure": "Mess-Cookies",
+    "consent.ask_after": ".",
+    "consent.customize": "Anpassen",
+    "consent.essential_only": "Nur notwendige",
+    "consent.accept": "Akzeptieren",
+    "consent.measurement": "Messung",
+    "consent.measurement_desc": "Welche Seiten gelesen werden",
+    "consent.ads": "Werbung",
+    "consent.ads_desc": "Auf Sie abgestimmte Werbung",
+    "consent.no": "Nein",
+    "consent.allow": "Erlauben",
+    "consent.read_policy": "Cookie-Richtlinie lesen"
 }

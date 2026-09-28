@@ -700,5 +700,21 @@
     "home.match_ready": "آماده پخت",
     "home.match_open": "رفتن به دستور",
     "home.match_aria_prefix": "نمونه تطبیق، رفتن به دستور:",
-    "home.match_missing": "کم دارد:"
+    "home.match_missing": "کم دارد:",
+    "consent.region_label": "ترجیحات کوکی شما",
+    "consent.always_on": "کوکی‌هایی که سایت را اجرا می‌کنند همیشه فعال‌اند.",
+    "consent.ask_before": "برای ",
+    "consent.ask_measure_ads": "کوکی‌های سنجش و تبلیغات",
+    "consent.ask_measure": "کوکی‌های سنجش",
+    "consent.ask_after": " از شما اجازه می‌خواهیم.",
+    "consent.customize": "تنظیم",
+    "consent.essential_only": "فقط ضروری",
+    "consent.accept": "پذیرفتن",
+    "consent.measurement": "سنجش",
+    "consent.measurement_desc": "کدام صفحه‌ها خوانده می‌شوند",
+    "consent.ads": "تبلیغات",
+    "consent.ads_desc": "نمایش تبلیغات متناسب با شما",
+    "consent.no": "خیر",
+    "consent.allow": "اجازه بده",
+    "consent.read_policy": "سیاست کوکی را بخوانید"
 }

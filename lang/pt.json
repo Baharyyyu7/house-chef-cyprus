@@ -700,5 +700,21 @@
     "home.match_ready": "Pronto a cozinhar",
     "home.match_open": "Abrir receita",
     "home.match_aria_prefix": "Exemplo de correspondência, abrir receita:",
-    "home.match_missing": "Falta:"
+    "home.match_missing": "Falta:",
+    "consent.region_label": "As suas preferências de cookies",
+    "consent.always_on": "Os cookies que fazem o site funcionar estão sempre ativos.",
+    "consent.ask_before": "Pedimos a sua autorização para ",
+    "consent.ask_measure_ads": "cookies de medição e de publicidade",
+    "consent.ask_measure": "cookies de medição",
+    "consent.ask_after": ".",
+    "consent.customize": "Personalizar",
+    "consent.essential_only": "Só essenciais",
+    "consent.accept": "Aceitar",
+    "consent.measurement": "Medição",
+    "consent.measurement_desc": "Que páginas são lidas",
+    "consent.ads": "Publicidade",
+    "consent.ads_desc": "Anúncios adequados a si",
+    "consent.no": "Não",
+    "consent.allow": "Permitir",
+    "consent.read_policy": "Ler a política de cookies"
 }

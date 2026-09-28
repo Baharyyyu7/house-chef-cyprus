@@ -700,5 +700,21 @@
     "home.match_ready": "Можно готовить",
     "home.match_open": "Открыть рецепт",
     "home.match_aria_prefix": "Пример совпадения, открыть рецепт:",
-    "home.match_missing": "Не хватает:"
+    "home.match_missing": "Не хватает:",
+    "consent.region_label": "Ваши настройки cookie",
+    "consent.always_on": "Файлы cookie, необходимые для работы сайта, всегда включены.",
+    "consent.ask_before": "Мы просим вашего согласия на ",
+    "consent.ask_measure_ads": "аналитические и рекламные файлы cookie",
+    "consent.ask_measure": "аналитические файлы cookie",
+    "consent.ask_after": ".",
+    "consent.customize": "Настроить",
+    "consent.essential_only": "Только необходимые",
+    "consent.accept": "Принять",
+    "consent.measurement": "Аналитика",
+    "consent.measurement_desc": "Какие страницы читают",
+    "consent.ads": "Реклама",
+    "consent.ads_desc": "Подходящая вам реклама",
+    "consent.no": "Нет",
+    "consent.allow": "Разрешить",
+    "consent.read_policy": "Прочитать политику cookie"
 }

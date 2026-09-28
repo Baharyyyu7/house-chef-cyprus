@@ -700,5 +700,21 @@
     "home.match_ready": "Tam yapılabilir",
     "home.match_open": "Tarife git",
     "home.match_aria_prefix": "Örnek eşleşme, tarife git:",
-    "home.match_missing": "Eksik:"
+    "home.match_missing": "Eksik:",
+    "consent.region_label": "Çerez tercihiniz",
+    "consent.always_on": "Siteyi çalıştıran çerezler her zaman açık.",
+    "consent.ask_before": "",
+    "consent.ask_measure_ads": "Ölçüm ve reklam çerezleri",
+    "consent.ask_measure": "Ölçüm çerezleri",
+    "consent.ask_after": " için izninizi soruyoruz.",
+    "consent.customize": "Ayarla",
+    "consent.essential_only": "Yalnız zorunlu",
+    "consent.accept": "Kabul et",
+    "consent.measurement": "Ölçüm",
+    "consent.measurement_desc": "Hangi sayfalar okunuyor",
+    "consent.ads": "Reklam",
+    "consent.ads_desc": "Size uygun reklam gösterimi",
+    "consent.no": "Hayır",
+    "consent.allow": "İzin ver",
+    "consent.read_policy": "Çerez politikasını oku"
 }
