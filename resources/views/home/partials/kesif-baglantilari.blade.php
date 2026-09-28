@@ -9,7 +9,7 @@
             <div class="hc-arama__oneriler mt-5">
                 <span class="hc-arama__etiket">{{ __('home.quick_links') }}</span>
                 @if(\App\Http\Controllers\CuisineHubController::sayfasiVar($mutfakSayilari['kibris-mutfagi'] ?? 0))<a class="hc-arama__cip" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">🇨🇾 {{ __('home.cypriot_cuisine') }}</a>@endif
-                @if(\App\Http\Controllers\CuisineHubController::sayfasiVar($mutfakSayilari['turk-mutfagi'] ?? 0))<a class="hc-arama__cip" href="{{ route('cuisines.show', 'turk-mutfagi') }}">🇹🇷 Türk Mutfağı</a>@endif
+                @if(\App\Http\Controllers\CuisineHubController::sayfasiVar($mutfakSayilari['turk-mutfagi'] ?? 0))<a class="hc-arama__cip" href="{{ route('cuisines.show', 'turk-mutfagi') }}">🇹🇷 {{ turkce_sayfa() ? 'Türk Mutfağı' : __('taxonomy.cuisine.turk-mutfagi') }}</a>@endif
                 @foreach([['home.under_20_min', 'sure', '20-dakika', ['max_minutes' => 20]], ['home.easy_recipes', 'zorluk', 'kolay', ['difficulty' => 'easy']]] as [$chipKey, $tur, $slug, $params])
                     <a href="{{ $koleksiyonBaglantisi($tur, $slug) ?? route('recipes.index', $params) }}" class="hc-arama__cip">{{ __($chipKey) }}</a>
                 @endforeach
@@ -35,7 +35,7 @@
                         </span>
                     @endif
                     <span class="hc-hub-card__govde">
-                        <span class="hc-hub-card__baslik">{{ __($cuisine->name) }}</span>
+                        <span class="hc-hub-card__baslik">{{ taxonomy_name($cuisine) }}</span>
                         <span class="hc-caption">{{ __('home.recipes_count', ['count' => $mutfakSayilari[$cuisine->slug]]) }}</span>
                     </span>
                     <span class="hc-hub-card__ok" aria-hidden="true">›</span>
