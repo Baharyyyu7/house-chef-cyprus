@@ -22,17 +22,7 @@
         <h2 class="hc-heading-3 mt-14">{{ __('blog.index.all_posts') }}</h2>
         <div class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3" data-reveal-group>
             @forelse($posts as $post)
-                <article class="hc-v3-card hc-v3-card--interactive group relative flex w-full min-w-0 flex-col overflow-hidden" data-reveal>
-                    <div class="flex flex-1 flex-col p-6">
-                        <p class="hc-kicker">{{ $post->category?->name ?? __('blog.index.kitchen_note') }}</p>
-                        <h2 class="mt-2 text-lg font-extrabold leading-snug line-clamp-2" style="color: var(--hc-text-primary)"><a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('blog.show', $post) }}">{{ $post->translated('title') }}</a></h2>
-                        <p class="mt-3 line-clamp-3 hc-body-sm" style="color: var(--hc-text-secondary)">{{ $post->translated('excerpt') }}</p>
-                        <div class="mt-auto flex items-center justify-between gap-3 pt-5">
-                            <p class="text-xs font-bold" style="color: var(--hc-text-muted)">{{ $post->published_at?->format('d.m.Y') }} · {{ __('blog.index.min_read', ['n' => max(1, (int) ceil(str_word_count(strip_tags($post->translated('body'))) / 180))]) }}</p>
-                            <a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm font-bold text-orange-700 dark:text-orange-300" href="{{ route('blog.show', $post) }}">{{ __('blog.index.read') }} <span aria-hidden="true">→</span></a>
-                        </div>
-                    </div>
-                </article>
+                <x-blog-card :post="$post" data-reveal />
 
                 {{-- Feed reklamı akışın içinde durur; kenar çubuğuna konursa
                      performansı düşer ve okuma akışını da bölmez. --}}
