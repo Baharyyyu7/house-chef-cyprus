@@ -30,14 +30,14 @@ final class BlogController extends Controller
             ->when($request->filled('q'), fn ($query) => $query->where(fn ($nested) => $nested->where('title', 'like', '%'.$request->string('q')->toString().'%')->orWhere('excerpt', 'like', '%'.$request->string('q')->toString().'%')))
             ->latest('published_at')->paginate(12)->withQueryString();
 
-        $description = 'Mutfak teknikleri, malzeme rehberleri ve Kıbrıs mutfağı üzerine editoryal yazılar.';
+        $description = __('blog.index.meta_description');
 
         return view('blog.index', [
             'posts' => $posts,
             'title' => 'Blog · House Chef Cyprus',
             'seoIndexability' => $indexability->forRequest($request, route('blog.index')),
-            'seoSchema' => $schema->blogCollectionPage('Mutfak rehberi', $description, route('blog.index'), $posts->items(), [
-                ['name' => 'Ana Sayfa', 'url' => route('home')],
+            'seoSchema' => $schema->blogCollectionPage(__('blog.index.title'), $description, route('blog.index'), $posts->items(), [
+                ['name' => __('nav.home'), 'url' => route('home')],
                 ['name' => 'Blog', 'url' => route('blog.index')],
             ]),
         ]);

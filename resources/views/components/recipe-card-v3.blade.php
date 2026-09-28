@@ -26,12 +26,12 @@
             <img class="h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none" src="{{ $displayMedia['card_url'] }}" alt="{{ $alt }}" width="800" height="600" loading="lazy">
         @endif
         <span class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent"></span>
-        <span class="absolute left-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">{{ $recipe->cuisine?->name ?? __('recipe.home_cooking') }}</span>
+        <span class="absolute left-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">{{ $recipe->cuisine ? taxonomy_name($recipe->cuisine) : __('recipe.home_cooking') }}</span>
         @if($hasApprovedMedia && $isSyntheticMedia)<span class="absolute right-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">{{ __('card.ai_image') }}</span>@endif
         <span class="absolute bottom-3 left-3 text-xs font-extrabold text-white">{{ $recipe->totalMinutes() }} {{ __('card.min') }} · {{ $recipe->servings }} {{ __('card.servings') }}</span>
     </a>
     <div class="flex flex-1 flex-col p-5">
-        <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color: var(--hc-text-muted)"><span>{{ $recipe->category?->name ?? __('recipe.recipe') }}</span><span>{{ $recipe->zorlukEtiketi() }}</span></div>
+        <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color: var(--hc-text-muted)"><span>{{ $recipe->category ? taxonomy_name($recipe->category) : __('recipe.recipe') }}</span><span>{{ $recipe->zorlukEtiketi() }}</span></div>
         <{{ $heading }} class="mt-2 text-base font-extrabold leading-snug line-clamp-2" style="color: var(--hc-text-primary)"><a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('recipes.show', $recipe) }}">{{ $recipe->translated('title') }}</a></{{ $heading }}>
         <p class="hc-body-sm mt-2 line-clamp-2" style="color: var(--hc-text-secondary)">{{ $recipe->translated('excerpt') }}</p>
         <div class="mt-3 flex flex-wrap gap-2">@foreach($recipe->dietaryTags->take(2) as $tag)<span class="hc-v3-badge hc-v3-badge--success">{{ $tag->name ?? str($tag->code)->replace('_', ' ')->title() }}</span>@endforeach</div>

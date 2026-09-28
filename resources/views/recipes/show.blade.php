@@ -42,7 +42,7 @@
                             <span class="font-bold text-orange-300">{{ app()->getLocale() === 'en' ? 'Embed Code (HTML)' : 'Gömme Kodu (HTML)' }}</span>
                             <button type="button" @click="openEmbed = false" class="text-stone-400 hover:text-white text-base">&times;</button>
                         </div>
-                        <p class="text-stone-400 mb-2">{{ app()->getLocale() === 'en' ? 'Copy and paste this snippet into your blog or website:' : 'Bu kodu sitenize veya blogunuza ekleyerek doğrulanmış tarif kartını gösterebilirsiniz:' }}</p>
+                        <p class="text-stone-400 mb-2">{{ __('recipe.show.embed_help') }}</p>
                         <textarea readonly class="w-full bg-black/50 border border-white/10 rounded p-2 font-mono text-[11px] text-amber-200 h-20 select-all" x-ref="embedInput"><iframe src="{{ route('recipes.embed', $recipe) }}" width="100%" height="340" frameborder="0" style="border:none; border-radius:12px; max-width:540px;"></iframe></textarea>
                         <button type="button" @click="navigator.clipboard.writeText($refs.embedInput.value); copied = true; setTimeout(() => copied = false, 2000)" class="mt-2 bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1.5 rounded text-xs transition flex items-center gap-1">
                             <span x-text="copied ? '{{ app()->getLocale() === 'en' ? '✓ Copied' : '✓ Kopyalandı' }}' : '{{ app()->getLocale() === 'en' ? 'Copy Embed Code' : 'Kodu Kopyala' }}'"></span>

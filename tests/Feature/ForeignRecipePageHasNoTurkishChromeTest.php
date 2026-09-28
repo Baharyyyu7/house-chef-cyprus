@@ -67,6 +67,36 @@ final class ForeignRecipePageHasNoTurkishChromeTest extends TestCase
         }
     }
 
+    public function test_related_recipes_and_labels_follow_the_page_language(): void
+    {
+        $tarif = $this->tarif();
+        // Aynı kategoride ama İngilizceye çevrilmemiş tarif: benzer tarif
+        // olarak basılırsa bağlantısı İngilizcede 404 verir.
+        Recipe::query()->create([
+            'cuisine_id' => $tarif->cuisine_id, 'category_id' => $tarif->category_id,
+            'title' => 'Çevrilmemiş Tatlı', 'slug' => 'cevrilmemis-tatli', 'excerpt' => 'Özet.', 'description' => 'Açıklama.',
+            'servings' => 2, 'prep_minutes' => 5, 'cook_minutes' => 5,
+            'status' => 'published', 'verification_status' => 'verified', 'published_at' => now(),
+        ]);
+
+        $icerik = (string) $this->get('/en/recipes/cennet-camuru')->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('Çevrilmemiş Tatlı', $icerik);
+        $this->assertStringNotContainsString('cevrilmemis-tatli', $icerik);
+        $this->assertStringNotContainsString('Vejetaryen', $icerik);
+        $this->assertStringNotContainsString('Glutensiz', $icerik);
+    }
+
+    public function test_the_english_blog_index_speaks_english(): void
+    {
+        config()->set('locales.supported.en.enabled', true);
+
+        $this->get('/en/blog')->assertOk()
+            ->assertSee(__('blog.index.title', [], 'en'))
+            ->assertDontSee('Mutfak rehberi')
+            ->assertDontSee('Mutfak teknikleri, malzeme rehberleri');
+    }
+
     public function test_the_turkish_page_keeps_its_content_and_blocks(): void
     {
         $this->tarif();

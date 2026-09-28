@@ -251,6 +251,9 @@ final class RecipeController extends Controller
                 ->where('status', 'published')
                 ->where('verification_status', 'verified')
                 ->whereKeyNot($recipe->id)
+                // Yabancı sayfada çevrilmemiş tarif, kalıp başlığıyla ve o dilde
+                // 404 veren bağlantıyla "benzer tarif" olarak basılıyordu.
+                ->translatedInto()
                 ->where(function ($query) use ($recipe): void {
                     $query->where('category_id', $recipe->category_id)
                         ->orWhere('cuisine_id', $recipe->cuisine_id);
