@@ -1,4 +1,5 @@
-<x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : route('blog.cover', $post)" :social-image-width="$heroMedia?->publicUrl() ? $heroMedia->width : 1200" :social-image-height="$heroMedia?->publicUrl() ? $heroMedia->height : 630" :social-image-alt="$heroMedia?->alt_text ?: $post->translated('title')" :structured-data="$schema" :seo-content="$post">
+@php($fallbackImage = asset(ltrim((string) config('media_excellence.blog_fallback_url'), '/')))
+<x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : $fallbackImage" :social-image-width="$heroMedia?->publicUrl() ? $heroMedia->width : 1600" :social-image-height="$heroMedia?->publicUrl() ? $heroMedia->height : 1200" :social-image-alt="$heroMedia?->alt_text ?: $post->translated('title')" :structured-data="$schema" :seo-content="$post">
     <section class="hc-container py-10 sm:py-16">
         <article class="mx-auto max-w-3xl" data-hc-okuma>
             <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider" style="color: var(--hc-text-muted)" aria-label="Breadcrumb">
@@ -43,11 +44,9 @@
                     @endif
                 </figure>
             @else
-                <div class="mt-8 flex aspect-[16/9] flex-col items-center justify-center gap-3 rounded-3xl border border-dashed p-8 text-center" style="border-color:var(--hc-border-subtle); background: var(--hc-surface-subtle)">
-                    <span class="grid h-12 w-12 place-items-center rounded-full bg-orange-100 text-xl text-orange-800 dark:bg-orange-500/15 dark:text-orange-200">▤</span>
-                    <strong class="font-extrabold" style="color: var(--hc-text-primary)">{{ __('blog.show.pending_image_title') }}</strong>
-                    <p class="max-w-md text-xs leading-5" style="color: var(--hc-text-muted)">{{ __('blog.show.pending_image_body') }}</p>
-                </div>
+                <figure class="mt-8 overflow-hidden rounded-3xl shadow-sm">
+                    <img class="aspect-[16/9] w-full object-cover" src="{{ $fallbackImage }}" alt="" width="1600" height="1200" loading="lazy" aria-hidden="true">
+                </figure>
             @endif
 
             <div class="hc-prose mt-10 space-y-6 text-base leading-relaxed" style="color: var(--hc-text-primary)">

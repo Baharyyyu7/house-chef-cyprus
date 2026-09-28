@@ -31,13 +31,13 @@ final class BlogCoverArtTest extends TestCase
             ->assertDontSee('görsel hazırlanıyor', false);
     }
 
-    public function test_each_post_gets_its_own_social_image(): void
+    public function test_a_post_without_real_media_uses_the_shared_blog_cover(): void
     {
         $post = $this->publish('Çorba Kıvamı Nasıl Ayarlanır');
 
         $this->get(route('blog.show', $post))
             ->assertOk()
-            ->assertSee(route('blog.cover', $post), false)
+            ->assertSee(asset('storage/media/system/blog-fallback-cover.png'), false)
             ->assertDontSee('brand/og-default.jpg', false);
     }
 

@@ -5,6 +5,7 @@
         ->heroOrFirstEligible($post->heroMedia, $post->media);
     $kategori = $post->category?->name ?? 'Mutfak notu';
     $yapayZeka = (bool) $media?->generated_by_ai;
+    $fallbackImage = asset(ltrim((string) config('media_excellence.blog_fallback_url'), '/'));
 @endphp
 
 {{-- Blog kartları anasayfada tarif kartlarının yanında duruyor ama onlarla
@@ -26,13 +27,10 @@
             </picture>
             <span class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent"></span>
         @else
-            <div class="flex h-full w-full flex-col items-center justify-center gap-3 border-b border-dashed p-6 text-center" style="border-color:var(--hc-border-subtle)" aria-hidden="true">
-                <span class="grid h-12 w-12 place-items-center rounded-full bg-orange-100 text-2xl text-orange-800 dark:bg-orange-500/15 dark:text-orange-200">✎</span>
-                <span class="text-sm font-extrabold" style="color:var(--hc-text-primary)">{{ __('blog.cover_pending') }}</span>
-                <span class="max-w-52 text-xs leading-5" style="color:var(--hc-text-muted)">{{ __('blog.cover_pending_note') }}</span>
-            </div>
+            <img class="h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none" src="{{ $fallbackImage }}" alt="" width="1600" height="1200" loading="lazy" aria-hidden="true">
+            <span class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent"></span>
         @endif
-        <span class="absolute left-3 top-3 hc-v3-badge {{ $media?->publicUrl() ? 'border-white/20 bg-black/35 text-white backdrop-blur' : '' }}">{{ $kategori }}</span>
+        <span class="absolute left-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">{{ $kategori }}</span>
         @if($media?->publicUrl() && $yapayZeka)<span class="absolute right-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">{{ __('blog.ai_image_badge') }}</span>@endif
     </a>
     <div class="flex flex-1 flex-col p-5">

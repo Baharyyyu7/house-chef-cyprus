@@ -36,6 +36,7 @@ return [
         'thumbnail' => [400, 300],
     ],
     'cdn_base_url' => rtrim((string) env('MEDIA_CDN_BASE_URL', ''), '/'),
+    'blog_fallback_url' => (string) env('MEDIA_BLOG_FALLBACK_URL', '/storage/media/system/blog-fallback-cover.png'),
     'approval' => [
         'media_reviewer_can_final_approve' => (bool) env('MEDIA_REVIEWER_CAN_FINAL_APPROVE', false),
     ],
