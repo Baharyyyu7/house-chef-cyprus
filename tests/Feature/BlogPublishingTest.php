@@ -28,7 +28,7 @@ final class BlogPublishingTest extends TestCase
         $this->get('/sitemaps/blog.xml')->assertOk()->assertSee($published->slug)->assertDontSee($draft->slug);
     }
 
-    public function test_blog_without_approved_media_uses_an_honest_non_photographic_state(): void
+    public function test_blog_without_approved_media_uses_the_shared_editorial_cover(): void
     {
         $post = BlogPost::create([
             'title' => 'Kaynağı doğrulanan mutfak notu',
@@ -39,17 +39,15 @@ final class BlogPublishingTest extends TestCase
             'published_at' => now(),
         ]);
 
-        // Liste artık görselsiz: yazının kendisi başlık ve özetle temsil
-        // ediliyor, olmayan fotoğrafın yerine hiçbir şey konmuyor.
         $this->get(route('blog.index'))
             ->assertOk()
             ->assertSee($post->title)
-            ->assertDontSee('<picture>', false);
+            ->assertSee(asset('storage/media/system/blog-fallback-cover.png'), false);
 
         $this->get(route('blog.show', $post))
             ->assertOk()
-            ->assertSee('Bu yazı için onaylı görsel bekleniyor')
-            ->assertSee('genel veya ilgisiz fotoğraf gösterilmez.');
+            ->assertSee(asset('storage/media/system/blog-fallback-cover.png'), false)
+            ->assertDontSee('Bu yazı için onaylı görsel bekleniyor');
     }
 
     public function test_blog_index_schema_lists_only_the_visible_page_items_as_plain_urls(): void
