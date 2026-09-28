@@ -363,7 +363,7 @@
 
         @include('layouts.partials.public-footer')
         <x-analytics-consent />
-        <x-floating-quick-quote />
+        @if(app(\App\Services\SiteFeatureService::class)->enabled('services'))<x-floating-quick-quote />@endif
     @endif
     {{-- @livewireScripts kosulsuzdu: her genel sayfa 161 KB Livewire
          betigini indirip calistiriyordu, oysa anasayfada, tarif detayinda ve

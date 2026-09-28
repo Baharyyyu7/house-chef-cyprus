@@ -34,6 +34,7 @@
             'search' => collect(array_keys($area['tabs']))->map(fn ($label) => __('admin_workspaces.'.$label))->join(' '),
         ])->values()->all(),
         'Sistem' => [
+            ['route' => 'admin.site-features.index', 'label' => 'Geliştirmeler', 'icon' => 'sliders'],
             ['route' => 'admin.users.index', 'label' => 'Kullanıcılar', 'icon' => 'users'],
             ['route' => 'admin.release-candidate.index', 'label' => 'RC Kontrol Merkezi', 'icon' => 'shield'],
             ['route' => 'admin.ai-kitchen.index', 'label' => 'AI Operasyonları', 'icon' => 'flask'],

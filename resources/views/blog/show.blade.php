@@ -61,7 +61,7 @@
             <x-recipe-equipment-affiliate :post="$post" heading="h2" />
 
             {{-- Kuzey Kıbrıs Özel Villa Şefi & Ada Catering Lead Kartı --}}
-            <x-recipe-chef-lead-card :post="$post" />
+            @if(app(\App\Services\SiteFeatureService::class)->enabled('services'))<x-recipe-chef-lead-card :post="$post" />@endif
 
             <x-ad-slot slot-name="in_article" class="my-8" />
 

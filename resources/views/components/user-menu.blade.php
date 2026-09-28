@@ -70,7 +70,7 @@
                 @endif
             @endforeach
 
-            @if (! auth()->user()->isPremium() && Route::has('pricing'))
+            @if (! auth()->user()->isPremium() && Route::has('pricing') && app(\App\Services\SiteFeatureService::class)->enabled('premium'))
                 <div class="hc-user-menu__rule"></div>
                 <a href="{{ route('pricing') }}" class="hc-user-menu__item hc-user-menu__item--accent" role="menuitem">
                     <span class="hc-user-menu__icon" aria-hidden="true"><x-ui.icon name="sparkles" size="16" /></span>{{ __('ui.go_premium') }}

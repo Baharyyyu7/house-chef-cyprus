@@ -12,6 +12,7 @@ use App\Services\Seo\BlogIndexability;
 use App\Services\Seo\LocaleUrlService;
 use App\Services\Seo\RecipeTranslationGate;
 use App\Services\Seo\SeoMetadataService;
+use App\Services\SiteFeatureService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
 
@@ -46,7 +47,12 @@ final class SitemapController extends Controller
             'kategoriler' => $this->date($categories->max('latest_published_at')),
         ];
 
-        $staticPaths = ['', 'tarifler', 'blog', 'haftalik-menu', 'meal-plans', 'magaza', 'malzemeler', 'mutfaklar', 'kategoriler', 'ne-pisirebilirim', 'private-chef', 'catering-cyprus', 'cooking-classes', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'iletisim'];
+        $features = app(SiteFeatureService::class);
+        $staticPaths = collect(['', 'tarifler', 'blog', 'haftalik-menu', 'malzemeler', 'mutfaklar', 'kategoriler', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'iletisim'])
+            ->when($features->enabled('explore'), fn ($paths) => $paths->push('ne-pisirebilirim'))
+            ->when($features->enabled('services'), fn ($paths) => $paths->push('meal-plans', 'private-chef', 'catering-cyprus', 'cooking-classes'))
+            ->when($features->enabled('shop'), fn ($paths) => $paths->push('magaza'))
+            ->all();
 
 
         $urls = collect($staticPaths)->map(fn (string $path): array => [

@@ -1,4 +1,5 @@
-        <footer class="hc-footer mt-20">
+@php($siteFeatures = app(\App\Services\SiteFeatureService::class))
+<footer class="hc-footer mt-20">
             {{-- Beş dengeli sütun: marka (+bülten) ve dört bağlantı kümesi.
                  Eskiden altı blok vardı; altıncı (Bülten) ızgaraya sığmayıp
                  alta sarkıyor, sayfa dağınık görünüyordu. Bağlantı silinmedi:
@@ -13,7 +14,7 @@
                     <p class="hc-footer-muted mt-2 max-w-sm text-sm leading-6">{{ __('footer.newsletter_text') }}</p>
                     <a href="{{ route('register') }}" class="hc-btn hc-btn-primary mt-4">{{ __('footer.free_signup') }}</a>
                 </div>
-                <div><p class="text-sm font-extrabold text-orange-300">{{ __('footer.explore') }}</p><div class="hc-footer-muted mt-4 grid gap-2.5 text-sm [&>a]:inline-flex [&>a]:min-h-[24px] [&>a]:items-center"><a class="hover:text-orange-300" href="{{ route('recipes.index') }}">{{ __('nav.recipes') }}</a><a class="hover:text-orange-300" href="{{ route('ingredients.explore') }}">{{ __('nav.explore') }}</a><a class="hover:text-orange-300" href="{{ route('blog.index') }}">{{ __('nav.blog') }}</a><a class="hover:text-orange-300" href="{{ route('weekly-menu.index') }}">{{ __('nav.weekly_menu') }}</a><a class="hover:text-orange-300" href="{{ route('shop.index') }}">{{ __('nav.shop') }} (E-Kitap)</a><a class="hover:text-orange-300" href="{{ route('cuisines.index') }}">{{ __('footer.cuisines') }}</a><a class="hover:text-orange-300" href="{{ route('categories.index') }}">{{ __('footer.categories') }}</a><a class="hover:text-orange-300" href="{{ route('ingredients.hub.index') }}">{{ __('footer.ingredients') }}</a><a class="hover:text-orange-300" href="{{ route('collections.sure.index') }}">{{ __('footer.by_duration') }}</a><a class="hover:text-orange-300" href="{{ route('collections.zorluk.index') }}">{{ __('footer.by_difficulty') }}</a>@auth<a class="hover:text-orange-300" href="{{ route('pantry.index') }}">{{ __('nav.pantry') }}</a>@endauth</div></div>
+                <div><p class="text-sm font-extrabold text-orange-300">{{ __('footer.explore') }}</p><div class="hc-footer-muted mt-4 grid gap-2.5 text-sm [&>a]:inline-flex [&>a]:min-h-[24px] [&>a]:items-center"><a class="hover:text-orange-300" href="{{ route('recipes.index') }}">{{ __('nav.recipes') }}</a>@if($siteFeatures->enabled('explore'))<a class="hover:text-orange-300" href="{{ route('ingredients.explore') }}">{{ __('nav.explore') }}</a>@endif<a class="hover:text-orange-300" href="{{ route('blog.index') }}">{{ __('nav.blog') }}</a><a class="hover:text-orange-300" href="{{ route('weekly-menu.index') }}">{{ __('nav.weekly_menu') }}</a>@if($siteFeatures->enabled('shop'))<a class="hover:text-orange-300" href="{{ route('shop.index') }}">{{ __('nav.shop') }} (E-Kitap)</a>@endif<a class="hover:text-orange-300" href="{{ route('cuisines.index') }}">{{ __('footer.cuisines') }}</a><a class="hover:text-orange-300" href="{{ route('categories.index') }}">{{ __('footer.categories') }}</a><a class="hover:text-orange-300" href="{{ route('ingredients.hub.index') }}">{{ __('footer.ingredients') }}</a><a class="hover:text-orange-300" href="{{ route('collections.sure.index') }}">{{ __('footer.by_duration') }}</a><a class="hover:text-orange-300" href="{{ route('collections.zorluk.index') }}">{{ __('footer.by_difficulty') }}</a>@auth @if($siteFeatures->enabled('member_kitchen'))<a class="hover:text-orange-300" href="{{ route('pantry.index') }}">{{ __('nav.pantry') }}</a>@endif @endauth</div></div>
                 {{-- On bir baglanti tek dar sutunun icinde iki sutuna sikistirilmisti;
                      "Sik sorulan / sorular" ve "Yasal / bilgilendirme" diye
                      kiriliyordu. Iki ayri baslik, her biri tek sutun. --}}
@@ -47,7 +48,7 @@
                 <div>
                     <p class="text-sm font-extrabold text-orange-300">{{ __('footer.services_kitchen') }}</p>
                     <div class="hc-footer-muted mt-4 grid gap-2.5 text-sm [&>a]:inline-flex [&>a]:min-h-[24px] [&>a]:items-center">
-                        @if(turkce_sayfa())
+                        @if(turkce_sayfa() && $siteFeatures->enabled('services'))
                         <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('private-chef.index') }}">👨‍🍳 Private Chef Cyprus</a>
                         <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('catering.index') }}">🍽️ Catering Cyprus</a>
                         <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('cooking-classes.index') }}">🧀 Yemek Kursları & Atölye</a>

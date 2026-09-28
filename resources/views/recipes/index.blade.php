@@ -35,7 +35,7 @@
                 <h1 class="hc-display-lg mt-3">{{ __('archive.title') }}</h1>
                 <p class="hc-body-lg mt-4" style="color: var(--hc-text-secondary)">{{ __('archive.subtitle', ['total' => $recipes->total()]) }}</p>
             </div>
-            <a href="{{ route('ingredients.explore') }}" class="hc-v3-btn hc-v3-btn--outline">{{ __('archive.match_with_ingredients') }} <span aria-hidden="true">→</span></a>
+            @if(app(\App\Services\SiteFeatureService::class)->enabled('explore'))<a href="{{ route('ingredients.explore') }}" class="hc-v3-btn hc-v3-btn--outline">{{ __('archive.match_with_ingredients') }} <span aria-hidden="true">→</span></a>@endif
         </div>
 
         <form class="hc-v3-card mt-7 grid gap-4 p-4 sm:p-5" action="{{ route('recipes.index') }}" role="search" aria-label="{{ __('archive.search_recipes') }}" toolname="search_recipes" tooldescription="Search HouseChef recipes by title, ingredients, cuisine, cooking time, and dietary preferences">
@@ -93,7 +93,7 @@
                     <x-ad-slot slot-name="in_feed" class="col-span-full my-2" />
                 @endif
             @empty
-                <div class="hc-v3-empty col-span-full"><p class="hc-heading-3">{{ __('archive.empty_title') }}</p><p class="hc-body-sm mt-2">{{ __('archive.empty_subtitle') }}</p><div class="mt-5 flex flex-wrap justify-center gap-3"><a class="hc-v3-btn hc-v3-btn--outline" href="{{ route('recipes.index') }}">{{ __('archive.show_all_recipes') }}</a><a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('ingredients.explore') }}">{{ __('archive.find_with_pantry') }}</a></div></div>
+                <div class="hc-v3-empty col-span-full"><p class="hc-heading-3">{{ __('archive.empty_title') }}</p><p class="hc-body-sm mt-2">{{ __('archive.empty_subtitle') }}</p><div class="mt-5 flex flex-wrap justify-center gap-3"><a class="hc-v3-btn hc-v3-btn--outline" href="{{ route('recipes.index') }}">{{ __('archive.show_all_recipes') }}</a>@if(app(\App\Services\SiteFeatureService::class)->enabled('explore'))<a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('ingredients.explore') }}">{{ __('archive.find_with_pantry') }}</a>@endif</div></div>
             @endforelse
         </div>
         <div class="mt-10">{{ $recipes->withQueryString()->links() }}</div>

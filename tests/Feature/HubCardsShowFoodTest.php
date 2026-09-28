@@ -115,7 +115,9 @@ final class HubCardsShowFoodTest extends TestCase
         // Ayni icerik iki sayfada farkli goruniyordu: /mutfaklar kartlari
         // yemek fotografi tasirken anasayfadaki secki tamamen metindi.
         $mutfak = Cuisine::query()->create(['name' => 'Kıbrıs Mutfağı', 'slug' => 'kibris-mutfagi']);
-        for ($i = 0; $i < 4; $i++) {
+        // Kullanıcı menüsünde bir mutfak ancak 10 görünür tarife ulaştığında
+        // açılır; kart sözleşmesi de aynı gerçek eşikte sınanır.
+        for ($i = 0; $i < 10; $i++) {
             $this->gorselliTarif('Kıbrıs Tarifi '.$i, ['cuisine_id' => $mutfak->id]);
         }
 

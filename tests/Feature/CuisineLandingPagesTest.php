@@ -124,14 +124,15 @@ final class CuisineLandingPagesTest extends TestCase
             ->assertDontSee(route('recipes.index', ['cuisine' => 'kibris']).'"', false);
     }
 
-    public function test_a_thin_cuisine_card_still_links_to_the_filtered_view(): void
+    public function test_a_thin_cuisine_is_not_advertised_on_the_home_page(): void
     {
-        // Eşiğin altındaki mutfağın sayfası yok; kart onu 404'e bağlamamalı.
+        // Eşiğin altındaki mutfak kullanıcıya boş/eksik seçenek olarak
+        // sunulmaz. İçerik 10 görünür tarife ulaştığında kendiliğinden açılır.
         $this->mutfak('Yunan Mutfağı', 'yunan-mutfagi', 2);
 
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee(route('recipes.index', ['cuisine' => 'yunan-mutfagi']), false)
+            ->assertDontSee(route('recipes.index', ['cuisine' => 'yunan-mutfagi']), false)
             ->assertDontSee(route('cuisines.show', 'yunan-mutfagi'), false);
     }
 

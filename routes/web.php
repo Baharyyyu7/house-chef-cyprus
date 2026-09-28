@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\ReleaseCandidateController;
 use App\Http\Controllers\Admin\RestoreHistoryController;
 use App\Http\Controllers\Admin\SeoOperationsController;
 use App\Http\Controllers\Admin\SystemEventController;
+use App\Http\Controllers\Admin\SiteFeatureController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\AiKitchenController;
@@ -71,14 +72,14 @@ use Illuminate\Support\Facades\Route;
 | Monetization & Gelir Kanalları Route'ları
 |--------------------------------------------------------------------------
 */
-Route::get('/fiyatlandirma', [SubscriptionController::class, 'pricing'])->name('pricing');
-Route::post('/abone-ol', [SubscriptionController::class, 'checkout'])->name('subscription.checkout')->middleware(['auth', 'throttle:payment-attempt']);
+Route::get('/fiyatlandirma', [SubscriptionController::class, 'pricing'])->middleware('site-feature:premium')->name('pricing');
+Route::post('/abone-ol', [SubscriptionController::class, 'checkout'])->name('subscription.checkout')->middleware(['site-feature:premium', 'auth', 'throttle:payment-attempt']);
 Route::post('/abonelik-iptal', [SubscriptionController::class, 'cancel'])->name('subscription.cancel')->middleware(['auth', 'throttle:payment-attempt']);
 Route::post('/abonelik-yonet', [SubscriptionController::class, 'billingPortal'])->name('subscription.portal')->middleware(['auth', 'throttle:payment-attempt']);
 
-Route::get('/magaza', [ShopController::class, 'index'])->name('shop.index');
-Route::get('/magaza/{product:slug}', [ShopController::class, 'show'])->name('shop.show');
-Route::post('/magaza/satin-al/{product:slug}', [ShopController::class, 'checkout'])->name('shop.checkout')->middleware('throttle:payment-attempt');
+Route::get('/magaza', [ShopController::class, 'index'])->middleware('site-feature:shop')->name('shop.index');
+Route::get('/magaza/{product:slug}', [ShopController::class, 'show'])->middleware('site-feature:shop')->name('shop.show');
+Route::post('/magaza/satin-al/{product:slug}', [ShopController::class, 'checkout'])->name('shop.checkout')->middleware(['site-feature:shop', 'throttle:payment-attempt']);
 Route::get('/magaza/onay/{orderUuid}', [ShopController::class, 'success'])->middleware('signed')->name('shop.success');
 Route::get('/magaza/indir/{downloadToken}', [ShopController::class, 'download'])->name('shop.download')->middleware('throttle:digital-download');
 
@@ -109,7 +110,7 @@ Route::get('/giris/{provider}/geri-donus', [SocialLoginController::class, 'callb
 Route::get('/health', HealthController::class)->name('health');
 Route::get('/tarifler', [RecipeController::class, 'index'])->name('recipes.index');
 // Malzemeye göre tarif eşleştirme herkese açıktır; dolap entegrasyonu üye olanlara özel kalır.
-Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])->name('ingredients.explore');
+Route::get('/ne-pisirebilirim', [IngredientExplorerController::class, 'index'])->middleware('site-feature:explore')->name('ingredients.explore');
 
 // Malzeme sayfaları: "Hellim ile ne yapılır?" Sayfa yalnız arkasında yeterli
 // tarif varsa açılır; eşiğin altındaki malzeme 404 verir.
@@ -295,11 +296,11 @@ Route::get('/_zamanlayici/{token}', SchedulerTriggerController::class)
 Route::get('/yasal-bilgilendirme', [LegalInformationCenterController::class, 'index'])->name('legal.center');
 // İletişim formu yasal metnin içine gömülüydü; kendi sayfası oldu.
 Route::view('/iletisim', 'contact.index')->name('contact.index');
-Route::view('/private-chef', 'private-chef.index')->name('private-chef.index');
+Route::view('/private-chef', 'private-chef.index')->middleware('site-feature:services')->name('private-chef.index');
 Route::redirect('/ozel-sef', '/private-chef', 301);
-Route::view('/catering-cyprus', 'catering.index')->name('catering.index');
-Route::view('/cooking-classes', 'cooking-classes.index')->name('cooking-classes.index');
-Route::view('/meal-plans', 'meal-plans.index')->name('meal-plans.index');
+Route::view('/catering-cyprus', 'catering.index')->middleware('site-feature:services')->name('catering.index');
+Route::view('/cooking-classes', 'cooking-classes.index')->middleware('site-feature:services')->name('cooking-classes.index');
+Route::view('/meal-plans', 'meal-plans.index')->middleware('site-feature:services')->name('meal-plans.index');
 Route::redirect('/catering', '/catering-cyprus', 301);
 Route::redirect('/yemek-kursu', '/cooking-classes', 301);
 Route::redirect('/diyet-plani', '/meal-plans', 301);
@@ -340,6 +341,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::post('/sizin-icin/kapat', [PersonalizationController::class, 'disable'])->name('personalization.disable');
     Route::post('/sizin-icin/ogrenilenleri-sil', [PersonalizationController::class, 'clear'])->name('personalization.clear');
     Route::post('/sizin-icin/tarifler/{recipe:public_id}/geri-bildirim', [PersonalizationController::class, 'feedback'])->name('personalization.feedback');
+    Route::middleware('site-feature:member_kitchen')->group(function (): void {
     Route::get('/ai-mutfak', [AiKitchenController::class, 'index'])->name('ai-kitchen.index');
     Route::post('/ai-mutfak/asistan', [AiKitchenController::class, 'assistant'])->name('ai-kitchen.assistant');
     Route::post('/ai-mutfak/dolap', [AiKitchenController::class, 'pantry'])->name('ai-kitchen.pantry');
@@ -360,6 +362,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/dolabim', [PantryController::class, 'index'])->name('pantry.index');
     Route::post('/dolabim', [PantryController::class, 'store'])->name('pantry.store');
     Route::delete('/dolabim/{pantryItem}', [PantryController::class, 'destroy'])->name('pantry.destroy');
+    });
     Route::post('/tarifler/{recipe:slug}/pisir', [CookingSessionController::class, 'start'])->name('cooking-sessions.start');
     Route::get('/pisir/{cookingSession}', [CookingSessionController::class, 'show'])->name('cooking-sessions.show');
     Route::post('/pisir/{cookingSession}/adimlar/{step}/tamamla', [CookingSessionController::class, 'completeStep'])->name('cooking-sessions.steps.complete');
@@ -379,6 +382,8 @@ Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:a
 });
 
 Route::prefix('yonetim')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function (): void {
+    Route::get('gelistirmeler', [SiteFeatureController::class, 'index'])->name('site-features.index');
+    Route::put('gelistirmeler', [SiteFeatureController::class, 'update'])->name('site-features.update');
     Route::get('entegrasyonlar', IntegrationCenterController::class)->name('integrations.index');
     Route::get('e-posta-operasyonlari', [MailOperationsController::class, 'index'])->name('mail-operations.index');
     Route::get('e-posta-operasyonlari/onizleme/{template}', [MailOperationsController::class, 'preview'])->name('mail-operations.preview');

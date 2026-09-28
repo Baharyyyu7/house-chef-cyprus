@@ -1,3 +1,4 @@
+        @php($siteFeatures = app(\App\Services\SiteFeatureService::class))
         <header :class="{ 'is-scrolled': scrolled }" @class([
             'hc-public-header sticky top-0 z-40 transition-all duration-300',
             {{-- Bu kip çubuğu koyu bir hero'nun üstünde okunur kılmak için
@@ -14,13 +15,13 @@
                      "Ana Sayfa" kalktı çünkü logo zaten oraya götürüyor. --}}
                 <div class="hidden items-center gap-3.5 text-[13px] font-bold xl:flex 2xl:gap-6 2xl:text-sm">
                     <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ localized_route('recipes.index') }}" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>{{ __('nav.recipes') }}</a>
-                    <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ localized_route('ingredients.explore') }}" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>{{ __('nav.explore') }}</a>
+                    @if($siteFeatures->enabled('explore'))<a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ localized_route('ingredients.explore') }}" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>{{ __('nav.explore') }}</a>@endif
                     <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ localized_route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif>{{ __('nav.blog') }}</a>
                     @if (Route::has('weekly-menu.index'))
                         <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('weekly-menu.*')]) href="{{ localized_route('weekly-menu.index') }}" @if(request()->routeIs('weekly-menu.*')) aria-current="page" @endif>{{ __('nav.weekly_menu') }}</a>
                     @endif
 
-                    @if(turkce_sayfa())
+                    @if(turkce_sayfa() && $siteFeatures->enabled('services'))
                     <div class="relative" x-data="{ acik: false }" @keydown.escape.window="acik = false">
                         <button type="button" @click="acik = !acik" :aria-expanded="acik" aria-haspopup="menu"
                                 @class(['nav-link inline-flex items-center gap-1 whitespace-nowrap', 'nav-link-active' => request()->routeIs('private-chef.*', 'catering.*', 'cooking-classes.*', 'meal-plans.*')])>
@@ -67,6 +68,7 @@
 
 
                     @auth
+                    @if($siteFeatures->enabled('member_kitchen'))
                         @php($mutfakRotalari = collect([
                             ['ingredients.explore', __('nav.explore'), __('ux.match')],
                             ['ai-kitchen.index', __('nav.ai_kitchen'), __('ux.plan')],
@@ -103,12 +105,13 @@
                                 @endforeach
                             </div>
                         </div>
+                    @endif
                     @endauth
 
-                    @if (Route::has('pricing'))
+                    @if (Route::has('pricing') && $siteFeatures->enabled('premium'))
                         <a @class(['nav-link whitespace-nowrap text-amber-600 dark:text-amber-400', 'nav-link-active' => request()->routeIs('pricing')]) href="{{ localized_route('pricing') }}" @if(request()->routeIs('pricing')) aria-current="page" @endif>{{ __('nav.premium') }}</a>
                     @endif
-                    @if (Route::has('shop.index'))
+                    @if (Route::has('shop.index') && $siteFeatures->enabled('shop'))
                         <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('shop.*')]) href="{{ localized_route('shop.index') }}" @if(request()->routeIs('shop.*')) aria-current="page" @endif>{{ __('nav.shop') }}</a>
                     @endif
                 </div>
@@ -145,20 +148,20 @@
                 <div class="grid gap-2 text-sm font-semibold">
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('home')]) href="{{ localized_route('home') }}" @click="menuOpen = false" @if(request()->routeIs('home')) aria-current="page" @endif>{{ __('nav.home') }}</a>
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('recipes.*')]) href="{{ localized_route('recipes.index') }}" @click="menuOpen = false" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>{{ __('nav.recipes') }}</a>
-                    <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ localized_route('ingredients.explore') }}" @click="menuOpen = false" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>🥕 {{ __('nav.explore') }}</a>
+                    @if($siteFeatures->enabled('explore'))<a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ localized_route('ingredients.explore') }}" @click="menuOpen = false" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>🥕 {{ __('nav.explore') }}</a>@endif
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('blog.*')]) href="{{ localized_route('blog.index') }}" @click="menuOpen = false" @if(request()->routeIs('blog.*')) aria-current="page" @endif>{{ __('nav.blog') }}</a>
                     @if (Route::has('weekly-menu.index'))
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('weekly-menu.*')]) href="{{ localized_route('weekly-menu.index') }}" @click="menuOpen = false" @if(request()->routeIs('weekly-menu.*')) aria-current="page" @endif>🗓️ {{ __('nav.weekly_menu') }}</a>
                     @endif
-                    @if (Route::has('pricing'))
+                    @if (Route::has('pricing') && $siteFeatures->enabled('premium'))
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('pricing'), 'text-amber-600 dark:text-amber-400']) href="{{ localized_route('pricing') }}" @click="menuOpen = false" @if(request()->routeIs('pricing')) aria-current="page" @endif>👑 {{ __('nav.premium') }}</a>
                     @endif
                     {{-- Mağaza masaüstü menüsünde vardı, çekmecede yoktu: telefondan
                          gelen ziyaretçi dijital ürünleri hiç göremiyordu. --}}
-                    @if (Route::has('shop.index'))
+                    @if (Route::has('shop.index') && $siteFeatures->enabled('shop'))
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('shop.*')]) href="{{ localized_route('shop.index') }}" @click="menuOpen = false" @if(request()->routeIs('shop.*')) aria-current="page" @endif>{{ __('nav.shop') }}</a>
                     @endif
-                    @if(turkce_sayfa())
+                    @if(turkce_sayfa() && $siteFeatures->enabled('services'))
                     <div class="my-2 border-t border-stone-200/60 pt-2 dark:border-stone-800">
                         <p class="px-3 text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">✨ Özel Hizmetler</p>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('private-chef.*')]) href="{{ route('private-chef.index') }}" @click="menuOpen = false">👨‍🍳 Private Chef Cyprus</a>
@@ -169,10 +172,12 @@
                     @endif
 
                     @auth
+                    @if($siteFeatures->enabled('member_kitchen'))
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ localized_route('ingredients.explore') }}" @click="menuOpen = false" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>{{ __('nav.explore') }}</a>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ localized_route('ai-kitchen.index') }}" @click="menuOpen = false" @if(request()->routeIs('ai-kitchen.*')) aria-current="page" @endif>{{ __('nav.ai_kitchen') }}</a>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('pantry.*')]) href="{{ localized_route('pantry.index') }}" @click="menuOpen = false" @if(request()->routeIs('pantry.*')) aria-current="page" @endif>{{ __('nav.pantry') }}</a>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('favorites.*')]) href="{{ localized_route('favorites.index') }}" @click="menuOpen = false" @if(request()->routeIs('favorites.*')) aria-current="page" @endif>{{ __('nav.favorites') }}</a>
+                    @endif
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('dashboard', 'profile')]) href="{{ localized_route('dashboard') }}" @click="menuOpen = false" @if(request()->routeIs('dashboard', 'profile')) aria-current="page" @endif>{{ __('nav.dashboard') }}</a>
                         @if(auth()->user()->isAdmin())<a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('admin.*')]) href="{{ route('admin.dashboard') }}" @click="menuOpen = false" @if(request()->routeIs('admin.*')) aria-current="page" @endif>{{ __('nav.admin') }}</a>@endif
                         <form method="post" action="{{ route('logout') }}">@csrf<button class="mobile-nav-link w-full text-left" type="submit">{{ __('nav.logout') }}</button></form>

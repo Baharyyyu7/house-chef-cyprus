@@ -154,7 +154,7 @@
 
             @include('recipes.partials.cook-timer')
 
-            <x-recipe-chef-lead-card :recipe="$recipe" />
+            @if(app(\App\Services\SiteFeatureService::class)->enabled('services'))<x-recipe-chef-lead-card :recipe="$recipe" />@endif
 
             @if(turkce_sayfa() && !empty($recipe->equipment))
                 <section id="equipment" class="hc-v3-card mt-8 hc-scroll-target p-5 sm:p-6"><p class="hc-overline" style="color: var(--hc-text-muted)">{{ __('recipe.show.equipment_kicker') }}</p><h2 class="hc-heading-3 mt-2">{{ __('recipe.show.equipment_title') }}</h2><div class="mt-4 flex flex-wrap gap-2">@foreach($recipe->equipment as $equipment)<span class="hc-v3-badge">⌁ {{ $equipment }}</span>@endforeach</div></section>

@@ -50,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
         // Kalıp çeviri hesabı istek başına bir kez: hasTranslation() her
         // kayıt için ayrı çağrılıyor.
         $this->app->singleton(\App\Services\Seo\BlogTranslationGate::class);
+        $this->app->scoped(\App\Services\SiteFeatureService::class);
     }
 
     /**

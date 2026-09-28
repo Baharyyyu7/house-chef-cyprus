@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         __DIR__.'/../app/Console/Commands',
     ])
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->alias(['site-feature' => \App\Http\Middleware\EnsureSiteFeatureEnabled::class]);
         // These preferences are intentionally written by browser-side JavaScript so a
         // tag is loaded only after a visitor has opted in. They contain no account or
         // session data and must therefore remain readable by Laravel.

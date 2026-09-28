@@ -47,9 +47,14 @@ final class RecipeController extends Controller
             // Sayım ana sayfadaki mutfak kutularının içini dolduruyor: boş bir
             // kutu yerine o mutfakta kaç yayında tarif olduğu görünür.
             // Filtre açılır listesi aynı koleksiyonu kullanmaya devam eder.
-            'cuisines' => Cuisine::withCount(['recipes' => fn ($q) => $q->where('status', 'published')])
+            'cuisines' => Cuisine::withCount(['recipes' => fn ($q) => $q
+                ->where('status', 'published')
+                ->where('verification_status', 'verified')
+                ->translatedInto()])
                 ->orderBy('name')
-                ->get(),
+                ->get()
+                ->filter(fn (Cuisine $cuisine): bool => (int) $cuisine->recipes_count >= 10)
+                ->values(),
             // Anasayfadaki mutfak seckisi, /mutfaklar sayfasindaki kartla
             // ayni gorunmeli: ayni icerik iki sayfada farkli gorunuyordu.
             'mutfakKapaklari' => app(HubCoverPicker::class)
