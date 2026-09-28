@@ -604,6 +604,11 @@ final class SeoSchemaService
     {
         $title = $recipe->translated('title', $locale) ?: (string) $recipe->getRawOriginal('title');
         $questions = [];
+        // Saklama, ısıtma, dondurma, ipucu ve servis alanları yalnız Türkçe
+        // tutuluyor. Yabancı dilde soru o dilde, cevap Türkçe basılıyordu;
+        // FAQPage şemasına da öyle giriyordu. Çevirisi olmayan alan yabancı
+        // dilde cevap olmaz.
+        $kaynakDil = $locale === (string) config('locales.default', 'tr');
 
         // 1. Storage notes
         if (filled($recipe->storage_notes)) {
@@ -626,7 +631,7 @@ final class SeoSchemaService
                 'pl' => 'Ostudź do temperatury pokojowej, a następnie przechowuj w szczelnym szklanym pojemniku w lodówce.',
                 'ru' => 'Дайте полностью остыть до комнатной температуры, затем храните в герметичном контейнере в холодильнике.',
                 'fa' => 'اجازه دهید در دمای اتاق کاملاً خنک شود، سپس در ظرف شیشه‌ای دردار در یخچال نگهداری کنید.',
-                'pt' => 'Deixe esfriar completamente até a temperatura ambiente e guarde em recipiente de vidro hermético na geladeira.',
+                'pt' => 'Deixe arrefecer completamente até à temperatura ambiente e guarde num recipiente de vidro hermético no frigorífico.',
                 default => 'Oda sıcaklığına geldikten sonra hava almayan kapaklı cam kapta buzdolabında saklanmalıdır.',
             };
 
@@ -638,12 +643,12 @@ final class SeoSchemaService
                     'pl' => "W lodówce zachowuje świeżość do {$gun} dni. ",
                     'ru' => "В холодильнике сохраняет свежесть до {$gun} дней. ",
                     'fa' => "در یخچال تا {$gun} روز تازه می‌ماند. ",
-                    'pt' => "Conserva-se fresco na geladeira por até {$gun} dias. ",
+                    'pt' => "Conserva-se no frigorífico até {$gun} dias. ",
                     default => "Buzdolabında {$gun} gün boyunca tazeliğini korur. ",
                 };
             }
 
-            $ans = trim($daysText.($uyari !== '' ? $uyari : $defaultAdvice));
+            $ans = trim($daysText.($kaynakDil && $uyari !== '' ? $uyari : $defaultAdvice));
             if ($ans !== '') {
                 $questions[] = [
                     '@type' => 'Question',
@@ -654,7 +659,7 @@ final class SeoSchemaService
         }
 
         // 2. Reheating notes
-        if (filled($recipe->reheating_notes)) {
+        if ($kaynakDil && filled($recipe->reheating_notes)) {
             $q = match ($locale) {
                 'en' => "What is the recommended way to reheat {$title}?",
                 'de' => "Wie wärmt man {$title} am besten wieder auf?",
@@ -672,7 +677,7 @@ final class SeoSchemaService
         }
 
         // 3. Freezing notes
-        if (filled($recipe->freezing_notes)) {
+        if ($kaynakDil && filled($recipe->freezing_notes)) {
             $q = match ($locale) {
                 'en' => "Can {$title} be frozen for later use?",
                 'de' => "Kann man {$title} einfrieren?",
@@ -690,7 +695,7 @@ final class SeoSchemaService
         }
 
         // 4. Chef tips
-        if (filled($recipe->tips)) {
+        if ($kaynakDil && filled($recipe->tips)) {
             $tipText = is_array($recipe->tips) ? implode(' ', array_filter($recipe->tips)) : (string) $recipe->tips;
             if (trim($tipText) !== '') {
                 $q = match ($locale) {
@@ -711,7 +716,7 @@ final class SeoSchemaService
         }
 
         // 5. Serving suggestions
-        if (filled($recipe->serving_suggestions)) {
+        if ($kaynakDil && filled($recipe->serving_suggestions)) {
             $q = match ($locale) {
                 'en' => "How should {$title} be served and paired?",
                 'de' => "Wie und womit serviert man {$title} am besten?",

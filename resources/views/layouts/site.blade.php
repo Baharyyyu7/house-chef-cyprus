@@ -119,19 +119,7 @@
         if (kisitli) { uygula(); return; }
 
         if (typeof document.startViewTransition === 'function') {
-            // Yeni tema, tıklanan noktadan açılan bir daire olarak yayılır.
-            var kok = document.documentElement;
-            var nokta = window.hcSonIsaret || { x: window.innerWidth - 40, y: 32 };
-            var yaricap = Math.hypot(Math.max(nokta.x, window.innerWidth - nokta.x), Math.max(nokta.y, window.innerHeight - nokta.y));
-            kok.classList.add('hc-vt-theme');
-            var gecis = document.startViewTransition(uygula);
-            gecis.ready.then(function () {
-                kok.animate(
-                    { clipPath: ['circle(0px at ' + nokta.x + 'px ' + nokta.y + 'px)', 'circle(' + yaricap + 'px at ' + nokta.x + 'px ' + nokta.y + 'px)'] },
-                    { duration: 640, easing: 'cubic-bezier(.16, 1, .3, 1)', pseudoElement: '::view-transition-new(root)' }
-                );
-            }).catch(function () {});
-            gecis.finished.finally(function () { kok.classList.remove('hc-vt-theme'); });
+            document.startViewTransition(uygula);
 
             return;
         }
@@ -229,54 +217,11 @@
     </script>
     <script>
     (function () {
-        // Kaydırıldıkça açılma. Başlangıç durumu buradan eklenir: betik
-        // çalışmazsa hiçbir şey gizlenmez, sayfa olduğu gibi görünür.
-        var azalt = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (azalt || typeof IntersectionObserver !== 'function') { return; }
-
-        var gozlemci = new IntersectionObserver(function (girisler) {
-            girisler.forEach(function (giris) {
-                if (!giris.isIntersecting) { return; }
-                giris.target.classList.add('is-revealed');
-                gozlemci.unobserve(giris.target);
-            });
-        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
-
-        function kur() {
-            document.querySelectorAll('[data-reveal-group]').forEach(function (grup) {
-                var cocuklar = Array.prototype.slice.call(grup.children);
-                cocuklar.forEach(function (cocuk, sira) {
-                    if (cocuk.hasAttribute('data-reveal')) { return; }
-                    cocuk.setAttribute('data-reveal', '');
-                    // Kademeli gecikme yalnız ilk satırlar için: uzun listede
-                    // sona kalan kart saniyelerce beklemesin.
-                    cocuk.style.transitionDelay = Math.min(sira, 5) * 55 + 'ms';
-                    cocuk.style.setProperty('--hc-gecikme', Math.min(sira, 5) * 55 + 'ms');
-                    gozlemci.observe(cocuk);
-                });
-            });
-            document.querySelectorAll('[data-reveal]:not(.is-revealed)').forEach(function (el) {
-                gozlemci.observe(el);
-            });
-        }
-
-        // Gizleme yalnız bu sınıf varken geçerli. Betik buraya kadar gelmediyse
-        // hiçbir blok gizlenmez; sayfa efektsiz ama eksiksiz görünür.
-        document.documentElement.classList.add('hc-reveal-on');
-
-        // Emniyet ağı: Gözlemci beklenmedik bir nedenle tetiklenmezse
-        // içerik görünmez kalmasın; yüklemeden kısa bir süre sonra kalan her blok açılır.
-        // Kaydırma sırasında getBoundingClientRect çağrılmaz, forced reflow ve scroll kasması önlenir.
-        function emniyetAc() {
-            var kalan = document.querySelectorAll('[data-reveal]:not(.is-revealed)');
-            for (var i = 0; i < kalan.length; i++) {
-                kalan[i].classList.add('is-revealed');
-            }
-        }
-
-        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', kur); } else { kur(); }
-        document.addEventListener('livewire:navigated', kur);
-        window.addEventListener('load', function () { setTimeout(emniyetAc, 1500); });
+        // Kaydırıldıkça açılma artık resources/js/motion.js'te. Buradaki
+        // eski hâl ekranın altındakileri yüklemeden 1,5 sn sonra topluca
+        // açıyordu ve hareket kısıtlıyken en başta dönüyordu: aynı
+        // fonksiyondaki başlık gözcüsü o kullanıcılar için hiç kurulmuyor,
+        // başlık kaydırınca da hero üstü saydam stilinde kalıyordu.
 
         // Yapiskan baslik durumu artik kaydirma olayina bagli degil.
         //
@@ -335,7 +280,7 @@
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ urlencode((string) config('integrations.google.tag_manager.container_id')) }}" height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe></noscript>
     @endif
     @if (request()->routeIs('admin.*'))
-        <a href="#admin-main-content" class="hc-skip-link">İçeriğe geç</a>
+        <a href="#admin-main-content" class="hc-skip-link">{{ __('ui.skip_to_content') }}</a>
         {{-- Izgara sutunlari ve kenar cubugu genisligi yalniz Alpine
              baglamasindan geliyordu. Alpine calismadigi anda sutun tanimi hic
              olusmuyor, sabit konumlu kenar cubugu da icerigin ustune biniyordu:
@@ -389,13 +334,12 @@
             </div>
         </div>
     @else
-        <a href="#main-content" class="hc-skip-link">İçeriğe geç</a>
+        <a href="#main-content" class="hc-skip-link">{{ __('ui.skip_to_content') }}</a>
         {{-- Koyu açılışı olan sayfalarda hero başlığın altından başlar. Sayfa
              tepesindeyken çubuk kendi zeminini basmaz; görüntünün üstünde
              saydam durur ve içeriğini koyu zemine göre okutur. --}}
         @include('layouts.partials.public-header')
 
-        <div class="hc-scroll-fire" aria-hidden="true"></div>
         <main id="main-content" tabindex="-1">
             @php($isHeroPage = request()->routeIs('home', 'recipes.show'))
             @if (session('status'))

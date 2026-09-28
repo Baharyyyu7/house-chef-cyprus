@@ -37,7 +37,9 @@ final class ProductExperienceAuditService
         $contents = $views->mapWithKeys(fn (string $path) => [$path => File::get($path)]);
         $css = File::get(resource_path('css/app.css'));
         $findings = [
-            'missing_skip_link' => ! str_contains(File::get(resource_path('views/layouts/site.blade.php')), 'İçeriğe geç'),
+            // Bağlantı metni artık dile göre çevriliyor ("Skip to content");
+            // Türkçe metni aramak bağlantı dururken onu yok sayardı.
+            'missing_skip_link' => ! str_contains(File::get(resource_path('views/layouts/site.blade.php')), '<a href="#main-content" class="hc-skip-link">'),
             'missing_reduced_motion' => ! str_contains($css, 'prefers-reduced-motion'),
             'missing_theme_tokens' => ! str_contains($css, '--hc-background-page') || ! str_contains($css, 'html.dark'),
             'missing_empty_state' => $contents->filter(fn (string $view) => str_contains($view, 'empty') || str_contains($view, 'boş'))->isEmpty(),

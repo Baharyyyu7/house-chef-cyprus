@@ -3,7 +3,7 @@
 Uzun koşularda bağlam özetleniyor; bu dosya o özetten sağ çıkıyor.
 Sohbet geçmişi değil, burası okunur.
 
-**Son ölçüm: 2026-09-26**
+**Son ölçüm: 2026-09-27**
 
 ## Durum
 
@@ -19,7 +19,8 @@ Sohbet geçmişi değil, burası okunur.
 
 Toplam **81 tıklama / 7.407 gösterim** (28 gün). Önceki gün 69 / 6.439.
 
-Yayındaki tarif 534, yayındaki yazı 237.
+Yayındaki tarif **134** (534'ten), yayındaki yazı **192** (237'den). 27 Eylül'de
+AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey taslağa alındı.
 `app:invariants` temiz. Açık veri kalitesi kaydı yok.
 
 ## Dışarıdan gelen
@@ -29,6 +30,10 @@ Yayındaki tarif 534, yayındaki yazı 237.
   bu güncellemenin hedefi. Temizlik bu yüzden acildi.
 
 ## Bende değil, kullanıcıda
+
+- [ ] **AdSense "İnceleme iste"**: temizlik yayında olduktan sonra kullanıcı
+      "Sorunları giderdiğimi onaylıyorum" kutusunu işaretleyip istemeli.
+      Form kullanıcının hesabında; ben göndermem.
 
 - [ ] **GPTBot engeli** - Hostinger hPanel → CDN. Destek talebi mühendise
       iletildi, yanıt bekleniyor. Site Bing'de sıfır görünürlükte.
@@ -55,11 +60,51 @@ Yayındaki tarif 534, yayındaki yazı 237.
 - [ ] **Lahmacun Türkçe'de baştan yazılmalı.** Malzemeler "1 adet peynir,
       2 adet tavuk, 3 adet kırmızı et, 4 adet balık", adımlar genel şablon.
       Türkçe'de noindex ama Rusça'da 40 gösterim alıyor; çok aranan bir yemek.
-- [ ] **Şablon malzeme kümesi.** Yayındaki 536 tarifin yalnız 57'sinin
-      zorunlu malzeme kümesi benzersiz; 451'i en az iki tarifle birebir
-      aynı kümeyi paylaşıyor (en büyük grup 50 tarif, "Ana Malzeme" yer
-      tutuculu). 364'ü zaten noindex. Hepsini taslağa almak siteyi ~85
-      tarife indirir: bu ürün kararı, kullanıcıda.
+- [ ] **Yabancı dil tarif çevirisi (asıl büyüme işi).** 27 Eylül'de 28 tarif
+      x 6 dil = 168 sayfa gerçek çeviriyle açıldı (3 parti: yabancı talep,
+      sonra TR gösterim sırası). Kalan 106 tarif. Yöntem: `coni:ceviri-toplu
+      <klasör>`, dosya `{slug}.json`, dil başına title, excerpt, description,
+      step_titles, steps. **Sonra her tarif x dil için `hasTranslation` ölç**:
+      "dizine açıldı" sayacı yalnız kapıya bakıyor, dolu `chef_tip` çevrilmezse
+      sayfa 404 kalıyor. Türkçe kaynakta şablon dolgu cümlesi varsa ("Taze
+      malzemeleri, dengeli baharat uyumu...") çeviriye taşıma.
+- [ ] **Yabancı sayfalarda kalan Türkçe** (28 Eylül ikinci tarama sonrası).
+      Arayüz, çerez bandı, malzeme seçicisi, taksonomi, diyet adları, blog
+      dizini ve SSS düzeldi; ticari bloklar yabancı dilde gizli. Kalan:
+      blog kategori adları (BlogCategory çevrilmiyor), Farsça blog
+      açıklamalarındaki kalıp ("بررسی تخصصی... در زمینه <Türkçe başlık>"),
+      tarifin ipucu/sık hata/saklama alanlarının çevirisi (şimdilik yabancı
+      dilde gizli). Özel şef/catering hizmetinin yabancı dilde sunulması
+      kullanıcı kararı.
+- [ ] **Tarif tutarlılığı**: adımda geçip listede olmayan malzeme. 28 Eylül'de
+      31 tariften 15'i düzeltildi (27 satır, yedek
+      `yedekler/2026-09-28-eksik-malzeme-eklenen.json`). Kalan 16'nın çoğu
+      yanlış alarm ("krema kıvamı", "tereyağına döner"); gerçek olanlar:
+      ezogelin tereyağı, babagannuş maydanoz, Ali Nazik ve mercimek köftesi
+      salça, havuç çorbası dereotu, lahana sarması tarçın, ev açması yumurta,
+      bazlama tereyağı, ayva tatlısı limon. Denetim betiği scratchpad'de
+      (denetim2.php); `İ` küçültmesi "İrmik"i kaçırıyor.
+- [ ] **100 tarifte Türkçe adım başlığı "Adım 1..N"** kalıbı. Çeviri
+      partilerinde başlıklar gerçekleriyle yazılıyor; Türkçesi ayrıca
+      düzeltilmeli.
+- [ ] **Türkçe kaynakta kalan şablon dolgu**: zeytinyagli-nohutlu-pilav,
+      nohutlu-akdeniz-kasesi, limonlu-akdeniz-makarnasi açıklamaları ("Taze
+      malzemeleri, dengeli baharat uyumu ve geleneksel pişirme tekniğiyle...")
+      ve baklava-dilimi ("Bu özgün ev mutfağı sürümü..."). Çeviriler dolgusuz.
+- [ ] **Olası kopya tarifler** (yayında, ikisi de açık): kibris-usulu-flaouna
+      ile kibris-usulu-flaouna-q4hmp, sutlac ile sutlac-kibris,
+      hellim-ve-domatesli-kahvalti-tavasi ile hellimli-kahvalti-tavas.
+      İçerikleri farklı; kanibalizasyon ölçülüp karar verilmeli.
+- [ ] **Taslaktaki 400 tariften talep görenler yeniden yazılmalı.** 28 günde
+      64'ü gösterim aldı (toplam 206). Başta: Kıbrıs cevizli macunu,
+      hellimli sigara böreği, ekmek kadayıfı, kazandibi, lokma, irmik
+      helvası, revani, anari tatlısı. Ölçülü, özgün adımlı yazılıp
+      yayınlanmalı; kalite kapısı ve otomatik yayın yolu artık ölçüsüz ya
+      da şablon kümeli tarifi geçirmiyor.
+- [ ] **Taslağa alınan 10 eşsiz yazı** (tavuk suyu, köfter/sucuk, peynirli
+      kraker, özel şef x2 vb.) 25 Eylül toplu yayınıyla gelmiş, hiç
+      incelenmemişti. İncelenip derinleştirilirse açılabilir; özel şef
+      yazısı sitenin vermediği bir hizmeti anlatıyor.
 - [ ] **Başlığı yanlış vaat eden 2 tarif noindex'te, düzeltme bekliyor:**
       Antalya Usulü Tahinli Piyaz (ne malzemede ne adımda tahin var) ve
       Kıymalı Kol Böreği (adımlar peynirli harç diyor). Düzeltilmiş içerik
@@ -80,6 +125,23 @@ Yayındaki tarif 534, yayındaki yazı 237.
 
 ## Bitti
 
+- [x] 27 Eylül: **AdSense düşük değer temizliği** (`a250242`). 400 tarif + 45
+      noindex yazı taslağa (yedek: `yedekler/2026-09-27-*.json`), kalıp
+      çevirili tarif sayfaları o dilde 404, otomatik yayın yolu kalite
+      kapısına bağlandı, 23 kırık tarif bağlantısı onarıldı.
+- [x] 27 Eylül: **Hareket katmanı** (`31a07a6`): kinetik başlıklar, 3B kartlar,
+      eğim, patlamalar, konfeti, okuma çizgisi, sayfalar arası morf.
+      Adım zamanlayıcı düğmeleri hiç çalışmıyordu (tırnak hatası), düzeldi.
+- [x] 28 Eylül: gece çeviri içe aktarımı (02:20) düzeltilmiş 1.257 malzeme
+      adını eski dosyalardaki çöple geri yazıyordu; içe aktarıcı artık dolu
+      malzeme adını ezmiyor (`bff1d38`), adlar yeniden uygulandı.
+- [x] 28 Eylül: 2 kopya tarif taslağa + eşine 301 (132 tarif yayında).
+- [x] 27 Eylül: malzeme adları 6 dilde temizlendi (220 malzeme, 1.257 ad;
+      geri alma `coni:malzeme --geri-al=29945`). Birim, kesir, hazırlık notu
+      ve 25 arayüz dizesi 6 dilde (`bd7ffb4`, sonraki commit). Türkçe kaynakta
+      Pastırmalı Yumurta'nın kalıp adımları gerçekleriyle, Kıbrıs Sütlacı'nın
+      çelişen özeti düzeltildi; 684 adımdan şablon şef ipucu silindi (yedek:
+      `yedekler/2026-09-27-kalip-sef-ipucu.json`).
 - [x] Dil dil büyüme ölçümü ölü tabloya bağlıydı (`46e39cb`).
 - [x] Kaynağı içinde taşıyan başlık çeviri sayılmıyor (`f3f9282`).
 - [x] Yayın test kapısı yanlış sebeple kapanıyordu (`9d86237`).

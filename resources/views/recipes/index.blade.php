@@ -46,7 +46,7 @@
             </div>
             <div>
                 <label class="hc-v3-field-label" for="cuisine">{{ __('archive.cuisine') }}</label>
-                <select id="cuisine" class="hc-v3-input" name="cuisine"><option value="">{{ __('archive.all_cuisines') }}</option>@foreach($cuisines as $cuisine)<option value="{{ $cuisine->slug }}" @selected(request('cuisine') === $cuisine->slug)>{{ __($cuisine->name) }}</option>@endforeach</select>
+                <select id="cuisine" class="hc-v3-input" name="cuisine"><option value="">{{ __('archive.all_cuisines') }}</option>@foreach($cuisines as $cuisine)<option value="{{ $cuisine->slug }}" @selected(request('cuisine') === $cuisine->slug)>{{ taxonomy_name($cuisine) }}</option>@endforeach</select>
             </div>
             <div>
                 <label class="hc-v3-field-label" for="max_minutes">{{ __('archive.max_time') }}</label>
@@ -57,7 +57,7 @@
             <details class="group border-t pt-4" style="border-color: var(--hc-border-subtle)">
                 <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-extrabold"><span>{{ __('archive.advanced_filters') }}</span><span class="transition group-open:rotate-45" aria-hidden="true">+</span></summary>
                 <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div><label class="hc-v3-field-label" for="category">{{ __('archive.category') }}</label><select id="category" class="hc-v3-input" name="category"><option value="">{{ __('archive.all_categories') }}</option>@foreach($categories as $category)<option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>{{ __($category->name) }}</option>@endforeach</select></div>
+                    <div><label class="hc-v3-field-label" for="category">{{ __('archive.category') }}</label><select id="category" class="hc-v3-input" name="category"><option value="">{{ __('archive.all_categories') }}</option>@foreach($categories as $category)<option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>{{ taxonomy_name($category) }}</option>@endforeach</select></div>
                     <div><label class="hc-v3-field-label" for="difficulty">{{ __('archive.difficulty') }}</label><select id="difficulty" class="hc-v3-input" name="difficulty"><option value="">{{ __('archive.any_difficulty') }}</option>@foreach(\App\Models\Recipe::ZORLUKLAR as $difficultyValue => $difficultyLabel)<option value="{{ $difficultyValue }}" @selected(\App\Models\Recipe::zorlukKanonik(request('difficulty')) === $difficultyValue)>{{ __('recipe.difficulty_'.$difficultyValue) }}</option>@endforeach</select></div>
                     <div><label class="hc-v3-field-label" for="dietary_tag">{{ __('archive.dietary_preference') }}</label><select id="dietary_tag" class="hc-v3-input" name="dietary_tag"><option value="">{{ __('archive.all_preferences') }}</option>@foreach($dietaryTags as $tag)<option value="{{ $tag->code }}" @selected(request('dietary_tag') === $tag->code)>{{ __($tag->name) }}</option>@endforeach</select></div>
                     <div><label class="hc-v3-field-label" for="sort">{{ __('archive.sort') }}</label><select id="sort" class="hc-v3-input" name="sort"><option value="">{{ __('archive.sort_featured') }}</option><option value="time" @selected(request('sort') === 'time')>{{ __('archive.sort_time') }}</option></select></div>

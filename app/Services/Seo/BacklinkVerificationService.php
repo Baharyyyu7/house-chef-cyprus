@@ -31,13 +31,30 @@ final class BacklinkVerificationService
         }
         try {
             $result = ['status' => 'success', 'checked' => 0, 'present' => 0, 'unresolved' => 0, 'deferred' => 0, 'outreach_sent' => 0];
+            $dayStart = now()->startOfDay();
+            $dailyLimit = max(0, (int) config('seo.backlink_verification_daily_limit', 20));
+            $checkedToday = SeoBacklinkCandidate::query()
+                ->where('checked_at', '>=', $dayStart)
+                ->where('checked_at', '<', $dayStart->copy()->addDay())
+                ->count();
+            $result['daily_limit'] = $dailyLimit;
+            $result['daily_remaining'] = max(0, $dailyLimit - $checkedToday);
+            if ($result['daily_remaining'] === 0) {
+                $result['status'] = 'deferred';
+                $result['reason'] = 'daily_limit';
+                $result['retry_at'] = $dayStart->copy()->addDay()->toIso8601String();
+                app(IntegrityReportLog::class)->record('seo:backlinks-verify', $result['status'], 0, $result);
+
+                return $result;
+            }
+            $limit = min(max(1, min(50, $limit)), $result['daily_remaining']);
             $started = microtime(true);
             $hosts = [];
             $candidates = SeoBacklinkCandidate::query()->where('status', '<>', 'rejected')
                 ->where(fn ($query) => $query->whereNull('next_check_at')->orWhere('next_check_at', '<=', now()))
                 ->orderBy('checked_at')->orderBy('id')->limit(100)->get();
             foreach ($candidates as $candidate) {
-                if ($result['checked'] >= max(1, min(50, $limit))) {
+                if ($result['checked'] >= $limit) {
                     break;
                 }
                 if (microtime(true) - $started > 20) {
@@ -57,6 +74,7 @@ final class BacklinkVerificationService
                 unset($check['retry_after_seconds']);
                 $candidate->update([...$check, 'checked_at' => now(), 'next_check_at' => now()->addSeconds($delay)]);
                 $result['checked']++;
+                $result['daily_remaining']--;
                 $result['present'] += (int) ($check['check_status'] === 'present');
                 if (! in_array($check['check_status'], ['present', 'not_found'], true)) {
                     $result['unresolved']++;

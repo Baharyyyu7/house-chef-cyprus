@@ -1,5 +1,6 @@
 @props([])
 
+@if(turkce_sayfa())
 @php
     $whatsappNumber = config('contact-requests.whatsapp_number', '905338000000');
 @endphp
@@ -230,3 +231,4 @@ class="relative z-40">
         </div>
     </div>
 </div>
+@endif

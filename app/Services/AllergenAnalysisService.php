@@ -54,6 +54,6 @@ final class AllergenAnalysisService
         }
         unset($items);
 
-        return ['groups' => $groups, 'has_confirmed_allergens' => $groups['contains'] !== [], 'medical_disclaimer' => 'Alerjen bilgileri ürün etiketlerinin ve bireysel hassasiyetlerin yerini tutmaz.'];
+        return ['groups' => $groups, 'has_confirmed_allergens' => $groups['contains'] !== [], 'medical_disclaimer' => __('recipe.allergen_disclaimer')];
     }
 }

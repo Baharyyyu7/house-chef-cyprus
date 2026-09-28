@@ -86,13 +86,23 @@ final class RecipeTranslationGateTest extends TestCase
         $this->assertNull((new RecipeTranslationGate)->engel($this->tarif(self::GERCEK, 'cennet-camuru-3'), 'en'));
     }
 
-    public function test_kalip_cevirili_sayfa_o_dilde_noindex_ve_haritada_yok(): void
+    /**
+     * 27 Eylül 2026'ya kadar kalıp çevirili sayfa açık kalıyor, yalnız
+     * noindex oluyordu. AdSense siteyi "düşük değerli içerik" diye reddetti;
+     * inceleme indekse değil siteye bakıyor ve altı dilde ~530 sayfa bu
+     * çöpü gösteriyordu. Artık o dilde sayfa yok: 404, hreflang ve
+     * listelemeler de onu göstermez.
+     */
+    public function test_kalip_cevirili_sayfa_o_dilde_yok_ve_hicbir_yerden_gosterilmez(): void
     {
         $this->tarif(self::KALIP);
 
-        $this->get('/en/recipes/cennet-camuru')->assertOk()->assertSee('<meta name="robots" content="noindex,follow', false);
-        $this->get('/tarifler/cennet-camuru')->assertOk()->assertDontSee('<meta name="robots" content="noindex', false);
+        $this->get('/en/recipes/cennet-camuru')->assertNotFound();
+        $tr = (string) $this->get('/tarifler/cennet-camuru')->assertOk()->assertDontSee('<meta name="robots" content="noindex', false)->getContent();
+        $this->assertStringNotContainsString('hreflang="en"', $tr);
         $this->assertStringNotContainsString('hreflang="en"', (string) $this->get(route('sitemap.recipes'))->getContent());
+        $this->assertSame(0, Recipe::query()->translatedInto('en')->count());
+        $this->assertSame(1, Recipe::query()->translatedInto('tr')->count());
     }
 
     public function test_gercek_ceviri_yazilinca_sayfa_acilir_ve_geri_alinabilir(): void

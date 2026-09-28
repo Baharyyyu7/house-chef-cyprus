@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\BlogPost;
+use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\SlugRedirect;
 use Illuminate\Console\Command;
@@ -184,6 +185,15 @@ final class ImportContentTranslations extends Command
                 }
 
                 foreach ($cocukIsleri as [$cocuk, $cocukAlan, $cocukDeger]) {
+                    // Malzeme adı bütün tariflerde ortak ve coni:malzeme ile
+                    // düzenleniyor; bir tarif dosyası eski adı taşıyabilir.
+                    // 28 Eylül 2026 02:20'de gece içe aktarımı düzeltilmiş
+                    // 1.257 adı eski çöple ("sivri فلفل") geri yazdı. Dosya
+                    // yalnız eksik adı doldurur.
+                    if ($cocuk instanceof Ingredient && filled($cocuk->translations()->where('locale', $locale)->where('field', $cocukAlan)->value('value'))) {
+                        continue;
+                    }
+
                     $cocuk->translations()->updateOrCreate(
                         ['locale' => $locale, 'field' => $cocukAlan],
                         ['value' => $cocukDeger]

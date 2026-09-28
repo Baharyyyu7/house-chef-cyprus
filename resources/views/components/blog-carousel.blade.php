@@ -54,11 +54,11 @@
         </div>
 
         <div class="hc-karusel__kontrol">
-            <button type="button" class="hc-karusel__ok" @click="geri()" aria-label="Önceki yazı">
+            <button type="button" class="hc-karusel__ok" @click="geri()" aria-label="{{ __('blog.prev_post') }}">
                 <x-ui.icon name="chevron-down" size="18" class="rotate-90" />
             </button>
 
-            <div class="hc-karusel__noktalar" role="tablist" aria-label="Yazı seç">
+            <div class="hc-karusel__noktalar" role="tablist" aria-label="{{ __('blog.pick_post') }}">
                 @foreach ($liste as $sira => $post)
                     <button
                         type="button"
@@ -72,7 +72,7 @@
                 @endforeach
             </div>
 
-            <button type="button" class="hc-karusel__ok" @click="ileri()" aria-label="Sonraki yazı">
+            <button type="button" class="hc-karusel__ok" @click="ileri()" aria-label="{{ __('blog.next_post') }}">
                 <x-ui.icon name="chevron-down" size="18" class="-rotate-90" />
             </button>
         </div>

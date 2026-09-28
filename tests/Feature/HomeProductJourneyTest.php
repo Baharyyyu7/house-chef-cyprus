@@ -16,8 +16,11 @@ final class HomeProductJourneyTest extends TestCase
     public function test_cached_ingredient_options_remain_plain_data_on_a_second_request(): void
     {
         $ingredient = Ingredient::query()->create(['name' => 'Test domates', 'slug' => 'test-domates', 'is_active' => true]);
+        // Seçici yalnız yayındaki bir tarifte geçen malzemeyi listeler.
+        $tarif = Recipe::query()->create(['title' => 'Domatesli', 'slug' => 'domatesli', 'excerpt' => 'Özet.', 'description' => 'Açıklama.', 'status' => 'published', 'verification_status' => 'verified', 'published_at' => now()->subDay(), 'prep_minutes' => 5, 'cook_minutes' => 5, 'servings' => 2]);
+        $tarif->recipeIngredients()->create(['ingredient_id' => $ingredient->id, 'quantity' => 1, 'unit' => 'adet', 'is_required' => true, 'is_optional' => false, 'sort_order' => 0]);
         $this->get(route('home'))->assertOk()->assertSee($ingredient->public_id);
-        $cached = cache()->get('home-ingredients-v2:tr');
+        $cached = cache()->get('home-ingredients-v3:tr');
         $this->assertIsArray($cached);
         $this->assertIsArray($cached[0]);
         $this->get(route('home'))->assertOk()->assertSee('Test domates');

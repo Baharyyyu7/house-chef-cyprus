@@ -16,7 +16,7 @@ window.Alpine = Alpine;
 Alpine.plugin(collapse);
 window.__HC_VERSION__ = '2026.09.11.3';
 import './webmcp.js';
-import './motion.js';
+import { hareketiKur } from './motion.js';
 let chartLibrary;
 
 const chartInstances = new WeakMap();
@@ -918,6 +918,8 @@ const startAlpine = () => {
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', startAlpine, { once: true });
+    document.addEventListener('DOMContentLoaded', hareketiKur, { once: true });
 } else {
     startAlpine();
+    hareketiKur();
 }

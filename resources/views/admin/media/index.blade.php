@@ -1,38 +1,15 @@
 <x-layouts.site title="Medya Yönetimi">
     @php
-        // Süzgeç adları ne yaptıklarını söylemeli. "Dosyası olan" bir
-        // durumu değil bir alanı tarif ediyordu; "Dosyasız kayıt" ise
-        // aslında hiçbir işe yaramayan ölü satırlar demek.
         $suzgecler = [
-            // Onay bekleyenler kendi bölümünde duruyordu ama şeritte yoktu:
-            // sayfayı açan kimse kaç görselin onayını beklediğini görmüyordu.
-            'onay' => ['Onay bekliyor', $sayilar['onay_bekleyen']],
-            'dosyali' => ['Dosya kaydı var', $sayilar['tumu'] - $sayilar['dosyasiz']],
-            'yayinda' => ['Onaylı kayıt', $sayilar['yayinda']],
-            'dosyasiz' => ['Dosyasız', $sayilar['dosyasiz']],
-            'tumu' => ['Tümü', $sayilar['tumu']],
+            'all' => ['Yayındaki Tarifler', $sayilar['total']],
+            'with_image' => ['Görselli Tarifler', $sayilar['with_image']],
+            'without_image' => ['Görselsiz Tarifler', $sayilar['without_image']],
+            'pending' => ['Onay Bekleyenler', $sayilar['pending']],
         ];
-
-        $durumRozeti = static function ($item): array {
-            if ($item->is_placeholder || str_starts_with((string) $item->path, 'fallbacks/')) {
-                return ['Yer tutucu', 'bg-stone-200 text-stone-700'];
-            }
-            if ($item->approved_by_user_id !== null && $item->media_status === 'approved_real_media') {
-                return ['Onaylı', 'bg-emerald-100 text-emerald-900'];
-            }
-            if ($item->media_status === 'approved_real_media') {
-                return ['Onay bekliyor', 'bg-amber-100 text-amber-900'];
-            }
-            if (blank($item->path)) {
-                return ['Dosya yok', 'bg-rose-100 text-rose-900'];
-            }
-
-            return ['Yayında değil', 'bg-stone-200 text-stone-700'];
-        };
     @endphp
 
     <section class="mx-auto max-w-7xl px-5 py-10">
-        <x-admin.page-header title="Medya Kitaplığı" eyebrow="İçerik">
+        <x-admin.page-header title="Tarif Görselleri" eyebrow="İçerik">
             <x-slot:actions>
                 {{-- Teslim edilen görselleri onay kuyruğuna alır. Aynı iş SSH
                      ile çalıştırılıyordu; onayı verecek kişi terminale girmek
@@ -117,41 +94,51 @@
             </form>
         @endif
 
-        <nav class="hc-media-tabs mt-6" aria-label="Medya durumu">
+        <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Tarif görsel özeti">
             @foreach($suzgecler as $anahtar => [$etiket, $adet])
-                <a href="{{ route('admin.media.index', array_filter(['durum' => $anahtar, 'q' => $arama ?: null])) }}" @if($suzgec === $anahtar) aria-current="page" @endif>
-                    {{ $etiket }}
-                    <span>{{ number_format($adet, 0, ',', '.') }}</span>
+                <a class="rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-md {{ $suzgec === $anahtar ? 'border-orange-500 bg-orange-50' : 'border-stone-200 bg-white' }}"
+                   href="{{ route('admin.media.index', array_filter(['durum' => $anahtar, 'q' => $arama ?: null])) }}" @if($suzgec === $anahtar) aria-current="page" @endif>
+                    <span class="block text-sm font-bold text-stone-600">{{ $etiket }}</span>
+                    <strong class="mt-1 block text-3xl font-black text-stone-950">{{ number_format($adet, 0, ',', '.') }}</strong>
                 </a>
             @endforeach
-        </nav>
+        </div>
+
+        <p class="mt-3 text-sm text-stone-600">Yayındaki tarif sayısı her zaman görselli ve görselsiz tariflerin toplamıdır. Yer tutucular, bloglar ve geçmiş medya kayıtları bu sayılara dahil edilmez.</p>
 
         <form class="mt-4 flex max-w-lg gap-2" method="get">
             <input type="hidden" name="durum" value="{{ $suzgec }}">
             <label class="sr-only" for="medya-ara">Görsel ara</label>
-            <input id="medya-ara" class="hc-input flex-1" name="q" value="{{ $arama }}" placeholder="Yemek veya yazı adıyla ara">
+            <input id="medya-ara" class="hc-input flex-1" name="q" value="{{ $arama }}" placeholder="Tarif adıyla ara">
             <button class="hc-v3-btn hc-v3-btn--primary" aria-label="Ara" title="Ara"><x-ui.icon name="search" size="18" /></button>
             @if($arama !== '')<a class="hc-v3-btn hc-v3-btn--outline" href="{{ route('admin.media.index', ['durum' => $suzgec]) }}">Temizle</a>@endif
         </form>
 
         <div class="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            @forelse($media as $item)
-                @php([$rozet, $rozetSinif] = $durumRozeti($item))
+            @forelse($recipes as $recipe)
+                @php
+                    $item = $recipe->dashboardMedia->first();
+                    [$rozet, $rozetSinif] = match ($recipe->media_dashboard_status) {
+                        'with_image' => ['Gerçek görsel yayında', 'bg-emerald-100 text-emerald-900'],
+                        'pending' => ['İnsan onayı bekliyor', 'bg-amber-100 text-amber-900'],
+                        default => ['Görsel gerekli', 'bg-rose-100 text-rose-900'],
+                    };
+                @endphp
                 <article class="hc-v3-card group overflow-hidden">
-                    <a class="relative block aspect-[4/3] bg-stone-100 dark:bg-stone-900" href="{{ route('admin.media.show', $item->public_id) }}">
-                        <x-admin.media-preview :item="$item" />
+                    <div class="relative block aspect-[4/3] bg-stone-100 dark:bg-stone-900">
+                        @if($item)
+                            <x-admin.media-preview :item="$item" />
+                        @else
+                            <div class="grid h-full place-items-center text-center text-stone-500"><div><x-ui.icon name="image" size="34" /><span class="mt-2 block text-sm font-bold">Gerçek yemek görseli yok</span></div></div>
+                        @endif
                         <span class="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold {{ $rozetSinif }}">{{ $rozet }}</span>
-                    </a>
+                    </div>
                     <div class="p-4">
-                        <p class="font-bold text-sm">{{ filled($item->mediable?->title) ? $item->mediable->title : 'Bağlı içerik bulunamadı' }}</p>
-                        <p class="mt-1 text-xs" style="color: var(--hc-text-muted)">
-                            {{ class_basename($item->mediable_type) === 'Recipe' ? 'Tarif' : 'Blog' }}
-                            @if($item->width) · {{ $item->width }}×{{ $item->height }} @endif
-                            @if($item->size) · {{ number_format($item->size / 1024) }} KB @endif
-                        </p>
+                        <p class="font-bold text-sm">{{ $recipe->title }}</p>
+                        <p class="mt-1 text-xs" style="color: var(--hc-text-muted)">{{ $recipe->cuisine?->name }}@if($recipe->category) · {{ $recipe->category->name }}@endif</p>
                         <div class="mt-3 flex items-center gap-3">
-                            <a class="text-sm font-bold text-orange-700 hover:underline" href="{{ route('admin.media.show', $item->public_id) }}">Detay</a>
-                            @if($onayBekleyen->contains('id', $item->id))
+                            @if($item)<a class="text-sm font-bold text-orange-700 hover:underline" href="{{ route('admin.media.show', $item->public_id) }}">Görsel detayı</a>@endif
+                            @if($item && $recipe->media_dashboard_status === 'pending')
                                 <form method="post" action="{{ route('admin.media.approve', $item->public_id) }}">@csrf<button class="text-sm font-bold text-emerald-700 hover:underline">Onayla</button></form>
                             @endif
                         </div>
@@ -165,7 +152,7 @@
             @endforelse
         </div>
 
-        <div class="mt-8">{{ $media->links() }}</div>
+        <div class="mt-8">{{ $recipes->links() }}</div>
 
         <details class="mt-10 rounded-2xl border p-5" style="border-color: var(--hc-border-subtle)">
             <summary class="cursor-pointer font-bold">Bakım araçları</summary>

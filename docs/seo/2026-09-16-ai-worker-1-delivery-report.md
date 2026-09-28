@@ -349,3 +349,64 @@ koddan bağımsız doğruladı; uygulama koduna bu tur girilmedi.
 Yeni backlink, iletişim, blog taslağı, yayın veya deploy yok. Kod
 değişmediğinden tam PHP süiti çalıştırılmadı ve yeşil iddiası yapılmadı;
 gerçek kuyruk claim/block/complete ve dosya/staging kontrolleri geçti.
+
+## 2026-09-26 23:05 UTC: Search Console bekleme koruması teslimi
+
+- Önceki Soğanlı Çörek kaydı e52ddf6 içinde kayıtlı; yeniden teslim
+  edilmedi. Yerel/canlı fc7cc3f üzerinden yalnız GLOB-015 düzeltildi.
+  pageRowsBetween/pageQueries artık 429/503 sonrasındaki ortak Retry-After
+  süresinde yeni OAuth/API isteği göndermiyor. pageRows aynı korumayı alır.
+- İlgili testler 18/18, 72 assertion; tam PHP süiti 1.661/1.661,
+  9.166 assertion, 0 error/failure. AI-Worker-12 bağımsız incelemesi temiz.
+- Canlı f0cbaac, normal release akışı exit 0. Dokuz HTTP uç noktası
+  geçti. Sunucuda RAM cache/fake HTTP ile yalıtılmış tekrar kontrolü:
+  üç giriş noktası ertelendi, 0 dış istek. Google'a test isteği atılmadı.
+  Bu sürümün geçici çalışma kopyası ve paketi temizlendi.
+- Kuyruk 366 toplam/15 tamamlanan/343 pending/6 blocked/2 başkasına ait
+  kilit; kendi aktif kilidi 0. Yeni claim yok. Sıradaki HQ1AZ son ekli
+  işin canlı slug'ı küçük harfli hq1az olduğundan GLOB-013 açık.
+- GLOB-014 tarih/kaynak ayrımı bu değişiklikle çözülmedi. En son okunan
+  GSC snapshot sc-domain:housechefcyprus.com, api_import/web,
+  2026-08-26 - 2026-09-22; kaynak gözlemi 06:45:32 UTC, okuma 17:02:59
+  UTC; 58 tıklama, 4.908 gösterim, konum 9,925835. Yeni dil/pazar
+  kırılımı alınmadı; bu sayı farklı dönemle büyüme hesabında kullanılmadı.
+- Tam kanıt ve log konumları:
+  .claude/completions/2026-09-26-gsc-page-backoff.md.
+
+## 2026-09-27 14:31 UTC: ortak günlük backlink sınırı doğrulandı
+
+- 325ecea ile yapılan sınırlı düzeltme tüm backlink kontrol çağrılarına
+  ortak günlük sınır uygular. Varsayılan 20, mevcut günlük scheduler
+  sınırıyla aynı; bugün yapılmış kontroller de bu sayıdan düşülür.
+- İlgili 21 test/86 assertion, tam süit 1.665 test/9.188 assertion geçti.
+  Tam koşu bu düzeltme içindir; sonraki değişiklikler için genel yeşil
+  iddiası değildir. AI-Worker-12 bağımsız incelemesi temiz.
+- Başka ajan canlıyı c34134a'ya ilerletmiş; düzeltme o sürümde mevcut.
+  Üç üretim dosyasının SHA256 değeri test edilen kodla aynı. Tekrar
+  deploy yapılmadı; sürmekte olan çeviri/Measurements işi korunmuştur.
+- Canlı limit20, bugün14 kontrol. CLI içinde limit0/RAM cache/fake HTTP
+  testi deferred ve sıfır istekle geçti; test raporu transaction rollback
+  ile geri alındı. Yeni dış yayıncı kontrolü veya iletişim yapılmadı.
+- 08:37 UTC gerçek GSC page+country kırılımı, dönem/mülk/kaynak/gözlem
+  bilgileriyle tamamlanma raporunda. Dönen kırılım 11/2.207, aynı dönemin
+  kayıtlı mülk toplamı 67/5.548; fark açıklanmış veya tam kapsam kabul
+  edilmedi. Ülke API'den, dil URL'den; TR/EN öncelikler ayrıca yazıldı.
+- Yeni görsel üretimi/onayı, içerik yayını veya dil etkinleştirme yok.
+  GLOB-016 kapandı; kuyruk kimliği ve GSC kaynak/tarih sorunları açık.
+  Kanıt: .claude/completions/2026-09-27-backlink-daily-budget.md.
+
+## 2026-09-28 05:21 UTC: geçersiz kuyruk işleri ayrıldı
+
+- Canlı bd7ffb4, yerel 9c169fe; hub/home değişiklikleri başka ajana ait.
+  Uygulama kodu, paralel iş veya deploya müdahale edilmedi.
+- Tam canlı kimlik kontrolünden sonra kendi atomik claim/block akışıyla
+  kibris-usulu-pisi-lokisi-HQ1AZ, geleneksel-tahinli-V9X0W ve
+  kibris-usulu-TEAG6 ayrıldı. Üçü draft ve canlı slug'ları küçük harfli.
+  Sonuncunun yemek adı eksik; görüntü içeriği tahmin edilmedi.
+- 8 kuyruk testi/42 assertion geçti. Kendi kilidi0; başkasına ait2
+  kilit değişmedi. Completed15, pending340, blocked9. Görsel teslimi yok.
+- Güncel PublicMediaEligibilityService ölçümü 134 tarif/116 uygun/18
+  eksik. Önceki geniş tarif kapsamıyla karıştırılmamalı; fark bu turun
+  üretimi değildir. Üretim kuyruğunun366 sayısı güncel eksik sayı değildir.
+- GSC mülk/dönem/kaynak/gözlem, dil kapsamı sınırları ve tam işlem kaydı:
+  .claude/completions/2026-09-28-media-queue-hygiene.md.

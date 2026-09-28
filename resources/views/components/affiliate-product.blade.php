@@ -2,6 +2,7 @@
     'product',
 ])
 
+@if(turkce_sayfa())
 <div class="affiliate-product-card rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
     <div>
         @if($product->image_url)
@@ -39,3 +40,4 @@
         </a>
     </div>
 </div>
+@endif

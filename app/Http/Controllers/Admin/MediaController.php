@@ -14,6 +14,7 @@ use App\Models\Recipe;
 use App\Models\User;
 use App\Services\Media\LocalMediaStorage;
 use App\Services\Media\PublicMediaEligibilityService;
+use App\Services\Media\PublicRecipeMediaCatalogueService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -25,89 +26,24 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class MediaController extends Controller
 {
-    public function index(Request $request, PublicMediaEligibilityService $gate): View
+    public function index(Request $request, PublicRecipeMediaCatalogueService $catalogue): View
     {
         $admin = $this->admin();
-
-        // İçe aktarılmış ama insan onayı bekleyen görseller listenin içinde
-        // kayboluyordu; sonuç olarak dosyası ve varyantları hazır fotoğraflar
-        // hiç yayına çıkmadı. Onay bekleyenler ayrı bir bölümde toplanır.
-        $onayBekleyen = Media::query()
-            ->with('mediable')
-            ->where('media_status', 'approved_real_media')
-            ->whereNull('approved_by_user_id')
-            ->whereNotNull('path')
-            ->where('path', '!=', '')
-            // Yer tutucu kapaklar onay kuyruğunda işi yok: bunlar sistemin
-            // fotoğraf olmadığında kendi çizdiği tipografik kapaklar, insan
-            // onayı bekleyen çekimler değil. Kuyruğu 3212 tanesi dolduruyor
-            // ve gerçek yemek fotoğrafları arada kayboluyordu.
-            ->where('path', 'not like', 'fallbacks/%')
-            ->latest()
-            ->limit(60)
-            ->get()
-            ->filter(fn (Media $item): bool => $gate->reason($item) === 'human_approval_missing')
-            // path sütununun dolu olması dosyanın durduğu anlamına gelmiyor.
-            // Kuyruktaki altı kaydın da kaynak dosyası diskte yoktu: onay
-            // ekranı gri kutular gösteriyordu ve onaylayan kişi görmediği bir
-            // şeyi onaylamak zorunda kalıyordu.
-            ->filter(fn (Media $item): bool => Storage::disk($item->disk)->exists((string) $item->path))
-            // Kapı sırayla kontrol eder ve ilk engeli döndürür: "insan onayı
-            // eksik" diyen bir kaydın arkasında başka bir engel bekliyor
-            // olabilir. Eşi zaten yayında olan ikiz kayıtlar böyleydi -
-            // kuyrukta onaylanmayı bekliyor görünüyor, onaylandığında kopya
-            // kontrolüne takılıp geri dönüyor ve kuyrukta kalmaya devam
-            // ediyordu. Kuyruk, onayın gerçekten yayına çıkaracağı kayıtları
-            // gösterir; çıkaramayacağını göstermek onaylayan kişiyi boş yere
-            // uğraştırmaktan başka bir işe yaramıyor.
-            ->filter(function (Media $item) use ($gate, $admin): bool {
-                $deneme = clone $item;
-                $deneme->forceFill([
-                    'media_reviewer_user_id' => $admin->id,
-                    'media_reviewed_at' => now(),
-                    'approved_by_user_id' => $admin->id,
-                    'approved_at' => now(),
-                ]);
-
-                return $gate->reason($deneme) === null;
-            })
-            ->values();
-
-        // Liste 7178 satırı 240 sayfaya yayıyordu ve sütunları public_id, disk,
-        // MIME gibi bir kararı desteklemeyen alanlardı. Bu satırların 2891'i
-        // dosyası olmayan ölü kayıt; varsayılan görünüm artık dosyası olanı
-        // gösterir, ölü kayıtlar kendi süzgecinden çağrılır.
-        $sayilar = [
-            'yayinda' => Media::query()->where('media_status', 'approved_real_media')->whereNotNull('approved_by_user_id')->count(),
-            'onay_bekleyen' => $onayBekleyen->count(),
-            'dosyasiz' => Media::query()->where(fn ($q) => $q->whereNull('path')->orWhere('path', ''))->count(),
-            'tumu' => Media::query()->count(),
-        ];
-
-        $suzgec = $request->string('durum')->toString() ?: 'dosyali';
+        $suzgec = $request->string('durum')->toString() ?: 'all';
+        // Eski bağlantılar ve yükleme sonrası yönlendirmeler `onay`
+        // parametresini kullanıyor. Yeni tarif odaklı ekranda bunun karşılığı
+        // `pending`; aliası korumak eski yer imlerini yanlışlıkla "tümü"ne
+        // düşürmez.
+        if ($suzgec === 'onay') {
+            $suzgec = 'pending';
+        }
         $arama = trim($request->string('q')->toString());
+        $result = $catalogue->catalogue($admin, $suzgec, $arama, max(1, $request->integer('page', 1)));
+        $recipes = $result['recipes'];
+        $onayBekleyen = $result['pending_media'];
+        $sayilar = $result['summary'];
 
-        $media = Media::query()
-            ->with('mediable')
-            // Sekme, üstteki onay bölümüyle aynı kayıtları göstermeli. Ayrı
-            // sorgular yazıldığında sekme, dosyası olmayan kayıtları geri
-            // getiriyordu: aynı sayfada iki farklı "onay bekleyen" tanımı vardı.
-            ->when($suzgec === 'onay', fn ($q) => $q->whereIn('id', $onayBekleyen->pluck('id')->all()))
-            ->when($suzgec === 'dosyali', fn ($q) => $q->whereNotNull('path')->where('path', '!=', ''))
-            ->when($suzgec === 'yayinda', fn ($q) => $q->where('media_status', 'approved_real_media')->whereNotNull('approved_by_user_id'))
-            ->when($suzgec === 'dosyasiz', fn ($q) => $q->where(fn ($inner) => $inner->whereNull('path')->orWhere('path', '')))
-            ->when($arama !== '', function ($q) use ($arama): void {
-                // Bir görseli arayan kişi onu bağlı olduğu yemeğin adıyla arar,
-                // ULID'siyle değil.
-                $q->where(fn ($inner) => $inner
-                    ->where('alt_text', 'like', '%'.$arama.'%')
-                    ->orWhereHasMorph('mediable', [Recipe::class, BlogPost::class], fn ($m) => $m->where('title', 'like', '%'.$arama.'%')));
-            })
-            ->latest()
-            ->paginate(24)
-            ->withQueryString();
-
-        return view('admin.media.index', compact('media', 'onayBekleyen', 'sayilar', 'suzgec', 'arama'));
+        return view('admin.media.index', compact('recipes', 'onayBekleyen', 'sayilar', 'suzgec', 'arama'));
     }
 
     public function create(): View

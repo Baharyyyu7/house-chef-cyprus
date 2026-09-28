@@ -1,353 +1,495 @@
-// Ates hareket sistemi.
-//
-// Sitenin dili firin, ates ve sicak isik. Hareketler de oradan geliyor:
-// basilan buton kivilcim sacar, hero'da korlar yukselir, imlecin gezdigi
-// kartta sicak bir isik dolasir. Hepsi tek bir fixed katmanda, yalniz
-// transform ve opacity ile, sayfa yerlesimine dokunmadan calisir.
-//
-// Hareket kisitliysa kivilcim yerine tek bir sonuk halka kalir (basin
-// onaylandigi gorunsun diye), korlar hic baslamaz.
+/**
+ * Hareket katmanı.
+ *
+ * Kinetik başlıklar, 3B savrulan kartlar, sayaçlar, enerji patlamaları,
+ * okuma çizgisi, fareyi izleyen eğim ve kartın tarif sayfasına morf olması.
+ *
+ * Üç kural her şeyin üstünde:
+ * - Açılışta ekranda olan öğe gizlenmez. Gizleyip açmak LCP'yi geciktirir,
+ *   yerinden oynatıp geri getirmek ilk karede sıçrama yapar.
+ * - Gizlenen yalnız ekranın dışındakiler ve yalnız IntersectionObserver
+ *   varken. Betik hiç çalışmazsa sayfa efektsiz ama eksiksiz görünür.
+ * - Hareket kısıtlıysa hiçbiri kurulmaz. Yalnız transform, opacity, filter
+ *   ve clip-path canlandırılır; yerleşim hiç değişmez.
+ *
+ * Eski data-reveal düzeni ekranın altındakileri yüklemeden 1,5 sn sonra
+ * topluca açıyordu: animasyon kimse bakmıyorken oynuyordu.
+ */
 
-const azalt = window.matchMedia('(prefers-reduced-motion: reduce)');
-const inceImlec = window.matchMedia('(hover: hover) and (pointer: fine)');
-const veriTasarrufu = () => navigator.connection?.saveData === true;
+const kisitli = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Tema gecisinin daireyi nereden acacagini bilmesi icin son basilan nokta.
-window.hcSonIsaret = null;
+// Aşımlı yay: hedefi geçip geri oturur. Oturma: aşımsız, yumuşak iniş.
+const YAY = 'cubic-bezier(.16, 1.3, .3, 1)';
+const OTUR = 'cubic-bezier(.2, .9, .25, 1)';
 
-/* ---------------------------------------------------------------- *
- * 1. Kivilcim katmani
- * ---------------------------------------------------------------- */
+const KINETIK = '#main-content h2, #main-content .hc-display-lg';
+const KINETIK_DISI = '.hc-v3-card, .hc-match, nav, form, [data-no-motion], [x-text], [x-html], .sr-only';
+const KART = '#main-content .hc-v3-card--interactive';
+const BLOK = '#main-content [data-reveal], #main-content [data-reveal-group] > *, #main-content .hc-v3-card:not(.hc-v3-card--interactive), #ingredients li, #nutrition dl > div, #faq details';
+const USTYAZI = '#main-content .hc-kicker, #main-content .hc-overline';
 
-const TAVAN = 90;
-const RENKLER = ['#ffe29a', '#ffc15e', '#ff9a2e', '#ff6b00', '#f2460d'];
-let katman = null;
-let canli = 0;
+const ekranda = (el) => {
+    const r = el.getBoundingClientRect();
 
-const katmanAl = () => {
-    if (katman?.isConnected) return katman;
-    katman = document.createElement('div');
-    katman.className = 'hc-spark-layer';
-    katman.setAttribute('aria-hidden', 'true');
-    document.body.append(katman);
-
-    return katman;
+    return r.bottom > 0 && r.top < window.innerHeight;
 };
 
-const halka = (x, y, guc) => {
-    const el = document.createElement('span');
-    el.className = 'hc-spark-ring';
-    el.style.left = `${x}px`;
-    el.style.top = `${y}px`;
-    katmanAl().append(el);
-    el.animate(
-        [
-            { transform: 'translate(-50%, -50%) scale(.2)', opacity: 0.85 },
-            { transform: `translate(-50%, -50%) scale(${2.2 * guc})`, opacity: 0 },
-        ],
-        { duration: azalt.matches ? 240 : 520, easing: 'cubic-bezier(.16, 1, .3, 1)' },
-    ).onfinish = () => el.remove();
-};
-
-// Basilan noktada bir anlik beyaz-sari cekirdek: patlamanin kaynagi.
-const parla = (x, y, guc) => {
-    if (azalt.matches) return;
-    const el = document.createElement('span');
-    el.className = 'hc-spark-flash';
-    el.style.left = `${x}px`;
-    el.style.top = `${y}px`;
-    katmanAl().append(el);
-    el.animate(
-        [
-            { transform: 'translate(-50%, -50%) scale(.3)', opacity: 1 },
-            { transform: `translate(-50%, -50%) scale(${1.6 * guc})`, opacity: 0 },
-        ],
-        { duration: 300, easing: 'cubic-bezier(.16, 1, .3, 1)' },
-    ).onfinish = () => el.remove();
-};
-
-export const kivilcim = (x, y, { adet = 18, guc = 1 } = {}) => {
-    halka(x, y, guc);
-    parla(x, y, guc);
-    if (azalt.matches) return;
-
-    const n = Math.max(0, Math.min(adet, TAVAN - canli));
-    for (let i = 0; i < n; i += 1) {
-        const el = document.createElement('span');
-        el.className = 'hc-spark';
-        const aci = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.7;
-        const hiz = (80 + Math.random() * 120) * guc;
-        const dx = Math.cos(aci) * hiz;
-        const dy = Math.sin(aci) * hiz;
-        const boy = 3 + Math.random() * 4;
-        const derece = (aci * 180) / Math.PI;
-        el.style.left = `${x}px`;
-        el.style.top = `${y}px`;
-        el.style.width = `${boy * 3}px`;
-        el.style.height = `${boy}px`;
-        el.style.background = RENKLER[i % RENKLER.length];
-        katmanAl().append(el);
-        canli += 1;
-
-        // Son karede hafif dusus: kivilcim havada asili kalmaz, sonuyor.
-        el.animate(
-            [
-                { transform: `translate(-50%, -50%) rotate(${derece}deg) scaleX(1.8)`, opacity: 1 },
-                { transform: `translate(calc(-50% + ${dx * 0.72}px), calc(-50% + ${dy * 0.72}px)) rotate(${derece}deg) scaleX(1)`, opacity: 1, offset: 0.5 },
-                { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy + 36 * guc}px)) rotate(${derece + 35}deg) scaleX(.25)`, opacity: 0 },
-            ],
-            { duration: 520 + Math.random() * 340, easing: 'cubic-bezier(.16, 1, .3, 1)' },
-        ).onfinish = () => {
-            el.remove();
-            canli -= 1;
-        };
+/** Yalnız düz metinli başlık kelimelere bölünür; bağlı ya da yapılı başlığa dokunulmaz. */
+function kelimele(baslik) {
+    if (baslik.dataset.hcKw || baslik.closest(KINETIK_DISI)) {
+        return [];
     }
-};
 
-window.hcKivilcim = kivilcim;
+    for (const dugum of baslik.childNodes) {
+        if (dugum.nodeType === 1 && dugum.tagName !== 'BR') {
+            return [];
+        }
+    }
 
-/* ---------------------------------------------------------------- *
- * 2. Basinca kivilcim
- * ---------------------------------------------------------------- */
+    const metin = baslik.textContent.trim();
 
-const TETIK = [
-    '.hc-btn-primary', '.hc-btn-gold', '.hc-btn-danger',
-    '.hc-v3-btn--primary', '.hc-v3-btn--danger',
-    '.hc-future-btn', '.hc-hero__cta', '.hc-home-command__submit',
-    '[data-theme-switch]', '[data-hc-burst]',
-].join(',');
+    if (metin === '' || metin.length > 120) {
+        return [];
+    }
 
-const secenek = (hedef) => (hedef.dataset.hcBurst === 'big' || hedef.matches('.hc-btn-danger, .hc-v3-btn--danger')
-    ? { adet: 32, guc: 1.8 }
-    : { adet: 18, guc: 1 });
+    baslik.dataset.hcKw = '1';
+    const kelimeler = [];
 
-const kapali = (hedef) => hedef.disabled || hedef.getAttribute('aria-disabled') === 'true';
+    for (const dugum of [...baslik.childNodes]) {
+        if (dugum.nodeType !== 3) {
+            continue;
+        }
 
-document.addEventListener('pointerdown', (olay) => {
-    window.hcSonIsaret = { x: olay.clientX, y: olay.clientY };
-    if (olay.button !== 0) return;
-    const hedef = olay.target.closest(TETIK);
-    if (!hedef || kapali(hedef)) return;
-    kivilcim(olay.clientX, olay.clientY, secenek(hedef));
-}, { passive: true });
+        const parca = document.createDocumentFragment();
 
-// Klavyeyle basilan butonda da onay gorunsun; kivilcim merkezden cikar.
-document.addEventListener('click', (olay) => {
-    if (olay.detail !== 0) return;
-    const hedef = olay.target.closest(TETIK);
-    if (!hedef || kapali(hedef)) return;
-    const r = hedef.getBoundingClientRect();
-    window.hcSonIsaret = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-    kivilcim(window.hcSonIsaret.x, window.hcSonIsaret.y, secenek(hedef));
-});
-
-/* ---------------------------------------------------------------- *
- * 3. Kartlarda gezen sicak isik
- * ---------------------------------------------------------------- */
-
-const ISIK = '.hc-v3-card--interactive, .hc-collection-card, .hc-card-hover, .hc-tool-card, .hc-testimonial-card, .hc-admin-metric, [data-hc-glow]';
-let isikKare = 0;
-
-const isikKur = (kart) => {
-    if (kart.dataset.hcIsik) return;
-    kart.dataset.hcIsik = '1';
-    if (getComputedStyle(kart).position === 'static') kart.style.position = 'relative';
-    const parilti = document.createElement('span');
-    parilti.className = 'hc-heat-glow';
-    parilti.setAttribute('aria-hidden', 'true');
-    kart.append(parilti);
-};
-
-document.addEventListener('pointermove', (olay) => {
-    if (!inceImlec.matches || azalt.matches) return;
-    const kart = olay.target.closest?.(ISIK);
-    if (!kart) return;
-    isikKur(kart);
-    cancelAnimationFrame(isikKare);
-    isikKare = requestAnimationFrame(() => {
-        const r = kart.getBoundingClientRect();
-        kart.style.setProperty('--hc-mx', `${olay.clientX - r.left}px`);
-        kart.style.setProperty('--hc-my', `${olay.clientY - r.top}px`);
-    });
-}, { passive: true });
-
-/* ---------------------------------------------------------------- *
- * 4. Hero korlari ve atesleme
- * ---------------------------------------------------------------- */
-
-const korlar = (tuval) => {
-    const ctx = tuval.getContext('2d');
-    if (!ctx) return;
-
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    let g = 0;
-    let y = 0;
-    let parcalar = [];
-    let calisiyor = false;
-    let gorunur = true;
-    let kare = 0;
-    let onceki = 0;
-    const imlec = { x: -9999, y: -9999 };
-
-    const yeni = (baslangic) => {
-        // Isik kaynagi sag ustte, korlar sag alttan ve ortadan yukselir.
-        const sagda = Math.random() < 0.68;
-        return {
-            x: sagda ? g * (0.48 + Math.random() * 0.52) : Math.random() * g,
-            y: baslangic ? Math.random() * y : y + Math.random() * 40,
-            vx: (Math.random() - 0.5) * 0.25,
-            vy: -(0.35 + Math.random() * 0.95),
-            r: 0.8 + Math.random() * 2.1,
-            faz: Math.random() * Math.PI * 2,
-            omur: 0,
-            azami: 260 + Math.random() * 420,
-        };
-    };
-
-    const olc = () => {
-        const r = tuval.getBoundingClientRect();
-        g = r.width;
-        y = r.height;
-        tuval.width = Math.round(g * dpr);
-        tuval.height = Math.round(y * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        const adet = g < 640 ? 22 : 46;
-        parcalar = Array.from({ length: adet }, () => yeni(true));
-    };
-
-    const ciz = (simdi) => {
-        const adim = Math.min(3, (simdi - onceki) / 16.7 || 1);
-        onceki = simdi;
-        const karanlik = document.documentElement.classList.contains('dark');
-        ctx.clearRect(0, 0, g, y);
-        ctx.globalCompositeOperation = karanlik ? 'lighter' : 'source-over';
-
-        for (let i = 0; i < parcalar.length; i += 1) {
-            const p = parcalar[i];
-            p.omur += adim;
-            p.faz += 0.03 * adim;
-            const itX = p.x - imlec.x;
-            const itY = p.y - imlec.y;
-            const mesafe = itX * itX + itY * itY;
-            if (mesafe < 14400) {
-                const kuvvet = (1 - mesafe / 14400) * 0.6;
-                p.vx += (itX / 120) * kuvvet * adim;
-                p.vy += (itY / 120) * kuvvet * 0.5 * adim;
-            }
-            p.vx *= 0.985;
-            p.x += (p.vx + Math.sin(p.faz) * 0.35) * adim;
-            p.y += p.vy * adim;
-
-            const oran = p.omur / p.azami;
-            if (oran >= 1 || p.y < -20 || p.x < -20 || p.x > g + 20) {
-                parcalar[i] = yeni(false);
+        for (const p of dugum.textContent.split(/(\s+)/)) {
+            if (p === '') {
                 continue;
             }
 
-            // Dogar, parlar, soner. Titreme gercek atesteki gibi duzensiz.
-            const parlak = Math.sin(Math.PI * oran) * (0.75 + Math.sin(p.faz * 3.1) * 0.25);
-            const sicak = karanlik ? (oran < 0.4 ? '255, 214, 140' : '255, 132, 38') : (oran < 0.4 ? '255, 140, 20' : '232, 76, 0');
-            ctx.fillStyle = karanlik ? `rgba(255, 110, 20, ${0.16 * parlak})` : `rgba(255, 96, 0, ${0.07 * parlak})`;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r * (karanlik ? 3.6 : 2.2), 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = `rgba(${sicak}, ${(karanlik ? 0.95 : 0.8) * parlak})`;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        kare = requestAnimationFrame(ciz);
-    };
-
-    const basla = () => {
-        if (calisiyor || !gorunur || document.hidden || azalt.matches || veriTasarrufu()) return;
-        calisiyor = true;
-        onceki = performance.now();
-        kare = requestAnimationFrame(ciz);
-    };
-
-    const dur = () => {
-        calisiyor = false;
-        cancelAnimationFrame(kare);
-    };
-
-    olc();
-    new ResizeObserver(() => olc()).observe(tuval);
-    new IntersectionObserver(([giris]) => {
-        gorunur = giris.isIntersecting;
-        gorunur ? basla() : dur();
-    }).observe(tuval);
-    document.addEventListener('visibilitychange', () => (document.hidden ? dur() : basla()));
-    azalt.addEventListener('change', () => {
-        if (azalt.matches) {
-            dur();
-            ctx.clearRect(0, 0, g, y);
-        } else {
-            basla();
-        }
-    });
-
-    const kahraman = tuval.parentElement;
-    kahraman.addEventListener('pointermove', (olay) => {
-        const r = tuval.getBoundingClientRect();
-        imlec.x = olay.clientX - r.left;
-        imlec.y = olay.clientY - r.top;
-    }, { passive: true });
-    kahraman.addEventListener('pointerleave', () => {
-        imlec.x = -9999;
-        imlec.y = -9999;
-    });
-
-    basla();
-};
-
-// Basligin altindaki turuncu cizgi tutusur ve ucundan kivilcim sacar.
-// Sayfanin tek sahnelenmis ani bu; digerleri geri bildirim.
-const atesle = () => {
-    const baslik = document.querySelector('.hc-hero__title');
-    if (!baslik || azalt.matches) return;
-    window.setTimeout(() => {
-        const r = baslik.getBoundingClientRect();
-        if (r.bottom < 0 || r.top > window.innerHeight) return;
-        kivilcim(r.left + 52, r.bottom - 3, { adet: 22, guc: 1.35 });
-    }, 1020);
-};
-
-/* ---------------------------------------------------------------- *
- * 5. Eslestirme vitrini tamamlaninca
- * ---------------------------------------------------------------- */
-
-const vitrin = (kok) => {
-    let onceki = kok.classList.contains('is-done');
-    new MutationObserver(() => {
-        const simdi = kok.classList.contains('is-done');
-        if (simdi && !onceki && !document.hidden) {
-            const halkaEl = kok.querySelector('.hc-match__ring') || kok;
-            const r = halkaEl.getBoundingClientRect();
-            if (r.bottom > 0 && r.top < window.innerHeight) {
-                kivilcim(r.left + r.width / 2, r.top + r.height / 2, { adet: 20, guc: 1.4 });
+            if (/^\s+$/.test(p)) {
+                parca.append(p);
+                continue;
             }
+
+            const kelime = document.createElement('span');
+            kelime.className = 'hc-kw';
+            kelime.textContent = p;
+            parca.append(kelime);
+            kelimeler.push(kelime);
         }
-        onceki = simdi;
-    }).observe(kok, { attributes: true, attributeFilter: ['class'] });
-};
 
-const kur = () => {
-    document.querySelectorAll('[data-hc-embers]:not([data-hc-hazir])').forEach((tuval) => {
-        tuval.setAttribute('data-hc-hazir', '');
-        korlar(tuval);
-        atesle();
-    });
-    document.querySelectorAll('.hc-match:not([data-hc-hazir])').forEach((kok) => {
-        kok.setAttribute('data-hc-hazir', '');
-        vitrin(kok);
-    });
-};
+        dugum.replaceWith(parca);
+    }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', kur, { once: true });
-} else {
-    kur();
+    return kelimeler;
 }
-document.addEventListener('livewire:navigated', kur);
+
+const oynatici = {
+    baslik(baslik) {
+        baslik.querySelectorAll('.hc-kw').forEach((kelime, i) => {
+            kelime.classList.remove('hc-m-gizli');
+            kelime.animate([
+                { opacity: 0, transform: 'translate3d(0, .85em, 0) rotate(8deg) scale(.86)', filter: 'blur(12px)' },
+                { opacity: 1, transform: 'none', filter: 'blur(0)' },
+            ], { duration: 950, delay: i * 55, easing: YAY, fill: 'backwards' });
+        });
+    },
+    kart(kart, sira) {
+        kart.classList.remove('hc-m-gizli');
+        kart.animate([
+            { opacity: 0, transform: 'perspective(1100px) translate3d(0, 90px, 0) rotateX(26deg) scale(.86)', filter: 'blur(10px)' },
+            { opacity: 1, transform: 'perspective(1100px) translate3d(0, 0, 0) rotateX(0) scale(1)', filter: 'blur(0)' },
+        ], { duration: 1050, delay: sira * 85, easing: YAY, fill: 'backwards' });
+        const gorsel = kart.querySelector('img');
+
+        if (gorsel) {
+            gorsel.animate([
+                { transform: 'scale(1.35)', filter: 'saturate(.2) brightness(1.2)' },
+                { transform: 'scale(1)', filter: 'none' },
+            ], { duration: 1400, delay: sira * 85 + 80, easing: OTUR, fill: 'backwards' });
+        }
+    },
+    blok(blok, sira) {
+        blok.classList.remove('hc-m-gizli');
+        blok.animate([
+            { opacity: 0, transform: 'translate3d(0, 44px, 0) scale(.96)', filter: 'blur(8px)' },
+            { opacity: 1, transform: 'none', filter: 'blur(0)' },
+        ], { duration: 850, delay: sira * 60, easing: YAY, fill: 'backwards' });
+    },
+    ustyazi(el, sira) {
+        el.classList.remove('hc-m-gizli');
+        el.animate([
+            { opacity: 0, clipPath: 'inset(0 100% 0 0)', transform: 'translate3d(-14px, 0, 0)' },
+            { opacity: 1, clipPath: 'inset(0 0 0 0)', transform: 'none' },
+        ], { duration: 700, delay: sira * 40, easing: OTUR, fill: 'backwards' });
+    },
+    sayac(el) {
+        const hedef = Number.parseInt(el.textContent.replace(/\D/g, ''), 10);
+        const son = el.textContent;
+
+        // Yalnız tam sayı sayılır: "12.5 g" rakamları birleştirilince 125 olurdu.
+        if (!Number.isFinite(hedef) || hedef === 0 || /\d[.,]\d{1,2}(?!\d)/.test(son)) {
+            return;
+        }
+
+        // Rakamlar büyüdükçe genişlik değişmesin: son hâlin genişliği sabitlenir.
+        el.style.minWidth = `${el.getBoundingClientRect().width}px`;
+        const ayirici = (son.match(/\d([.,\s ])\d{3}/) || [])[1] || '';
+        const bicimle = (n) => (ayirici ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ayirici) : String(n));
+        const sure = Math.min(1800, 700 + hedef * 4);
+        const basla = performance.now();
+        const adim = (simdi) => {
+            const t = Math.min(1, (simdi - basla) / sure);
+            const e = 1 - 2 ** (-10 * t);
+
+            el.textContent = t < 1 ? son.replace(/\d[\d.,\s ]*\d|\d/, bicimle(Math.round(hedef * e))) : son;
+
+            if (t < 1) {
+                requestAnimationFrame(adim);
+            }
+        };
+
+        requestAnimationFrame(adim);
+    },
+};
+
+function gozlemle() {
+    const bekleyen = new Map();
+    const gozlemci = new IntersectionObserver((girisler) => {
+        const gorunen = girisler.filter((g) => g.isIntersecting)
+            .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top || a.boundingClientRect.left - b.boundingClientRect.left);
+
+        const siralar = {};
+
+        for (const giris of gorunen) {
+            const el = giris.target;
+            const tur = bekleyen.get(el);
+
+            gozlemci.unobserve(el);
+            bekleyen.delete(el);
+            siralar[tur] = (siralar[tur] ?? -1) + 1;
+            oynatici[tur](el, Math.min(siralar[tur], 7));
+        }
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.08 });
+
+    // Önce bütün ölçümler, sonra bütün yazımlar: tek yerleşim hesabı.
+    const adaylar = [];
+    const ekle = (el, tur) => {
+        if (!bekleyen.has(el) && !el.closest('[data-no-motion]')) {
+            adaylar.push([el, tur]);
+            bekleyen.set(el, tur);
+        }
+    };
+
+    document.querySelectorAll(KART).forEach((el) => ekle(el, 'kart'));
+    document.querySelectorAll(BLOK).forEach((el) => {
+        if (!el.closest(KART) && !el.parentElement?.closest('.hc-v3-card:not(details)')) {
+            ekle(el, 'blok');
+        }
+    });
+    document.querySelectorAll(USTYAZI).forEach((el) => ekle(el, 'ustyazi'));
+    document.querySelectorAll('[data-hc-say]').forEach((el) => ekle(el, 'sayac'));
+
+    const basliklar = [...document.querySelectorAll(KINETIK)];
+    const olcum = adaylar.map(([el]) => ekranda(el));
+    const baslikOlcum = basliklar.map((b) => ekranda(b));
+
+    adaylar.forEach(([el, tur], i) => {
+        // Ekranda başlayan öğeye dokunulmaz; sayaç bile sayılmaz, yoksa
+        // ilk karede görünen sayı sıfıra düşüp yeniden tırmanırdı.
+        if (olcum[i]) {
+            bekleyen.delete(el);
+
+            return;
+        }
+
+        if (tur !== 'sayac') {
+            el.classList.add('hc-m-gizli');
+        }
+
+        gozlemci.observe(el);
+    });
+
+    basliklar.forEach((baslik, i) => {
+        if (baslikOlcum[i]) {
+            return;
+        }
+
+        const kelimeler = kelimele(baslik);
+
+        if (kelimeler.length === 0) {
+            return;
+        }
+
+        kelimeler.forEach((k) => k.classList.add('hc-m-gizli'));
+        bekleyen.set(baslik, 'baslik');
+        gozlemci.observe(baslik);
+    });
+}
+
+/** Tıklama noktasından saçılan parçacıklar ve bir şok halkası. */
+export function patlat(x, y, secenek = {}) {
+    if (kisitli()) {
+        return;
+    }
+
+    const {
+        renkler = ['#fb923c', '#f97316', '#fde047', '#fdba74', '#ffffff'],
+        adet = 16,
+        menzil = 78,
+        konfeti = false,
+    } = secenek;
+
+    const kap = document.createElement('div');
+    kap.className = 'hc-burst';
+    kap.setAttribute('aria-hidden', 'true');
+    kap.style.left = `${x}px`;
+    kap.style.top = `${y}px`;
+    document.body.append(kap);
+
+    const bitenler = [];
+    const halka = document.createElement('span');
+    halka.className = 'hc-burst__ring';
+    halka.style.borderColor = renkler[0];
+    kap.append(halka);
+    bitenler.push(halka.animate([
+        { transform: 'translate(-50%, -50%) scale(.15)', opacity: 0.95, borderWidth: '6px' },
+        { transform: `translate(-50%, -50%) scale(${konfeti ? 2.4 : 1})`, opacity: 0, borderWidth: '1px' },
+    ], { duration: konfeti ? 900 : 560, easing: 'cubic-bezier(.08, .8, .3, 1)' }).finished);
+
+    for (let i = 0; i < adet; i++) {
+        const p = document.createElement('span');
+        const cizgi = !konfeti && i % 3 === 0;
+        p.className = `hc-burst__p${cizgi ? ' hc-burst__p--cizgi' : ''}${konfeti ? ' hc-burst__p--konfeti' : ''}`;
+        p.style.background = renkler[i % renkler.length];
+        kap.append(p);
+
+        const aci = (i / adet) * Math.PI * 2 + Math.random() * 0.6;
+        const r = menzil * (0.5 + Math.random() * 0.7);
+        const dx = Math.cos(aci) * r;
+        const dy = Math.sin(aci) * r;
+        const don = (aci * 180) / Math.PI;
+
+        const kareler = konfeti
+            ? [
+                { transform: 'translate(-50%, -50%) rotate(0) scale(1)', opacity: 1 },
+                { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${don * 2}deg) scale(1)`, opacity: 1, offset: 0.4 },
+                { transform: `translate(calc(-50% + ${dx * 1.25}px), calc(-50% + ${dy + 170}px)) rotate(${don * 4}deg) scale(.6)`, opacity: 0 },
+            ]
+            : [
+                { transform: `translate(-50%, -50%) rotate(${don}deg) translateX(0) scale(1)`, opacity: 1 },
+                { transform: `translate(-50%, -50%) rotate(${don}deg) translateX(${r}px) scale(0)`, opacity: 0.2 },
+            ];
+
+        bitenler.push(p.animate(kareler, {
+            duration: (konfeti ? 1500 : 620) + Math.random() * 320,
+            easing: konfeti ? 'cubic-bezier(.2, .7, .4, 1)' : 'cubic-bezier(.05, .75, .3, 1)',
+        }).finished);
+    }
+
+    Promise.allSettled(bitenler).then(() => kap.remove());
+}
+
+const merkez = (el) => {
+    const r = el.getBoundingClientRect();
+
+    return [r.left + r.width / 2, r.top + r.height / 2];
+};
+
+function patlamalar() {
+    const tamamMi = () => {
+        const cubuk = document.querySelector('.hc-step-progress');
+
+        return cubuk !== null && cubuk.getAttribute('aria-valuenow') === cubuk.getAttribute('aria-valuemax');
+    };
+
+    // Yakalama evresi: Alpine durumu değiştirmeden önceki hâli okunur.
+    document.addEventListener('click', (olay) => {
+        const adim = olay.target.closest?.('.hc-step__toggle');
+
+        if (adim) {
+            if (adim.getAttribute('aria-pressed') === 'true') {
+                return;
+            }
+
+            const onceTamam = tamamMi();
+            const [x, y] = merkez(adim);
+            patlat(x, y, { renkler: ['#22c55e', '#86efac', '#fde047', '#ffffff'], adet: 18, menzil: 90 });
+            adim.animate([{ transform: 'scale(.7) rotate(-12deg)' }, { transform: 'scale(1.18) rotate(4deg)', offset: 0.55 }, { transform: 'none' }], { duration: 520, easing: YAY });
+
+            // Alpine DOM'u mikro görevde günceller; zamanlayıcı ondan sonra
+            // koşar. requestAnimationFrame arka plandaki sekmede hiç koşmuyordu.
+            setTimeout(() => {
+                if (!onceTamam && tamamMi()) {
+                    const [cx, cy] = merkez(document.querySelector('.hc-step-progress'));
+                    patlat(cx, cy, { konfeti: true, adet: 46, menzil: 240, renkler: ['#f97316', '#22c55e', '#fde047', '#38bdf8', '#f472b6', '#ffffff'] });
+                }
+            }, 30);
+
+            return;
+        }
+
+        const dugme = olay.target.closest?.('.hc-v3-btn--primary, .hc-btn-primary, .hc-hero__cta, .hc-match__open, [data-hc-patla]');
+
+        if (dugme) {
+            const [x, y] = olay.detail === 0 ? merkez(dugme) : [olay.clientX, olay.clientY];
+            patlat(x, y);
+        }
+    }, true);
+
+    document.addEventListener('change', (olay) => {
+        const kutu = olay.target;
+
+        if (kutu.matches?.('#ingredients input[type="checkbox"]') && kutu.checked) {
+            const [x, y] = merkez(kutu);
+            patlat(x, y, { renkler: ['#22c55e', '#86efac', '#fde047'], adet: 10, menzil: 46 });
+        }
+    });
+}
+
+/** Kart fareyi izleyerek eğilir, üstünden ışık geçer. Yalnız fare ile. */
+function egim() {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        return;
+    }
+
+    let aktif = null;
+    let bekliyor = false;
+    let son = null;
+
+    const birak = (kart) => {
+        kart.classList.remove('is-egiliyor');
+        kart.style.removeProperty('--hc-rx');
+        kart.style.removeProperty('--hc-ry');
+    };
+
+    document.addEventListener('pointermove', (olay) => {
+        if (olay.pointerType !== 'mouse') {
+            return;
+        }
+
+        son = olay;
+
+        if (bekliyor) {
+            return;
+        }
+
+        bekliyor = true;
+        requestAnimationFrame(() => {
+            bekliyor = false;
+            const kart = son.target.closest?.('.hc-v3-card--interactive');
+
+            if (aktif && aktif !== kart) {
+                birak(aktif);
+            }
+
+            aktif = kart;
+
+            if (!kart) {
+                return;
+            }
+
+            const r = kart.getBoundingClientRect();
+            const px = (son.clientX - r.left) / r.width - 0.5;
+            const py = (son.clientY - r.top) / r.height - 0.5;
+
+            kart.classList.add('is-egiliyor');
+            kart.style.setProperty('--hc-rx', `${(-py * 9).toFixed(2)}deg`);
+            kart.style.setProperty('--hc-ry', `${(px * 11).toFixed(2)}deg`);
+            kart.style.setProperty('--hc-gx', `${((px + 0.5) * 100).toFixed(1)}%`);
+            kart.style.setProperty('--hc-gy', `${((py + 0.5) * 100).toFixed(1)}%`);
+        });
+    }, { passive: true });
+
+    // Yakalamalı pointerleave her alt öğeden çıkışta tetiklenir; yalnız
+    // pencereden çıkış dinlenir, kart içi çıkışı pointermove zaten görüyor.
+    document.documentElement.addEventListener('pointerleave', () => {
+        if (aktif) {
+            birak(aktif);
+            aktif = null;
+        }
+    });
+
+    // Mıknatıs: büyük çağrı düğmesi imlece doğru çekilir.
+    document.querySelectorAll('.hc-hero__cta, [data-hc-miknatis]').forEach((dugme) => {
+        dugme.addEventListener('pointermove', (olay) => {
+            const r = dugme.getBoundingClientRect();
+            dugme.style.setProperty('--hc-mx', `${((olay.clientX - r.left - r.width / 2) * 0.28).toFixed(1)}px`);
+            dugme.style.setProperty('--hc-my', `${((olay.clientY - r.top - r.height / 2) * 0.4).toFixed(1)}px`);
+        });
+        dugme.addEventListener('pointerleave', () => {
+            dugme.style.removeProperty('--hc-mx');
+            dugme.style.removeProperty('--hc-my');
+        });
+    });
+}
+
+/** Uzun sayfada okuma çizgisi. */
+function okumaCizgisi() {
+    if (!document.querySelector('[data-hc-okuma]')) {
+        return;
+    }
+
+    const cizgi = document.createElement('div');
+    cizgi.className = 'hc-okuma';
+    cizgi.setAttribute('aria-hidden', 'true');
+    cizgi.append(document.createElement('span'));
+    document.body.append(cizgi);
+
+    let bekliyor = false;
+    const guncelle = () => {
+        bekliyor = false;
+        const kok = document.documentElement;
+        const oran = kok.scrollHeight > window.innerHeight ? window.scrollY / (kok.scrollHeight - window.innerHeight) : 0;
+        cizgi.style.setProperty('--hc-okuma', Math.min(1, Math.max(0, oran)).toFixed(4));
+    };
+
+    window.addEventListener('scroll', () => {
+        if (!bekliyor) {
+            bekliyor = true;
+            requestAnimationFrame(guncelle);
+        }
+    }, { passive: true });
+    guncelle();
+}
+
+/**
+ * Tıklanan kartın görseli tarif sayfasının kahraman görseline dönüşür.
+ * Ad yalnız tıklanan karta verilir; aynı ad iki öğede olursa geçiş iptal olur.
+ */
+function morf() {
+    document.addEventListener('click', (olay) => {
+        const baglanti = olay.target.closest?.('a[href]');
+        const kart = baglanti?.closest('.hc-v3-card--interactive');
+
+        if (!kart || olay.defaultPrevented || olay.metaKey || olay.ctrlKey || olay.shiftKey || olay.button !== 0) {
+            return;
+        }
+
+        document.querySelectorAll('[style*="view-transition-name"]').forEach((el) => el.style.removeProperty('view-transition-name'));
+        const gorsel = kart.querySelector('img');
+
+        if (gorsel) {
+            gorsel.style.viewTransitionName = 'hc-kahraman';
+        }
+    });
+
+    // Geri tuşuyla önbellekten dönülünce ad kalmasın.
+    window.addEventListener('pageshow', () => {
+        document.querySelectorAll('.hc-v3-card img[style*="view-transition-name"]').forEach((el) => el.style.removeProperty('view-transition-name'));
+    });
+}
+
+export function hareketiKur() {
+    if (kisitli() || !('IntersectionObserver' in window) || !('animate' in Element.prototype)) {
+        return;
+    }
+
+    document.documentElement.classList.add('hc-motion');
+    gozlemle();
+    patlamalar();
+    egim();
+    okumaCizgisi();
+    morf();
+}

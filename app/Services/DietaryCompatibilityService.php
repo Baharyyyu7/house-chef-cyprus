@@ -63,7 +63,11 @@ final class DietaryCompatibilityService
         ];
 
         foreach ($satirlar as $kod => $satir) {
-            $satirlar[$kod]['label'] = $adlar[$kod] ?? self::ADLAR[$kod] ?? str($kod)->replace('_', ' ')->title()->value();
+            // Tablodaki ve buradaki adlar Türkçe; yabancı sayfada "No verified
+            // data for: Vegan, Vejetaryen, Glutensiz" basılıyordu.
+            $satirlar[$kod]['label'] = turkce_sayfa()
+                ? ($adlar[$kod] ?? self::ADLAR[$kod] ?? str($kod)->replace('_', ' ')->title()->value())
+                : __('diet.'.$kod);
         }
 
         return $satirlar;

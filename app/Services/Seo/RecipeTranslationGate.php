@@ -77,6 +77,34 @@ final class RecipeTranslationGate
         return $this->engel($tarif, $dil) === null;
     }
 
+    /**
+     * Adımları o dilde kalıp çeviri olan tarifler; listeleme kapsamı için.
+     *
+     * Tek sorgu: kapsam her liste isteğinde çalışıyor, tarif başına iki
+     * sorgu atan engel() orada kullanılamaz.
+     *
+     * @return list<int>
+     */
+    public function kalipTarifleri(string $dil): array
+    {
+        if ($dil === (string) config('locales.default', 'tr')) {
+            return [];
+        }
+
+        return ContentTranslation::query()
+            ->join('recipe_steps', 'recipe_steps.id', '=', 'content_translations.translatable_id')
+            ->where('content_translations.translatable_type', (new RecipeStep)->getMorphClass())
+            ->where('content_translations.locale', $dil)
+            ->where('content_translations.field', 'instruction')
+            ->get(['recipe_steps.recipe_id', 'content_translations.value'])
+            ->groupBy('recipe_id')
+            ->filter(fn ($satirlar): bool => $this->kalipMi($satirlar->pluck('value')->map(static fn ($d): string => trim((string) $d))->filter()->values()->all()))
+            ->keys()
+            ->map(static fn ($id): int => (int) $id)
+            ->values()
+            ->all();
+    }
+
     /** @param list<string> $adimlar */
     public function kalipMi(array $adimlar): bool
     {

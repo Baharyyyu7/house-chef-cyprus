@@ -20,6 +20,7 @@
                         <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('weekly-menu.*')]) href="{{ localized_route('weekly-menu.index') }}" @if(request()->routeIs('weekly-menu.*')) aria-current="page" @endif>{{ __('nav.weekly_menu') }}</a>
                     @endif
 
+                    @if(turkce_sayfa())
                     <div class="relative" x-data="{ acik: false }" @keydown.escape.window="acik = false">
                         <button type="button" @click="acik = !acik" :aria-expanded="acik" aria-haspopup="menu"
                                 @class(['nav-link inline-flex items-center gap-1 whitespace-nowrap', 'nav-link-active' => request()->routeIs('private-chef.*', 'catering.*', 'cooking-classes.*', 'meal-plans.*')])>
@@ -62,6 +63,7 @@
                             </a>
                         </div>
                     </div>
+                    @endif
 
 
                     @auth
@@ -156,6 +158,7 @@
                     @if (Route::has('shop.index'))
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('shop.*')]) href="{{ localized_route('shop.index') }}" @click="menuOpen = false" @if(request()->routeIs('shop.*')) aria-current="page" @endif>{{ __('nav.shop') }}</a>
                     @endif
+                    @if(turkce_sayfa())
                     <div class="my-2 border-t border-stone-200/60 pt-2 dark:border-stone-800">
                         <p class="px-3 text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">✨ Özel Hizmetler</p>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('private-chef.*')]) href="{{ route('private-chef.index') }}" @click="menuOpen = false">👨‍🍳 Private Chef Cyprus</a>
@@ -163,6 +166,7 @@
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('cooking-classes.*')]) href="{{ route('cooking-classes.index') }}" @click="menuOpen = false">🧀 Yemek Kursları & Atölye</a>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('meal-plans.*')]) href="{{ route('meal-plans.index') }}" @click="menuOpen = false">🥗 Akdeniz Yemek Planları</a>
                     </div>
+                    @endif
 
                     @auth
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ localized_route('ingredients.explore') }}" @click="menuOpen = false" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>{{ __('nav.explore') }}</a>

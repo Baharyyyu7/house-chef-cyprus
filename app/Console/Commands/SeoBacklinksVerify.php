@@ -11,7 +11,7 @@ final class SeoBacklinksVerify extends Command
 {
     protected $signature = 'seo:backlinks-verify {--limit=3} {--json}';
 
-    protected $description = 'En fazla üç farklı kaynaktaki gerçek bağlantıları doğrular; mesaj göndermez.';
+    protected $description = 'Ortak günlük kontrol sınırı içinde gerçek bağlantıları doğrular; mesaj göndermez.';
 
     public function handle(BacklinkVerificationService $service): int
     {

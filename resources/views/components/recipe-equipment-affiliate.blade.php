@@ -1,5 +1,6 @@
 @props(['recipe' => null, 'post' => null, 'products' => null, 'title' => null, 'heading' => 'h2'])
 
+@if(turkce_sayfa())
 @php
     $affiliateService = app(\App\Services\Affiliate\RecipeAffiliateMatchingService::class);
     if ($products !== null) {
@@ -101,4 +102,5 @@
             * Bilgilendirme: Bu kutuda yer alan ürün yönlendirmeleri gelir ortaklığı (affiliate) kapsamındadır. Beğendiğiniz ürünleri satın almanız durumunda siteye ek maliyet yansımaksızın küçük bir komisyon sağlanır.
         </p>
     </section>
+@endif
 @endif

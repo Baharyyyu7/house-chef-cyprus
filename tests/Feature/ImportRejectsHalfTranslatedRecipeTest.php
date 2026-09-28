@@ -129,4 +129,39 @@ final class ImportRejectsHalfTranslatedRecipeTest extends TestCase
             'Tamamı çevrilmiş tarif içeri alındığı halde yayınlanabilir olmadı.'
         );
     }
+
+    /**
+     * 28 Eylül 2026 02:20: gece içe aktarımı, başka tariflerin eski
+     * dosyalarındaki malzeme adlarıyla coni:malzeme'nin düzelttiği 1.257 adı
+     * geri yazdı ("sivri فلفل"). Malzeme adı ortaktır; tarif dosyası yalnız
+     * eksik adı doldurur.
+     */
+    public function test_tarif_dosyasi_dolu_malzeme_adini_ezmez(): void
+    {
+        $this->tarif();
+        Ingredient::query()->where('slug', 'hellim')->firstOrFail()
+            ->translations()->create(['locale' => 'en', 'field' => 'name', 'value' => 'halloumi']);
+        $veri = $this->govdesiz();
+        $veri['steps'] = [['position' => 1, 'title' => 'Roll the dough', 'instruction' => 'Roll the phyllo thin.']];
+        $veri['ingredients'] = [['slug' => 'hellim', 'name' => 'Fresh Hellim']];
+        $this->dosya($veri);
+
+        $this->artisan('content:import-translations --apply')->assertSuccessful();
+
+        $this->assertSame('halloumi', Ingredient::query()->where('slug', 'hellim')->firstOrFail()->translated('name', 'en'));
+        $this->assertSame(1, Recipe::query()->translatedInto('en')->count());
+    }
+
+    public function test_tarif_dosyasi_eksik_malzeme_adini_doldurur(): void
+    {
+        $this->tarif();
+        $veri = $this->govdesiz();
+        $veri['steps'] = [['position' => 1, 'title' => 'Roll the dough', 'instruction' => 'Roll the phyllo thin.']];
+        $veri['ingredients'] = [['slug' => 'hellim', 'name' => 'halloumi']];
+        $this->dosya($veri);
+
+        $this->artisan('content:import-translations --apply')->assertSuccessful();
+
+        $this->assertSame('halloumi', Ingredient::query()->where('slug', 'hellim')->firstOrFail()->translated('name', 'en'));
+    }
 }

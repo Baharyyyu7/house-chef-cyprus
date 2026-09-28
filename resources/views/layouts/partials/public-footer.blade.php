@@ -45,16 +45,18 @@
                     </div>
                 </div>
                 <div>
-                    <p class="text-sm font-extrabold text-orange-300">Özel Hizmetler & Mutfak</p>
+                    <p class="text-sm font-extrabold text-orange-300">{{ __('footer.services_kitchen') }}</p>
                     <div class="hc-footer-muted mt-4 grid gap-2.5 text-sm [&>a]:inline-flex [&>a]:min-h-[24px] [&>a]:items-center">
+                        @if(turkce_sayfa())
                         <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('private-chef.index') }}">👨‍🍳 Private Chef Cyprus</a>
                         <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('catering.index') }}">🍽️ Catering Cyprus</a>
                         <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('cooking-classes.index') }}">🧀 Yemek Kursları & Atölye</a>
                         <a class="font-semibold text-orange-300 hover:text-white" href="{{ route('meal-plans.index') }}">🥗 Akdeniz Yemek Planları</a>
+                        @endif
                         @if(url()->current() !== route('cuisines.show', 'kibris-mutfagi'))
-                            <a class="hover:text-orange-300" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">Kıbrıs Yemekleri</a>
+                            <a class="hover:text-orange-300" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">{{ __('footer.cypriot_food') }}</a>
                         @else
-                            <span class="font-semibold text-gold-300">Kıbrıs Yemekleri</span>
+                            <span class="font-semibold text-gold-300">{{ __('footer.cypriot_food') }}</span>
                         @endif
                         {{-- Bağlantı yalnız sayfa o dilde gerçekten varken basılır:
                              eşik çevrilmiş tarif sayısına bakıyor ve İngilizcede
@@ -63,7 +65,7 @@
                         @if(\App\Http\Controllers\IngredientHubController::sayfasiVarMi('hellim'))
                             <a class="hover:text-orange-300" href="{{ route('ingredients.hub.show', 'hellim') }}">Hellim</a>
                         @endif
-                        <a class="hover:text-orange-300" href="{{ route('blog.index', ['q' => 'Kıbrıs']) }}">Kıbrıs Rehberleri</a>
+                        <a class="hover:text-orange-300" href="{{ route('blog.index', ['q' => 'Kıbrıs']) }}">{{ __('footer.cyprus_guides') }}</a>
                     </div>
                 </div>
 

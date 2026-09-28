@@ -148,3 +148,55 @@ başka ajanın takipli kod/dil/tasarım değişiklikleri sürüyor, deploy yapı
 - Dil etkinliği, medya onayı ve yayın değişmedi. Yeni backlink iddiası
   yok. Kod test/deploy yapılmadı; dosya ve kuyruk işlemleri doğrulandı.
   Ayrıntılı kaynak/dönem/gözlem ve sunucu dosya konumu teslim raporunda.
+
+## 2026-09-26: Search Console istek bekleme koruması
+
+| Kimlik | Önem | Bulgu | Sahip | Durum | Kanıt |
+| --- | --- | --- | --- | --- | --- |
+| GLOB-015 | Orta | pageRowsBetween ve pageQueries, 429/503 sonrası kaydedilen Retry-After süresini okumadan yeniden OAuth/API isteği gönderiyordu | AI-Worker-1; inceleme AI-Worker-12 | Kapatıldı: canlı f0cbaac, 26 Eylül 23:05 UTC | İlgili 18 test/72 assertion, tam PHP süiti 1.661 test/9.166 assertion geçti. Dokuz canlı HTTP kontrolü başarılı; sunucuda yalıtılmış cache/HTTP kontrolü üç girişte 0 dış isteği doğruladı. |
+
+- GLOB-014 tarih aralığı/kaynak ayrımı bu sınırlı düzeltmeyle kapanmaz.
+- 17:02:59 UTC canlı okuma: scheduler son işi queue_drain, tamamlanma
+  17:02:22 UTC, healthy. Bu, bütün SEO görevlerinin sonucu değildir.
+- GSC snapshot: sc-domain:housechefcyprus.com, api_import, web,
+  26 Ağustos - 22 Eylül, kaynak gözlemi 26 Eylül 06:45:32 UTC;
+  58 tıklama / 4.908 gösterim / ortalama konum 9,925835.
+  Bu tur yeni dil/pazar kırılımı alınmadı; önceki farklı dönemle artış
+  hesabı yapılmadı. Dil ayarları, içerik ve medya onayı değiştirilmedi.
+
+## 2026-09-27: backlink kontrollerinde ortak günlük sınır
+
+| Kimlik | Önem | Bulgu | Sahip | Durum | Kanıt |
+| --- | --- | --- | --- | --- | --- |
+| GLOB-016 | Orta | Backlink doğrulamasında sınır yalnız çağrı başınaydı; günlük 20 isteyen scheduler ve ayrıca 3 isteyen GrowthSystem ortak günlük sayım kullanmıyordu | AI-Worker-1; test/inceleme AI-Worker-12 | Kapatıldı; 27 Eylül 14:31 UTC canlı c34134a içinde doğrulandı | 325ecea düzeltmesinde tam süit 1.665 test/9.188 assertion geçti. Üç üretim dosyasının canlı checksum'u test edilen kodla aynı. Canlı günlük sınır 20; yalıtılmış sıfır bütçe kontrolünde 0 HTTP isteği, test kaydı rollback edildi. |
+
+- 08:38 UTC canlı: bugünkü üç doğrulama kaydı 3+9+2=14 aday kontrolü.
+  Kontrol sayısı dış HTTP isteği sayısı değildir; engellenen aday da sayılır.
+  Bu tur yeni backlink doğrulama isteği gönderilmedi; limit bir hedef değil.
+- 670 adayda check_status=present kaydı yok. Adaylar edinilmiş backlink
+  değildir; iletişim veya link edinimi yapılmadı.
+- PublicMediaEligibilityService: 534 published/verified tarifte 139 uygun,
+  395 eksik. Bu tur görsel teslimi/insan onayı yok. Kuyruktaki eski slug
+  uyumsuzluğu ve başkasına ait kilitler korundu (GLOB-013 açık).
+- GSC aynı final dönemde page+country kırılımı kayda alındı. Kaynak,
+  tarih, gözlem ve kapsam farkları .claude/completions/2026-09-27-backlink-daily-budget.md
+  içinde; GLOB-014 uygulamadaki kaynak/tarih tutarsızlığı açık.
+
+## 2026-09-28 05:21 UTC: eski görsel kuyruğundan üç geçersiz iş ayrıldı
+
+- 27 Eylül 20:31 heartbeat kontrolünün gerçek canlı gözlemi 28 Eylül
+  05:21:58 UTC'dir. Yerel 9c169fe, canlı bd7ffb4; hub/home dosyaları
+  başka ajanın yarım işidir. Dal değişikliği veya deploy yapılmadı.
+- PublicMediaEligibilityService: 134 published/verified tarif, 116 uygun
+  görselli, 18 uygun görselsiz. Önceki 534 tarif/395 eksik sonucu güncel
+  değildir. Azalma görsel üretim başarısı değil, tarif kapsamındaki
+  değişiklikle birlikte değerlendirilmelidir.
+- GLOB-013 açık: canlı ID/public_id ile eşlenen sıradaki üç kayıt draft
+  ve exact slug harfleri farklı. HQ1AZ, V9X0W, TEAG6 son ekli işler
+  yalnız kendi atomik claim'i sonrası worker doğrulamalı block ile
+  ayrıldı. TEAG6 başlığı yalnız "Kıbrıs Usulü"; yemek adı tahmin edilmedi.
+- Kendi açık iş 0; diğer iki işçinin kilidi/tarihi değişmedi. Kuyruk
+  15 completed/340 pending/9 blocked/2 claimed. Üretim/teslim/onay yok.
+- Kuyruk unit+feature testleri 8/8, 42 assertion geçti. Uygulama kodu
+  değişmedi; başka ajanın devam eden koduna tam süit yeşil iddiası yok.
+  Ayrıntılar .claude/completions/2026-09-28-media-queue-hygiene.md içinde.

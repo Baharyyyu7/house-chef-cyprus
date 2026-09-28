@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'adet' => '',
+    'yemek_kasigi' => 'EL',
+    'gram' => 'g',
+    'g' => 'g',
+    'su_bardagi' => 'Wasserglas|Wassergläser',
+    'tatli_kasigi' => 'Dessertlöffel|Dessertlöffel',
+    'cay_kasigi' => 'TL',
+    'mililitre' => 'ml',
+    'ml' => 'ml',
+    'dis' => 'Zehe|Zehen',
+    'demet' => 'Bund|Bund',
+    'dal' => 'Zweig|Zweige',
+    'cay_bardagi' => 'Teeglas|Teegläser',
+    'paket' => 'Packung|Packungen',
+    'dilim' => 'Scheibe|Scheiben',
+    'litre' => 'l',
+    'tutam' => 'Prise|Prisen',
+    'kilogram' => 'kg',
+    'kg' => 'kg',
+    'kutu' => 'Dose|Dosen',
+    'avuc' => 'Handvoll|Handvoll',
+];

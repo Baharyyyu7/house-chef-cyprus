@@ -261,7 +261,7 @@ final class SearchConsoleMeasurementService
      */
     public function pageRowsBetween(string $baslangic, string $bitis, string $veriDurumu = 'final'): array
     {
-        if (! config('seo.search_console.enabled') || ! $this->configured()) {
+        if (! config('seo.search_console.enabled') || ! $this->configured() || Cache::has('seo:gsc:retry-after')) {
             return [];
         }
 
@@ -299,7 +299,7 @@ final class SearchConsoleMeasurementService
      */
     public function pageQueries(string $sayfa, int $gun = 28): array
     {
-        if (! config('seo.search_console.enabled') || ! $this->configured()) {
+        if (! config('seo.search_console.enabled') || ! $this->configured() || Cache::has('seo:gsc:retry-after')) {
             return [];
         }
 
