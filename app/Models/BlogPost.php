@@ -23,7 +23,36 @@ use Illuminate\Support\Str;
  */
 final class BlogPost extends Model
 {
-    use HasPublicId, HasTranslations;
+    use HasPublicId;
+    use HasTranslations {
+        hasTranslation as private alanlariCevrildi;
+        scopeTranslatedInto as private alanlarIcinSuz;
+    }
+
+    /**
+     * Yazı bu dilde gerçekten çevrilmiş mi.
+     *
+     * Alanların dolu olması yetmiyor: 28 Eylül 2026'da İngilizce gövdelerin
+     * 150'si aynı 30 cümleydi, Almanca başlıklar Türkçe bırakılıp arkasına
+     * "Umfassender Ratgeber" eklenmişti. Kalıp çeviri o dilde yok sayılır;
+     * liste, site haritası ve hreflang aynı tanımı paylaşır.
+     */
+    public function hasTranslation(?string $locale = null): bool
+    {
+        $locale ??= app()->getLocale();
+
+        return $this->alanlariCevrildi($locale)
+            && ! app(\App\Services\Seo\BlogTranslationGate::class)->kalipMi($this, $locale);
+    }
+
+    public function scopeTranslatedInto(Builder $query, ?string $locale = null): Builder
+    {
+        $locale ??= app()->getLocale();
+        $query = $this->alanlarIcinSuz($query, $locale);
+        $kalip = app(\App\Services\Seo\BlogTranslationGate::class)->kalipYazilar($locale);
+
+        return $kalip === [] ? $query : $query->whereNotIn($this->qualifyColumn('id'), $kalip);
+    }
     use \App\Models\Concerns\RedirectsOldSlugs;
 
     public function showRouteName(): string

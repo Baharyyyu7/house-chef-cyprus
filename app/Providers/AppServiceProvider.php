@@ -47,6 +47,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(MediaStorageInterface::class, LocalMediaStorage::class);
         $this->app->bind(ImageGenerationProviderInterface::class, GeminiImageCapabilityHealth::class);
         $this->app->bind(ErrorReporterInterface::class, LocalLogErrorReporter::class);
+        // Kalıp çeviri hesabı istek başına bir kez: hasTranslation() her
+        // kayıt için ayrı çağrılıyor.
+        $this->app->singleton(\App\Services\Seo\BlogTranslationGate::class);
     }
 
     /**
