@@ -34,9 +34,9 @@
                 <div>
                     <p class="text-sm font-extrabold text-orange-300">{{ __('footer.legal') }}</p>
                     <div class="hc-footer-muted mt-4 grid gap-3 text-sm [&>a]:inline-flex [&>a]:min-h-[24px] [&>a]:items-center">
-                        <a class="hover:text-orange-300" href="{{ route('legal.center') }}#gizlilik-ve-kisisel-veriler">{{ __('footer.privacy') }}</a>
-                        <a class="hover:text-orange-300" href="{{ route('legal.center') }}#kullanim-kosullari">{{ __('footer.terms') }}</a>
-                        <a class="hover:text-orange-300" href="{{ route('legal.center') }}#cerez-politikasi">{{ __('footer.cookies') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('policy.gizlilik') }}">{{ __('footer.privacy') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('policy.kullanim-kosullari') }}">{{ __('footer.terms') }}</a>
+                        <a class="hover:text-orange-300" href="{{ route('policy.cerezler') }}">{{ __('footer.cookies') }}</a>
                         <a class="hover:text-orange-300" href="{{ route('legal.center') }}#gorsel-ve-yapay-zeka-politikasi">{{ __('footer.image_policy') }}</a>
                         <a class="hover:text-orange-300" href="{{ route('legal.center') }}#icerik-ve-kaynak-politikasi">{{ __('footer.source_policy') }}</a>
                         <a class="hover:text-orange-300" href="{{ route('information.show', 'besin-degeri-aciklamasi') }}">{{ __('footer.nutrition_disclaimer') }}</a>

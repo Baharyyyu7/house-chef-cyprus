@@ -79,7 +79,7 @@
                     @endif
                 </div>
 
-                <a href="{{ route('legal.center') }}#cerez-politikasi" class="hc-caption mt-3 inline-flex font-bold" style="color: var(--hc-text-accent)">{{ __('consent.read_policy') }}</a>
+                <a href="{{ route('policy.cerezler') }}" class="hc-caption mt-3 inline-flex font-bold" style="color: var(--hc-text-accent)">{{ __('consent.read_policy') }}</a>
             </div>
         </div>
     </aside>

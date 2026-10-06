@@ -74,4 +74,13 @@ final class PolicyPagesStandOnTheirOwnTest extends TestCase
     {
         $this->get('/gizlilik-olmayan-sayfa')->assertNotFound();
     }
+
+    public function test_the_footer_links_directly_to_standalone_policies(): void
+    {
+        $home = $this->get(route('home'))->assertOk();
+
+        $home->assertSee('href="'.route('policy.gizlilik').'"', false)
+            ->assertSee('href="'.route('policy.kullanim-kosullari').'"', false)
+            ->assertSee('href="'.route('policy.cerezler').'"', false);
+    }
 }

@@ -206,7 +206,7 @@ new #[Layout('layouts.guest')] class extends Component
         <div class="mt-5">
             <label for="terms_and_privacy_acceptance" class="flex items-start gap-3 text-sm leading-6 text-muted">
                 <input wire:model="terms_and_privacy_acceptance" id="terms_and_privacy_acceptance" type="checkbox" class="mt-1 rounded border-forest-300 text-gold-600 focus:ring-gold-500" required>
-                <span><a class="font-semibold text-gold-700 underline" href="{{ route('legal.center') }}#kullanim-kosullari">{{ __('ux.terms') }}</a> {{ __('ux.and') }} <a class="font-semibold text-gold-700 underline" href="{{ route('legal.center') }}#gizlilik-ve-kisisel-veriler">{{ __('ux.privacy') }}</a>{{ __('ux.consent') }}</span>
+                <span><a class="font-semibold text-gold-700 underline" href="{{ route('policy.kullanim-kosullari') }}">{{ __('ux.terms') }}</a> {{ __('ux.and') }} <a class="font-semibold text-gold-700 underline" href="{{ route('policy.gizlilik') }}">{{ __('ux.privacy') }}</a>{{ __('ux.consent') }}</span>
             </label>
             <x-input-error :messages="$errors->get('terms_and_privacy_acceptance')" class="mt-2" />
         </div>

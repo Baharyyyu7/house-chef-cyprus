@@ -359,7 +359,7 @@
                     <input class="mt-1 h-4 w-4 shrink-0 rounded border-stone-300 text-orange-600 focus:ring-orange-500" type="checkbox" name="privacy_consent" value="1" required>
                     <span class="hc-body-sm text-xs leading-relaxed" style="color: var(--hc-text-secondary)">
                         Talebimin değerlendirilmesi ve şef teklifi hazırlanması için kişisel verilerimin
-                        <a class="font-bold text-orange-700 underline underline-offset-2 dark:text-orange-400" href="{{ route('legal.center') }}#gizlilik-ve-kisisel-veriler">Gizlilik Politikası</a>
+                        <a class="font-bold text-orange-700 underline underline-offset-2 dark:text-orange-400" href="{{ route('policy.gizlilik') }}">Gizlilik Politikası</a>
                         kapsamında işlenmesini kabul ediyorum.
                     </span>
                 </label>

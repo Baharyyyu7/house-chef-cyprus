@@ -35,7 +35,7 @@
                     <div class="flex items-center gap-3">
                         <a href="{{ route('home') }}" class="hover:text-orange-600 dark:hover:text-orange-300">{{ __('nav.home') }}</a>
                         <span>·</span>
-                        <a href="{{ route('legal.center') }}" class="hover:text-orange-600 dark:hover:text-orange-300">{{ __('ux.privacy_terms') }}</a>
+                        <a href="{{ route('policy.gizlilik') }}" class="hover:text-orange-600 dark:hover:text-orange-300">{{ __('ux.privacy_terms') }}</a>
                     </div>
                 </div>
             </div>
