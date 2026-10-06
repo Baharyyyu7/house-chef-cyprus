@@ -36,7 +36,7 @@ final class InformationAndSeoPagesTest extends TestCase
             ->assertDontSee('Bölümü kopyala')
             ->assertSee('/yasal-bilgilendirme#gorsel-ve-yapay-zeka-politikasi', false)
             ->assertSee('/yasal-bilgilendirme#icerik-ve-kaynak-politikasi', false)
-            ->assertSee('/yasal-bilgilendirme#gizlilik-ve-kisisel-veriler', false)
+            ->assertSee('/gizlilik', false)
             // Footer artık ayrı iletişim sayfasına bağlanıyor; bölüm belgede
             // duruyor ve çapasıyla hâlâ adreslenebilir olmalı.
             ->assertSee('id="iletisim-ve-geri-bildirim"', false)
