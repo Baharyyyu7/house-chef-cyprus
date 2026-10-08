@@ -124,14 +124,19 @@ final class RecipeController extends Controller
      */
     private function mutfaklar()
     {
-        return cache()->remember('recipe-index-cuisines-v1:'.app()->getLocale(), now()->addMinutes(5), fn () => Cuisine::withCount(['recipes' => fn ($q) => $q
+        // Önbellek nesne açmıyor (cache.serializable_classes=false): yalnız sayılar saklanır.
+        $sayilar = cache()->remember('recipe-index-cuisines-v2:'.app()->getLocale(), now()->addMinutes(5), fn (): array => Cuisine::withCount(['recipes' => fn ($q) => $q
             ->where('status', 'published')
             ->where('verification_status', 'verified')
             ->translatedInto()])
-            ->orderBy('name')
             ->get()
             ->filter(fn (Cuisine $cuisine): bool => (int) $cuisine->recipes_count >= 10)
-            ->values());
+            ->mapWithKeys(fn (Cuisine $cuisine): array => [$cuisine->id => (int) $cuisine->recipes_count])
+            ->all());
+
+        return Cuisine::query()->whereKey(array_keys($sayilar))->orderBy('name')->get()
+            ->each(fn (Cuisine $cuisine) => $cuisine->setAttribute('recipes_count', $sayilar[$cuisine->id]))
+            ->values();
     }
 
     public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, PublicMediaEligibilityService $mediaEligibility, SeoMetadataService $seo, SeoSchemaService $schemaService, InternalLinkService $internalLinks)
