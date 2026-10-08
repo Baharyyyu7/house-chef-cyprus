@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Services\Seo\LocaleUrlService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,10 +49,18 @@ class SetLocale
         $request->setLocale($locale);
 
         $previousFormatter = URL::pathFormatter();
-        URL::formatPathUsing(function ($path, $route) use ($locale, $default, $previousFormatter) {
+        $adresler = app(LocaleUrlService::class);
+        URL::formatPathUsing(function ($path, $route) use ($locale, $default, $previousFormatter, $adresler) {
             $path = $previousFormatter($path, $route);
-            if ($locale !== $default && $route?->named('home', 'recipes.*', 'blog.*', 'cuisines.*', 'categories.*', 'ingredients.explore', 'ingredients.hub.*', 'collections.sure*', 'collections.zorluk*', 'login', 'register', 'password.request', 'password.reset', 'password.confirm', 'verification.notice', 'pricing')) {
-                return '/'.$locale.($path === '/' ? '' : $path);
+            if ($locale !== $default && $route !== null && $adresler->yerellesmisRota($route)) {
+                // Önek tek başına yetmiyor: dilin yol yazımı da uygulanmalı.
+                // 8 Ekim 2026 denetimi: formatter yalnız öneki ekliyordu ve
+                // route('recipes.show') İngilizcede /en/tarifler/... üretiyordu;
+                // o adres 301 ile /en/recipes/...'e gidiyor. 275 yabancı
+                // sayfada 4.696 iç bağlantı, 217 Recipe şeması ve 23 kanonik
+                // yönlendirmeye işaret ediyordu. Yazım tek yerde,
+                // LocaleUrlService'te; burada yeniden yazılmaz.
+                return '/'.$locale.($path === '/' ? '' : $adresler->yerellesmisYol($locale, $path));
             }
 
             return $path;

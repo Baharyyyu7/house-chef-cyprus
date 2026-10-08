@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Seo;
 
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 
 /**
  * Dil URL'leri ve hreflang kümesi.
@@ -29,6 +30,17 @@ final class LocaleUrlService
             (array) config('locales.supported', []),
             static fn (array $dil): bool => ($dil['enabled'] ?? false) === true
         );
+    }
+
+    /**
+     * Rotanın yabancı dil sürümü var mı?
+     *
+     * Tek liste config('locales.localized_routes'): route() öneki, hreflang
+     * ve önekli Türkçe sayfanın yönlendirmesi aynı cevabı kullanır.
+     */
+    public function yerellesmisRota(?Route $route): bool
+    {
+        return $route !== null && $route->named(...(array) config('locales.localized_routes', []));
     }
 
     public function defaultLocale(): string
