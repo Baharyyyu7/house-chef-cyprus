@@ -501,6 +501,7 @@ final class AgentToolController extends Controller
         return array_values(array_unique(array_merge($directMatches, $nameMatches)));
     }
 
+    /** @return Builder<Recipe> */
     private function publicRecipeQuery(string $identifier): Builder
     {
         return Recipe::query()
