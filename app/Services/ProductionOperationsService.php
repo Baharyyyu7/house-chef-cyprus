@@ -139,6 +139,16 @@ final class ProductionOperationsService
         ];
     }
 
+    /**
+     * Sunulan sürümün commit'i. Commit bir sır değil ve deploy duman testi
+     * "eski kod mu servis ediliyor" sorusunu ancak bununla yanıtlayabiliyor
+     * (lsphp yeniden başlatılmazsa eski sürüm 200 dönmeye devam eder).
+     */
+    public function buildCommit(): string
+    {
+        return $this->releaseCommitSha();
+    }
+
     private function releaseCommitSha(): string
     {
         $metadata = base_path('.house-chef-build-commit');

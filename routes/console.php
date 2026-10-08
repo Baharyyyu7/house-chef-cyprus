@@ -3,13 +3,39 @@
 use App\Services\HealthService;
 use App\Services\Integrity\IntegrityReportLog;
 use App\Services\SchedulerHealthService;
+use Illuminate\Console\Events\ScheduledTaskFailed;
+use Illuminate\Console\Events\ScheduledTaskFinished;
+use Illuminate\Console\Events\ScheduledTaskStarting;
+use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+// Görev başına sağlık kaydı. Beklenen sıklık zamanlamadan okunur: bayatlık
+// "beklenen sıklığın iki katından eski başarı" demek. Schedule::command
+// görevleri SchedulerHealthService::run sarmalayıcısından geçmediği için
+// sonuçları buradan yazılır.
+Event::listen(ScheduledTaskStarting::class, fn (ScheduledTaskStarting $olay) => app(SchedulerHealthService::class)->noteSchedule($olay->task));
+Event::listen(ScheduledTaskFinished::class, function (ScheduledTaskFinished $olay): void {
+    if ($olay->task instanceof CallbackEvent || (string) $olay->task->description === '') {
+        return;
+    }
+
+    $saglik = app(SchedulerHealthService::class);
+    $olay->task->exitCode === 0 || $olay->task->exitCode === null
+        ? $saglik->markSuccess((string) $olay->task->description)
+        : $saglik->markFailure((string) $olay->task->description, 'Çıkış kodu '.$olay->task->exitCode);
+});
+Event::listen(ScheduledTaskFailed::class, function (ScheduledTaskFailed $olay): void {
+    if (! $olay->task instanceof CallbackEvent && (string) $olay->task->description !== '') {
+        app(SchedulerHealthService::class)->markFailure((string) $olay->task->description, $olay->exception->getMessage());
+    }
+});
 
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('data_quality_scan', fn () => Artisan::call('data:quality-scan')))->name('data_quality_scan')->daily()->withoutOverlapping()->onOneServer();
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('cache_warm_lookups', fn () => Artisan::call('cache:warm', ['--section' => 'lookups'])))->name('cache_warm_lookups')->daily()->withoutOverlapping();
