@@ -1,0 +1,555 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Empty array passed to foreach\.$#'
+			identifier: foreach.emptyArray
+			count: 1
+			path: app/Console/Commands/ConiMalzeme.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between \*NEVER\* and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Console/Commands/ConiMalzeme.php
+
+		-
+			message: '#^Anonymous function never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Console/Commands/DataQualityReport.php
+
+		-
+			message: '#^Parameter &\$isler by\-ref type of method App\\Console\\Commands\\ImportContentTranslations\:\:cocukAlanlari\(\) expects list\<array\{object, string, string\}\>, non\-empty\-list\<array\{object, mixed, string\}\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: app/Console/Commands/ImportContentTranslations.php
+
+		-
+			message: '#^Offset 1 on array\{non\-falsy\-string, non\-empty\-string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: app/Console/Commands/QuarantineRecipeMediaIdentityMismatches.php
+
+		-
+			message: '#^Result of \|\| is always true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: app/Console/Commands/RouteFunctionalityAudit.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between ''machine''\|''public'' and ''admin'' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Console/Commands/RouteFunctionalityAudit.php
+
+		-
+			message: '#^Offset ''markets'' does not exist on array\{created\: int, updated\: int, total_prospects\: int\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Console/Commands/SeoAutonomousGrowth.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\SeoDailyGrowthReport\:\:oncekiToplam\(\) never returns array\{clicks\: int, impressions\: int, pages\: int, ctr\: float, position\: float\} so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Console/Commands/SeoDailyGrowthReport.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''App\\\\Models\\\\Recipe'' and ''App\\\\Models\\\\Recipe'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: app/Console/Commands/SeoHealRedirects.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>title" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Console/Commands/SeoKeywordClusterBuild.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>email" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Admin/SeoOperationsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Recipe\:\:\$difficulty\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/V1/AgentToolController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<\(int\|string\),mixed\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/V1/AgentToolController.php
+
+		-
+			message: '#^PHPDoc tag @return with type Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Recipe\> is incompatible with native type bool\.$#'
+			identifier: return.phpDocType
+			count: 1
+			path: app/Http/Controllers/CategoryHubController.php
+
+		-
+			message: '#^Parameter \#4 \$recipes of method App\\Services\\Seo\\SeoSchemaService\:\:collectionPage\(\) expects iterable\<App\\Models\\Recipe\>, Illuminate\\Database\\Eloquent\\Collection given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/CategoryHubController.php
+
+		-
+			message: '#^Parameter \#4 \$recipes of method App\\Services\\Seo\\SeoSchemaService\:\:collectionPage\(\) expects iterable\<App\\Models\\Recipe\>, Illuminate\\Database\\Eloquent\\Collection given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/CuisineHubController.php
+
+		-
+			message: '#^Parameter \#4 \$recipes of method App\\Services\\Seo\\SeoSchemaService\:\:collectionPage\(\) expects iterable\<App\\Models\\Recipe\>, Illuminate\\Database\\Eloquent\\Collection given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/IngredientHubController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 7
+			path: app/Http/Controllers/LlmsTxtController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\RecipeCollectionLandingController\:\:sayfasiOlanlar\(\) should return Illuminate\\Support\\Collection\<int, array\{type\: string, slug\: string, title\: string, url\: string, lastmod\: string\|null, count\: int\}\> but returns Illuminate\\Support\\Collection\<int, array\{type\: string, slug\: string, title\: string, description\: string, url\: string, lastmod\: string\|null, count\: int\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/RecipeCollectionLandingController.php
+
+		-
+			message: '#^Parameter \#4 \$recipes of method App\\Services\\Seo\\SeoSchemaService\:\:collectionPage\(\) expects iterable\<App\\Models\\Recipe\>, Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/RecipeCollectionLandingController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>alt_text" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/RecipeController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 3
+			path: app/Http/Controllers/RssFeedController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Category\:\:\$latest_published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SitemapController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Cuisine\:\:\$latest_published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SitemapController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Ingredient\:\:\$latest_published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SitemapController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RecipeIngredient\:\:\$display_text\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WeeklyMenuController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>slug" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 8
+			path: app/Http/Controllers/WeeklyMenuController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Recipe\:\:\$difficulty\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/RecipeResource.php
+
+		-
+			message: '#^Offset ''stage'' does not exist on string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Jobs/RunGrowthStageJob.php
+
+		-
+			message: '#^Only iterables can be unpacked, string given\.$#'
+			identifier: arrayUnpacking.nonIterable
+			count: 3
+			path: app/Jobs/RunGrowthStageJob.php
+
+		-
+			message: '#^Parameter \#1 \$kayit of method App\\Models\\BlogPost\:\:herkeseAcik\(\) expects App\\Models\\BlogPost, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/BlogPost.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:translatedInto\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Models/Ingredient.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Recipe\:\:\$difficulty\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Recipe.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<static\(App\\Models\\Recipe\)\>\:\:publiclyVisible\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Models/Recipe.php
+
+		-
+			message: '#^Parameter \#1 \$kayit of method App\\Models\\Recipe\:\:herkeseAcik\(\) expects App\\Models\\Recipe, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/Recipe.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>slug" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Services/Affiliate/RecipeAffiliateMatchingService.php
+
+		-
+			message: '#^Empty array passed to foreach\.$#'
+			identifier: foreach.emptyArray
+			count: 2
+			path: app/Services/Coni/ClaudeConi.php
+
+		-
+			message: '#^Parameter \#1 \$model of method App\\Services\\Coni\\ClaudeConi\:\:ceviriYaz\(\) expects Illuminate\\Database\\Eloquent\\Model, Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\RecipeStep\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Coni/ClaudeConi.php
+
+		-
+			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(string\)\: bool\)\|null, ''strlen'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Coni/ConiOdakKumesi.php
+
+		-
+			message: '#^Parameter \#3 \$callback of static method Illuminate\\Cache\\Repository\:\:remember\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Coni/ConiOdakKumesi.php
+
+		-
+			message: '#^Comparison operation "\>" between int\<30, max\> and 0 is always true\.$#'
+			identifier: greater.alwaysTrue
+			count: 1
+			path: app/Services/Coni/ConiOdakSecici.php
+
+		-
+			message: '#^Anonymous function never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Services/DataQualityService.php
+
+		-
+			message: '#^Offset ''dairy_free''\|''gluten_free''\|''halal_suitable''\|''high_protein''\|''ketogenic''\|''lactose_free''\|''low_calorie''\|''vegan''\|''vegetarian'' on array\{vegan\: ''Vegan'', vegetarian\: ''Vejetaryen'', gluten_free\: ''Glutensiz'', lactose_free\: ''Laktozsuz'', dairy_free\: ''Sütsüz'', high_protein\: ''Yüksek protein'', low_calorie\: ''Düşük kalorili'', ketogenic\: ''Ketojenik'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/DietaryCompatibilityService.php
+
+		-
+			message: '#^Parameter \#1 \$gerekli of method App\\Services\\HomeMatchShowcaseService\:\:pisirilebilir\(\) expects Illuminate\\Support\\Collection\<int, list\<int\>\>, Illuminate\\Support\\Collection\<\(int\|string\), array\<int, mixed\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/HomeMatchShowcaseService.php
+
+		-
+			message: '#^Access to an undefined property PhpParser\\Node\\Expr\:\:\$value\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Integrity/SchemaContractProbe.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>slug" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Localization/CulinaryTranslationService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>media" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Media/HubCoverPicker.php
+
+		-
+			message: '#^Offset 1 on array\{non\-falsy\-string, non\-empty\-string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Media/PublicMediaEligibilityService.php
+
+		-
+			message: '#^Method App\\Services\\Seo\\AiMentionTrackerService\:\:getDefaultPrompts\(\) should return array\{prompt\: string, engine\: string, checked_at\: string\} but returns non\-empty\-list\<array\{prompt\: non\-falsy\-string, engine\: ''chatgpt''\|''gemini'', checked_at\: string\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Seo/AiMentionTrackerService.php
+
+		-
+			message: '#^Method App\\Services\\Seo\\AiMentionTrackerService\:\:snapshot\(\) should return array\{total\: int, mentioned\: int, unlinked\: int, by_engine\: array\<string, int\>\} but returns array\{total\: int\<0, max\>, mentioned\: int\<0, max\>, unlinked\: int\<0, max\>, byEngine\: array\<mixed\>\}\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Seo/AiMentionTrackerService.php
+
+		-
+			message: '#^Comparison operation "\>\=" between 0 and 100 is always false\.$#'
+			identifier: greaterOrEqual.alwaysFalse
+			count: 6
+			path: app/Services/Seo/AutonomousGrowthEngine.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 4
+			path: app/Services/Seo/AutonomousGrowthEngine.php
+
+		-
+			message: '#^Method App\\Services\\Seo\\CitationGapAnalyzerService\:\:analyze\(\) should return array\{gaps\: list\<array\{query\: string, cited_sources\: list\<string\>, missing_from\: list\<string\>, opportunity\: string\}\>, summary\: array\{total_queries\: int, cited_count\: int, gap_count\: int\}\} but returns array\{gaps\: list\<array\{query\: string, cited_sources\: non\-falsy\-string, missing_from\: array\{''housechefcyprus\.com''\}, opportunity\: string\}\>, summary\: array\{total_queries\: int\<0, max\>, cited_count\: int\<0, max\>, gap_count\: int\<0, max\>\}\}\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Seo/CitationGapAnalyzerService.php
+
+		-
+			message: '#^Parameter \#2 \$competitors of method App\\Services\\Seo\\CitationGapAnalyzerService\:\:suggestOpportunity\(\) expects array, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Seo/CitationGapAnalyzerService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Recipe\:\:\$difficulty\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Seo/InternalLinkService.php
+
+		-
+			message: '#^Anonymous function has an unused use \$cuisine\.$#'
+			identifier: closure.unusedUse
+			count: 1
+			path: app/Services/Seo/InternalLinkService.php
+
+		-
+			message: '''
+				#^PHPDoc tag @return has invalid value \(array\{
+				    total_internal_links\: int,
+				    pages_with_links\: int,
+				    avg_links_per_page\: float,
+				    orphan_pages\: list\<\{type\: string, title\: string, url\: string\}\>,
+				    top_linked\: list\<\{url\: string, title\: string, link_count\: int\}\>
+				\}\)\: Unexpected token "\:", expected '\}' at offset 396 on line 11$#
+			'''
+			identifier: phpDoc.parseError
+			count: 1
+			path: app/Services/Seo/InternalLinkService.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(list\<array\{pillar\: string, pillar_url\: string, clusters\: list\<\{label\: string, url\: string, cross_links\: list\<string\>\}\>\}\>\)\: Unexpected token "\:", expected ''\}'' at offset 372 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: app/Services/Seo/InternalLinkService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Seo/InternalLinkService.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between non\-empty\-string and '''' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Services/Seo/LocaleGrowthService.php
+
+		-
+			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
+			identifier: larastan.noEnvCallsOutsideOfConfig
+			count: 2
+			path: app/Services/Seo/MachinaAeoAutomationService.php
+
+		-
+			message: '#^Comparison operation "\<" between 0\.04 and 0\.1 is always true\.$#'
+			identifier: smaller.alwaysTrue
+			count: 1
+			path: app/Services/Seo/MachinaAeoAutomationService.php
+
+		-
+			message: '#^Comparison operation "\<" between 1\.85 and 2\.5 is always true\.$#'
+			identifier: smaller.alwaysTrue
+			count: 2
+			path: app/Services/Seo/MachinaAeoAutomationService.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: app/Services/Seo/MachinaAeoAutomationService.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 1
+			path: app/Services/Seo/MachinaAeoAutomationService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ContentOpportunity\:\:\$issue_reopened_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Seo/OrganicGrowthService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ContentOpportunity\:\:\$issue_resolved_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Seo/OrganicGrowthService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ContentOpportunity\:\:\$issue_severity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Seo/OrganicGrowthService.php
+
+		-
+			message: '#^Empty array passed to foreach\.$#'
+			identifier: foreach.emptyArray
+			count: 1
+			path: app/Services/Seo/RefixSeoLoopService.php
+
+		-
+			message: '#^Method App\\Services\\Seo\\RefixSeoLoopService\:\:isConversationalQuery\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Seo/RefixSeoLoopService.php
+
+		-
+			message: '#^Offset ''ai_mode''\|''almost_there''\|''decaying''\|''ignore''\|''no_clicks''\|''untargeted''\|''wrong_intent'' on array\{almost_there\: 1\.5, no_clicks\: 1\.3, decaying\: 1\.2, wrong_intent\: 1\.1, ai_mode\: 1\.0, untargeted\: 0\.9, ignore\: 0\.1\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Seo/RefixSeoLoopService.php
+
+		-
+			message: '#^Offset ''clicks'' on \*NEVER\* on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Seo/RefixSeoLoopService.php
+
+		-
+			message: '#^Offset ''impressions'' on \*NEVER\* on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Seo/RefixSeoLoopService.php
+
+		-
+			message: '#^Offset ''position'' on \*NEVER\* on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Seo/RefixSeoLoopService.php
+
+		-
+			message: '#^Offset ''query'' on \*NEVER\* in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: app/Services/Seo/RefixSeoLoopService.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Services/Seo/RefixSeoLoopService.php
+
+		-
+			message: '#^Offset ''observed_at'' does not exist on string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Services/Seo/SearchConsoleMeasurementService.php
+
+		-
+			message: '#^Only iterables can be unpacked, string given\.$#'
+			identifier: arrayUnpacking.nonIterable
+			count: 1
+			path: app/Services/Seo/SearchConsoleMeasurementService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Recipe\:\:\$difficulty\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Seo/SeoSchemaService.php
+
+		-
+			message: '#^Offset ''about'' on array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Cypriot Hummus'', description\: ''Cooked mashed…''\}\|array\{name\: ''Hummus'', description\: ''Cooked mashed…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Flaouna'', description\: ''Celebratory Cypriot…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Kanafeh'', description\: ''Traditional dessert…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Kleftiko'', description\: ''Traditional slow…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Lahmacun'', description\: ''Round, thin piece…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Molokhia'', description\: ''Sun\-dried leaves of…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Pirohu'', description\: ''Cypriot stuffed…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Sheftalia'', description\: ''Traditional Cypriot…''\}\}\|array\{sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Bucatini with…'', description\: ''Cypriot village…''\}\}\|array\{sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Colocasia esculenta'', description\: ''Cypriot braised…''\}\}\|array\{sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Halloumi'', description\: ''Grilled halloumi…''\|''Traditional Cypriot…''\}\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: app/Services/Seo/SeoSchemaService.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(list\<array\{@type\: string, name\: string, acceptedAnswer\: array\{text\: string\}\}\>\)\: Unexpected token "@type", expected type at offset 140 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: app/Services/Seo/SeoSchemaService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Seo/SeoSchemaService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AiMention\:\:\$cnt\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Seo/WeeklySeoReportService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AiMention\:\:\$mention_cnt\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Seo/WeeklySeoReportService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\AiMention\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Seo/WeeklySeoReportService.php
+
+		-
+			message: '#^PHPDoc tag @var for constant App\\Support\\WorldMapCountries\:\:ALL with type array\<string, array\{label\: string, x\: float, y\: float, box\: array\{float, float, float, float\}\}\> is not subtype of value array\{AD\: array\{label\: ''Andorra'', x\: 484\.2, y\: \-120\.8, box\: array\{483\.8, \-121\.1, 0\.9, 0\.7\}\}, AE\: array\{label\: ''Birleşik Arap…'', x\: 624\.8, y\: \-65, box\: array\{617\.5, \-71\.1, 12\.9, 9\.8\}\}, AF\: array\{label\: ''Afganistan'', x\: 656\.1, y\: \-93\.9, box\: array\{641\.3, \-107\.9, 38\.4, 27\.2\}\}, AG\: array\{label\: ''Antigua ve Barbuda'', x\: 315\.2, y\: \-46, box\: array\{315, \-46\.2, 0\.5, 0\.5\}\}, AI\: array\{label\: ''Anguilla'', x\: 311\.8, y\: \-49\.1, box\: array\{311\.6, \-49\.3, 0\.5, 0\.3\}\}, AL\: array\{label\: ''Arnavutluk'', x\: 533\.5, y\: \-116\.3, box\: array\{531\.4, \-121\.1, 4\.7, 9\.5\}\}, AM\: array\{label\: ''Ermenistan'', x\: 599\.8, y\: \-113\.6, box\: array\{595\.8, \-116\.8, 8\.4, 7\.6\}\}, AO\: array\{label\: ''Angola'', x\: 526\.8, y\: 33\.1, box\: array\{511\.3, 15\.6, 32\.8, 32\.9\}\}, \.\.\.\}\.$#'
+			identifier: classConstant.phpDocType
+			count: 1
+			path: app/Support/WorldMapCountries.php
+
+		-
+			message: '#^PHPDoc tag @var for constant App\\Support\\WorldMapCountries\:\:VIEWBOX with type array\{float, float, float, float\} is incompatible with value array\{\-4, \-299\.1, 968, 470\.2\}\.$#'
+			identifier: classConstant.phpDocType
+			count: 1
+			path: app/Support/WorldMapCountries.php
+
+		-
+			message: '#^Result of \|\| is always true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: app/helpers.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between null and null will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: app/helpers.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/helpers.php
