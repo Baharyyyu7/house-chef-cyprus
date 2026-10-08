@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Geo\AudienceCountryBuffer;
 use App\Services\HealthService;
 use App\Services\Integrity\IntegrityReportLog;
 use App\Services\Scheduler\OperationsDigestService;
@@ -86,6 +87,10 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('blog_publish_sc
 // hic islenmedi.
 // Süre sınırları tetikleyen HTTP isteğini asmamak için dar tutuldu:
 // uç 55 saniyelik bir kilit alıyor.
+// Ülke sayacının önbellekteki tamponu tabloya aktarılır (AudienceCountryBuffer).
+Schedule::call(fn () => app(SchedulerHealthService::class)->run('audience_country_flush', function (): void {
+    app(AudienceCountryBuffer::class)->flush();
+}))->name('audience_country_flush')->everyMinute()->withoutOverlapping(30);
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('queue_drain', fn () => Artisan::call('queue:drain-bounded', ['--queue' => 'default,media,mail,nutrition', '--max-jobs' => 20, '--max-seconds' => 20, '--tries' => 3, '--job-timeout' => 15])))->name('queue_drain')->everyMinute()->withoutOverlapping(30);
 // SEO tasks only derive local drafts, audits and summaries. They never publish content or call external providers without an explicit enabled configuration and approval.
 // İçerik bütünlüğü nöbetçisi. Bu sitede arıza hep aynı biçimde geldi:

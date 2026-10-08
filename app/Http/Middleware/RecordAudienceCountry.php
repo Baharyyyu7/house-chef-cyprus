@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Models\AudienceCountryDay;
+use App\Services\Geo\AudienceCountryBuffer;
 use App\Services\Geo\IpCountryResolver;
 use Closure;
 use Illuminate\Http\Request;
@@ -29,7 +29,8 @@ use Throwable;
 final class RecordAudienceCountry
 {
     public function __construct(
-        private readonly IpCountryResolver $ulkeler
+        private readonly IpCountryResolver $ulkeler,
+        private readonly AudienceCountryBuffer $tampon,
     ) {
     }
 
@@ -74,13 +75,18 @@ final class RecordAudienceCountry
 
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
+        return $next($request);
+    }
 
+    /**
+     * Sayım yanıt gönderildikten sonra yapılır (LiteSpeed/FPM bağlantıyı
+     * önce kapatır); ülke araması ve sayaç ziyaretçiyi bekletmez.
+     */
+    public function terminate(Request $request, Response $response): void
+    {
         if ($request->isMethod('GET') && ! $request->ajax() && ! $this->makineTrafigi($request)) {
             $this->kaydet($request);
         }
-
-        return $response;
     }
 
     private function makineTrafigi(Request $request): bool
@@ -107,18 +113,7 @@ final class RecordAudienceCountry
         }
 
         try {
-            // Önce satırın var olduğundan emin ol (varsa dokunma), sonra artır:
-            // iki adım da tek isabette bir artışa karşılık gelir.
-            AudienceCountryDay::query()->upsert(
-                [['day' => now()->toDateString(), 'country_code' => $code, 'hits' => 0, 'created_at' => now(), 'updated_at' => now()]],
-                ['day', 'country_code'],
-                []
-            );
-
-            AudienceCountryDay::query()
-                ->where('day', now()->toDateString())
-                ->where('country_code', $code)
-                ->increment('hits');
+            $this->tampon->record($code);
         } catch (Throwable) {
             // Sayaç sayfayı düşürmez.
         }
