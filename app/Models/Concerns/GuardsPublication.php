@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models\Concerns;
 
 use App\Exceptions\PublicationGuardException;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * Yayına geçişin son savunma hattı.
@@ -23,7 +22,7 @@ trait GuardsPublication
 {
     public static function bootGuardsPublication(): void
     {
-        static::saving(static function (Model $model): void {
+        static::saving(static function (self $model): void {
             if (! (config('production.editorial.publication_guard') ?? app()->isProduction())) {
                 return;
             }

@@ -483,12 +483,6 @@ parameters:
 			path: app/Services/Seo/SearchConsoleMeasurementService.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Recipe\:\:\$difficulty\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/Seo/SeoSchemaService.php
-
-		-
 			message: '#^Offset ''about'' on array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Cypriot Hummus'', description\: ''Cooked mashed…''\}\|array\{name\: ''Hummus'', description\: ''Cooked mashed…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Flaouna'', description\: ''Celebratory Cypriot…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Kanafeh'', description\: ''Traditional dessert…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Kleftiko'', description\: ''Traditional slow…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Lahmacun'', description\: ''Round, thin piece…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Molokhia'', description\: ''Sun\-dried leaves of…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Pirohu'', description\: ''Cypriot stuffed…''\}\}\|array\{is_dish\: true, sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Sheftalia'', description\: ''Traditional Cypriot…''\}\}\|array\{sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Bucatini with…'', description\: ''Cypriot village…''\}\}\|array\{sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Colocasia esculenta'', description\: ''Cypriot braised…''\}\}\|array\{sameAs\: array\{''https\://en…'', ''https\://www…''\}, about\: array\{name\: ''Halloumi'', description\: ''Grilled halloumi…''\|''Traditional Cypriot…''\}\} in isset\(\) always exists and is not nullable\.$#'
 			identifier: isset.offset
 			count: 1
