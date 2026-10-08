@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 export COPYFILE_DISABLE=1
-export PATH="/Users/kaganbahar/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 # Uctan uca surum yayinlama.
 #
@@ -24,6 +24,10 @@ export PATH="/Users/kaganbahar/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH
 #   scripts/release.sh                 # tam yayin
 #   scripts/release.sh --dry-run       # hicbir sey degistirmeden dogrula
 #   scripts/release.sh --skip-tests    # yalniz suit baska yerde kosulduysa
+#
+# Bilincli istisnalar (ortam degiskeni, yalniz o kosu icin):
+#   ALLOW_BRANCH=1          uretim dali (visual-redesign-v2) disindan yayin
+#   ALLOW_NON_DESCENDANT=1  yeni commit canli surumun devami degilse bile yayin
 
 DRY_RUN=false
 SKIP_TESTS=false
@@ -36,7 +40,8 @@ for arg in "$@"; do
 done
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BRANCH="${BRANCH:-visual-redesign-v2}"
+URETIM_DALI='visual-redesign-v2'
+BRANCH="${BRANCH:-$URETIM_DALI}"
 SSH_TARGET="${SSH_TARGET:-u584361532@147.93.93.105}"
 SSH_PORT="${SSH_PORT:-65002}"
 APP_HOME="${APP_HOME:-~/domains/housechefcyprus.com}"
@@ -53,6 +58,12 @@ cd "$ROOT"
 # Detached HEAD'de atilan commit hicbir dala bagli olmaz: push sessizce
 # hicbir sey yapmaz ve deploy commit'i bulamaz.
 adim 'Dal durumu denetleniyor.'
+# 24 Eylul 2026: BRANCH=main ile yayin yapildi; main uretimden yuzlerce
+# commit gerideydi ve site tasarim yenilemesinden onceki haline dondu.
+# Duman testi yine 200 verdi. Uretim dali disindan yayin acik onay ister.
+if [[ "$BRANCH" != "$URETIM_DALI" && "${ALLOW_BRANCH:-0}" != "1" ]]; then
+    hata "BRANCH=$BRANCH uretim dali ($URETIM_DALI) degil. Bilerek yapiyorsaniz ALLOW_BRANCH=1 ile tekrar calistirin."
+fi
 MEVCUT_DAL="$(git branch --show-current)"
 [[ -n "$MEVCUT_DAL" ]] || hata "Detached HEAD. Once dala don: git checkout $BRANCH"
 [[ "$MEVCUT_DAL" == "$BRANCH" ]] || hata "Yanlis dal: $MEVCUT_DAL (beklenen $BRANCH)"
@@ -75,6 +86,29 @@ if [[ "$UZAK" != "$SHA" ]]; then
         printf '  yerel uctan ileride, gonderilecek\n'
     else
         hata "Uzak dalda sizde olmayan commit var. Once birlestirin: git pull --ff-only"
+    fi
+fi
+
+# --- 2b. Canli surumun devami mi ------------------------------------------
+# Uzak dal ucuyla karsilastirma, BRANCH yanlissa hicbir sey yakalamaz: eski
+# bir dal kendi ucuyla her zaman tutarlidir. Asil soru, canlida kosan
+# commit'in yeni commit'in atasi olup olmadigi. Degilse yayin canlidaki
+# isleri geri alir (24 Eylul olayi). Bu adim salt okunur; --dry-run'da da kosar.
+adim 'Canli surumun yeni commitin atasi oldugu dogrulaniyor.'
+CANLI="$(uzak "readlink $APP_HOME/current | xargs basename" 2>/dev/null || true)"
+if [[ ! "$CANLI" =~ ^[0-9a-f]{40}$ ]]; then
+    [[ "${ALLOW_NON_DESCENDANT:-0}" == "1" ]] || hata "Canli surum okunamadi ('$CANLI'). Bilerek devam etmek icin ALLOW_NON_DESCENDANT=1."
+    printf '  canli surum okunamadi, ALLOW_NON_DESCENDANT=1 ile devam\n'
+elif [[ "$CANLI" == "$SHA" ]]; then
+    printf '  canli surum zaten %s\n' "$KISA"
+else
+    git cat-file -e "$CANLI^{commit}" 2>/dev/null || git fetch --quiet origin "$CANLI" 2>/dev/null || true
+    if git cat-file -e "$CANLI^{commit}" 2>/dev/null && git merge-base --is-ancestor "$CANLI" "$SHA"; then
+        printf '  canli=%s -> yeni=%s ileri yonde\n' "${CANLI:0:7}" "$KISA"
+    elif [[ "${ALLOW_NON_DESCENDANT:-0}" == "1" ]]; then
+        printf '  UYARI: %s canli surumun (%s) devami degil; ALLOW_NON_DESCENDANT=1 ile devam\n' "$KISA" "${CANLI:0:7}"
+    else
+        hata "$KISA canli surumun (${CANLI:0:7}) devami degil; yayin canlidaki commitleri geri alir. Bilerek yapiyorsaniz ALLOW_NON_DESCENDANT=1."
     fi
 fi
 
@@ -209,6 +243,12 @@ if ! "$DRY_RUN"; then
         printf '  /%-10s %s\n' "$yol" "$KOD"
         [[ "$KOD" == "200" ]] || hata "/$yol beklenen 200 yerine $KOD dondu."
     done
+
+    # 200 eski kodun da cevabi: lsphp yeniden baslamazsa onceki surum
+    # servis edilmeye devam eder. /health sunulan commit'i soyler.
+    SUNULAN="$(curl -s "https://housechefcyprus.com/health?t=$(date +%s)" | sed -n 's/.*"commit":"\([0-9a-f]*\)".*/\1/p')"
+    printf '  sunulan commit: %s\n' "${SUNULAN:-okunamadi}"
+    [[ "$SUNULAN" == "$SHA" ]] || hata "Canli yeni kodu sunmuyor: /health commit=${SUNULAN:-?} (beklenen $SHA)."
 
     # --- 11. Artefakt temizligi --------------------------------------------
     # AGENTS.md: dogrulanmis deploy sonrasi ayni oturumda silinir.

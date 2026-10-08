@@ -219,6 +219,40 @@ prune_old_releases() {
     return 0
 }
 
+# LiteSpeed'in lsphp surecleri onceki surumu opcache/realpath onbelleginde
+# tutuyor: public_html/index.php mutlak release yolunu gosterse de yeniden
+# baslatilmadan eski kod servis edilmeye devam ediyor ve duman testi eski
+# kodu olcuyor. Yalniz bu hesabin surecleri; ilk istekte yeniden dogarlar.
+restart_lsphp() {
+    if "$DRY_RUN"; then
+        log 'Would restart this account'"'"'s lsphp processes so the switched release is served.'
+        return 0
+    fi
+    pkill -u "$(id -u)" -f lsphp 2>/dev/null || true
+    sleep 3
+}
+
+# Duman testi 200 gorse de eski surum cevap veriyor olabilir (24 Eylul).
+# /health sunulan build commit'ini veriyor; beklenen commit gelene kadar
+# kisa araliklarla denenir.
+verify_served_commit() {
+    local expected="$1" url="${PUBLIC_URL:-https://housechefcyprus.com}" served="" attempt
+    if "$DRY_RUN"; then
+        log "Would verify that $url/health reports commit $expected."
+        return 0
+    fi
+    for attempt in 1 2 3 4 5 6; do
+        served="$(curl -fsS --max-time 15 "$url/health?release=${expected:0:12}-$attempt" 2>/dev/null | sed -n 's/.*"commit":"\([0-9a-f]*\)".*/\1/p' || true)"
+        if [[ "$served" == "$expected" ]]; then
+            log "Live /health serves commit $served."
+            return 0
+        fi
+        sleep 5
+    done
+    log "HOSTINGER_SERVED_COMMIT_MISMATCH served=${served:-unreadable} expected=$expected"
+    return 1
+}
+
 rollback_post_switch_failure() {
     [[ "$SWITCHED" == true && -n "$PREVIOUS_RELEASE" && -f "$PREVIOUS_RELEASE/artisan" ]] || return 0
 
@@ -227,6 +261,7 @@ rollback_post_switch_failure() {
     prepare_hostinger_web_root || true
     hostinger_404_diagnostic
     run "$PHP_BIN" "$(active_artisan)" up --no-interaction || true
+    restart_lsphp || true
     SWITCHED=false
 }
 cleanup() {
@@ -340,11 +375,15 @@ log 'Disabling maintenance mode on the newly active release.'
 run "$PHP_BIN" "$CURRENT_LINK/artisan" up --no-interaction
 MAINTENANCE_ENABLED=false
 
+log 'Restarting lsphp before the smoke test so it measures the new release.'
+restart_lsphp
+
 log 'Running live HTTP smoke only after maintenance mode is disabled.'
 if ! run "$PHP_BIN" "$CURRENT_LINK/artisan" app:post-deploy-smoke --json; then
     hostinger_404_diagnostic
     fail 'HOSTINGER_POST_SWITCH_SMOKE_FAILED'
 fi
+verify_served_commit "$RELEASE_COMMIT" || fail 'HOSTINGER_SERVED_COMMIT_MISMATCH'
 # Üretim verisi kurallari her yayinda goruntulenir. Yayin bunlara takilip
 # geri donmez: bunlar icerik ve veri durumu, kod saglığı degil. Ama her
 # yayinda ekrana gelmesi, bir kusurun sessizce buyumesini engelliyor.
