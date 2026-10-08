@@ -244,7 +244,7 @@ final class VisualDesignPhaseTest extends TestCase
         $this->get(route('recipes.show', $recipe))
             ->assertOk()
             ->assertSee('Benzer tarifler')
-            ->assertSee('yeniden editoryal ve medya incelemesi sürüyor')
+            ->assertSee('Yeniden editoryal ve medya incelemesi sürüyor')
             ->assertDontSee('editorial_reviewed_by_user_id')
             ->assertDontSee('seed_demo');
     }

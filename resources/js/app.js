@@ -193,9 +193,13 @@ window.addEventListener('hc-theme-changed', () => window.setTimeout(mountCharts,
 // dolar ve %100'de tarif "tam yapılabilir" olur. Veri sunucudan gelir
 // (HomeMatchShowcaseService); burada yalnız zamanlama ve hareket var.
 //
-// Yüzde bir yay ile ilerler, sabit süreli bir tweenle değil: yeni hedef
-// geldiğinde o anki değerden ve o anki hızdan devam eder, zıplamaz.
-// Sekme gizliyken, fare üstündeyken ya da odak içerideyken durur.
+// Yüzde CSS geçişiyle ilerler (halka stroke-dashoffset, sayı @property
+// tamsayı sayacı); eskiden her karede requestAnimationFrame ile yay
+// hesaplanıyordu ve gösteri ekran dışındayken de dönüyordu. Artık yalnız
+// ekrandayken başlar; ekran dışı, gizli sekme, fare üstü ya da odak içeride
+// ise durur. Hareket istemeyen ziyaretçi döngü değil son hâli görür.
+const HC_MATCH_GECIS = 900;
+
 Alpine.data('hcMatchShowcase', (senaryolar, metin) => ({
     senaryolar,
     metin,
@@ -203,16 +207,16 @@ Alpine.data('hcMatchShowcase', (senaryolar, metin) => ({
     adim: -1,
     evre: 'dolum',
     yuzde: 0,
-    hedef: 0,
-    hiz: 0,
-    durdu: false,
+    basladi: false,
+    engel: { ekranDisi: true, gizli: false, fare: false, odak: false },
     _zaman: null,
-    _kare: null,
-    _son: 0,
+    _gozlemci: null,
+    _gorunurluk: null,
 
     get senaryo() { return this.senaryolar[this.sira] || null; },
     get adimlar() { return this.senaryo ? this.senaryo.steps : []; },
     get bitti() { return this.evre === 'tamam'; },
+    get durdu() { return Object.values(this.engel).some(Boolean); },
     get pisirilebilir() {
         const a = this.adimlar[this.adim];
         return a ? a.can_cook : 0;
@@ -222,22 +226,33 @@ Alpine.data('hcMatchShowcase', (senaryolar, metin) => ({
     init() {
         if (!this.senaryo) return;
 
-        const hareketsiz = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        if (hareketsiz) {
-            // Hareket istemeyen ziyaretçi son hâli görür: gösterinin
-            // söylediği şey sonuçtu, yolculuk değil.
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            // Gösterinin söylediği şey sonuçtu, yolculuk değil.
             this.adim = this.adimlar.length - 1;
-            this.yuzde = this.hedef = 100;
+            this.yuzde = 100;
             this.evre = 'tamam';
             return;
         }
 
-        document.addEventListener('visibilitychange', () => {
-            document.hidden ? this.dur() : this.devam();
-        });
+        this._gorunurluk = () => this.engelle('gizli', document.hidden);
+        document.addEventListener('visibilitychange', this._gorunurluk);
+        this.engel.gizli = document.hidden;
 
-        this._zaman = window.setTimeout(() => this.ilerle(), 700);
+        if ('IntersectionObserver' in window) {
+            this._gozlemci = new IntersectionObserver(([giris]) => this.engelle('ekranDisi', !giris.isIntersecting), { threshold: 0.35 });
+            this._gozlemci.observe(this.$el);
+        } else {
+            this.engelle('ekranDisi', false);
+        }
+    },
+
+    engelle(neden, durum) {
+        this.engel[neden] = durum;
+        window.clearTimeout(this._zaman);
+        if (this.durdu) return;
+        // İlk görünüşte kısa bir nefes; sonrasında kaldığı yerden.
+        this._zaman = window.setTimeout(() => this.ilerle(), this.basladi ? 500 : 700);
+        this.basladi = true;
     },
 
     ilerle() {
@@ -246,7 +261,7 @@ Alpine.data('hcMatchShowcase', (senaryolar, metin) => ({
         if (this.evre === 'cikis') {
             this.sira = (this.sira + 1) % this.senaryolar.length;
             this.adim = -1;
-            this.yuzde = this.hedef = this.hiz = 0;
+            this.yuzde = 0;
             this.evre = 'dolum';
             this._zaman = window.setTimeout(() => this.ilerle(), 520);
             return;
@@ -260,17 +275,13 @@ Alpine.data('hcMatchShowcase', (senaryolar, metin) => ({
 
         if (this.adim < this.adimlar.length - 1) {
             this.adim++;
-            this.yayla(this.adimlar[this.adim].percent);
-            // Son malzemede tamamlanmayı yay tetikler, halka %100'e vardığı
-            // anda. Eskiden sabit 820 ms bekleniyordu ve halka her döngüde
-            // %100'de turuncu kalıp takılmış gibi duruyordu. Buradaki süre
-            // yalnız yedek: gizli sekmede yay kare alamazsa tamamlanma yine olur.
+            this.yuzde = this.adimlar[this.adim].percent;
+            // Son malzemede tamamlanma, halkanın CSS geçişi bitince.
             const sonAdim = this.adim === this.adimlar.length - 1;
-            this._zaman = window.setTimeout(() => (sonAdim ? this.tamamla() : this.ilerle()), sonAdim ? 1400 : 880);
+            this._zaman = window.setTimeout(() => (sonAdim ? this.tamamla() : this.ilerle()), sonAdim ? HC_MATCH_GECIS : 880);
             return;
         }
 
-        // Son adımda duraklatılıp devam edildiyse buraya düşülür.
         this.tamamla();
     },
 
@@ -281,53 +292,10 @@ Alpine.data('hcMatchShowcase', (senaryolar, metin) => ({
         this._zaman = window.setTimeout(() => this.ilerle(), 2800);
     },
 
-    // Kritik sönümlü yay: aşım yok, hedefe o anki hızdan devam eder.
-    yayla(yeni) {
-        this.hedef = yeni;
-        if (this._kare) return;
-        this._son = performance.now();
-
-        const adim = (simdi) => {
-            const dt = Math.min(0.064, (simdi - this._son) / 1000);
-            this._son = simdi;
-            const sertlik = 120;
-            const sonum = 2 * Math.sqrt(sertlik);
-            const ivme = sertlik * (this.hedef - this.yuzde) - sonum * this.hiz;
-            this.hiz += ivme * dt;
-            this.yuzde += this.hiz * dt;
-
-            // Ekranda "100" 99,5'te beliriyor; yayın tam durulması yarım
-            // saniye daha sürüyor. Tamamlanma ekranda görünene bağlanır.
-            if (this.hedef >= 100 && this.yuzde >= 99.5 && !this.durdu) this.tamamla();
-
-            if (Math.abs(this.hedef - this.yuzde) < 0.05 && Math.abs(this.hiz) < 0.05) {
-                this.yuzde = this.hedef;
-                this.hiz = 0;
-                this._kare = null;
-                return;
-            }
-
-            this._kare = window.requestAnimationFrame(adim);
-        };
-
-        this._kare = window.requestAnimationFrame(adim);
-    },
-
-    dur() {
-        this.durdu = true;
-        window.clearTimeout(this._zaman);
-    },
-
-    devam() {
-        if (!this.durdu || document.hidden) return;
-        this.durdu = false;
-        window.clearTimeout(this._zaman);
-        this._zaman = window.setTimeout(() => this.ilerle(), 500);
-    },
-
     destroy() {
         window.clearTimeout(this._zaman);
-        if (this._kare) window.cancelAnimationFrame(this._kare);
+        this._gozlemci?.disconnect();
+        if (this._gorunurluk) document.removeEventListener('visibilitychange', this._gorunurluk);
     },
 }));
 
