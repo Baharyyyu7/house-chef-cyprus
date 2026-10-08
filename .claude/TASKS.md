@@ -190,3 +190,31 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
 - **Parmak izi örtüşmesi eş bulmaz.** Şablon yazılar ortak giriş/çıkış
   paragrafı taşıyor; örtüşmeye bakarak kanonik atamak 148 yazıyı aynı
   hedefe bağladı. Geri alındı.
+
+
+# 8 Ekim denetimi - düzeltme turu
+
+Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: claude/fix-{guvenlik,cokdil,onyuz,operasyon}.
+
+## Benim paketim
+- [x] Sahte onay komutları + AutonomousPublishingGateService silindi
+- [x] 23 referanssız toplu-yayın seeder'ı silindi
+- [x] GuardsPublication (insan onayı + günlük tavan), publishAllReady limit 5
+- [x] Kalite kapısı: cümle tekrarı, yer tutucu, ham HTML, kırık iç link, okunan metinden uzunluk
+- [x] blog:html-govde-cevir (HTML→Markdown)
+- [x] blog:kusurlulari-yayindan-al
+- [x] Tarif tutarlılık kapısı (başlık↔malzeme, genel adım)
+- [x] README + docs/OPERASYON.md
+- [ ] 33 referanssız komut: bilinçli olarak dokunulmadı (elle çalıştırılan araçlar; düşük fayda)
+
+## Entegrasyon
+- [ ] 4 ajan dalını merge et, çakışmaları çöz
+- [ ] Tam paket yeşil (php vendor/bin/phpunit)
+- [ ] origin/visual-redesign-v2 ff push, release, lsphp, canlı doğrulama
+
+## Üretim verisi (deploy sonrası)
+- [ ] blog:kusurlulari-yayindan-al --kusurlu --slug=<16 ünlü> --apply
+- [ ] blog:html-govde-cevir --apply
+- [ ] İkiz 301'leri (kolokoti-8w914, flaouna-q4hmp, patlican-kozlemesi-cdw76, 4 blog çifti)
+- [ ] SCHEDULER_TRIGGER_TOKEN döndür (sunucu + Worker)
+- [ ] seo:recipe-quality-scan --apply
