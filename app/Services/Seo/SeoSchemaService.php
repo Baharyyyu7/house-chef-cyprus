@@ -246,12 +246,9 @@ final class SeoSchemaService
             ], $recipe->equipment);
         }
 
-        // Difficulty -> recipeDifficulty mapping
-        $difficultyMap = ['easy' => 'Easy', 'medium' => 'Medium', 'hard' => 'Hard'];
-        $diff = $recipe->difficulty ?? null;
-        if ($diff && isset($difficultyMap[$diff])) {
-            $recipeNode['difficulty'] = $difficultyMap[$diff];
-        }
+        // Zorluk şemaya yazılmaz: schema.org Recipe'de "difficulty" diye bir
+        // alan yok (8 Ekim 2026 denetimi); tanımsız alan doğrulayıcıda uyarı
+        // üretir ve hiçbir zengin sonuca girmez. Zorluk sayfada görünüyor.
 
         // Beslenme bilgisi Google'ın tarif sonucunda kalori olarak görünür.
         // Eksik malzemeyle hesaplanmış bir kalori, hiç kalori göstermemekten daha zararlıdır.
@@ -278,13 +275,16 @@ final class SeoSchemaService
         // Şef ipuçları + malzeme ikameleri: sayfadaki görünür GEO kutusundaki
         // metnin aynısı. CreativeWork.comment geçerli bir alandır ve görünen
         // içerikle birebir eşleşir.
+        // İpucu ve ikame metinleri yalnız Türkçe tutuluyor; yabancı dildeki
+        // şemaya Türkçe cümle (" yoksa: ") girmesin diye yalnız kaynak dilde.
         $yorumlar = [];
-        foreach ((array) ($recipe->tips ?? []) as $ipucu) {
+        $kaynakDil = $locale === (string) config('locales.default', 'tr');
+        foreach ($kaynakDil ? (array) ($recipe->tips ?? []) : [] as $ipucu) {
             if (is_string($ipucu) && trim($ipucu) !== '') {
                 $yorumlar[] = ['@type' => 'Comment', 'text' => trim($ipucu)];
             }
         }
-        if ($recipe->exists) {
+        if ($kaynakDil && $recipe->exists) {
             foreach ($recipe->recipeIngredients as $kalem) {
                 // recipeIngredients HasMany'dir, pivot yoktur: ikame doğrudan
                 // kalem sütunundadır. Görünür GEO kutusundaki metnin aynısı.
@@ -340,17 +340,13 @@ final class SeoSchemaService
         if ($keywords !== []) {
             $recipeNode['keywords'] = implode(', ', $keywords);
         }
-        // Geo-targeted recipe schema for Kıbrıs content
-        $recipeNode['geo'] = [
-            '@type' => 'GeoCoordinates',
-            'latitude' => '35.1856',
-            'longitude' => '33.3823',
-            'address' => 'Kıbrıs',
-        ];
+        // Tarif bir yer değildir: her tarife Lefkoşa koordinatı basılıyordu,
+        // Gaziantep katmeri ve teriyaki dahil (8 Ekim 2026 denetimi). Recipe
+        // için geçerli bir alan da değil; kaldırıldı.
         $crumbs = [['name' => $this->crumbName('home', $locale), 'url' => route('home')]];
         if ($recipe->cuisine !== null && $cuisineUrl !== null) {
             $crumbs[] = ['name' => $this->crumbName('cuisines', $locale), 'url' => route('cuisines.index')];
-            $crumbs[] = ['name' => $recipe->cuisine->name, 'url' => $cuisineUrl];
+            $crumbs[] = ['name' => taxonomy_name($recipe->cuisine), 'url' => $cuisineUrl];
         } else {
             $crumbs[] = ['name' => $this->crumbName('recipes', $locale), 'url' => route('recipes.index')];
         }
@@ -363,11 +359,9 @@ final class SeoSchemaService
             return $this->graph(null, $crumbs);
         }
 
+        // speakable basılmıyor: Google yalnız ABD'deki haber yayıncıları için
+        // beta olarak destekliyor; tarif ve blog sayfasında etkisi yok.
         $recipeNode['image'] = [$imageUrl];
-        $recipeNode['speakable'] = [
-            '@type' => 'SpeakableSpecification',
-            'cssSelector' => ['h1', '.hc-kicker', '#tips', '#storage'],
-        ];
 
         $graph = $this->graph($recipeNode, $crumbs);
 
@@ -625,16 +619,6 @@ final class SeoSchemaService
                 default => "{$title} nasıl saklanır ve kaç gün tazeliğini korur?",
             };
 
-            $defaultAdvice = match ($locale) {
-                'en' => 'Allow to cool completely to room temperature, then store in an airtight glass container in the refrigerator.',
-                'de' => 'Vollständig auf Raumtemperatur abkühlen lassen und in einem luftdichten Glasbehälter im Kühlschrank lagern.',
-                'pl' => 'Ostudź do temperatury pokojowej, a następnie przechowuj w szczelnym szklanym pojemniku w lodówce.',
-                'ru' => 'Дайте полностью остыть до комнатной температуры, затем храните в герметичном контейнере в холодильнике.',
-                'fa' => 'اجازه دهید در دمای اتاق کاملاً خنک شود، سپس در ظرف شیشه‌ای دردار در یخچال نگهداری کنید.',
-                'pt' => 'Deixe arrefecer completamente até à temperatura ambiente e guarde num recipiente de vidro hermético no frigorífico.',
-                default => 'Oda sıcaklığına geldikten sonra hava almayan kapaklı cam kapta buzdolabında saklanmalıdır.',
-            };
-
             $daysText = '';
             if ($gun) {
                 $daysText = match ($locale) {
@@ -648,7 +632,9 @@ final class SeoSchemaService
                 };
             }
 
-            $ans = trim($daysText.($kaynakDil && $uyari !== '' ? $uyari : $defaultAdvice));
+            // Tarife özgü veri yoksa (gün sayısı ya da kaynak dildeki uyarı)
+            // soru basılmaz; genel "buzdolabında saklayın" kalıbı cevap değil.
+            $ans = trim($daysText.($kaynakDil ? $uyari : ''));
             if ($ans !== '') {
                 $questions[] = [
                     '@type' => 'Question',
@@ -733,106 +719,11 @@ final class SeoSchemaService
             ];
         }
 
-        // 6. Culinary fallbacks to ensure rich FAQ coverage for all recipes
-        $prep = (int) ($recipe->prep_minutes ?? 0);
-        $cook = (int) ($recipe->cook_minutes ?? 0);
-        $total = $recipe->totalMinutes();
-        if ($total > 0 && ! collect($questions)->contains(fn ($item) => str_contains($item['name'], 'dakika') || str_contains($item['name'], 'prepare') || str_contains($item['name'], 'Zubereitung'))) {
-            $diffText = match ($recipe->difficulty) {
-                'easy' => match ($locale) {
-                    'en' => 'easy', 'de' => 'einfach', 'ru' => 'простой', 'pl' => 'łatwy', 'fa' => 'آسان', 'pt' => 'fácil', default => 'kolay'
-                },
-                'hard' => match ($locale) {
-                    'en' => 'advanced', 'de' => 'anspruchsvoll', 'ru' => 'сложный', 'pl' => 'zaawansowany', 'fa' => 'پیشرفته', 'pt' => 'avançado', default => 'ileri düzey'
-                },
-                default => match ($locale) {
-                    'en' => 'medium', 'de' => 'mittelschwer', 'ru' => 'средней сложности', 'pl' => 'średni', 'fa' => 'متوسط', 'pt' => 'médio', default => 'orta seviye'
-                },
-            };
-
-            $timeQ = match ($locale) {
-                'en' => "How long does it take to prepare and cook {$title}?",
-                'de' => "Wie lange dauert die Zubereitung von {$title}?",
-                'pl' => "Ile czasu zajmuje przygotowanie i ugotowanie {$title}?",
-                'ru' => "Сколько времени занимает приготовление {$title}?",
-                'fa' => "تهیه و پخت {$title} چقدر زمان می‌برد؟",
-                'pt' => "Quanto tempo leva para preparar e cozinhar {$title}?",
-                default => "{$title} kaç dakikada pişer ve hazırlanır?",
-            };
-
-            $timeA = match ($locale) {
-                'en' => "This recipe takes about {$prep} minutes of prep and {$cook} minutes of cooking, totaling {$total} minutes. Difficulty level is {$diffText}.",
-                'de' => "Dieses Rezept benötigt etwa {$prep} Minuten Vorbereitung und {$cook} Minuten Kochzeit, insgesamt {$total} Minuten. Schwierigkeitsgrad: {$diffText}.",
-                'pl' => "Ten przepis wymaga około {$prep} minut przygotowania i {$cook} minut gotowania, łącznie {$total} minut. Poziom trudności: {$diffText}.",
-                'ru' => "На подготовку уходит около {$prep} минут, на приготовление — {$cook} минут, всего {$total} минут. Сложность: {$diffText}.",
-                'fa' => "این دستور پخت حدود {$prep} دقیقه آماده‌سازی و {$cook} دقیقه پخت نیاز دارد (در مجموع {$total} دقیقه). سطح دشواری: {$diffText}.",
-                'pt' => "Esta receita leva cerca de {$prep} minutos de preparo e {$cook} minutos de cozimento, totalizando {$total} minutos. Nível de dificuldade: {$diffText}.",
-                default => "Bu tarif {$prep} dakika hazırlık ve {$cook} dakika pişirme ile toplam yaklaşık {$total} dakikada tamamlanır. Zorluk derecesi {$diffText} seviyesindedir.",
-            };
-
-            $questions[] = [
-                '@type' => 'Question',
-                'name' => $timeQ,
-                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $timeA],
-            ];
-        }
-
-        if ($recipe->servings > 0 && ! collect($questions)->contains(fn ($item) => str_contains($item['name'], 'kişi') || str_contains($item['name'], 'servings') || str_contains($item['name'], 'Personen') || str_contains($item['name'], 'порций'))) {
-            $servQ = match ($locale) {
-                'en' => "How many servings does this {$title} recipe make?",
-                'de' => "Für wie viele Personen ist {$title} gedacht?",
-                'pl' => "Na ile porcji wystarcza ten przepis na {$title}?",
-                'ru' => "На сколько порций рассчитан рецепт {$title}?",
-                'fa' => "دستور پخت {$title} برای چند نفر است؟",
-                'pt' => "Quantas porções rende esta receita de {$title}?",
-                default => "{$title} kaç kişiliktir?",
-            };
-
-            $servA = match ($locale) {
-                'en' => "This recipe is measured for {$recipe->servings} servings. You can easily adjust ingredient amounts for larger or smaller groups using our on-page serving selector.",
-                'de' => "Dieses Rezept ist für {$recipe->servings} Portionen bemessen. Die Zutatenmengen können auf der Rezeptseite flexibel angepasst werden.",
-                'pl' => "Przepis jest obliczony na {$recipe->servings} porcji. Proporcje składników można dostosować za pomocą kalkulatora porcji na stronie.",
-                'ru' => "Рецепт рассчитан на {$recipe->servings} порций. Количество ингредиентов можно изменить с помощью переключателя порций на странице рецепта.",
-                'fa' => "این دستور برای {$recipe->servings} نفر در نظر گرفته شده است و مقادیر مواد را می‌توانید به تناسب تعداد نفرات تغییر دهید.",
-                'pt' => "Esta receita foi elaborada para {$recipe->servings} porções. As quantidades de ingredientes podem ser ajustadas no seletor de porções da página.",
-                default => "Bu tarif {$recipe->servings} kişilik porsiyon için tam ölçülüdür. Kişi sayısına göre malzeme oranlarını sayfamızdaki porsiyon aracından kolayca ölçekleyebilirsiniz.",
-            };
-
-            $questions[] = [
-                '@type' => 'Question',
-                'name' => $servQ,
-                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $servA],
-            ];
-        }
-
-        if (! filled($recipe->storage_notes) && ! collect($questions)->contains(fn ($item) => str_contains($item['name'], 'saklanır') || str_contains($item['name'], 'stored') || str_contains($item['name'], 'aufbewahrt') || str_contains($item['name'], 'хранить'))) {
-            $storeQ = match ($locale) {
-                'en' => "How should {$title} be stored and how long does it stay fresh?",
-                'de' => "Wie sollte {$title} aufbewahrt werden und wie lange bleibt es frisch?",
-                'pl' => "Jak przechowywać {$title} i jak długo zachowuje świeżość?",
-                'ru' => "Как правильно хранить {$title} и сколько дней блюдо остается свежим?",
-                'fa' => "چگونه {$title} را نگهداری کنیم و تا چند روز تازه می‌ماند؟",
-                'pt' => "Como armazenar {$title} e por quanto tempo permanece fresco?",
-                default => "{$title} nasıl saklanır ve kaç gün tazeliğini korur?",
-            };
-
-            $storeA = match ($locale) {
-                'en' => "Allow to cool to room temperature, then store in an airtight glass container in the refrigerator for 3 to 4 days.",
-                'de' => "Auf Raumtemperatur abkühlen lassen und in einem luftdichten Glasbehälter im Kühlschrank 3 bis 4 Tage aufbewahren.",
-                'pl' => "Ostudź do temperatury pokojowej i przechowuj w szczelnym szklanym pojemniku w lodówce przez 3 do 4 dni.",
-                'ru' => "Остудите до комнатной температуры и храните в герметичном контейнере в холодильнике в течение 3–4 дней.",
-                'fa' => "اجازه دهید خنک شود، سپس در ظرف دربسته شیشه‌ای به مدت ۳ تا ۴ روز در یخچال نگهداری کنید.",
-                'pt' => "Deixe esfriar em temperatura ambiente e guarde em recipiente hermético na geladeira por 3 a 4 dias.",
-                default => "Oda sıcaklığına geldikten sonra hava almayan kapaklı cam saklama kabında buzdolabında 3-4 gün boyunca tazeliğini korur.",
-            };
-
-            $questions[] = [
-                '@type' => 'Question',
-                'name' => $storeQ,
-                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $storeA],
-            ];
-        }
-
+        // Kalıp yedek sorular (süre, porsiyon, genel saklama) kaldırıldı.
+        // Her tarife aynı cümleyi basıyordu; başlığı "Recipe" ile biten
+        // tarifte "…Recipe recipe make?" gibi bozuk metin çıkıyordu (8 Ekim
+        // 2026 denetimi). Süre ve porsiyon zaten Recipe düğümünde; SSS yalnız
+        // tarife özgü veri varsa basılır.
         return $questions;
     }
 
@@ -904,9 +795,11 @@ final class SeoSchemaService
     {
         $org = [
             '@type' => 'Organization',
-            '@id' => route('home').'#organization',
+            // Kimlik dilden bağımsız tek değer: route('home') /en, /de ...
+            // üretiyordu ve aynı kuruluş yedi ayrı düğüm gibi görünüyordu.
+            '@id' => url('/').'#organization',
             'name' => config('brand.name'),
-            'url' => route('home'),
+            'url' => url('/'),
             'logo' => [
                 '@type' => 'ImageObject',
                 'url' => url(config('brand.assets.mark_light')),
@@ -940,10 +833,7 @@ final class SeoSchemaService
     }
 
     /**
-     * Ana sayfa için WebSite + SearchAction şeması.
-     *
-     * Google'ın site arama kutusu zengin sonucunu etkinleştirir.
-     * Yalnız ana sayfada basılır.
+     * Site geneli WebSite + Organization şeması.
      *
      * @return array<string,mixed>
      */
@@ -953,20 +843,14 @@ final class SeoSchemaService
             '@context' => 'https://schema.org',
             '@graph' => [
                 $this->organizationNode(),
+                // SearchAction yok: Google site arama kutusunu Kasım 2024'te
+                // kaldırdı, işaretleme artık hiçbir sonuç üretmiyor.
                 [
                     '@type' => 'WebSite',
+                    '@id' => url('/').'#website',
                     'name' => config('brand.name'),
-                    'url' => route('home'),
-                    'potentialAction' => [
-                        '@type' => 'SearchAction',
-                        'target' => [
-                            '@type' => 'EntryPoint',
-                            // /arama route'u yok; gerçek arama tarif arşivinde
-                            // ?q= ile çalışır. Ölü adres şemaya girmez.
-                            'urlTemplate' => route('recipes.index').'?q={search_term_string}',
-                        ],
-                        'query-input' => 'required name=search_term_string',
-                    ],
+                    'url' => url('/'),
+                    'publisher' => ['@id' => url('/').'#organization'],
                 ],
             ],
         ];
@@ -1004,7 +888,7 @@ final class SeoSchemaService
     /**
      * Blog yazısı için Article şemasını zenginleştirir.
      *
-     * wordCount tahmini, speakable vePublisher gelişmiş alanlar ekler.
+     * wordCount tahmini ve publisher alanlarını ekler.
      */
     public function article(BlogPost $post, string $imageUrl = ''): array
     {
@@ -1036,12 +920,6 @@ final class SeoSchemaService
         if ($imageUrl !== '') {
             $article['image'] = [$imageUrl];
         }
-
-        // Speakable: sesli arama ve Google Assistant için
-        $article['speakable'] = [
-            '@type' => 'SpeakableSpecification',
-            'cssSelector' => ['h1', '.hc-article-lead', '.hc-article-body'],
-        ];
 
         $graph = $this->graph($article, [
             ['name' => $this->crumbName('home', $locale), 'url' => route('home')],

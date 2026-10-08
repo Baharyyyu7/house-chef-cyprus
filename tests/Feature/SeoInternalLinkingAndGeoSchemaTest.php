@@ -15,7 +15,7 @@ final class SeoInternalLinkingAndGeoSchemaTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_recipe_schema_includes_geo_faq_page_and_speakable(): void
+    public function test_recipe_schema_has_recipe_specific_faq_without_geo_speakable_or_difficulty(): void
     {
         $recipe = Recipe::query()->create([
             'title' => 'Kıbrıs Şeftali Kebabı',
@@ -53,14 +53,20 @@ final class SeoInternalLinkingAndGeoSchemaTest extends TestCase
             foreach ($data['@graph'] ?? [$data] as $node) {
                 if (($node['@type'] ?? null) === 'Recipe') {
                     $foundRecipe = true;
-                    $this->assertArrayHasKey('speakable', $node);
-                    $this->assertSame('SpeakableSpecification', $node['speakable']['@type']);
+                    // 8 Ekim 2026 denetimi: her tarife Lefkoşa koordinatı,
+                    // schema.org'da olmayan "difficulty" ve tarif sayfasında
+                    // etkisiz speakable basılıyordu.
+                    $this->assertArrayNotHasKey('speakable', $node);
+                    $this->assertArrayNotHasKey('geo', $node);
+                    $this->assertArrayNotHasKey('difficulty', $node);
                 }
                 if (($node['@type'] ?? null) === 'FAQPage') {
                     $foundFaq = true;
                     $this->assertNotEmpty($node['mainEntity']);
                     $questions = collect($node['mainEntity'])->pluck('name')->all();
                     $this->assertTrue(collect($questions)->some(fn ($q) => str_contains($q, 'nasıl saklanır')));
+                    // Kalıp yedek sorular (porsiyon, süre) basılmaz.
+                    $this->assertFalse(collect($questions)->some(fn ($q) => str_contains($q, 'kaç kişiliktir') || str_contains($q, 'kaç dakikada')));
                 }
             }
         }
