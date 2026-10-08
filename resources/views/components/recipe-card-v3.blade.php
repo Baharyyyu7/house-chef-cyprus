@@ -12,6 +12,10 @@
     $hasApprovedMedia = $displayMedia['has_specific_media'];
     $alt = $displayMedia['alt'];
     $isSyntheticMedia = $displayMedia['is_synthetic'];
+    // Rozet kayıt ve görsel incelemesinin yanında besin ve alerjen verisinin
+    // de tam olmasını ister; karar tarif başına önbellekte tutulur.
+    $dogrulandi = $hasApprovedMedia && $recipe->verification_status === 'verified'
+        && app(\App\Services\RecipeDataCompletenessService::class)->tamamOnbellekli($recipe);
 @endphp
 
 <article {{ $attributes->merge(['class' => 'hc-v3-card hc-v3-card--interactive group relative flex w-full min-w-0 flex-col overflow-hidden']) }}>
@@ -36,7 +40,7 @@
         <p class="hc-body-sm mt-2 line-clamp-2" style="color: var(--hc-text-secondary)">{{ $recipe->translated('excerpt') }}</p>
         <div class="mt-3 flex flex-wrap gap-2">@foreach($recipe->dietaryTags->take(2) as $tag)<span class="hc-v3-badge hc-v3-badge--success">{{ $tag->name ?? str($tag->code)->replace('_', ' ')->title() }}</span>@endforeach</div>
         <div class="mt-auto flex items-center justify-between gap-3 pt-4">
-            <span class="hc-v3-badge {{ $hasApprovedMedia && $recipe->verification_status === 'verified' ? 'hc-v3-badge--success' : 'hc-v3-badge--warning' }}"><span aria-hidden="true">{{ $hasApprovedMedia && $recipe->verification_status === 'verified' ? '✓' : 'ⓘ' }}</span> {{ $hasApprovedMedia && $recipe->verification_status === 'verified' ? __('card.verified') : __('card.under_review') }}</span>
+            <span class="hc-v3-badge {{ $dogrulandi ? 'hc-v3-badge--success' : 'hc-v3-badge--warning' }}"><span aria-hidden="true">{{ $dogrulandi ? '✓' : 'ⓘ' }}</span> {{ $dogrulandi ? __('card.verified') : __('card.under_review') }}</span>
             <div class="flex items-center gap-1">
                 @auth
                     @if($showFavorite)

@@ -17,7 +17,7 @@
 
         <p class="hc-body-lg mt-4 max-w-2xl text-muted">
             {{ $malzeme->name }} kullanan {{ $tarifler->count() }} doğrulanmış tarif.
-            Her tarifte ölçüler, süreler ve besin değerleri görünür.
+            Her tarifte ölçüler ve süreler yazar; besin değeri yalnız veri yeterliyse gösterilir.
         </p>
 
         @if (filled($malzeme->notes))

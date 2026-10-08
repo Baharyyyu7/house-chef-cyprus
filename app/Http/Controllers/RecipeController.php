@@ -239,11 +239,22 @@ final class RecipeController extends Controller
             $metadata['robots'] = 'noindex,follow';
         }
 
+        // Besin kartı, alerjen özeti ve "Doğrulandı" rozeti aynı tamlık
+        // kararından beslenir; biri eksikken diğeri güven iddia etmesin.
+        $allergenAnalysis = $allergens->analyse($recipe);
+        $allergenSummary = app(\App\Services\AllergenInferenceService::class)->ozet($recipe, $allergenAnalysis);
+        $completeness = app(\App\Services\RecipeDataCompletenessService::class);
+        $satirSayisi = $recipe->recipeIngredients->count();
+
         return view('recipes.show', [
             'recipe' => $recipe,
             'servings' => $servings,
             'nutrition' => $nutritionResult,
-            'allergenAnalysis' => $allergens->analyse($recipe),
+            'nutritionShown' => $completeness->besinYeterli($nutritionResult, $satirSayisi),
+            'nutritionCoverage' => $completeness->besinYuzdesi($nutritionResult, $satirSayisi),
+            'dataComplete' => $completeness->tamam($nutritionResult, $satirSayisi, $allergenSummary),
+            'allergenAnalysis' => $allergenAnalysis,
+            'allergenSummary' => $allergenSummary,
             'dietaryCompatibility' => $dietary->assess($recipe, $servings),
             'match' => $request->user() ? $matching->match($recipe, $request->user()) : null,
             'isFavorited' => $request->user()?->favoriteRecipes()->whereKey($recipe->id)->exists() ?? false,
