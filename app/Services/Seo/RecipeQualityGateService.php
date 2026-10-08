@@ -34,6 +34,33 @@ final class RecipeQualityGateService
     /** Aynı malzeme kümesini bu kadar tarif paylaşıyorsa küme şablondur. */
     public const ORTAK_KUME_ESIGI = 3;
 
+    /** Başlıkta geçen kelime → malzeme listesinde bulunması gereken desen. */
+    private const BASLIK_MALZEME = [
+        'kolokoti' => 'kaba[kğ]',
+        'flaouna' => 'peynir|hellim',
+        'pilavuna' => 'peynir|hellim',
+        'revani' => 'irmi[kğ]',
+        'etli' => '(?<![\\p{L}])et(?![\\p{L}])|kıyma|kuşbaşı|dana|kuzu|tavuk',
+        'kıymalı' => 'kıyma|kuşbaşı|dana|kuzu',
+        'tavuklu' => 'tavu[kğ]',
+        'kuzu' => 'kuzu',
+        'hellimli' => 'hellim',
+        'peynirli' => 'peynir|hellim|lor|kaşar',
+        'mercimek' => 'mercime[kğ]',
+        'nohut' => 'nohut',
+        'patlıcan' => 'patlıcan',
+        'ıspanak' => 'ıspana[kğ]',
+        'sucuk' => 'sucu[kğ]',
+        'karides' => 'karides',
+        'kolokas' => 'kolokas',
+        'molohiya' => 'molohiya|molehiya',
+        'antep fıstık' => 'fıstı[kğ]',
+        'gaziantep katmer' => 'fıstı[kğ]',
+    ];
+
+    /** Adım↔malzeme karşılaştırmasında sayılmayan ölçü ve tarif kelimeleri. */
+    private const OLCU_KELIMELERI = ['adet', 'gram', 'bardağı', 'yemek', 'kaşığı', 'tatlı', 'tutam', 'demet', 'paket', 'dilim', 'yarım', 'mililitre', 'litre', 'kilogram', 'ince', 'kıyılmış', 'doğranmış', 'küçük', 'büyük', 'orta', 'taze', 'veya', 'dondurulmuş', 'için', 'eritilmiş', 'ılık', 'sıcak', 'soğuk', 'isteğe', 'bağlı', 'servis'];
+
     /** @var array<string, list<int>>|null Tek koşuda bir kez kurulan küme sayacı. */
     private ?array $kumeSayaci = null;
 
@@ -91,7 +118,45 @@ final class RecipeQualityGateService
             || $tarif->recipeIngredients()->count() < self::ASGARI_MALZEME
             || $this->yerTutucuMalzemeVar($tarif)
             || $this->hicOlcuYok($tarif)
-            || $this->ortakMalzemeKumesi($tarif);
+            || $this->ortakMalzemeKumesi($tarif)
+            || $this->tutarlilikSorunlari($tarif) !== [];
+    }
+
+    /**
+     * Başlığın vaat ettiği malzeme listede yoksa ya da adımlar hiçbir
+     * malzemeden söz etmiyorsa tarif kendisiyle çelişir.
+     *
+     * 8 Ekim 2026'da canlıdaki 128 tarifte ölçüldü: kolokotide balkabağı,
+     * flaounada peynir, sütlü revanide irmik, etli kabak dolmasında et yoktu;
+     * sucuklu yumurtanın yedi adımı "Malzemeleri yıkayın ve hazırlayın"
+     * kalıbındaydı. Hepsi "Doğrulandı" rozetiyle indeksteydi. Sözlük kasten
+     * dar: yalnız yemeğin kimliği olan malzemeler.
+     *
+     * @return list<string>
+     */
+    public function tutarlilikSorunlari(Recipe $tarif): array
+    {
+        $baslik = mb_strtolower((string) $tarif->getRawOriginal('title'));
+        $malzemeler = mb_strtolower($tarif->ingredients()->pluck('name')->implode(' | '));
+        $sorunlar = [];
+
+        foreach (self::BASLIK_MALZEME as $kelime => $desen) {
+            if (preg_match('/(?<![\p{L}])'.$kelime.'/u', $baslik) === 1 && preg_match('/'.$desen.'/u', $malzemeler) !== 1) {
+                $sorunlar[] = 'baslik_malzeme:'.$kelime;
+            }
+        }
+
+        $adimlar = $tarif->steps()->pluck('instruction')->map(static fn ($a): string => mb_strtolower((string) $a))->filter()->values();
+        $kokler = collect(preg_split('/[^\p{L}]+/u', $malzemeler) ?: [])
+            ->filter(static fn (string $k): bool => mb_strlen($k) >= 4 && ! in_array($k, self::OLCU_KELIMELERI, true))
+            ->map(static fn (string $k): string => mb_substr($k, 0, mb_strlen($k) > 5 ? 5 : mb_strlen($k) - 1))
+            ->unique();
+
+        if ($adimlar->count() >= 3 && $kokler->isNotEmpty() && $adimlar->every(static fn (string $a): bool => ! $kokler->contains(static fn (string $k): bool => str_contains($a, $k)))) {
+            $sorunlar[] = 'genel_adimlar';
+        }
+
+        return $sorunlar;
     }
 
     /**

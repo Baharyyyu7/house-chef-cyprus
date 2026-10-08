@@ -48,7 +48,8 @@ final class RecipeDuplicateConsolidationTest extends TestCase
         $malzemeSayisi = $sablon ? 2 : 4;
 
         for ($i = 1; $i <= $malzemeSayisi; $i++) {
-            $malzeme = Ingredient::query()->firstOrCreate(['slug' => 'malzeme-'.$i], ['name' => 'Malzeme '.$i]);
+            $ad = $sablon ? 'Malzeme '.$i : ['Hellim', 'Zeytinyağı', 'Domates', 'Nane'][$i - 1];
+            $malzeme = Ingredient::query()->firstOrCreate(['slug' => str($ad)->slug()->toString()], ['name' => $ad]);
             $tarif->recipeIngredients()->create(['ingredient_id' => $malzeme->id, 'quantity' => 1, 'unit' => 'adet', 'sort_order' => $i]);
         }
 

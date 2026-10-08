@@ -39,7 +39,7 @@ final class RecipeQualityGateTest extends TestCase
         ]);
 
         for ($i = 1; $i <= $adim; $i++) {
-            $tarif->steps()->create(['position' => $i, 'title' => 'Adım '.$i, 'instruction' => 'Adım '.$i.' açıklaması.']);
+            $tarif->steps()->create(['position' => $i, 'title' => 'Adım '.$i, 'instruction' => 'Malzeme '.$i.' ile adım '.$i.' açıklaması.']);
         }
 
         for ($i = 1; $i <= $malzeme; $i++) {

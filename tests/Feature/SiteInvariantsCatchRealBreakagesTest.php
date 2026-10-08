@@ -31,7 +31,7 @@ final class SiteInvariantsCatchRealBreakagesTest extends TestCase
             'title' => 'Yazı '.$slug,
             'slug' => $slug,
             'excerpt' => 'Özet.',
-            'body' => str_repeat('Bu yazının gövdesi kapıdan geçecek uzunlukta yazıldı. ', 60),
+            'body' => $this->cesitliMetin('Bu yazının gövdesi kapıdan geçecek uzunlukta yazıldı. ', 60),
             'status' => 'published',
             'published_at' => now()->subDay(),
             'fact_check_status' => 'passed',
