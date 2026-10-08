@@ -42,10 +42,8 @@
         <meta name="robots" content="{{ $effectiveRobots }}">
     @endif
     @unless ($isPrivateSurface || str_contains((string) $robots, 'noindex'))
-        <meta name="geo.region" content="CY">
-        <meta name="geo.placename" content="Cyprus">
-        <meta name="geo.position" content="35.1856;33.3823">
-        <meta name="ICBM" content="35.1856, 33.3823">
+        {{-- geo.* ve ICBM etiketleri kaldırıldı: arama motorları okumuyor ve
+             her tarifi Lefkoşa'da bir yer gibi işaretliyordu. --}}
         <meta property="og:type" content="{{ request()->routeIs('blog.show') ? 'article' : 'website' }}">
         <meta property="og:locale" content="{{ $activeLanguage['og_locale'] ?? 'tr_TR' }}">
         @include('partials.hreflang')
