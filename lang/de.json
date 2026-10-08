@@ -837,5 +837,7 @@
     "recipe.show.embed_copied": "✓ Kopiert",
     "recipe.show.embed_close": "Schließen",
     "footer.signup_title": "Kostenlose Mitgliedschaft",
-    "footer.signup_text": "Rezepte speichern, Vorrat führen und herausfinden, was Sie mit Ihren Zutaten kochen können."
+    "footer.signup_text": "Rezepte speichern, Vorrat führen und herausfinden, was Sie mit Ihren Zutaten kochen können.",
+    "blog.index.featured": "Ausgewählte Beiträge",
+    "blog.index.more_posts": "Weitere Beiträge"
 }

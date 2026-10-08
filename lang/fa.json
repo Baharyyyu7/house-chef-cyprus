@@ -837,5 +837,7 @@
     "recipe.show.embed_copied": "✓ کپی شد",
     "recipe.show.embed_close": "بستن",
     "footer.signup_title": "عضویت رایگان",
-    "footer.signup_text": "دستورها را ذخیره کنید، انبار خود را مدیریت کنید و ببینید با آنچه دارید چه می‌توان پخت."
+    "footer.signup_text": "دستورها را ذخیره کنید، انبار خود را مدیریت کنید و ببینید با آنچه دارید چه می‌توان پخت.",
+    "blog.index.featured": "نوشته‌های برگزیده",
+    "blog.index.more_posts": "نوشته‌های دیگر"
 }

@@ -837,5 +837,7 @@
     "recipe.show.embed_copied": "✓ Copiado",
     "recipe.show.embed_close": "Fechar",
     "footer.signup_title": "Conta gratuita",
-    "footer.signup_text": "Guarde receitas, gira a sua despensa e descubra o que cozinhar com o que tem."
+    "footer.signup_text": "Guarde receitas, gira a sua despensa e descubra o que cozinhar com o que tem.",
+    "blog.index.featured": "Artigos em destaque",
+    "blog.index.more_posts": "Mais artigos"
 }

@@ -837,5 +837,7 @@
     "recipe.show.embed_copied": "✓ Skopiowano",
     "recipe.show.embed_close": "Zamknij",
     "footer.signup_title": "Darmowe konto",
-    "footer.signup_text": "Zapisuj przepisy, prowadź spiżarnię i sprawdzaj, co ugotować z tego, co masz."
+    "footer.signup_text": "Zapisuj przepisy, prowadź spiżarnię i sprawdzaj, co ugotować z tego, co masz.",
+    "blog.index.featured": "Wyróżnione wpisy",
+    "blog.index.more_posts": "Więcej wpisów"
 }

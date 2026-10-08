@@ -800,5 +800,7 @@
     "recipe.show.embed_copied": "✓ Kopyalandı",
     "recipe.show.embed_close": "Kapat",
     "footer.signup_title": "Ücretsiz üyelik",
-    "footer.signup_text": "Tarifleri kaydet, dolabını tut, elindekiyle ne pişireceğini bul."
+    "footer.signup_text": "Tarifleri kaydet, dolabını tut, elindekiyle ne pişireceğini bul.",
+    "blog.index.featured": "Öne çıkan yazılar",
+    "blog.index.more_posts": "Diğer yazılar"
 }

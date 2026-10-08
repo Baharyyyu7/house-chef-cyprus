@@ -837,5 +837,7 @@
     "recipe.show.embed_copied": "✓ Скопировано",
     "recipe.show.embed_close": "Закрыть",
     "footer.signup_title": "Бесплатный аккаунт",
-    "footer.signup_text": "Сохраняйте рецепты, ведите запасы и узнавайте, что приготовить из того, что есть."
+    "footer.signup_text": "Сохраняйте рецепты, ведите запасы и узнавайте, что приготовить из того, что есть.",
+    "blog.index.featured": "Избранные статьи",
+    "blog.index.more_posts": "Другие статьи"
 }

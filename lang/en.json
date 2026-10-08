@@ -905,5 +905,7 @@
     "recipe.show.embed_copied": "✓ Copied",
     "recipe.show.embed_close": "Close",
     "footer.signup_title": "Free membership",
-    "footer.signup_text": "Save recipes, keep your pantry and find what to cook with what you have."
+    "footer.signup_text": "Save recipes, keep your pantry and find what to cook with what you have.",
+    "blog.index.featured": "Featured posts",
+    "blog.index.more_posts": "More posts"
 }

@@ -3,7 +3,9 @@
 @php
     $media = app(\App\Services\Media\PublicMediaEligibilityService::class)
         ->heroOrFirstEligible($post->heroMedia, $post->media);
-    $kategori = $post->category?->name ?? 'Mutfak notu';
+    $kategori = $post->category?->name ?? __('blog.index.kitchen_note');
+    // Özet satırın ortasında kesik geliyordu ("...lezz"); kelime sınırında kısalır.
+    $ozet = \Illuminate\Support\Str::limit(trim((string) $post->excerpt), 150, '…', preserveWords: true);
     $yapayZeka = (bool) $media?->generated_by_ai;
     $fallbackImage = asset(ltrim((string) config('media_excellence.blog_fallback_url'), '/'));
 @endphp
@@ -34,16 +36,16 @@
         @if($media?->publicUrl() && $yapayZeka)<span class="absolute right-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">{{ __('blog.ai_image_badge') }}</span>@endif
     </a>
     <div class="flex flex-1 flex-col p-5">
-        <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color:var(--hc-text-muted)">
-            <span>{{ $kategori }}</span>
+        {{-- Kategori görselin üstündeki rozette; burada ikinci kez ve altta
+             üçüncü kez ("Mutfak notu") basılıyordu. --}}
+        <div class="flex items-center gap-3 text-xs font-bold" style="color:var(--hc-text-muted)">
             @if($post->published_at)<time datetime="{{ $post->published_at->toDateString() }}">{{ $post->published_at->translatedFormat('j F Y') }}</time>@endif
         </div>
         <h3 class="mt-2 text-base font-extrabold leading-snug line-clamp-2" style="color:var(--hc-text-primary)">
             <a class="before:absolute before:inset-0 focus-visible:rounded" href="{{ route('blog.show', $post) }}">{{ $post->title }}</a>
         </h3>
-        <p class="hc-body-sm mt-2 line-clamp-2" style="color:var(--hc-text-secondary)">{{ $post->excerpt }}</p>
-        <div class="mt-auto flex items-center justify-between gap-3 pt-4">
-            <span class="hc-v3-badge">Mutfak notu</span>
+        <p class="hc-body-sm mt-2 line-clamp-2" style="color:var(--hc-text-secondary)">{{ $ozet }}</p>
+        <div class="mt-auto flex items-center justify-end gap-3 pt-4">
             <a class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm relative z-10 font-bold" href="{{ route('blog.show', $post) }}">{{ __('blog.read_post') }} <span aria-hidden="true">→</span></a>
         </div>
     </div>
