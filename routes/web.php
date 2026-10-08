@@ -285,7 +285,8 @@ Route::get('/manifest.webmanifest', fn () => response(file_get_contents(public_p
 Route::get('/en/manifest.webmanifest', fn () => response(file_get_contents(public_path('brand/site-en.webmanifest')), 200, ['Content-Type' => 'application/manifest+json; charset=UTF-8']))->name('manifest.en');
 Route::get('/en/site.webmanifest', fn () => response(file_get_contents(public_path('brand/site-en.webmanifest')), 200, ['Content-Type' => 'application/manifest+json; charset=UTF-8']));
 Route::get('/c032a1e8e8214371b658ef9c7e0b57e1.txt', fn () => response(config('services.indexnow.key', 'c032a1e8e8214371b658ef9c7e0b57e1'), 200, ['Content-Type' => 'text/plain; charset=UTF-8']));
-Route::view('/robots.txt', 'robots')->name('robots');
+// robots.txt statik dosya: public/robots.txt bu rotayı her zaman
+// gölgeliyordu ve iki ayrı içerik bakımı gerekiyordu. Tek kaynak dosya.
 
 // Zamanlayıcı tetikleme ucu. Hostinger cron'u 2 Ağustos 2026'dan beri
 // çalışmıyor; bu uç dışarıdan bir zamanlayıcının uygulamayı dürtmesini
