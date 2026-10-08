@@ -42,8 +42,9 @@
         <div class="mt-auto flex items-center justify-between gap-3 pt-4">
             <span class="hc-v3-badge {{ $dogrulandi ? 'hc-v3-badge--success' : 'hc-v3-badge--warning' }}"><span aria-hidden="true">{{ $dogrulandi ? '✓' : 'ⓘ' }}</span> {{ $dogrulandi ? __('card.verified') : __('card.under_review') }}</span>
             <div class="flex items-center gap-1">
+                {{-- Favori "Mutfağım" özelliğine ait; bayrak kapalıyken rota 404 verir. --}}
                 @auth
-                    @if($showFavorite)
+                    @if($showFavorite && app(\App\Services\SiteFeatureService::class)->enabled('member_kitchen'))
                         <form method="post" action="{{ route('favorites.toggle', $recipe) }}" class="relative z-10">@csrf<button class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" type="submit" aria-label="{{ __('card.add_to_favorites_aria', ['title' => $recipe->translated('title')]) }}">♡<span class="sr-only">{{ __('card.add_to_favorites') }}</span></button></form>
                     @endif
                 @endauth

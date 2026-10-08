@@ -56,13 +56,17 @@
 
             <div class="hc-user-menu__rule"></div>
 
-            @foreach ([
+            {{-- Dolap, favori ve koleksiyon "Mutfağım"a ait: bayrak kapalıyken
+                 rotaları 404 veriyor, menüde de görünmez. Etiketler dilin kendi
+                 metni; yabancı sayfada "Favorilerim" basılıyordu. --}}
+            @php($mutfagimAcik = app(\App\Services\SiteFeatureService::class)->enabled('member_kitchen'))
+            @foreach (array_filter([
                 ['dashboard', __('ui.my_account'), 'gauge'],
-                ['pantry.index', 'Dolabım', 'archive'],
-                ['favorites.index', 'Favorilerim', 'heart'],
-                ['collections.index', 'Koleksiyonlarım', 'book'],
-                ['profile', 'Profil ayarları', 'sliders'],
-            ] as [$rota, $etiket, $simge])
+                $mutfagimAcik ? ['pantry.index', __('nav.pantry'), 'archive'] : null,
+                $mutfagimAcik ? ['favorites.index', __('nav.favorites'), 'heart'] : null,
+                $mutfagimAcik ? ['collections.index', __('ux.collections'), 'book'] : null,
+                ['profile', __('Profile'), 'sliders'],
+            ]) as [$rota, $etiket, $simge])
                 @if (Route::has($rota))
                     <a href="{{ route($rota) }}" class="hc-user-menu__item" role="menuitem">
                         <span class="hc-user-menu__icon" aria-hidden="true"><x-ui.icon :name="$simge" size="16" /></span>{{ $etiket }}
