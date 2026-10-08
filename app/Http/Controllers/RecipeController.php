@@ -204,10 +204,9 @@ final class RecipeController extends Controller
 
         $cuisineUrl = null;
         if ($recipe->cuisine !== null) {
-            $dogrulanmisTarifSayisi = $recipe->cuisine->recipes()
-                ->where('status', 'published')
-                ->where('verification_status', 'verified')
-                ->count();
+            // Sayım o dildeki hub'ın kendi sayımı: Türkçe sayım yabancı
+            // sayfada 404 veren mutfak sayfasına bağlantı veriyordu.
+            $dogrulanmisTarifSayisi = CuisineHubController::ceviriSayilari()[$recipe->cuisine->slug] ?? 0;
             $cuisineUrl = CuisineHubController::sayfasiVar($dogrulanmisTarifSayisi)
                 ? route('cuisines.show', $recipe->cuisine->slug)
                 : route('recipes.index', ['cuisine' => $recipe->cuisine->slug]);

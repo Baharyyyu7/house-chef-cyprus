@@ -155,12 +155,23 @@ final class LocaleUrlService
             );
         }
 
+        $path = '/'.ltrim($request->path(), '/');
+
+        // Rota düzeyinde de süzülür: hub'ın o dilde tarif eşiği tutmuyorsa ya
+        // da sayfanın hiç çevirisi yoksa (hakkimizda, sss) o dile hreflang
+        // basılmaz. Cevap site haritasıyla aynı yerden gelir.
+        $varlik = app(LocalePageAvailability::class);
+        $diller = array_filter(
+            $diller,
+            static fn (string $kod): bool => $varlik->varMi($kod, $path),
+            ARRAY_FILTER_USE_KEY
+        );
+
         // Tek dil etkinken hreflang'in anlamı yok: bağlayacak alternatif yok.
         if (count($diller) < 2) {
             return [];
         }
 
-        $path = '/'.ltrim($request->path(), '/');
         $kume = [];
 
         foreach (array_keys($diller) as $locale) {

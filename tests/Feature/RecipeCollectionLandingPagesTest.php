@@ -96,6 +96,18 @@ final class RecipeCollectionLandingPagesTest extends TestCase
         config(['locales.supported.en.enabled' => true]);
         $this->tarifler(4, ['difficulty' => 'easy']);
 
+        // İngilizceye çevrilmiş tarif yokken /en/zorluk/kolay 404 verir;
+        // oraya hreflang basmak kümeyi geçersiz kılar (8 Ekim 2026 denetimi).
+        $this->get('/en/zorluk/kolay')->assertNotFound();
+        $this->get('/zorluk/kolay')->assertOk()->assertDontSee('hreflang="en"', false);
+
+        Recipe::query()->each(function (Recipe $tarif): void {
+            foreach (['title' => 'Easy recipe', 'excerpt' => 'Summary.', 'description' => 'Description.'] as $alan => $deger) {
+                $tarif->translations()->create(['locale' => 'en', 'field' => $alan, 'value' => $deger]);
+            }
+        });
+
+        $this->get('/en/zorluk/kolay')->assertOk();
         $this->get('/zorluk/kolay')
             ->assertOk()
             ->assertSee('hreflang="tr" href="'.url('/zorluk/kolay').'"', false)
@@ -167,7 +179,7 @@ final class RecipeCollectionLandingPagesTest extends TestCase
         for ($i = 0; $i < 4; $i++) {
             $this->kolayVeHizliTarif('Çip Tarifi '.$i);
         }
-        cache()->forget('koleksiyon-baglantilari');
+        cache()->forget('koleksiyon-baglantilari:tr');
 
         $this->get(route('home'))
             ->assertOk()
@@ -178,7 +190,7 @@ final class RecipeCollectionLandingPagesTest extends TestCase
     public function test_a_chip_falls_back_to_the_filter_when_the_page_is_thin(): void
     {
         // Anasayfadan 404'e bağlanmak, filtreye bağlanmaktan kötü.
-        cache()->forget('koleksiyon-baglantilari');
+        cache()->forget('koleksiyon-baglantilari:tr');
 
         $this->get(route('home'))
             ->assertOk()

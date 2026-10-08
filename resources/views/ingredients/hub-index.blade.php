@@ -1,15 +1,14 @@
 <x-layouts.site
-    title="Malzemeye Göre Tarifler · House Chef Cyprus"
-    meta-description="Elinizdeki malzemeden yola çıkın: hellim, patlıcan, bulgur ve daha fazlası için doğrulanmış tarifler."
+    :title="__('ingredient_hub.index_title')"
+    :meta-description="__('ingredient_hub.index_meta')"
     :canonical-url="$seoIndexability['canonical']"
     :robots="$seoIndexability['robots']">
 
     <section class="hc-container py-14">
-        <p class="hc-kicker">Malzemeden başla</p>
-        <h1 class="mt-3 font-display text-4xl font-semibold">Malzemeye göre tarifler</h1>
+        <p class="hc-kicker">{{ __('ingredient_hub.index_kicker') }}</p>
+        <h1 class="mt-3 font-display text-4xl font-semibold">{{ __('ingredient_hub.index_h1') }}</h1>
         <p class="hc-body-lg mt-4 max-w-2xl text-muted">
-            Dolabınızda ne varsa oradan başlayın. Her malzeme için ölçüleri doğrulanmış
-            tarifleri bir arada topladık.
+            {{ __('ingredient_hub.index_lead') }}
         </p>
 
         {{-- Sayfası olan malzemeler eşikten geçenler. Bir malzemenin arkasında
@@ -26,7 +25,7 @@
                     @endif
                     <span class="hc-hub-card__govde">
                         <span class="hc-hub-card__baslik">{{ $malzeme->name }}</span>
-                        <span class="hc-caption">{{ $malzeme->tarif_sayisi }} tarif</span>
+                        <span class="hc-caption">{{ __('hub.recipes_count', ['count' => $malzeme->tarif_sayisi]) }}</span>
                     </span>
                     <span class="hc-hub-card__ok" aria-hidden="true">›</span>
                 </a>
@@ -34,7 +33,7 @@
         </div>
 
         @if ($malzemeler->isEmpty())
-            <p class="hc-body-sm mt-8 text-muted">Henüz yeterli tarifi olan malzeme yok.</p>
+            <p class="hc-body-sm mt-8 text-muted">{{ __('ingredient_hub.index_empty') }}</p>
         @endif
     </section>
 </x-layouts.site>

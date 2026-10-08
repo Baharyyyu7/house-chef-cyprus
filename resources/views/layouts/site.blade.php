@@ -24,7 +24,9 @@
          dile hreflang vermek, Türkçe içeriği yabancı dil sayfası gibi
          göstermek olurdu. Küme kendini de içerir: kendine gönderme yapmayan
          hreflang'i Google tamamen yok sayar. --}}
-    @foreach (app(\App\Services\Seo\LocaleUrlService::class)->alternates(request(), $seoContent) as $alternatif)
+    @php($hreflangKumesi = app(\App\Services\Seo\LocaleUrlService::class)->alternates(request(), $seoContent))
+    @php(request()->attributes->set('hc_hreflang_kumesi', $hreflangKumesi))
+    @foreach ($hreflangKumesi as $alternatif)
         <link rel="alternate" hreflang="{{ $alternatif['hreflang'] }}" href="{{ $alternatif['href'] }}">
     @endforeach
     @php($isPrivateSurface = request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))

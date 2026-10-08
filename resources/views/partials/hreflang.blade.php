@@ -12,16 +12,19 @@
     tarif ve blog sayfalarında olmayan çevirilere hreflang verilmiş oluyordu.
 
     Tek kaynak alternates(); burada yalnız onun kapsamadığı og etiketi kalıyor.
+    og:locale:alternate da aynı kümeden türer. 8 Ekim 2026 denetimi: her
+    sayfa altı dilin hepsini alternatif ilan ediyordu, sayfanın o dilde
+    olup olmadığına bakmadan.
 --}}
 @php
-    $mevcutDil = app()->getLocale();
-    $diller = collect(config('locales.supported', []))
-        ->filter(fn (array $dil): bool => ($dil['enabled'] ?? false) === true);
+    $mevcutHtmlDili = config('locales.supported.'.app()->getLocale().'.html_locale', app()->getLocale());
+    $ogDilleri = collect(request()->attributes->get('hc_hreflang_kumesi') ?? app(\App\Services\Seo\LocaleUrlService::class)->alternates(request(), request()->attributes->get('hc_seo_content')))
+        ->pluck('hreflang')
+        ->reject(fn (string $dil): bool => $dil === 'x-default' || $dil === $mevcutHtmlDili)
+        ->map(fn (string $dil): string => (string) (collect(config('locales.supported', []))->firstWhere('html_locale', $dil)['og_locale'] ?? $dil))
+        ->values();
 @endphp
 
-@if ($diller->count() > 1)
-    @foreach ($diller as $kod => $dil)
-        @continue($kod === $mevcutDil)
-        <meta property="og:locale:alternate" content="{{ $dil['og_locale'] ?? $kod }}">
-    @endforeach
-@endif
+@foreach ($ogDilleri as $ogDili)
+    <meta property="og:locale:alternate" content="{{ $ogDili }}">
+@endforeach

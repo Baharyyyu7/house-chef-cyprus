@@ -9,6 +9,7 @@ use App\Models\Media;
 use App\Models\Recipe;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\BlogIndexability;
+use App\Services\Seo\LocalePageAvailability;
 use App\Services\Seo\LocaleUrlService;
 use App\Services\Seo\RecipeTranslationGate;
 use App\Services\Seo\SeoMetadataService;
@@ -233,13 +234,22 @@ final class SitemapController extends Controller
     private function alternatesForStaticPath(string $path): array
     {
         $servis = app(LocaleUrlService::class);
-        $diller = $servis->enabledLocales();
+        $path = '/'.ltrim($path, '/');
+
+        // Hedefi o dilde 404 olan ya da çevirisi olmayan sayfaya alternatif
+        // ilan edilmez; cevap layout'taki hreflang ve controller'larla aynı
+        // yerden gelir.
+        $varlik = app(LocalePageAvailability::class);
+        $diller = array_filter(
+            $servis->enabledLocales(),
+            static fn (string $kod): bool => $varlik->varMi($kod, $path),
+            ARRAY_FILTER_USE_KEY
+        );
 
         if (count($diller) < 2) {
             return [];
         }
 
-        $path = '/'.ltrim($path, '/');
         $kume = [];
 
         foreach ($diller as $kod => $dil) {

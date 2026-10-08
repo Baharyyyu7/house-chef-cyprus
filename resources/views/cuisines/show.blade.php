@@ -1,6 +1,6 @@
 <x-layouts.site
-    :title="($seoTitle ?? __('cuisine.page_title', ['name' => $mutfak->name, 'count' => $tarifler->count()]))"
-    :meta-description="($seoDescription ?? __('cuisine.meta_description', ['name' => $mutfak->name, 'count' => $tarifler->count()]))"
+    :title="($seoTitle ?? __('cuisine.page_title', ['name' => taxonomy_name($mutfak), 'count' => $tarifler->count()]))"
+    :meta-description="($seoDescription ?? __('cuisine.meta_description', ['name' => taxonomy_name($mutfak), 'count' => $tarifler->count()]))"
     :structured-data="$seoSchema"
     :canonical-url="$seoIndexability['canonical']"
     :robots="$seoIndexability['robots']">
@@ -8,10 +8,10 @@
     <section class="hc-container py-14">
         <nav class="hc-body-sm text-muted" aria-label="{{ __('cuisine.breadcrumb') }}">
             <a class="font-semibold text-gold-700 transition hover:underline dark:text-gold-400" href="{{ route('cuisines.index') }}">{{ __('cuisine.breadcrumb') }}</a>
-            <span aria-hidden="true"> › </span><span class="text-charcoal-900 dark:text-charcoal-100 font-medium">{{ $mutfak->name }}</span>
+            <span aria-hidden="true"> › </span><span class="text-charcoal-900 dark:text-charcoal-100 font-medium">{{ taxonomy_name($mutfak) }}</span>
         </nav>
 
-        <h1 class="mt-4 font-display text-4xl font-semibold sm:text-5xl">{{ $seoH1 ?? __('cuisine.h1', ['name' => $mutfak->name]) }}</h1>
+        <h1 class="mt-4 font-display text-4xl font-semibold sm:text-5xl">{{ $seoH1 ?? __('cuisine.h1', ['name' => taxonomy_name($mutfak)]) }}</h1>
 
         @if($isKibrisHub)
             <p class="hc-body-sm mt-2 max-w-2xl font-semibold tracking-wide text-gold-700 dark:text-gold-300">Kıbrıs · Kıbrıs Yemek · Kıbrıs Yemek Tarif · Yemek Kıbrıs · Kıbrıs Yemekleri</p>
@@ -44,11 +44,11 @@
                 </dl>
             </section>
         @else
-            <p class="hc-body-lg mt-4 max-w-2xl text-muted">{{ __('cuisine.body_count', ['name' => $mutfak->name, 'count' => $tarifler->count()]) }} {{ __('cuisine.body_detail') }}</p>
+            <p class="hc-body-lg mt-4 max-w-2xl text-muted">{{ __('cuisine.body_count', ['name' => taxonomy_name($mutfak), 'count' => $tarifler->count()]) }} {{ __('cuisine.body_detail') }}</p>
         @endif
 
         <div class="mt-12">
-            <h2 class="font-display text-2xl font-semibold">{{ $mutfak->name }} {{ __('cuisine.recipes_suffix') }}</h2>
+            <h2 class="font-display text-2xl font-semibold">{{ taxonomy_name($mutfak) }} {{ __('cuisine.recipes_suffix') }}</h2>
             <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
                 @foreach($tarifler as $tarif)
                     <x-recipe-card-v3 :recipe="$tarif" :show-favorite="false" />
