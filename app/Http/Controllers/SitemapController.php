@@ -9,10 +9,9 @@ use App\Models\Media;
 use App\Models\Recipe;
 use App\Services\Media\PublicMediaEligibilityService;
 use App\Services\Seo\BlogIndexability;
+use App\Services\Seo\IndexableContent;
 use App\Services\Seo\LocalePageAvailability;
 use App\Services\Seo\LocaleUrlService;
-use App\Services\Seo\RecipeTranslationGate;
-use App\Services\Seo\SeoMetadataService;
 use App\Services\SiteFeatureService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
@@ -281,22 +280,13 @@ final class SitemapController extends Controller
      */
     private function indexable($query)
     {
-        if (! config('seo.indexing_enabled')) {
-            return $query->whereRaw('1 = 0');
-        }
-
-        return $query->whereDoesntHave('seoMetadata', fn ($q) => $q->where('robots', 'like', '%noindex%'));
+        // Süzgeç IndexableContent'te; llms.txt ve RSS de onu kullanıyor.
+        return app(IndexableContent::class)->noindexSuz($query);
     }
 
     private function effectiveAllows(object $kayit): bool
     {
-        $robots = $kayit->relationLoaded('seoMetadata')
-            ? $kayit->getRelation('seoMetadata')?->robots
-            : $kayit->seoMetadata()->value('robots');
-
-        $efektif = app(SeoMetadataService::class)->robots(is_string($robots) ? $robots : null);
-
-        return ! str_contains($efektif, 'noindex');
+        return app(IndexableContent::class)->robotsIzinVerir($kayit);
     }
 
     public function images(PublicMediaEligibilityService $mediaEligibility): Response
@@ -343,23 +333,6 @@ final class SitemapController extends Controller
      */
     private function dildeIndekslenebilir(object $kayit, string $kod): bool
     {
-        // Tarifin o dildeki adımları kalıp çeviriyse sayfa o dilde noindex;
-        // harita da onu ilan etmez. Bkz. RecipeTranslationGate.
-        if ($kayit instanceof Recipe) {
-            return app(RecipeTranslationGate::class)->hazir($kayit, $kod);
-        }
-
-        if (! $kayit instanceof BlogPost) {
-            return true;
-        }
-
-        $onceki = app()->getLocale();
-        app()->setLocale($kod);
-
-        try {
-            return app(BlogIndexability::class)->indekslenebilir($kayit);
-        } finally {
-            app()->setLocale($onceki);
-        }
+        return app(IndexableContent::class)->dildeIndekslenebilir($kayit, $kod);
     }
 }

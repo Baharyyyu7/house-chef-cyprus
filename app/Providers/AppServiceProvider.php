@@ -77,6 +77,9 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\RecipeStep::observe(\App\Observers\ContentGrowthObserver::class);
         \App\Models\Ingredient::observe(\App\Observers\ContentGrowthObserver::class);
         Media::observe(MediaObserver::class);
+        foreach ([Recipe::class, BlogPost::class, \App\Models\ContentTranslation::class, \App\Models\SeoMetadata::class] as $llmsKaynagi) {
+            $llmsKaynagi::observe(\App\Observers\LlmsCacheObserver::class);
+        }
         Gate::define('access-admin', fn ($user): bool => $user->isAdmin());
         Gate::define('access-ai-operations', fn ($user): bool => $user->isAdmin() && ! $user->isSystemReviewer());
         Gate::define('access-media-operations', fn ($user): bool => in_array($user->role, ['admin', 'media_reviewer'], true) && ! $user->isSystemReviewer());

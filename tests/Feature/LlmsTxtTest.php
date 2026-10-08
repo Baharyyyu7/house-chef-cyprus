@@ -26,6 +26,7 @@ final class LlmsTxtTest extends TestCase
             'cook_minutes' => 25,
             'servings' => 4,
             'description' => 'Geleneksel Kıbrıs lezzeti.',
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get('/llms.txt');
@@ -49,6 +50,7 @@ final class LlmsTxtTest extends TestCase
             'cook_minutes' => 50,
             'servings' => 6,
             'description' => 'Molehiya otu ve kuzu eti ile.',
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get('/llms-full.txt');
@@ -66,17 +68,20 @@ final class LlmsTxtTest extends TestCase
         $recipe = Recipe::query()->create([
             'cuisine_id' => $cuisine->id, 'title' => 'Turkce tarif', 'slug' => 'kibris-seftali-kebabi',
             'excerpt' => 'Turkce ozet', 'description' => 'Turkce aciklama',
-            'status' => 'published', 'verification_status' => 'verified', 'published_at' => now(),
+            'status' => 'published', 'verification_status' => 'verified', 'published_at' => now()->subMinute(),
         ]);
         foreach (['title' => 'Editor recipe title', 'excerpt' => 'Editor recipe summary', 'description' => 'Editor recipe description'] as $field => $value) {
             $recipe->translations()->create(['locale' => 'en', 'field' => $field, 'value' => $value]);
         }
 
+        // Korpus yalnız indekslenebilir yazıyı listeler (site haritasıyla aynı
+        // süzgeç): gövde eşiği ve olgu/özgünlük denetimi geçmiş olmalı.
         $post = BlogPost::query()->create([
-            'title' => 'Turkce rehber', 'slug' => 'editor-guide', 'excerpt' => 'Turkce ozet', 'body' => 'Turkce govde',
+            'title' => 'Turkce rehber', 'slug' => 'editor-guide', 'excerpt' => 'Turkce ozet', 'body' => str_repeat('Turkce govde. ', 200),
             'status' => 'published', 'published_at' => now()->subDay(),
+            'fact_check_status' => 'passed', 'originality_status' => 'passed',
         ]);
-        foreach (['title' => 'Editor guide title', 'excerpt' => 'Editor guide summary', 'body' => 'Editor guide body'] as $field => $value) {
+        foreach (['title' => 'Editor guide title', 'excerpt' => 'Editor guide summary', 'body' => str_repeat('Editor guide body. ', 120)] as $field => $value) {
             $post->translations()->create(['locale' => 'en', 'field' => $field, 'value' => $value]);
         }
 
