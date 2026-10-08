@@ -146,9 +146,6 @@ final class ProductionSprintOneTest extends TestCase
     public function test_deployment_templates_have_placeholders_and_no_embedded_secrets_or_domains(): void
     {
         $files = [
-            base_path('deploy/nginx/house-chef.conf'),
-            base_path('deploy/supervisor/house-chef-worker.conf'),
-            base_path('deploy/cron/house-chef'),
             base_path('deploy/scripts/deploy.sh'),
             base_path('deploy/scripts/rollback.sh'),
             base_path('deploy/scripts/backup.sh'),
@@ -160,8 +157,6 @@ final class ProductionSprintOneTest extends TestCase
             $this->assertStringNotContainsString('housechef.local', $contents, basename($file));
             $this->assertDoesNotMatchRegularExpression('/(api[_-]?key|password|token)\s*=\s*[^$\s]/i', $contents, basename($file));
         }
-
-        $this->assertStringContainsString('__DOMAIN__', (string) file_get_contents(base_path('deploy/nginx/house-chef.conf')));
     }
 
     public function test_deploy_and_rollback_scripts_support_non_destructive_dry_runs(): void

@@ -45,12 +45,46 @@ PHP
 run test -f "$TARGET_RELEASE/artisan"
 run test -f "$TARGET_RELEASE/public/index.php"
 
+# Siralama 24 Eylul olayindan: duman testi `up`tan once kosuyordu, 503 gorup
+# betigi kesiyordu ve site bakim modunda kaliyordu; onbellekler yeniden
+# kurulmuyor, lsphp yeniden baslatilmiyordu. Simdi: baglanti -> web koku ->
+# onbellek temizligi -> onbellek kurulumu -> up -> lsphp -> duman testi.
+# Arada bir adim hata verse bile trap siteyi bakimdan cikarir.
+MAINTENANCE_ENABLED=false
+on_exit() {
+    local status=$?
+    if [[ "$MAINTENANCE_ENABLED" == true ]]; then
+        printf '[hostinger-rollback] Leaving maintenance mode after rollback attempt (status %s).\n' "$status" >&2
+        "$PHP_BIN" "$CURRENT_LINK/artisan" up --no-interaction || true
+    fi
+    exit "$status"
+}
+trap on_exit EXIT
+
+restart_lsphp() {
+    if "$DRY_RUN"; then
+        printf '[dry-run] restart lsphp for uid %s\n' "$(id -u)"
+        return 0
+    fi
+    # LiteSpeed eski surumu opcache'te tutuyor; yeniden baslatilmadan geri
+    # alinan surum servis edilmez. Ilk istekte yeniden dogar.
+    pkill -u "$(id -u)" -f lsphp 2>/dev/null || true
+    sleep 3
+}
+
 if [[ -L "$CURRENT_LINK" && -f "$CURRENT_LINK/artisan" ]]; then
     run "$PHP_BIN" "$CURRENT_LINK/artisan" down --render=errors::503 --retry=60 --no-interaction
+    "$DRY_RUN" || MAINTENANCE_ENABLED=true
 fi
 run ln -sfn "$TARGET_RELEASE" "$CURRENT_LINK"
 sync_physical_web_root
 run "$PHP_BIN" "$CURRENT_LINK/artisan" optimize:clear
-run "$PHP_BIN" "$CURRENT_LINK/artisan" app:post-deploy-smoke --json
+run "$PHP_BIN" "$CURRENT_LINK/artisan" config:cache
+run "$PHP_BIN" "$CURRENT_LINK/artisan" route:cache
+run "$PHP_BIN" "$CURRENT_LINK/artisan" view:cache
+run "$PHP_BIN" "$CURRENT_LINK/artisan" event:cache
 run "$PHP_BIN" "$CURRENT_LINK/artisan" up --no-interaction
+MAINTENANCE_ENABLED=false
+restart_lsphp
+run "$PHP_BIN" "$CURRENT_LINK/artisan" app:post-deploy-smoke --json
 printf '[hostinger-rollback] Application files rolled back. Database migrations are forward-only and are not reverted.\n'

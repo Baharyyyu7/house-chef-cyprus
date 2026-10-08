@@ -27,6 +27,9 @@ return [
         'provider_status' => env('MONITORING_PROVIDER_ENABLED', false) ? 'configured' : 'connection_pending',
         'fake_metrics_allowed' => false,
     ],
+    // Ülke sayacı önbellekte birikir ve en fazla bu aralıkla tabloya yazılır
+    // (App\Services\Geo\AudienceCountryBuffer). 0: her isabet hemen yazılır.
+    'audience_flush_seconds' => (int) env('AUDIENCE_FLUSH_SECONDS', 60),
     'editorial' => [
         'auto_publish' => false,
         'human_approval_required' => true,

@@ -1,4 +1,5 @@
-@php($fallbackImage = asset(ltrim((string) config('media_excellence.blog_fallback_url'), '/')))
+@php($yedekKapak = app(\App\Services\Media\BlogFallbackCover::class))
+@php($fallbackImage = $yedekKapak->url())
 <x-layouts.site :title="$metadata['title']" :meta-description="$metadata['description']" :canonical-url="$metadata['canonical']" :robots="$metadata['robots']" :social-image="$heroMedia?->publicUrl() ? $heroMedia->responsiveUrl(1200) : $fallbackImage" :social-image-width="$heroMedia?->publicUrl() ? $heroMedia->width : 1600" :social-image-height="$heroMedia?->publicUrl() ? $heroMedia->height : 1200" :social-image-alt="$heroMedia?->alt_text ?: $post->translated('title')" :structured-data="$schema" :seo-content="$post">
     <section class="hc-container py-10 sm:py-16">
         <article class="mx-auto max-w-3xl" data-hc-okuma>
@@ -45,7 +46,11 @@
                 </figure>
             @else
                 <figure class="mt-8 overflow-hidden rounded-3xl shadow-sm">
-                    <img class="aspect-[16/9] w-full object-cover" src="{{ $fallbackImage }}" alt="" width="1600" height="1200" loading="lazy" aria-hidden="true">
+                    <picture>
+                        @if($yedekKapak->srcset('avif'))<source type="image/avif" srcset="{{ $yedekKapak->srcset('avif') }}" sizes="(min-width: 1024px) 1024px, 100vw">@endif
+                        @if($yedekKapak->srcset('webp'))<source type="image/webp" srcset="{{ $yedekKapak->srcset('webp') }}" sizes="(min-width: 1024px) 1024px, 100vw">@endif
+                        <img class="aspect-[16/9] w-full object-cover" src="{{ $fallbackImage }}" alt="" width="1600" height="1200" loading="lazy" aria-hidden="true">
+                    </picture>
                 </figure>
             @endif
 

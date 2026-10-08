@@ -17,9 +17,11 @@ aynı şekilde kırmızıya düştü ve her push'ta yanlış bir "CI başarısı
 sinyali üretti. Sürekli kırmızı duran bir kapı, gerçek bir kusuru da
 görünmez yapar.
 
-`Autonomous Growth Engine Heartbeat` de aynı sebeple hiç çalışmadı.
-Zamanlayıcı üretimde Hostinger Worker'ı üzerinden dakikada bir
-tetikleniyor, yani bu iş akışına bağlı değil.
+`Autonomous Growth Engine Heartbeat` (scheduler-ping.yml) de aynı sebeple
+hiç çalışmadı ve zamanlayıcı anahtarını açık metin taşıyordu; 8 Ekim
+2026'da silindi. Zamanlayıcı üretimde Cloudflare Worker üzerinden dakikada
+bir tetikleniyor. Anahtar git geçmişinde kaldığı için sunucuda ve Worker'da
+yenilenmeli.
 
 ## Gerçek kapı nerede?
 

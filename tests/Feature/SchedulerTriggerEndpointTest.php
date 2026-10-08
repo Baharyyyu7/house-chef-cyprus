@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Services\Scheduler\ConsoleCommandRegistrar;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
@@ -72,6 +73,10 @@ final class SchedulerTriggerEndpointTest extends TestCase
     public function test_the_scheduler_command_is_actually_invoked(): void
     {
         config()->set('app.scheduler_trigger_token', self::TOKEN);
+
+        // Komut kaydı ayrı bir sorumluluk (SchedulerTriggerRunsCustomCommandsTest);
+        // burada Artisan sahte olduğu için kaydedilecek bir şey yok.
+        $this->mock(ConsoleCommandRegistrar::class)->shouldReceive('ensureRegistered')->once()->andReturn([]);
 
         Artisan::shouldReceive('call')
             ->once()

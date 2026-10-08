@@ -32,6 +32,10 @@ final class RecipeController extends Controller
 {
     public function index(Request $request, RecipeSearchInterface $search, ZeroResultSearchService $zeroResults, SeoIndexabilityService $indexability, SeoSchemaService $schemaService)
     {
+        if ($request->routeIs('home')) {
+            return $this->home($request, $indexability, $schemaService);
+        }
+
         $filters = $request->only([
             'q', 'cuisine', 'category', 'difficulty', 'dietary_tag', 'exclude_allergens',
             'max_minutes', 'min_protein', 'max_calories', 'sort', 'page',
@@ -42,64 +46,92 @@ final class RecipeController extends Controller
             $zeroResults->record($request->string('q')->toString(), $recipes->total());
         }
 
-        $viewData = [
+        return view('recipes.index', [
             'recipes' => $recipes,
-            // Sayım ana sayfadaki mutfak kutularının içini dolduruyor: boş bir
-            // kutu yerine o mutfakta kaç yayında tarif olduğu görünür.
-            // Filtre açılır listesi aynı koleksiyonu kullanmaya devam eder.
-            'cuisines' => Cuisine::withCount(['recipes' => fn ($q) => $q
-                ->where('status', 'published')
-                ->where('verification_status', 'verified')
-                ->translatedInto()])
-                ->orderBy('name')
-                ->get()
-                ->filter(fn (Cuisine $cuisine): bool => (int) $cuisine->recipes_count >= 10)
-                ->values(),
+            'cuisines' => $this->mutfaklar(),
+            'categories' => Category::orderBy('name')->get(),
+            'dietaryTags' => DietaryTag::orderBy('name')->get(),
+            'allergens' => Allergen::orderBy('name')->get(),
+            'seoIndexability' => $indexability->forRequest($request, route('recipes.index')),
+        ]);
+    }
+
+    /**
+     * Ana sayfa.
+     *
+     * Eskiden arşivle aynı yoldan geçiyordu: ana sayfanın hiç göstermediği
+     * arama sonucu, kategori, diyet etiketi ve alerjen listeleri her ziyarette
+     * sorgulanıyor, yalnız sayısı ve ilk dört görselli tarifi gereken bütün
+     * yayın kataloğu (ilişkileri ve medyasıyla) belleğe alınıyordu.
+     */
+    private function home(Request $request, SeoIndexabilityService $indexability, SeoSchemaService $schemaService)
+    {
+        $locale = app()->getLocale();
+
+        // Çevirisi olmayan tarif o dilin sitesinde yoktur; listede
+        // görünseydi /en/ altında Türkçe başlıklar çıkardı.
+        $yayinda = fn () => Recipe::query()
+            ->where('status', 'published')
+            ->where('verification_status', 'verified')
+            ->translatedInto();
+
+        // Never cache approval decisions: a revoked image leaves the showcase immediately.
+        // Bu yüzden vitrin önbelleğe alınmaz; yalnız gerektiği kadar tarif
+        // parça parça okunur.
+        $mediaEligibility = app(PublicMediaEligibilityService::class);
+        $highlights = $yayinda()
+            ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'verification_status', 'published_at'])
+            ->with(['cuisine:id,public_id,name,slug', 'category:id,public_id,name,slug', 'media' => fn ($query) => $query->where('visibility', 'public'), 'dietaryTags:id,code,name'])
+            ->orderByDesc('published_at')
+            ->orderByDesc('id')
+            ->lazy(24)
+            ->filter(fn (Recipe $recipe): bool => $mediaEligibility->firstEligible($recipe->media) !== null)
+            ->take(4)
+            ->collect();
+
+        return view('recipes.index', [
+            'cuisines' => $this->mutfaklar(),
             // Anasayfadaki mutfak seckisi, /mutfaklar sayfasindaki kartla
             // ayni gorunmeli: ayni icerik iki sayfada farkli gorunuyordu.
             'mutfakKapaklari' => app(HubCoverPicker::class)
                 ->sutunaGore('cuisine_id', Cuisine::query()->pluck('id')->all()),
-            'categories' => Category::orderBy('name')->get(),
-            'dietaryTags' => DietaryTag::orderBy('name')->get(),
-            'allergens' => Allergen::orderBy('name')->get(),
-            'seoIndexability' => $indexability->forRequest($request, $request->routeIs('home') ? route('home') : route('recipes.index')),
-        ];
-
-        if ($request->routeIs('home')) {
-            // Çevirisi olmayan tarif o dilin sitesinde yoktur; listede
-            // görünseydi /en/ altında Türkçe başlıklar çıkardı.
-            $catalogue = Recipe::query()
-                ->where('status', 'published')
-                ->where('verification_status', 'verified')
-                ->translatedInto()
-                ->select(['id', 'public_id', 'cuisine_id', 'category_id', 'title', 'slug', 'excerpt', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'status', 'verification_status'])
-                ->with(['cuisine:id,public_id,name,slug', 'category:id,public_id,name,slug', 'media' => fn ($query) => $query->where('visibility', 'public'), 'dietaryTags:id,code,name'])
-                ->orderByDesc('published_at')
-                ->get();
-
+            'seoIndexability' => $indexability->forRequest($request, route('home')),
             // Hero alt metnindeki sayı. Eskiden "1.000'den fazla" sabit yazıyordu,
             // yayında 534 tarif varken; o dilde gerçekten görünen sayı basılır.
-            $viewData['homeRecipeCount'] = $catalogue->count();
-            // Never cache approval decisions: a revoked image leaves the showcase immediately.
-            $mediaEligibility = app(PublicMediaEligibilityService::class);
-            $viewData['homeHighlights'] = $catalogue->lazy()->filter(fn (Recipe $recipe): bool => $mediaEligibility->firstEligible($recipe->media) !== null)->take(4)->collect();
-            $viewData['homeIngredients'] = cache()->remember('home-ingredients-v3:'.app()->getLocale(), now()->addMinutes(5), fn () => Ingredient::dileGoreSirala(Ingredient::query()->yayindaKullanilan()->get(['id', 'public_id', 'name']))
-                ->map(fn (Ingredient $malzeme): array => ['public_id' => $malzeme->public_id, 'name' => $malzeme->name])->all());
+            'homeRecipeCount' => cache()->remember('home-recipe-count-v1:'.$locale, now()->addMinutes(5), fn (): int => $yayinda()->count()),
+            'homeHighlights' => $highlights,
+            'homeIngredients' => cache()->remember('home-ingredients-v3:'.$locale, now()->addMinutes(5), fn () => Ingredient::dileGoreSirala(Ingredient::query()->yayindaKullanilan()->get(['id', 'public_id', 'name']))
+                ->map(fn (Ingredient $malzeme): array => ['public_id' => $malzeme->public_id, 'name' => $malzeme->name])->all()),
             // Hero'daki eşleştirme gösterisi. Temiz senaryo çıkmayan dilde
             // boş döner ve panel hiç basılmaz.
-            $viewData['homeMatchShowcase'] = cache()->remember('home-match-showcase-v1:'.app()->getLocale(), now()->addMinutes(30), fn () => app(\App\Services\HomeMatchShowcaseService::class)->senaryolar(3));
+            'homeMatchShowcase' => cache()->remember('home-match-showcase-v1:'.$locale, now()->addMinutes(30), fn () => app(\App\Services\HomeMatchShowcaseService::class)->senaryolar(3)),
             // Anasayfa daha önce WebSite şemasız basılıyordu: webSite()
             // tanımlıydı ama hiçbir çağrısı yoktu. Google site adı + site
             // içi arama kutusu zengin sonucunu yalnız bu şema açar.
-            $viewData['homeSchema'] = $schemaService->webSite();
+            'homeSchema' => $schemaService->webSite(),
             // Blog-hub şeridi: anasayfadan bloga giden tek bağlantı üyelik
             // kartındaki metin linkti. Son 3 yayında yazı, hub desteğini
             // kapatır ve Kıbrıs rehber içeriklerini yüzeye taşır.
-            $viewData['homeBlogPosts'] = BlogPost::query()->publiclyVisible()->translatedInto()->with(['category', 'heroMedia', 'media'])->latest('published_at')->take(3)->get();
+            'homeBlogPosts' => BlogPost::query()->publiclyVisible()->translatedInto()->with(['category', 'heroMedia', 'media'])->latest('published_at')->take(3)->get(),
+        ]);
+    }
 
-        }
-
-        return view('recipes.index', $viewData);
+    /**
+     * Sayım ana sayfadaki mutfak kutularının içini dolduruyor: boş bir kutu
+     * yerine o mutfakta kaç yayında tarif olduğu görünür. Filtre açılır
+     * listesi aynı koleksiyonu kullanmaya devam eder. Sayım dil başına beş
+     * dakika önbellekte: her ziyarette mutfak başına alt sorgu koşuyordu.
+     */
+    private function mutfaklar()
+    {
+        return cache()->remember('recipe-index-cuisines-v1:'.app()->getLocale(), now()->addMinutes(5), fn () => Cuisine::withCount(['recipes' => fn ($q) => $q
+            ->where('status', 'published')
+            ->where('verification_status', 'verified')
+            ->translatedInto()])
+            ->orderBy('name')
+            ->get()
+            ->filter(fn (Cuisine $cuisine): bool => (int) $cuisine->recipes_count >= 10)
+            ->values());
     }
 
     public function show(Request $request, Recipe $recipe, NutritionService $nutrition, IngredientMatchingService $matching, AllergenAnalysisService $allergens, DietaryCompatibilityService $dietary, RecipeIngredientDisplayService $ingredientDisplay, PublicMediaEligibilityService $mediaEligibility, SeoMetadataService $seo, SeoSchemaService $schemaService, InternalLinkService $internalLinks)
