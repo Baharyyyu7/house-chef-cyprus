@@ -31,6 +31,17 @@ return Application::configure(basePath: dirname(__DIR__))
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias(['site-feature' => \App\Http\Middleware\EnsureSiteFeatureEnabled::class]);
+        // Tarayıcıdaki oturumla çağrılan API uçları (kişiselleştirme, WebMCP
+        // save_recipe). api grubunda oturum yok: 'auth' oturum çerezini hiç
+        // okuyamıyor, giriş yapmış üye bile hep 401 alıyordu. Oturum açılınca
+        // CSRF de zorunlu olur; sayfa betikleri X-CSRF-TOKEN gönderiyor.
+        $middleware->group('browser-session', [
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class,
+            LogoutSuspendedUser::class,
+        ]);
         // These preferences are intentionally written by browser-side JavaScript so a
         // tag is loaded only after a visitor has opted in. They contain no account or
         // session data and must therefore remain readable by Laravel.
