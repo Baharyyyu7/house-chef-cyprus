@@ -845,7 +845,7 @@
     "collection.sure.hub_description": "Receitas verificadas para o tempo que tem.",
     "collection.zorluk.hub_title": "Receitas por dificuldade",
     "collection.zorluk.hub_description": "Receitas verificadas para o seu nível de experiência na cozinha.",
-    "collection.show_body": ":count receitas verificadas, com medidas, tempos e valores nutricionais.",
+    "collection.show_body": ":count receitas verificadas, com medidas e tempos.",
     "allergen.gluten": "Glúten",
     "allergen.crustaceans": "Crustáceos",
     "allergen.egg": "Ovo",

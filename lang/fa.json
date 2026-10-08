@@ -845,7 +845,7 @@
     "collection.sure.hub_description": "دستورهای تأییدشده متناسب با زمانی که دارید.",
     "collection.zorluk.hub_title": "دستور پخت بر اساس دشواری",
     "collection.zorluk.hub_description": "دستورهای تأییدشده متناسب با تجربه آشپزی شما.",
-    "collection.show_body": ":count دستور پخت تأییدشده با مقادیر، زمان‌ها و ارزش غذایی.",
+    "collection.show_body": ":count دستور پخت تأییدشده با مقادیر و زمان‌ها.",
     "allergen.gluten": "گلوتن",
     "allergen.crustaceans": "سخت‌پوستان",
     "allergen.egg": "تخم‌مرغ",

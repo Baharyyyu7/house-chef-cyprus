@@ -845,7 +845,7 @@
     "collection.sure.hub_description": "Sprawdzone przepisy na tyle czasu, ile masz.",
     "collection.zorluk.hub_title": "Przepisy według trudności",
     "collection.zorluk.hub_description": "Sprawdzone przepisy dopasowane do twojego doświadczenia w kuchni.",
-    "collection.show_body": ":count sprawdzonych przepisów z miarami, czasami i wartościami odżywczymi.",
+    "collection.show_body": ":count sprawdzonych przepisów z miarami i czasami.",
     "allergen.gluten": "Gluten",
     "allergen.crustaceans": "Skorupiaki",
     "allergen.egg": "Jaja",

@@ -32,11 +32,15 @@
         @else
             {{-- Ortak kapak 1600 px PNG; varyantlar üretildiyse kart kendi
                  genişliğine uygun AVIF/WebP'yi alır (bkz. BlogFallbackCover). --}}
-            <picture>
-                @if($yedekKapak->srcset('avif'))<source type="image/avif" srcset="{{ $yedekKapak->srcset('avif') }}" sizes="(min-width: 768px) 400px, 100vw">@endif
-                @if($yedekKapak->srcset('webp'))<source type="image/webp" srcset="{{ $yedekKapak->srcset('webp') }}" sizes="(min-width: 768px) 400px, 100vw">@endif
+            @if($yedekKapak->srcset('avif') || $yedekKapak->srcset('webp'))
+                <picture>
+                    @if($yedekKapak->srcset('avif'))<source type="image/avif" srcset="{{ $yedekKapak->srcset('avif') }}" sizes="(min-width: 768px) 400px, 100vw">@endif
+                    @if($yedekKapak->srcset('webp'))<source type="image/webp" srcset="{{ $yedekKapak->srcset('webp') }}" sizes="(min-width: 768px) 400px, 100vw">@endif
+                    <img class="h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none" src="{{ $fallbackImage }}" alt="" width="1600" height="1200" loading="lazy" aria-hidden="true">
+                </picture>
+            @else
                 <img class="h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none" src="{{ $fallbackImage }}" alt="" width="1600" height="1200" loading="lazy" aria-hidden="true">
-            </picture>
+            @endif
             <span class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent"></span>
         @endif
         <span class="absolute left-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">{{ $kategori }}</span>

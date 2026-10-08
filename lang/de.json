@@ -845,7 +845,7 @@
     "collection.sure.hub_description": "Geprüfte Rezepte für die Zeit, die Sie haben.",
     "collection.zorluk.hub_title": "Rezepte nach Schwierigkeit",
     "collection.zorluk.hub_description": "Geprüfte Rezepte passend zu Ihrer Küchenerfahrung.",
-    "collection.show_body": ":count geprüfte Rezepte mit Mengen, Zeiten und Nährwerten.",
+    "collection.show_body": ":count geprüfte Rezepte mit Mengen und Zeiten.",
     "allergen.gluten": "Gluten",
     "allergen.crustaceans": "Krebstiere",
     "allergen.egg": "Ei",

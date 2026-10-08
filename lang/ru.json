@@ -845,7 +845,7 @@
     "collection.sure.hub_description": "Проверенные рецепты под то время, которое у вас есть.",
     "collection.zorluk.hub_title": "Рецепты по сложности",
     "collection.zorluk.hub_description": "Проверенные рецепты под ваш кулинарный опыт.",
-    "collection.show_body": "Проверенных рецептов: :count. Указаны количества, время и пищевая ценность.",
+    "collection.show_body": "Проверенных рецептов: :count. Указаны количества и время.",
     "allergen.gluten": "Глютен",
     "allergen.crustaceans": "Ракообразные",
     "allergen.egg": "Яйца",

@@ -808,7 +808,7 @@
     "collection.sure.hub_description": "Elinizdeki zamana göre doğrulanmış tarifler.",
     "collection.zorluk.hub_title": "Zorluğa göre tarifler",
     "collection.zorluk.hub_description": "Mutfaktaki deneyiminize göre doğrulanmış tarifler.",
-    "collection.show_body": ":count doğrulanmış tarif: ölçüler, süreler ve besin değerleri görünür.",
+    "collection.show_body": ":count doğrulanmış tarif: ölçüler ve süreler yazar.",
     "allergen.gluten": "Gluten",
     "allergen.crustaceans": "Kabuklu deniz ürünleri",
     "allergen.egg": "Yumurta",

@@ -913,7 +913,7 @@
     "collection.sure.hub_description": "Verified recipes for the time you have.",
     "collection.zorluk.hub_title": "Recipes by difficulty",
     "collection.zorluk.hub_description": "Verified recipes for your level of kitchen experience.",
-    "collection.show_body": ":count verified recipes, with measurements, times and nutritional values.",
+    "collection.show_body": ":count verified recipes, with measurements and times.",
     "allergen.gluten": "Gluten",
     "allergen.crustaceans": "Crustaceans",
     "allergen.egg": "Egg",
