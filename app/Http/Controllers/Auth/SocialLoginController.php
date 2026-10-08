@@ -76,13 +76,30 @@ final class SocialLoginController extends Controller
                     return $epostaSahibi;
                 }
 
+                // E-postası hiç doğrulanmamış hesap, adresin sahibi tarafından
+                // açılmamış olabilir: biri kurbanın adresiyle önceden kayıt
+                // olup parolasını bekletir (pre-hijack). Sağlayıcı adresi şimdi
+                // kanıtladığı için hesap gerçek sahibine geçer; o ana kadar
+                // açılmış parola, hatırla jetonu ve oturumlar geçersiz kılınır.
+                $dogrulanmamisti = $epostaSahibi->email_verified_at === null;
+
                 // Aynı e-postayla daha önce parolayla kaydolmuş biri: hesabı
                 // bölmek yerine sağlayıcı kimliği mevcut hesaba bağlanır.
                 $epostaSahibi->forceFill([
                     'social_provider' => $provider,
                     'social_id' => (string) $hesap->getId(),
                     'email_verified_at' => $epostaSahibi->email_verified_at ?? now(),
-                ])->save();
+                ]);
+
+                if ($dogrulanmamisti) {
+                    $epostaSahibi->forceFill([
+                        'password' => Str::random(64),
+                        'remember_token' => Str::random(60),
+                    ]);
+                    DB::table('sessions')->where('user_id', $epostaSahibi->id)->delete();
+                }
+
+                $epostaSahibi->save();
 
                 return $epostaSahibi;
             }
