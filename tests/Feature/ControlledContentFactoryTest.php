@@ -113,7 +113,5 @@ final class ControlledContentFactoryTest extends TestCase
         $this->assertTrue(config('content_factory.require_human_approval'));
         $this->assertSame(25, config('content_factory.max_recipe_drafts_per_day'));
         $this->assertSame(10, config('content_factory.max_blog_drafts_per_day'));
-        $cron = (string) file_get_contents(base_path('deploy/cron/content-factory-shared-hosting'));
-        $this->assertStringContainsString('queue:work database --stop-when-empty --tries=2 --timeout=90 --memory=128', $cron);
     }
 }

@@ -48,3 +48,7 @@ tmp-extract/
 
 # Hero videosu ayrı teslim edilir; depoya ikili dosya girmez.
 /public/videos/
+
+# Yerel Claude Code izinleri kişiye özel; depoda durunca her ajanın
+# ayarı birbirini eziyordu.
+.claude/settings.local.json

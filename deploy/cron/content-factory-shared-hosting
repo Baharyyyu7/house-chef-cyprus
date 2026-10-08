@@ -1,4 +1,0 @@
-# Replace __APP_ROOT__ and configure via the hosting control panel.
-# Scheduler has its own overlap locks; this drains only a small database queue.
-* * * * * __APP_ROOT__/artisan schedule:run --no-interaction >/dev/null 2>&1
-*/5 * * * * __APP_ROOT__/artisan queue:work database --stop-when-empty --tries=2 --timeout=90 --memory=128 --no-interaction >/dev/null 2>&1

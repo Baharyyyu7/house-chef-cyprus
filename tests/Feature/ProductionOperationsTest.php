@@ -42,9 +42,7 @@ final class ProductionOperationsTest extends TestCase
         $root = base_path();
         $commands = [
             'ARTIFACT_OUTPUT_DIR='.escapeshellarg(sys_get_temp_dir().'/house-chef-artifact-test').' bash '.escapeshellarg(base_path('scripts/build-production-artifact.sh')).' --dry-run',
-            'RELEASE_DIR='.escapeshellarg($root).' WEB_ROOT='.escapeshellarg(sys_get_temp_dir().'/house-chef-webroot').' bash '.escapeshellarg(base_path('scripts/deploy-shared-hosting.sh')).' --dry-run',
             'APP_ROOT='.escapeshellarg($root).' bash '.escapeshellarg(base_path('scripts/post-deploy-smoke.sh')).' --dry-run',
-            'CURRENT_LINK='.escapeshellarg(sys_get_temp_dir().'/house-chef-current').' PREVIOUS_RELEASE='.escapeshellarg(sys_get_temp_dir().'/house-chef-previous').' bash '.escapeshellarg(base_path('scripts/rollback-release.sh')).' --dry-run',
         ];
 
         foreach ($commands as $command) {

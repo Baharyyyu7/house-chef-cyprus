@@ -43,4 +43,4 @@ server {
 Cloudflare kullanılıyorsa yalnız Cloudflare'ın güncel IP aralıklarını Nginx `real_ip` güvenilir proxy listesine ekleyin; rastgele `X-Forwarded-*` header'larını güvenilir kabul etmeyin. TLS doğrulaması ve HTTP→HTTPS yönlendirmesi tamamlanmadan `APP_URL` değiştirilmez.
 # Sprint 1 şablonu
 
-Kullanılacak başlangıç virtual host'u [deploy/nginx/house-chef.conf](../deploy/nginx/house-chef.conf) dosyasıdır. TLS certificate satırları, domain ve uygulama yolu bilerek placeholder'dır; Cloudflare arkasında Full (strict) ve origin TLS doğrulanmadan proxy açılmamalıdır.
+Kullanılacak başlangıç virtual host'u eskiden `deploy/nginx/house-chef.conf` dosyasıydı; site Hostinger paylaşımlı barındırmada (LiteSpeed) çalıştığı için 8 Ekim 2026'da depodan kaldırıldı, gerekirse git geçmişinden alınır. TLS certificate satırları, domain ve uygulama yolu bilerek placeholder'dır; Cloudflare arkasında Full (strict) ve origin TLS doğrulanmadan proxy açılmamalıdır.
