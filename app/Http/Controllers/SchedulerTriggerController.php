@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Services\Queue\BoundedQueueDrainer;
+use App\Services\Scheduler\ConsoleCommandRegistrar;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
@@ -49,6 +50,11 @@ final class SchedulerTriggerController extends Controller
         }
 
         try {
+            // Zamanlanmış görevlerin çoğu Artisan::call ile koşuyor; bu
+            // bağlamda komutlar kayıtlı değilse hepsi sessizce düşer.
+            // Ayrıntı: ConsoleCommandRegistrar.
+            app(ConsoleCommandRegistrar::class)->ensureRegistered();
+
             Artisan::call('schedule:run', ['--no-interaction' => true]);
 
             // Kuyruk ayrıca ve doğrudan boşaltılıyor.
