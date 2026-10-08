@@ -65,6 +65,7 @@ return [
     'recommendations' => 'Personalisierte Empfehlungen',
     'recommendations_benefit' => 'Rezepte, die genau zu Ihren Ernährungsvorlieben passen.',
     'first_name' => 'Vorname',
+    'your_name' => 'Ihr Name',
     'last_name' => 'Nachname',
     'optional_contact' => 'Optionale Kontakt- und Standortangaben',
     'optional_intro' => 'Diese Daten werden nur gespeichert, wenn Sie sie angeben, um regionale Präferenzen zu unterstützen.',

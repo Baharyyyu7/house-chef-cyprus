@@ -65,6 +65,7 @@ return [
     'recommendations' => 'Personalized suggestions',
     'recommendations_benefit' => 'Recipes that match your dietary and allergen preferences.',
     'first_name' => 'First name',
+    'your_name' => 'Your name',
     'last_name' => 'Last name',
     'optional_contact' => 'Optional contact and location details',
     'optional_intro' => 'These details are stored only when you provide them, to support your account and regional preferences. We do not infer your location from your IP address.',

@@ -55,7 +55,9 @@ new #[Layout('layouts.guest')] class extends Component
 
         $validated = $this->validate([
             'first_name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\pM][\pL\pM\s.\'’-]*$/u'],
-            'last_name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\pM][\pL\pM\s.\'’-]*$/u'],
+            // Soyad, telefon, ülke ve şehir formda yok (dokuz alanlık form
+            // kayıt yarıda bırakılıyordu); arka uçta isteğe bağlı kalır.
+            'last_name' => ['nullable', 'string', 'min:2', 'max:100', 'regex:/^[\pL\pM][\pL\pM\s.\'’-]*$/u'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'phone' => ['nullable', 'string', 'max:32', 'regex:/^\+?[0-9\s().-]{7,32}$/'],
             'country' => ['nullable', 'string', 'max:120', 'not_regex:/[<>]/'],
@@ -65,9 +67,9 @@ new #[Layout('layouts.guest')] class extends Component
         ]);
 
         $user = DB::transaction(fn (): User => User::create([
-            'name' => $validated['first_name'].' '.$validated['last_name'],
+            'name' => trim($validated['first_name'].' '.($validated['last_name'] ?? '')),
             'first_name' => $validated['first_name'],
-            'last_name' => $validated['last_name'],
+            'last_name' => ($validated['last_name'] ?? '') !== '' ? $validated['last_name'] : null,
             'email' => $validated['email'],
             'phone' => $validated['phone'] ?: null,
             'country' => $validated['country'] ?: null,
@@ -132,17 +134,12 @@ new #[Layout('layouts.guest')] class extends Component
     <x-social-login :divider-after="true" class="mt-6" />
 
     <form wire:submit="register" class="mt-6" x-data="{ passwordVisible: false, confirmationVisible: false }" toolname="create_account" tooldescription="Create a new personal HouseChef Cyprus account">
-        <div class="grid gap-4 sm:grid-cols-2">
-            <div>
-                <x-input-label for="first_name" :value="__('ux.first_name')" />
-                <x-text-input wire:model="first_name" id="first_name" class="block mt-1 w-full" type="text" name="first_name" required autofocus autocomplete="given-name" />
-                <x-input-error :messages="$errors->get('first_name')" class="mt-2" />
-            </div>
-            <div>
-                <x-input-label for="last_name" :value="__('ux.last_name')" />
-                <x-text-input wire:model="last_name" id="last_name" class="block mt-1 w-full" type="text" name="last_name" required autocomplete="family-name" />
-                <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
-            </div>
+        {{-- Dört alan ve onay: ad, e-posta, şifre (+tekrar). Soyad, telefon,
+             ülke ve şehir 2026-10'da formdan çıktı. --}}
+        <div>
+            <x-input-label for="first_name" :value="__('ux.your_name')" />
+            <x-text-input wire:model="first_name" id="first_name" class="block mt-1 w-full" type="text" name="first_name" required autofocus autocomplete="name" />
+            <x-input-error :messages="$errors->get('first_name')" class="mt-2" />
         </div>
 
         <!-- Email Address -->
@@ -152,27 +149,6 @@ new #[Layout('layouts.guest')] class extends Component
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <details class="mt-4 rounded-xl border border-forest-100 p-4 dark:border-forest-700">
-            <summary class="cursor-pointer text-sm font-semibold text-forest-900 dark:text-forest-50">{{ __('ux.optional_contact') }}</summary>
-            <p class="mt-2 text-xs leading-5 text-muted">{{ __('ux.optional_intro') }}</p>
-            <div class="mt-4 grid gap-4 sm:grid-cols-2">
-                <div class="sm:col-span-2">
-                    <x-input-label for="phone" :value="__('ux.phone')" />
-                    <x-text-input wire:model="phone" id="phone" class="block mt-1 w-full" type="tel" name="phone" autocomplete="tel" />
-                    <x-input-error :messages="$errors->get('phone')" class="mt-2" />
-                </div>
-                <div>
-                    <x-input-label for="country" :value="__('ux.country')" />
-                    <x-text-input wire:model="country" id="country" class="block mt-1 w-full" type="text" name="country" autocomplete="country-name" />
-                    <x-input-error :messages="$errors->get('country')" class="mt-2" />
-                </div>
-                <div>
-                    <x-input-label for="city_or_region" :value="__('ux.city')" />
-                    <x-text-input wire:model="city_or_region" id="city_or_region" class="block mt-1 w-full" type="text" name="city_or_region" autocomplete="address-level2" />
-                    <x-input-error :messages="$errors->get('city_or_region')" class="mt-2" />
-                </div>
-            </div>
-        </details>
 
         <!-- Password -->
         <div class="mt-4">
