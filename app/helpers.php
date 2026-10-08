@@ -39,6 +39,11 @@ if (! function_exists('localized_route')) {
             return $route;
         }
 
+        // O dilde olmayan sayfaya önekli bağlantı 301 ile Türkçeye dönüyordu.
+        if (! app(\App\Services\Seo\LocalePageAvailability::class)->varMi($locale, $route)) {
+            return $route;
+        }
+
         $localeUrlService = app(LocaleUrlService::class);
 
         return $localeUrlService->urlFor($locale, $route);

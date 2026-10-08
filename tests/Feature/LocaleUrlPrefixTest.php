@@ -37,6 +37,17 @@ final class LocaleUrlPrefixTest extends TestCase
         $this->get('/en/recipes')->assertOk();
     }
 
+    public function test_links_to_pages_missing_in_a_locale_point_to_turkish_directly(): void
+    {
+        // 8 Ekim canlı doğrulama: /en/recipes menüsü /en/haftalik-menu'ya
+        // bağlanıyordu; o sayfa İngilizcede yok, her tıklama 301 atlıyordu.
+        config()->set('locales.supported.en.enabled', true);
+
+        $this->get('/en/recipes')->assertOk()
+            ->assertDontSee('/en/haftalik-menu', false)
+            ->assertSee(route('weekly-menu.index'), false);
+    }
+
     public function test_the_url_prefix_wins_over_the_cookie(): void
     {
         // Çerez içeriği belirleseydi aynı adres farklı ziyaretçilere farklı
