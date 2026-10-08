@@ -208,13 +208,15 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [ ] 33 referanssız komut: bilinçli olarak dokunulmadı (elle çalıştırılan araçlar; düşük fayda)
 
 ## Entegrasyon
-- [ ] 4 ajan dalını merge et, çakışmaları çöz
-- [ ] Tam paket yeşil (php vendor/bin/phpunit)
-- [ ] origin/visual-redesign-v2 ff push, release, lsphp, canlı doğrulama
+- [x] 4 ajan dalı merge (2847de9); ilk release /tarifler 500 ile otomatik geri alındı (önbellek nesne açmıyor), 92c6fc3'te düzeldi
+- [x] Tam paket 1817/1817 yeşil, phpstan 0
+- [x] Canlı 5281bfe: /health commit, CSS manifest eşit, /index.php 301, /en iç linkler 44/44 200, çerez bandında ham anahtar yok, porsiyon/alerjen var
 
-## Üretim verisi (deploy sonrası)
-- [ ] blog:kusurlulari-yayindan-al --kusurlu --slug=<16 ünlü> --apply
-- [ ] blog:html-govde-cevir --apply
-- [ ] İkiz 301'leri (kolokoti-8w914, flaouna-q4hmp, patlican-kozlemesi-cdw76, 4 blog çifti)
-- [ ] SCHEDULER_TRIGGER_TOKEN döndür (sunucu + Worker)
-- [ ] seo:recipe-quality-scan --apply
+## Üretim verisi (8 Eki, yapıldı)
+- [x] 41 yazı taslağa (25 şablon + 16 ünlü), yedek shared/storage/app/private/yedek/
+- [x] 66 HTML gövde Markdown'a (metin kaybı yok, oran >=1.01)
+- [x] 7 ikiz birleşti, 301'ler canlıda doğrulandı
+- [x] seo:recipe-quality-scan --apply (3 tarif noindex), media:blog-fallback-variants (6), cache:clear
+- [x] GitHub varsayılan dal visual-redesign-v2, PR 33 kapandı, dependabot target-branch
+- [ ] SCHEDULER_TRIGGER_TOKEN döndürülemedi: wrangler askinasli26 hesabında, gerçek Worker başka hesapta. Sunucu .env geri alındı, zamanlayıcı eski token'la çalışıyor. O hesapta yanlışlıkla boş hc-zamanlayici Worker'ı oluştu (kod/cron yok) - silinmeli.
+- [ ] app:invariants kapali_sayfaya_ceviri_isi (213): noindex içerik için açık çeviri işleri (yalnız iş listesi kirliliği)
