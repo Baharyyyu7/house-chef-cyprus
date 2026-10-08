@@ -15,13 +15,21 @@
         {{-- Öne çıkanlar karusel olarak; altında tam liste duruyor. Karusel
              aynı anda beş kart gösteriyor, 27 yazının hepsini ona bırakmak
              geri kalanını gömerdi ve blog listesi bir SEO sayfası. --}}
+        {{-- Karuseldeki yazılar ızgarada ikinci kez basılmıyordu değil:
+             ilk sayfada sekiz yazı iki kez görünüyordu. Karusel yalnız ilk
+             sayfada ve aramasız açılır; ızgara onun göstermediklerini dizer,
+             hiçbir yazı listeden düşmez. --}}
+        @php($karusel = $posts->onFirstPage() && ! request()->filled('q') && $posts->count() > 6 ? $posts->take(6) : collect())
+        @php($izgara = $posts->getCollection()->slice($karusel->count())->values())
+        @if($karusel->isNotEmpty())
         <div class="mt-10">
-            <x-blog-carousel :posts="$posts->take(8)" />
+            <x-blog-carousel :posts="$karusel" :heading="__('blog.index.featured')" />
         </div>
+        @endif
 
-        <h2 class="hc-heading-3 mt-14">{{ __('blog.index.all_posts') }}</h2>
+        <h2 class="hc-heading-3 mt-14">{{ $karusel->isNotEmpty() ? __('blog.index.more_posts') : __('blog.index.all_posts') }}</h2>
         <div class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3" data-reveal-group>
-            @forelse($posts as $post)
+            @forelse($izgara as $post)
                 <x-blog-card :post="$post" data-reveal />
 
                 {{-- Feed reklamı akışın içinde durur; kenar çubuğuna konursa

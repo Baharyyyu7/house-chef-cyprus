@@ -55,10 +55,14 @@ final class RecipeMediaTruthfulnessPresentationTest extends TestCase
         $media = $post->media()->create($this->approvedSyntheticMedia('blog_synthetic', 'media/test/blog.jpg', 'Test illüstrasyonu'));
         $post->update(['hero_media_id' => $media->id]);
 
-        $this->get(route('recipes.show', $recipe))
+        // Beyan tek ve küçük: hero altındaki satır. Güvence kutusu aynı
+        // cümleyi ikinci kez söylüyordu (2026-10 denetimi).
+        $tarifSayfasi = (string) $this->get(route('recipes.show', $recipe))
             ->assertOk()
             ->assertSee('Yapay zekâ ile üretilmiş, editoryal olarak onaylanmış görsel.')
-            ->assertSee('gerçek fotoğraf olarak sunulmaz');
+            ->assertDontSee('gerçek fotoğraf olarak sunulmaz')
+            ->getContent();
+        $this->assertSame(1, mb_substr_count($tarifSayfasi, 'Yapay zekâ ile üretilmiş'));
 
         // Uyarı eskiden yalnız listedeydi; liste görselsiz olunca uyarı da
         // yok olmuştu. Görsel artık detayda duruyor, uyarı da orada.

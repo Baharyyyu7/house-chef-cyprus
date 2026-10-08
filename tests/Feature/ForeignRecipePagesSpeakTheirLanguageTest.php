@@ -29,7 +29,7 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
         $bicim = app(HouseholdMeasurementFormatter::class);
 
         $this->assertSame('yemek kaşığı', $bicim->measureLabel($this->birim('yemek_kasigi'), '3'));
-        $this->assertSame('Yarım', $bicim->quantity('0.5', $this->birim('su_bardagi')));
+        $this->assertSame('½', $bicim->quantity('0.5', $this->birim('su_bardagi')));
         $this->assertSame('rendelenmiş', $bicim->hazirlik('rendelenmiş'));
     }
 
@@ -40,9 +40,10 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
         app()->setLocale('en');
         $this->assertSame('tbsp', $bicim->measureLabel($this->birim('yemek_kasigi'), '3'));
         $this->assertSame('', $bicim->measureLabel($this->birim('adet'), '4'));
-        $this->assertSame('glass', $bicim->measureLabel($this->birim('su_bardagi'), '0.5'));
-        $this->assertSame('glasses', $bicim->measureLabel($this->birim('su_bardagi'), '1.5'));
-        $this->assertSame('1 ½', $bicim->quantity('1.5', $this->birim('su_bardagi')));
+        // "glass" İngilizce mutfakta ölçü değil; su bardağı 200 ml'lik cup.
+        $this->assertSame('cup (200 ml)', $bicim->measureLabel($this->birim('su_bardagi'), '0.5'));
+        $this->assertSame('cups (200 ml)', $bicim->measureLabel($this->birim('su_bardagi'), '1.5'));
+        $this->assertSame('1½', $bicim->quantity('1.5', $this->birim('su_bardagi')));
         $this->assertSame('1.25', $bicim->quantity('1.25'));
         $this->assertSame('grated', $bicim->hazirlik('Rendelenmiş'));
 

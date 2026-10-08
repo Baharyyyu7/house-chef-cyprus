@@ -40,6 +40,38 @@ class RegistrationTest extends TestCase
         $this->assertTrue(Hash::check('StrongPass123!', User::query()->where('email', 'test@example.com')->value('password')));
     }
 
+    public function test_form_yalniz_ad_eposta_sifre_ve_onay_ister(): void
+    {
+        // Dokuz alanlık form 2026-10'da dörde indi: soyad, telefon, ülke ve
+        // şehir formdan çıktı, arka uçta isteğe bağlı kaldı.
+        $icerik = (string) $this->get('/register')->assertOk()->getContent();
+
+        foreach (['id="first_name"', 'id="email"', 'id="password"', 'id="password_confirmation"', 'id="terms_and_privacy_acceptance"'] as $alan) {
+            $this->assertStringContainsString($alan, $icerik);
+        }
+        foreach (['id="last_name"', 'id="phone"', 'id="country"', 'id="city_or_region"'] as $alan) {
+            $this->assertStringNotContainsString($alan, $icerik);
+        }
+    }
+
+    public function test_soyadsiz_kayit_olur(): void
+    {
+        Volt::test('pages.auth.register')
+            ->set('first_name', 'Ela Nur')
+            ->set('email', 'ela@example.com')
+            ->set('password', 'StrongPass123!')
+            ->set('password_confirmation', 'StrongPass123!')
+            ->set('terms_and_privacy_acceptance', true)
+            ->call('register')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('dashboard', absolute: false));
+
+        $uye = User::query()->where('email', 'ela@example.com')->firstOrFail();
+        $this->assertSame('Ela Nur', $uye->name);
+        $this->assertNull($uye->last_name);
+        $this->assertNull($uye->phone);
+    }
+
     public function test_registration_rejects_weak_passwords_and_duplicate_emails(): void
     {
         User::factory()->create(['email' => 'used@example.com']);

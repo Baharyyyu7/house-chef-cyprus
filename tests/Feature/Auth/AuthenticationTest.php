@@ -104,15 +104,11 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user);
-
-        $component = Volt::test('layout.navigation');
-
-        $component->call('logout');
-
-        $component
-            ->assertHasNoErrors()
-            ->assertRedirect('/');
+        // Çıkış eskiden yalnız kullanılmayan layouts/app'in Volt menüsünden
+        // sınanıyordu; o menü silindi. Sitedeki tek çıkış yolu bu rota.
+        $this->actingAs($user)
+            ->post(route('logout'))
+            ->assertRedirect(route('home'));
 
         $this->assertGuest();
     }

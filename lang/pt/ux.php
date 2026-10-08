@@ -65,6 +65,7 @@ return [
     'recommendations' => 'Sugestões personalizadas',
     'recommendations_benefit' => 'Receitas adaptadas às suas preferências alimentares e alergénios.',
     'first_name' => 'Nome',
+    'your_name' => 'O seu nome',
     'last_name' => 'Apelido',
     'optional_contact' => 'Dados de contacto e localização opcionais',
     'optional_intro' => 'Estes dados só são guardados com o seu consentimento para personalizar preferências regionais.',

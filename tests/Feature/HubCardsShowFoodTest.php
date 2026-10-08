@@ -121,10 +121,14 @@ final class HubCardsShowFoodTest extends TestCase
             $this->gorselliTarif('Kıbrıs Tarifi '.$i, ['cuisine_id' => $mutfak->id]);
         }
 
-        $this->get(route('home'))
+        // 2026-10: aynı altı mutfak anasayfada iki ayrı ızgarada basılıyordu;
+        // tek seçki kaldı ve kartı yemek fotoğrafını taşıyor.
+        $icerik = (string) $this->get(route('home'))
             ->assertOk()
-            ->assertSee('hc-hub-card__gorsel', false)
-            ->assertDontSee('hc-card-hover group flex items-center justify-between gap-4 rounded-3xl border p-5', false);
+            ->assertDontSee('hc-card-hover group flex items-center justify-between gap-4 rounded-3xl border p-5', false)
+            ->getContent();
+        $this->assertMatchesRegularExpression('#class="hc-collection-card group"><img src="[^"]+"#', $icerik);
+        $this->assertStringNotContainsString('hc-hub-card__gorsel', $icerik);
     }
 
     private function gorselliTarif(string $baslik, array $alanlar = []): Recipe

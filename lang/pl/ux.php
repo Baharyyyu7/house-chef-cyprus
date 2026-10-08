@@ -65,6 +65,7 @@ return [
     'recommendations' => 'Spersonalizowane rekomendacje',
     'recommendations_benefit' => 'Przepisy idealnie dopasowane do Twoich preferencji.',
     'first_name' => 'Imię',
+    'your_name' => 'Twoje imię',
     'last_name' => 'Nazwisko',
     'optional_contact' => 'Opcjonalne dane kontaktowe i lokalizacja',
     'optional_intro' => 'Dane te są zapisywane tylko za Twoją zgodą w celu obsługi preferencji regionalnych.',

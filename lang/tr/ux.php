@@ -65,6 +65,7 @@ return [
     'recommendations' => 'Sana göre öneri',
     'recommendations_benefit' => 'Diyet ve alerjen tercihlerine uyan tarifler.',
     'first_name' => 'Ad',
+    'your_name' => 'Adınız',
     'last_name' => 'Soyad',
     'optional_contact' => 'İsteğe bağlı iletişim ve konum bilgileri',
     'optional_intro' => 'Bu bilgiler yalnız hesap desteğini ve bölgesel tercihlerinizi kolaylaştırmak için, sizin açıkça girmeniz halinde saklanır. IP üzerinden konum çıkarılmaz.',

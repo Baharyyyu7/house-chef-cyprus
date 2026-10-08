@@ -9,37 +9,128 @@ use Illuminate\Translation\MessageSelector;
 
 final class HouseholdMeasurementFormatter
 {
+    /** Metrik birimler kesirle değil sayıyla okunur. */
+    private const METRIK_TAM = ['g', 'gram', 'ml', 'mililitre'];
+
+    private const METRIK_ONDALIK = ['kg', 'kilogram', 'l', 'litre'];
+
+    /**
+     * Türkçe ad sözlüğü: kanonik kod tablodaki adla eşleşmezse buraya düşer.
+     * "1 cay_kasigi", "2 dis", "3 item" ekranda ham kod olarak basılıyordu.
+     *
+     * @var array<string, string>
+     */
+    private const TURKCE_ADLAR = [
+        'g' => 'g', 'gram' => 'g', 'ml' => 'ml', 'mililitre' => 'ml', 'kg' => 'kg', 'kilogram' => 'kg', 'l' => 'l', 'litre' => 'l',
+        'adet' => 'adet', 'item' => 'adet', 'cay_kasigi' => 'çay kaşığı', 'tatli_kasigi' => 'tatlı kaşığı', 'yemek_kasigi' => 'yemek kaşığı',
+        'su_bardagi' => 'su bardağı', 'cay_bardagi' => 'çay bardağı', 'kahve_fincani' => 'kahve fincanı', 'dis' => 'diş', 'demet' => 'demet',
+        'dal' => 'dal', 'tutam' => 'tutam', 'paket' => 'paket', 'dilim' => 'dilim', 'kutu' => 'kutu', 'avuc' => 'avuç', 'kase' => 'kase',
+        'kepce' => 'kepçe', 'servis_kasigi' => 'servis kaşığı', 'yaprak' => 'yaprak', 'bag' => 'bağ', 'fiske' => 'fiske', 'konserve' => 'konserve',
+    ];
+
+    /**
+     * Ev ölçüsü kesirle, metrik ölçü sayıyla basılır.
+     *
+     * Ölçeklenen tarif "4 yarım su bardağı" ve "1,08 paket Kuru Maya 10.833 g"
+     * diyordu. Mutfakta kimse 1,08 paket ölçmez: ev ölçüsü en yakın ½ ⅓ ¼ ¾
+     * kesrine yuvarlanır ("4½ su bardağı"), g ve ml tam sayıya.
+     */
     public function quantity(string|int|float|null $quantity, ?Unit $unit = null): string
     {
         if ($quantity === null || bccomp((string) $quantity, '0', 4) === 0) {
             return '';
         }
 
-        $precision = $unit === null ? 4 : $unit->precision;
-        $value = rtrim(rtrim(number_format((float) $quantity, $precision, '.', ''), '0'), '.');
-        $whole = (int) floor((float) $value);
-        $fraction = (float) $value - $whole;
-        $label = match (round($fraction, 2)) {
-            0.25 => 'çeyrek', 0.5 => 'yarım', 0.75 => 'üç çeyrek', default => null,
-        };
+        $sayi = (float) $quantity;
 
-        if (! $this->turkce()) {
-            // "yarım" ve "çeyrek" yabancı sayfada Türkçe kırıntı olarak
-            // kalıyordu; kesir işareti her dilde okunur.
-            if ($unit?->supports_fractions && $label !== null) {
-                $isaret = ['çeyrek' => '¼', 'yarım' => '½', 'üç çeyrek' => '¾'][$label];
+        if ($unit === null) {
+            return $this->ondalik($sayi, 2);
+        }
 
-                return $whole === 0 ? $isaret : $whole.' '.$isaret;
+        $kod = (string) $unit->code;
+
+        if (in_array($kod, self::METRIK_TAM, true) || in_array($kod, self::METRIK_ONDALIK, true)) {
+            return $this->metrik($sayi, $kod);
+        }
+
+        return $this->kesir($sayi);
+    }
+
+    /** Kanonik satır ("≈ 360 g") için miktar: g/ml tam sayı. */
+    public function kanonikMiktar(string|int|float|null $quantity, string $kod): string
+    {
+        if ($quantity === null || bccomp((string) $quantity, '0', 4) === 0) {
+            return '';
+        }
+
+        return $this->metrik((float) $quantity, $kod);
+    }
+
+    /**
+     * Sayılabilir malzemede İngilizce ad sayıya uyar: "1 egg yolk",
+     * "3 onions". Birimi olan satırda ad yalın kalır ("2 tbsp flour").
+     */
+    public function adSayiyla(string $ad, string|int|float|null $miktar, string $birimEtiketi): string
+    {
+        if (app()->getLocale() !== 'en' || $birimEtiketi !== '' || $miktar === null || $ad === '') {
+            return $ad;
+        }
+
+        return (float) $miktar > 1 ? \Illuminate\Support\Str::plural($ad) : \Illuminate\Support\Str::singular($ad);
+    }
+
+    /**
+     * Kanonik satır ana satırdan farklı bir şey söylüyor mu? "adet" hiçbir
+     * zaman söylemez (sayı ana satırda); "gram" ile "g" aynı birimdir.
+     */
+    public function ikinciSatirGerekli(?string $kanonik, ?string $gorunen): bool
+    {
+        $esle = ['item' => 'adet', 'gram' => 'g', 'mililitre' => 'ml', 'kilogram' => 'kg', 'litre' => 'l'];
+        $kanonik = $esle[(string) $kanonik] ?? (string) $kanonik;
+        $gorunen = $esle[(string) $gorunen] ?? (string) $gorunen;
+
+        return $kanonik !== '' && $kanonik !== 'adet' && $kanonik !== $gorunen;
+    }
+
+    private function metrik(float $sayi, string $kod): string
+    {
+        if (in_array($kod, self::METRIK_ONDALIK, true)) {
+            return $this->ondalik($sayi, 2);
+        }
+
+        // 10 g'ın altında ondalık bilgi taşır (0,5 g safran); üstünde gürültü.
+        return $sayi < 10 ? $this->ondalik($sayi, 1) : (string) (int) round($sayi);
+    }
+
+    private function ondalik(float $sayi, int $basamak): string
+    {
+        $deger = rtrim(rtrim(number_format($sayi, $basamak, '.', ''), '0'), '.');
+
+        return app()->getLocale() === 'en' ? $deger : str_replace('.', ',', $deger);
+    }
+
+    private function kesir(float $sayi): string
+    {
+        $tam = (int) floor($sayi);
+        $artan = $sayi - $tam;
+        $adaylar = ['' => 0.0, '¼' => 0.25, '⅓' => 1 / 3, '½' => 0.5, '⅔' => 2 / 3, '¾' => 0.75, '+1' => 1.0];
+        if ($tam === 0) {
+            $adaylar = ['⅛' => 0.125] + $adaylar;
+            unset($adaylar['']);
+        }
+        $secilen = '';
+        $fark = PHP_FLOAT_MAX;
+        foreach ($adaylar as $isaret => $deger) {
+            if (abs($artan - $deger) < $fark) {
+                $fark = abs($artan - $deger);
+                $secilen = (string) $isaret;
             }
-
-            return app()->getLocale() === 'en' ? $value : str_replace('.', ',', $value);
+        }
+        if ($secilen === '+1') {
+            return (string) ($tam + 1);
         }
 
-        if ($unit?->supports_fractions && $label !== null) {
-            return $whole === 0 ? ucfirst($label) : $whole.' '.$label;
-        }
-
-        return str_replace('.', ',', $value);
+        return ($tam === 0 ? '' : (string) $tam).$secilen;
     }
 
     public function measureLabel(Unit|string|null $unit, string|int|float|null $quantity = null): string
@@ -62,13 +153,16 @@ final class HouseholdMeasurementFormatter
 
     /**
      * Kanonik birim kodunun ("g", "ml", "adet") o dildeki etiketi.
-     * Türkçede kod aynen döner; yabancı dilde karşılığı boşsa ("adet")
+     * Türkçede insan adı döner ("çay kaşığı"); yabancı dilde karşılığı boşsa ("adet")
      * boş döner ve satır basılmaz, sayı zaten ana satırda yazıyor.
      */
     public function birimKodu(string $kod, string|int|float|null $miktar = null): string
     {
+        // "item" içe aktarmadan gelen "adet"in İngilizcesi; ayrı bir birim değil.
+        $kod = $kod === 'item' ? 'adet' : $kod;
+
         if ($this->turkce()) {
-            return $kod;
+            return $this->turkceBirimAdi($kod);
         }
 
         $satir = $this->sozluk('birimler')[$kod] ?? null;
@@ -92,6 +186,17 @@ final class HouseholdMeasurementFormatter
         }
 
         return $this->sozluk('hazirlik')[mb_strtolower($not)] ?? null;
+    }
+
+    private function turkceBirimAdi(string $kod): string
+    {
+        /** @var array<string, string>|null $tablo */
+        static $tablo = null;
+        if (! isset(self::TURKCE_ADLAR[$kod])) {
+            $tablo ??= Unit::query()->pluck('name', 'code')->map(fn ($ad): string => (string) $ad)->all();
+        }
+
+        return self::TURKCE_ADLAR[$kod] ?? ($tablo[$kod] ?? str_replace('_', ' ', $kod));
     }
 
     private function turkce(): bool
