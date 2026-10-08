@@ -22,7 +22,7 @@ jobs:
       DB_CONNECTION: sqlite
       DB_DATABASE: database/ci.sqlite
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: shivammathur/setup-php@v2
         # Uretim PHP 8.4 (/opt/alt/php84); CI ayni surumu kosmali.
         with: {php-version: '8.4', extensions: sqlite3, coverage: none}
