@@ -495,15 +495,12 @@
     "footer.ingredients": "Ingredients",
     "footer.legal": "Legal",
     "footer.media_policy": "Media Policy",
-    "footer.newsletter": "Newsletter",
-    "footer.newsletter_text": "Stay tuned for new recipes and culinary inspiration.",
     "footer.nutrition_disclaimer": "Nutrition Disclaimer",
     "footer.platform": "Platform",
     "footer.privacy": "Privacy",
     "footer.recipe_verification": "Recipe Verification",
     "footer.report_issue": "Report an Issue",
     "footer.rights_reserved": "Original editorial content · Privacy-focused platform",
-    "footer.social_notice": "Social channels will be listed here only once verified corporate accounts are published.",
     "footer.source_policy": "Source Policy",
     "footer.terms": "Terms of Service",
     "home.browse_archive": "Browse recipe collection",
@@ -906,5 +903,7 @@
     "recipe.show.embed_code_title": "Embed Code (HTML)",
     "recipe.show.embed_copy": "Copy Embed Code",
     "recipe.show.embed_copied": "✓ Copied",
-    "recipe.show.embed_close": "Close"
+    "recipe.show.embed_close": "Close",
+    "footer.signup_title": "Free membership",
+    "footer.signup_text": "Save recipes, keep your pantry and find what to cook with what you have."
 }

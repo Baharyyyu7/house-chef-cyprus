@@ -15,6 +15,12 @@
                      "Ana Sayfa" kalktı çünkü logo zaten oraya götürüyor. --}}
                 <div class="hidden items-center gap-3.5 text-[13px] font-bold xl:flex 2xl:gap-6 2xl:text-sm">
                     <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('recipes.*')]) href="{{ localized_route('recipes.index') }}" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>{{ __('nav.recipes') }}</a>
+                    {{-- Sitenin ana değer önerisi misafir menüsünde yoktu; yalnız
+                         giriş yapmış üyenin "Mutfağım" açılırında duruyordu. Sayfa
+                         herkese açık, bağlantı da herkese. --}}
+                    @if($siteFeatures->enabled('explore'))
+                        <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ localized_route('ingredients.explore') }}" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>{{ __('nav.explore') }}</a>
+                    @endif
                     <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('blog.*')]) href="{{ localized_route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif>{{ __('nav.blog') }}</a>
                     @if (Route::has('weekly-menu.index'))
                         <a @class(['nav-link whitespace-nowrap', 'nav-link-active' => request()->routeIs('weekly-menu.*')]) href="{{ localized_route('weekly-menu.index') }}" @if(request()->routeIs('weekly-menu.*')) aria-current="page" @endif>{{ __('nav.weekly_menu') }}</a>
@@ -69,7 +75,6 @@
                     @auth
                     @if($siteFeatures->enabled('member_kitchen'))
                         @php($mutfakRotalari = collect([
-                            ['ingredients.explore', __('nav.explore'), __('ux.match')],
                             ['ai-kitchen.index', __('nav.ai_kitchen'), __('ux.plan')],
                             ['pantry.index', __('nav.pantry'), __('ux.pantry')],
                             ['favorites.index', __('nav.favorites'), __('ux.favorites')],
@@ -78,7 +83,7 @@
 
                         <div class="relative" x-data="{ acik: false }" @keydown.escape.window="acik = false">
                             <button type="button" @click="acik = !acik" :aria-expanded="acik" aria-haspopup="menu"
-                                    @class(['nav-link inline-flex items-center gap-1 whitespace-nowrap', 'nav-link-active' => request()->routeIs('ingredients.explore', 'ai-kitchen.*', 'pantry.*', 'favorites.*', 'collections.*')])>
+                                    @class(['nav-link inline-flex items-center gap-1 whitespace-nowrap', 'nav-link-active' => request()->routeIs('ai-kitchen.*', 'pantry.*', 'favorites.*', 'collections.*')])>
                                 {{ __('nav.my_kitchen') }}
                                 <span class="transition-transform duration-300" :class="acik ? 'rotate-180' : ''" aria-hidden="true"><x-ui.icon name="chevron-down" size="14" /></span>
                             </button>
@@ -147,6 +152,9 @@
                 <div class="grid gap-2 text-sm font-semibold">
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('home')]) href="{{ localized_route('home') }}" @click="menuOpen = false" @if(request()->routeIs('home')) aria-current="page" @endif>{{ __('nav.home') }}</a>
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('recipes.*')]) href="{{ localized_route('recipes.index') }}" @click="menuOpen = false" @if(request()->routeIs('recipes.*')) aria-current="page" @endif>{{ __('nav.recipes') }}</a>
+                    @if($siteFeatures->enabled('explore'))
+                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ localized_route('ingredients.explore') }}" @click="menuOpen = false" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>{{ __('nav.explore') }}</a>
+                    @endif
                     <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('blog.*')]) href="{{ localized_route('blog.index') }}" @click="menuOpen = false" @if(request()->routeIs('blog.*')) aria-current="page" @endif>{{ __('nav.blog') }}</a>
                     @if (Route::has('weekly-menu.index'))
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('weekly-menu.*')]) href="{{ localized_route('weekly-menu.index') }}" @click="menuOpen = false" @if(request()->routeIs('weekly-menu.*')) aria-current="page" @endif>🗓️ {{ __('nav.weekly_menu') }}</a>
@@ -171,7 +179,6 @@
 
                     @auth
                     @if($siteFeatures->enabled('member_kitchen'))
-                        <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ingredients.explore')]) href="{{ localized_route('ingredients.explore') }}" @click="menuOpen = false" @if(request()->routeIs('ingredients.explore')) aria-current="page" @endif>{{ __('nav.explore') }}</a>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('ai-kitchen.*')]) href="{{ localized_route('ai-kitchen.index') }}" @click="menuOpen = false" @if(request()->routeIs('ai-kitchen.*')) aria-current="page" @endif>{{ __('nav.ai_kitchen') }}</a>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('pantry.*')]) href="{{ localized_route('pantry.index') }}" @click="menuOpen = false" @if(request()->routeIs('pantry.*')) aria-current="page" @endif>{{ __('nav.pantry') }}</a>
                         <a @class(['mobile-nav-link', 'mobile-nav-link-active' => request()->routeIs('favorites.*')]) href="{{ localized_route('favorites.index') }}" @click="menuOpen = false" @if(request()->routeIs('favorites.*')) aria-current="page" @endif>{{ __('nav.favorites') }}</a>

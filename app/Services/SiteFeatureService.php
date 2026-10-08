@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
 final class SiteFeatureService
 {
     public const DEFINITIONS = [
-        'explore' => ['label' => 'Ana sayfa eşleştirme deneyimi', 'description' => 'Ana sayfadaki animasyonlu malzeme eşleştirme ve sonuç sayfası. Üst menüde ayrı bağlantı gösterilmez.'],
+        'explore' => ['label' => 'Ana sayfa eşleştirme deneyimi', 'description' => 'Ana sayfadaki animasyonlu malzeme eşleştirme, sonuç sayfası ve üst menüdeki "Ne Pişirebilirim?" bağlantısı.'],
         'services' => ['label' => 'Hizmetler', 'description' => 'Özel şef, catering, kurs ve yemek planı sayfaları.'],
         'member_kitchen' => ['label' => 'Mutfağım', 'description' => 'AI Mutfak, dolap, favoriler ve koleksiyonlar.'],
         'premium' => ['label' => 'Premium', 'description' => 'Fiyatlandırma ve yeni abonelik akışı.'],

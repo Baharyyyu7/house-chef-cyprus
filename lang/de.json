@@ -280,12 +280,9 @@
     "theme.switch_to_dark": "Dunklen Modus aktivieren",
     "theme.switch_to_light": "Hellen Modus aktivieren",
     "footer.about_short": "Wir bringen die Wärme Zyperns in die moderne Küche. Jedes Rezept für ein genussvolles Zuhause.",
-    "footer.social_notice": "Soziale Kanäle werden hier nur aufgeführt, wenn verifizierte offizielle Konten aktiv sind.",
     "footer.explore": "Entdecken",
     "footer.platform": "Plattform",
     "footer.legal": "Rechtliches",
-    "footer.newsletter": "Newsletter",
-    "footer.newsletter_text": "Bleiben Sie auf dem Laufenden für neue Rezepte und kulinarische Inspirationen.",
     "footer.free_signup": "Kostenlos registrieren",
     "footer.cuisines": "Küchen",
     "footer.categories": "Kategorien",
@@ -838,5 +835,7 @@
     "recipe.show.embed_code_title": "Einbettungscode (HTML)",
     "recipe.show.embed_copy": "Code kopieren",
     "recipe.show.embed_copied": "✓ Kopiert",
-    "recipe.show.embed_close": "Schließen"
+    "recipe.show.embed_close": "Schließen",
+    "footer.signup_title": "Kostenlose Mitgliedschaft",
+    "footer.signup_text": "Rezepte speichern, Vorrat führen und herausfinden, was Sie mit Ihren Zutaten kochen können."
 }

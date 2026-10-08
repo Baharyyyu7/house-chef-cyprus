@@ -9,9 +9,11 @@
                 <div>
                     <x-brand-logo variant="dark" />
                     <p class="hc-footer-muted mt-5 max-w-sm text-sm leading-7">{{ __('footer.about_short') }}</p>
-                    <p class="hc-footer-muted mt-6 text-xs leading-5">{{ __('footer.social_notice') }}</p>
-                    <p class="mt-6 text-sm font-extrabold text-orange-300">{{ __('footer.newsletter') }}</p>
-                    <p class="hc-footer-muted mt-2 max-w-sm text-sm leading-6">{{ __('footer.newsletter_text') }}</p>
+                    {{-- İç not ("Sosyal kanallar ... yayına alındığında") ziyaretçiye
+                         basılıyordu; formu olmayan "Bülten" başlığı da abonelik
+                         vaat ediyordu. Blok ne yaptığını söyler: ücretsiz üyelik. --}}
+                    <p class="mt-6 text-sm font-extrabold text-orange-300">{{ __('footer.signup_title') }}</p>
+                    <p class="hc-footer-muted mt-2 max-w-sm text-sm leading-6">{{ __('footer.signup_text') }}</p>
                     <a href="{{ route('register') }}" class="hc-btn hc-btn-primary mt-4">{{ __('footer.free_signup') }}</a>
                 </div>
                 <div><p class="text-sm font-extrabold text-orange-300">{{ __('footer.explore') }}</p><div class="hc-footer-muted mt-4 grid gap-2.5 text-sm [&>a]:inline-flex [&>a]:min-h-[24px] [&>a]:items-center"><a class="hover:text-orange-300" href="{{ route('recipes.index') }}">{{ __('nav.recipes') }}</a>@if($siteFeatures->enabled('explore'))<a class="hover:text-orange-300" href="{{ route('ingredients.explore') }}">{{ __('nav.explore') }}</a>@endif<a class="hover:text-orange-300" href="{{ route('blog.index') }}">{{ __('nav.blog') }}</a><a class="hover:text-orange-300" href="{{ route('weekly-menu.index') }}">{{ __('nav.weekly_menu') }}</a>@if($siteFeatures->enabled('shop'))<a class="hover:text-orange-300" href="{{ route('shop.index') }}">{{ __('nav.shop') }} (E-Kitap)</a>@endif<a class="hover:text-orange-300" href="{{ route('cuisines.index') }}">{{ __('footer.cuisines') }}</a><a class="hover:text-orange-300" href="{{ route('categories.index') }}">{{ __('footer.categories') }}</a><a class="hover:text-orange-300" href="{{ route('ingredients.hub.index') }}">{{ __('footer.ingredients') }}</a><a class="hover:text-orange-300" href="{{ route('collections.sure.index') }}">{{ __('footer.by_duration') }}</a><a class="hover:text-orange-300" href="{{ route('collections.zorluk.index') }}">{{ __('footer.by_difficulty') }}</a>@auth @if($siteFeatures->enabled('member_kitchen'))<a class="hover:text-orange-300" href="{{ route('pantry.index') }}">{{ __('nav.pantry') }}</a>@endif @endauth</div></div>
