@@ -54,6 +54,31 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(SecureHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Raporlanan her istisna (web, kuyruk, zamanlayıcı, konsol) sistem
+        // olaylarına düşer; eskiden yalnız API hataları düşüyordu ve gece
+        // görevlerinin hataları yalnız log dosyasında kalıyordu. Varsayılan
+        // log kaydı da devam eder. Raporlayıcının kendisi hata verirse (ör.
+        // veritabanı kapalı) asıl istisnanın kaydı engellenmemeli.
+        $exceptions->report(function (Throwable $exception): void {
+            try {
+                // Konsolda da boş bir istek nesnesi var; gerçek HTTP isteği
+                // rotası eşleşmiş olandır.
+                $request = app()->bound('request') && request()->route() !== null ? request() : null;
+                $argv = implode(' ', (array) ($_SERVER['argv'] ?? []));
+                $kaynak = match (true) {
+                    $request?->is('_zamanlayici/*') === true, str_contains($argv, 'schedule:') => 'scheduler',
+                    str_contains($argv, 'queue:') => 'queue',
+                    $request === null => 'console',
+                    default => 'web',
+                };
+
+                app(ErrorReporterInterface::class)->report($exception, array_filter([
+                    'request_id' => $request?->attributes->get('request_id'),
+                    'context' => $kaynak,
+                ]));
+            } catch (Throwable) {
+            }
+        });
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
@@ -85,8 +110,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['error' => ['code' => $code, 'message' => 'İstek tamamlanamadı.', 'details' => []], 'request_id' => (string) $request->attributes->get('request_id')], $status, $exception->getHeaders())->header('X-Request-ID', (string) $request->attributes->get('request_id'));
             }
             if ($request->is('api/*')) {
-                app(ErrorReporterInterface::class)->report($exception, ['request_id' => $request->attributes->get('request_id')]);
-
+                // Rapor yukarıdaki genel report() üzerinden zaten yapıldı.
                 return response()->json(['error' => ['code' => 'INTERNAL_ERROR', 'message' => 'İstek tamamlanamadı.', 'details' => []], 'request_id' => (string) $request->attributes->get('request_id')], 500)->header('X-Request-ID', (string) $request->attributes->get('request_id'));
             }
         });
