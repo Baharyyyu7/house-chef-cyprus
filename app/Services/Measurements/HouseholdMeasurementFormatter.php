@@ -42,11 +42,12 @@ final class HouseholdMeasurementFormatter
         }
 
         $sayi = (float) $quantity;
-        $kod = (string) ($unit?->code ?? '');
 
         if ($unit === null) {
             return $this->ondalik($sayi, 2);
         }
+
+        $kod = (string) $unit->code;
 
         if (in_array($kod, self::METRIK_TAM, true) || in_array($kod, self::METRIK_ONDALIK, true)) {
             return $this->metrik($sayi, $kod);
