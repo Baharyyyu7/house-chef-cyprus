@@ -20,7 +20,7 @@
                     </span>
                     <div>
                         <span class="block font-bold text-sm" style="color: var(--hc-text-primary)">{{ $post->author?->name ?? __('blog.show.author_default') }}</span>
-                        <time datetime="{{ $post->published_at?->toIso8601String() }}">{{ $post->published_at?->format('d F Y') }}</time>
+                        <time datetime="{{ $post->published_at?->toIso8601String() }}">{{ $post->published_at?->translatedFormat('d F Y') }}</time>
                     </div>
                 </div>
                 <span class="hc-v3-badge">{{ __('blog.show.reading_time', ['minutes' => max(1, (int) ceil(str_word_count(strip_tags($post->translated('body'))) / 180))]) }}</span>
