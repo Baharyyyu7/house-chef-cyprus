@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Services\Seo\LocaleUrlService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -27,6 +28,21 @@ class SetLocale
             $request->setLocale($default);
 
             return $next($request);
+        }
+
+        // Çevirisi olmayan sayfanın önekli adresi Türkçe sürüme gider.
+        // 8 Ekim 2026 denetimi: /en/hakkimizda, /de/sss gibi 74 adres
+        // Türkçe içerik servis ediyor ve hreflang'de ayrı dil sürümü gibi
+        // ilan ediliyordu. Önekli adres yaşadığı sürece aynı Türkçe metin
+        // yedi adreste durur; kalıcı yönlendirme onu tek adrese toplar.
+        // Rotanın kendisi bir yönlendirmeyse (Route::redirect) karışılmaz:
+        // hedefe tek adımda gitsin, zincir oluşmasın.
+        $urlDili = $request->attributes->get('hc_url_locale');
+        $rota = $request->route() instanceof Route ? $request->route() : null;
+        if (is_string($urlDili) && $urlDili !== $default && $request->isMethodSafe()
+            && ! str_contains((string) $rota?->getActionName(), 'RedirectController')
+            && ! app(LocaleUrlService::class)->yerellesmisRota($rota)) {
+            return redirect()->to($request->getRequestUri(), 301);
         }
 
         $publicPage = ! $request->is('dil', 'api/*');
