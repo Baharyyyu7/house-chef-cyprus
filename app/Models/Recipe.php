@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * @property string $public_id
@@ -99,11 +100,55 @@ class Recipe extends Model
     {
         $locale ??= app()->getLocale();
 
-        $query = $this->kendiAlanlariIcinSuz($query, $locale);
-
         if ($locale === (string) config('locales.default', 'tr')) {
-            return $query;
+            return $this->kendiAlanlariIcinSuz($query, $locale);
         }
+
+        // Tam tanım her satır için alan başına iç içe NOT EXISTS kuruyor ve
+        // indeks kullanamıyor: /en/recipes sunucuda 546-633 ms, /tarifler
+        // 209-224 ms ölçüldü. Dil başına "tam çevrili tarif id'leri" kümesi
+        // 10 dakika önbellekte tutulur; tarif, adım, malzeme ya da çeviri
+        // kaydedilince küme sürümü artar ve bir sonraki sorgu yeniden hesaplar.
+        return $query->whereIn($this->qualifyColumn('id'), self::translatedIds($locale));
+    }
+
+    /** @return list<int> */
+    public static function translatedIds(string $locale): array
+    {
+        $surum = (int) Cache::get(self::TRANSLATED_IDS_VERSION_KEY, 0);
+
+        return Cache::remember(
+            "recipe.translated-ids.v{$surum}.{$locale}",
+            now()->addMinutes(10),
+            fn (): array => (new self)->tamCeviriKapsami(self::query()->withoutGlobalScopes(), $locale)
+                ->pluck((new self)->qualifyColumn('id'))
+                ->map(fn (mixed $id): int => (int) $id)
+                ->all(),
+        );
+    }
+
+    public static function forgetTranslatedIds(): void
+    {
+        // Anahtarları tek tek silmek yerine sürüm: bütün diller için tek yazma.
+        Cache::forever(self::TRANSLATED_IDS_VERSION_KEY, (int) Cache::get(self::TRANSLATED_IDS_VERSION_KEY, 0) + 1);
+    }
+
+    /**
+     * Çevrili tarif kümesini etkileyen her kayıtta önbelleği düşürür.
+     * AppServiceProvider'dan çağrılır: Recipe hiç yüklenmemiş bir süreçte
+     * kaydedilen çeviri de kümeyi geçersiz kılmalı.
+     */
+    public static function flushTranslatedIdsOnChanges(): void
+    {
+        foreach ([self::class, RecipeStep::class, Ingredient::class, RecipeIngredient::class, ContentTranslation::class] as $model) {
+            $model::saved(static fn () => self::forgetTranslatedIds());
+            $model::deleted(static fn () => self::forgetTranslatedIds());
+        }
+    }
+
+    private function tamCeviriKapsami(Builder $query, string $locale): Builder
+    {
+        $query = $this->kendiAlanlariIcinSuz($query, $locale);
 
         // "Çevrilmemiş çocuğu olmayan tarif": çocuk başına tek tek bakmak
         // yerine eksikliği aramak, N+1 sorgu doğurmadan aynı sonucu verir.
@@ -129,6 +174,8 @@ class Recipe extends Model
 
         return $kalip === [] ? $query : $query->whereNotIn($this->qualifyColumn('id'), $kalip);
     }
+
+    private const TRANSLATED_IDS_VERSION_KEY = 'recipe.translated-ids.version';
 
     protected $fillable = ['cuisine_id', 'category_id', 'content_factory_batch_id', 'data_source_id', 'external_id', 'content_origin', 'original_hash', 'first_imported_at', 'last_verified_at', 'title', 'slug', 'excerpt', 'description', 'country', 'region', 'prep_minutes', 'cook_minutes', 'rest_minutes', 'servings', 'difficulty', 'dietary_tags', 'allergens', 'nutrition', 'storage_notes', 'source_name', 'source_url', 'reliability_score', 'status', 'is_featured', 'verification_status', 'editorial_status', 'content_factory_state', 'fact_check_required', 'completeness_score', 'completeness_status', 'content_factory_readiness_score', 'content_factory_rule_version', 'content_factory_checked_at', 'content_factory_metadata', 'editorial_reviewed_at', 'editorial_reviewed_by_user_id', 'human_approved_by_user_id', 'human_approved_at', 'published_at', 'equipment', 'tips', 'common_mistakes', 'serving_suggestions', 'reheating_notes', 'freezing_notes', 'cultural_notes', 'seasonality', 'image_status', 'image_license', 'image_attribution', 'image_reviewed_at'];
 

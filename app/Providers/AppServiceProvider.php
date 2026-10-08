@@ -67,6 +67,7 @@ class AppServiceProvider extends ServiceProvider
             ->symbols());
 
         RecipeIngredient::observe(RecipeIngredientObserver::class);
+        \App\Models\Recipe::flushTranslatedIdsOnChanges();
         NutritionFact::observe(NutritionFactObserver::class);
         IngredientUnitConversion::observe(IngredientUnitConversionObserver::class);
         Recipe::observe(RecipeObserver::class);
