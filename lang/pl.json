@@ -831,5 +831,12 @@
     "recipe.show.nutrition_insufficient_body": "Wartości odżywcze znamy tylko dla części składników, dlatego zamiast mylącej sumy ich nie pokazujemy.",
     "recipe.show.storage_fridge_days": "Do :days dni w lodówce.",
     "home.all_cuisines": "Wszystkie kuchnie",
-    "home.collections_nav": "Kolekcje przepisów"
+    "home.collections_nav": "Kolekcje przepisów",
+    "ui.save_this_recipe": "Zapisz ten przepis.",
+    "recipe.show.synthetic_attribution": "Obraz syntetyczny · House Chef Cyprus",
+    "recipe.show.embed_button": "Osadź przepis",
+    "recipe.show.embed_code_title": "Kod do osadzenia (HTML)",
+    "recipe.show.embed_copy": "Kopiuj kod",
+    "recipe.show.embed_copied": "✓ Skopiowano",
+    "recipe.show.embed_close": "Zamknij"
 }

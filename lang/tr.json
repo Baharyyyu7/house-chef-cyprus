@@ -794,5 +794,12 @@
     "recipe.show.nutrition_insufficient_body": "Malzemelerin yalnız bir kısmının besin değeri biliniyor; yanıltıcı bir toplam göstermek yerine değerleri gizliyoruz.",
     "recipe.show.storage_fridge_days": "Buzdolabında :days güne kadar.",
     "home.all_cuisines": "Tüm mutfaklar",
-    "home.collections_nav": "Tarif koleksiyonları"
+    "home.collections_nav": "Tarif koleksiyonları",
+    "ui.save_this_recipe": "Bu tarifi kaydedin.",
+    "recipe.show.synthetic_attribution": "Sentetik görsel · House Chef Cyprus",
+    "recipe.show.embed_button": "Tarifi Sitene Ekle",
+    "recipe.show.embed_code_title": "Gömme Kodu (HTML)",
+    "recipe.show.embed_copy": "Kodu Kopyala",
+    "recipe.show.embed_copied": "✓ Kopyalandı",
+    "recipe.show.embed_close": "Kapat"
 }

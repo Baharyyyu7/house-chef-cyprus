@@ -13,24 +13,26 @@
     $uye = auth()->check();
     $premium = $uye && auth()->user()->isPremium();
 
-    // Yalnız gerçekten var olan yollar teklif edilir.
+    // Yalnız gerçekten var olan ve açık olan yollar teklif edilir: rota
+    // tanımlı olsa da özellik bayrağı kapalıysa 404 verir.
+    $ozellikler = app(\App\Services\SiteFeatureService::class);
     $ucretsizFaydalar = collect([
-        ['pantry.index', __('ui.benefit_pantry'), __('ui.benefit_pantry_desc')],
-        ['favorites.index', __('ui.benefit_favorites'), __('ui.benefit_favorites_desc')],
-        ['ingredients.explore', __('ui.benefit_match'), __('ui.benefit_match_desc')],
-    ])->filter(fn ($f) => Route::has($f[0]));
+        ['pantry.index', __('ui.benefit_pantry'), __('ui.benefit_pantry_desc'), 'member_kitchen'],
+        ['favorites.index', __('ui.benefit_favorites'), __('ui.benefit_favorites_desc'), 'member_kitchen'],
+        ['ingredients.explore', __('ui.benefit_match'), __('ui.benefit_match_desc'), 'explore'],
+    ])->filter(fn ($f) => Route::has($f[0]) && $ozellikler->enabled($f[3]));
 @endphp
 
 @if (! $premium)
     <section class="hc-v3-card p-5 sm:p-6" aria-labelledby="uyelik-daveti-baslik">
         @if (! $uye)
             <p class="hc-overline" style="color: var(--hc-text-muted)">{{ __('ui.free_account') }}</p>
-            <h2 id="uyelik-daveti-baslik" class="hc-heading-3 mt-2">Bu tarifi kaydedin.</h2>
+            <h2 id="uyelik-daveti-baslik" class="hc-heading-3 mt-2">{{ __('ui.save_this_recipe') }}</h2>
             <p class="hc-body-sm mt-2" style="color: var(--hc-text-secondary)">
                 {{ __('ui.free_account_intro') }}
             </p>
             <ul class="mt-4 grid gap-3">
-                @foreach ($ucretsizFaydalar as [$rota, $baslik, $aciklama])
+                @foreach ($ucretsizFaydalar as [$rota, $baslik, $aciklama, $ozellik])
                     <li class="flex gap-3">
                         <span class="mt-0.5 shrink-0 text-orange-500" aria-hidden="true">✓</span>
                         <span>
@@ -59,7 +61,7 @@
                     {{ __('ui.already_member') }} <a class="font-bold underline underline-offset-2" href="{{ route('login') }}">{{ __('ui.login_formal') }}</a>
                 </p>
             @endif
-        @elseif (Route::has('pricing'))
+        @elseif (Route::has('pricing') && $ozellikler->enabled('premium'))
             <p class="hc-overline" style="color: var(--hc-text-muted)">Premium</p>
             <h2 id="uyelik-daveti-baslik" class="hc-heading-3 mt-2">{{ __('ui.cook_ad_free') }}</h2>
             <p class="hc-body-sm mt-2" style="color: var(--hc-text-secondary)">

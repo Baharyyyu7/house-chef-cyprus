@@ -831,5 +831,12 @@
     "recipe.show.nutrition_insufficient_body": "Пищевая ценность известна только для части ингредиентов, поэтому мы не показываем вводящую в заблуждение сумму.",
     "recipe.show.storage_fridge_days": "До :days дней в холодильнике.",
     "home.all_cuisines": "Все кухни",
-    "home.collections_nav": "Подборки рецептов"
+    "home.collections_nav": "Подборки рецептов",
+    "ui.save_this_recipe": "Сохраните этот рецепт.",
+    "recipe.show.synthetic_attribution": "Синтетическое изображение · House Chef Cyprus",
+    "recipe.show.embed_button": "Встроить рецепт",
+    "recipe.show.embed_code_title": "Код для вставки (HTML)",
+    "recipe.show.embed_copy": "Скопировать код",
+    "recipe.show.embed_copied": "✓ Скопировано",
+    "recipe.show.embed_close": "Закрыть"
 }

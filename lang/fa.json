@@ -831,5 +831,12 @@
     "recipe.show.nutrition_insufficient_body": "ارزش غذایی فقط برای بخشی از مواد اولیه مشخص است؛ به‌جای نمایش جمع گمراه‌کننده، مقادیر را نشان نمی‌دهیم.",
     "recipe.show.storage_fridge_days": "تا :days روز در یخچال.",
     "home.all_cuisines": "همه آشپزی‌ها",
-    "home.collections_nav": "مجموعه‌های دستور پخت"
+    "home.collections_nav": "مجموعه‌های دستور پخت",
+    "ui.save_this_recipe": "این دستور پخت را ذخیره کنید.",
+    "recipe.show.synthetic_attribution": "تصویر مصنوعی · House Chef Cyprus",
+    "recipe.show.embed_button": "افزودن دستور پخت به سایت شما",
+    "recipe.show.embed_code_title": "کد جاسازی (HTML)",
+    "recipe.show.embed_copy": "کپی کد",
+    "recipe.show.embed_copied": "✓ کپی شد",
+    "recipe.show.embed_close": "بستن"
 }

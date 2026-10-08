@@ -831,5 +831,12 @@
     "recipe.show.nutrition_insufficient_body": "Nährwerte sind nur für einen Teil der Zutaten bekannt; statt einer irreführenden Summe zeigen wir keine Werte.",
     "recipe.show.storage_fridge_days": "Bis zu :days Tage im Kühlschrank.",
     "home.all_cuisines": "Alle Küchen",
-    "home.collections_nav": "Rezeptsammlungen"
+    "home.collections_nav": "Rezeptsammlungen",
+    "ui.save_this_recipe": "Speichern Sie dieses Rezept.",
+    "recipe.show.synthetic_attribution": "Synthetisches Bild · House Chef Cyprus",
+    "recipe.show.embed_button": "Rezept einbetten",
+    "recipe.show.embed_code_title": "Einbettungscode (HTML)",
+    "recipe.show.embed_copy": "Code kopieren",
+    "recipe.show.embed_copied": "✓ Kopiert",
+    "recipe.show.embed_close": "Schließen"
 }

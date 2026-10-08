@@ -899,5 +899,12 @@
     "recipe.show.nutrition_insufficient_body": "Nutrition data is known for only some of the ingredients, so we hide the totals rather than show a misleading figure.",
     "recipe.show.storage_fridge_days": "Up to :days days in the fridge.",
     "home.all_cuisines": "All cuisines",
-    "home.collections_nav": "Recipe collections"
+    "home.collections_nav": "Recipe collections",
+    "ui.save_this_recipe": "Save this recipe.",
+    "recipe.show.synthetic_attribution": "Synthetic image · House Chef Cyprus",
+    "recipe.show.embed_button": "Embed Recipe Badge",
+    "recipe.show.embed_code_title": "Embed Code (HTML)",
+    "recipe.show.embed_copy": "Copy Embed Code",
+    "recipe.show.embed_copied": "✓ Copied",
+    "recipe.show.embed_close": "Close"
 }
