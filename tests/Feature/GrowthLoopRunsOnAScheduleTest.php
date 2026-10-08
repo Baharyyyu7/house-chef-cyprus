@@ -53,37 +53,16 @@ final class GrowthLoopRunsOnAScheduleTest extends TestCase
         );
     }
 
-    public function test_olcum_brifingden_once_calisir(): void
+    public function test_sabah_brifingleri_tek_operasyon_ozetine_indirildi(): void
     {
-        // Brifing taze tabloyu okumalı; ters sırada her gün bir gün eski
-        // tabloyu raporlardı ve bu hiçbir yerde hata olarak görünmezdi.
-        $olaylar = collect(app(Schedule::class)->events())
-            ->keyBy(fn ($olay): string => (string) $olay->description);
+        // Kullanıcı kararı (8 Ekim denetimi): altı "sabah özeti" görevinin
+        // çıktısı hiçbir yere gitmiyordu. Ölçüm-brifing sırasını savunan eski
+        // test bu yüzden çevrildi; yerine sorunları e-postayla bildiren tek
+        // günlük özet var.
+        $adlar = $this->isAdlari();
 
-        $olcum = $olaylar->get('seo_locale_growth');
-        $brifing = $olaylar->get('seo_morning_brief');
-
-        $this->assertNotNull($olcum);
-        $this->assertNotNull($brifing);
-
-        $this->assertLessThan(
-            $this->gununDakikasi($brifing->expression),
-            $this->gununDakikasi($olcum->expression),
-            'Ölçüm sabah brifingden sonra çalışıyor; brifing bir gün eski tabloyu okur.'
-        );
-    }
-
-    /**
-     * Cron ifadesinin gün içindeki dakikası.
-     *
-     * İfadeleri metin olarak karşılaştırmak yanlış: "53 6" ile "5 7"
-     * kıyaslandığında metin sıralaması 07:05'i 06:53'ten önce sayar.
-     * Saatler bir gün değiştiğinde test sessizce yanlış cevap verirdi.
-     */
-    private function gununDakikasi(string $ifade): int
-    {
-        [$dakika, $saat] = array_pad(explode(' ', $ifade), 2, '0');
-
-        return ((int) $saat) * 60 + (int) $dakika;
+        $this->assertNotContains('seo_morning_brief', $adlar);
+        $this->assertContains('seo_locale_growth', $adlar);
+        $this->assertContains('operations_digest', $adlar);
     }
 }

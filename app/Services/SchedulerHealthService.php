@@ -107,7 +107,29 @@ final class SchedulerHealthService
             return;
         }
 
-        $this->write($name, ['expected_interval_minutes' => self::intervalMinutes($event->expression)]);
+        // Ayrı anahtar: telafi koşuları (backup_daily_catchup) saatlik
+        // zamanlanmış olsa da asıl görevin günlük sıklığını ezmemeli, ve
+        // hiç koşmamış bir görev için kayıt açmamalı.
+        Cache::forever(self::intervalKey($name), self::intervalMinutes($event->expression));
+    }
+
+    /**
+     * Telafi koşusu gerekli mi: bugün başarılı koşu yok ve şu an koşan da
+     * yok (yedek uzun sürebilir; iki yedeğin üst üste binmesi diski doldurur).
+     */
+    public function needsCatchUp(string $name): bool
+    {
+        $kayit = Cache::get(self::taskKey($name));
+        $kayit = is_array($kayit) ? $kayit : [];
+        $basari = $kayit['last_success_at'] ?? null;
+
+        if (is_string($basari) && Carbon::parse($basari)->isSameDay(now())) {
+            return false;
+        }
+
+        $baslangic = $kayit['last_started_at'] ?? null;
+
+        return ! (($kayit['status'] ?? null) === 'running' && is_string($baslangic) && abs(now()->diffInMinutes($baslangic)) < 120);
     }
 
     /** @return array<string, mixed>|null */
@@ -228,7 +250,7 @@ final class SchedulerHealthService
      */
     private function withStaleness(string $name, array $kayit): array
     {
-        $aralik = (int) ($kayit['expected_interval_minutes'] ?? self::CRITICAL_TASKS[$name] ?? 1440);
+        $aralik = (int) (Cache::get(self::intervalKey($name)) ?? self::CRITICAL_TASKS[$name] ?? 1440);
         $esik = max(self::MIN_STALE_MINUTES, $aralik * 2);
         $basari = $kayit['last_success_at'] ?? null;
 
@@ -264,6 +286,11 @@ final class SchedulerHealthService
         $adlar = Cache::get(self::INDEX_KEY, []);
 
         return is_array($adlar) ? array_values(array_filter($adlar, 'is_string')) : [];
+    }
+
+    private static function intervalKey(string $name): string
+    {
+        return 'scheduler.health.interval.'.$name;
     }
 
     private static function taskKey(string $name): string
