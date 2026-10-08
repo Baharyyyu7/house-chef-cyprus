@@ -71,6 +71,11 @@ final class SocialLoginController extends Controller
             $epostaSahibi = User::query()->where('email', $eposta)->first();
 
             if ($epostaSahibi) {
+                if ($epostaSahibi->isSuspended()) {
+                    // Askıdaki hesaba sağlayıcı bağlanmaz; giriş aşağıda reddedilir.
+                    return $epostaSahibi;
+                }
+
                 // Aynı e-postayla daha önce parolayla kaydolmuş biri: hesabı
                 // bölmek yerine sağlayıcı kimliği mevcut hesaba bağlanır.
                 $epostaSahibi->forceFill([
@@ -95,6 +100,14 @@ final class SocialLoginController extends Controller
                 'terms_accepted_at' => now(),
             ]);
         });
+
+        if ($kullanici->isSuspended()) {
+            // Parola formundaki askı kuralı burada da geçerli: sosyal giriş
+            // askıyı atlatan bir yan kapı olmamalı.
+            return redirect()->route('login')->withErrors([
+                'email' => 'Bu hesap geçici olarak askıya alındı.',
+            ]);
+        }
 
         if ($kullanici->wasRecentlyCreated) {
             try {

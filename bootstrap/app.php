@@ -3,6 +3,7 @@
 use App\Contracts\Observability\ErrorReporterInterface;
 use App\Http\Middleware\CanonicalHost;
 use App\Http\Middleware\LocaleUrlPrefix;
+use App\Http\Middleware\LogoutSuspendedUser;
 use App\Http\Middleware\RecordAudienceCountry;
 use App\Http\Middleware\RequestContext;
 use App\Http\Middleware\SecureHeaders;
@@ -49,7 +50,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Yönlendirmeden önce çalışmalı: dil önekini istek yolundan çıkarıp
         // normal rotaya düşürüyor, böylece rotalar ikinci kez tanımlanmıyor.
         $middleware->prepend(LocaleUrlPrefix::class);
-        $middleware->web(append: [SetLocale::class, RecordAudienceCountry::class]);
+        // Askı kontrolü parola formuna bırakılamaz: hatırla çerezi ve açık
+        // oturumlar formu hiç görmez. Ayrıntı: LogoutSuspendedUser.
+        $middleware->web(append: [LogoutSuspendedUser::class, SetLocale::class, RecordAudienceCountry::class]);
         $middleware->append(RequestContext::class);
         $middleware->append(SecureHeaders::class);
     })
