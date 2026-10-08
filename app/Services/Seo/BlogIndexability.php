@@ -55,7 +55,7 @@ final class BlogIndexability
     public function reklamTasiyabilir(BlogPost $yazi): bool
     {
         return $this->indekslenebilir($yazi)
-            && mb_strlen(trim(strip_tags((string) $yazi->translated('body')))) >= self::REKLAM_ASGARI_KARAKTER;
+            && mb_strlen($yazi->okunanMetin()) >= self::REKLAM_ASGARI_KARAKTER;
     }
 
     public function indekslenebilir(BlogPost $yazi): bool
@@ -75,8 +75,12 @@ final class BlogIndexability
     {
         $engeller = [];
 
-        if (mb_strlen(trim(strip_tags((string) $yazi->translated('body')))) < self::ASGARI_KARAKTER) {
+        if (mb_strlen($yazi->okunanMetin()) < self::ASGARI_KARAKTER) {
             $engeller[] = 'ince';
+        }
+
+        foreach (app(BlogOriginalityService::class)->govdeKusurlari((string) $yazi->translated('body')) as $kusur) {
+            $engeller[] = $kusur;
         }
 
         if (! in_array($yazi->fact_check_status, ['passed', 'verified'], true)) {

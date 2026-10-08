@@ -48,6 +48,19 @@ abstract class TestCase extends BaseTestCase
         self::$sinifKaynagiDogrulandi = true;
     }
 
+    /**
+     * Tekrar etmeyen dolgu metni.
+     *
+     * Aynı cümleyi str_repeat ile çoğaltan gövde, indeksleme kapısının yazı içi
+     * cümle tekrarı kuralına takılır; gerçek şablon yazılar tam olarak budur.
+     */
+    protected function cesitliMetin(string $cumle, int $adet): string
+    {
+        $kok = rtrim(trim($cumle), '.');
+
+        return implode(' ', array_map(static fn (int $i): string => $kok.' '.$i.'.', range(1, $adet))).' ';
+    }
+
     /** Build the complete public-media contract used by production. */
     protected function makeRecipePubliclyEligible(Recipe $recipe): void
     {

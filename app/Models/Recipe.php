@@ -25,6 +25,7 @@ class Recipe extends Model
 {
     use HasPublicId, SoftDeletes;
     use \App\Models\Concerns\RedirectsOldSlugs;
+    use \App\Models\Concerns\GuardsPublication;
 
     public function showRouteName(): string
     {

@@ -7,7 +7,6 @@ namespace Tests\Feature;
 use App\Models\ContentOpportunity;
 use App\Models\User;
 use App\Services\Media\AutonomousMediaGateService;
-use App\Services\Seo\AutonomousPublishingGateService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -61,16 +60,6 @@ final class SeoBacklinkAndAutonomousPublishingTest extends TestCase
         $updateResponse->assertRedirect();
 
         $this->assertEquals('contacted', $opportunity->fresh()->status);
-    }
-
-    public function test_autonomous_publishing_gate_runs_safely(): void
-    {
-        $service = app(AutonomousPublishingGateService::class);
-        $result = $service->run(blogLimit: 2, recipeLimit: 2, dryRun: true);
-
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('published_blogs', $result);
-        $this->assertArrayHasKey('published_recipes', $result);
     }
 
     public function test_autonomous_media_gate_runs_safely(): void

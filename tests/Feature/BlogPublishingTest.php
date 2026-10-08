@@ -18,8 +18,8 @@ final class BlogPublishingTest extends TestCase
 
     public function test_only_published_posts_are_visible_to_guests(): void
     {
-        $published = BlogPost::create(['title' => 'Yayınlanan mutfak notu', 'slug' => 'yayinlanan-mutfak-notu', 'excerpt' => 'Özet', 'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'published', 'published_at' => now()]);
-        $draft = BlogPost::create(['title' => 'Taslak mutfak notu', 'slug' => 'taslak-mutfak-notu', 'excerpt' => 'Özet', 'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'draft']);
+        $published = BlogPost::create(['title' => 'Yayınlanan mutfak notu', 'slug' => 'yayinlanan-mutfak-notu', 'excerpt' => 'Özet', 'body' => $this->cesitliMetin('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'published', 'published_at' => now()]);
+        $draft = BlogPost::create(['title' => 'Taslak mutfak notu', 'slug' => 'taslak-mutfak-notu', 'excerpt' => 'Özet', 'body' => $this->cesitliMetin('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'draft']);
 
         $this->get(route('blog.index'))->assertOk()->assertSee($published->title)->assertDontSee($draft->title);
         $this->get(route('blog.show', $published))->assertOk()->assertSee($published->title);
@@ -34,7 +34,7 @@ final class BlogPublishingTest extends TestCase
             'title' => 'Kaynağı doğrulanan mutfak notu',
             'slug' => 'kaynagi-dogrulanan-mutfak-notu',
             'excerpt' => 'Editoryal görseli henüz onaylanmamış yazı.',
-            'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 
+            'body' => $this->cesitliMetin('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 
             'status' => 'published',
             'published_at' => now(),
         ]);
@@ -53,10 +53,10 @@ final class BlogPublishingTest extends TestCase
     public function test_blog_index_schema_lists_only_the_visible_page_items_as_plain_urls(): void
     {
         $visible = collect(range(1, 13))->map(fn (int $i) => BlogPost::create([
-            'title' => 'Yazı '.$i, 'slug' => 'yazi-'.$i, 'excerpt' => 'Özet', 'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 
+            'title' => 'Yazı '.$i, 'slug' => 'yazi-'.$i, 'excerpt' => 'Özet', 'body' => $this->cesitliMetin('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed', 
             'status' => 'published', 'published_at' => now()->subMinutes($i),
         ]));
-        BlogPost::create(['title' => 'Taslak', 'slug' => 'taslak', 'excerpt' => 'Özet', 'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'draft']);
+        BlogPost::create(['title' => 'Taslak', 'slug' => 'taslak', 'excerpt' => 'Özet', 'body' => $this->cesitliMetin('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',  'status' => 'draft']);
 
         $html = (string) $this->get(route('blog.index'))->assertOk()->getContent();
         preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $html, $matches);
@@ -106,7 +106,7 @@ final class BlogPublishingTest extends TestCase
                 ['question' => 'Hellim nasıl pişirilir?', 'answer' => 'Kurulanmış dilimler kızgın tavada her yüzü iki üç dakika.'],
                 ['question' => 'Molohiya ne zaman yenir?', 'answer' => 'Kışın, tavuk ya da kuzu etiyle.'],
             ],
-            'body' => "## Ada mutfağının temeli\n\n".str_repeat('Kıbrıs mutfağı ada koşullarında biçimlenmiş bir Akdeniz mutfağıdır ve malzemesini mevsiminde kullanır. ', 60)."\n\n## Nereden başlamalı\n\n".str_repeat('Hellim, molohiya ve kolokas bu mutfağın ilk öğrenilen üç yemeğidir ve üçü de sabır ister. ', 60),
+            'body' => "## Ada mutfağının temeli\n\n".$this->cesitliMetin('Kıbrıs mutfağı ada koşullarında biçimlenmiş bir Akdeniz mutfağıdır ve malzemesini mevsiminde kullanır. ', 60)."\n\n## Nereden başlamalı\n\n".$this->cesitliMetin('Hellim, molohiya ve kolokas bu mutfağın ilk öğrenilen üç yemeğidir ve üçü de sabır ister. ', 60),
             'human_approved_at' => now(),
             'human_approved_by_user_id' => $admin->id,
         ]);
@@ -139,7 +139,7 @@ final class BlogPublishingTest extends TestCase
             'title' => 'Yazı '.$slug,
             'slug' => $slug,
             'excerpt' => 'Özgün kısa özet.',
-            'body' => "## Birinci bölüm\n\n".str_repeat('Bu yazının gövdesi kapının istediği uzunluğa ulaşacak kadar ayrıntı taşıyor ve konusunu anlatıyor. ', 60)."\n\n## İkinci bölüm\n\n".str_repeat('İkinci bölüm konunun uygulama tarafını ölçülerle ve sürelerle anlatmayı sürdürüyor. ', 60),
+            'body' => "## Birinci bölüm\n\n".$this->cesitliMetin('Bu yazının gövdesi kapının istediği uzunluğa ulaşacak kadar ayrıntı taşıyor ve konusunu anlatıyor. ', 60)."\n\n## İkinci bölüm\n\n".$this->cesitliMetin('İkinci bölüm konunun uygulama tarafını ölçülerle ve sürelerle anlatmayı sürdürüyor. ', 60),
             'status' => 'scheduled',
             'scheduled_at' => $zaman,
             'fact_check_status' => 'passed',

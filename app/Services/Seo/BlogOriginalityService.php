@@ -35,6 +35,12 @@ final class BlogOriginalityService
     /** Bu kadar uzun paragrafı olmayan yazı ölçülmez; oran anlamsız olur. */
     public const ASGARI_PARAGRAF_SAYISI = 3;
 
+    /** Cümle tekrarında sayılan asgari cümle uzunluğu. */
+    public const ASGARI_CUMLE = 40;
+
+    /** Uzun cümlelerin bu oranı yazı içinde tekrar ediyorsa yazı şablondur. */
+    public const CUMLE_TEKRAR_ESIGI = 0.2;
+
     /**
      * Her yayındaki yazı için tekrar oranı.
      *
@@ -111,6 +117,45 @@ final class BlogOriginalityService
         $olcumAdayi = (clone $aday)->setAttribute('published_at', null);
 
         return $this->olc($korpus->push($olcumAdayi))[$aday->getKey()] ?? ['paragraphs' => 0, 'repeated' => 0, 'share' => 0.0];
+    }
+
+    /**
+     * Gövdenin kendi içindeki kusurlar; başka yazıyla karşılaştırma gerekmez.
+     *
+     * 8 Ekim 2026'da indeksteki 25 yazı aynı cümleyi 142 kez tekrarlıyordu ve
+     * "ornek-tarif" bağlantısı taşıyordu; paragraf karşılaştırması bunları
+     * görmüyordu çünkü her yazının cümlesi yalnız kendi içinde tekrar ediyordu.
+     * 21 yazının gövdesi ham HTML'di ve sayfada boş basılıyordu.
+     *
+     * @return list<'ham_html'|'cumle_tekrari'|'yer_tutucu'>
+     */
+    public function govdeKusurlari(string $govde): array
+    {
+        $kusurlar = [];
+
+        if (preg_match('/<(p|div|h[1-6]|ul|ol|table|section|article)[\s>]/i', $govde) === 1) {
+            $kusurlar[] = 'ham_html';
+        }
+
+        $metin = mb_strtolower(html_entity_decode(strip_tags($govde), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        $cumleler = array_values(array_filter(
+            array_map(static fn (string $c): string => trim((string) preg_replace('/\s+/u', ' ', $c)), preg_split('/(?<=[.!?])\s+/u', $metin) ?: []),
+            static fn (string $c): bool => mb_strlen($c) >= self::ASGARI_CUMLE,
+        ));
+
+        if (count($cumleler) >= 5) {
+            $sayim = array_count_values($cumleler);
+            $tekrar = count($cumleler) - count($sayim);
+            if ($tekrar / count($cumleler) >= self::CUMLE_TEKRAR_ESIGI || max($sayim) >= 4) {
+                $kusurlar[] = 'cumle_tekrari';
+            }
+        }
+
+        if (preg_match('/ornek-tarif|tarifimiz \d|lorem ipsum|\bTODO\b|\{\{\s*\w+\s*\}\}/iu', $govde) === 1) {
+            $kusurlar[] = 'yer_tutucu';
+        }
+
+        return $kusurlar;
     }
 
     /** @return list<string> */

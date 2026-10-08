@@ -54,6 +54,12 @@ final class BlogPost extends Model
         return $kalip === [] ? $query : $query->whereNotIn($this->qualifyColumn('id'), $kalip);
     }
     use \App\Models\Concerns\RedirectsOldSlugs;
+    use \App\Models\Concerns\GuardsPublication;
+
+    protected function yayinIcinInsanOnayiGerekir(): bool
+    {
+        return true;
+    }
 
     public function showRouteName(): string
     {
@@ -116,6 +122,21 @@ final class BlogPost extends Model
             static fn (array $e): string => '<'.$e[1].'h'.min(6, (int) $e[2] + 1),
             $html
         ) ?? $html;
+    }
+
+    /**
+     * Okurun gördüğü gövde, düz metin.
+     *
+     * Uzunluk eşikleri ham gövdeden ölçülüyordu. 8 Ekim 2026'da 21 yazının
+     * gövdesi ham HTML'di: renderedBody() onu siliyor, sayfa boş çıkıyor,
+     * ama strip_tags ham metni saydığı için yazılar "uzun" görünüp
+     * indeksteydi. Ölçü sayfada basılanla aynı olmalı.
+     */
+    public function okunanMetin(): string
+    {
+        $metin = html_entity_decode(strip_tags($this->renderedBody()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        return trim((string) preg_replace('/\s+/u', ' ', $metin));
     }
 
     /** @param Builder<self> $query @return Builder<self> */

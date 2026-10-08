@@ -28,8 +28,8 @@
                     <form method="post" action="{{ route('admin.blog.prepare') }}" onsubmit="return confirm('En fazla 100 taslağın yalnız güvenli alanları hazırlansın mı?')">@csrf
                         <button class="hc-v3-btn hc-v3-btn--secondary" @disabled($publicationCandidateCount === 0)>Güvenli alanları hazırla</button>
                     </form>
-                    <form method="post" action="{{ route('admin.blog.publish-ready') }}" onsubmit="return confirm('Yalnız tüm yayın kapılarını geçen yazılar yayınlansın mı?')">@csrf
-                        <button class="hc-v3-btn hc-v3-btn--primary" @disabled($publicationCandidateCount === 0)>Hazır olanları yayınla</button>
+                    <form method="post" action="{{ route('admin.blog.publish-ready') }}" onsubmit="return confirm('Tüm yayın kapılarını geçen en fazla 5 yazı yayınlansın mı?')">@csrf
+                        <button class="hc-v3-btn hc-v3-btn--primary" @disabled($publicationCandidateCount === 0)>Hazır olanlardan 5 tanesini yayınla</button>
                     </form>
                 </div>
             </div>

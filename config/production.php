@@ -31,5 +31,7 @@ return [
         'auto_publish' => false,
         'human_approval_required' => true,
         'branded_fallback_is_real_media' => false,
+        'publication_guard' => env('PUBLICATION_GUARD'),
+        'daily_publication_cap' => (int) env('DAILY_PUBLICATION_CAP', 10),
     ],
 ];

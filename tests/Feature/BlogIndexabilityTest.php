@@ -80,7 +80,7 @@ final class BlogIndexabilityTest extends TestCase
             'title' => 'Kıbrıs mutfağında zeytinyağı',
             'slug' => 'kibris-zeytinyagi-'.uniqid(),
             'excerpt' => 'Yerel zeytinyağının sofradaki yeri.',
-            'body' => str_repeat('Zeytinyağının sofradaki yeri üzerine bir not. ', 80),
+            'body' => $this->cesitliMetin('Zeytinyağının sofradaki yeri üzerine bir not. ', 80),
             'status' => 'published',
             'fact_check_status' => 'passed',
             'originality_status' => 'passed',

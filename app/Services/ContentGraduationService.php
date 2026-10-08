@@ -60,7 +60,10 @@ final class ContentGraduationService
 
         DB::transaction(function () use ($profile, $actor): void {
             $entity = $this->entity($profile);
-            $entity->update(['status' => 'published', 'published_at' => now()]);
+            $entity->update(['status' => 'published', 'published_at' => now()] + ($entity instanceof BlogPost ? [
+                'human_approved_at' => $profile->human_approved_at,
+                'human_approved_by_user_id' => $profile->human_approved_by_user_id,
+            ] : []));
             $profile->update(['graduation_stage' => 'published', 'publication_status' => 'published', 'published_by_user_id' => $actor->id]);
             $this->audit($actor, 'production_content.published', $profile, ['auto_publish' => false]);
         });

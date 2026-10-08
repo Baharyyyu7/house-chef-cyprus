@@ -23,6 +23,14 @@ final class EditorialRecipeImporter
     /** @return array{created:int,updated:int,skipped:int,invalid:int,total:int} */
     public function import(bool $dryRun = false, bool $validateOnly = false, ?string $batch = null, bool $skipPublished = false): array
     {
+        // Katalog 50 şablon tarif üretir ve aynı slug'daki gerçek tarifi
+        // şablonla ezer, üstüne "verified/published" yazar. 8 Ekim 2026'da
+        // canlıdaki şablon tariflerin kaynağı buydu. Yalnız yerel tohumlama
+        // içindir; üretimde yazma yolu kapalı.
+        if (! $dryRun && ! $validateOnly && app()->isProduction()) {
+            throw new \RuntimeException('Editoryal şablon kataloğu üretimde içe aktarılamaz.');
+        }
+
         /** @var list<array{0:string,1:string,2:string,3:int,4:int,5:string}> $catalogue */
         $catalogue = require database_path('editorial/first_50.php');
         if ($batch !== null && $batch !== 'all') {

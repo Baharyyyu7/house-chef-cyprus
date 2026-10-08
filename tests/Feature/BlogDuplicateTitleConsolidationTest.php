@@ -38,8 +38,8 @@ final class BlogDuplicateTitleConsolidationTest extends TestCase
 
     public function test_son_ekli_nusha_temiz_adrese_baglanir_ve_uzun_govde_tasinir(): void
     {
-        $temiz = $this->yazi('balik-pisirme-rehberi', 'Balık Pişirme Rehberi', '<p>Kısa gövde.</p>');
-        $kopya = $this->yazi('balik-pisirme-rehberi-ENGZ3', 'Balık Pişirme Rehberi', '<p>Bu nüshanın gövdesi belirgin biçimde daha uzun ve ayrıntılıdır. '.str_repeat('Metin yeterli uzunluğa ulaşsın diye ayrıntı eklendi. ', 60).'</p>', '-20 days');
+        $temiz = $this->yazi('balik-pisirme-rehberi', 'Balık Pişirme Rehberi', 'Kısa gövde.');
+        $kopya = $this->yazi('balik-pisirme-rehberi-ENGZ3', 'Balık Pişirme Rehberi', 'Bu nüshanın gövdesi belirgin biçimde daha uzun ve ayrıntılıdır. '.$this->cesitliMetin('Metin yeterli uzunluğa ulaşsın diye ayrıntı eklendi. ', 60), '-20 days');
 
         $this->artisan('seo:blog-duplicate-title-consolidation --apply')->assertSuccessful();
 
@@ -106,7 +106,7 @@ final class BlogDuplicateTitleConsolidationTest extends TestCase
         // nüshası birden indeksteydi; başlıkları farklı olduğu için başlık
         // kuralına takılmıyorlardı.
         $temiz = $this->yazi('firin-kac-dakikada-isinir', 'Fırın Kaç Dakikada Isınır?', '<p>Kısa gövde.</p>');
-        $eski = $this->yazi('firin-kac-dakikada-isinir-BH3DY', 'Fırın Ne Kadar Sürede Isınır?', '<p>Bu nüshanın gövdesi daha uzun. '.str_repeat('Ayrıntı eklendi. ', 80).'</p>', '-40 days');
+        $eski = $this->yazi('firin-kac-dakikada-isinir-BH3DY', 'Fırın Ne Kadar Sürede Isınır?', '<p>Bu nüshanın gövdesi daha uzun. '.$this->cesitliMetin('Ayrıntı eklendi. ', 80).'</p>', '-40 days');
 
         $this->artisan('seo:blog-duplicate-title-consolidation --apply')->assertSuccessful();
 

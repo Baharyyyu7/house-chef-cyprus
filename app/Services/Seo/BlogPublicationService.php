@@ -35,16 +35,28 @@ final class BlogPublicationService
         return ['published' => true, 'issues' => []];
     }
 
-    /** @return array{published:int,skipped:int,reasons:array<string,int>} */
-    public function publishAllReady(): array
+    /**
+     * Kapılardan geçen taslakları yayına alır, en çok $limit tane.
+     *
+     * Tavan yoktu: düğme bütün taslak havuzunu tarıyordu. Kapılardan biri
+     * gevşerse tek tık yüzlerce yazıyı aynı gün yayına çıkarırdı; Google'ın
+     * ölçekli içerik sinyali tam olarak budur.
+     *
+     * @return array{published:int,skipped:int,reasons:array<string,int>}
+     */
+    public function publishAllReady(int $limit = 5): array
     {
         $result = ['published' => 0, 'skipped' => 0, 'reasons' => []];
 
         BlogPost::query()
             ->whereNotIn('status', ['published', 'archived'])
             ->orderBy('id')
-            ->chunkById(100, function ($posts) use (&$result): void {
+            ->chunkById(100, function ($posts) use (&$result, $limit): bool {
                 foreach ($posts as $post) {
+                    if ($result['published'] >= $limit) {
+                        return false;
+                    }
+
                     $publication = $this->publish($post);
                     if ($publication['published']) {
                         $result['published']++;
@@ -56,6 +68,8 @@ final class BlogPublicationService
                         $result['reasons'][$issue] = ($result['reasons'][$issue] ?? 0) + 1;
                     }
                 }
+
+                return true;
             });
 
         arsort($result['reasons']);

@@ -102,7 +102,7 @@ final class BlogDraftReadinessPipelineTest extends TestCase
             ->assertOk()
             ->assertSee('Taslakları denetle')
             ->assertSee('Güvenli alanları hazırla')
-            ->assertSee('Hazır olanları yayınla')
+            ->assertSee('Hazır olanlardan 5 tanesini yayınla')
             ->assertSee(route('admin.blog.readiness-scan'), false)
             ->assertSee(route('admin.blog.prepare'), false);
     }

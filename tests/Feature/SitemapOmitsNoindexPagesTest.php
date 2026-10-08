@@ -79,7 +79,7 @@ final class SitemapOmitsNoindexPagesTest extends TestCase
             'title' => str($slug)->headline()->value(),
             'slug' => $slug,
             'excerpt' => 'Özet.',
-            'body' => str_repeat('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',
+            'body' => $this->cesitliMetin('Yazının özgün gövde metni; konusunu taşıyacak uzunlukta. ', 40), 'fact_check_status' => 'passed', 'originality_status' => 'passed',
             'status' => 'published',
             'published_at' => now()->subDay(),
         ]);
@@ -99,7 +99,7 @@ final class SitemapOmitsNoindexPagesTest extends TestCase
         $ingilizce = [
             'title' => 'Multilingual Post',
             'excerpt' => 'Summary.',
-            'body' => str_repeat('The original body of this post, long enough to carry its subject. ', 40),
+            'body' => $this->cesitliMetin('The original body of this post, long enough to carry its subject. ', 40),
         ];
 
         foreach ($ingilizce as $alan => $deger) {
