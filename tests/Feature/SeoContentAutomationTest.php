@@ -31,7 +31,7 @@ final class SeoContentAutomationTest extends TestCase
         // gerçekten arama sonucunda görünen bir kusur.
         $post = $this->makePost([
             'status' => 'published', 'published_at' => now(), 'meta_title' => null, 'meta_description' => null,
-            'body' => str_repeat('House Chef Cyprus için özgün editoryal içerik. ', 60),
+            'body' => $this->cesitliMetin('House Chef Cyprus için özgün editoryal içerik. ', 60),
             'editorial_status' => 'approved', 'fact_check_status' => 'passed', 'originality_status' => 'passed',
         ]);
 

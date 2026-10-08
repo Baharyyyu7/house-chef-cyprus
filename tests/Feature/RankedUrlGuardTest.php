@@ -23,7 +23,7 @@ final class RankedUrlGuardTest extends TestCase
     {
         return BlogPost::query()->create([
             'title' => 'Yazı '.$slug, 'slug' => $slug, 'excerpt' => 'Özet.',
-            'body' => str_repeat('Özgün editoryal bilgi ve gerçek teknik anlatım. ', 60),
+            'body' => $this->cesitliMetin('Özgün editoryal bilgi ve gerçek teknik anlatım. ', 60),
             'status' => $durum, 'published_at' => now()->subDays(3),
             'fact_check_status' => 'passed', 'originality_status' => 'passed',
         ]);

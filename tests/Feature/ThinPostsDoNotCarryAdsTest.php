@@ -40,7 +40,7 @@ final class ThinPostsDoNotCarryAdsTest extends TestCase
 
     private function yazi(string $slug, int $karakter): BlogPost
     {
-        $govde = "## Bölüm\n\n".str_repeat('Bu yazının gövdesi konuyu ölçülerle anlatıyor. ', (int) ceil($karakter / 46));
+        $govde = "## Bölüm\n\n".$this->cesitliMetin('Bu yazının gövdesi konuyu ölçülerle anlatıyor. ', (int) ceil($karakter / 46));
 
         $yazi = BlogPost::create([
             'title' => 'Yazı '.$slug,
