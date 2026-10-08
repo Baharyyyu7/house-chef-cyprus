@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Recipe;
 use App\Services\Media\HubCoverPicker;
 use App\Services\Media\PublicMediaEligibilityService;
+use App\Services\Seo\LocalePageAvailability;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoSchemaService;
 use Illuminate\Database\Eloquent\Collection;
@@ -33,23 +34,24 @@ final class CategoryHubController extends Controller
     {
         $kategori = Category::query()->where('slug', $slug)->first();
         abort_if($kategori === null, 404);
+        abort_unless(LocalePageAvailability::taksonomiAdiVar('category', $kategori->slug), 404);
 
         $tarifler = $this->tarifleriIcin($kategori);
         abort_if($tarifler->count() < self::ASGARI_TARIF, 404);
 
         $canonical = route('categories.show', $kategori->slug);
-        $description = $kategori->name.' kategorisinde '.$tarifler->count().' doğrulanmış tarif: ölçüler, süreler ve adım adım anlatım.';
+        $description = __('category.meta_description', ['name' => taxonomy_name($kategori), 'count' => $tarifler->count()]);
 
         return view('categories.show', [
             'kategori' => $kategori,
             'kardesler' => self::sayfasiOlanlar()
-                ->map(fn ($k): array => ['title' => $k->name, 'url' => route('categories.show', $k->slug)])
+                ->map(fn ($k): array => ['title' => taxonomy_name($k), 'url' => route('categories.show', $k->slug)])
                 ->all(), 'tarifler' => $tarifler, 'mediaEligibility' => $gate,
             'seoIndexability' => $indexability->forRequest($request, $canonical),
-            'seoSchema' => $schema->collectionPage($kategori->name.' Tarifleri', $description, $canonical, $tarifler, [
-                ['name' => 'Ana Sayfa', 'url' => route('home')],
-                ['name' => 'Kategoriler', 'url' => route('categories.index')],
-                ['name' => $kategori->name, 'url' => $canonical],
+            'seoSchema' => $schema->collectionPage(__('category.h1', ['name' => taxonomy_name($kategori)]), $description, $canonical, $tarifler, [
+                ['name' => __('nav.home'), 'url' => route('home')],
+                ['name' => __('category.breadcrumb'), 'url' => route('categories.index')],
+                ['name' => taxonomy_name($kategori), 'url' => $canonical],
             ]),
         ]);
     }
@@ -57,11 +59,17 @@ final class CategoryHubController extends Controller
     /** @return Collection<int, Category> */
     public static function sayfasiOlanlar(): Collection
     {
+        // Sayım o dile çevrilmiş tariflerle yapılır (show() ile aynı tanım);
+        // Türkçe sayım yabancı listede 404 veren kartlar basıyordu.
+        $sayilar = self::ceviriSayilari();
+
         return Category::query()
-            ->withCount(['recipes' => fn ($q) => $q->where('status', 'published')->where('verification_status', 'verified')])
+            ->whereIn('slug', array_keys($sayilar))
             ->withMax(['recipes as latest_published_at' => fn ($q) => $q->where('status', 'published')->where('verification_status', 'verified')], 'published_at')
-            ->orderByDesc('recipes_count')->get()
-            ->filter(fn (Category $category): bool => (int) $category->recipes_count >= self::ASGARI_TARIF)
+            ->get()
+            ->each(fn (Category $k) => $k->setAttribute('recipes_count', $sayilar[$k->slug] ?? 0))
+            ->filter(fn (Category $k): bool => self::sayfasiVar((int) $k->recipes_count))
+            ->sortByDesc('recipes_count')
             ->values();
     }
 
@@ -88,7 +96,12 @@ final class CategoryHubController extends Controller
                 ->translatedInto()->whereNotNull('category_id')->pluck('category_id')->countBy();
 
             return Category::query()->whereIn('id', $sayilar->keys())->pluck('slug', 'id')
-                ->mapWithKeys(static fn (string $slug, int $id): array => [$slug => (int) $sayilar[$id]])->all();
+                ->mapWithKeys(static fn (string $slug, int $id): array => [$slug => (int) $sayilar[$id]])
+                // Adı o dile çevrilmemiş kategori o dilde yok: sayfası Türkçe
+                // başlıkla açılıyordu. Sayım sıfır sayılır ki her bağlantı
+                // basan yer aynı cevabı alsın.
+                ->filter(static fn (int $adet, string $slug): bool => LocalePageAvailability::taksonomiAdiVar('category', $slug))
+                ->all();
         });
     }
 

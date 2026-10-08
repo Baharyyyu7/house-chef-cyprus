@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Seo;
 
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 
 /**
  * Dil URL'leri ve hreflang kümesi.
@@ -29,6 +30,17 @@ final class LocaleUrlService
             (array) config('locales.supported', []),
             static fn (array $dil): bool => ($dil['enabled'] ?? false) === true
         );
+    }
+
+    /**
+     * Rotanın yabancı dil sürümü var mı?
+     *
+     * Tek liste config('locales.localized_routes'): route() öneki, hreflang
+     * ve önekli Türkçe sayfanın yönlendirmesi aynı cevabı kullanır.
+     */
+    public function yerellesmisRota(?Route $route): bool
+    {
+        return $route !== null && $route->named(...(array) config('locales.localized_routes', []));
     }
 
     public function defaultLocale(): string
@@ -143,12 +155,23 @@ final class LocaleUrlService
             );
         }
 
+        $path = '/'.ltrim($request->path(), '/');
+
+        // Rota düzeyinde de süzülür: hub'ın o dilde tarif eşiği tutmuyorsa ya
+        // da sayfanın hiç çevirisi yoksa (hakkimizda, sss) o dile hreflang
+        // basılmaz. Cevap site haritasıyla aynı yerden gelir.
+        $varlik = app(LocalePageAvailability::class);
+        $diller = array_filter(
+            $diller,
+            static fn (string $kod): bool => $varlik->varMi($kod, $path),
+            ARRAY_FILTER_USE_KEY
+        );
+
         // Tek dil etkinken hreflang'in anlamı yok: bağlayacak alternatif yok.
         if (count($diller) < 2) {
             return [];
         }
 
-        $path = '/'.ltrim($request->path(), '/');
         $kume = [];
 
         foreach (array_keys($diller) as $locale) {

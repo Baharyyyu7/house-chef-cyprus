@@ -82,7 +82,9 @@ final class IngredientHubController extends Controller
         abort_if($tarifler->count() < self::ASGARI_TARIF, 404);
 
         $canonical = route('ingredients.hub.show', $malzeme->slug);
-        $description = $malzeme->name.' ile yapabileceğiniz '.$tarifler->count().' doğrulanmış tarif: ölçüler, süreler ve adım adım anlatım.';
+        // Metinler dil dosyasında: "tomatoes ile Ne Yapılır?" gibi yarı
+        // Türkçe başlıklar altı dilde indekse açıktı (8 Ekim 2026 denetimi).
+        $description = __('ingredient_hub.meta_description', ['name' => $malzeme->name, 'count' => $tarifler->count()]);
 
         return view('ingredients.hub-show', [
             'malzeme' => $malzeme,
@@ -90,10 +92,10 @@ final class IngredientHubController extends Controller
             'mediaEligibility' => $gate,
             'seoIndexability' => $indexability->forRequest($request, $canonical),
             'seoSchema' => $schema->collectionPage(
-                $malzeme->name.' ile ne yapılır?', $description, $canonical, $tarifler,
+                __('ingredient_hub.h1', ['name' => $malzeme->name]), $description, $canonical, $tarifler,
                 [
-                    ['name' => 'Ana Sayfa', 'url' => route('home')],
-                    ['name' => 'Malzemeler', 'url' => route('ingredients.hub.index')],
+                    ['name' => __('nav.home'), 'url' => route('home')],
+                    ['name' => __('ingredient_hub.breadcrumb'), 'url' => route('ingredients.hub.index')],
                     ['name' => $malzeme->name, 'url' => $canonical],
                 ],
             ),

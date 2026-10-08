@@ -1,26 +1,27 @@
 <x-layouts.site
-    :title="$malzeme->name.' ile Ne Yapılır? '.$tarifler->count().' Tarif · House Chef Cyprus'"
-    :meta-description="$malzeme->name.' ile yapabileceğiniz '.$tarifler->count().' doğrulanmış tarif: ölçüler, süreler ve adım adım anlatım.'"
+    :title="__('ingredient_hub.page_title', ['name' => $malzeme->name, 'count' => $tarifler->count()])"
+    :meta-description="__('ingredient_hub.meta_description', ['name' => $malzeme->name, 'count' => $tarifler->count()])"
     :structured-data="$seoSchema"
     :canonical-url="$seoIndexability['canonical']"
     :robots="$seoIndexability['robots']">
 
     <section class="hc-container py-14">
-        <nav class="hc-body-sm text-muted" aria-label="Yol">
-            <a class="font-semibold text-gold-700 transition hover:underline dark:text-gold-400" href="{{ route('ingredients.hub.index') }}">Malzemeler</a>
+        <nav class="hc-body-sm text-muted" aria-label="{{ __('hub.breadcrumb_label') }}">
+            <a class="font-semibold text-gold-700 transition hover:underline dark:text-gold-400" href="{{ route('ingredients.hub.index') }}">{{ __('ingredient_hub.breadcrumb') }}</a>
             <span aria-hidden="true"> › </span><span class="text-charcoal-900 dark:text-charcoal-100 font-medium">{{ $malzeme->name }}</span>
         </nav>
 
         {{-- Başlık doğrudan arama niyetini karşılıyor: insanlar "hellim ile ne
              yapılır" diye arıyor, "hellim" diye değil. --}}
-        <h1 class="mt-3 font-display text-4xl font-semibold">{{ $malzeme->name }} ile ne yapılır?</h1>
+        <h1 class="mt-3 font-display text-4xl font-semibold">{{ __('ingredient_hub.h1', ['name' => $malzeme->name]) }}</h1>
 
         <p class="hc-body-lg mt-4 max-w-2xl text-muted">
-            {{ $malzeme->name }} kullanan {{ $tarifler->count() }} doğrulanmış tarif.
-            Her tarifte ölçüler, süreler ve besin değerleri görünür.
+            {{ __('ingredient_hub.body', ['name' => $malzeme->name, 'count' => $tarifler->count()]) }}
         </p>
 
-        @if (filled($malzeme->notes))
+        {{-- Not alanı yalnız Türkçe tutuluyor; yabancı sayfada Türkçe
+             paragraf basılmaz. --}}
+        @if (turkce_sayfa() && filled($malzeme->notes))
             <p class="hc-body-sm mt-4 max-w-2xl">{{ $malzeme->notes }}</p>
         @endif
 

@@ -13,7 +13,7 @@
     // yalniz sonucu soruyoruz. Bes sayim sorgusu her istekte donmesin diye
     // kisa sureli onbellek: yeni nitelenen sayfa cipte birkac dakika sonra
     // gorunur, sitemap zaten ham listeyi kullaniyor.
-    $koleksiyonlar = cache()->remember('koleksiyon-baglantilari', now()->addMinutes(10), fn (): array => \App\Http\Controllers\RecipeCollectionLandingController::sayfasiOlanlar()
+    $koleksiyonlar = cache()->remember('koleksiyon-baglantilari:'.app()->getLocale(), now()->addMinutes(10), fn (): array => \App\Http\Controllers\RecipeCollectionLandingController::sayfasiOlanlar()
         ->mapWithKeys(fn (array $k): array => [$k['type'].':'.$k['slug'] => $k['url']])->all());
 
     $koleksiyonBaglantisi = fn (string $tur, string $slug): ?string => $koleksiyonlar[$tur.':'.$slug] ?? null;

@@ -22,12 +22,19 @@
     // bağlantı verilmez: hedef 404 verir. Ölçüt hreflang ve sitemap ile
     // aynı olmak zorunda, yoksa üç yer üç farklı şey söyler.
     $icerik = request()->attributes->get('hc_seo_content');
-    $dildeVar = function (string $kod) use ($icerik, $currentLocale): bool {
-        if ($kod === $currentLocale || $icerik === null || ! method_exists($icerik, 'hasTranslation')) {
+    // Rota düzeyindeki cevap da (hub eşiği, çevirisi olmayan statik sayfa)
+    // hreflang'in kullandığı LocalePageAvailability'den gelir.
+    $sayfaVarligi = app(\App\Services\Seo\LocalePageAvailability::class);
+    $dildeVar = function (string $kod) use ($icerik, $currentLocale, $sayfaVarligi): bool {
+        if ($kod === $currentLocale) {
             return true;
         }
 
-        return (bool) $icerik->hasTranslation($kod);
+        if (! $sayfaVarligi->varMi($kod, '/'.ltrim(request()->path(), '/'))) {
+            return false;
+        }
+
+        return $icerik === null || ! method_exists($icerik, 'hasTranslation') || (bool) $icerik->hasTranslation($kod);
     };
 @endphp
 

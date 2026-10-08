@@ -24,7 +24,9 @@
          dile hreflang vermek, Türkçe içeriği yabancı dil sayfası gibi
          göstermek olurdu. Küme kendini de içerir: kendine gönderme yapmayan
          hreflang'i Google tamamen yok sayar. --}}
-    @foreach (app(\App\Services\Seo\LocaleUrlService::class)->alternates(request(), $seoContent) as $alternatif)
+    @php($hreflangKumesi = app(\App\Services\Seo\LocaleUrlService::class)->alternates(request(), $seoContent))
+    @php(request()->attributes->set('hc_hreflang_kumesi', $hreflangKumesi))
+    @foreach ($hreflangKumesi as $alternatif)
         <link rel="alternate" hreflang="{{ $alternatif['hreflang'] }}" href="{{ $alternatif['href'] }}">
     @endforeach
     @php($isPrivateSurface = request()->routeIs('admin.*', 'login', 'register', 'password.*', 'verification.*', 'profile', 'dashboard'))
@@ -40,10 +42,8 @@
         <meta name="robots" content="{{ $effectiveRobots }}">
     @endif
     @unless ($isPrivateSurface || str_contains((string) $robots, 'noindex'))
-        <meta name="geo.region" content="CY">
-        <meta name="geo.placename" content="Cyprus">
-        <meta name="geo.position" content="35.1856;33.3823">
-        <meta name="ICBM" content="35.1856, 33.3823">
+        {{-- geo.* ve ICBM etiketleri kaldırıldı: arama motorları okumuyor ve
+             her tarifi Lefkoşa'da bir yer gibi işaretliyordu. --}}
         <meta property="og:type" content="{{ request()->routeIs('blog.show') ? 'article' : 'website' }}">
         <meta property="og:locale" content="{{ $activeLanguage['og_locale'] ?? 'tr_TR' }}">
         @include('partials.hreflang')

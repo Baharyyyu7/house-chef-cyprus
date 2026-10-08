@@ -22,7 +22,8 @@ final class SeoDeploymentGuard extends Command
         $appUrl = rtrim((string) config('app.url'), '/');
         $appHost = (string) parse_url($appUrl, PHP_URL_HOST);
         $canonicalHost = (string) config('production.canonical_host');
-        $robots = (string) view('robots')->render();
+        // Sunucunun gerçekten servis ettiği dosya; görünüm şablonu silindi.
+        $robots = (string) @file_get_contents(public_path('robots.txt'));
         $requiredRoutes = ['home', 'recipes.index', 'blog.index', 'sitemap', 'sitemap.recipes', 'sitemap.blog'];
 
         $checks = [

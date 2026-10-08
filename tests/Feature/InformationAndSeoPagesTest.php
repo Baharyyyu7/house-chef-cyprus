@@ -62,7 +62,9 @@ final class InformationAndSeoPagesTest extends TestCase
         $public = Recipe::query()->where('status', 'published')->where('verification_status', 'verified')->firstOrFail();
         $this->makeRecipePubliclyEligible($public);
 
-        $this->get('/robots.txt')->assertOk()->assertSee('Disallow: /yonetim/')->assertSee('Sitemap:');
+        $robots = (string) file_get_contents(public_path('robots.txt'));
+        $this->assertStringContainsString('Disallow: /yonetim/', $robots);
+        $this->assertStringContainsString('Sitemap:', $robots);
         $this->get('/sitemap.xml')
             ->assertOk()
             ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')

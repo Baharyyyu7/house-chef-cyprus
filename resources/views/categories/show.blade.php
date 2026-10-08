@@ -1,19 +1,19 @@
 <x-layouts.site
-    :title="__('category.page_title', ['name' => $kategori->name])"
-    :meta-description="__('category.meta_description', ['name' => $kategori->name, 'count' => $tarifler->count()])"
+    :title="__('category.page_title', ['name' => taxonomy_name($kategori)])"
+    :meta-description="__('category.meta_description', ['name' => taxonomy_name($kategori), 'count' => $tarifler->count()])"
     :structured-data="$seoSchema"
     :canonical-url="$seoIndexability['canonical']"
     :robots="$seoIndexability['robots']">
     <section class="hc-container py-14">
         <nav class="hc-body-sm text-muted" aria-label="{{ __('category.breadcrumb') }}">
             <a href="{{ route('categories.index') }}">{{ __('category.breadcrumb') }}</a>
-            <span aria-hidden="true">›</span> {{ $kategori->name }}
+            <span aria-hidden="true">›</span> {{ taxonomy_name($kategori) }}
         </nav>
-        <h1 class="mt-4 font-display text-4xl font-semibold sm:text-5xl">{{ __('category.h1', ['name' => $kategori->name]) }}</h1>
+        <h1 class="mt-4 font-display text-4xl font-semibold sm:text-5xl">{{ __('category.h1', ['name' => taxonomy_name($kategori)]) }}</h1>
         {{-- Yer tutucu metin modelde tanimli: sablona gomulen bir metin,
              metin degisince sessizce calismayi birakir ve dolgu yeniden
              gorunur. --}}
-        @if($kategori->gercekAciklamasiVar())
+        @if(turkce_sayfa() && $kategori->gercekAciklamasiVar())
             <p class="hc-body-lg mt-4 max-w-3xl text-secondary">{{ $kategori->description }}</p>
         @endif
         <p class="hc-body-lg mt-4 max-w-2xl text-muted">{{ __('category.body_count', ['count' => $tarifler->count()]) }}</p>

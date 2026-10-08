@@ -3,7 +3,9 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Services\Seo\LocaleUrlService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -28,6 +30,21 @@ class SetLocale
             return $next($request);
         }
 
+        // Çevirisi olmayan sayfanın önekli adresi Türkçe sürüme gider.
+        // 8 Ekim 2026 denetimi: /en/hakkimizda, /de/sss gibi 74 adres
+        // Türkçe içerik servis ediyor ve hreflang'de ayrı dil sürümü gibi
+        // ilan ediliyordu. Önekli adres yaşadığı sürece aynı Türkçe metin
+        // yedi adreste durur; kalıcı yönlendirme onu tek adrese toplar.
+        // Rotanın kendisi bir yönlendirmeyse (Route::redirect) karışılmaz:
+        // hedefe tek adımda gitsin, zincir oluşmasın.
+        $urlDili = $request->attributes->get('hc_url_locale');
+        $rota = $request->route() instanceof Route ? $request->route() : null;
+        if (is_string($urlDili) && $urlDili !== $default && $request->isMethodSafe()
+            && ! str_contains((string) $rota?->getActionName(), 'RedirectController')
+            && ! app(LocaleUrlService::class)->yerellesmisRota($rota)) {
+            return redirect()->to($request->getRequestUri(), 301);
+        }
+
         $publicPage = ! $request->is('dil', 'api/*');
 
         $locale = $this->firstEnabledLocale([
@@ -48,10 +65,18 @@ class SetLocale
         $request->setLocale($locale);
 
         $previousFormatter = URL::pathFormatter();
-        URL::formatPathUsing(function ($path, $route) use ($locale, $default, $previousFormatter) {
+        $adresler = app(LocaleUrlService::class);
+        URL::formatPathUsing(function ($path, $route) use ($locale, $default, $previousFormatter, $adresler) {
             $path = $previousFormatter($path, $route);
-            if ($locale !== $default && $route?->named('home', 'recipes.*', 'blog.*', 'cuisines.*', 'categories.*', 'ingredients.explore', 'ingredients.hub.*', 'collections.sure*', 'collections.zorluk*', 'login', 'register', 'password.request', 'password.reset', 'password.confirm', 'verification.notice', 'pricing')) {
-                return '/'.$locale.($path === '/' ? '' : $path);
+            if ($locale !== $default && $route !== null && $adresler->yerellesmisRota($route)) {
+                // Önek tek başına yetmiyor: dilin yol yazımı da uygulanmalı.
+                // 8 Ekim 2026 denetimi: formatter yalnız öneki ekliyordu ve
+                // route('recipes.show') İngilizcede /en/tarifler/... üretiyordu;
+                // o adres 301 ile /en/recipes/...'e gidiyor. 275 yabancı
+                // sayfada 4.696 iç bağlantı, 217 Recipe şeması ve 23 kanonik
+                // yönlendirmeye işaret ediyordu. Yazım tek yerde,
+                // LocaleUrlService'te; burada yeniden yazılmaz.
+                return '/'.$locale.($path === '/' ? '' : $adresler->yerellesmisYol($locale, $path));
             }
 
             return $path;

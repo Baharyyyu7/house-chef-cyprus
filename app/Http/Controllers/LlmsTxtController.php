@@ -8,7 +8,7 @@ use App\Models\BlogPost;
 use App\Models\Recipe;
 use App\Services\Localization\CulinaryTranslationService;
 use App\Services\Seo\LocaleUrlService;
-use App\Services\Seo\RecipeTranslationGate;
+use App\Services\Seo\IndexableContent;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
@@ -18,32 +18,49 @@ final class LlmsTxtController extends Controller
         private readonly CulinaryTranslationService $translator
     ) {}
 
+    /**
+     * Bütün dillerin llms önbelleğini siler.
+     *
+     * Önbellek bir gün yaşıyordu ve hiçbir yayın/güncelleme onu
+     * temizlemiyordu: yayından kaldırılan ya da noindex'e alınan tarif bir
+     * gün boyunca korpusta kalıyordu. Yeni içerik de bir gün gecikiyordu.
+     */
+    public static function onbellegiTemizle(): void
+    {
+        foreach (array_keys((array) config('locales.supported', [])) as $dil) {
+            Cache::forget('seo:llms_txt_'.$dil);
+            Cache::forget('seo:llms_full_txt_'.$dil);
+        }
+    }
+
     public function index(): Response
     {
         $content = Cache::remember('seo:llms_txt_tr', 86400, function (): string {
+            // Site haritasıyla aynı süzgeç: noindex ya da o dilde 404 olan
+            // adres yapay zekâ korpusuna girmez.
+            $indeks = app(IndexableContent::class);
+            $dil = 'tr';
             $season = $this->translator->getSeasonalIntelligence('tr');
 
-            $cypriotRecipes = Recipe::query()
-                ->where('status', 'published')
-                ->where('verification_status', 'verified')
+            $cypriotRecipes = $indeks->tarifler($dil)
                 ->whereHas('cuisine', fn ($q) => $q->where('slug', 'kibris-mutfagi'))
                 ->limit(10)
-                ->get();
+                ->get()
+                ->filter(fn (Recipe|BlogPost $kayit): bool => $indeks->izinVerir($kayit, $dil));
 
-            $topRecipes = Recipe::query()
-                ->where('status', 'published')
-                ->where('verification_status', 'verified')
+            $topRecipes = $indeks->tarifler($dil)
                 ->with(['cuisine', 'category'])
                 ->latest('published_at')
                 ->limit(15)
-                ->get();
+                ->get()
+                ->filter(fn (Recipe|BlogPost $kayit): bool => $indeks->izinVerir($kayit, $dil));
 
-            $blogs = BlogPost::query()
-                ->publiclyVisible()
+            $blogs = $indeks->yazilar($dil)
                 ->with('category')
                 ->latest('published_at')
                 ->limit(10)
-                ->get();
+                ->get()
+                ->filter(fn (Recipe|BlogPost $kayit): bool => $indeks->izinVerir($kayit, $dil));
 
             $lines = [];
             $lines[] = '# House Chef Cyprus - Doğu Akdeniz & Kıbrıs Gastronomi Ansiklopedisi';
@@ -147,7 +164,7 @@ final class LlmsTxtController extends Controller
             $lines[] = '- FAQPage: https://schema.org/FAQPage (soru-cevap bölümlerinde)';
             $lines[] = '- BreadcrumbList: https://schema.org/BreadcrumbList (tüm sayfalarda)';
             $lines[] = '- Organization: https://schema.org/Organization (site kimliği)';
-            $lines[] = '- WebSite + SearchAction: https://schema.org/WebSite (ana sayfa)';
+            $lines[] = '- WebSite + Organization: https://schema.org/WebSite (site geneli)';
             $lines[] = '';
             $lines[] = '## Yapay Zekâ Ajan Araçları ve WebMCP Yetenekleri (AI Agent Tools & WebMCP)';
             $lines[] = 'HouseChef Cyprus, otonom tarayıcı ajanları (Chrome Agentic, ChatGPT, Claude Computer Use, Gemini) için yapılandırılmış WebMCP (Web Model Context Protocol) araçları sunar:';
@@ -188,39 +205,34 @@ final class LlmsTxtController extends Controller
         abort_unless(array_key_exists('en', app(LocaleUrlService::class)->enabledLocales()), 404);
 
         $content = Cache::remember('seo:llms_txt_en', 86400, function (): string {
+            // Site haritasıyla aynı süzgeç: noindex ya da o dilde 404 olan
+            // adres yapay zekâ korpusuna girmez.
+            $indeks = app(IndexableContent::class);
+            $dil = 'en';
             $localeUrls = app(LocaleUrlService::class);
             $season = $this->translator->getSeasonalIntelligence('en');
 
-            $heritageSlugs = array_keys((new \ReflectionClass($this->translator))->getConstant('RECIPE_DICTIONARY') ?: []);
-            $blogSlugs = array_keys((new \ReflectionClass($this->translator))->getConstant('BLOG_DICTIONARY') ?: []);
-            $isHeritage = fn (Recipe $r): bool => in_array($r->slug, $heritageSlugs, true) || in_array(preg_replace('/-[A-Za-z0-9]{5}$/', '', $r->slug), $heritageSlugs, true);
-            $isBlogHeritage = fn (BlogPost $p): bool => in_array($p->slug, $blogSlugs, true) || in_array(preg_replace('/-[A-Za-z0-9]{5}$/', '', $p->slug), $blogSlugs, true);
 
-            $cypriotRecipes = Recipe::query()
-                ->where('status', 'published')
-                ->where('verification_status', 'verified')
+            $cypriotRecipes = $indeks->tarifler($dil)
                 ->whereHas('cuisine', fn ($q) => $q->where('slug', 'kibris-mutfagi'))
                 ->with(['cuisine', 'category', 'steps', 'ingredients'])
                 ->get()
-                ->filter(fn (Recipe $r): bool => $r->hasTranslation('en') || $isHeritage($r))
+                ->filter(fn (Recipe $r): bool => $indeks->izinVerir($r, $dil))
                 ->take(10);
 
-            $topRecipes = Recipe::query()
-                ->where('status', 'published')
-                ->where('verification_status', 'verified')
+            $topRecipes = $indeks->tarifler($dil)
                 ->with(['cuisine', 'category', 'steps', 'ingredients'])
                 ->latest('published_at')
                 ->limit(15)
                 ->get()
-                ->filter(fn (Recipe $r): bool => $r->hasTranslation('en') || $isHeritage($r));
+                ->filter(fn (Recipe $r): bool => $indeks->izinVerir($r, $dil));
 
-            $blogs = BlogPost::query()
-                ->publiclyVisible()
+            $blogs = $indeks->yazilar($dil)
                 ->with('category')
                 ->latest('published_at')
                 ->limit(20)
                 ->get()
-                ->filter(fn (BlogPost $p): bool => $p->hasTranslation('en') || $isBlogHeritage($p))
+                ->filter(fn (BlogPost $p): bool => $indeks->izinVerir($p, $dil))
                 ->take(10);
 
             $lines = [];
@@ -331,7 +343,7 @@ final class LlmsTxtController extends Controller
             $lines[] = '- FAQPage: https://schema.org/FAQPage (on Q&A sections)';
             $lines[] = '- BreadcrumbList: https://schema.org/BreadcrumbList (on all pages)';
             $lines[] = '- Organization: https://schema.org/Organization (site identity)';
-            $lines[] = '- WebSite + SearchAction: https://schema.org/WebSite (homepage)';
+            $lines[] = '- WebSite + Organization: https://schema.org/WebSite (site-wide)';
             $lines[] = '';
             $lines[] = '## AI Agent Tools & WebMCP Capabilities';
             $lines[] = 'HouseChef Cyprus provides structured WebMCP (Web Model Context Protocol) tools for autonomous browser agents (Chrome Agentic, ChatGPT Browser, Claude Computer Use, Gemini):';
@@ -369,18 +381,21 @@ final class LlmsTxtController extends Controller
     public function full(): Response
     {
         $content = Cache::remember('seo:llms_full_txt_tr', 86400, function (): string {
-            $recipes = Recipe::query()
-                ->where('status', 'published')
-                ->where('verification_status', 'verified')
+            // Site haritasıyla aynı süzgeç: noindex ya da o dilde 404 olan
+            // adres yapay zekâ korpusuna girmez.
+            $indeks = app(IndexableContent::class);
+            $dil = 'tr';
+            $recipes = $indeks->tarifler($dil)
                 ->with(['cuisine', 'category', 'steps'])
                 ->orderBy('title')
-                ->get();
+                ->get()
+                ->filter(fn (Recipe|BlogPost $kayit): bool => $indeks->izinVerir($kayit, $dil));
 
-            $blogs = BlogPost::query()
-                ->publiclyVisible()
+            $blogs = $indeks->yazilar($dil)
                 ->with('category')
                 ->latest('published_at')
-                ->get();
+                ->get()
+                ->filter(fn (Recipe|BlogPost $kayit): bool => $indeks->izinVerir($kayit, $dil));
 
             $lines = [];
             $lines[] = '# House Chef Cyprus - Kapsamlı İçerik Kataloğu';
@@ -434,26 +449,23 @@ final class LlmsTxtController extends Controller
         abort_unless(array_key_exists('en', app(LocaleUrlService::class)->enabledLocales()), 404);
 
         $content = Cache::remember('seo:llms_full_txt_en', 86400, function (): string {
+            // Site haritasıyla aynı süzgeç: noindex ya da o dilde 404 olan
+            // adres yapay zekâ korpusuna girmez.
+            $indeks = app(IndexableContent::class);
+            $dil = 'en';
             $localeUrls = app(LocaleUrlService::class);
-            $heritageSlugs = array_keys((new \ReflectionClass($this->translator))->getConstant('RECIPE_DICTIONARY') ?: []);
-            $blogSlugs = array_keys((new \ReflectionClass($this->translator))->getConstant('BLOG_DICTIONARY') ?: []);
-            $isHeritage = fn (Recipe $r): bool => in_array($r->slug, $heritageSlugs, true) || in_array(preg_replace('/-[A-Za-z0-9]{5}$/', '', $r->slug), $heritageSlugs, true);
-            $isBlogHeritage = fn (BlogPost $p): bool => in_array($p->slug, $blogSlugs, true) || in_array(preg_replace('/-[A-Za-z0-9]{5}$/', '', $p->slug), $blogSlugs, true);
-            $recipes = Recipe::query()
-                ->where('status', 'published')
-                ->where('verification_status', 'verified')
+            $recipes = $indeks->tarifler($dil)
                 ->with(['cuisine', 'category', 'steps', 'ingredients'])
                 ->orderBy('title')
                 ->get()
-                ->filter(fn (Recipe $r): bool => $r->hasTranslation('en') || $isHeritage($r));
+                ->filter(fn (Recipe $r): bool => $indeks->izinVerir($r, $dil));
             $recipes = $recipes->sortBy(fn (Recipe $r): string => $this->translator->translateRecipeTitle($r, 'en'))->values();
 
-            $blogs = BlogPost::query()
-                ->publiclyVisible()
+            $blogs = $indeks->yazilar($dil)
                 ->with('category')
                 ->latest('published_at')
                 ->get()
-                ->filter(fn (BlogPost $p): bool => $p->hasTranslation('en') || $isBlogHeritage($p));
+                ->filter(fn (BlogPost $p): bool => $indeks->izinVerir($p, $dil));
 
             $lines = [];
             $lines[] = '# House Chef Cyprus - Full Recipe & Guide Corpus (English)';
@@ -528,25 +540,25 @@ final class LlmsTxtController extends Controller
         abort_unless(array_key_exists($locale, $desteklenen), 404);
 
         $content = Cache::remember('seo:llms_txt_'.$locale, 86400, function () use ($locale, $diller): string {
+            // Site haritasıyla aynı süzgeç: noindex ya da o dilde 404 olan
+            // adres yapay zekâ korpusuna girmez.
+            $indeks = app(IndexableContent::class);
+            $dil = $locale;
             app()->setLocale($locale);
 
-            $tarifler = Recipe::query()
-                ->where('status', 'published')
-                ->where('verification_status', 'verified')
-                ->translatedInto($locale)
+            $tarifler = $indeks->tarifler($dil)
                 ->latest('published_at')
                 ->limit(25)
                 ->get()
                 // Adımları kalıp çeviri olan tarif o dilde noindex; yapay zekâ
-                // korpusuna da "doğrulanmış" diye girmez. Bkz. RecipeTranslationGate.
-                ->filter(fn (Recipe $tarif): bool => app(RecipeTranslationGate::class)->hazir($tarif, $locale));
+                // korpusuna da "doğrulanmış" diye girmez (IndexableContent).
+                ->filter(fn (Recipe $tarif): bool => $indeks->izinVerir($tarif, $dil));
 
-            $yazilar = BlogPost::query()
-                ->publiclyVisible()
-                ->translatedInto($locale)
+            $yazilar = $indeks->yazilar($dil)
                 ->latest('published_at')
                 ->limit(15)
-                ->get();
+                ->get()
+                ->filter(fn (Recipe|BlogPost $kayit): bool => $indeks->izinVerir($kayit, $dil));
 
             $ad = (string) (config('locales.supported.'.$locale.'.label') ?: $locale);
 
@@ -629,23 +641,23 @@ final class LlmsTxtController extends Controller
         abort_unless(array_key_exists($locale, $desteklenen), 404);
 
         $content = Cache::remember('seo:llms_full_txt_'.$locale, 86400, function () use ($locale, $diller): string {
+            // Site haritasıyla aynı süzgeç: noindex ya da o dilde 404 olan
+            // adres yapay zekâ korpusuna girmez.
+            $indeks = app(IndexableContent::class);
+            $dil = $locale;
             app()->setLocale($locale);
 
-            $tarifler = Recipe::query()
-                ->where('status', 'published')
-                ->where('verification_status', 'verified')
-                ->translatedInto($locale)
+            $tarifler = $indeks->tarifler($dil)
                 ->with(['cuisine', 'category', 'steps'])
                 ->orderBy('title')
                 ->get()
-                ->filter(fn (Recipe $tarif): bool => app(RecipeTranslationGate::class)->hazir($tarif, $locale));
+                ->filter(fn (Recipe $tarif): bool => $indeks->izinVerir($tarif, $dil));
 
-            $yazilar = BlogPost::query()
-                ->publiclyVisible()
-                ->translatedInto($locale)
+            $yazilar = $indeks->yazilar($dil)
                 ->with('category')
                 ->latest('published_at')
-                ->get();
+                ->get()
+                ->filter(fn (Recipe|BlogPost $kayit): bool => $indeks->izinVerir($kayit, $dil));
 
             $ad = (string) (config('locales.supported.'.$locale.'.label') ?: $locale);
 

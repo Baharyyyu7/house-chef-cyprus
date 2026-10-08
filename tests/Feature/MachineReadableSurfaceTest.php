@@ -22,7 +22,8 @@ final class MachineReadableSurfaceTest extends TestCase
             ->filter(fn (Route $route): bool => $classifier->classify($route) === 'machine')
             ->values();
 
-        $this->assertSame(25, $routes->count(), 'Machine-readable route inventory changed; review its contracts.');
+        // 24: /robots.txt rotası kaldırıldı; dosya public/robots.txt'ten statik servis ediliyor.
+        $this->assertSame(24, $routes->count(), 'Machine-readable route inventory changed; review its contracts.');
 
         foreach ($routes as $route) {
             $uri = '/'.preg_replace('/\{locale}/', 'en', $route->uri());
@@ -39,7 +40,8 @@ final class MachineReadableSurfaceTest extends TestCase
         $this->get('/feed.xml')->assertOk()->assertSee('<rss', false)->assertSee('<channel>', false);
         $this->get('/opensearch.xml')->assertOk()->assertSee('<OpenSearchDescription', false);
         $this->get('/manifest.webmanifest')->assertOk()->assertJsonStructure(['name', 'short_name', 'icons']);
-        $this->get('/robots.txt')->assertOk()->assertSee('Sitemap:', false);
+        // robots.txt statik dosya (public/robots.txt); sunucu onu doğrudan verir.
+        $this->assertStringContainsString('Sitemap:', (string) file_get_contents(public_path('robots.txt')));
         $this->get('/llms.txt')->assertOk()->assertSee('House Chef Cyprus', false);
     }
 }

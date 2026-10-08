@@ -7,6 +7,8 @@ namespace App\Http\Controllers;
 use App\Models\BlogPost;
 use App\Models\Recipe;
 use App\Services\Localization\CulinaryTranslationService;
+use App\Services\Seo\IndexableContent;
+use App\Services\Seo\LocaleUrlService;
 use Illuminate\Http\Response;
 
 final class RssFeedController extends Controller
@@ -30,26 +32,32 @@ final class RssFeedController extends Controller
     {
         $isEn = $locale === 'en';
 
-        $recipes = Recipe::query()
-            ->where('status', 'published')
-            ->where('verification_status', 'verified')
+        // Site haritasıyla aynı süzgeç (8 Ekim 2026 denetimi): besleme
+        // noindex bir nüsha tarifi ve 404 adresleri yayıyordu; İngilizce
+        // besleme çevirisi olmayan tarifi Türkçe adresle veriyordu.
+        $indeks = app(IndexableContent::class);
+        $adresler = app(LocaleUrlService::class);
+        $adres = fn (string $rota, Recipe|BlogPost $kayit): string => $adresler->urlFor($locale, route($rota, $kayit, false));
+
+        $recipes = $indeks->tarifler($locale)
             ->with(['cuisine', 'category', 'media' => fn ($q) => $q->where('visibility', 'public')->orderBy('sort_order')])
             ->latest('published_at')
             ->limit(30)
-            ->get();
+            ->get()
+            ->filter(fn (Recipe $r): bool => $indeks->izinVerir($r, $locale));
 
-        $blogs = BlogPost::query()
-            ->publiclyVisible()
+        $blogs = $indeks->yazilar($locale)
             ->with(['category', 'heroMedia'])
             ->latest('published_at')
             ->limit(15)
-            ->get();
+            ->get()
+            ->filter(fn (BlogPost $b): bool => $indeks->izinVerir($b, $locale));
 
         $items = collect()
             ->concat($recipes->map(fn (Recipe $r): array => [
                 'title' => $this->translator->translateRecipeTitle($r, $locale),
-                'link' => route('recipes.show', $r),
-                'guid' => route('recipes.show', $r),
+                'link' => $adres('recipes.show', $r),
+                'guid' => $adres('recipes.show', $r),
                 'description' => $this->translator->translateRecipeDescription($r, $locale),
                 'pubDate' => $r->published_at?->toRssString() ?? now()->toRssString(),
                 'category' => $isEn
@@ -59,8 +67,8 @@ final class RssFeedController extends Controller
             ]))
             ->concat($blogs->map(fn (BlogPost $b): array => [
                 'title' => $this->translator->translateBlogTitle($b, $locale),
-                'link' => route('blog.show', $b),
-                'guid' => route('blog.show', $b),
+                'link' => $adres('blog.show', $b),
+                'guid' => $adres('blog.show', $b),
                 'description' => $this->translator->translateBlogDescription($b, $locale),
                 'pubDate' => $b->published_at?->toRssString() ?? now()->toRssString(),
                 'category' => $isEn ? 'Gastronomy & Culinary Guides' : ($b->category?->name ?? 'Blog'),

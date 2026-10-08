@@ -38,6 +38,28 @@ return [
         'fa' => ['tarifler' => 'recipes', 'mutfaklar' => 'cuisines'],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Dil sürümü olan rotalar
+    |--------------------------------------------------------------------------
+    |
+    | Yalnız bu rotaların yabancı dil adresi vardır. route() bunlara dil
+    | önekini ve yol yazımını ekler; hreflang kümesi yalnız bunlar için
+    | kurulur; listede olmayan bir sayfanın önekli adresi (/en/hakkimizda)
+    | Türkçe sürüme kalıcı yönlendirilir. Önceden liste SetLocale içinde
+    | gömülüydü ve hreflang ile site haritası onu bilmiyordu: 74 Türkçe
+    | statik sayfa yedi dilde ayrı dil sürümü gibi ilan ediliyordu.
+    |
+    | Bir sayfanın gerçek çevirisi geldiğinde buraya eklenir.
+    |
+    */
+    'localized_routes' => [
+        'home', 'recipes.*', 'blog.*', 'cuisines.*', 'categories.*',
+        'ingredients.explore', 'ingredients.hub.*', 'collections.sure*', 'collections.zorluk*',
+        'login', 'register', 'password.request', 'password.reset', 'password.confirm',
+        'verification.notice', 'pricing',
+    ],
+
     'supported' => [
         'tr' => [
             'flag' => '🇹🇷',

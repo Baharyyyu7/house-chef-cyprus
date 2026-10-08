@@ -51,12 +51,12 @@ final class RecipeCollectionLandingController extends Controller
      */
     public function sureler(Request $request, SeoIndexabilityService $indexability, SeoSchemaService $schema): View
     {
-        return $this->hub($request, 'sure', 'Süreye göre tarifler', 'Elinizdeki zamana göre doğrulanmış tarifler.', $indexability, $schema);
+        return $this->hub($request, 'sure', __('collection.sure.hub_title'), __('collection.sure.hub_description'), $indexability, $schema);
     }
 
     public function zorluklar(Request $request, SeoIndexabilityService $indexability, SeoSchemaService $schema): View
     {
-        return $this->hub($request, 'zorluk', 'Zorluğa göre tarifler', 'Mutfaktaki deneyiminize göre doğrulanmış tarifler.', $indexability, $schema);
+        return $this->hub($request, 'zorluk', __('collection.zorluk.hub_title'), __('collection.zorluk.hub_description'), $indexability, $schema);
     }
 
     private function hub(Request $request, string $tur, string $baslik, string $aciklama, SeoIndexabilityService $indexability, SeoSchemaService $schema): View
@@ -75,8 +75,8 @@ final class RecipeCollectionLandingController extends Controller
             'sayfalar' => $sayfalar,
             'seoIndexability' => $indexability->forRequest($request, $canonical),
             'seoSchema' => $schema->hubPage($baslik, $aciklama, $canonical, $sayfalar->pluck('url')->all(), [
-                ['name' => 'Ana Sayfa', 'url' => route('home')],
-                ['name' => 'Tarifler', 'url' => route('recipes.index')],
+                ['name' => __('nav.home'), 'url' => route('home')],
+                ['name' => __('nav.recipes'), 'url' => route('recipes.index')],
                 ['name' => $baslik, 'url' => $canonical],
             ]),
         ]);
@@ -98,14 +98,23 @@ final class RecipeCollectionLandingController extends Controller
                     return [
                         'type' => $tur,
                         'slug' => $slug,
-                        'title' => $tanim['title'],
-                        'description' => $tanim['description'],
+                        'title' => self::metin($tur, $slug, 'title'),
+                        'description' => self::metin($tur, $slug, 'description'),
                         'url' => route('collections.'.$tur, $slug),
                         'lastmod' => $controller->sonYayinTarihi($tur, $tanim),
                         'count' => $controller->sorgu($tur, $tanim)->count(),
                     ];
                 })->filter()->values()->all();
             })->values();
+    }
+
+    /**
+     * Başlık ve açıklama o dilde. Sabitlerdeki Türkçe metin yalnız kaynak;
+     * yabancı sayfa onu basıyordu ("Kolay Tarifler" /en/zorluk/kolay'da).
+     */
+    private static function metin(string $tur, string $slug, string $alan): string
+    {
+        return __("collection.{$tur}.{$slug}.{$alan}");
     }
 
     public static function sayfasiVar(?int $tarifSayisi): bool
@@ -148,6 +157,8 @@ final class RecipeCollectionLandingController extends Controller
         abort_unless(self::sayfasiVar($tarifler->count()), 404);
 
         $canonical = route('collections.'.$tur, $slug);
+        $tanim['title'] = self::metin($tur, $slug, 'title');
+        $tanim['description'] = self::metin($tur, $slug, 'description');
 
         return view('recipe-collections.show', [
             'koleksiyon' => $tanim,
@@ -160,8 +171,8 @@ final class RecipeCollectionLandingController extends Controller
                 $canonical,
                 $tarifler,
                 [
-                    ['name' => 'Ana Sayfa', 'url' => route('home')],
-                    ['name' => 'Tarifler', 'url' => route('recipes.index')],
+                    ['name' => __('nav.home'), 'url' => route('home')],
+                    ['name' => __('nav.recipes'), 'url' => route('recipes.index')],
                     ['name' => $tanim['title'], 'url' => $canonical],
                 ],
             ),

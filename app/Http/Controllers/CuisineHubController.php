@@ -8,6 +8,7 @@ use App\Models\Cuisine;
 use App\Models\Recipe;
 use App\Services\Media\HubCoverPicker;
 use App\Services\Media\PublicMediaEligibilityService;
+use App\Services\Seo\LocalePageAvailability;
 use App\Services\Seo\SeoIndexabilityService;
 use App\Services\Seo\SeoSchemaService;
 use Illuminate\Database\Eloquent\Collection;
@@ -65,6 +66,7 @@ final class CuisineHubController extends Controller
         $mutfak = Cuisine::query()->where('slug', $slug)->first();
 
         abort_if($mutfak === null, 404);
+        abort_unless(LocalePageAvailability::taksonomiAdiVar('cuisine', $mutfak->slug), 404);
 
         $tarifler = $this->tarifleriIcin($mutfak);
 
@@ -141,12 +143,19 @@ final class CuisineHubController extends Controller
         // Süzme SQL'de değil koleksiyonda: SQLite toplama içermeyen bir
         // sorguda HAVING kabul etmiyor ve testler SQLite üzerinde koşuyor.
         // Mutfak sayısı iki haneli, bunun bir maliyeti yok.
+        //
+        // Sayım o dile çevrilmiş tariflerle yapılır (show() ile aynı tanım).
+        // /en/cuisines eskiden Türkçe sayımla liste basıyordu ve kartların
+        // bir kısmı İngilizcede 404 veren sayfalara gidiyordu.
+        $sayilar = self::ceviriSayilari();
+
         return Cuisine::query()
-            ->withCount(['recipes' => fn ($q) => $q->where('status', 'published')->where('verification_status', 'verified')])
+            ->whereIn('slug', array_keys($sayilar))
             ->withMax(['recipes as latest_published_at' => fn ($q) => $q->where('status', 'published')->where('verification_status', 'verified')], 'published_at')
-            ->orderByDesc('recipes_count')
             ->get()
-            ->filter(fn (Cuisine $m): bool => (int) $m->recipes_count >= self::ASGARI_TARIF)
+            ->each(fn (Cuisine $m) => $m->setAttribute('recipes_count', $sayilar[$m->slug] ?? 0))
+            ->filter(fn (Cuisine $m): bool => self::sayfasiVar((int) $m->recipes_count))
+            ->sortByDesc('recipes_count')
             ->values();
     }
 
@@ -168,7 +177,12 @@ final class CuisineHubController extends Controller
                 ->translatedInto()->whereNotNull('cuisine_id')->pluck('cuisine_id')->countBy();
 
             return Cuisine::query()->whereIn('id', $sayilar->keys())->pluck('slug', 'id')
-                ->mapWithKeys(static fn (string $slug, int $id): array => [$slug => (int) $sayilar[$id]])->all();
+                ->mapWithKeys(static fn (string $slug, int $id): array => [$slug => (int) $sayilar[$id]])
+                // Adı o dile çevrilmemiş mutfak o dilde yok: sayfası Türkçe
+                // başlıkla açılıyordu. Sayım sıfır sayılır ki her bağlantı
+                // basan yer aynı cevabı alsın.
+                ->filter(static fn (int $adet, string $slug): bool => LocalePageAvailability::taksonomiAdiVar('cuisine', $slug))
+                ->all();
         });
     }
 

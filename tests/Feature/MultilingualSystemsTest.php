@@ -38,7 +38,7 @@ final class MultilingualSystemsTest extends TestCase
         $cuisine = Cuisine::query()->create(['name' => 'Kıbrıs Mutfağı', 'slug' => 'kibris-mutfagi']);
         $category = Category::query()->create(['name' => 'Ana Yemek', 'slug' => 'ana-yemek']);
 
-        Recipe::query()->create([
+        $tarif = Recipe::query()->create([
             'cuisine_id' => $cuisine->id,
             'category_id' => $category->id,
             'title' => 'Kıbrıs Şeftali Kebabı',
@@ -51,6 +51,12 @@ final class MultilingualSystemsTest extends TestCase
             'description' => 'Geleneksel Kıbrıs lezzeti.',
             'published_at' => now(),
         ]);
+
+        // İngilizce adres yalnız çevirisi olan tarifte açılır; korpus ve
+        // besleme 404 veren adresi yaymaz (8 Ekim 2026 denetimi).
+        foreach (['title' => 'Authentic Cypriot Sheftalia Kebab', 'excerpt' => 'English summary', 'description' => 'English description'] as $alan => $deger) {
+            $tarif->translations()->create(['locale' => 'en', 'field' => $alan, 'value' => $deger]);
+        }
 
         $response = $this->get('/en/llms.txt');
 
@@ -72,7 +78,7 @@ final class MultilingualSystemsTest extends TestCase
         $cuisine = Cuisine::query()->create(['name' => 'Kıbrıs Mutfağı', 'slug' => 'kibris-mutfagi']);
         $category = Category::query()->create(['name' => 'Ana Yemek', 'slug' => 'ana-yemek']);
 
-        Recipe::query()->create([
+        $tarif = Recipe::query()->create([
             'cuisine_id' => $cuisine->id,
             'category_id' => $category->id,
             'title' => 'Kıbrıs Usulü Kleftiko',
@@ -85,6 +91,12 @@ final class MultilingualSystemsTest extends TestCase
             'description' => 'Fırında kuzu tandır.',
             'published_at' => now(),
         ]);
+
+        // İngilizce adres yalnız çevirisi olan tarifte açılır; korpus ve
+        // besleme 404 veren adresi yaymaz (8 Ekim 2026 denetimi).
+        foreach (['title' => 'Traditional Cypriot Kleftiko', 'excerpt' => 'English summary', 'description' => 'English description'] as $alan => $deger) {
+            $tarif->translations()->create(['locale' => 'en', 'field' => $alan, 'value' => $deger]);
+        }
 
         $response = $this->get('/en/llms-full.txt');
 
@@ -101,7 +113,7 @@ final class MultilingualSystemsTest extends TestCase
         $cuisine = Cuisine::query()->create(['name' => 'Kıbrıs Mutfağı', 'slug' => 'kibris-mutfagi']);
         $category = Category::query()->create(['name' => 'Ana Yemek', 'slug' => 'ana-yemek']);
 
-        Recipe::query()->create([
+        $tarif = Recipe::query()->create([
             'cuisine_id' => $cuisine->id,
             'category_id' => $category->id,
             'title' => 'Kıbrıs Şeftali Kebabı',
@@ -114,6 +126,12 @@ final class MultilingualSystemsTest extends TestCase
             'description' => 'Geleneksel lezzet.',
             'published_at' => now(),
         ]);
+
+        // İngilizce adres yalnız çevirisi olan tarifte açılır; korpus ve
+        // besleme 404 veren adresi yaymaz (8 Ekim 2026 denetimi).
+        foreach (['title' => 'Authentic Cypriot Sheftalia Kebab', 'excerpt' => 'English summary', 'description' => 'English description'] as $alan => $deger) {
+            $tarif->translations()->create(['locale' => 'en', 'field' => $alan, 'value' => $deger]);
+        }
 
         // Turkish feed
         $trResponse = $this->get('/feed');
