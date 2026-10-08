@@ -649,7 +649,10 @@ final class SeoSchemaService
             }
 
             $ans = trim($daysText.($kaynakDil && $uyari !== '' ? $uyari : $defaultAdvice));
-            if ($ans !== '') {
+            // Yalnız sayfada da görünen bir not varsa: sayfa "saklama notu
+            // yok" derken SSS genel bir tavsiyeyi tarifin bilgisi gibi
+            // sunuyordu. Gün sayısı ya da uyarı metni yoksa soru basılmaz.
+            if ($ans !== '' && (($kaynakDil && trim($uyari) !== '') || $gun)) {
                 $questions[] = [
                     '@type' => 'Question',
                     'name' => $q,

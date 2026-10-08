@@ -28,8 +28,10 @@ final class HouseholdMeasurementTest extends TestCase
     {
         $unit = new Unit(['supports_fractions' => true, 'precision' => 2]);
         $formatter = app(HouseholdMeasurementFormatter::class);
-        $this->assertSame('Yarım', $formatter->quantity('0.5', $unit));
-        $this->assertSame('çeyrek', $formatter->quantity('0.25', $unit));
+        // Ölçeklenen tarif "4 yarım su bardağı" diyordu; kesir işareti hem
+        // kısa hem her dilde aynı okunuyor.
+        $this->assertSame('½', $formatter->quantity('0.5', $unit));
+        $this->assertSame('¼', $formatter->quantity('0.25', $unit));
         $this->assertSame('1,5', $formatter->quantity('1.5'));
     }
 

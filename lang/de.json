@@ -361,7 +361,6 @@
     "home.browse_archive": "Rezeptarchiv durchstöbern",
     "home.search_kicker": "Küche leicht gemacht",
     "home.search_title": "Starten Sie mit einer Zutat.",
-    "home.all_archive": "Gesamtes Archiv →",
     "home.select_ingredient_label": "Wählen Sie eine Zutat",
     "home.select_ingredient_placeholder": "Welche Zutat haben Sie zu Hause?",
     "home.what_can_i_cook": "Was kann ich kochen?",
@@ -384,7 +383,6 @@
     "home.step_3": "Öffnen Sie das Rezept und kochen Sie Schritt für Schritt.",
     "home.cuisines_kicker": "Küchenauswahl",
     "home.cuisines_title": "Starten Sie auf Zypern.",
-    "home.discovery_title": "Wie möchten Sie entdecken?",
     "home.recipes_count": ":count Rezepte",
     "home.membership_kicker": "Bereit für die nächste Mahlzeit",
     "home.membership_title": "Behalten Sie Ihre Lieblingsrezepte griffbereit.",
@@ -531,7 +529,6 @@
     "explore.compat_unknown_prefix": "Unbekannt:",
     "recipe.show.ai_image_note": "Dieses Bild wurde zur Veranschaulichung redaktionell generiert.",
     "recipe.show.trust_kicker": "Rezept-Verifizierung",
-    "recipe.show.trust_with_approved_synthetic": "Redaktionell geprüft mit genehmigter Visualisierung.",
     "recipe.show.trust_with_approved_real": "Originalfoto des Autors, redaktionell bestätigt.",
     "recipe.show.trust_no_photo": "Rezeptur redaktionell freigegeben, Bild in Erstellung.",
     "recipe.show.record_verified": "Verifiziertes Rezept",
@@ -601,9 +598,7 @@
     "recipe.show.mistakes_title": "Das sollten Sie vermeiden",
     "recipe.show.storage_kicker": "Aufbewahrung",
     "recipe.show.storage_title": "Haltbarkeit & Lagerung",
-    "recipe.show.storage_serving": "Servierhinweis",
     "recipe.show.storage_label": "Lagerung",
-    "recipe.show.storage_empty": "Keine besonderen Lagerhinweise.",
     "recipe.show.reheat_label": "Aufwärmen",
     "recipe.show.freeze_label": "Einfrieren",
     "recipe.show.source_kicker": "Herkunft & Quelle",
@@ -833,5 +828,8 @@
     "recipe.show.allergens_unverified_body": "Diese Liste wurde teilweise aus den Zutatennamen abgeleitet und kann unvollständig sein; prüfen Sie die Etiketten der verwendeten Produkte.",
     "recipe.show.allergens_none_found": "In den Zutatennamen ist keines der 14 EU-Hauptallergene erkennbar.",
     "recipe.show.nutrition_insufficient_title": "Unvollständige Daten.",
-    "recipe.show.nutrition_insufficient_body": "Nährwerte sind nur für einen Teil der Zutaten bekannt; statt einer irreführenden Summe zeigen wir keine Werte."
+    "recipe.show.nutrition_insufficient_body": "Nährwerte sind nur für einen Teil der Zutaten bekannt; statt einer irreführenden Summe zeigen wir keine Werte.",
+    "recipe.show.storage_fridge_days": "Bis zu :days Tage im Kühlschrank.",
+    "home.all_cuisines": "Alle Küchen",
+    "home.collections_nav": "Rezeptsammlungen"
 }

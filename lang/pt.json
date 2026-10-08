@@ -361,7 +361,6 @@
     "home.browse_archive": "Explorar arquivo de receitas",
     "home.search_kicker": "Cozinhar com facilidade",
     "home.search_title": "Comece com um ingrediente.",
-    "home.all_archive": "Todo o arquivo →",
     "home.select_ingredient_label": "Escolha um ingrediente",
     "home.select_ingredient_placeholder": "Que ingrediente tem em casa?",
     "home.what_can_i_cook": "O que posso cozinhar?",
@@ -384,7 +383,6 @@
     "home.step_3": "Abra a receita e cozinhe passo a passo.",
     "home.cuisines_kicker": "Seleção de tradições culinárias",
     "home.cuisines_title": "Comece pelos sabores de Chipre.",
-    "home.discovery_title": "Como quer explorar?",
     "home.recipes_count": ":count receitas",
     "home.membership_kicker": "Pronto para a próxima refeição",
     "home.membership_title": "Mantenha as suas receitas favoritas à mão.",
@@ -531,7 +529,6 @@
     "explore.compat_unknown_prefix": "Desconhecido:",
     "recipe.show.ai_image_note": "Esta imagem foi gerada editorialmente para fins ilustrativos.",
     "recipe.show.trust_kicker": "Garantia de qualidade",
-    "recipe.show.trust_with_approved_synthetic": "Receita testada com imagem ilustrativa aprovada.",
     "recipe.show.trust_with_approved_real": "Fotografia autêntica do autor, confirmada pela equipa editorial.",
     "recipe.show.trust_no_photo": "Receita verificada, fotografia em preparação.",
     "recipe.show.record_verified": "Receita verificada",
@@ -601,9 +598,7 @@
     "recipe.show.mistakes_title": "O que evitar nesta preparação",
     "recipe.show.storage_kicker": "Conservação",
     "recipe.show.storage_title": "Como conservar e durabilidade",
-    "recipe.show.storage_serving": "Como servir",
     "recipe.show.storage_label": "Conservação",
-    "recipe.show.storage_empty": "Sem instruções específicas de conservação.",
     "recipe.show.reheat_label": "Reaquecer",
     "recipe.show.freeze_label": "Congelar",
     "recipe.show.source_kicker": "Origem e fonte",
@@ -833,5 +828,8 @@
     "recipe.show.allergens_unverified_body": "Esta lista foi parcialmente derivada dos nomes dos ingredientes e pode estar incompleta; verifique os rótulos dos produtos que utiliza.",
     "recipe.show.allergens_none_found": "Nenhum dos 14 principais alergénios da UE aparece nos nomes dos ingredientes.",
     "recipe.show.nutrition_insufficient_title": "Dados incompletos.",
-    "recipe.show.nutrition_insufficient_body": "Os valores nutricionais só são conhecidos para parte dos ingredientes; em vez de um total enganador, não os mostramos."
+    "recipe.show.nutrition_insufficient_body": "Os valores nutricionais só são conhecidos para parte dos ingredientes; em vez de um total enganador, não os mostramos.",
+    "recipe.show.storage_fridge_days": "Até :days dias no frigorífico.",
+    "home.all_cuisines": "Todas as cozinhas",
+    "home.collections_nav": "Coleções de receitas"
 }

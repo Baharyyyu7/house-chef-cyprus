@@ -361,7 +361,6 @@
     "home.browse_archive": "مشاهده آرشیو دستور پخت‌ها",
     "home.search_kicker": "تصمیم‌گیری آسان برای آشپزی",
     "home.search_title": "با یک ماده اولیه شروع کنید.",
-    "home.all_archive": "مشاهده تمام آرشیو ←",
     "home.select_ingredient_label": "انتخاب ماده اولیه",
     "home.select_ingredient_placeholder": "چه ماده‌ای در خانه دارید؟",
     "home.what_can_i_cook": "چی بپزم؟",
@@ -384,7 +383,6 @@
     "home.step_3": "دستور پخت را باز کنید و مرحله به مرحله بپزید.",
     "home.cuisines_kicker": "مجموعه سبک‌های آشپزی",
     "home.cuisines_title": "با طعم‌های قبرس آغاز کنید.",
-    "home.discovery_title": "دوست دارید چگونه کشف کنید؟",
     "home.recipes_count": ":count دستور پخت",
     "home.membership_kicker": "آماده برای وعده بعدی",
     "home.membership_title": "دستورهای مورد علاقه شما همیشه در دسترس.",
@@ -531,7 +529,6 @@
     "explore.compat_unknown_prefix": "نامشخص:",
     "recipe.show.ai_image_note": "این تصویر به صورت تحریریه‌ای و صرفاً برای راهنمایی بصری تولید شده است.",
     "recipe.show.trust_kicker": "اطمینان از کیفیت دستور پخت",
-    "recipe.show.trust_with_approved_synthetic": "دستور پخت تأییدشده با تصویرسازی تصویب‌شده تحریریه.",
     "recipe.show.trust_with_approved_real": "عکس واقعی پدیدآورنده، تأییدشده توسط تحریریه.",
     "recipe.show.trust_no_photo": "دستور پخت تأییدشده؛ تصویر واقعی در مرحله آماده‌سازی است.",
     "recipe.show.record_verified": "دستور پخت معتبر",
@@ -601,9 +598,7 @@
     "recipe.show.mistakes_title": "مواردی که باید از آنها پرهیز کرد",
     "recipe.show.storage_kicker": "نگهداری",
     "recipe.show.storage_title": "نحوه نگهداری و ماندگاری",
-    "recipe.show.storage_serving": "نحوه سرو",
     "recipe.show.storage_label": "نگهداری",
-    "recipe.show.storage_empty": "دستورالعمل خاصی برای نگهداری قید نشده است.",
     "recipe.show.reheat_label": "گرم کردن مجدد",
     "recipe.show.freeze_label": "فریز کردن",
     "recipe.show.source_kicker": "منبع و پیشینه",
@@ -833,5 +828,8 @@
     "recipe.show.allergens_unverified_body": "این فهرست تا حدی از نام مواد اولیه استخراج شده و ممکن است کامل نباشد؛ برچسب محصولاتی را که استفاده می‌کنید بررسی کنید.",
     "recipe.show.allergens_none_found": "در نام مواد اولیه هیچ‌یک از ۱۴ آلرژن اصلی اتحادیه اروپا دیده نمی‌شود.",
     "recipe.show.nutrition_insufficient_title": "داده ناقص است.",
-    "recipe.show.nutrition_insufficient_body": "ارزش غذایی فقط برای بخشی از مواد اولیه مشخص است؛ به‌جای نمایش جمع گمراه‌کننده، مقادیر را نشان نمی‌دهیم."
+    "recipe.show.nutrition_insufficient_body": "ارزش غذایی فقط برای بخشی از مواد اولیه مشخص است؛ به‌جای نمایش جمع گمراه‌کننده، مقادیر را نشان نمی‌دهیم.",
+    "recipe.show.storage_fridge_days": "تا :days روز در یخچال.",
+    "home.all_cuisines": "همه آشپزی‌ها",
+    "home.collections_nav": "مجموعه‌های دستور پخت"
 }

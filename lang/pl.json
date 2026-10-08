@@ -361,7 +361,6 @@
     "home.browse_archive": "Przeglądaj przepisy",
     "home.search_kicker": "Łatwe gotowanie na co dzień",
     "home.search_title": "Zacznij od jednego składnika.",
-    "home.all_archive": "Całe archiwum →",
     "home.select_ingredient_label": "Wybierz składnik",
     "home.select_ingredient_placeholder": "Co masz w kuchni?",
     "home.what_can_i_cook": "Co ugotować?",
@@ -384,7 +383,6 @@
     "home.step_3": "Otwórz przepis i gotuj krok po kroku.",
     "home.cuisines_kicker": "Kolekcje kuchni",
     "home.cuisines_title": "Zacznij od smaków Cypru.",
-    "home.discovery_title": "Jak chcesz odkrywać?",
     "home.recipes_count": ":count przepisów",
     "home.membership_kicker": "Bądź gotowy na każdy posiłek",
     "home.membership_title": "Twoje ulubione przepisy zawsze pod ręką.",
@@ -531,7 +529,6 @@
     "explore.compat_unknown_prefix": "Nieznane:",
     "recipe.show.ai_image_note": "To zdjęcie zostało wygenerowane w celach poglądowych.",
     "recipe.show.trust_kicker": "Weryfikacja jakości",
-    "recipe.show.trust_with_approved_synthetic": "Zweryfikowany przepis z zatwierdzoną wizualizacją.",
     "recipe.show.trust_with_approved_real": "Oryginalna fotografia autora, potwierdzona redakcyjnie.",
     "recipe.show.trust_no_photo": "Przepis sprawdzony redakcyjnie, zdjęcie w przygotowaniu.",
     "recipe.show.record_verified": "Zweryfikowany przepis",
@@ -601,9 +598,7 @@
     "recipe.show.mistakes_title": "Czego unikać podczas gotowania",
     "recipe.show.storage_kicker": "Przechowywanie",
     "recipe.show.storage_title": "Świeżość i trwałość",
-    "recipe.show.storage_serving": "Sposób podania",
     "recipe.show.storage_label": "Przechowywanie",
-    "recipe.show.storage_empty": "Brak szczególnych wytycznych dotyczących przechowywania.",
     "recipe.show.reheat_label": "Podgrzewanie",
     "recipe.show.freeze_label": "Mrożenie",
     "recipe.show.source_kicker": "Pochodzenie i źródło",
@@ -833,5 +828,8 @@
     "recipe.show.allergens_unverified_body": "Lista częściowo wynika z nazw składników i może być niepełna; sprawdź etykiety używanych produktów.",
     "recipe.show.allergens_none_found": "W nazwach składników nie widać żadnego z 14 głównych alergenów UE.",
     "recipe.show.nutrition_insufficient_title": "Niepełne dane.",
-    "recipe.show.nutrition_insufficient_body": "Wartości odżywcze znamy tylko dla części składników, dlatego zamiast mylącej sumy ich nie pokazujemy."
+    "recipe.show.nutrition_insufficient_body": "Wartości odżywcze znamy tylko dla części składników, dlatego zamiast mylącej sumy ich nie pokazujemy.",
+    "recipe.show.storage_fridge_days": "Do :days dni w lodówce.",
+    "home.all_cuisines": "Wszystkie kuchnie",
+    "home.collections_nav": "Kolekcje przepisów"
 }

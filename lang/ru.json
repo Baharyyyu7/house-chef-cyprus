@@ -361,7 +361,6 @@
     "home.browse_archive": "Смотреть каталог рецептов",
     "home.search_kicker": "Кулинария без хлопот",
     "home.search_title": "Начните с одного ингредиента.",
-    "home.all_archive": "Весь каталог →",
     "home.select_ingredient_label": "Выберите ингредиент",
     "home.select_ingredient_placeholder": "Какой продукт есть у вас дома?",
     "home.what_can_i_cook": "Что приготовить?",
@@ -384,7 +383,6 @@
     "home.step_3": "Откройте рецепт и готовьте пошагово.",
     "home.cuisines_kicker": "Кулинарные направления",
     "home.cuisines_title": "Начните с традиций Кипра.",
-    "home.discovery_title": "С чего начнём поиск?",
     "home.recipes_count": ":count рецептов",
     "home.membership_kicker": "Готовьте с удовольствием",
     "home.membership_title": "Любимые рецепты всегда под рукой.",
@@ -531,7 +529,6 @@
     "explore.compat_unknown_prefix": "Неизвестно:",
     "recipe.show.ai_image_note": "Иллюстрация подготовлена редакцией для наглядности.",
     "recipe.show.trust_kicker": "Гарантия качества",
-    "recipe.show.trust_with_approved_synthetic": "Проверенная рецептура с одобренной иллюстрацией.",
     "recipe.show.trust_with_approved_real": "Подлинная фотография автора, подтвержденная редакцией.",
     "recipe.show.trust_no_photo": "Рецепт верифицирован, фотосъемка в процессе подготовки.",
     "recipe.show.record_verified": "Проверенный рецепт",
@@ -601,9 +598,7 @@
     "recipe.show.mistakes_title": "Чего следует избегать",
     "recipe.show.storage_kicker": "Хранение",
     "recipe.show.storage_title": "Сроки и условия хранения",
-    "recipe.show.storage_serving": "Подача",
     "recipe.show.storage_label": "Хранение",
-    "recipe.show.storage_empty": "Особых условий хранения не требуется.",
     "recipe.show.reheat_label": "Разогрев",
     "recipe.show.freeze_label": "Заморозка",
     "recipe.show.source_kicker": "Происхождение",
@@ -833,5 +828,8 @@
     "recipe.show.allergens_unverified_body": "Список частично составлен по названиям ингредиентов и может быть неполным; проверяйте этикетки используемых продуктов.",
     "recipe.show.allergens_none_found": "В названиях ингредиентов не встречается ни один из 14 основных аллергенов ЕС.",
     "recipe.show.nutrition_insufficient_title": "Данных недостаточно.",
-    "recipe.show.nutrition_insufficient_body": "Пищевая ценность известна только для части ингредиентов, поэтому мы не показываем вводящую в заблуждение сумму."
+    "recipe.show.nutrition_insufficient_body": "Пищевая ценность известна только для части ингредиентов, поэтому мы не показываем вводящую в заблуждение сумму.",
+    "recipe.show.storage_fridge_days": "До :days дней в холодильнике.",
+    "home.all_cuisines": "Все кухни",
+    "home.collections_nav": "Подборки рецептов"
 }

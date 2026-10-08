@@ -553,11 +553,53 @@ Alpine.data('hcRecipeSteps', (slug, total) => ({
         },
     }));
 
-    Alpine.data('hcRecipeIngredients', (slug) => ({
+    // Porsiyon ölçekleme istemci tarafında: satır metinleri sunucuda 1-20
+    // porsiyon için hazırlanıp sayfaya JSON olarak gömülür. Harita yoksa ya da
+    // istenen porsiyon dışındaysa form normal gönderilir (#ingredients'e döner).
+    Alpine.data('hcRecipeIngredients', (slug, porsiyon = null) => ({
         key: `hc-ing-${slug}`,
         checked: [],
+        servings: porsiyon?.current ?? 1,
+        harita: null,
         init() {
             this.checked = this.read();
+            const kaynak = porsiyon ? document.getElementById(porsiyon.harita) : null;
+            if (kaynak) {
+                try {
+                    this.harita = JSON.parse(kaynak.textContent);
+                } catch {
+                    this.harita = null;
+                }
+            }
+        },
+        get portionNote() {
+            return porsiyon ? porsiyon.not.replace('__N__', String(this.servings)) : '';
+        },
+        setServings(deger) {
+            const n = Number.parseInt(deger, 10);
+            if (!this.harita || !Number.isFinite(n) || !this.harita[n]) {
+                return false;
+            }
+            this.servings = n;
+            try {
+                const adres = new URL(window.location.href);
+                if (n === porsiyon.base) {
+                    adres.searchParams.delete('servings');
+                } else {
+                    adres.searchParams.set('servings', String(n));
+                }
+                adres.searchParams.delete('servings_step');
+                window.history.replaceState(window.history.state, '', adres);
+            } catch {
+                // Adres güncellenemese de ölçekleme çalışır.
+            }
+            return true;
+        },
+        step(yon) {
+            return this.setServings(Math.max(1, this.servings + yon));
+        },
+        line(id, alan) {
+            return this.harita?.[this.servings]?.[id]?.[alan] ?? null;
         },
         read() {
             try {
