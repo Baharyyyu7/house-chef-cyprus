@@ -141,6 +141,10 @@ Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
     // Sonek değiştiğinde paylaşılmış ve indekslenmiş her adres 404 verir; asıl
     // ada göre tek bir karşılık varsa oraya kalıcı olarak yönlendirilir.
     ->missing(function (Request $request) {
+        // Adres parçası LIKE desenine girer: % ve _ kaçırılmazsa /blog/k%25 gibi
+        // sonsuz takma adres 301 ile bir yazıya düşer. '!' kaçış karakteri hem
+        // MySQL'de hem SQLite'ta aynı çalışır.
+        $likeKacis = static fn (string $d): string => str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $d);
         $slug = (string) $request->route('recipe');
 
         $redirect = \App\Models\SlugRedirect::query()
@@ -171,7 +175,7 @@ Route::get('/tarifler/{recipe:slug}', [RecipeController::class, 'show'])
         $adaylar = Recipe::query()
             ->where('status', 'published')
             ->where('verification_status', 'verified')
-            ->where(fn ($q) => $q->where('slug', $govde)->orWhere('slug', 'like', $govde.'-_____'))
+            ->where(fn ($q) => $q->where('slug', $govde)->orWhereRaw("slug like ? escape '!'", [$likeKacis($govde).'-_____']))
             ->limit(2)
             ->get();
 
@@ -196,6 +200,10 @@ Route::get('/blog/{post}/kapak.png', BlogCoverController::class)->name('blog.cov
 Route::get('/blog/{post}', [BlogController::class, 'show'])
     ->name('blog.show')
     ->missing(function (Request $request) {
+        // Adres parçası LIKE desenine girer: % ve _ kaçırılmazsa /blog/k%25 gibi
+        // sonsuz takma adres 301 ile bir yazıya düşer. '!' kaçış karakteri hem
+        // MySQL'de hem SQLite'ta aynı çalışır.
+        $likeKacis = static fn (string $d): string => str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $d);
         $slug = (string) $request->route('post');
 
         $redirect = \App\Models\SlugRedirect::query()
@@ -226,8 +234,8 @@ Route::get('/blog/{post}', [BlogController::class, 'show'])
                 ->where(fn ($query) => $query
                     ->where('slug', $clean)
                     ->orWhere('slug', $cleanDecoded)
-                    ->orWhere('slug', 'like', $clean.'-%')
-                    ->orWhere('slug', 'like', $cleanDecoded.'-%'))
+                    ->orWhereRaw("slug like ? escape '!'", [$likeKacis($clean).'-%'])
+                    ->orWhereRaw("slug like ? escape '!'", [$likeKacis($cleanDecoded).'-%']))
                 ->limit(2)
                 ->get();
             $match = $matches->count() === 1 ? $matches->first() : null;
@@ -240,7 +248,7 @@ Route::get('/blog/{post}', [BlogController::class, 'show'])
         }
 
         $matches = BlogPost::query()->publiclyVisible()
-            ->where('slug', 'like', $slug.'-%')
+            ->whereRaw("slug like ? escape '!'", [$likeKacis($slug).'-%'])
             ->orderByRaw('LENGTH(slug)')
             ->limit(50)
             ->get();

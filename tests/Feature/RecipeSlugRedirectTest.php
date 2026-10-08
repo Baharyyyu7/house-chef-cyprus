@@ -28,6 +28,16 @@ final class RecipeSlugRedirectTest extends TestCase
             ->assertStatus(301);
     }
 
+    public function test_like_wildcards_in_the_address_are_literal(): void
+    {
+        // % ve _ LIKE deseninde joker olsaydı her biri sonsuz takma adres
+        // üretip 301 ile gerçek tarife düşerdi.
+        $this->publish('adana-kebabi-Y5MTK');
+
+        $this->get('/tarifler/a%25ana-kebabi-MT5XA')->assertNotFound();
+        $this->get('/tarifler/adan_-kebabi-MT5XA')->assertNotFound();
+    }
+
     public function test_the_current_address_is_served_directly(): void
     {
         $recipe = $this->publish('adana-kebabi-Y5MTK');

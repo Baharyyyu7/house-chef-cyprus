@@ -4891,10 +4891,14 @@ final class BacklinkGrowthService
      */
     private function resolveMatchedAsset(string $type, string $keyword): array
     {
+        // Anahtar kelime LIKE desenine girer; % ve _ kaçırılmazsa "%" gibi bir
+        // kelime ilk yayındaki içerikle eşleşir.
+        $desen = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $keyword).'%';
+
         if ($type === 'recipe') {
             $recipe = Recipe::query()
                 ->where('status', 'published')
-                ->where('slug', 'like', "%{$keyword}%")
+                ->whereRaw("slug like ? escape '!'", [$desen])
                 ->first();
 
             if ($recipe) {
@@ -4906,7 +4910,7 @@ final class BacklinkGrowthService
         } else {
             $blog = BlogPost::query()
                 ->publiclyVisible()
-                ->where('slug', 'like', "%{$keyword}%")
+                ->whereRaw("slug like ? escape '!'", [$desen])
                 ->first();
 
             if ($blog) {
