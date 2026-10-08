@@ -1,5 +1,5 @@
 /* cache-bust: 2026-09-11-v2 */
-@import './admin-dashboard.css';
+/* admin-dashboard.css ayrı Vite girdisi: yalnız yönetim sayfalarında yüklenir (layouts/site.blade.php). */
 
 @tailwind base;
 @tailwind components;
