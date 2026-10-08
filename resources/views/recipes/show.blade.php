@@ -92,7 +92,10 @@
     <nav class="sticky hc-sticky-under-header z-30 border-b bg-[color:var(--hc-background-page)]/95 backdrop-blur" style="border-color: var(--hc-border-subtle)" aria-label="{{ __('recipe.show.section_nav_label') }}"><div class="hc-container flex gap-1 overflow-x-auto py-2 text-sm font-extrabold whitespace-nowrap"><a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" href="#ingredients">{{ __('recipe.ingredients') }}</a><a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" href="#steps">{{ __('recipe.instructions') }}</a>@if(turkce_sayfa() && !empty($recipe->equipment))<a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" href="#equipment">{{ __('recipe.show.equipment_title') }}</a>@endif<a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" href="#nutrition">{{ __('recipe.nutrition') }}</a><a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" href="#allergens">{{ __('recipe.allergens') }}</a>@if(filled($recipe->storage_notes) || (turkce_sayfa() && (filled($recipe->serving_suggestions) || filled($recipe->reheating_notes) || filled($recipe->freezing_notes))))<a class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" href="#storage">{{ __('recipe.storage') }}</a>@endif</div></nav>
 
     <section class="hc-container grid gap-8 py-8 sm:py-12 lg:grid-cols-[minmax(17rem,.78fr)_minmax(0,1.22fr)] lg:items-start" data-hc-okuma>
-        <aside class="space-y-5 lg:sticky lg:top-24">
+        {{-- self-start: ızgara hücresi gerilince içteki .hc-v3-card'ların
+                 height:100% kuralı hücre yüksekliğine çözülüyordu; mobilde her
+                 kart 1880 px boşlukla basılıyordu. --}}
+        <aside class="space-y-5 self-start lg:sticky lg:top-24">
             @unless($hasApprovedMedia)
                 <section class="hc-v3-alert hc-v3-alert--warning" aria-label="{{ __('recipe.show.no_photo_warning_title') }}"><span aria-hidden="true">ⓘ</span><div><strong>{{ __('recipe.show.no_photo_warning_title') }}</strong><p>{{ __('recipe.show.no_photo_warning_body') }}</p></div></section>
             @endunless
@@ -140,7 +143,7 @@
         </aside>
 
 
-        <main id="steps" class="min-w-0 hc-scroll-target">
+        <main id="steps" class="min-w-0 self-start hc-scroll-target">
             @php($stepCount = $recipe->steps->count())
             <div x-data="hcRecipeSteps('{{ $recipe->slug }}', {{ $stepCount }})" x-id="['step']">
             <div class="flex flex-wrap items-end justify-between gap-4">

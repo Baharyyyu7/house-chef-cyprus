@@ -35,6 +35,16 @@ final class RecipePageHidesEmptySectionsTest extends TestCase
             ->assertSee('Son kontrol:');
     }
 
+    public function test_kenar_ve_govde_sutunu_izgarada_gerilmez(): void
+    {
+        // .hc-v3-card'ın height:100% kuralı gerilen ızgara hücresine
+        // çözülüyordu: mobilde her malzeme/besin/alerjen kartı 1880 px,
+        // ekipman kartı 5863 px boşlukla basılıyordu (sayfa 14.6k -> 10.6k px).
+        $this->get(route('recipes.show', $this->tarif()))->assertOk()
+            ->assertSee('<aside class="space-y-5 self-start', false)
+            ->assertSee('<main id="steps" class="min-w-0 self-start', false);
+    }
+
     public function test_saklama_notu_varsa_kart_ve_sss_birlikte_gelir(): void
     {
         $tarif = $this->tarif(['storage_notes' => ['buzdolabi_gun' => 3, 'uyari' => 'Kapaklı kapta saklayın.'], 'serving_suggestions' => 'Limonla servis edin.']);
