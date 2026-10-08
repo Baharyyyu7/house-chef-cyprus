@@ -44,6 +44,17 @@ final class BlogSlugRedirectTest extends TestCase
         $this->get('/blog/ayni-kok')->assertNotFound();
     }
 
+    public function test_like_wildcards_in_the_address_are_literal(): void
+    {
+        // /blog/k%25 eskiden "k" ile başlayan tek yazıya 301 veriyordu:
+        // her joker sonsuz sayıda takma adres demekti.
+        $this->publish('kibris-mutfagina-baslangic-rehberi-65PRZ');
+
+        $this->get('/blog/k%25')->assertNotFound();
+        $this->get('/blog/kibris_mutfagina-baslangic-rehberi')->assertNotFound();
+        $this->get('/blog/geo-2026-k%25')->assertNotFound();
+    }
+
     public function test_an_unknown_slug_still_returns_404(): void
     {
         $this->get('/blog/hic-var-olmayan-bir-yazi')->assertNotFound();

@@ -266,7 +266,16 @@ final class SeoSchemaService
         // kontrolü hem ratings hem aşağıdaki recipeIngredients erişimini
         // korur (DB'siz testler ve factory make() akışları).
         $oyOzeti = $recipe->exists ? $recipe->ratingSummary() : ['average' => null, 'count' => 0];
-        if ($oyOzeti['count'] > 0 && $oyOzeti['average'] !== null) {
+        // Yıldız ancak en az beş farklı ağdan (ip_hash) oy gelmişse basılır:
+        // bir iki oy, ya da tek kişinin çerez silerek verdiği oylar Google'a
+        // tarifin genel değerlendirmesi diye bildirilmez.
+        $farkliSecmen = 0;
+        if ($oyOzeti['count'] >= 5) {
+            $farkliSecmen = $recipe->relationLoaded('ratings')
+                ? $recipe->ratings->pluck('ip_hash')->unique()->count()
+                : (int) $recipe->ratings()->distinct()->count('ip_hash');
+        }
+        if ($farkliSecmen >= 5 && $oyOzeti['average'] !== null) {
             $recipeNode['aggregateRating'] = [
                 '@type' => 'AggregateRating',
                 'ratingValue' => number_format($oyOzeti['average'], 1, '.', ''),

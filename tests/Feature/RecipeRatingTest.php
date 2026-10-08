@@ -6,7 +6,10 @@ namespace Tests\Feature;
 
 use App\Models\Recipe;
 use App\Models\RecipeRating;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
 use Tests\TestCase;
 
 /**
@@ -82,15 +85,82 @@ final class RecipeRatingTest extends TestCase
     {
         $tarif = $this->tarif();
         $this->makeRecipePubliclyEligible($tarif);
-        RecipeRating::query()->create(['recipe_id' => $tarif->id, 'rating' => 5, 'voter_key' => 'aaaa-1111', 'ip_hash' => 'x']);
-        RecipeRating::query()->create(['recipe_id' => $tarif->id, 'rating' => 3, 'voter_key' => 'bbbb-2222', 'ip_hash' => 'y']);
+        foreach ([5, 3, 4, 4, 4] as $i => $puan) {
+            RecipeRating::query()->create(['recipe_id' => $tarif->id, 'rating' => $puan, 'voter_key' => 'secmen-'.$i, 'ip_hash' => 'ag-'.$i]);
+        }
 
         $dugum = $this->recipeNode($tarif);
 
         $this->assertSame('AggregateRating', $dugum['aggregateRating']['@type'] ?? null);
         $this->assertSame('4.0', $dugum['aggregateRating']['ratingValue'] ?? null);
-        $this->assertSame('2', (string) ($dugum['aggregateRating']['reviewCount'] ?? null));
+        $this->assertSame('5', (string) ($dugum['aggregateRating']['reviewCount'] ?? null));
         $this->assertSame('5', (string) ($dugum['aggregateRating']['bestRating'] ?? null));
+    }
+
+    public function test_bes_farkli_agdan_az_oy_semaya_yildiz_basmaz(): void
+    {
+        // Beş oy var ama ikisi aynı ağdan: dört farklı seçmen, Google'a
+        // tarifin genel değerlendirmesi diye bildirilmez.
+        $tarif = $this->tarif();
+        $this->makeRecipePubliclyEligible($tarif);
+        foreach (['ag-1', 'ag-2', 'ag-3', 'ag-4', 'ag-4'] as $i => $ag) {
+            RecipeRating::query()->create(['recipe_id' => $tarif->id, 'rating' => 5, 'voter_key' => 'secmen-'.$i, 'ip_hash' => $ag]);
+        }
+
+        $this->assertArrayNotHasKey('aggregateRating', $this->recipeNode($tarif));
+    }
+
+    public function test_cerezi_silip_ayni_agdan_oylayan_yeni_secmen_sayilmaz(): void
+    {
+        $tarif = $this->tarif();
+
+        $this->postJson(route('recipes.rate', $tarif), ['rating' => 1])->assertOk();
+        // Çerezsiz ikinci istek: aynı IP, yeni uuid üretilir ama kayıt eklenmez.
+        $this->postJson(route('recipes.rate', $tarif), ['rating' => 5])
+            ->assertOk()
+            ->assertJson(['average' => 5.0, 'count' => 1, 'user_rating' => 5]);
+
+        $this->assertSame(1, RecipeRating::query()->where('recipe_id', $tarif->id)->count());
+    }
+
+    public function test_farkli_agdan_gelen_oy_ayri_sayilir(): void
+    {
+        $tarif = $this->tarif();
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])->postJson(route('recipes.rate', $tarif), ['rating' => 2])->assertOk();
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.20'])->postJson(route('recipes.rate', $tarif), ['rating' => 4])
+            ->assertOk()
+            ->assertJson(['average' => 3.0, 'count' => 2]);
+    }
+
+    public function test_secmen_cerezi_yalniz_https_ile_gider(): void
+    {
+        $tarif = $this->tarif();
+
+        $cerez = $this->postJson(route('recipes.rate', $tarif), ['rating' => 3])->getCookie('hc_voter', false);
+
+        $this->assertNotNull($cerez);
+        $this->assertTrue($cerez->isSecure());
+        $this->assertTrue($cerez->isHttpOnly());
+    }
+
+    public function test_oylama_ucu_csrf_korumasindan_muaf_degil(): void
+    {
+        // Test ortamında CSRF ara katmanı kendini atlar; gerçek davranışı
+        // görmek için o kısayol kapatılmış bir kopyası doğrudan çalıştırılır.
+        $tarif = $this->tarif();
+        $ara = new class(app(), app('encrypter')) extends PreventRequestForgery
+        {
+            protected function runningUnitTests()
+            {
+                return false;
+            }
+        };
+        $istek = Request::create(route('recipes.rate', $tarif, false), 'POST', ['rating' => 5]);
+        $istek->setLaravelSession(app('session.store'));
+
+        $this->expectException(TokenMismatchException::class);
+        $ara->handle($istek, fn () => response('gecti'));
     }
 
     public function test_oysuz_tarifin_semasinda_yildiz_yoktur(): void

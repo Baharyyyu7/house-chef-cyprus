@@ -207,10 +207,11 @@ final class ApprovedMediaImportService
     private function contentExistsUnpublished(string $contentType, string $publicId, string $sourceFilename): bool
     {
         // withTrashed: soft-delete edilmiş kayıt hâlâ vardır, yalnız
-        // yayından çekilmiştir.
+        // yayından çekilmiştir. BlogPost SoftDeletes kullanmıyor; onda
+        // withTrashed() yok ve çağrısı fatal hata veriyordu.
         $sorgu = match ($contentType) {
             'recipe' => Recipe::withTrashed(),
-            'blog' => BlogPost::withTrashed(),
+            'blog' => BlogPost::query(),
             default => null,
         };
 

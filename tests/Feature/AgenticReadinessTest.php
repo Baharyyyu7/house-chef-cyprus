@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Cuisine;
 use App\Models\Ingredient;
+use App\Models\Nutrient;
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
 use App\Models\RecipeStep;
@@ -130,6 +131,25 @@ final class AgenticReadinessTest extends TestCase
         // Accessibility attributes for buttons
         $response->assertSee('aria-label="Porsiyonu azalt"', false);
         $response->assertSee('aria-label="Porsiyonu artır"', false);
+    }
+
+    public function test_level_2_agent_gets_full_recipe_with_nutrition(): void
+    {
+        // Mutlu yol: araç olmayan NutritionService::forRecipe()'u çağırıp
+        // 500 veriyordu. Besin değeri malzeme verisinden hesaplanır.
+        $enerji = Nutrient::query()->create(['code' => 'energy_kcal', 'name' => 'Enerji', 'unit' => 'kcal', 'decimal_precision' => 2, 'is_active' => true]);
+        $this->flour->nutritionFacts()->create(['nutrient_id' => $enerji->id, 'value' => 360, 'basis_type' => 'per_100g', 'basis_amount' => 100, 'origin' => 'verified', 'confidence_score' => 90]);
+
+        $response = $this->postJson(route('api.agent.tools.recipe'), ['slug' => $this->sampleRecipe->slug, 'servings' => 2]);
+
+        $response->assertOk()
+            ->assertJsonPath('slug', 'kibris-hellimli-borek')
+            ->assertJsonPath('active_servings', 2)
+            ->assertJsonCount(2, 'ingredients')
+            ->assertJsonCount(2, 'steps');
+        // 500 g un x 3,6 kcal/g = 1800 kcal, tarifin 4 porsiyonuna bölünür;
+        // 2 porsiyon pişirmek porsiyon başı değeri değiştirmez.
+        $this->assertSame(450.0, (float) $response->json('nutrition_per_serving.calories'));
     }
 
     /**

@@ -274,12 +274,16 @@ final class AgentToolController extends Controller
         ]);
 
         $recipe = $this->publicRecipeQuery($validated['slug'])
-            ->with(['cuisine', 'category', 'steps', 'recipeIngredients.ingredient', 'recipeIngredients.group'])
+            ->with(['cuisine', 'category', 'steps', 'recipeIngredients.ingredient.nutritionFacts.nutrient', 'recipeIngredients.group'])
             ->firstOrFail();
 
         $servings = (int) ($validated['servings'] ?? $recipe->servings);
         $ingredients = $ingredientDisplay->forRecipe($recipe->recipeIngredients, $recipe->servings, $servings);
-        $nutrition = $nutritionService->forRecipe($recipe, $servings);
+        // NutritionService'te forRecipe() yok; olmayan metot mutlu yolda fatal
+        // hata veriyordu. calculate() tarifin ana miktarlarını toplar ve verilen
+        // porsiyona böler; bu yüzden ana porsiyonla çağrılır: porsiyon başı
+        // değer, kaç porsiyon pişirildiğine göre değişmez.
+        $nutrition = $nutritionService->calculate($recipe);
 
         return response()->json([
             'title' => $recipe->translated('title'),
@@ -497,6 +501,7 @@ final class AgentToolController extends Controller
         return array_values(array_unique(array_merge($directMatches, $nameMatches)));
     }
 
+    /** @return Builder<Recipe> */
     private function publicRecipeQuery(string $identifier): Builder
     {
         return Recipe::query()

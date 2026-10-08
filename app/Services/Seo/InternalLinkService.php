@@ -260,7 +260,8 @@ final class InternalLinkService
             ];
         })->sortByDesc('relevance_score')->take($limit)->values()->all();
 
-        return $scored->all();
+        // $scored zaten dizi; üzerinde ->all() çağrısı fatal hata veriyordu.
+        return $scored;
     }
 
     /**

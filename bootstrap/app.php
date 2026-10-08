@@ -3,6 +3,7 @@
 use App\Contracts\Observability\ErrorReporterInterface;
 use App\Http\Middleware\CanonicalHost;
 use App\Http\Middleware\LocaleUrlPrefix;
+use App\Http\Middleware\LogoutSuspendedUser;
 use App\Http\Middleware\RecordAudienceCountry;
 use App\Http\Middleware\RequestContext;
 use App\Http\Middleware\SecureHeaders;
@@ -30,6 +31,17 @@ return Application::configure(basePath: dirname(__DIR__))
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias(['site-feature' => \App\Http\Middleware\EnsureSiteFeatureEnabled::class]);
+        // Tarayıcıdaki oturumla çağrılan API uçları (kişiselleştirme, WebMCP
+        // save_recipe). api grubunda oturum yok: 'auth' oturum çerezini hiç
+        // okuyamıyor, giriş yapmış üye bile hep 401 alıyordu. Oturum açılınca
+        // CSRF de zorunlu olur; sayfa betikleri X-CSRF-TOKEN gönderiyor.
+        $middleware->group('browser-session', [
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class,
+            LogoutSuspendedUser::class,
+        ]);
         // These preferences are intentionally written by browser-side JavaScript so a
         // tag is loaded only after a visitor has opted in. They contain no account or
         // session data and must therefore remain readable by Laravel.
@@ -39,7 +51,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // saw a null consent on every request, and no advertising could ever render —
         // silently, with the configuration looking correct.
         $middleware->encryptCookies(except: ['hc_analytics_consent', 'hc_advertising_consent']);
-        $middleware->validateCsrfTokens(except: ['tarifler/*/oyla']);
+        // Oylama ucu CSRF dışında değil: tarayıcı betiği X-CSRF-TOKEN gönderiyor.
+        // Muafiyet, herhangi bir sitenin ziyaretçi adına oy basmasına izin veriyordu.
+
         // Gerçek ziyaretçi IP'si CDN arkasında X-Forwarded-For'dan okunur;
         // güvenilen proxy listesi çalışma anında yapılandırmadan gelir.
         // Ayrıntı: App\Http\Middleware\TrustCdnProxies.
@@ -49,7 +63,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Yönlendirmeden önce çalışmalı: dil önekini istek yolundan çıkarıp
         // normal rotaya düşürüyor, böylece rotalar ikinci kez tanımlanmıyor.
         $middleware->prepend(LocaleUrlPrefix::class);
-        $middleware->web(append: [SetLocale::class, RecordAudienceCountry::class]);
+        // Askı kontrolü parola formuna bırakılamaz: hatırla çerezi ve açık
+        // oturumlar formu hiç görmez. Ayrıntı: LogoutSuspendedUser.
+        $middleware->web(append: [LogoutSuspendedUser::class, SetLocale::class, RecordAudienceCountry::class]);
         $middleware->append(RequestContext::class);
         $middleware->append(SecureHeaders::class);
     })

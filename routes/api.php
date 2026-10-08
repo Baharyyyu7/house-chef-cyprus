@@ -44,10 +44,12 @@ Route::prefix('v1')->middleware('throttle:api')->group(function (): void {
         Route::post('tools/adjust-servings', [AgentToolController::class, 'adjustServings'])->name('api.agent.tools.adjust-servings');
         Route::post('tools/cooking-step', [AgentToolController::class, 'cookingStep'])->name('api.agent.tools.cooking-step');
         Route::post('tools/switch-language', [AgentToolController::class, 'switchLanguage'])->name('api.agent.tools.switch-language');
-        Route::post('tools/save-recipe', [AgentToolController::class, 'saveRecipe'])->name('api.agent.tools.save-recipe');
+        // Kullanıcının kendi favorisine yazar: tarayıcı oturumu ve CSRF ile.
+        Route::post('tools/save-recipe', [AgentToolController::class, 'saveRecipe'])->middleware('browser-session')->name('api.agent.tools.save-recipe');
     });
 
-    Route::middleware('auth')->prefix('personalization')->group(function (): void {
+    // Oturumsuz 'auth' her isteği 401'e düşürüyordu; bkz. bootstrap/app.php.
+    Route::middleware(['browser-session', 'auth'])->prefix('personalization')->group(function (): void {
         Route::get('profile', [PersonalizationController::class, 'profile']);
         Route::patch('profile', [PersonalizationController::class, 'updateProfile']);
         Route::get('taste-profile', [PersonalizationController::class, 'tasteProfile']);

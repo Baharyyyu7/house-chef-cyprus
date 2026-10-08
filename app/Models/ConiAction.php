@@ -9,6 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Claude Coni'nin canlıya aldığı tek bir değişiklik ve ölçülen sonucu.
+ *
+ * Sütunlar NOT NULL ve casts() ile Carbon'a çevrilir; phpstan bunları
+ * migration'dan string sanıyordu.
+ *
+ * @property \Illuminate\Support\Carbon $applied_at
+ * @property \Illuminate\Support\Carbon $evaluate_after
  */
 final class ConiAction extends Model
 {

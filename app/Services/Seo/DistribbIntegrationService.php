@@ -131,7 +131,8 @@ class DistribbIntegrationService
             'enabled' => config('seo.distribb.enabled'),
             'projects' => $this->getProjects(),
             'gsc_connected' => $gsc ? ($gsc['connected'] ?? null) : null,
-            'cms_connected' => $integrations ? $integrations->isNotEmpty() : null,
+            // get() koleksiyon değil dizi döndürür; isNotEmpty() fatal hata veriyordu.
+            'cms_connected' => $integrations === false ? null : $integrations !== [],
         ];
     }
 }

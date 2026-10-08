@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 final class UserController extends Controller
@@ -77,6 +78,10 @@ final class UserController extends Controller
 
     private function removeSessions(User $user): void
     {
+        // Oturum satırlarını silmek yetmez: "beni hatırla" çerezi yeni bir
+        // oturum açar. Jeton değişince eldeki bütün hatırla çerezleri ölür.
+        $user->forceFill(['remember_token' => Str::random(60)])->saveQuietly();
+
         if (DB::getSchemaBuilder()->hasTable('sessions')) {
             DB::table('sessions')->where('user_id', $user->id)->delete();
         }

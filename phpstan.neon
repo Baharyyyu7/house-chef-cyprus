@@ -1,8 +1,22 @@
 includes:
     - vendor/larastan/larastan/extension.neon
+    - phpstan-baseline.neon
 
 parameters:
     paths:
         - app
     level: 5
     treatPhpDocTypesAsCertain: false
+    # Silinmesi kararlaştırılan tehlikeli komutlar analiz edilmez, yalnız
+    # taranır; silindiklerinde "(?)" sayesinde yapılandırma bozulmaz ve
+    # baseline'da sahipsiz kayıt kalmaz.
+    excludePaths:
+        analyse:
+            - app/Console/Commands/ElevateAndPublishBlogDraftsCommand.php (?)
+            - app/Console/Commands/SeoDripPublish.php (?)
+            - app/Console/Commands/RewriteDuplicateDraftBlogsCommand.php (?)
+            - app/Console/Commands/MasterSeoHarmonizationCommand.php (?)
+            - app/Console/Commands/DataQualityFixAll.php (?)
+            - app/Console/Commands/DeployGeoSeo.php (?)
+            - app/Console/Commands/DeployGeoBacklinks.php (?)
+            - app/Services/Seo/AutonomousPublishingGateService.php (?)

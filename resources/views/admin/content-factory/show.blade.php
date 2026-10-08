@@ -11,7 +11,8 @@
                     <h2>Malzemeler ve ölçüler</h2><ul>@foreach($entity->recipeIngredients()->with('ingredient')->orderBy('sort_order')->get() as $line)<li>{{ $line->display_quantity }} {{ $line->display_measure_code }} {{ $line->ingredient?->name }} <span class="text-muted">(canonical: {{ $line->canonical_quantity }} {{ $line->canonical_unit }})</span></li>@endforeach</ul>
                     <h2>Adımlar</h2><ol>@foreach($entity->steps()->orderBy('position')->get() as $step)<li><strong>{{ $step->title }}</strong> — {{ $step->instruction }} <em>({{ $step->duration_seconds }} sn)</em></li>@endforeach</ol>
                 @else
-                    <div>{!! str($entity->body)->markdown() !!}</div>
+                    {{-- Taslak gövdesi AI ve içe aktarmadan gelir: ham HTML ve javascript: bağlantıları süzülür, yoksa yöneticinin oturumunda betik çalışır. --}}
+                    <div>{!! str($entity->body)->markdown(['html_input' => 'strip', 'allow_unsafe_links' => false]) !!}</div>
                 @endif
             </article>
             <aside class="space-y-5">
