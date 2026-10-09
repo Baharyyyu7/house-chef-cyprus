@@ -45,7 +45,9 @@
                 {{-- Favori "Mutfağım" özelliğine ait; bayrak kapalıyken rota 404 verir. --}}
                 @auth
                     @if($showFavorite && app(\App\Services\SiteFeatureService::class)->enabled('member_kitchen'))
-                        <form method="post" action="{{ route('favorites.toggle', $recipe) }}" class="relative z-10">@csrf<button class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" type="submit" aria-label="{{ __('card.add_to_favorites_aria', ['title' => $recipe->translated('title')]) }}">♡<span class="sr-only">{{ __('card.add_to_favorites') }}</span></button></form>
+                        @php($favoriteIds = once(fn () => auth()->user()->favoriteRecipes()->pluck('recipes.id')->flip()->all()))
+                        @php($isFavorite = isset($favoriteIds[$recipe->id]))
+                        <form method="post" action="{{ route('favorites.toggle', $recipe) }}" class="relative z-10">@csrf<button class="hc-v3-btn hc-v3-btn--ghost hc-v3-btn--sm" type="submit" aria-pressed="{{ $isFavorite ? 'true' : 'false' }}" aria-label="{{ $isFavorite ? __('card.remove_from_favorites_aria', ['title' => $recipe->translated('title')]) : __('card.add_to_favorites_aria', ['title' => $recipe->translated('title')]) }}">{{ $isFavorite ? '♥' : '♡' }}<span class="sr-only">{{ $isFavorite ? __('card.remove_from_favorites') : __('card.add_to_favorites') }}</span></button></form>
                     @endif
                 @endauth
                 <a class="hc-v3-btn hc-v3-btn--outline hc-v3-btn--sm font-bold" href="{{ route('recipes.show', $recipe) }}">{{ __('card.view_recipe') }} <span aria-hidden="true">→</span></a>

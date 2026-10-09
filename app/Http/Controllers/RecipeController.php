@@ -36,10 +36,18 @@ final class RecipeController extends Controller
             return $this->home($request, $indexability, $schemaService);
         }
 
-        $filters = $request->only([
-            'q', 'cuisine', 'category', 'difficulty', 'dietary_tag', 'exclude_allergens',
-            'max_minutes', 'min_protein', 'max_calories', 'sort', 'page',
-        ]);
+        // Bozuk sorgu (dizi, sayı olmayan süre, vb.) 500 veriyordu. Geçersiz
+        // filtre sessizce yok sayılır; görünüm de ham isteği değil bunu okur.
+        $sayisal = ['max_minutes' => 1440, 'min_protein' => 1000, 'max_calories' => 100000, 'page' => 10000];
+        $filtreAdlari = ['q', 'cuisine', 'category', 'difficulty', 'dietary_tag', 'exclude_allergens', 'max_minutes', 'min_protein', 'max_calories', 'sort', 'page'];
+        $filters = collect($request->only($filtreAdlari))->filter(fn ($deger, string $anahtar): bool => match (true) {
+            isset($sayisal[$anahtar]) => is_numeric($deger) && $deger >= ($anahtar === 'page' ? 1 : 0) && $deger <= $sayisal[$anahtar],
+            $anahtar === 'exclude_allergens' => is_string($deger) || (is_array($deger) && count($deger) <= 20 && collect($deger)->every(fn ($v): bool => is_string($v))),
+            default => is_string($deger),
+        })->all();
+        foreach (array_diff($filtreAdlari, array_keys($filters)) as $gecersiz) {
+            $request->query->remove($gecersiz);
+        }
 
         $recipes = $search->search($filters);
         if ($request->filled('q')) {

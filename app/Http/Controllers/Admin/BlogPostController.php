@@ -143,7 +143,7 @@ final class BlogPostController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'], 'slug' => ['nullable', 'string', 'max:255', Rule::unique('blog_posts', 'slug')->ignore($post?->id)],
             'excerpt' => ['required', 'string', 'max:1000'], 'body' => ['required', 'string', 'max:30000'], 'blog_category_id' => ['nullable', 'exists:blog_categories,id'],
-            'status' => ['required', Rule::in(['idea', 'research', 'researched', 'brief_ready', 'draft', 'fact_check', 'editorial_review', 'seo_review', 'media_review', 'approved', 'scheduled'])], 'scheduled_at' => ['nullable', 'date'],
+            'status' => ['required', Rule::in(array_merge(['idea', 'research', 'researched', 'brief_ready', 'draft', 'fact_check', 'editorial_review', 'seo_review', 'media_review', 'approved', 'scheduled'], in_array($post?->status, ['published', 'archived'], true) ? [$post->status] : []))], 'scheduled_at' => ['nullable', 'date'],
             'meta_title' => ['nullable', 'string', 'max:70'], 'meta_description' => ['nullable', 'string', 'max:160'], 'canonical_url' => ['nullable', 'url', 'max:2048'],
             'content_purpose' => ['nullable', 'string', 'max:120'], 'search_intent' => ['nullable', Rule::in(['informational', 'navigational', 'commercial', 'transactional'])], 'primary_keyword' => ['nullable', 'string', 'max:160'],
             'fact_check_status' => ['nullable', Rule::in(['pending', 'passed', 'needs_review'])], 'editorial_status' => ['nullable', Rule::in(['draft', 'in_review', 'approved', 'rejected'])], 'originality_status' => ['nullable', Rule::in(['pending', 'passed', 'needs_review'])], 'source_notes_text' => ['nullable', 'string', 'max:5000'],

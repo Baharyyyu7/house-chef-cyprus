@@ -351,6 +351,8 @@
     "card.under_review": "Em análise",
     "card.add_to_favorites": "Aos favoritos",
     "card.add_to_favorites_aria": "Adicionar :title aos favoritos",
+    "card.remove_from_favorites": "Remover dos favoritos",
+    "card.remove_from_favorites_aria": "Remover :title dos favoritos",
     "home.kicker": "De Chipre, para a sua mesa",
     "home.hero_title": "Dos ingredientes que tem em casa a um jantar delicioso e garantido.",
     "home.hero_subtitle": "Escolha os seus ingredientes. Veja receitas correspondentes, o que falta e os passos de preparação. Sem necessidade de registo.",

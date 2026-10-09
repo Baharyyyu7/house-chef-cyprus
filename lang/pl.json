@@ -351,6 +351,8 @@
     "card.under_review": "W weryfikacji",
     "card.add_to_favorites": "Do ulubionych",
     "card.add_to_favorites_aria": "Dodaj :title do ulubionych",
+    "card.remove_from_favorites": "Usuń z ulubionych",
+    "card.remove_from_favorites_aria": ":title usuń z ulubionych",
     "home.kicker": "Z Cypru, prosto na Twój stół",
     "home.hero_title": "Od tego, co masz w domu, do pysznej kolacji.",
     "home.hero_subtitle": "Wybierz składniki. Zobacz pasujące przepisy, brakujące produkty i kroki gotowania. Bez rejestracji.",

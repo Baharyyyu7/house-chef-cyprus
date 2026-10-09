@@ -32,8 +32,12 @@
                     @endforeach
                 </ul>
             </section>
+        @else
+            <p class="hc-body-lg mt-4 max-w-2xl text-muted">{{ __('cuisine.body_count', ['name' => taxonomy_name($mutfak), 'count' => $tarifler->count()]) }} {{ __('cuisine.body_detail') }}</p>
+        @endif
+            @if($cuisineFaq !== [])
             <section class="mt-12 max-w-3xl">
-                <h2 class="font-display text-xl font-semibold">Kıbrıs yemekleri hakkında sık sorulanlar</h2>
+                <h2 class="font-display text-xl font-semibold">{{ $isKibrisHub ? 'Kıbrıs yemekleri hakkında sık sorulanlar' : __('cuisine.kibris_en_faq_heading') }}</h2>
                 <dl class="mt-6 space-y-4">
                     @foreach($cuisineFaq as $item)
                         <div class="rounded-xl border border-charcoal-100 bg-white p-4 dark:border-charcoal-800 dark:bg-charcoal-900">
@@ -43,9 +47,7 @@
                     @endforeach
                 </dl>
             </section>
-        @else
-            <p class="hc-body-lg mt-4 max-w-2xl text-muted">{{ __('cuisine.body_count', ['name' => taxonomy_name($mutfak), 'count' => $tarifler->count()]) }} {{ __('cuisine.body_detail') }}</p>
-        @endif
+            @endif
 
         <div class="mt-12">
             <h2 class="font-display text-2xl font-semibold">{{ taxonomy_name($mutfak) }} {{ __('cuisine.recipes_suffix') }}</h2>

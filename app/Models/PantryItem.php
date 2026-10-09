@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 class PantryItem extends Model
 {
@@ -18,6 +19,29 @@ class PantryItem extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Bugünden son kullanma gününe kalan gün. Gelecek tarih pozitif, geçmiş negatif.
+     * Carbon'un diffInDays işaretini tarih sırasına göre döndürür; ters çağrı gelecek
+     * ürünleri "yakında bitecek" sayıyordu.
+     */
+    public function kalanGun(): ?int
+    {
+        return $this->expires_at === null ? null : (int) today()->diffInDays(Carbon::parse($this->expires_at)->startOfDay(), false);
+    }
+
+    /** @return 'expired'|'soon'|'fresh'|'undated' */
+    public function durum(): string
+    {
+        $kalan = $this->kalanGun();
+
+        return match (true) {
+            $kalan === null => 'undated',
+            $kalan < 0 => 'expired',
+            $kalan <= 3 => 'soon',
+            default => 'fresh',
+        };
     }
 
     /** @return BelongsTo<Ingredient, $this> */

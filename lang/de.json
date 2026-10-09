@@ -351,6 +351,8 @@
     "card.under_review": "In Prüfung",
     "card.add_to_favorites": "Zu Favoriten",
     "card.add_to_favorites_aria": ":title zu Favoriten hinzufügen",
+    "card.remove_from_favorites": "Aus Favoriten entfernen",
+    "card.remove_from_favorites_aria": ":title aus Favoriten entfernen",
     "home.kicker": "Aus Zypern, für Ihren Tisch",
     "home.hero_title": "Aus vorhandenen Zutaten zu einem perfekten Abendessen.",
     "home.hero_subtitle": "Wählen Sie Zutaten aus. Entdecken Sie passende Rezepte, fehlende Zutaten und Schritte. Keine Registrierung erforderlich.",

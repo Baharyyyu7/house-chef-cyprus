@@ -351,6 +351,8 @@
     "card.under_review": "در حال بررسی",
     "card.add_to_favorites": "افزودن به علاقه‌مندی‌ها",
     "card.add_to_favorites_aria": "افزودن :title به علاقه‌مندی‌ها",
+    "card.remove_from_favorites": "حذف از علاقه‌مندی‌ها",
+    "card.remove_from_favorites_aria": ":title را از علاقه‌مندی‌ها حذف کنید",
     "home.kicker": "از قبرس، برای سفره امروز شما",
     "home.hero_title": "از مواد موجود در خانه تا یک شام عالی و مطمئن.",
     "home.hero_subtitle": "مواد اولیه خود را انتخاب کنید، دستورهای پخت متناسب، کسری‌ها و مراحل گام‌به‌گام را ببینید. بدون نیاز به ثبت‌نام.",

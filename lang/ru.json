@@ -351,6 +351,8 @@
     "card.under_review": "На проверке",
     "card.add_to_favorites": "В избранное",
     "card.add_to_favorites_aria": "Добавить :title в избранное",
+    "card.remove_from_favorites": "Удалить из избранного",
+    "card.remove_from_favorites_aria": "Удалить :title из избранного",
     "home.kicker": "С Кипра — к вашему столу",
     "home.hero_title": "Из того, что есть в холодильнике — в надежный вкусный ужин.",
     "home.hero_subtitle": "Выберите продукты дома. Мы покажем подходящие рецепты, недостающие специи и шаги. Без обязательной регистрации.",

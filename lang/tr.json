@@ -353,6 +353,8 @@
     "card.under_review": "İnceleme sürüyor",
     "card.add_to_favorites": "Favorilere ekle",
     "card.add_to_favorites_aria": ":title tarifini favorilere ekle",
+    "card.remove_from_favorites": "Favorilerden çıkar",
+    "card.remove_from_favorites_aria": ":title favorilerinden çıkar",
     "home.kicker": "1.000+ Doğrulanmış Ada Tarifi · Kıbrıs'ın 1 Numaralı Gastronomi Portalı",
     "home.hero_title": "Elindeki malzemeden güvenilir akşam yemeğine.",
     "home.hero_subtitle": ":count doğrulanmış Kıbrıs ve Akdeniz tarifi arasından elindeki malzemeyi seç; uyan tarifleri, eksikleri ve adımları birlikte gör.",

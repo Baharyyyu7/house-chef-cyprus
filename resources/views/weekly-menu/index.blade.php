@@ -14,7 +14,7 @@
                     Haftalık Akdeniz Yemek Menüsü
                 </h1>
                 <p class="hc-body-lg mt-2 text-stone-600 dark:text-stone-300 max-w-2xl">
-                    "Bugün ne pişirsem?" derdine son. Besin dengesi gözetilmiş 7 günlük akşam yemeği planı ve hazır toplu pazar/market alışveriş listeniz.
+                    "Bugün ne pişirsem?" derdine son. Herkese açık tariflerden oluşan 7 günlük akşam yemeği planı ve hazır toplu pazar/market alışveriş listeniz.
                 </p>
             </div>
 

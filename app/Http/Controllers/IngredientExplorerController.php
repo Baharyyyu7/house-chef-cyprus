@@ -10,7 +10,6 @@ use App\Models\DietaryTag;
 use App\Models\Ingredient;
 use App\Services\IngredientMatchingService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 final class IngredientExplorerController extends Controller
@@ -43,7 +42,7 @@ final class IngredientExplorerController extends Controller
         $pantryItems = $user === null
             ? collect()
             : $user->pantryItems()->where('is_available', true)->with('ingredient')->orderBy('expires_at')->get();
-        $availablePantryItems = $pantryItems->filter(fn ($item) => $item->expires_at === null || Carbon::parse($item->expires_at)->isToday() || Carbon::parse($item->expires_at)->isFuture());
+        $availablePantryItems = $pantryItems->filter(fn ($item) => $item->durum() !== 'expired');
         if ($user !== null && $request->boolean('use_pantry')) {
             $selected = $availablePantryItems->pluck('ingredient.public_id')->all();
         }
