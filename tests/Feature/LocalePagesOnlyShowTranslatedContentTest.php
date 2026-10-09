@@ -93,6 +93,11 @@ final class LocalePagesOnlyShowTranslatedContentTest extends TestCase
 
         $this->get('/blog')->assertOk()
             ->assertSee('href="'.url('/blog?page=2').'"', false);
+
+        // Sayfa sayısını aşan adres boş 200 yerine 404 döner.
+        $this->get('/en/blog?page=2')->assertOk();
+        $this->get('/en/blog?page=5')->assertNotFound();
+        $this->get('/blog?page=10')->assertNotFound();
     }
 
     public function test_english_blog_category_pagination_links_stay_under_the_english_prefix(): void
@@ -122,6 +127,7 @@ final class LocalePagesOnlyShowTranslatedContentTest extends TestCase
         $this->get('/en/blog/kategori/'.$kategori->slug)->assertOk()
             ->assertSee('href="'.url('/en/blog/kategori/'.$kategori->slug.'?page=2').'"', false)
             ->assertDontSee('href="'.url('/blog/kategori/'.$kategori->slug.'?page=2').'"', false);
+        $this->get('/en/blog/kategori/'.$kategori->slug.'?page=3')->assertNotFound();
     }
 
     public function test_recipe_search_uses_translated_titles_and_excludes_untranslated_records(): void

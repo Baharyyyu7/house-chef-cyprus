@@ -29,6 +29,7 @@ final class BlogController extends Controller
         $posts = BlogPost::query()->publiclyVisible()->translatedInto()->with(['category', 'tags', 'heroMedia', 'media'])
             ->when($request->filled('q'), fn ($query) => $query->where(fn ($nested) => $nested->where('title', 'like', '%'.$request->string('q')->toString().'%')->orWhere('excerpt', 'like', '%'.$request->string('q')->toString().'%')))
             ->latest('published_at')->paginate(12)->withPath(route('blog.index'))->withQueryString();
+        abort_if($posts->currentPage() > $posts->lastPage(), 404);
 
         $description = __('blog.index.meta_description');
 
@@ -174,11 +175,17 @@ final class BlogController extends Controller
 
     public function category(BlogCategory $category): View
     {
-        return view('blog.index', ['posts' => $category->posts()->publiclyVisible()->translatedInto()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12)->withPath(route('blog.category', $category)), 'title' => $category->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.category', $category), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
+        $posts = $category->posts()->publiclyVisible()->translatedInto()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12)->withPath(route('blog.category', $category));
+        abort_if($posts->currentPage() > $posts->lastPage(), 404);
+
+        return view('blog.index', ['posts' => $posts, 'title' => $category->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.category', $category), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
     }
 
     public function tag(BlogTag $tag): View
     {
-        return view('blog.index', ['posts' => $tag->posts()->publiclyVisible()->translatedInto()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12)->withPath(route('blog.tag', $tag)), 'title' => '#'.$tag->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.tag', $tag), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
+        $posts = $tag->posts()->publiclyVisible()->translatedInto()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12)->withPath(route('blog.tag', $tag));
+        abort_if($posts->currentPage() > $posts->lastPage(), 404);
+
+        return view('blog.index', ['posts' => $posts, 'title' => '#'.$tag->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.tag', $tag), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
     }
 }
