@@ -70,9 +70,12 @@ if (! function_exists('taxonomy_name')) {
             return $kayit;
         }
 
-        $tur = $model instanceof App\Models\Cuisine
-            ? 'cuisine'
-            : ($model instanceof App\Models\Category ? 'category' : null);
+        $tur = match (true) {
+            $model instanceof App\Models\Cuisine => 'cuisine',
+            $model instanceof App\Models\Category => 'category',
+            $model instanceof App\Models\BlogCategory => 'blog_category',
+            default => null,
+        };
 
         if ($tur === null || ! isset($model->slug)) {
             return $kayit;

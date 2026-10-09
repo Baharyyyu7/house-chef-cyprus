@@ -923,7 +923,7 @@ final class SeoSchemaService
             'publisher' => $publisher,
             'inLanguage' => $locale,
             'wordCount' => $wordCount,
-            'articleSection' => $post->category?->name,
+            'articleSection' => $post->category ? taxonomy_name($post->category) : null,
         ];
 
         if ($imageUrl !== '') {

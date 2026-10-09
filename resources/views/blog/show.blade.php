@@ -7,7 +7,7 @@
                 <a class="hover:text-orange-600 transition-colors" href="{{ route('blog.index') }}">Blog</a>
                 @if($post->category)
                     <span aria-hidden="true" class="opacity-50">/</span>
-                    <a class="hover:text-orange-600 transition-colors" href="{{ route('blog.category', $post->category) }}">{{ $post->category->name }}</a>
+                    <a class="hover:text-orange-600 transition-colors" href="{{ route('blog.category', $post->category) }}">{{ taxonomy_name($post->category) }}</a>
                 @endif
             </nav>
 
@@ -125,7 +125,7 @@
                     <div class="grid gap-5 sm:grid-cols-3">
                         @foreach($relatedPosts as $relatedPost)
                             <article class="hc-v3-card hc-v3-card--interactive flex flex-col p-5 rounded-2xl border" style="border-color: var(--hc-border-default)">
-                                <span class="hc-kicker text-xs mb-2">{{ $relatedPost->category?->name ?? __('blog.show.kitchen_note') }}</span>
+                                <span class="hc-kicker text-xs mb-2">{{ $relatedPost->category ? taxonomy_name($relatedPost->category) : __('blog.show.kitchen_note') }}</span>
                                 <h3 class="font-bold text-sm leading-snug line-clamp-2 mb-4" style="color: var(--hc-text-primary)">
                                     <a href="{{ route('blog.show', $relatedPost) }}" class="before:absolute before:inset-0">{{ $relatedPost->translated('title') }}</a>
                                 </h3>
