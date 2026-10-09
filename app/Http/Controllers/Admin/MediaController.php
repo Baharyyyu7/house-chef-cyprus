@@ -96,6 +96,8 @@ final class MediaController extends Controller
             'media_reviewer_user_id' => $admin->id,
             'media_reviewed_at' => now(),
             'uploaded_by_user_id' => $admin->id,
+            'telif_beyani_at' => now(),
+            'icerik_beyani_at' => now(),
             'checksum_sha256' => hash_file('sha256', $request->file('file')->getRealPath()),
         ]);
         GenerateMediaThumbnailsJob::dispatch($media->public_id);

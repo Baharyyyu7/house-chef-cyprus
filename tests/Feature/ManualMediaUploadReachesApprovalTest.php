@@ -91,6 +91,22 @@ final class ManualMediaUploadReachesApprovalTest extends TestCase
             ->assertSessionHas('status', fn (string $mesaj): bool => str_contains($mesaj, 'onay'));
     }
 
+    public function test_both_declarations_are_recorded_with_their_time(): void
+    {
+        // Kutular yalnız formu geçirmek için değil, kayıt için de var: telif ve
+        // içerik beyanı ayrı ayrı zamanlanmalı ki sonradan kim neyi beyan etti
+        // sorgulanabilsin.
+        $tarif = $this->tarif('Beyanlı Börek');
+
+        $this->actingAs($this->yonetici())
+            ->post(route('admin.media.store'), $this->gecerliForm($tarif->public_id));
+
+        $media = $tarif->media()->sole();
+
+        $this->assertNotNull($media->telif_beyani_at);
+        $this->assertNotNull($media->icerik_beyani_at);
+    }
+
     /** @return array<string, mixed> */
     private function gecerliForm(string $publicId): array
     {
