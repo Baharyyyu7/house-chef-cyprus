@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\Recipe;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -68,6 +69,59 @@ final class LocalePagesOnlyShowTranslatedContentTest extends TestCase
             ->assertDontSee('Çevirisiz Yazı Başlığı')->assertDontSee('Gövde.');
         $this->get('/en/blog')->assertOk()->assertSee('Translated Post')->assertDontSee('Çevirisiz Yazı Başlığı');
         $this->assertSame('Çevirisiz Yazı Başlığı', $yazi->fresh()->getRawOriginal('title'));
+    }
+
+    public function test_english_blog_pagination_links_stay_under_the_english_prefix(): void
+    {
+        for ($i = 1; $i <= 13; $i++) {
+            $yazi = BlogPost::query()->create([
+                'title' => 'Sayfa Yazisi '.$i,
+                'slug' => 'sayfa-yazisi-'.$i.'-'.uniqid(),
+                'excerpt' => 'Ozet.',
+                'body' => 'Govde.',
+                'status' => 'published',
+                'published_at' => now()->subMinutes($i),
+            ]);
+            foreach (['title' => 'Paged Post '.$i, 'excerpt' => 'Summary.', 'body' => 'Body text.'] as $alan => $deger) {
+                $yazi->translations()->create(['locale' => 'en', 'field' => $alan, 'value' => $deger]);
+            }
+        }
+
+        $this->get('/en/blog')->assertOk()
+            ->assertSee('href="'.url('/en/blog?page=2').'"', false)
+            ->assertDontSee('href="'.url('/blog?page=2').'"', false);
+
+        $this->get('/blog')->assertOk()
+            ->assertSee('href="'.url('/blog?page=2').'"', false);
+    }
+
+    public function test_english_blog_category_pagination_links_stay_under_the_english_prefix(): void
+    {
+        $kategori = BlogCategory::query()->create([
+            'public_id' => (string) \Illuminate\Support\Str::ulid(),
+            'name' => 'Sayfali Kategori',
+            'slug' => 'sayfali-kategori-'.uniqid(),
+            'description' => 'Aciklama.',
+        ]);
+
+        for ($i = 1; $i <= 13; $i++) {
+            $yazi = BlogPost::query()->create([
+                'blog_category_id' => $kategori->id,
+                'title' => 'Kategori Yazisi '.$i,
+                'slug' => 'kategori-yazisi-'.$i.'-'.uniqid(),
+                'excerpt' => 'Ozet.',
+                'body' => 'Govde.',
+                'status' => 'published',
+                'published_at' => now()->subMinutes($i),
+            ]);
+            foreach (['title' => 'Category Post '.$i, 'excerpt' => 'Summary.', 'body' => 'Body text.'] as $alan => $deger) {
+                $yazi->translations()->create(['locale' => 'en', 'field' => $alan, 'value' => $deger]);
+            }
+        }
+
+        $this->get('/en/blog/kategori/'.$kategori->slug)->assertOk()
+            ->assertSee('href="'.url('/en/blog/kategori/'.$kategori->slug.'?page=2').'"', false)
+            ->assertDontSee('href="'.url('/blog/kategori/'.$kategori->slug.'?page=2').'"', false);
     }
 
     public function test_recipe_search_uses_translated_titles_and_excludes_untranslated_records(): void
