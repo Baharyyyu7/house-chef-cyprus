@@ -36,6 +36,9 @@ final class PolicyPageController extends Controller
             'baslik' => $tanim['baslik'],
             'ozet' => $tanim['ozet'],
             'bolumler' => $bolumler,
+            'ayriSayfalar' => collect(config('legal-center.standalone_pages', []))
+                ->map(fn (array $tanim, string $anahtar): array => LegalCenterCopy::sayfa($anahtar, $tanim))
+                ->all(),
             'updatedAt' => LegalCenterCopy::ceviri('index')['updated_at'] ?? config('legal-center.updated_at'),
             'schema' => [
                 '@context' => 'https://schema.org',

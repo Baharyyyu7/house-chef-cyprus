@@ -34,7 +34,7 @@
             <aside class="mt-14 border-t pt-8" style="border-color: var(--hc-border-subtle)">
                 <p class="hc-overline" style="color: var(--hc-text-muted)">{{ __('legal.other_policies') }}</p>
                 <div class="mt-4 grid gap-3 sm:grid-cols-2">
-                    @foreach(config('legal-center.standalone_pages') as $anahtar => $tanim)
+                    @foreach($ayriSayfalar as $anahtar => $tanim)
                         @continue($anahtar === $sayfa)
                         <a class="hc-card-hover rounded-2xl border p-4" style="border-color: var(--hc-line); background: var(--hc-surface)" href="{{ route('policy.'.$anahtar) }}">
                             <span class="block font-bold">{{ $tanim['baslik'] }}</span>

@@ -107,6 +107,24 @@ final class EnglishInformationAndLegalPagesTest extends TestCase
             ->assertSee('rel="canonical" href="'.url('/en/kullanim-kosullari').'"', false);
     }
 
+    public function test_english_policy_pages_list_the_other_policies_in_english(): void
+    {
+        $this->get('/en/gizlilik')
+            ->assertOk()
+            ->assertSee('Cookie Policy')
+            ->assertSee('Which cookies are essential, which ones depend on your consent')
+            ->assertSee('Terms of Use')
+            ->assertDontSee('Çerez Politikası')
+            ->assertDontSee('Kullanım Koşulları')
+            ->assertDontSee('Hangi çerezler zorunlu');
+
+        $this->get('/en/kullanim-kosullari')
+            ->assertOk()
+            ->assertSee('Privacy and Personal Data')
+            ->assertDontSee('Gizlilik ve Kişisel Veriler')
+            ->assertDontSee('Hangi verileri neden işlediğimiz');
+    }
+
     public function test_english_legal_centre_has_english_sections_and_links_to_the_moved_policies(): void
     {
         $this->get('/en/yasal-bilgilendirme')
