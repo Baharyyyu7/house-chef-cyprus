@@ -118,6 +118,10 @@ final class MachinaAeoAutomationTest extends TestCase
         ]);
 
         $response->assertRedirect();
-        $response->assertSessionHas('status', 'Haftalık önerilen değişiklik insan onayıyla (Human-in-the-loop) onaylandı ve kuyruğa alındı.');
+        $response->assertSessionHas('status', 'Onay denetim kaydına yazıldı. Öneri uygulanmadı; uygulama ayrı bir adımda yapılır.');
+        $this->assertDatabaseHas('audit_logs', [
+            'user_id' => $admin->id,
+            'action' => 'seo.machina.approve',
+        ]);
     }
 }

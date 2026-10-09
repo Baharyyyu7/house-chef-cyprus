@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\BlogPost;
 use App\Models\ContentBrief;
 use App\Models\ContentOpportunity;
@@ -20,7 +21,6 @@ use App\Services\Seo\SeoAuditService;
 use App\Services\Seo\SeoAuthorityService;
 use App\Services\Seo\ConiCommercialSeoService;
 use App\Services\Seo\MachinaAeoAutomationService;
-use App\Services\Seo\PrePublishSafetyHook;
 use App\Services\Seo\SeoProviderHealthService;
 use App\Services\Seo\WeeklySeoReportService;
 use Illuminate\Support\Facades\File;
@@ -373,7 +373,12 @@ final class SeoOperationsController extends Controller
         ])->with('status', '4-Geçişli denetim başarıyla tamamlandı.');
     }
 
-    public function machinaApproveFix(Request $request, MachinaAeoAutomationService $service, PrePublishSafetyHook $hook): RedirectResponse
+    /**
+     * Onay yalnız denetim kaydına yazılır; öneri hiçbir yerde uygulanmaz ya da
+     * kuyruğa alınmaz. Eski mesaj kuyruğa alındığını söylüyordu, oysa hiçbir şey
+     * yazılmıyordu.
+     */
+    public function machinaApproveFix(Request $request, MachinaAeoAutomationService $service): RedirectResponse
     {
         $this->admin();
         $validated = $request->validate([
@@ -381,14 +386,13 @@ final class SeoOperationsController extends Controller
             'summary' => ['required', 'string'],
         ]);
 
-        $hook->assertCanExecute(
-            PrePublishSafetyHook::ACTION_PUBLISH_PAGE,
-            $validated['summary'],
-            true,
-            (string) ($request->user()?->email ?? 'Admin')
-        );
+        AuditLog::create([
+            'user_id' => $request->user()?->id,
+            'action' => 'seo.machina.approve',
+            'metadata' => ['action_type' => $validated['action_type'], 'summary' => $validated['summary']],
+        ]);
 
-        return back()->with('status', 'Haftalık önerilen değişiklik insan onayıyla (Human-in-the-loop) onaylandı ve kuyruğa alındı.');
+        return back()->with('status', 'Onay denetim kaydına yazıldı. Öneri uygulanmadı; uygulama ayrı bir adımda yapılır.');
     }
 
     private function admin(): void
