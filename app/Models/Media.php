@@ -16,7 +16,7 @@ class Media extends Model
 {
     use HasPublicId;
 
-    protected $fillable = ['kind', 'disk', 'path', 'embed_url', 'mime_type', 'size', 'sort_order', 'visibility', 'media_status', 'fidelity_status', 'fidelity_confidence', 'fidelity_reasons', 'license_review_status', 'attribution_review_status', 'optimization_status', 'responsive_variants', 'media_reviewed_at', 'media_reviewer_user_id', 'license_reviewed_at', 'attribution_reviewed_at', 'health_scanned_at', 'health_rule_version', 'alt_text', 'caption', 'width', 'height', 'processing_status', 'thumbnail_status', 'thumbnail_paths', 'processing_error_code', 'processing_error_message', 'processed_at', 'source_name', 'source_url', 'license', 'attribution', 'verification_status', 'confidence', 'reviewed_at', 'is_placeholder', 'generated_by_ai', 'ai_provider', 'ai_model', 'ai_prompt_version', 'ai_review_status', 'focal_point_x', 'focal_point_y', 'checksum_sha256', 'perceptual_hash', 'approved_by_user_id', 'approved_at', 'provider_metadata'];
+    protected $fillable = ['kind', 'disk', 'path', 'embed_url', 'mime_type', 'size', 'sort_order', 'visibility', 'media_status', 'fidelity_status', 'fidelity_confidence', 'fidelity_reasons', 'license_review_status', 'attribution_review_status', 'optimization_status', 'responsive_variants', 'media_reviewed_at', 'media_reviewer_user_id', 'uploaded_by_user_id', 'license_reviewed_at', 'attribution_reviewed_at', 'health_scanned_at', 'health_rule_version', 'alt_text', 'caption', 'width', 'height', 'processing_status', 'thumbnail_status', 'thumbnail_paths', 'processing_error_code', 'processing_error_message', 'processed_at', 'source_name', 'source_url', 'license', 'attribution', 'verification_status', 'confidence', 'reviewed_at', 'is_placeholder', 'generated_by_ai', 'ai_provider', 'ai_model', 'ai_prompt_version', 'ai_review_status', 'focal_point_x', 'focal_point_y', 'checksum_sha256', 'perceptual_hash', 'approved_by_user_id', 'approved_at', 'provider_metadata'];
 
     protected function casts(): array
     {
@@ -39,6 +39,12 @@ class Media extends Model
     public function reviewedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'media_reviewer_user_id');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function uploadedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'uploaded_by_user_id');
     }
 
     public function publicUrl(): ?string

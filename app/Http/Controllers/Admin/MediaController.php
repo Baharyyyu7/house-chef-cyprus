@@ -95,6 +95,7 @@ final class MediaController extends Controller
             'fidelity_confidence' => 100,
             'media_reviewer_user_id' => $admin->id,
             'media_reviewed_at' => now(),
+            'uploaded_by_user_id' => $admin->id,
             'checksum_sha256' => hash_file('sha256', $request->file('file')->getRealPath()),
         ]);
         GenerateMediaThumbnailsJob::dispatch($media->public_id);
@@ -140,6 +141,10 @@ final class MediaController extends Controller
             return back()->with('status', 'Bu görsel zaten yayında.');
         }
 
+        if ($this->kendiYukledigi($media, $admin)) {
+            return back()->with('error', 'Kendi yüklediğiniz görseli onaylayamazsınız; onayı başka bir editör vermeli.');
+        }
+
         // Kapı insan onayını varyant ve kaynak kontrollerinden önce sorguluyor;
         // "eksik olan yalnız onay" sonucuna bakmak yetmez, çünkü arkasındaki
         // kontroller hiç çalışmamış olabilir. Onay bellekte uygulanır ve geriye
@@ -182,9 +187,16 @@ final class MediaController extends Controller
 
         $onaylanan = 0;
         $atlanan = 0;
+        $kendi = 0;
 
         foreach (Media::query()->whereIn('public_id', $secilenler)->get() as $media) {
             if ($gate->reason($media) === null) {
+                continue;
+            }
+
+            if ($this->kendiYukledigi($media, $admin)) {
+                $kendi++;
+
                 continue;
             }
 
@@ -206,9 +218,25 @@ final class MediaController extends Controller
             $onaylanan++;
         }
 
-        return back()->with('status', $atlanan === 0
+        $notlar = array_filter([
+            $atlanan > 0 ? $atlanan.' tanesi başka bir kontrolü geçemediği için atlandı' : null,
+            $kendi > 0 ? $kendi.' tanesi kendi yüklediğiniz için atlandı' : null,
+        ]);
+
+        return back()->with('status', $notlar === []
             ? $onaylanan.' görsel onaylandı ve yayına alındı.'
-            : $onaylanan.' görsel onaylandı, '.$atlanan.' tanesi başka bir kontrolü geçemediği için atlandı.');
+            : $onaylanan.' görsel onaylandı, '.implode(', ', $notlar).'.');
+    }
+
+    /**
+     * Yükleyen kişi kendi beyan ettiği görseli onaylayamaz: yayına alan kişi
+     * beyanı veren kişiden farklı olmalı. Yükleyen alanı boş olan kayıt ya
+     * migration öncesinden onaylı (zaten yayında) ya da hiç beyan almamış bir
+     * kayıttır; ikisinde de kontrol bir şey değiştirmez.
+     */
+    private function kendiYukledigi(Media $media, User $admin): bool
+    {
+        return $media->uploaded_by_user_id !== null && (int) $media->uploaded_by_user_id === (int) $admin->id;
     }
 
     public function regenerate(string $publicId): RedirectResponse
