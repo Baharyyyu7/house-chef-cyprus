@@ -241,7 +241,15 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [x] Canonical: EN sayfalar kendi /en/ adresini gösteriyor; gorsel-ve-kaynak-politikasi takma adı kendi adresini canonical tutuyor
 - [x] Sitemap: gizlilik, cerezler, kullanim-kosullari eklendi (TR listede de artık var)
 - [x] Testler: EnglishInformationAndLegalPagesTest 12/12; hedefli 151/151. Tam suite ilk koşuda 1839/1842: 3 hata (de/fa/pl/pt/ru JSON'da yeni anahtarlar eksikti), düzeltildi
-- [ ] Tam suite release.sh adım 4'te (temiz kopya) yeniden koşulacak; sonuç release log'unda
-- [ ] Canlı doğrulama: /health commit, /en/hakkimizda, /en/gizlilik, /en/yasal-bilgilendirme, /en/iletisim
+- [x] Tam suite release.sh adım 4'te (temiz kopya): 1846/1846 yeşil; release4.log, RELEASE_EXIT=0, yayın 7c3de40
+- [x] Canlı doğrulama (7c3de40): /health commit 7c3de40; /en/hakkimizda, /en/gizlilik, /en/yasal-bilgilendirme, /en/iletisim, /en/cerezler, /en/kullanim-kosullari 200, html lang=en
 - [ ] Hukuki gözden geçirme: gizlilik, çerez, kullanım koşulları ve yasal merkez EN metinleri sahibi tarafından okunmalı
 - [ ] Eski blog kategori çevirisi (4aceb39) ve medya beyanı zamanları (1f2c561) bu yayınla birlikte gidiyor; canlıda kontrol edilmedi
+
+## Yayın 10 Ekim (blog ve politika: 762c7f4, 90760c9, 7c3de40)
+- [x] 762c7f4: EN politika sayfalarında "Diğer politikalar" kartları İngilizce. Canlıda /en/gizlilik, /en/cerezler, /en/kullanim-kosullari doğrulandı; TR değişmedi
+- [x] 90760c9: EN blog sayfalama /en/blog?page=N kalıyor (ana sayfa, kategori, etiket). Canlıda /en/blog?page=2 200; /blog TR sayfaları 200
+- [x] 7c3de40: sayfa sayısını aşan blog adresi 404. Canlıda /en/blog?page=5 404 (EN son sayfa 4); /blog TR son sayfa 9 (9 yazı), page=10 404
+- [x] Testler: LocalePagesOnlyShowTranslatedContentTest 8/8; tam suite 1846/1846
+- [ ] Kategori ve etiket sayfalaması canlıda doğrulanamadı: çok sayfalı kategori ya da etiket yok. /en/blog/kategori/kibris-mutfagi 200 ama 0 yazı
+- [ ] EN footer "Haftalık menü" bağlantısı Türkçe /haftalik-menu sayfasına gidiyor. Karar bekleniyor: EN'de gizle (Türkçeye özel hizmet bağlantılarıyla aynı kapı) ya da sayfayı çevir
