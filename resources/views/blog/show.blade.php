@@ -73,7 +73,7 @@
             {{-- Dijital Mutfak E-Kitabı Tanıtım & Satış Vitrini --}}
             <x-ebook-showcase-card class="mt-8" />
 
-            @if(!empty($post->faq_blocks))
+            @if(!empty($post->faq_blocks) && app()->getLocale() === config('locales.default', 'tr'))
                 <section class="mt-12 pt-8 border-t" style="border-color: var(--hc-border-subtle)" aria-labelledby="sss-basligi">
                     <h2 id="sss-basligi" class="hc-heading-3">{{ __('blog.show.faq_title') }}</h2>
                     <div class="mt-6 grid gap-4">

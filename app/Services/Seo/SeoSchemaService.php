@@ -935,7 +935,8 @@ final class SeoSchemaService
             ['name' => 'Blog', 'url' => route('blog.index')],
             ['name' => $post->translated('title'), 'url' => route('blog.show', $post)],
         ]);
-        $faqBlocks = $post->getAttribute('faq_blocks');
+        // SSS metinleri yalnız Türkçe; çevirisiz dilde FAQPage basılmaz (sayfada görünmeyen içerik işaretlenmez).
+        $faqBlocks = $locale === (string) config('locales.default', 'tr') ? $post->getAttribute('faq_blocks') : null;
         $questions = collect(is_array($faqBlocks) ? $faqBlocks : [])->filter(fn (mixed $faq): bool => is_array($faq) && filled($faq['question'] ?? null) && filled($faq['answer'] ?? null))->map(fn (array $faq): array => ['@type' => 'Question', 'name' => $faq['question'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq['answer']]])->values()->all();
         if ($questions !== []) {
             $graph['@graph'][] = ['@type' => 'FAQPage', 'mainEntity' => $questions];
