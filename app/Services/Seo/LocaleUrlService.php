@@ -33,14 +33,22 @@ final class LocaleUrlService
     }
 
     /**
-     * Rotanın yabancı dil sürümü var mı?
+     * Rotanın bu dildeki sürümü var mı?
      *
-     * Tek liste config('locales.localized_routes'): route() öneki, hreflang
-     * ve önekli Türkçe sayfanın yönlendirmesi aynı cevabı kullanır.
+     * Genel liste (localized_routes) her dil için geçerli. Statik sayfalar
+     * yalnız çevirisi olan dilde (localized_static_routes): route() öneki,
+     * hreflang ve önekli Türkçe sayfanın yönlendirmesi aynı cevabı kullanır.
      */
-    public function yerellesmisRota(?Route $route): bool
+    public function yerellesmisRota(?Route $route, string $locale): bool
     {
-        return $route !== null && $route->named(...(array) config('locales.localized_routes', []));
+        if ($route === null) {
+            return false;
+        }
+
+        return $route->named(
+            ...(array) config('locales.localized_routes', []),
+            ...(array) config("locales.localized_static_routes.{$locale}", []),
+        );
     }
 
     public function defaultLocale(): string

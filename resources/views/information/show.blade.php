@@ -1,8 +1,8 @@
-<x-layouts.site :title="$page['title'].' · House Chef Cyprus'" :meta-description="$page['lead']" :canonical-url="url()->current()" :structured-data="$schema">
+<x-layouts.site :title="$page['title'].' · House Chef Cyprus'" :meta-description="$page['lead']" :canonical-url="$canonical" :structured-data="$schema">
     <section class="hc-container py-10 sm:py-16">
         <div class="max-w-3xl">
-            <nav aria-label="Sayfa yolu" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted mb-4">
-                <a class="hover:text-orange-600 transition-colors" href="{{ route('home') }}">Ana sayfa</a>
+            <nav aria-label="{{ __('info.breadcrumb') }}" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted mb-4">
+                <a class="hover:text-orange-600 transition-colors" href="{{ route('home') }}">{{ __('info.home') }}</a>
                 <span class="opacity-50" aria-hidden="true">/</span>
                 <span aria-current="page">{{ $page['title'] }}</span>
             </nav>
@@ -24,10 +24,10 @@
 
         <div class="mt-12 rounded-3xl border p-8 flex flex-col sm:flex-row items-center justify-between gap-6" style="border-color: var(--hc-border-subtle); background: var(--hc-surface-subtle)">
             <div>
-                <h3 class="font-extrabold text-base" style="color: var(--hc-text-primary)">Başka bir sorunuz mu var?</h3>
-                <p class="text-sm mt-1" style="color: var(--hc-text-secondary)">Editoryal ekibimize veya destek ekibimize doğrudan mesaj iletebilirsiniz.</p>
+                <h3 class="font-extrabold text-base" style="color: var(--hc-text-primary)">{{ __('info.more_questions') }}</h3>
+                <p class="text-sm mt-1" style="color: var(--hc-text-secondary)">{{ __('info.more_text') }}</p>
             </div>
-            <a class="hc-v3-btn hc-v3-btn--primary whitespace-nowrap" href="{{ route('contact.index') }}">Bize yazın →</a>
+            <a class="hc-v3-btn hc-v3-btn--primary whitespace-nowrap" href="{{ route('contact.index') }}">{{ __('contact.write_us') }} →</a>
         </div>
     </section>
 </x-layouts.site>

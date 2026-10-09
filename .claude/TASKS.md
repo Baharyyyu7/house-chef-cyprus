@@ -233,3 +233,15 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [x] Medya onay kapısı: yükleyen kendi görselini onaylayamaz (38ddbb5, uploaded_by_user_id; migration bekleyen kayıtları doldurdu). Canlıda admin girişi olmadığı için davranış canlıda doğrulanmadı; tam paket 1828/1828, pre-deploy yedek 01M4G131WF08Q700JGHJFNMCJV doğrulandı, restore testi yapılmadı
 - [x] Machina "İnsan Onayı Ver": sabit true ve sahte "kuyruğa alındı" kaldırıldı; onay audit_logs'a yazılıyor (d44b3d0, tam paket 1828/1828, canlı d44b3d0). Canlıda audit satırı admin girişi olmadığı için doğrulanmadı; öneri hâlâ uygulanmıyor
 - [ ] Karar bekleyen: medya beyanları kaydı, BlogCategory çevirisi, footer 17 EN bağlantısı, favori listesi kartı
+
+## Yayın 10 Ekim (EN statik sayfalar)
+- [x] Footer'daki bilgi, politika, yasal merkez ve iletişim sayfaları için EN metin: lang/en/information_pages.php (10 sayfa), lang/en/legal_center.php (11 bölüm, 3 politika, merkez). Makine destekli çeviri; hukuki metin sahibi tarafından gözden geçirilmeden dayanak yapılmamalı
+- [x] Yönlendirme: config/locales.php localized_static_routes (yalnız en). /de/sss gibi çevrilmemiş dil adresleri hâlâ Türkçeye 301
+- [x] Arayüz metinleri: 68 anahtar tr/en/de/fa/pl/pt/ru.json; TR değerleri eski Türkçe metinlerle birebir aynı. de/fa/pl/pt/ru değerleri makine yazımı, gözden geçirilmedi (bu sayfalar o dillerde zaten Türkçeye yönleniyor)
+- [x] Canonical: EN sayfalar kendi /en/ adresini gösteriyor; gorsel-ve-kaynak-politikasi takma adı kendi adresini canonical tutuyor
+- [x] Sitemap: gizlilik, cerezler, kullanim-kosullari eklendi (TR listede de artık var)
+- [x] Testler: EnglishInformationAndLegalPagesTest 12/12; hedefli 151/151. Tam suite ilk koşuda 1839/1842: 3 hata (de/fa/pl/pt/ru JSON'da yeni anahtarlar eksikti), düzeltildi
+- [ ] Tam suite release.sh adım 4'te (temiz kopya) yeniden koşulacak; sonuç release log'unda
+- [ ] Canlı doğrulama: /health commit, /en/hakkimizda, /en/gizlilik, /en/yasal-bilgilendirme, /en/iletisim
+- [ ] Hukuki gözden geçirme: gizlilik, çerez, kullanım koşulları ve yasal merkez EN metinleri sahibi tarafından okunmalı
+- [ ] Eski blog kategori çevirisi (4aceb39) ve medya beyanı zamanları (1f2c561) bu yayınla birlikte gidiyor; canlıda kontrol edilmedi

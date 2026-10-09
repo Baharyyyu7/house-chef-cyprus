@@ -114,17 +114,21 @@ final class HreflangOnlyPointsToPagesThatExistTest extends TestCase
         }
     }
 
-    public function test_cevirisi_olmayan_statik_sayfa_hreflang_basmaz(): void
+    public function test_cevirisi_olan_statik_sayfa_en_hreflang_alir_cevirisi_olmayan_dil_almaz(): void
     {
         $varlik = app(LocalePageAvailability::class);
 
-        $this->assertFalse($varlik->varMi('en', '/hakkimizda'));
+        // Hakkımızda İngilizce çevirisi var: hreflang kümesine girer.
+        // SSS için Almanca çeviri yok: girmez.
+        $this->assertTrue($varlik->varMi('en', '/hakkimizda'));
         $this->assertFalse($varlik->varMi('de', '/sss'));
         $this->assertTrue($varlik->varMi('en', '/tarifler'));
 
         $sayfa = (string) $this->get('/hakkimizda')->assertOk()->getContent();
-        $this->assertSame([], $this->hreflangHedefleri($sayfa));
-        $this->assertStringNotContainsString('og:locale:alternate', $sayfa);
+        $hedefler = $this->hreflangHedefleri($sayfa);
+        $this->assertContains(url('/en/hakkimizda'), $hedefler);
+        $this->assertNotContains(url('/de/hakkimizda'), $hedefler);
+        $this->assertStringContainsString('<meta property="og:locale:alternate" content="en_US">', $sayfa);
     }
 
     public function test_yabanci_mutfak_listesi_kendi_dilinde_ve_yalniz_acilan_mutfaklari_listeler(): void

@@ -48,7 +48,7 @@ final class SitemapController extends Controller
         ];
 
         $features = app(SiteFeatureService::class);
-        $staticPaths = collect(['', 'tarifler', 'blog', 'haftalik-menu', 'malzemeler', 'mutfaklar', 'kategoriler', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'iletisim'])
+        $staticPaths = collect(['', 'tarifler', 'blog', 'haftalik-menu', 'malzemeler', 'mutfaklar', 'kategoriler', 'hakkimizda', 'nasil-calisir', 'sss', 'editorial-ilkeler', 'tarif-dogrulama-politikasi', 'besin-degeri-aciklamasi', 'alerjen-uyarisi', 'gorsel-ve-medya-politikasi', 'icerik-duzeltme-politikasi', 'hata-bildir', 'yasal-bilgilendirme', 'gizlilik', 'cerezler', 'kullanim-kosullari', 'iletisim'])
             ->when($features->enabled('explore'), fn ($paths) => $paths->push('ne-pisirebilirim'))
             ->when($features->enabled('services'), fn ($paths) => $paths->push('meal-plans', 'private-chef', 'catering-cyprus', 'cooking-classes'))
             ->when($features->enabled('shop'), fn ($paths) => $paths->push('magaza'))

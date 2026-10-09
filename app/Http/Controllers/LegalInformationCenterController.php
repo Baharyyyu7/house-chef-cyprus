@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Services\LegalCenterCopy;
 use Illuminate\View\View;
 
 final class LegalInformationCenterController extends Controller
@@ -19,21 +20,27 @@ final class LegalInformationCenterController extends Controller
         /** @var array<int, array{id: string, title: string, paragraphs: array<int, string>}> $sections */
         $sections = collect(config('legal-center.sections'))
             ->reject(fn (array $bolum): bool => in_array($bolum['id'], $tasinan, true))
+            ->map(fn (array $bolum): array => LegalCenterCopy::bolum($bolum))
             ->values()
             ->all();
 
+        $ceviri = LegalCenterCopy::ceviri('index') ?? [];
+        $title = $ceviri['title'] ?? config('legal-center.title');
+
         return view('legal-information-center.index', [
-            'ayriSayfalar' => config('legal-center.standalone_pages', []),
+            'ayriSayfalar' => collect(config('legal-center.standalone_pages', []))
+                ->map(fn (array $tanim, string $anahtar): array => LegalCenterCopy::sayfa($anahtar, $tanim))
+                ->all(),
             'sections' => $sections,
-            'title' => config('legal-center.title'),
-            'updatedAt' => config('legal-center.updated_at'),
-            'introduction' => config('legal-center.introduction'),
+            'title' => $title,
+            'updatedAt' => $ceviri['updated_at'] ?? config('legal-center.updated_at'),
+            'introduction' => $ceviri['introduction'] ?? config('legal-center.introduction'),
             'schema' => [
                 '@context' => 'https://schema.org',
                 '@type' => 'WebPage',
-                'name' => config('legal-center.title'),
+                'name' => $title,
                 'url' => route('legal.center'),
-                'inLanguage' => 'tr',
+                'inLanguage' => app()->getLocale(),
             ],
         ]);
     }

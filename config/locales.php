@@ -60,6 +60,24 @@ return [
         'verification.notice', 'pricing',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Statik sayfaların dil sürümleri
+    |--------------------------------------------------------------------------
+    |
+    | Bilgi, politika, yasal merkez ve iletişim sayfaları yalnız çevirisi olan
+    | dilde yerelleşir. /de/sss çevrilmediği için Türkçe sürüme yönlenir.
+    | İngilizce metin lang/en/information_pages.php ve lang/en/legal_center.php
+    | dosyalarında. Yasal merkezin iletişim formu İngilizce sayfadan da
+    | gönderilsin diye POST rotası burada.
+    |
+    */
+    'localized_static_routes' => [
+        'en' => [
+            'information.show', 'policy.*', 'legal.center', 'legal.center.contact.store', 'contact.index',
+        ],
+    ],
+
     'supported' => [
         'tr' => [
             'flag' => '🇹🇷',

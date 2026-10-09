@@ -10,9 +10,12 @@ use Tests\TestCase;
 /**
  * Çevirisi olmayan sayfanın dil önekli adresi Türkçe sürüme 301 verir.
  *
- * 8 Ekim 2026 denetimi: /en/hakkimizda, /de/sss, /de/yasal-bilgilendirme
- * gibi 74 adres Türkçe içerik servis ediyordu; kanoniği Türkçe sürümdü ama
- * hreflang onları ayrı dil sürümü gibi ilan ediyordu.
+ * 8 Ekim 2026 denetimi: /de/sss, /de/yasal-bilgilendirme gibi adresler
+ * Türkçe içerik servis ediyordu; kanoniği Türkçe sürümdü ama hreflang onları
+ * ayrı dil sürümü gibi ilan ediyordu.
+ *
+ * İngilizce çevirisi olan sayfalar (/en/hakkimizda gibi) bu kuralın dışında;
+ * onların testi EnglishInformationAndLegalPagesTest dosyasında.
  */
 final class UntranslatedPrefixedPagesRedirectTest extends TestCase
 {
@@ -20,7 +23,7 @@ final class UntranslatedPrefixedPagesRedirectTest extends TestCase
 
     public function test_cevirisi_olmayan_statik_sayfa_turkce_surume_kalici_yonlendirilir(): void
     {
-        foreach (['/en/hakkimizda' => '/hakkimizda', '/de/sss' => '/sss', '/de/yasal-bilgilendirme' => '/yasal-bilgilendirme', '/ru/iletisim?konu=a' => '/iletisim?konu=a'] as $onekli => $turkce) {
+        foreach (['/de/sss' => '/sss', '/de/yasal-bilgilendirme' => '/yasal-bilgilendirme', '/ru/iletisim?konu=a' => '/iletisim?konu=a'] as $onekli => $turkce) {
             $this->get($onekli)->assertStatus(301)->assertRedirect(url($turkce));
         }
 

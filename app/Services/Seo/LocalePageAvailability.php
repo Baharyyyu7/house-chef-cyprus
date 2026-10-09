@@ -48,7 +48,7 @@ final class LocalePageAvailability
 
         $route = $this->rota($this->icYol($path));
 
-        if (! $this->adresler->yerellesmisRota($route)) {
+        if (! $this->adresler->yerellesmisRota($route, $locale)) {
             return false;
         }
 

@@ -139,14 +139,23 @@ final class InformationPageController extends Controller
 
     public function show(string $page): View
     {
+        $istenen = $page;
         $page = $page === 'gorsel-ve-kaynak-politikasi' ? 'gorsel-ve-medya-politikasi' : $page;
         abort_unless(isset(self::PAGES[$page]), 404);
 
-        $content = self::PAGES[$page];
+        $content = $this->icerik($page);
         $schema = $page === 'sss'
             ? ['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => collect($content['sections'])->map(fn (array $section): array => ['@type' => 'Question', 'name' => $section['title'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $section['body']]])->all()]
             : ['@context' => 'https://schema.org', '@type' => 'WebPage', 'name' => $content['title'], 'description' => $content['lead'], 'url' => route('information.show', $page)];
 
-        return view('information.show', ['page' => $content, 'schema' => $schema]);
+        return view('information.show', ['page' => $content, 'schema' => $schema, 'canonical' => route('information.show', $istenen)]);
+    }
+
+    /** İngilizce sayfada lang/en/information_pages.php, diğer dillerde Türkçe kaynak. */
+    private function icerik(string $page): array
+    {
+        $ceviri = app()->getLocale() === 'en' ? trans('information_pages.'.$page) : null;
+
+        return is_array($ceviri) ? $ceviri : self::PAGES[$page];
     }
 }

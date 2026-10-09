@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Services\LegalCenterCopy;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -25,6 +26,7 @@ final class PolicyPageController extends Controller
 
         abort_if(! is_array($tanim), 404);
 
+        $tanim = LegalCenterCopy::sayfa($sayfa, $tanim);
         $bolumler = $this->bolumler($tanim['bolumler']);
 
         abort_if($bolumler->isEmpty(), 404);
@@ -34,13 +36,13 @@ final class PolicyPageController extends Controller
             'baslik' => $tanim['baslik'],
             'ozet' => $tanim['ozet'],
             'bolumler' => $bolumler,
-            'updatedAt' => config('legal-center.updated_at'),
+            'updatedAt' => LegalCenterCopy::ceviri('index')['updated_at'] ?? config('legal-center.updated_at'),
             'schema' => [
                 '@context' => 'https://schema.org',
                 '@type' => 'WebPage',
                 'name' => $tanim['baslik'],
-                'url' => url('/'.$sayfa),
-                'inLanguage' => 'tr',
+                'url' => route('policy.'.$sayfa),
+                'inLanguage' => app()->getLocale(),
             ],
         ]);
     }
@@ -56,7 +58,8 @@ final class PolicyPageController extends Controller
         return collect(config('legal-center.sections'))
             ->whereIn('id', $istenen)
             ->sortBy(fn (array $bolum): int => array_search($bolum['id'], $istenen, true))
-            ->values();
+            ->values()
+            ->map(fn (array $bolum): array => LegalCenterCopy::bolum($bolum));
     }
 
     /** Yasal merkezde gösterilmeyecek bölüm kimlikleri. */

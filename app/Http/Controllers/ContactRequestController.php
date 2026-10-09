@@ -60,7 +60,7 @@ final class ContactRequestController extends Controller
 
         return redirect(route('legal.center').'#iletisim-ve-geri-bildirim')
             ->with('contact_reference', $contact->public_id)
-            ->with('status', 'Mesajınız alındı. Talep numaranız: '.$contact->public_id);
+            ->with('status', __('contact.flash_received', ['reference' => $contact->public_id]));
     }
 
     private function validateHoneypot(Request $request): void

@@ -130,9 +130,9 @@ const mountLegalInformationCenter = () => {
         url.hash = '';
         try {
             await navigator.clipboard.writeText(url.toString());
-            if (copyStatus) copyStatus.textContent = 'Sayfa bağlantısı kopyalandı.';
+            if (copyStatus) copyStatus.textContent = center.dataset.copiedStatus || 'Sayfa bağlantısı kopyalandı.';
         } catch {
-            window.prompt('Sayfa bağlantısını kopyalayın:', url.toString());
+            window.prompt(center.dataset.copyPrompt || 'Sayfa bağlantısını kopyalayın:', url.toString());
         }
     });
 };

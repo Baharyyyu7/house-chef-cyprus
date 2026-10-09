@@ -41,7 +41,7 @@ class SetLocale
         $rota = $request->route() instanceof Route ? $request->route() : null;
         if (is_string($urlDili) && $urlDili !== $default && $request->isMethodSafe()
             && ! str_contains((string) $rota?->getActionName(), 'RedirectController')
-            && ! app(LocaleUrlService::class)->yerellesmisRota($rota)) {
+            && ! app(LocaleUrlService::class)->yerellesmisRota($rota, $urlDili)) {
             return redirect()->to($request->getRequestUri(), 301);
         }
 
@@ -68,7 +68,7 @@ class SetLocale
         $adresler = app(LocaleUrlService::class);
         URL::formatPathUsing(function ($path, $route) use ($locale, $default, $previousFormatter, $adresler) {
             $path = $previousFormatter($path, $route);
-            if ($locale !== $default && $route !== null && $adresler->yerellesmisRota($route)) {
+            if ($locale !== $default && $route !== null && $adresler->yerellesmisRota($route, $locale)) {
                 // Önek tek başına yetmiyor: dilin yol yazımı da uygulanmalı.
                 // 8 Ekim 2026 denetimi: formatter yalnız öneki ekliyordu ve
                 // route('recipes.show') İngilizcede /en/tarifler/... üretiyordu;
