@@ -226,8 +226,8 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [x] Tam paket 1825/1825 yeşil; release5.log exit 0; deploy + lsphp + /health commit ee6945d
 - [x] Canlı: /tarifler?q[]=x ve ?max_minutes=abc 500 -> 200; /en/blog'da FAQPage ve blog SSS yok (footer /sss bağlantısı hariç)
 - [x] Porsiyon: gizli submit düğmesi azalt düğmesinden önce (sunucu HTML); test yeşil
-- [ ] Porsiyon Enter gerçek tarayıcıda doğrulanmadı (yalnız HTML ve test)
-- [ ] Dolap sayımları canlıda doğrulanmadı
-- [ ] EN yazı sayfasında SSS doğrulanmadı (yalnız EN liste)
+- [x] Porsiyon Enter gerçek tarayıcıda doğrulandı: 6 yazılıp Enter -> ?servings=6, azalt düğmesi tetiklenmedi
+- [ ] Dolap (/dolabim) üye girişi istiyor; sayımlar canlıda doğrulanmadı
+- [x] 12 blog yazısı TR/EN çifti: TR FAQPage 1, EN FAQPage 0 ve EN SSS bölümü 0 (EN sayfalar 200)
 - [ ] Posta: info@ kutusu şifresi hPanel'den güncellenmeli (SMTP kimlik doğrulaması başarısız)
 - [ ] Karar bekleyen: medya onay kapısı (Admin/MediaController approve/approveMany, media_reviewer_user_id ayrı alanı), Machina "Onayla" sabit true, medya beyanları kaydı, BlogCategory çevirisi, footer 17 EN bağlantısı, favori listesi kartı
