@@ -231,4 +231,5 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [x] 12 blog yazısı TR/EN çifti: TR FAQPage 1, EN FAQPage 0 ve EN SSS bölümü 0 (EN sayfalar 200)
 - [ ] Posta: info@ kutusu şifresi hPanel'den güncellenmeli (SMTP kimlik doğrulaması başarısız)
 - [x] Medya onay kapısı: yükleyen kendi görselini onaylayamaz (38ddbb5, uploaded_by_user_id; migration bekleyen kayıtları doldurdu). Canlıda admin girişi olmadığı için davranış canlıda doğrulanmadı; tam paket 1828/1828, pre-deploy yedek 01M4G131WF08Q700JGHJFNMCJV doğrulandı, restore testi yapılmadı
-- [ ] Karar bekleyen: Machina "Onayla" sabit true, medya beyanları kaydı, BlogCategory çevirisi, footer 17 EN bağlantısı, favori listesi kartı
+- [x] Machina "İnsan Onayı Ver": sabit true ve sahte "kuyruğa alındı" kaldırıldı; onay audit_logs'a yazılıyor (d44b3d0, tam paket 1828/1828, canlı d44b3d0). Canlıda audit satırı admin girişi olmadığı için doğrulanmadı; öneri hâlâ uygulanmıyor
+- [ ] Karar bekleyen: medya beyanları kaydı, BlogCategory çevirisi, footer 17 EN bağlantısı, favori listesi kartı
