@@ -246,6 +246,19 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [ ] Hukuki gözden geçirme: gizlilik, çerez, kullanım koşulları ve yasal merkez EN metinleri sahibi tarafından okunmalı
 - [ ] Eski blog kategori çevirisi (4aceb39) ve medya beyanı zamanları (1f2c561) bu yayınla birlikte gidiyor; canlıda kontrol edilmedi
 
+## 11 Ekim çeviri turu (canlı 272ece2)
+Karar: 1000 makine blog yazısı yayınlanmadı (16 Ağu olayı, 27 Eyl AdSense reddi, AGENTS.md "hiçbir ajan yazı yayınlamaz"). Yerine yayındaki gerçek tariflerin 6 dile gerçek çevirisi.
+- [x] 272ece2: coni ceviri chef_tips yazar (TR'de ipucu varsa zorunlu), acildi sayacı ve IndexNow hasTranslation'a bakar. Tam paket 1847/1847
+- [x] 91 tarif x 520 dil sayfası açıldı (ajan çevirisi + her partiye bağımsız gözden geçirme + mekanik doğrulama 0 hata). Açık tarif sayfası 218 -> 738; her dilde 123/127. Site haritası dil başına 123
+- [x] Onarım: açık sayfalarda 62 tarif x dil "Step N" adım başlığı ve başka tariften kopya ipucu gerçeğiyle değiştirildi (--zorla, 0 hata)
+- [x] IndexNow: 582 adres tek gönderim, HTTP 200
+- [x] Canlı örnek (en/de/ru/fa/pl/pt): 200, doğru lang, index,follow, kanonik kendisi, 8 hreflang
+- [ ] Kapalı kalan 4 tarif: firin-sebzeli-taco-kasesi (TR kaynağında pirinç/fasulye adımı yok, 210C süresiz; TR düzeltilmeden çevrilmez), sutlu-revani-5g74t, etli-kabak-dolmasi-f18sj, sucuklu-yumurta (TR noindex)
+- [ ] Önceden açık 218 sayfanın adım sadakat denetimi: mercimek-corbasi-vkztq adım 5 paprika yağı uydurma (6 dil), adım 4 "25 dk" düşmüş; yesil-mercimek-corbasi "şehriye"=orzo ve sıra hatası (en/de/fa/pl/pt); katmer ru adım 3 eksik
+- [ ] pt malzeme sözlüğü Avrupa Portekizcesi (borrego, sumo de limão, pimento, natas, beringela, sésamo, feijão-verde); "colorau" Brezilya'da annatto demek (tantuni, sucuklu yumurta). Eski pt adım metinleri de Avrupa; yeni metinler Brezilya. Sözlük Brezilya'ya çekilmeli
+- [ ] TR kaynak düzeltmeleri (sayfada görünür; miktarlar DEĞİL, onlar doğru): başlık-içerik çelişkisi: izgara-hellimli-koy-ekmegi (tost ekmeği), kibris-ceviz-macunu (adımlar soutzoukos), kaymakli-firin-ayva-tatlisi (tencerede; "su eklenmez" ama su var), kiymali-bezelye (kuşbaşı), kibris-hellimli-taze-borek ("Taze Naneli" ama kuru nane), akdeniz-zeytinli (başlık yarım). Açıklamada olup tarifte olmayan: cevizli-sarma-corek tarçın, lor-peynirli-tepsi-boregi maydanoz/karabiber, su-boregi maydanoz, akdeniz-yassi ve soganli-corek baharat, havuc-corbasi "kremasız" ama krema. Çelişki: kilis-cennet-camuru soğuk/sıcak şerbet, iskender sos sırası, citir-sigara-boregi "8 üçgen". Listede olmayan malzeme (tuz/su/yağ/baharat) ~25 tarifte. Ayrıntı: scratchpad kaynak_sorunlari.md ve ajan raporları
+- [ ] Not: dışa aktarımda pivot `unit` kanonik birimdir (g/litre); sayfa display_measure_code gösterir ("5 su bardağı"). Ham birimle miktar denetimi yanlış alarm verir
+
 ## Yayın 10 Ekim (blog ve politika: 762c7f4, 90760c9, 7c3de40)
 - [x] 762c7f4: EN politika sayfalarında "Diğer politikalar" kartları İngilizce. Canlıda /en/gizlilik, /en/cerezler, /en/kullanim-kosullari doğrulandı; TR değişmedi
 - [x] 90760c9: EN blog sayfalama /en/blog?page=N kalıyor (ana sayfa, kategori, etiket). Canlıda /en/blog?page=2 200; /blog TR sayfaları 200
