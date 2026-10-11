@@ -80,6 +80,24 @@ tarifleri gösterim sırasıyla verir. Günde en az 5 tarif-dil çifti:
    kapıdan geçti ama `hasTranslation` eksik alan buldu; sayfa 404'tür.
 4. Canlıda: `curl -s <adres> | grep -o '<meta name="robots"[^>]*>'` → `index`.
 
+## 2c. Türkçe kaynak ve malzeme listesi düzeltmesi
+
+`content:import-recipes` kullanılmaz: adımları silip kurar, altı dilin
+çevirisi gider. Yerine:
+
+- Metin alanı (başlık, özet, açıklama, adım başlığı, adım, ipucu):
+  `coni:kaynak <dosya>`; geri al `--geri-al=<rapor id>`. Değişen alanın
+  çevirisi `coni:ceviri-toplu --zorla` ile ayrıca yazılır.
+- Adımda kullanılıp listede olmayan malzeme: `coni:malzeme-ekle <dosya>`.
+  Dosya `{"<slug>": [{"ingredient_id", "display_quantity",
+  "display_measure_code", "scaling_behavior", "group_name"?,
+  "canonical_quantity"?, "canonical_unit"?, "manual_override_reason"?}]}`.
+  Malzemenin adı altı dilde çevrili olmalı. Dönüşüm tablosunda o ölçü
+  yoksa kanonik değer site kuralıyla elle verilir: çay kaşığı 5 ml, tatlı
+  kaşığı 10 ml, yemek kaşığı 15 ml, çay bardağı 100 ml, su bardağı 200 ml.
+  Önce `--dene` (yazmaz), sonra asıl koşu; açık bir sayfayı kapatacaksa
+  hiçbir şey yazılmaz. Geri al `--geri-al=<rapor id>`.
+
 ## 3. Sayfa sağlığı (odak sayfaları)
 
 Her dilin odak sayfası için dört geçiş:
