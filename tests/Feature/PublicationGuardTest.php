@@ -74,6 +74,9 @@ final class PublicationGuardTest extends TestCase
 
         $this->assertContains('cumle_tekrari', $servis->govdeKusurlari("## Giriş\n\n".$tekrar));
         $this->assertContains('yer_tutucu', $servis->govdeKusurlari('Bkz. [tarif](/tarifler/ornek-tarif-3).'));
+        $this->assertContains('yer_tutucu', $servis->govdeKusurlari('Bu bölüm yazılacak. TODO'));
+        // Portekizcede "todo" bütün demek; 11 Ekim 2026'da iki pt yazıyı kapatıyordu.
+        $this->assertNotContains('yer_tutucu', $servis->govdeKusurlari('Vire o pimentão o tempo todo, com todo o cuidado.'));
         $this->assertContains('ham_html', $servis->govdeKusurlari('<p>Paragraf</p><h2>Başlık</h2>'));
         $this->assertSame([], $servis->govdeKusurlari("## Hellim\n\nHellim keçi ve koyun sütünden yapılır. Pişirildiğinde erimez, bu yüzden ızgaraya uygundur. Tuzlu suda saklanır ve uzun süre dayanır. Nane ile katlanması adadaki eski bir alışkanlıktır. Köylerde hâlâ kazanda kaynatılır."));
     }

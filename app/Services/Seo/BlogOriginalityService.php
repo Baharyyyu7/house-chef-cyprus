@@ -151,7 +151,9 @@ final class BlogOriginalityService
             }
         }
 
-        if (preg_match('/ornek-tarif|tarifimiz \d|lorem ipsum|\bTODO\b|\{\{\s*\w+\s*\}\}/iu', $govde) === 1) {
+        // Yer tutucu işareti yalnız büyük harfle aranır: Portekizcede "todo"
+        // (bütün) sıradan kelime; /i ile pt yazılar yer tutucu sayılıp kapanıyordu.
+        if (preg_match('/ornek-tarif|tarifimiz \d|lorem ipsum|\{\{\s*\w+\s*\}\}/iu', $govde) === 1 || preg_match('/\bTODO\b/u', $govde) === 1) {
             $kusurlar[] = 'yer_tutucu';
         }
 
