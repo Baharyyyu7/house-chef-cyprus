@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Measurements;
 
 use App\Models\Unit;
+use Illuminate\Support\Str;
 use Illuminate\Translation\MessageSelector;
 
 final class HouseholdMeasurementFormatter
@@ -76,7 +77,7 @@ final class HouseholdMeasurementFormatter
             return $ad;
         }
 
-        return (float) $miktar > 1 ? \Illuminate\Support\Str::plural($ad) : \Illuminate\Support\Str::singular($ad);
+        return (float) $miktar > 1 ? Str::plural($ad) : Str::singular($ad);
     }
 
     /**
@@ -186,6 +187,17 @@ final class HouseholdMeasurementFormatter
         }
 
         return $this->sozluk('hazirlik')[mb_strtolower($not)] ?? null;
+    }
+
+    /**
+     * Malzeme grubu başlığının o dildeki karşılığı; sözlükte yoksa null.
+     *
+     * 11 Ekim 2026'da canlıda: birden fazla gruplu 6 tarifin 30 açık yabancı
+     * sayfası "Ana malzemeler", "Şerbet" başlığını Türkçe basıyordu.
+     */
+    public function grup(string $ad): ?string
+    {
+        return $this->turkce() ? $ad : ($this->sozluk('malzeme_gruplari')[mb_strtolower(trim($ad))] ?? null);
     }
 
     private function turkceBirimAdi(string $kod): string

@@ -14,7 +14,7 @@ final class RecipeIngredientDisplayService
 
     public function __construct(private readonly HouseholdMeasurementFormatter $formatter) {}
 
-    /** @return list<array{line: RecipeIngredient, group: string, formatted: string, display_quantity: string|null, measure_label: string, canonical_quantity: string|null, canonical_unit: string|null, is_approximate: bool, scaling_note: string|null, measure_code: string|null, canonical_text: string}> */
+    /** @return list<array{line: RecipeIngredient, group: string, group_label: string|null, formatted: string, display_quantity: string|null, measure_label: string, canonical_quantity: string|null, canonical_unit: string|null, is_approximate: bool, scaling_note: string|null, measure_code: string|null, canonical_text: string}> */
     public function forRecipe(iterable $lines, int $baseServings, int $servings): array
     {
         $factor = bcdiv((string) max(1, $servings), (string) max(1, $baseServings), 4);
@@ -42,7 +42,9 @@ final class RecipeIngredientDisplayService
                 $canonicalText = $etiket === '' ? '' : $this->formatter->kanonikMiktar($canonicalScaled, $kod).' '.$etiket;
             }
 
-            return ['line' => $line, 'group' => $line->recipe_ingredient_group_id === null ? ($line->group_name ?: 'Malzemeler') : $line->group->name, 'formatted' => $display, 'display_quantity' => $scaled, 'measure_label' => $this->formatter->measureLabel($unit, $scaled), 'canonical_quantity' => $canonicalScaled, 'canonical_unit' => $canonicalUnit, 'canonical_text' => $canonicalText, 'is_approximate' => in_array($line->conversion_confidence, ['low', 'medium', 'unknown'], true), 'scaling_note' => $line->scaling_note, 'measure_code' => $line->display_measure_code];
+            $grup = $line->recipe_ingredient_group_id === null ? ($line->group_name ?: 'Malzemeler') : $line->group->name;
+
+            return ['line' => $line, 'group' => $grup, 'group_label' => $this->formatter->grup($grup), 'formatted' => $display, 'display_quantity' => $scaled, 'measure_label' => $this->formatter->measureLabel($unit, $scaled), 'canonical_quantity' => $canonicalScaled, 'canonical_unit' => $canonicalUnit, 'canonical_text' => $canonicalText, 'is_approximate' => in_array($line->conversion_confidence, ['low', 'medium', 'unknown'], true), 'scaling_note' => $line->scaling_note, 'measure_code' => $line->display_measure_code];
         })->values()->all();
     }
 }

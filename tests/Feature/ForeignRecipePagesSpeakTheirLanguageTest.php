@@ -79,14 +79,31 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
         $this->assertNull(app(HouseholdMeasurementFormatter::class)->hazirlik('annemin usulü doğranmış'));
     }
 
+    public function test_ingredient_group_heading_is_translated_or_dropped(): void
+    {
+        $bicim = app(HouseholdMeasurementFormatter::class);
+
+        app()->setLocale('tr');
+        $this->assertSame('Şerbet', $bicim->grup('Şerbet'));
+
+        app()->setLocale('en');
+        $this->assertSame('Main ingredients', $bicim->grup('Ana malzemeler'));
+        $this->assertSame('Syrup', $bicim->grup('Şerbet'));
+
+        app()->setLocale('de');
+        $this->assertNull($bicim->grup('Hamur için'));
+    }
+
     public function test_every_locale_has_the_same_units_and_notes(): void
     {
         $birimler = array_keys(require lang_path('en/birimler.php'));
         $notlar = array_keys(require lang_path('en/hazirlik.php'));
+        $gruplar = array_keys(require lang_path('en/malzeme_gruplari.php'));
 
         foreach (['de', 'fa', 'pl', 'pt', 'ru'] as $dil) {
             $this->assertSame($birimler, array_keys(require lang_path($dil.'/birimler.php')), $dil);
             $this->assertSame($notlar, array_keys(require lang_path($dil.'/hazirlik.php')), $dil);
+            $this->assertSame($gruplar, array_keys(require lang_path($dil.'/malzeme_gruplari.php')), $dil);
         }
     }
 
