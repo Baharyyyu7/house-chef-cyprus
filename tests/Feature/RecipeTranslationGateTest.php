@@ -157,6 +157,29 @@ final class RecipeTranslationGateTest extends TestCase
         unlink($dosya);
     }
 
+    /** Adımda kullanılan sumak katalogda yoktu; panelde malzeme açan akış yok. */
+    public function test_katalogda_olmayan_malzeme_acilir_ve_geri_alininca_silinir(): void
+    {
+        $mevcut = Ingredient::query()->create(['name' => 'Tuz', 'slug' => 'tuz']);
+        $dosya = tempnam(sys_get_temp_dir(), 'coni');
+        file_put_contents($dosya, (string) json_encode(['Sumak' => ['en' => 'sumac', 'ru' => 'сумах'], 'Tuz' => ['en' => 'salt']], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('coni:malzeme', ['dosya' => $dosya])->assertSuccessful();
+
+        $sumak = Ingredient::query()->where('slug', 'sumak')->firstOrFail();
+        $this->assertSame('сумах', $sumak->translated('name', 'ru'));
+        $this->assertSame('salt', $mevcut->fresh()->translated('name', 'en'));
+        $this->assertSame(2, Ingredient::query()->count());
+
+        $rapor = IntegrityReport::query()->where('guard', 'coni:malzeme')->firstOrFail();
+        $this->artisan('coni:malzeme', ['--geri-al' => $rapor->id])->assertSuccessful();
+
+        $this->assertFalse(Ingredient::query()->where('slug', 'sumak')->exists());
+        $this->assertTrue(Ingredient::query()->whereKey($mevcut->id)->exists());
+        $this->assertNull($mevcut->fresh()->translated('name', 'en'));
+        unlink($dosya);
+    }
+
     public function test_toplu_ceviri_kalibi_acar_gercek_ceviriyi_ezmez(): void
     {
         $this->tarif(self::KALIP);

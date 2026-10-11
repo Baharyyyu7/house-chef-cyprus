@@ -97,6 +97,11 @@ tarifleri gösterim sırasıyla verir. Günde en az 5 tarif-dil çifti:
   kaşığı 10 ml, yemek kaşığı 15 ml, çay bardağı 100 ml, su bardağı 200 ml.
   Önce `--dene` (yazmaz), sonra asıl koşu; açık bir sayfayı kapatacaksa
   hiçbir şey yazılmaz. Geri al `--geri-al=<rapor id>`.
+- Malzeme katalogda yoksa önce `coni:malzeme <dosya>` ile açılır: anahtar
+  id yerine Türkçe ad, `{"Sumak": {"en": "sumac", "de": ..., "fa": ...,
+  "pl": ..., "pt": ..., "ru": ...}}`. Komut açılan id'yi yazar; geri al
+  malzemeyi hiçbir satır kullanmıyorsa siler (önce `coni:malzeme-ekle`
+  geri alınır).
 
 ## 3. Sayfa sağlığı (odak sayfaları)
 

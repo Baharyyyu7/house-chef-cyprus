@@ -7,8 +7,10 @@ namespace App\Console\Commands;
 use App\Models\ContentTranslation;
 use App\Models\Ingredient;
 use App\Models\IntegrityReport;
+use App\Models\RecipeIngredient;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use JsonException;
 
 /**
@@ -22,6 +24,11 @@ use JsonException;
  *
  * Dosya: {"<malzeme id>": {"en": "...", "de": "...", ...}, ...}
  * Eski değerler raporda saklanır; --geri-al=<rapor id> aynen geri koyar.
+ *
+ * Anahtar sayı değil Türkçe adsa ("Sumak") malzeme katalogda yoksa açılır.
+ * 11 Ekim 2026'da adımda kullanılan sumak, çörek otu, marul ve kek katalogda
+ * yoktu; yönetim panelinde malzeme açan bir akış yok. --geri-al açtığı
+ * malzemeyi hiçbir tarif satırı kullanmıyorsa siler.
  *
  * Kayıtlar olaysız yazılır: her çeviri kaydı gözlemci üzerinden o malzemeyi
  * kullanan her tarif için bir kuyruk işi açıyor; 1.400 kayıt, dakikada 20 iş
@@ -58,11 +65,27 @@ final class ConiMalzeme extends Command
         $diller = array_diff(array_keys((array) config('locales.supported', [])), [(string) config('locales.default', 'tr')]);
         $tur = (new Ingredient)->getMorphClass();
         $once = [];
+        $acilan = [];
         $yazilan = 0;
 
-        DB::transaction(function () use ($harita, $diller, $tur, &$once, &$yazilan): void {
-            ContentTranslation::withoutEvents(function () use ($harita, $diller, $tur, &$once, &$yazilan): void {
+        DB::transaction(function () use ($harita, $diller, $tur, &$once, &$acilan, &$yazilan): void {
+            ContentTranslation::withoutEvents(function () use ($harita, $diller, $tur, &$once, &$acilan, &$yazilan): void {
                 foreach ((array) $harita as $id => $adlar) {
+                    if (! is_int($id)) {
+                        $ad = trim((string) $id);
+                        $malzeme = $ad === '' || mb_strlen($ad) > 120 ? null : Ingredient::query()->firstOrCreate(['slug' => Str::slug($ad)], ['name' => $ad, 'canonical_name' => $ad, 'is_active' => true]);
+
+                        if ($malzeme === null) {
+                            continue;
+                        }
+
+                        if ($malzeme->wasRecentlyCreated) {
+                            $acilan[$malzeme->id] = $ad;
+                        }
+
+                        $id = $malzeme->id;
+                    }
+
                     if (! Ingredient::query()->whereKey((int) $id)->exists()) {
                         continue;
                     }
@@ -93,8 +116,12 @@ final class ConiMalzeme extends Command
             'guard' => 'coni:malzeme',
             'status' => 'ok',
             'headline' => $yazilan,
-            'payload' => ['yazilan' => $yazilan, 'once' => $once],
+            'payload' => ['yazilan' => $yazilan, 'once' => $once, 'acilan' => $acilan],
         ]);
+
+        foreach ($acilan as $id => $ad) {
+            $this->line(sprintf('Açılan malzeme: %s #%d', $ad, $id));
+        }
 
         $this->components->info(sprintf('%d malzeme adı yazıldı. Geri almak için: php artisan coni:malzeme --geri-al=%d', $yazilan, $rapor->id));
 
@@ -117,6 +144,17 @@ final class ConiMalzeme extends Command
                 }
             }
         });
+
+        foreach (array_keys((array) ($rapor->payload['acilan'] ?? [])) as $id) {
+            if (RecipeIngredient::query()->where('ingredient_id', (int) $id)->exists()) {
+                $this->components->warn('Malzeme #'.$id.' tarifte kullanılıyor, silinmedi.');
+
+                continue;
+            }
+
+            ContentTranslation::withoutEvents(fn () => ContentTranslation::query()->where(['translatable_type' => $tur, 'translatable_id' => (int) $id])->delete());
+            Ingredient::query()->whereKey((int) $id)->delete();
+        }
 
         $rapor->update(['status' => 'geri_alindi']);
         $this->components->info('Geri alındı: rapor #'.$raporId);
