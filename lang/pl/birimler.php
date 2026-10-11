@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'adet' => '',
+    'adet' => 'szt.',
     'yemek_kasigi' => 'łyżka|łyżki|łyżek',
     'gram' => 'g',
     'g' => 'g',

@@ -57,6 +57,28 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
         $this->assertSame('стакана', $bicim->measureLabel($this->birim('su_bardagi'), '0.5'));
     }
 
+    /** Canlıda "3 стакана сахарный песок", "3 szklanki cukier", "3 copos açúcar" basılıyordu. */
+    public function test_ingredient_line_follows_the_language_order(): void
+    {
+        $bicim = app(HouseholdMeasurementFormatter::class);
+
+        app()->setLocale('ru');
+        $this->assertSame("Сахарный песок \u{2014} 3 стакана", $bicim->yabanciSatir('3 стакана', 'сахарный песок', true));
+        $this->assertSame('Соль', $bicim->yabanciSatir('', 'соль', false));
+
+        app()->setLocale('pl');
+        $this->assertSame('szt.', $bicim->measureLabel($this->birim('adet'), '2'));
+        $this->assertSame("Jajka \u{2013} 2 szt.", $bicim->yabanciSatir('2 szt.', 'jajka', true));
+
+        app()->setLocale('pt');
+        $this->assertSame('3 copos de açúcar', $bicim->yabanciSatir('3 copos', 'açúcar', true));
+        $this->assertSame('3 ovos', $bicim->yabanciSatir('3', 'ovos', false));
+        $this->assertSame('maço', $bicim->measureLabel($this->birim('demet'), '1'));
+
+        app()->setLocale('de');
+        $this->assertSame('1 TL Natron', $bicim->yabanciSatir('1 TL', 'Natron', true));
+    }
+
     public function test_canonical_unit_code_is_localized_or_dropped(): void
     {
         $bicim = app(HouseholdMeasurementFormatter::class);

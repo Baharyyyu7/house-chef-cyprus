@@ -81,6 +81,28 @@ final class HouseholdMeasurementFormatter
     }
 
     /**
+     * Yabancı dilde miktar ile adın sırası ve bağı.
+     *
+     * 11 Ekim 2026'da canlıda: Rusça "3 стакана сахарный песок", Lehçe
+     * "3 szklanki cukier" basılıyordu; ölçüden sonra ad -in hali alır ve
+     * katalogda tek hal var. Bu iki dilin tarif listesi geleneği adı başa
+     * alır ("Сахарный песок — 3 стакана"), hal gerekmez. Portekizcede ölçü
+     * ile ad arasına "de" girer ("3 copos de açúcar").
+     */
+    public function yabanciSatir(string $miktar, string $ad, bool $birimli): string
+    {
+        $dil = app()->getLocale();
+
+        if (in_array($dil, ['ru', 'pl'], true)) {
+            $ad = mb_strtoupper(mb_substr($ad, 0, 1)).mb_substr($ad, 1);
+
+            return $miktar === '' ? $ad : $ad.($dil === 'ru' ? " \u{2014} " : " \u{2013} ").$miktar;
+        }
+
+        return trim($miktar.($dil === 'pt' && $birimli && $ad !== '' ? ' de ' : ' ').$ad);
+    }
+
+    /**
      * Kanonik satır ana satırdan farklı bir şey söylüyor mu? "adet" hiçbir
      * zaman söylemez (sayı ana satırda); "gram" ile "g" aynı birimdir.
      */

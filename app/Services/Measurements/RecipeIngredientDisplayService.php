@@ -27,9 +27,10 @@ final class RecipeIngredientDisplayService
             // Yabancı dilde not adın arkasına virgülle gelir: sıfat olarak
             // başa konsa Almanca, Lehçe, Rusça ve Portekizcede adla cinsiyet
             // ve sayı uyumu gerekirdi ("4 Tomaten, gerieben").
+            $etiket = $this->formatter->measureLabel($unit, $scaled);
             $display = app()->getLocale() === (string) config('locales.default', 'tr')
-                ? trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $this->formatter->measureLabel($unit, $scaled), $hazirlik, $line->ingredient?->name])))
-                : trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $this->formatter->measureLabel($unit, $scaled), $this->formatter->adSayiyla((string) $line->ingredient?->name, $scaled, $this->formatter->measureLabel($unit, $scaled))]))).($hazirlik === null ? '' : (app()->getLocale() === 'fa' ? '، ' : ', ').$hazirlik);
+                ? trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $etiket, $hazirlik, $line->ingredient?->name])))
+                : $this->formatter->yabanciSatir(trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $etiket]))), $this->formatter->adSayiyla((string) $line->ingredient?->name, $scaled, $etiket), $etiket !== '').($hazirlik === null ? '' : (app()->getLocale() === 'fa' ? '، ' : ', ').$hazirlik);
             $canonical = $line->canonical_quantity ?? $line->grams;
             $canonicalScaled = $canonical === null ? null : bcmul((string) $canonical, $factor, 4);
             $canonicalUnit = $line->canonical_unit ?: ($line->grams !== null ? 'g' : null);
