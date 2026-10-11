@@ -249,6 +249,15 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [ ] Hukuki gözden geçirme: gizlilik, çerez, kullanım koşulları ve yasal merkez EN metinleri sahibi tarafından okunmalı
 - [ ] Eski blog kategori çevirisi (4aceb39) ve medya beyanı zamanları (1f2c561) bu yayınla birlikte gidiyor; canlıda kontrol edilmedi
 
+## 11 Ekim üçüncü tur: malzeme satırı dilbilgisi, eksik katalog, TR adım başlıkları
+- [x] Yayın 6a86487 (tam paket 1855/1855, /health 6a86487, invariants temiz). Canlıda izmir-sambali 7 dil: ru "Сахарный песок (для сиропа) — 3 стакана", pl "Cukier (do syropu) – 3 szklanki", pt "3 copos de açúcar", tr/en/de/fa değişmedi
+- [x] 733b7f9: ru/pl malzeme satırı adı başa alır ("Сахарный песок — 3 стакана", "Cukier – 3 szklanki"); pt ölçüden sonra "de" ("3 copos de açúcar"). Canlıda ölçüldü: ru/pl ad yalın halde, pt "de" yok. pl adet "szt.", pt-BR birimler maço/pacote/punhado ("molho" Brezilya'da sos)
+- [x] 6a86487: coni:malzeme Türkçe ad anahtarıyla katalogda olmayan malzemeyi açar; geri al kullanılmıyorsa siler
+- [x] Canlıda: coni:malzeme 4 malzeme açtı #260 Çörek Otu, #261 Sumak, #262 Marul, #263 Kek, 24 ad (--geri-al=30637); coni:malzeme-ekle 4 satır (--geri-al=30638; önce bu geri alınır). 4 tarif x 7 dil 200/index, yeni satır her dilde görünüyor: peynirli-borek (çörek otu 1 çay k.), coban-salata (sumak, isteğe bağlı), kekli-ev-yapimi-supangle-cgxs3 (kek 100 g, isteğe bağlı), mercimek-koftesi-s57cm (marul 1 adet). cevizli-sarma-corek düştü: özet düzeltilmiş, adımda pudra şekeri yok
+- [x] TR adım başlığı "Adım N": 127 açık tarifin 96'sında 463 adım. 4 yazar ajan + 2 bağımsız doğrulayıcı (456 başlıktan 4'ü düzeltildi, uydurma 0); mekanik kontrol 0 hata. coni:kaynak 95 tarif 461 alan (456 başlık + 5 adım dilbilgisi: "kabarın" -> "kabarmaya bırakın" x3, "kabarana" x1, adana "özdeşleştirin"), --geri-al=30639. Canlıda kalan "Adım N" yalnız sucuklu-yumurta (yer tutucu adımlar, noindex, site haritasında yok; atlandı). Açık yabancı sayfa 738 (dil başına 123) korundu
+- [ ] sucuklu-yumurta (id 1500): published+verified ama 7 adımı şablon metin ("Malzemeleri yıkayın ve hazırlayın"), sucuk/yumurta geçmiyor; noindex ama erişilebilir. AdSense incelemesi siteye bakıyor: TR kaynağı yazılmalı ya da yayından kaldırılmalı (kullanıcı kararı)
+- [ ] Bulunan: de satırında sıfat büyük harf ("½ Wasserglas Ungesalzene Erdnüsse"); katalogda "(Şerbet için)" ekli ayrı malzemeler (Toz Şeker, Su)
+
 ## 11 Ekim ikinci tur: sadakat denetimi ve pt-BR
 Çalışma klasörü: oturum scratchpad'i `denetim/` (girdi, cikti/<dil>, kontrol.py, DENETIM.md) ve `kaynak/` (TR asıl dışa aktarımı).
 - [x] Workflow wf_e48ef093-b13 (34 ajan, 0 hata): 218 eski çift adım sadakat denetimi + bağımsız doğrulayıcı; pt sözlüğü Brezilya; 91 yeni pt sayfası Brezilya'ya hizalandı. Denetçi düzeltmesi: uydurma 92, yanlış anlam 64, dil 53, adım başlığı 40, düşen içerik 28, başlık/özet 16, pt-BR 32; doğrulayıcı 12 geri aldı, 7 düzeltti, 25 kaçırılanı ekledi
