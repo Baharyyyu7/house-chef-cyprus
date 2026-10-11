@@ -15,7 +15,7 @@ use JsonException;
  * Bir klasördeki çevirileri tarif tarif, dil dil uygular.
  *
  * Dosya adı tarifin slug'ı, içeriği {"<dil>": {title, excerpt, description,
- * step_titles, steps}}. Her çift coni:ceviri ile aynı yoldan geçer: kalıp
+ * step_titles, steps, chef_tips}}. Her çift coni:ceviri ile aynı yoldan geçer: kalıp
  * denetimi, eski değerin saklanması, defter kaydı. Adımları zaten gerçek
  * çeviri olan çift atlanır; elle yazılmış bir çeviri ezilmez.
  */
@@ -61,7 +61,11 @@ final class ConiCeviriToplu extends Command
                 }
 
                 $sayac['yazildi']++;
-                $sayac['acildi'] += (int) ($sonuc['engel_once'] !== null && $sonuc['engel_sonra'] === null);
+                $sayac['acildi'] += (int) (! $sonuc['acik_once'] && $sonuc['acik']);
+
+                if (! $sonuc['acik']) {
+                    $this->components->warn($slug.' '.$dil.': yazıldı ama sayfa kapalı (engel: '.($sonuc['engel_sonra'] ?? 'yok, eksik alan').').');
+                }
             }
         }
 

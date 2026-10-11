@@ -174,6 +174,35 @@ final class RecipeTranslationGateTest extends TestCase
         rmdir($klasor);
     }
 
+    /**
+     * 27 Eylül 2026: "48 dizine açıldı" denen partide Pastırmalı Yumurta
+     * altı dilde 404'tü; adımın ipucu çevrilmemişti ve sayaç yalnız kapıya
+     * bakıyordu.
+     */
+    public function test_ipucu_dolu_adim_cevrilmeden_sayfa_acik_sayilmaz(): void
+    {
+        $this->tarif(self::KALIP)->steps()->where('position', 2)->update(['chef_tip' => 'Kadayıfı renk almadan kavurun.']);
+        $klasor = sys_get_temp_dir().'/coni-ipucu-'.uniqid();
+        mkdir($klasor);
+
+        file_put_contents($klasor.'/cennet-camuru.json', (string) json_encode(['en' => ['steps' => self::GERCEK]]));
+        $this->artisan('coni:ceviri-toplu', ['klasor' => $klasor])->expectsOutputToContain('0 yazıldı, 0 dizine açıldı, 0 atlandı, 1 hata')->assertFailed();
+        $this->get('/en/recipes/cennet-camuru')->assertNotFound();
+
+        file_put_contents($klasor.'/cennet-camuru.json', (string) json_encode(['en' => ['steps' => self::GERCEK, 'chef_tips' => ['', 'Stop before the kadayif takes colour.', '']]]));
+        $this->artisan('coni:ceviri-toplu', ['klasor' => $klasor])->expectsOutputToContain('1 yazıldı, 1 dizine açıldı')->assertSuccessful();
+        $this->get('/en/recipes/cennet-camuru')->assertOk();
+        $adim = fn () => Recipe::query()->firstOrFail()->steps()->where('position', 2)->firstOrFail();
+        $this->assertSame('Stop before the kadayif takes colour.', $adim()->translated('chef_tip', 'en'));
+
+        $this->artisan('coni:geri-al', ['id' => ConiAction::query()->where('kind', ConiAction::CEVIRI)->firstOrFail()->id])->assertSuccessful();
+        $this->assertNull($adim()->translated('chef_tip', 'en'));
+        $this->get('/en/recipes/cennet-camuru')->assertNotFound();
+
+        array_map('unlink', glob($klasor.'/*.json'));
+        rmdir($klasor);
+    }
+
     public function test_kalip_ya_da_eksik_ceviri_kabul_edilmez(): void
     {
         $this->tarif(self::KALIP);

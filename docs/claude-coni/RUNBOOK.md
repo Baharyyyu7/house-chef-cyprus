@@ -69,13 +69,15 @@ tarifleri gösterim sırasıyla verir. Günde en az 5 tarif-dil çifti:
    o dilde ne olduğu. Başlık o dilin "tarif" kelimesini içersin (Recipe,
    Rezept, Przepis, Receita, Рецепт, طرز تهیه), yoksa sistem sona ekliyor.
    Asılda olmayan bilgi ekleme; asıl çelişkiliyse çelişen ayrıntıyı atla.
-3. JSON: `{"title","excerpt","description","step_titles":[...],"steps":[...]}`
-   (adım sayısı asılla aynı), sunucuya kopyala ve uygula:
+3. JSON: `{"title","excerpt","description","step_titles":[...],"steps":[...],"chef_tips":[...]}`
+   (adım sayısı asılla aynı). `chef_tips` asılda ipucu dolu bir adım varsa
+   zorunlu; ipucu boş adım için boş metin. Sunucuya kopyala ve uygula:
    ```bash
    scp -P 65002 <dosya>.json u584361532@147.93.93.105:~/coni-ceviri.json
    $SSH "$APP && php artisan coni:ceviri <slug> <dil> ~/coni-ceviri.json --neden='<gösterim + neden>' && rm ~/coni-ceviri.json"
    ```
-   Çıktıda `engel ... → yok (dizine açık)` görülmeli.
+   Çıktıda `engel ... → yok, sayfa açık` görülmeli. `sayfa kapalı` ise
+   kapıdan geçti ama `hasTranslation` eksik alan buldu; sayfa 404'tür.
 4. Canlıda: `curl -s <adres> | grep -o '<meta name="robots"[^>]*>'` → `index`.
 
 ## 3. Sayfa sağlığı (odak sayfaları)

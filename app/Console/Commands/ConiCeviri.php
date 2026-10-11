@@ -50,7 +50,7 @@ final class ConiCeviri extends Command
             return self::SUCCESS;
         }
 
-        $this->components->info(sprintf('#%d %s: engel %s → %s', $sonuc['id'], $sonuc['page'], $sonuc['engel_once'] ?? 'yok', $sonuc['engel_sonra'] ?? 'yok (dizine açık)'));
+        $this->components->info(sprintf('#%d %s: engel %s → %s, sayfa %s', $sonuc['id'], $sonuc['page'], $sonuc['engel_once'] ?? 'yok', $sonuc['engel_sonra'] ?? 'yok', $sonuc['acik'] ? 'açık' : 'kapalı'));
 
         return self::SUCCESS;
     }

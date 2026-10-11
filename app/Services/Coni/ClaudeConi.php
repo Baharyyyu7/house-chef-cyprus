@@ -217,11 +217,11 @@ final class ClaudeConi
                     $this->ceviriYaz($tarif, $is->locale, (string) $alan, $deger);
                 }
 
-                foreach (['steps' => 'instruction', 'step_titles' => 'title'] as $anahtar => $alan) {
+                foreach (['steps' => 'instruction', 'step_titles' => 'title', 'chef_tips' => 'chef_tip'] as $anahtar => $alan) {
                     foreach ((array) ($is->before[$anahtar] ?? []) as $adimId => $deger) {
                         $adim = RecipeStep::query()->where('recipe_id', $tarif->id)->find((int) $adimId);
 
-                        if ($adim !== null && ($anahtar === 'steps' || ! empty($is->after['step_titles']))) {
+                        if ($adim !== null && ($anahtar === 'steps' || ! empty($is->after[$anahtar]))) {
                             $this->ceviriYaz($adim, $is->locale, $alan, $deger);
                         }
                     }
@@ -551,8 +551,8 @@ final class ClaudeConi
      * metni Claude oturumu Türkçe asıldan o dilde yazar. Eski değerler
      * saklanır, geriAl() aynen geri koyar.
      *
-     * @param  array{title?: string, excerpt?: string, description?: string, steps: list<string>, step_titles?: list<string>}  $ceviri
-     * @return array{id: int, page: string, engel_once: string|null, engel_sonra: string|null}
+     * @param  array{title?: string, excerpt?: string, description?: string, steps: list<string>, step_titles?: list<string>, chef_tips?: list<string>}  $ceviri
+     * @return array{id: int, page: string, engel_once: string|null, engel_sonra: string|null, acik_once: bool, acik: bool}
      */
     public function ceviri(string $slug, string $dil, array $ceviri, string $neden): array
     {
@@ -590,6 +590,24 @@ final class ClaudeConi
             throw new InvalidArgumentException(sprintf('Adım başlığı verilecekse %d dolu başlık gerekli.', $adimlar->count()));
         }
 
+        // hasTranslation() Türkçesi dolu her adım ipucunun çevirisini ister.
+        // İpucu çevrilmeden yazılan çeviri 27 Eylül'de sayfayı 404'te
+        // bıraktı ama "dizine açıldı" diye sayıldı.
+        $yeniIpuclari = array_values(array_map(static fn ($a): string => trim((string) $a), (array) ($ceviri['chef_tips'] ?? [])));
+        $ipucluAdimlar = $adimlar->filter(static fn (RecipeStep $a): bool => trim((string) $a->getRawOriginal('chef_tip')) !== '');
+
+        if ($ipucluAdimlar->isNotEmpty() || $yeniIpuclari !== []) {
+            if (count($yeniIpuclari) !== $adimlar->count()) {
+                throw new InvalidArgumentException(sprintf('Tarifin %d adımı var, %d adımda ipucu dolu; chef_tips %d öğe olmalı (ipucu boş adım için boş metin).', $adimlar->count(), $ipucluAdimlar->count(), $adimlar->count()));
+            }
+
+            foreach ($adimlar->values() as $sira => $adim) {
+                if ($ipucluAdimlar->contains($adim) && $yeniIpuclari[$sira] === '') {
+                    throw new InvalidArgumentException(sprintf('%d. adımın ipucu Türkçede dolu; çevirisi boş olamaz.', $sira + 1));
+                }
+            }
+        }
+
         $alanlar = array_filter([
             'title' => isset($ceviri['title']) ? trim((string) $ceviri['title']) : null,
             'excerpt' => isset($ceviri['excerpt']) ? trim((string) $ceviri['excerpt']) : null,
@@ -597,6 +615,7 @@ final class ClaudeConi
         ], static fn (?string $d): bool => $d !== null && $d !== '');
 
         $engelOnce = $kapi->engel($tarif, $dil);
+        $acikOnce = $tarif->hasTranslation($dil);
         $once = ['recipe' => [], 'steps' => []];
 
         foreach (array_keys($alanlar) as $alan) {
@@ -606,11 +625,15 @@ final class ClaudeConi
         foreach ($adimlar as $adim) {
             $once['steps'][(string) $adim->id] = $adim->translated('instruction', $dil);
             $once['step_titles'][(string) $adim->id] = $adim->translated('title', $dil);
+
+            if ($ipucluAdimlar->contains($adim)) {
+                $once['chef_tips'][(string) $adim->id] = $adim->translated('chef_tip', $dil);
+            }
         }
 
         $sayfa = $this->diller->urlFor($dil, '/tarifler/'.$tarif->slug);
 
-        $is = DB::transaction(function () use ($tarif, $adimlar, $alanlar, $yeniAdimlar, $yeniBasliklar, $dil, $once, $sayfa, $neden, $engelOnce): ConiAction {
+        $is = DB::transaction(function () use ($tarif, $adimlar, $alanlar, $yeniAdimlar, $yeniBasliklar, $yeniIpuclari, $ipucluAdimlar, $dil, $once, $sayfa, $neden, $engelOnce): ConiAction {
             foreach ($alanlar as $alan => $deger) {
                 $this->ceviriYaz($tarif, $dil, $alan, $deger);
             }
@@ -620,6 +643,10 @@ final class ClaudeConi
 
                 if ($yeniBasliklar !== []) {
                     $this->ceviriYaz($adim, $dil, 'title', $yeniBasliklar[$sira]);
+                }
+
+                if ($ipucluAdimlar->contains($adim)) {
+                    $this->ceviriYaz($adim, $dil, 'chef_tip', $yeniIpuclari[$sira]);
                 }
             }
 
@@ -632,19 +659,22 @@ final class ClaudeConi
                 'reason' => trim($neden),
                 'evidence' => ['tur' => 'recipe', 'id' => $tarif->id, 'slug' => $tarif->slug, 'engel_once' => $engelOnce],
                 'before' => $once,
-                'after' => ['recipe' => $alanlar, 'steps' => array_combine($adimlar->pluck('id')->map(static fn ($id): string => (string) $id)->all(), $yeniAdimlar), 'step_titles' => $yeniBasliklar],
+                'after' => ['recipe' => $alanlar, 'steps' => array_combine($adimlar->pluck('id')->map(static fn ($id): string => (string) $id)->all(), $yeniAdimlar), 'step_titles' => $yeniBasliklar, 'chef_tips' => $yeniIpuclari],
                 'applied_at' => now(),
                 'evaluate_after' => $this->degerlendirmeGunu(now()),
             ]);
         });
 
-        $engelSonra = (new RecipeTranslationGate)->engel($tarif->fresh(), $dil);
+        $taze = $tarif->fresh();
+        $engelSonra = (new RecipeTranslationGate)->engel($taze, $dil);
+        $acik = $taze->hasTranslation($dil);
 
-        if ($engelSonra === null) {
+        // Kapıdan geçip 404 kalan sayfa arama motoruna bildirilmez.
+        if ($acik) {
             $this->bildir([$sayfa]);
         }
 
-        return ['id' => $is->id, 'page' => $sayfa, 'engel_once' => $engelOnce, 'engel_sonra' => $engelSonra];
+        return ['id' => $is->id, 'page' => $sayfa, 'engel_once' => $engelOnce, 'engel_sonra' => $engelSonra, 'acik_once' => $acikOnce, 'acik' => $acik];
     }
 
     private function ceviriYaz(Model $model, string $dil, string $alan, ?string $deger): void
