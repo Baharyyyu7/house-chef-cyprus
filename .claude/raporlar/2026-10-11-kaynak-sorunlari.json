@@ -1,0 +1,216 @@
+{
+ "hellim-ve-domatesli-kahvalti-tavasi": [
+  "Description contradicts itself: 'Domatesi kabuğuyla kullanacaksanız ... kabuğunu soyun' (if using with skin, peel the skin). Probably meant 'kabuksuz'. The live PL already reads 'if you want to peel'; left unchanged. Step 3 also adds karabiber, which is not in the ingredient list.",
+  "Description says 'Domatesi kabuğuyla kullanacaksanız ... kabuğunu soyun' (if using with skin, peel it): contradictory, should be 'kabuksuz'. Step 3 uses karabiber, not in ingredient list.",
+  "Description: 'Domatesi kabuğuyla kullanacaksanız ... kabuğunu soyun' is self-contradictory (should be 'kabuksuz'). FA already reads 'if you want to peel', left unchanged. Step 3 uses karabiber, step 5 köy ekmeği; neither in ingredient list.",
+  "Step 3 adds karabiber (black pepper), which is not in the ingredient list.",
+  "Step 3 adds karabiber, which is not in malzemeler. The description says 'Domatesi kabuğuyla kullanacaksanız ... kabuğunu soyun' (if using the tomato with its skin, peel it), which contradicts itself."
+ ],
+ "klasik-kirmizi-mercimek-corbasi-vkztq": [
+  "Step 2 uses zeytinyagi and step 5 unspecified 'baharatlar'; neither is in the ingredient list. Excerpt 'sifa kaynagi' is an unsupported health claim (template filler, not translated).",
+  "Step 2 uses zeytinyağı, not in ingredient list; step 5 says 'tuz ve baharatlarını' but no spice is listed or named; step titles are generic 'Adım 1-5'; excerpt is template filler with a health claim ('şifa kaynağı'), which PL does not translate.",
+  "Step titles generic 'Adım N'. Step 2 uses zeytinyağı, not in list. Step 5 'baharatlar' unspecified, no spice in list. Excerpt is template filler with health claim 'şifa kaynağı'.",
+  "The Turkish step titles are the generic 'Adım 1-5'. Step 2 uses zeytinyağı, which is not in malzemeler. Step 5 adds unnamed 'baharatlar'. The excerpt makes a health claim ('şifa kaynağı').",
+  "Turkish step titles are generic 'Adım 1-5'. Step 2 uses zeytinyağı, not in ingredient list. Step 5 adds 'baharatlarını' but no spice is listed. Excerpt 'şifa kaynağı' is an unsupported health claim (not carried into FA)."
+ ],
+ "yogurtlu-pogaca-my67a": [
+  "The Turkish step titles are the generic 'Adım 1-4'.",
+  "Turkish step titles are generic 'Adım 1'-'Adım 4'.",
+  "Turkish step titles are generic 'Adım 1-4' (the PL titles are descriptive).",
+  "Turkish step titles are generic 'Adım 1-4'. Ingredient 'Peynir' unspecified."
+ ],
+ "peynirli-borek": [
+  "Step 5 sprinkles çörek otu (nigella), not in ingredient list.",
+  "Step 5 uses corek otu (nigella seeds), not in the ingredient list.",
+  "Step 5 uses çörek otu, not in ingredient list.",
+  "Step 5 uses çörek otu, which is not in malzemeler."
+ ],
+ "ispanakli-gozleme": [
+  "Step 3 adds karabiber and step 1 uses ılık su; neither is in the ingredient list.",
+  "Step 3 uses karabiber and step 1 uses warm water; neither is in the ingredient list.",
+  "Step 3 uses karabiber and step 1 uses ılık su; neither in ingredient list.",
+  "Step 3 uses karabiber and step 1 uses ılık su; neither is in malzemeler.",
+  "Step 3 uses karabiber, not in ingredient list."
+ ],
+ "humus": [
+  "Step 1 karbonat and step 6 pul biber are not in the ingredient list.",
+  "Step 1 uses karbonat and step 6 uses pul biber; neither is in the ingredient list.",
+  "Step 1 uses karbonat, step 6 uses pul biber; neither in ingredient list.",
+  "Step 6 uses pul biber, not in ingredient list. Step 4 uses garlic soaked in lemon, but no step soaks it (only description).",
+  "Step 6 uses pul biber, which is not in malzemeler. Step 4 uses 'limonda bekletilmiş sarımsak', but no step says to soak the garlic in lemon juice (only the description does)."
+ ],
+ "etli-taze-fasulye": [
+  "Excerpt says salça is fried ('salçayı kavurup'), but in step 5 the salça goes in with the tomatoes and is never fried.",
+  "Excerpt says salça is roasted (salçayı kavurup), but steps add salça with tomatoes in step 5 without roasting.",
+  "The excerpt says the salça is roasted ('salçayı kavurup'), but in the steps it only goes in with the tomatoes in step 5 and is never roasted."
+ ],
+ "limonlu-semifreddo": [
+  "Tuz is in malzemeler but no step uses it.",
+  "Tuz is in the ingredient list but no step uses it."
+ ],
+ "domates-corbasi": [
+  "Step 3 offers et suyu (stock) and step 5 uses kasar cheese; neither is in the ingredient list.",
+  "Step 3 offers et suyu and step 5 optional rendelenmiş kaşar; neither in ingredient list.",
+  "Step 5 optional grated kaşar is not in the ingredient list.",
+  "Step 5 uses kaşar (optional) and step 3 et suyu (alternative), neither in ingredient list.",
+  "Step 5 uses optional kaşar and step 3 offers et suyu as an option; neither is in malzemeler."
+ ],
+ "coban-salata": [
+  "Step 5 optional sumak is not in the ingredient list.",
+  "Step 5 uses optional sumak, which is not in malzemeler.",
+  "Step 5 uses sumak (optional), not in ingredient list.",
+  "Step 5 uses sumak (optional), not in the ingredient list."
+ ],
+ "tarhana-corbasi": [
+  "The description says to stir constantly in one direction while cooking; step 4 says 'ara ara karıştırarak' (stir occasionally)."
+ ],
+ "baklava-dilimi": [
+  "Step 1 boils sugar with water for the şerbet, but water is not in malzemeler.",
+  "Step 1 syrup uses su (water), not in the ingredient list; no syrup quantities anywhere."
+ ],
+ "katmer-wjxs9": [
+  "The Turkish step titles are the generic 'Adım 1-4'. Step 1 uses ılık su, which is not in malzemeler.",
+  "Turkish step titles are generic 'Adım 1'-'Adım 4'."
+ ],
+ "kibris-usulu-kleftiko-kuzu-firin-55m4w": [
+  "Step 2 rubs the meat with zeytinyağı (olive oil), but olive oil is missing from the ingredient list. Salt and black pepper are also missing.",
+  "Step 2 uses zeytinyağı, tuz and karabiber, but none of them is in the ingredient list.",
+  "Step 2 uses zeytinyağı, tuz and karabiber, none of which is in the ingredient list.",
+  "Step 5 says uncover for the last 20 minutes, but no step covers the dish; covering appears only in the optional tip of step 4.",
+  "Step titles generic 'Adım N'. Step 2 uses zeytinyağı, tuz, karabiber; none are in ingredient list."
+ ],
+ "babaganus-koz-patlican-salatasi-brq2j": [
+  "Step 3 uses tuz and step 5 uses maydanoz; neither is in the ingredient list.",
+  "Step 5 garnishes with maydanoz (parsley), but parsley is not in the ingredient list.",
+  "Step 5 garnishes with maydanoz (parsley), which is not in the ingredient list.",
+  "Step titles generic 'Adım N'. Step 3 uses tuz and step 5 maydanoz, neither in ingredient list."
+ ],
+ "kiymali-bezelye-yemegi-dwhf3": [
+  "The title says 'Kıymalı' (with minced meat), but the ingredient is Dana Kuşbaşı (diced beef) and step 1 browns the meat in its own juices. The title and the recipe disagree. The EN 'Pea and Beef Stew' stays neutral."
+ ],
+ "kilis-cennet-camuru-tatlisi-wtqmm": [
+  "The description says 'Soğuk şerbetle buluşur' (cold syrup), but step 4 says 'sıcak şerbeti' (hot syrup). Step 5 serves with kaymak, which is not in the ingredient list."
+ ],
+ "hellimli-kahvalti-tavas": [
+  "Step 7 garnishes with fresh mint leaves (only Kuru Nane is listed) and serves with köy ekmeği, which is not listed.",
+  "Step 7 garnishes with taze nane (fresh mint), but the list has only kuru nane (dried mint).",
+  "Step 7 garnishes with taze nane (fresh mint); the list has only kuru nane.",
+  "Step 7 uses fresh mint leaves (taze nane), but the list has only dried mint.",
+  "Step 7 uses taze nane yaprakları (fresh mint), but the ingredient list has only Kuru Nane (dried mint). The köy ekmeği served alongside is not listed either."
+ ],
+ "sutlac-kibris": [
+  "Porsiyon is 4, but step 5 divides the pudding into six bowls.",
+  "Servings (porsiyon) is 4, but step 5 divides the pudding between six bowls.",
+  "Step 5 divides into six bowls, but the recipe serves 4.",
+  "Step 5 divides the pudding into six bowls, but porsiyon is 4."
+ ],
+ "kibris-patatesli-kolokas-kavurma": [
+  "Excerpt and ingredient list name celery leaves (kereviz yaprağı), but steps only use the stalks; leaves are never added.",
+  "Excerpt says the dish is crowned with celery leaves, and leaves are listed, but the steps use only chopped stalks.",
+  "The excerpt ('kereviz yapraklarıyla taçlandırıldığı') and the ingredient list include celery leaves, but no step adds them. Step 3 uses only the stalks.",
+  "The excerpt says it is crowned with celery leaves and the list has leaves, but the steps use only the stalks.",
+  "The excerpt says the dish is topped with celery leaves, but the steps use only chopped celery stalks."
+ ],
+ "kibris-usulu-flaouna": [
+  "Description explains how to soak the optional raisins, but raisins are in neither the ingredient list nor any step.",
+  "The description gives optional raisins with soaking instructions, but raisins appear in neither the ingredient list nor the steps.",
+  "The description says optional raisins (kuru üzüm) must be soaked, but raisins are not in the ingredient list and no step uses them."
+ ],
+ "kibris-usulu-seftali-kebabi": [
+  "Step 6 serves with kozlenmis biber and ince bulgur pilavi, not in the ingredient list.",
+  "Step 6 serves with közlenmiş biber and ince bulgur pilavı; neither in ingredient list."
+ ],
+ "sutlac": [
+  "Vanilya is in the ingredient list but no step uses it."
+ ],
+ "atom-mezesi-w1nnc": [
+  "Step 1 uses tuz, which is not in the ingredient list."
+ ],
+ "yesil-mercimek-salatasi-pg4np": [
+  "Köz biber is chopped in step 2 but no step adds it (step 3 mixes only lentils and greens); step 4 uses zeytinyağı, not in the ingredient list. Translated faithfully, no fix invented.",
+  "Step 4 uses zeytinyağı and tuz, not in the list. Step 3 mixes only 'yeşillikler'; the köz biber chopped in step 2 is never added (the description says it is).",
+  "Step 4 uses zeytinyağı and tuz, which are not in the list. The roasted pepper chopped in step 2 is never added: step 3 mixes only the lentils and greens.",
+  "The köz biber chopped in step 2 is never added in steps 3-4; only the description says it is mixed in (translation keeps 'и перцем' on that basis)."
+ ],
+ "eskisehir-cig-borek-j6606": [
+  "Karabiber (step 2) and the frying oil (step 5) are not in the ingredient list.",
+  "Step 2 uses karabiber (black pepper), not in the ingredient list.",
+  "Step 2 uses karabiber and step 5 uses frying oil; neither is in the ingredient list."
+ ],
+ "kekli-ev-yapimi-supangle-cgxs3": [
+  "Step 4 uses cake pieces (kek), which are not in the ingredient list even though the title says Kekli.",
+  "Title says 'Kekli' (with cake) but kek is not in the ingredient list and step 4 makes it optional ('Dilerseniz').",
+  "Title says 'Kekli' (with cake), but cake is not in the ingredient list and step 4 makes it optional ('Dilerseniz')."
+ ],
+ "kibris-magusa-boregi": [
+  "'Tuz ve Karabiber' is listed, but no step uses pepper and the mince filling is never seasoned.",
+  "Step 4 gives no baking time (pisirme_dk 45), and step 1 uses water, which is not in the list."
+ ],
+ "yesil-mercimek-corbasi-watfe": [
+  "Step 5 says only 'şehriye'. The list and description say arpa şehriye, so it was translated as Kritharaki (orzo)."
+ ],
+ "ali-nazik-kebabi-c0493": [
+  "Step 4 adds salca and baharatlar, but neither is in the ingredient list.",
+  "Step 4 uses salça and baharatlar (spices), but neither is in the ingredient list."
+ ],
+ "mercimek-koftesi-s57cm": [
+  "Step 3 uses salça and oil and step 5 uses lettuce (marul), but none are in the ingredient list."
+ ],
+ "etsiz-cig-kofte-a96hf": [
+  "The description says the bulgur is kneaded with the soaked isot, but step 5 adds the isot at the end. Step 3 spices are not in the list, and the garlic grated in step 2 is never added."
+ ],
+ "sebzeli-teriyaki-fww86": [
+  "The excerpt and description promise a caramelized teriyaki sauce, but the ingredients and steps have only soy sauce and garlic, with no sweetener. Zeytinyağı is listed but no step uses it."
+ ],
+ "soganli-corek-1mkv8": [
+  "The description says the onions meet spices (baharatlar), but no spice appears in the ingredients or steps."
+ ],
+ "akdeniz-zeytinli-pf2mf": [
+  "The description says green and black olives, but the ingredients list only Çekirdeksiz Kıbrıs Sele Zeytini."
+ ],
+ "akdeniz-yassi-p011z": [
+  "The excerpt says the bread is baked with spices (baharatlar), but no spice appears in the ingredients or steps."
+ ],
+ "su-boregi-5m4wg": [
+  "The excerpt and description say it is made with maydanoz (parsley), but parsley is not in the ingredients or steps."
+ ],
+ "cevizli-sarma-corek-zyxmn": [
+  "The excerpt says it is filled with tarçın (cinnamon), but cinnamon is not in the ingredients or steps."
+ ],
+ "lor-peynirli-tepsi-boregi-brjgd": [
+  "The excerpt and description name maydanoz and karabiber, but neither is in the ingredients or steps. The ingredient is plain 'Peynir', not lor."
+ ],
+ "ezogelin-corbasi-qc7hs": [
+  "Step 2 uses sıvı yağ and tereyağı, which are not listed. Step 5 adds water but gives no amount."
+ ],
+ "geleneksel-citir-lahmacun-23a2f": [
+  "Step 3 uses sıvı yağ, karabiber and pul biber, which are not in the ingredient list."
+ ],
+ "dilber-dudagi-jaxkj": [
+  "Step 4 deep-fries in 'bol yağ', but no frying oil is listed. Step 1 water (300 ml) is not listed either."
+ ],
+ "yogurtlu-sogan-halkasi-kbd7t": [
+  "Step 3 deep-fries in 'kızgın bol yağ', but no frying oil is in the ingredient list."
+ ],
+ "sehriyeli-tavuk-suyu-corbasi-51bky": [
+  "Limon suyu is in the ingredient list and the description ('ocaktan indirdikten sonra sikilir'), but no step adds it. Step 3 uses sivi yag, which is not in the ingredient list."
+ ],
+ "iskembe-corbasi-4dgvj": [
+  "Sarimsak is in the list and the description says garlic vinegar is served on the side, but no step makes the garlic vinegar."
+ ],
+ "kremali-mantar-corbasi-7bhf0": [
+  "Karabiber is listed and the description says it is used generously, but no step uses it. The hot water in step 4 is not listed."
+ ],
+ "tavuklu-eriste-corbasi-1g79y": [
+  "Karabiber is listed and the description says the soup is finished with it, but no step uses it."
+ ],
+ "havuc-corbasi-vnre3": [
+  "The description says 'Krema ya da un yok', but step 5 serves the soup with krema or dereotu. Neither is in the ingredient list."
+ ],
+ "sogan-corbasi-b6ptb": [
+  "Step 5 uses ekmek dilimleri, which are not in the ingredient list."
+ ],
+ "firinda-kuzu-incik-1fj1p": [
+  "Step 1 sears in 'kizgin yag' and step 3 adds tuz. Neither is listed (only zeytinyagi is)."
+ ]
+}
