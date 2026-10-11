@@ -170,6 +170,9 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
 
 ## Ortam tuzakları
 
+- Ana checkout'un `public/build/manifest.json`'u 27 Eylül'den kalma (480 bayt); tam paket orada 125 Vite hatası verir. Tam paketi worktree'de koş (11 Ekim).
+- Canlı ölçümde adrese sorgu parametresi ekleme: `?k=` sayfayı noindex yapar.
+
 - `php artisan test` SIGTERM alıyor; `php vendor/bin/phpunit` kullan.
   `--parallel` yok, `--log-json` yok, `--log-junit` var.
 - Autoloader classmap başka worktree'yi gösterebiliyor (23 ve 26 Eylül'de
@@ -261,7 +264,8 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [x] coni:malzeme-ekle yazıldı (82ecb3f): panel akışı, dönüşüm yoksa nedenli elle kanonik (site kuralı: çay k. 5 ml, tatlı k. 10 ml, yemek k. 15 ml, çay b. 100 ml, su b. 200 ml; canlıda 737/771 satır bu kuralla), adı 6 dilde çevrilmemiş malzemeyi reddeder, açık sayfa kapanacaksa yazmaz, --dene. Ölçüm: dönüşüm tablosu seyrek (Tuz yalnız adet, Su/Sıvı Yağ yok); katalog 227 tam çevrili malzeme
 - [x] Workflow wf_bf653ee5-040 (16 ajan, 0 hata): 50 tarifin 33'ünde 57 eksik satır; doğrulayıcılar hiçbir satırı değiştirmedi, 57'si elle de gözden geçirildi (adım miktarları birebir). Mekanik kontrol 0 HATA. Atlananlar: katalogda yok (kek, sumak, marul, çörek otu, pudra şekeri), yalnız açıklamada (flaouna kuru üzüm), servis eşliği
 - [x] izmir-sambali-tatlisi-7708x (50'de yoktu): şerbet hiç yoktu. Bağımsız ajan TÜRKPATENT coğrafi işaret + 2 kaynakla: 3 su b. şeker, 2 su b. su, limon. Dosyalar scratchpad `izmir/` (kaynak.json: adım 1'e şerbet + TR adım başlıkları; aktar/: 6 dil adım 1). 3 satır ekle.json'da (toplam 34 tarif, 60 satır)
-- [ ] CANLIYA YAZILACAK sıra: yayın (82ecb3f + 6e510e5) -> coni:malzeme-ekle --dene ekle.json -> asıl -> coni:kaynak izmir/kaynak.json -> coni:ceviri-toplu --zorla izmir/aktar -> blog pt (blogpt/yaz.php blogpt/yaz.json) -> doğrulama (malzeme/sayfa.py sonra; önce görüntüsü sayfa_once.json, 231 sayfa) ve 738 açık sayfa. NOT: ?k= parametresi sayfayı noindex yapar, robots ölçümü parametresiz
+- [x] Canlıya yazıldı (6e510e5 yayında): coni:malzeme-ekle 34 tarif 60 satır (--geri-al=30632); izmir coni:kaynak (--geri-al=30633) + ceviri-toplu 6/6; pt blog 2 yazı (rapor 30634). Yeniden dışa aktarım birebir, açık sayfa 738, 238 canlı sayfa 200/index ve malzeme sayısı DB'ye eşit. Grup başlıkları canlıda çevrili (en Main ingredients/Syrup, fa مواد اصلی/شربت)
+- [ ] pt blog 3240 ve 3510 pt'de noindex: BlogOriginalityService \bTODO\b /i Portekizce "todo"yu yer tutucu sayıyordu (3240 eskiden de kapalıydı; 3510'u yeni metin kapattı). Düzeltme commit'lendi, yayın bekliyor; yayından sonra /pt/blog/<slug> robots index olmalı
 - [ ] pt blog: yalnız 2 yazı pt'de açık (3240 Kıbrıs tatlısı, 3510 közlenmiş biber konservesi); ikisi de Avrupa Portekizcesi (frigorífico, equipa, tacho, pimento, beringela, pequeno-almoço) + "almosos", "vanilla". Workflow wf_cc421594-111 (4 ajan) pt-BR'ye çevirdi; mekanik kontrol 0 hata (başlık yapısı TR ile aynı, sayılar aynı, AB kelimesi yok). Eski 3240 çevirisi 2 paragraf düşürmüştü, yenisi 42/42. Yedek scratchpad `blogpt/yedek-pt-oncesi.json`; yazım betiği `blogpt/yaz.php` (IntegrityReport coni:yazi-ceviri, --geri-al). Blog çevirisi yazan komut yok
 - [x] 6e510e5: çok gruplu tarifte grup başlığı yabancı dilde Türkçe basılıyordu (canlıda ölçüldü: 6 tarif, 30 açık sayfa; yalnız 3 ad: Ana malzemeler, Sos ve lezzet, Şerbet). lang/<dil>/malzeme_gruplari.php; karşılığı yoksa başlık basılmaz. Yayında doğrulanacak
 - [ ] Karar bekleyen: 35 tek kelimelik adım başlığı (TR'si de tek kelime), 18 eski EN başlık "<TR ad> – ... Recipe" biçiminde değil
