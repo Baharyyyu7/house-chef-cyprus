@@ -246,6 +246,14 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [ ] Hukuki gözden geçirme: gizlilik, çerez, kullanım koşulları ve yasal merkez EN metinleri sahibi tarafından okunmalı
 - [ ] Eski blog kategori çevirisi (4aceb39) ve medya beyanı zamanları (1f2c561) bu yayınla birlikte gidiyor; canlıda kontrol edilmedi
 
+## 11 Ekim ikinci tur: sadakat denetimi ve pt-BR
+Çalışma klasörü: oturum scratchpad'i `denetim/` (girdi, cikti/<dil>, kontrol.py, DENETIM.md) ve `kaynak/` (TR asıl dışa aktarımı).
+- [ ] Workflow wf_e48ef093-b13: 218 eski çift (48 tarif, 1104 adım) adım sadakat denetimi + bağımsız doğrulayıcı; pt sözlüğü Brezilya; 91 yeni pt sayfası Brezilya'ya hizalama
+- [ ] Sonuçları birleştir, kontrol.py 0 HATA, sunucuya yükle: coni:malzeme (pt sözlük) sonra coni:ceviri-toplu --zorla
+- [ ] Canlı doğrulama: mercimek-corbasi-vkztq en adım 4 "25" ve adım 5 paprika yok; pt sayfasında "pimentão"
+- [ ] coni:kaynak komutu (TR alanını yerinde yazar, geri alınır; ConiKaynakTest 2/2) yayına
+- [ ] TR kaynak düzeltmeleri coni:kaynak ile + aynı alanların açık dillerdeki çevirisi
+
 ## 11 Ekim çeviri turu (canlı 272ece2)
 Karar: 1000 makine blog yazısı yayınlanmadı (16 Ağu olayı, 27 Eyl AdSense reddi, AGENTS.md "hiçbir ajan yazı yayınlamaz"). Yerine yayındaki gerçek tariflerin 6 dile gerçek çevirisi.
 - [x] 272ece2: coni ceviri chef_tips yazar (TR'de ipucu varsa zorunlu), acildi sayacı ve IndexNow hasTranslation'a bakar. Tam paket 1847/1847
