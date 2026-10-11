@@ -248,11 +248,15 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 
 ## 11 Ekim ikinci tur: sadakat denetimi ve pt-BR
 Çalışma klasörü: oturum scratchpad'i `denetim/` (girdi, cikti/<dil>, kontrol.py, DENETIM.md) ve `kaynak/` (TR asıl dışa aktarımı).
-- [ ] Workflow wf_e48ef093-b13: 218 eski çift (48 tarif, 1104 adım) adım sadakat denetimi + bağımsız doğrulayıcı; pt sözlüğü Brezilya; 91 yeni pt sayfası Brezilya'ya hizalama
-- [ ] Sonuçları birleştir, kontrol.py 0 HATA, sunucuya yükle: coni:malzeme (pt sözlük) sonra coni:ceviri-toplu --zorla
-- [ ] Canlı doğrulama: mercimek-corbasi-vkztq en adım 4 "25" ve adım 5 paprika yok; pt sayfasında "pimentão"
-- [ ] coni:kaynak komutu (TR alanını yerinde yazar, geri alınır; ConiKaynakTest 2/2) yayına
-- [ ] TR kaynak düzeltmeleri coni:kaynak ile + aynı alanların açık dillerdeki çevirisi
+- [x] Workflow wf_e48ef093-b13 (34 ajan, 0 hata): 218 eski çift adım sadakat denetimi + bağımsız doğrulayıcı; pt sözlüğü Brezilya; 91 yeni pt sayfası Brezilya'ya hizalandı. Denetçi düzeltmesi: uydurma 92, yanlış anlam 64, dil 53, adım başlığı 40, düşen içerik 28, başlık/özet 16, pt-BR 32; doğrulayıcı 12 geri aldı, 7 düzeltti, 25 kaçırılanı ekledi
+- [x] Canlıya yazıldı: coni:malzeme 96 pt adı (geri al: --geri-al=30629); coni:ceviri-toplu --zorla 218 çift (99 tarif), 0 hata, defterde 218 "Sadakat" kaydı. Yeniden dışa aktarım: 218 çiftte DB = dosya, 0 fark; açık sayfa 738 korundu (dil başına 123)
+- [x] Canlı doğrulama: en/de mercimek-corbasi-vkztq "25 dk" var, paprikalı tereyağı yok; pt menemen "pimentão", semifreddo "limão-siciliano" ve "creme de leite fresco"; örnek en/de/pt/ru/fa/pl 200, doğru lang, index,follow, kanonik kendisi
+- [x] coni:kaynak yayında (9b946f7; tam paket 1849/1849; /health 9b946f7)
+- [x] TR kaynak düzeltmeleri (workflow wf_561bd311-178, 16 ajan): 39 tarif incelendi, 34 tarifte 49 TR alan coni:kaynak ile yazıldı (geri al: --geri-al=30630), aynı değişiklik 31 tarifte 181 dil çiftine coni:ceviri-toplu --zorla ile taşındı, 0 hata. Canlı yeniden dışa aktarım: 39 tarifte TR ve çeviri beklenenle birebir (0 fark), açık sayfa 738. Başlık değişiklikleri: Kıymalı Bezelye -> Etli Bezelye Yemeği, Sebzeli Teriyaki -> Soya Soslu Sebzeli Tavuk (tatlandırıcı yok), Kıbrıs Ceviz Macunu -> Kıbrıs Cevizli Sucuğu, Izgara Hellimli Köy Ekmeği -> Izgara Hellimli Tost, Kaymaklı Fırın Ayva -> Kaymaklı Ayva Tatlısı, Taze Naneli -> Naneli Hellimli Börek, Akdeniz Zeytinli -> Akdeniz Zeytinli Ekmeği. Canlıda H1 ve metin doğrulandı (TR/EN/RU/DE/PT)
+- [ ] Malzeme listesi eksikleri (coni:kaynak düzenleyemez): adımda kullanılıp listede olmayan tuz/yağ/su/karabiber ~30 tarif; izmir-sambali şerbet malzemesi yok; flaouna kuru üzüm; kekli-supangle kek listede yok. Liste düzenleyen araç gerekli
+- [ ] Karar bekleyen: 35 tek kelimelik adım başlığı (TR'si de tek kelime), 18 eski EN başlık "<TR ad> – ... Recipe" biçiminde değil
+- [ ] pt blog yazı başlıkları Avrupa Portekizcesi ("pimento", tarif sayfasının altındaki ilgili yazılar); blog çevirileri bu turun dışında
+- [ ] Yabancı tarif adresi /xx/tarifler/<slug> 301 ile yerel yola gider: /en/recipes, /de/rezepte, /pt/receitas, /ru/recepty, /pl/przepisy, /fa/recipes
 
 ## 11 Ekim çeviri turu (canlı 272ece2)
 Karar: 1000 makine blog yazısı yayınlanmadı (16 Ağu olayı, 27 Eyl AdSense reddi, AGENTS.md "hiçbir ajan yazı yayınlamaz"). Yerine yayındaki gerçek tariflerin 6 dile gerçek çevirisi.
