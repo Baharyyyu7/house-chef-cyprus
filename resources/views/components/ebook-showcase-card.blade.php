@@ -52,9 +52,9 @@
             </div>
 
             <a href="{{ route('shop.index') }}"
-               class="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 text-xs sm:text-sm font-black shadow-lg shadow-amber-600/20 transition hover:scale-102">
+               class="hc-v3-btn hc-v3-btn--primary hc-v3-btn--lg">
                 <span>Kitabı İncele & İndir</span>
-                <span aria-hidden="true">➔</span>
+                <x-ui.icon name="arrow-right" size="16" />
             </a>
         </div>
     </div>

@@ -187,6 +187,37 @@ document.addEventListener('DOMContentLoaded', mountPageFeatures);
 document.addEventListener('livewire:navigated', mountPageFeatures);
 window.addEventListener('hc-theme-changed', () => window.setTimeout(mountCharts, 0));
 
+// Gönderilen POST formunun düğmesi yanıt gelene kadar kilitlenir; 12 Ekim
+// 2026 denetiminde sitede genel bir çift gönderim kilidi yoktu, yavaş ağda
+// ikinci tık ikinci isteği gönderir. Kilit gönderimden sonra konur:
+// önce konsa düğmenin adı ve değeri form verisinden düşerdi. Alpine ya da
+// Livewire'ın işlediği (varsayılanı engellenmiş) formlara dokunulmaz.
+document.addEventListener('submit', (olay) => {
+    const dugme = olay.submitter;
+    const form = olay.target;
+
+    if (olay.defaultPrevented || !dugme || form.method.toLowerCase() !== 'post' || form.target === '_blank') {
+        return;
+    }
+
+    window.setTimeout(() => {
+        dugme.disabled = true;
+        dugme.setAttribute('aria-busy', 'true');
+    }, 0);
+});
+
+// Geri tuşuyla önbellekten dönen sayfada kilit açık gelir.
+window.addEventListener('pageshow', (olay) => {
+    if (!olay.persisted) {
+        return;
+    }
+
+    document.querySelectorAll('[aria-busy="true"]:disabled').forEach((dugme) => {
+        dugme.disabled = false;
+        dugme.removeAttribute('aria-busy');
+    });
+});
+
 // Ana sayfa hero'sundaki eşleştirme gösterisi.
 //
 // Dolaba gerçek malzemeler tek tek düşer, hedef tarifin eşleşme ölçeri

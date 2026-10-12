@@ -129,6 +129,23 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
         }
     }
 
+    /**
+     * 12 Ekim 2026'da canlıda: Almanca adım rozeti "⏱ 10 Timer starten"
+     * basıyordu (step_timer TR/EN'de süre, diğer dillerde eylemdi) ve beş
+     * dilde pişirme modu etiketleri ters çevrilmişti.
+     */
+    public function test_timer_and_cook_mode_labels_mean_the_same_in_every_locale(): void
+    {
+        foreach (['tr', 'en', 'de', 'fa', 'pl', 'pt', 'ru'] as $dil) {
+            $satirlar = json_decode((string) file_get_contents(lang_path($dil.'.json')), true);
+
+            $this->assertStringContainsString(':sure', $satirlar['recipe.timer.start'], $dil);
+            $this->assertArrayNotHasKey('recipe.show.step_timer', $satirlar, $dil);
+            $this->assertNotSame($satirlar['recipe.show.cook_mode_on'], $satirlar['recipe.show.cook_mode_off'], $dil);
+            $this->assertDoesNotMatchRegularExpression('/[\x{1F300}-\x{1FAFF}\x{23F1}]/u', $satirlar['recipe.show.cook_mode_off'], $dil);
+        }
+    }
+
     public function test_recipe_ui_strings_are_not_english_copies(): void
     {
         $en = json_decode((string) file_get_contents(lang_path('en.json')), true);

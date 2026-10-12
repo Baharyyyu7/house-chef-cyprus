@@ -19,7 +19,7 @@
             :aria-expanded="acik"
             aria-haspopup="menu"
             aria-label="{{ __('ui.account_menu') }}"
-            class="hc-user-trigger hc-nav-control inline-flex items-center gap-2 rounded-2xl bg-charcoal-900 py-1.5 pl-1.5 pr-3 text-sm font-extrabold text-white transition hover:bg-orange-600 shrink-0 whitespace-nowrap"
+            class="hc-user-trigger hc-nav-control inline-flex items-center gap-2 rounded-2xl bg-charcoal-900 py-1.5 pl-1.5 pr-3 text-sm font-extrabold text-white transition hover:bg-orange-700 shrink-0 whitespace-nowrap"
         >
             <span class="grid h-7 w-7 place-items-center rounded-xl bg-orange-500 text-xs shrink-0 font-black">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</span>
             <span class="whitespace-nowrap font-bold">{{ __('ui.my_account') }}</span>

@@ -212,9 +212,9 @@ class="relative z-40">
                     {{-- Primary Self-Service Action --}}
                     <a x-bind:href="serviceTargetUrl" 
                        x-on:click="open = false"
-                       class="flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-600 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-orange-950/20 transition hover:bg-orange-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-orange-500">
+                       class="hc-v3-btn hc-v3-btn--primary hc-v3-btn--lg hc-v3-btn--block">
                         <span x-text="serviceTargetLabel"></span>
-                        <span aria-hidden="true">➔</span>
+                        <x-ui.icon name="arrow-right" size="18" />
                     </a>
 
                     {{-- Secondary Optional WhatsApp --}}

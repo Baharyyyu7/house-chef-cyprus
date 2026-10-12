@@ -113,7 +113,7 @@
                                             @csrf
                                             <input type="hidden" name="plan" value="{{ $key }}">
                                             <button type="submit" class="hc-v3-btn hc-v3-btn--primary w-full py-3.5">
-                                                Hemen Başlat ➔
+                                                Hemen Başlat <x-ui.icon name="arrow-right" size="16" />
                                             </button>
                                         </form>
                                     @else
@@ -123,8 +123,8 @@
                                     @endif
                                 @else
                                     @if($paymentsEnabled)
-                                        <a href="{{ route('register') }}" class="hc-v3-btn hc-v3-btn--primary block w-full py-3.5 text-center">
-                                            Hesap Oluştur ve Katıl ➔
+                                        <a href="{{ route('register') }}" class="hc-v3-btn hc-v3-btn--primary hc-v3-btn--block py-3.5">
+                                            Hesap Oluştur ve Katıl <x-ui.icon name="arrow-right" size="16" />
                                         </a>
                                     @else
                                         <button type="button" disabled class="hc-v3-btn hc-v3-btn--outline w-full py-3.5 opacity-60 cursor-not-allowed">

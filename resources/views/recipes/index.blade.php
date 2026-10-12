@@ -55,7 +55,7 @@
                 <button class="hc-v3-btn hc-v3-btn--primary self-end" type="submit">{{ __('archive.show_recipes') }}</button>
             </div>
             <details class="group border-t pt-4" style="border-color: var(--hc-border-subtle)">
-                <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-extrabold"><span>{{ __('archive.advanced_filters') }}</span><span class="transition group-open:rotate-45" aria-hidden="true">+</span></summary>
+                <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-extrabold"><span>{{ __('archive.advanced_filters') }}</span><span class="transition group-open:rotate-45" aria-hidden="true">+</span></summary>
                 <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div><label class="hc-v3-field-label" for="category">{{ __('archive.category') }}</label><select id="category" class="hc-v3-input" name="category"><option value="">{{ __('archive.all_categories') }}</option>@foreach($categories as $category)<option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>{{ taxonomy_name($category) }}</option>@endforeach</select></div>
                     <div><label class="hc-v3-field-label" for="difficulty">{{ __('archive.difficulty') }}</label><select id="difficulty" class="hc-v3-input" name="difficulty"><option value="">{{ __('archive.any_difficulty') }}</option>@foreach(\App\Models\Recipe::ZORLUKLAR as $difficultyValue => $difficultyLabel)<option value="{{ $difficultyValue }}" @selected(\App\Models\Recipe::zorlukKanonik(request('difficulty')) === $difficultyValue)>{{ __('recipe.difficulty_'.$difficultyValue) }}</option>@endforeach</select></div>

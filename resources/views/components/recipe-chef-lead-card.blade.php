@@ -70,9 +70,9 @@
 
         <div class="flex flex-col sm:flex-row lg:flex-col items-stretch lg:items-end gap-3 shrink-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-orange-200/70 dark:border-stone-800">
             <a href="{{ route('private-chef.index') }}"
-               class="flex items-center justify-center gap-2 rounded-2xl bg-orange-600 px-6 py-3.5 text-xs sm:text-sm font-black text-white shadow-lg shadow-orange-600/25 transition hover:bg-orange-700 hover:scale-102">
+               class="hc-v3-btn hc-v3-btn--primary hc-v3-btn--lg">
                 <span>Şef Menüleri & Fiyat Paketleri</span>
-                <span aria-hidden="true">➔</span>
+                <x-ui.icon name="arrow-right" size="18" />
             </a>
 
             <a href="{{ $waUrl }}"

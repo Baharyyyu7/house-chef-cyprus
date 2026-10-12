@@ -37,7 +37,7 @@
                     <a href="{{ route('shop.index') }}"
                        class="hc-v3-btn hc-v3-btn--primary text-xs sm:text-sm px-4 py-2.5 inline-flex items-center gap-1.5 shadow-sm">
                         <span>E-Kitabı İncele</span>
-                        <span aria-hidden="true">➔</span>
+                        <x-ui.icon name="arrow-right" size="16" />
                     </a>
                 </div>
             </div>
@@ -66,7 +66,7 @@
                     <a href="{{ route('weekly-menu.index') }}"
                        class="hc-v3-btn hc-v3-btn--outline text-xs sm:text-sm px-4 py-2.5 inline-flex items-center gap-1.5">
                         <span>Haftalık Menüyü Gör</span>
-                        <span aria-hidden="true">➔</span>
+                        <x-ui.icon name="arrow-right" size="16" />
                     </a>
                 </div>
             </div>

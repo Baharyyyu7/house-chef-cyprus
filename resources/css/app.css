@@ -16,7 +16,7 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
         --hc-surface-default:#fffdfc; --hc-surface-raised:#fff; --hc-surface-overlay:rgba(255,253,252,.96); --hc-surface-interactive:#fff4ed; --hc-surface-selected:#ffead9;
         --hc-text-primary:#171717; --hc-text-secondary:#62564f; --hc-text-muted:#71645b; --hc-text-inverse:#fff8f0; --hc-text-accent:#c2410c; --hc-text-danger:#b42318; --hc-text-warning:#9a6700; --hc-text-success:#087443; --hc-text-info:#175cd3;
         --hc-border-subtle:#f1e8e0; --hc-border-default:#e8d8ca; --hc-border-strong:#c7b5a5; --hc-border-focus:#f97316; --hc-border-danger:#fda29b; --hc-border-warning:#fec84b;
-        --hc-brand-primary:#ff6b00; --hc-brand-hover:#e85e00; --hc-brand-active:#c74c00; --hc-brand-soft:#ffead9; --hc-brand-contrast:#fff8f0;
+        --hc-brand-primary:#ff6b00; --hc-brand-hover:#e85e00; --hc-brand-active:#c74c00; --hc-brand-soft:#ffead9; --hc-brand-contrast:#171717; --hc-focus-ring:#c2410c;
         --hc-status-success:#087443; --hc-status-warning:#b54708; --hc-status-danger:#b42318; --hc-status-info:#175cd3; --hc-status-neutral:#62564f; --hc-chart-1:#f97316; --hc-chart-2:#b54708; --hc-chart-3:#175cd3; --hc-chart-4:#7f56d9; --hc-chart-5:#087443; --hc-chart-surface:#fffdfc;
         --hc-shadow-xs:0 1px 2px rgba(68,45,28,.06); --hc-shadow-sm:0 6px 18px rgba(68,45,28,.08); --hc-shadow-md:0 12px 34px rgba(68,45,28,.09); --hc-shadow-lg:0 22px 44px rgba(68,45,28,.16); --hc-shadow-xl:0 30px 70px rgba(68,45,28,.22); --hc-shadow-focus:0 0 0 4px rgba(249,115,22,.18);
         --hc-radius-xs:.5rem; --hc-radius-sm:.75rem; --hc-radius-md:1rem; --hc-radius-lg:1.5rem; --hc-radius-xl:2rem; --hc-radius-pill:9999px;
@@ -29,7 +29,7 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
         --hc-surface-default:#171717; --hc-surface-raised:#1d1d1e; --hc-surface-overlay:rgba(23,23,23,.96); --hc-surface-interactive:#2a211c; --hc-surface-selected:#3a261b;
         --hc-text-primary:#fffaf5; --hc-text-secondary:#ded6cf; --hc-text-muted:#b7aca4; --hc-text-inverse:#171717; --hc-text-accent:#fdba74; --hc-text-danger:#fda29b; --hc-text-warning:#fec84b; --hc-text-success:#75e0a7; --hc-text-info:#84adff;
         --hc-border-subtle:#2b2928; --hc-border-default:#403a36; --hc-border-strong:#665c56; --hc-border-focus:#fb923c; --hc-border-danger:#b42318; --hc-border-warning:#b54708;
-        --hc-brand-primary:#ff6b00; --hc-brand-hover:#ff8b40; --hc-brand-active:#e85e00; --hc-brand-soft:#402719; --hc-brand-contrast:#171717;
+        --hc-brand-primary:#ff6b00; --hc-brand-hover:#ff8b40; --hc-brand-active:#e85e00; --hc-brand-soft:#402719; --hc-brand-contrast:#171717; --hc-focus-ring:#fb923c;
         --hc-status-success:#75e0a7; --hc-status-warning:#fec84b; --hc-status-danger:#fda29b; --hc-status-info:#84adff; --hc-status-neutral:#ded6cf; --hc-chart-1:#fdba74; --hc-chart-2:#fec84b; --hc-chart-3:#84adff; --hc-chart-4:#d0bfff; --hc-chart-5:#75e0a7; --hc-chart-surface:#1d2026;
         --hc-bg:var(--hc-background-page); --hc-surface:var(--hc-surface-default); --hc-surface-soft:var(--hc-background-subtle); --hc-text:var(--hc-text-primary); --hc-muted:var(--hc-text-secondary); --hc-muted-strong:#f5f5f4; --hc-line:var(--hc-border-default); --hc-header:rgba(11,11,12,.82); --hc-header-scrolled:rgba(11,11,12,.96); --hc-footer:#090909; --hc-footer-text:#e7e5e4; --hc-footer-muted:#b6b0ab; --hc-overlay:rgba(0,0,0,.9); --hc-shadow:rgba(0,0,0,.3); color-scheme:dark;
     }
@@ -107,7 +107,7 @@ aside:has(#household-ingredients) > div.hc-panel:first-of-type { display: none; 
     .hc-theme-button:hover, .hc-icon-button:hover { border-color: #fb923c; color: var(--hc-accent-dark); background: var(--hc-surface-soft); }
     .hc-theme-switch { @apply relative inline-flex shrink-0 cursor-pointer items-center rounded-full border; width:3.5rem; height:2rem; padding:.1875rem; border-color:var(--hc-line); background:var(--hc-surface-soft); color:var(--hc-text); transition:background-color .3s ease,border-color .3s ease,box-shadow .3s ease; }
     .hc-theme-switch:hover { border-color:#fb923c; box-shadow:0 0 0 3px rgba(249,115,22,.12); }
-    .hc-theme-switch:focus-visible { outline:2px solid #fb923c; outline-offset:3px; }
+    .hc-theme-switch:focus-visible { outline:2px solid var(--hc-focus-ring); outline-offset:3px; }
     .hc-theme-switch__knob { @apply relative grid place-items-center rounded-full; width:1.5rem; height:1.5rem; background:var(--hc-surface); box-shadow:0 2px 8px var(--hc-shadow); transform:translateX(0); transition:transform .45s cubic-bezier(.34,1.56,.64,1),background-color .3s ease; }
     .hc-theme-switch[aria-checked="true"] { background:color-mix(in srgb,#818cf8 28%,var(--hc-surface-soft)); }
     .hc-theme-switch[aria-checked="true"] .hc-theme-switch__knob { transform:translateX(1.5rem); }
@@ -640,7 +640,7 @@ html:has(> body.overflow-hidden) { overflow: hidden; }
    ayrıca yer kaplamaz, yani odaklanınca düzen kaymaz. */
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
 textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid var(--hc-brand-primary);
+    outline: 2px solid var(--hc-focus-ring);
     outline-offset: 3px;
     --tw-ring-shadow: 0 0 #0000;
     --tw-ring-offset-shadow: 0 0 #0000;
@@ -988,7 +988,7 @@ html[dir="rtl"] .hc-locale__panel { right:auto; left:0; transform-origin:top lef
 
 /* Profil sayfası. Baş harf rozeti hesap menüsündekiyle aynı dili konuşur,
    böylece iki yerde de aynı kişi olduğunuz belli olur. */
-.hc-profile-avatar { display:grid; place-items:center; width:3.5rem; height:3.5rem; flex:0 0 auto; border-radius:1.15rem; background:var(--hc-brand-primary); color:#fff; font-size:1.35rem; font-weight:900; }
+.hc-profile-avatar { display:grid; place-items:center; width:3.5rem; height:3.5rem; flex:0 0 auto; border-radius:1.15rem; background:var(--hc-brand-primary); color:var(--hc-brand-contrast); font-size:1.35rem; font-weight:900; }
 .hc-profile-rozet { border-radius:9999px; border:1px solid var(--hc-line); padding:.4rem .8rem; font-size:.72rem; font-weight:800; letter-spacing:.02em; color:var(--hc-text-secondary); white-space:nowrap; }
 .hc-profile-rozet.is-onayli { border-color:color-mix(in srgb, var(--hc-status-success, #16a34a) 45%, transparent); color:var(--hc-status-success, #16a34a); }
 .hc-profile-link { font-size:.82rem; font-weight:800; color:var(--hc-brand-primary); }
@@ -1185,7 +1185,7 @@ a.hc-nav-control {
     transition:transform .62s cubic-bezier(.22,1,.36,1), opacity .62s cubic-bezier(.22,1,.36,1), box-shadow .3s ease, border-color .3s ease; }
 .hc-karusel__kart:hover { border-color:var(--hc-brand-primary); }
 .hc-karusel__kart.is-etkin { border-color:var(--hc-brand-primary); box-shadow:0 22px 60px var(--hc-shadow); }
-.hc-karusel__kart:focus-visible { outline:2px solid var(--hc-brand-primary); outline-offset:3px; }
+.hc-karusel__kart:focus-visible { outline:2px solid var(--hc-focus-ring); outline-offset:3px; }
 .hc-karusel__etiket { font-size:.7rem; line-height:1.3; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--hc-brand-primary); }
 .hc-karusel__baslik { font-size:1.14rem; font-weight:800; line-height:1.4; color:var(--hc-text-primary); }
 .hc-karusel__ozet { flex:1 1 auto; min-height:0; font-size:.875rem; line-height:1.65; color:var(--hc-text-secondary); }
@@ -1237,7 +1237,7 @@ a.hc-nav-control {
 .hc-sosyal__dugme { display:inline-flex; min-height:2.9rem; align-items:center; justify-content:center; gap:.6rem; border:1px solid var(--hc-line); border-radius:1rem; background:var(--hc-surface); padding:0 1rem; font-size:.9rem; font-weight:700; color:var(--hc-text-primary); transition:transform .3s cubic-bezier(.34,1.4,.64,1), border-color .2s ease, background-color .2s ease; }
 .hc-sosyal__dugme:hover { border-color:var(--hc-brand-primary); background:var(--hc-surface-soft); }
 .hc-sosyal__dugme:active { transform:scale(.98); transition-duration:.09s; }
-.hc-sosyal__dugme:focus-visible { outline:2px solid var(--hc-brand-primary); outline-offset:3px; }
+.hc-sosyal__dugme:focus-visible { outline:2px solid var(--hc-focus-ring); outline-offset:3px; }
 @media (prefers-reduced-motion: reduce) { .hc-sosyal__dugme { transition:border-color .2s ease, background-color .2s ease; } .hc-sosyal__dugme:active { transform:none; } }
 
 /* Giriş ve kayıt düzeni: solda form, sağda görsel. Dar ekranda görsel hiç
@@ -1416,7 +1416,7 @@ html.dark .hc-v3-card--interactive:hover {
 }
 
 .hc-v3-btn:focus-visible {
-  outline: 2px solid #fb923c;
+  outline: 2px solid var(--hc-focus-ring);
   outline-offset: 3px;
 }
 
@@ -1867,7 +1867,7 @@ select.hc-arama__girdi {
 }
 .hc-arama__dugme:hover { background: var(--hc-brand-hover); box-shadow: var(--hc-elev-2); }
 .hc-arama__dugme:active { transform: scale(.98); }
-.hc-arama__dugme:focus-visible { outline: 2px solid var(--hc-brand-primary); outline-offset: 3px; }
+.hc-arama__dugme:focus-visible { outline: 2px solid var(--hc-focus-ring); outline-offset: 3px; }
 
 .hc-arama__ok {
   display: inline-block;
@@ -2004,7 +2004,7 @@ select.hc-arama__girdi {
 .hc-future-btn { display:inline-flex; min-height:3.25rem; align-items:center; justify-content:space-between; gap:2rem; border:1px solid transparent; border-radius:999px; padding:.75rem 1.1rem .75rem 1.35rem; font-size:.83rem; font-weight:900; letter-spacing:-.01em; transition:transform .25s var(--hc-ease-standard),background-color .25s ease,border-color .25s ease,box-shadow .25s ease; }
 .hc-future-btn span:last-child { display:grid; width:1.8rem; height:1.8rem; place-items:center; border-radius:50%; font-size:1rem; transition:transform .25s var(--hc-ease-standard); }
 .hc-future-btn:hover { transform:translateY(-2px); }.hc-future-btn:hover span:last-child { transform:translate(2px,-2px); }
-.hc-future-btn--primary { background:#f97316; color:#fff; box-shadow:0 12px 32px rgba(249,115,22,.24); }.hc-future-btn--primary span:last-child { background:rgba(255,255,255,.2); }
+.hc-future-btn--primary { background:var(--hc-brand-primary); color:var(--hc-brand-contrast); box-shadow:0 12px 32px rgba(249,115,22,.24); }.hc-future-btn--primary span:last-child { background:rgba(23,23,23,.12); }
 .hc-future-btn--quiet { border-color:rgba(255,255,255,.25); color:#fff; background:rgba(255,255,255,.06); backdrop-filter:blur(14px); }.hc-future-btn--quiet span:last-child { background:rgba(255,255,255,.12); }
 .hc-future-btn--light { background:#fff8f0; color:#171717; }.hc-future-btn--light span:last-child { background:#ffead9; color:#c2410c; }
 .hc-home-hero__proof { display:flex; flex-wrap:wrap; gap:1rem 1.5rem; margin-top:2rem; color:rgba(255,250,245,.6); font-size:.72rem; font-weight:700; line-height:1.5; }.hc-home-hero__proof span { display:inline-flex; align-items:center; gap:.5rem; }.hc-home-hero__proof b { color:#fdba74; font-size:.65rem; letter-spacing:.08em; }
@@ -2294,6 +2294,8 @@ html.dark .hc-hero__grain { mix-blend-mode: screen; opacity: .26; }
   transition: transform .32s cubic-bezier(.16, 1, .3, 1), box-shadow .32s ease, background-color .2s ease;
 }
 .hc-hero__cta svg { transition: transform .32s cubic-bezier(.16, 1, .3, 1); }
+/* Koyu temada vurgu #fb923c; üstünde beyaz yazı 2,26:1 kalıyordu. */
+html.dark .hc-hero__cta { color: #171717; }
 .hc-hero__cta:hover { transform: translateY(-2px); box-shadow: 0 1.15rem 2.25rem -.5rem rgba(124, 45, 18, .6); }
 .hc-hero__cta:hover svg { transform: translateX(4px); }
 
@@ -2727,3 +2729,17 @@ html:active-view-transition-type(hc-gezinme)::view-transition-new(root) { animat
    (stone-900 / beyaz ~17:1) temadan bağımsız AA'yı geçer. */
 .hc-share-btn--light.hc-v3-btn { background-color: #fff !important; border-color: #fff !important; color: #1c1917 !important; min-height: 2.75rem; }
 .hc-share-btn--light.hc-v3-btn:hover { background-color: #f5f5f4 !important; }
+
+/* Dokunmatik hedefler: 12 Ekim 2026'da canlıda ölçüldü, kart altındaki
+   "Tarife git" / "Yazıyı oku" (sayfa başına 30'a kadar) 36 px, başlık
+   denetimleri 40 px, karusel noktaları 24 px yüksekti. Fareyle kompakt
+   kalır; parmakla 44 px. Görsel nokta ::before'da, büyüyen yalnız alan. */
+@media (pointer: coarse) {
+    :root { --hc-nav-control: 2.75rem; }
+    .hc-v3-btn--sm, .hc-btn--sm, .hc-home-command__tabs button, .hc-home-command__submit, .hc-touch-target { min-height: 2.75rem; }
+    .hc-step__toggle, .hc-karusel__ok { width: 2.75rem; height: 2.75rem; }
+    .hc-karusel__nokta { min-width: 2.75rem; height: 2.75rem; }
+}
+
+/* Gönderilmiş formun düğmesi (app.js çift gönderim kilidi). */
+button[aria-busy="true"] { cursor: progress; opacity: .7; }

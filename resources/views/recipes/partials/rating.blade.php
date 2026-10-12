@@ -3,7 +3,7 @@
     class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2"
     aria-label="{{ __('recipe.rating.title') }}"
 >
-    <div class="flex items-center gap-1" role="radiogroup" aria-label="{{ __('recipe.rating.title') }}">
+    <div class="-ml-2.5 flex items-center" role="radiogroup" aria-label="{{ __('recipe.rating.title') }}">
         <template x-for="yildiz in [1,2,3,4,5]" :key="yildiz">
             <button
                 type="button"
@@ -14,7 +14,7 @@
                 x-on:mouseleave="vurgu = 0"
                 x-on:click="oyla(yildiz)"
                 x-bind:disabled="gonderiliyor"
-                class="text-2xl leading-none transition"
+                class="inline-grid h-11 w-11 place-items-center text-2xl leading-none transition"
                 x-bind:class="(vurgu || gorunen) >= yildiz ? 'text-amber-400' : 'text-stone-500'"
                 x-text="(vurgu || gorunen) >= yildiz ? '★' : '☆'"
             ></button>
