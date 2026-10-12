@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\Cuisine;
 use App\Models\Recipe;
 use App\Services\Seo\SeoMetadataService;
+use App\Support\SureMetni;
 use Tests\TestCase;
 
 final class SeoMetadataTitleTest extends TestCase
@@ -146,5 +147,22 @@ final class SeoMetadataTitleTest extends TestCase
         $this->assertSame('⏱ 45 min • 4 porções • ', $service->timeAndServingsPrefix($recipe, 'pt'));
         $this->assertSame('⏱ 45 мин • 4 порций • ', $service->timeAndServingsPrefix($recipe, 'ru'));
         $this->assertSame('⏱ 45 دقیقه • 4 نفره • ', $service->timeAndServingsPrefix($recipe, 'fa'));
+    }
+
+    /** Canlıda dondurma bekleyen semifreddo "⏱ 391 dk" basıyordu. */
+    public function test_long_total_time_reads_in_hours(): void
+    {
+        $service = app(SeoMetadataService::class);
+        $recipe = new Recipe(['prep_minutes' => 25, 'cook_minutes' => 6, 'rest_minutes' => 360, 'servings' => 4]);
+
+        $this->assertSame('⏱ 6 sa 31 dk • 4 Kişilik • ', $service->timeAndServingsPrefix($recipe, 'tr'));
+        $this->assertSame('⏱ 6 h 31 min • 4 Servings • ', $service->timeAndServingsPrefix($recipe, 'en'));
+        $this->assertSame('⏱ 6 Std. 31 Min. • 4 Portionen • ', $service->timeAndServingsPrefix($recipe, 'de'));
+        $this->assertSame('⏱ 6 ч 31 мин • 4 порций • ', $service->timeAndServingsPrefix($recipe, 'ru'));
+
+        app()->setLocale('tr');
+        $this->assertSame('59 dk', SureMetni::dakika(59));
+        $this->assertSame('1 sa', SureMetni::dakika(60));
+        $this->assertSame('6 godz.', SureMetni::dakika(360, 'pl'));
     }
 }

@@ -12,7 +12,7 @@
             <p class="hc-hero__proof hc-animate-fade-up">{{ __('home.editorial_verified_only') }}</p>
         </div>
         @if($siteFeatures->enabled('explore') && ! empty($homeMatchShowcase))
-            <div class="hc-match" x-data="hcMatchShowcase(@js($homeMatchShowcase), @js(['aria' => __('home.match_aria_prefix'), 'pisir' => __('home.match_can_cook_prefix'), 'dk' => __('home.match_minutes')]))" @mouseenter="engelle('fare', true)" @mouseleave="engelle('fare', false)" @focusin="engelle('odak', true)" @focusout="engelle('odak', false)" :class="{ 'is-done': bitti, 'is-out': evre === 'cikis' }">
+            <div class="hc-match" x-data="hcMatchShowcase(@js($homeMatchShowcase), @js(['aria' => __('home.match_aria_prefix'), 'pisir' => __('home.match_can_cook_prefix')]))" @mouseenter="engelle('fare', true)" @mouseleave="engelle('fare', false)" @focusin="engelle('odak', true)" @focusout="engelle('odak', false)" :class="{ 'is-done': bitti, 'is-out': evre === 'cikis' }">
                 <a class="hc-match__card" :href="senaryo.recipe.url" :aria-label="metin.aria + ' ' + senaryo.recipe.title">
                     <div class="hc-match__head" aria-hidden="true">
                         <span class="hc-match__label"><span class="hc-match__pulse"></span>{{ __('home.match_pantry') }}</span>
@@ -35,7 +35,7 @@
                         </div>
                         <div class="hc-match__recipe">
                             <strong class="hc-match__recipe-title" x-text="senaryo.recipe.title"></strong>
-                            <span class="hc-match__recipe-meta"><x-ui.icon name="clock" size="14" /><span x-text="senaryo.recipe.minutes + ' ' + metin.dk"></span></span>
+                            <span class="hc-match__recipe-meta"><x-ui.icon name="clock" size="14" /><span x-text="senaryo.recipe.sure"></span></span>
                         </div>
                     </div>
 

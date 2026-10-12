@@ -589,6 +589,7 @@
     "recipe.last_editorial_review": "Last editorial review",
     "recipe.login_to_cook": "Log in to start cooking",
     "recipe.min": "min",
+    "recipe.hour": "h",
     "recipe.not_recorded": "not recorded",
     "recipe.nutrition": "Nutrition",
     "recipe.portion_note": "Household measures scaled for :servings servings.",

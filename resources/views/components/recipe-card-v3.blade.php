@@ -32,7 +32,7 @@
         <span class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent"></span>
         <span class="absolute left-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">{{ $recipe->cuisine ? taxonomy_name($recipe->cuisine) : __('recipe.home_cooking') }}</span>
         @if($hasApprovedMedia && $isSyntheticMedia)<span class="absolute right-3 top-3 hc-v3-badge border-white/20 bg-black/35 text-white backdrop-blur">{{ __('card.ai_image') }}</span>@endif
-        <span class="absolute bottom-3 left-3 text-xs font-extrabold text-white">{{ $recipe->totalMinutes() }} {{ __('card.min') }} · {{ $recipe->servings }} {{ __('card.servings') }}</span>
+        <span class="absolute bottom-3 left-3 text-xs font-extrabold text-white">{{ \App\Support\SureMetni::dakika($recipe->totalMinutes()) }} · {{ $recipe->servings }} {{ __('card.servings') }}</span>
     </a>
     <div class="flex flex-1 flex-col p-5">
         <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color: var(--hc-text-muted)"><span>{{ $recipe->category ? taxonomy_name($recipe->category) : __('recipe.recipe') }}</span><span>{{ $recipe->zorlukEtiketi() }}</span></div>

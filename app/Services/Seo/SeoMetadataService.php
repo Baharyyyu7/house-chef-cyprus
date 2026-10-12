@@ -7,6 +7,7 @@ namespace App\Services\Seo;
 use App\Models\BlogPost;
 use App\Models\Recipe;
 use App\Models\SeoMetadata;
+use App\Support\SureMetni;
 use Illuminate\Support\Str;
 
 final class SeoMetadataService
@@ -139,13 +140,7 @@ final class SeoMetadataService
             return '';
         }
 
-        $minStr = match ($locale) {
-            'tr' => "⏱ {$totalMinutes} dk",
-            'de' => "⏱ {$totalMinutes} Min.",
-            'ru' => "⏱ {$totalMinutes} мин",
-            'fa' => "⏱ {$totalMinutes} دقیقه",
-            default => "⏱ {$totalMinutes} min",
-        };
+        $minStr = '⏱ '.SureMetni::dakika($totalMinutes, $locale);
 
         $srvStr = match ($locale) {
             'tr' => "{$servings} Kişilik",

@@ -86,7 +86,7 @@
                         <!-- Step Metadata Badges -->
                         <div class="mt-5 flex flex-wrap gap-2 text-sm">
                             @if($step->duration_seconds)
-                                <span class="hc-v3-chip font-bold text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50">⏱ {{ intdiv($step->duration_seconds, 60) }} dk</span>
+                                <span class="hc-v3-chip font-bold text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50">⏱ {{ \App\Support\SureMetni::dakika(intdiv($step->duration_seconds, 60)) }}</span>
                             @endif
                             @if($step->temperature)
                                 <span class="hc-v3-chip font-bold text-stone-700 dark:text-stone-300 bg-stone-100 dark:bg-stone-800">🔥 {{ $step->temperature }}</span>

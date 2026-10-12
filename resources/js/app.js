@@ -394,8 +394,14 @@ Alpine.data('hcRecipeSteps', (slug, total) => ({
         sesBaglami: null,
         get gosterim() {
             const saniye = Math.max(0, Math.ceil(this.kalan));
+            const ss = String(saniye % 60).padStart(2, '0');
 
-            return `${String(Math.floor(saniye / 60)).padStart(2, '0')}:${String(saniye % 60).padStart(2, '0')}`;
+            // 6 saatlik dondurma adımı "360:00" basıyordu.
+            if (saniye >= 3600) {
+                return `${Math.floor(saniye / 3600)}:${String(Math.floor(saniye / 60) % 60).padStart(2, '0')}:${ss}`;
+            }
+
+            return `${String(Math.floor(saniye / 60)).padStart(2, '0')}:${ss}`;
         },
         get yuzde() {
             return this.toplam > 0 ? (this.kalan / this.toplam) * 100 : 0;

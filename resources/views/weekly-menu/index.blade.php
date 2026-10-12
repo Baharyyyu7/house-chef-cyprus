@@ -88,7 +88,7 @@
                                             </p>
                                         </div>
                                         <div class="mt-3 flex items-center justify-between text-xs font-semibold text-stone-400">
-                                            <span>⏱ {{ $recipe->prep_minutes + $recipe->cook_minutes }} dk</span>
+                                            <span>⏱ {{ \App\Support\SureMetni::dakika((int) $recipe->prep_minutes + (int) $recipe->cook_minutes) }}</span>
                                             <span class="text-orange-600 dark:text-orange-400 group-hover:underline">Tarife Git →</span>
                                         </div>
                                     </a>

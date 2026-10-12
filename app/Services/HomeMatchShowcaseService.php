@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Ingredient;
 use App\Models\Recipe;
+use App\Support\SureMetni;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -132,6 +133,7 @@ final class HomeMatchShowcaseService
                     'title' => $baslik,
                     'url' => route('recipes.show', $tarif),
                     'minutes' => (int) $tarif->totalMinutes(),
+                    'sure' => SureMetni::dakika((int) $tarif->totalMinutes()),
                     'servings' => (int) $tarif->servings,
                 ],
                 'steps' => $adimlar,

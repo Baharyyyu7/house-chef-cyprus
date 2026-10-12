@@ -190,7 +190,7 @@
                 </div>
                 <div class="card-stats">
                     <span class="stat-item" title="{{ $locale === 'en' ? 'Total Time' : 'Toplam Süre' }}">
-                        ⏱️ {{ $recipe->totalMinutes() }} {{ $locale === 'en' ? 'min' : 'dk' }}
+                        ⏱️ {{ \App\Support\SureMetni::dakika($recipe->totalMinutes(), $locale) }}
                     </span>
                     <span class="stat-item" title="{{ $locale === 'en' ? 'Servings' : 'Porsiyon' }}">
                         🍽️ {{ $recipe->servings }} {{ $locale === 'en' ? 'servings' : 'kişilik' }}
