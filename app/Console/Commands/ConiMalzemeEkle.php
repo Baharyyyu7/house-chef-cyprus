@@ -35,7 +35,7 @@ use Throwable;
  */
 final class ConiMalzemeEkle extends Command
 {
-    protected $signature = 'coni:malzeme-ekle {dosya? : JSON dosyası} {--geri-al= : Geri alınacak rapor id} {--dene : Doğrular, yazmaz}';
+    protected $signature = 'coni:malzeme-ekle {dosya? : JSON dosyası} {--geri-al= : Geri alınacak rapor id} {--dene : Doğrular, yazmaz} {--taslak : Yayındaki değil, coni:taslak ile yazılmış taslak tarife ekler}';
 
     protected $description = 'Claude Coni: yayındaki tarife eksik malzeme satırı ekler, geri alınabilir.';
 
@@ -69,10 +69,12 @@ final class ConiMalzemeEkle extends Command
         $hatalar = [];
 
         foreach ((array) $harita as $slug => $satirlar) {
-            $tarif = Recipe::query()->where('slug', $slug)->where('status', 'published')->where('verification_status', 'verified')->with(['ingredientGroups', 'recipeIngredients'])->first();
+            $tarif = Recipe::query()->where('slug', $slug)->where('verification_status', 'verified')
+                ->where('status', $this->option('taslak') ? '!=' : '=', 'published')
+                ->with(['ingredientGroups', 'recipeIngredients'])->first();
 
             if ($tarif === null || ! is_array($satirlar) || $satirlar === []) {
-                $hatalar[] = $tarif === null ? 'Yayında ve doğrulanmış tarif yok: '.$slug : $slug.': eklenecek satır yok.';
+                $hatalar[] = $tarif === null ? ($this->option('taslak') ? 'Taslak ve doğrulanmış tarif yok: ' : 'Yayında ve doğrulanmış tarif yok: ').$slug : $slug.': eklenecek satır yok.';
 
                 continue;
             }

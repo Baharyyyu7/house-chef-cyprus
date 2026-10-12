@@ -58,6 +58,24 @@ final class ConiMalzemeEkleTest extends TestCase
         return $dosya;
     }
 
+    public function test_taslaga_yalniz_taslak_kipinde_ekler(): void
+    {
+        Queue::fake();
+        $tarif = $this->tarif();
+        $tarif->forceFill(['status' => 'draft'])->save();
+        $tuz = $this->malzeme('Tuz');
+        $dosya = $this->dosya(['mercimek-test' => [
+            ['ingredient_id' => $tuz->id, 'display_quantity' => 1, 'display_measure_code' => 'tatli_kasigi', 'scaling_behavior' => 'taste_adjusted'],
+        ]]);
+
+        $this->artisan('coni:malzeme-ekle', ['dosya' => $dosya])->expectsOutputToContain('Yayında ve doğrulanmış tarif yok')->assertFailed();
+        $this->artisan('coni:malzeme-ekle', ['dosya' => $dosya, '--taslak' => true])->expectsOutputToContain('1 tarife 1 satır eklendi')->assertSuccessful();
+
+        $this->assertSame('draft', $tarif->fresh()->status);
+        $this->assertSame(2, RecipeIngredient::query()->where('recipe_id', $tarif->id)->count());
+        unlink($dosya);
+    }
+
     public function test_satiri_kanonik_miktarla_ekler_ve_geri_alir(): void
     {
         Queue::fake();
