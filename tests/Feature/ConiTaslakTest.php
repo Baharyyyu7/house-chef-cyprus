@@ -94,6 +94,25 @@ final class ConiTaslakTest extends TestCase
         unlink($dosya);
     }
 
+    public function test_yayinda_yalniz_noindex_tarifi_yazar(): void
+    {
+        Queue::fake();
+        $tarif = $this->sablonTaslak('published');
+        $dosya = $this->dosya();
+
+        $this->artisan('coni:taslak', ['dosya' => $dosya, '--yayinda' => true])->expectsOutputToContain('indekste')->assertFailed();
+        $this->assertSame(['Adım 1'], $tarif->steps()->pluck('title')->all());
+
+        $tarif->seoMetadata()->create(['robots' => 'noindex,follow']);
+        $this->artisan('coni:taslak', ['dosya' => $dosya, '--yayinda' => true])->expectsOutputToContain('1 taslak yazıldı')->assertSuccessful();
+
+        $taze = $tarif->fresh();
+        $this->assertSame('published', $taze->status);
+        $this->assertSame('noindex,follow', $taze->seoMetadata?->robots);
+        $this->assertSame(['Hamuru mayala', 'Şerbeti soğut', 'Lokmaları kızart'], $taze->steps()->pluck('title')->all());
+        unlink($dosya);
+    }
+
     public function test_adim_n_basligi_ve_kisa_yonerge_reddedilir(): void
     {
         $tarif = $this->sablonTaslak();

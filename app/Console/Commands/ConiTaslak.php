@@ -29,12 +29,17 @@ use JsonException;
  * `coni:malzeme-ekle --taslak` ile panel akışıyla eklenir. Yayın kararı
  * insana aittir (AGENTS.md); komut status ve robots değerine dokunmaz.
  *
+ * --yayinda: yayında ama noindex olan tarifi de yazar. Sütlü Revani'nin
+ * listesinde irmik, Etli Kabak Dolması'nın listesinde et yoktu; kapı
+ * ikisini de kapattı, coni:kaynak satır değiştirmez. İndeksteki tarif
+ * yazılmaz: yazım altı dilin çevirisini siler.
+ *
  * Dosya: {"<slug>": {"recipe": {"title", "excerpt", "description", "prep_minutes", "cook_minutes", "rest_minutes", "servings", "difficulty", "country"}, "groups": ["..."], "steps": [{"title", "instruction", "duration_seconds"?, "chef_tip"?}]}}
  * Eski hâl raporda saklanır; --geri-al=<rapor id> aynen geri koyar.
  */
 final class ConiTaslak extends Command
 {
-    protected $signature = 'coni:taslak {dosya? : JSON dosyası} {--geri-al= : Geri alınacak rapor id} {--dene : Doğrular, yazmaz}';
+    protected $signature = 'coni:taslak {dosya? : JSON dosyası} {--geri-al= : Geri alınacak rapor id} {--dene : Doğrular, yazmaz} {--yayinda : Yayında ama noindex olan tarifi de yazar}';
 
     protected $description = 'Claude Coni: taslaktaki şablon tarifi baştan yazar, yayınlamaz, geri alınabilir.';
 
@@ -68,8 +73,20 @@ final class ConiTaslak extends Command
         foreach ((array) $harita as $slug => $veri) {
             $tarif = Recipe::query()->where('slug', $slug)->first();
 
-            if ($tarif === null || $tarif->status === 'published') {
-                $hatalar[] = $tarif === null ? 'Tarif yok: '.$slug : $slug.': yayında; yayındaki tarif coni:kaynak ile düzeltilir.';
+            if ($tarif === null) {
+                $hatalar[] = 'Tarif yok: '.$slug;
+
+                continue;
+            }
+
+            if ($tarif->status === 'published' && ! $this->option('yayinda')) {
+                $hatalar[] = $slug.': yayında; yayındaki tarif coni:kaynak ile düzeltilir, noindex ise --yayinda.';
+
+                continue;
+            }
+
+            if ($tarif->status === 'published' && ! str_contains((string) $tarif->seoMetadata?->robots, 'noindex')) {
+                $hatalar[] = $slug.': yayında ve indekste; açık sayfa baştan yazılmaz.';
 
                 continue;
             }
