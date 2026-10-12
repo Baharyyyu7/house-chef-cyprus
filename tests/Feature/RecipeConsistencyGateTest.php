@@ -51,6 +51,16 @@ final class RecipeConsistencyGateTest extends TestCase
         $this->assertContains('genel_adimlar', app(RecipeQualityGateService::class)->tutarlilikSorunlari($tarif));
     }
 
+    public function test_turkish_capital_i_ingredients_match_the_title(): void
+    {
+        // mb_strtolower("İrmik") "i̇rmik" verir: irmikli Sütlü Revani "irmik yok" diye kapanıyordu.
+        $revani = $this->tarif('Sütlü Revani', ['İrmik', 'Un', 'Süt'], ['İrmik ve unu karıştırın.', 'Sütü ekleyin.', 'Fırında pişirin.']);
+        $ispanak = $this->tarif('Ispanaklı Börek', ['Un', 'Peynir', 'Yumurta'], ['Unu yoğurun.', 'Peyniri ezin.', 'Yumurtayla birleştirin.']);
+
+        $this->assertSame([], app(RecipeQualityGateService::class)->tutarlilikSorunlari($revani));
+        $this->assertSame(['baslik_malzeme:ıspanak'], app(RecipeQualityGateService::class)->tutarlilikSorunlari($ispanak));
+    }
+
     public function test_a_consistent_recipe_passes(): void
     {
         $tarif = $this->tarif('Kıbrıs Kolokoti', ['Balkabağı', 'Bulgur', 'Un'], ['Balkabağını rendeleyin.', 'Bulguru ekleyip karıştırın.', 'Hamuru açıp doldurun.']);

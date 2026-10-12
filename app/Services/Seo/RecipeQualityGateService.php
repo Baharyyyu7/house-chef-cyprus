@@ -136,8 +136,8 @@ final class RecipeQualityGateService
      */
     public function tutarlilikSorunlari(Recipe $tarif): array
     {
-        $baslik = mb_strtolower((string) $tarif->getRawOriginal('title'));
-        $malzemeler = mb_strtolower($tarif->ingredients()->pluck('name')->implode(' | '));
+        $baslik = self::kucult((string) $tarif->getRawOriginal('title'));
+        $malzemeler = self::kucult($tarif->ingredients()->pluck('name')->implode(' | '));
         $sorunlar = [];
 
         foreach (self::BASLIK_MALZEME as $kelime => $desen) {
@@ -146,7 +146,7 @@ final class RecipeQualityGateService
             }
         }
 
-        $adimlar = $tarif->steps()->pluck('instruction')->map(static fn ($a): string => mb_strtolower((string) $a))->filter()->values();
+        $adimlar = $tarif->steps()->pluck('instruction')->map(static fn ($a): string => self::kucult((string) $a))->filter()->values();
         $kokler = collect(preg_split('/[^\p{L}]+/u', $malzemeler) ?: [])
             ->filter(static fn (string $k): bool => mb_strlen($k) >= 4 && ! in_array($k, self::OLCU_KELIMELERI, true))
             ->map(static fn (string $k): string => mb_substr($k, 0, mb_strlen($k) > 5 ? 5 : mb_strlen($k) - 1))
@@ -157,6 +157,12 @@ final class RecipeQualityGateService
         }
 
         return $sorunlar;
+    }
+
+    /** mb_strtolower("İrmik") "i̇rmik" (birleşik noktalı) verir; Türkçe kurala göre küçültür. */
+    private static function kucult(string $metin): string
+    {
+        return mb_strtolower(str_replace(['İ', 'I'], ['i', 'ı'], $metin), 'UTF-8');
     }
 
     /**
