@@ -84,14 +84,14 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
       salça, havuç çorbası dereotu, lahana sarması tarçın, ev açması yumurta,
       bazlama tereyağı, ayva tatlısı limon. Denetim betiği scratchpad'de
       (denetim2.php); `İ` küçültmesi "İrmik"i kaçırıyor.
-- [ ] **100 tarifte Türkçe adım başlığı "Adım 1..N"** kalıbı. Çeviri
+- [x] (12 Ekim ölçüldü: açık 124 TR tarifte "Adım N" başlığı 0, boş başlık 0; kalıp yalnız taslaklarda) **100 tarifte Türkçe adım başlığı "Adım 1..N"** kalıbı. Çeviri
       partilerinde başlıklar gerçekleriyle yazılıyor; Türkçesi ayrıca
       düzeltilmeli.
 - [x] (12 Ekim ikinci tur, 5 açıklama düzeltildi) **Türkçe kaynakta kalan şablon dolgu**: zeytinyagli-nohutlu-pilav,
       nohutlu-akdeniz-kasesi, limonlu-akdeniz-makarnasi açıklamaları ("Taze
       malzemeleri, dengeli baharat uyumu ve geleneksel pişirme tekniğiyle...")
       ve baklava-dilimi ("Bu özgün ev mutfağı sürümü..."). Çeviriler dolgusuz.
-- [ ] **Olası kopya tarifler** (yayında, ikisi de açık): kibris-usulu-flaouna
+- [x] (12 Ekim ölçüldü: flaouna-q4hmp taslak ve 301; sütlaç ocak, sutlac-kibris fırın + pirinç unu + tarçın; hellim-ve-domatesli sade, hellimli-kahvalti-tavas yumurta/soğan/biberli; altı sayfa 28 günde toplam 1 gösterim, kanibalizasyon yok, ayrı yemekler) **Olası kopya tarifler** (yayında, ikisi de açık): kibris-usulu-flaouna
       ile kibris-usulu-flaouna-q4hmp, sutlac ile sutlac-kibris,
       hellim-ve-domatesli-kahvalti-tavasi ile hellimli-kahvalti-tavas.
       İçerikleri farklı; kanibalizasyon ölçülüp karar verilmeli.
@@ -248,6 +248,20 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [x] Canlı doğrulama (7c3de40): /health commit 7c3de40; /en/hakkimizda, /en/gizlilik, /en/yasal-bilgilendirme, /en/iletisim, /en/cerezler, /en/kullanim-kosullari 200, html lang=en
 - [ ] Hukuki gözden geçirme: gizlilik, çerez, kullanım koşulları ve yasal merkez EN metinleri sahibi tarafından okunmalı
 - [ ] Eski blog kategori çevirisi (4aceb39) ve medya beyanı zamanları (1f2c561) bu yayınla birlikte gidiyor; canlıda kontrol edilmedi
+
+## 12 Ekim üçüncü tur: sayıya uyan malzeme adı, saatli süre, pt hazırlık notu
+- [x] Ölçüm: açık 123 DE ve 96 PT sayfada birimsiz satır; katalog adı kimi malzemede tekil kimi malzemede çoğul ("1 Eier", "1 Kartoffeln", "2 Quitte", "1½ Zwiebel", "1 ovos", "4 pão lavash", "2 limão-siciliano")
+- [x] Kod 8e786c2: lang/{de,pt}/sayilabilir.php tekil-çoğul çiftleri, adSayiyla de/pt; "de"den sonraki tümleç ve parantez içi değişmez; DE sıfat zinciri ve zarflı ad küçük harf ("2 geröstete rote Paprika", "1 frisch gepresster Zitronensaft"). Tüm DE/PT kataloğu (256/258 ad) ½/1/1½/3 ile benzetildi
+- [x] Kod 070cfd0: SureMetni::dakika, 60 dk ve üstü saatle ("6 sa 31 dk"); rozet, kart, meta/og/twitter, adım düğmesi, zamanlayıcı "6:00:00", gömülü kart, haftalık menü, pişirme oturumu, vitrin. Yerelde 1280/375 doğrulandı, kart tek satır
+- [x] (3297b03) PT hazırlık notu mastar ("1 cebola, picar"; 58 satırın ~45'i) ve Portekiz Portekizcesi ("do frigorífico", "sumo", "cozer") -> uyumlu sıfat ("1 cebola, picada", "3 tomates, ralados"), Brezilya sözcükleri. RU/PL mastarı o dillerin liste geleneği, dokunulmaz
+- [x] İncelenip kusur olmadığı görülen: açık yabancı sayfalarda Türkçe harfli malzeme adları yalnız özel adlar (kaşar, pastırma, erişte, çiğ köfte, tırnak pide), açıklamalı. Katalogdaki "Kırmızı Zwiebel", "Haşlanmış Kuru Fawasserlye/Faágualye" (Fasulye içinde su -> Wasser/água makine değişimi), "Taze Barbunya" vb. yalnız kapalı sayfalarda
+- [x] (coni:malzeme 30698, 192 ad) Katalog çöpü: 34 malzemede yabancı ad Türkçeyle aynı ya da "Fawasserlye" bozuk; hepsi yalnız taslak tariflerde (yayında 0). 32 gerçek malzeme 6 dilde yazıldı (mercimek, mantar, pırasa, karnabahar, asma yaprağı, barbunya, haşlanmış kuru fasulye...; pt Brezilya). "Ana Malzeme" (162 kullanım) ve "Özel Baharat" (38) şablon yer tutucusu: bilerek çevrilmedi, o taslaklar yayına geçemesin
+- [x] Yayın 070cfd0 (8e786c2 + 070cfd0): tam paket 1858/1858, release.sh exit 0. Canlıda veriyle 161 DE + 126 PT birimsiz satır, sayı uyumsuzluğu 0; HTML'de de/katmer "1 Ei", mercimek "1 Kartoffel", pt/katmer "1 ovo", pt/semifreddo "2 limões-sicilianos"; semifreddo tr "6 sa 31 dk", en/pt "6 h 31 min", de "6 Std. 31 Min." (rozet + meta), adım düğmesi "6 sa zamanlayıcıyı başlat", sunulan JS app-DCzEIQ4P.js
+- [x] (IntegrityReport 30699, guard elle:limon-suyu-satiri) Limon suyu adetle yazılmıştı ("2 adet Taze Sıkılmış Limon Suyu" = 2 limonun suyu); yabancı dilde "2 frisch gepresster Zitronensaft", "2 freshly squeezed lemon juice" basılıyordu. 3 satır (8544 enginar dolması, 8574 kolokas kavurma, 8600 kuru bakla ezmesi) malzeme 205/220 -> Limon #7, not "suyu sıkılmış"; miktar ve 30/60 ml aynı. Açık diller korundu. Canlıda: "2 lemons, juiced", "2 Zitronen, ausgepresst", "Лимон — 2 шт., выжать сок", TR "2 adet suyu sıkılmış Limon". Geri alma: payload.once (ingredient_id, preparation_note null)
+- [x] og:locale pt_PT -> pt_BR (3297b03); dil seçicideki 🇵🇹 bayrağı kullanıcı kararı
+- [x] Yayın 3297b03: tam paket 1859/1859, release.sh exit 0. Canlıda 96 pt sayfada 61 notlu satır, mastar 0, Portekiz sözcüğü 0: "1 cebola, bem picada", "4 tomates, ralados", "750 g de vagem, limpa", "2 limões-sicilianos, raspas e suco"; og:locale pt_BR
+- [ ] Sıradaki tur: EN "1 kapia peppers (sweet red)" (parantez Str::singular'ı engelliyor; yalnız tekilde parantezden önceki kısmı çek, çoğulda değil: Str::plural "tırnak pide" -> "pides" yapar). Damla sakızı #115 yalnız kibris-usulu-flaouna'da 3 adet: "3 mastic gums", "3 Mastix", "3 resina de mástique" -> coni:malzeme ile en "mastic tears", de "Mastixkörner", pt "lágrimas de mástique" + sayilabilir çiftleri de 'Mastixkorn' => 'Mastixkörner', pt 'lágrima de mástique' => 'lágrimas de mástique' (ad değişimi kodla aynı yayına)
+- [ ] Bulunan, küçük: "3 dentes de alho, ralado" not alho'ya uyuyor (dentes'e uyması daha doğal); ru/pl mastar bilinçli
 
 ## 12 Ekim ikinci tur: tarif sadakati, süreler, EN bardak etiketi
 Veri işleri canlıda yazıldı ve doğrulandı (yayın gerektirmez). Geri alma kayıtları IntegrityReport'ta.
