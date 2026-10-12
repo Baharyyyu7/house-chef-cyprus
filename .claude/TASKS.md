@@ -57,7 +57,7 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
       açıldı. Sırada: aynı yöntemle diğer dillerde gösterim alan tarifler.
       Önce Türkçe kaynağın temiz olduğunu doğrula: Lahmacun'un kaynağı
       çöp, çevrilmemeli.
-- [ ] **Lahmacun Türkçe'de baştan yazılmalı.** Malzemeler "1 adet peynir,
+- [x] (12 Ekim: çöp kayıt id 34 taslakta, gerçek tarif geleneksel-citir-lahmacun-23a2f 7 dilde açık; eski /lahmacun ve iki taslak nüsha adresi ona 301, 30693) **Lahmacun Türkçe'de baştan yazılmalı.** Malzemeler "1 adet peynir,
       2 adet tavuk, 3 adet kırmızı et, 4 adet balık", adımlar genel şablon.
       Türkçe'de noindex ama Rusça'da 40 gösterim alıyor; çok aranan bir yemek.
 - [ ] **Yabancı dil tarif çevirisi (asıl büyüme işi).** 27 Eylül'de 28 tarif
@@ -76,7 +76,7 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
       tarifin ipucu/sık hata/saklama alanlarının çevirisi (şimdilik yabancı
       dilde gizli). Özel şef/catering hizmetinin yabancı dilde sunulması
       kullanıcı kararı.
-- [ ] **Tarif tutarlılığı**: adımda geçip listede olmayan malzeme. 28 Eylül'de
+- [x] (12 Ekim ikinci tur: yeniden tarandı, 18 tarife 24 satır) **Tarif tutarlılığı**: adımda geçip listede olmayan malzeme. 28 Eylül'de
       31 tariften 15'i düzeltildi (27 satır, yedek
       `yedekler/2026-09-28-eksik-malzeme-eklenen.json`). Kalan 16'nın çoğu
       yanlış alarm ("krema kıvamı", "tereyağına döner"); gerçek olanlar:
@@ -87,7 +87,7 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
 - [ ] **100 tarifte Türkçe adım başlığı "Adım 1..N"** kalıbı. Çeviri
       partilerinde başlıklar gerçekleriyle yazılıyor; Türkçesi ayrıca
       düzeltilmeli.
-- [ ] **Türkçe kaynakta kalan şablon dolgu**: zeytinyagli-nohutlu-pilav,
+- [x] (12 Ekim ikinci tur, 5 açıklama düzeltildi) **Türkçe kaynakta kalan şablon dolgu**: zeytinyagli-nohutlu-pilav,
       nohutlu-akdeniz-kasesi, limonlu-akdeniz-makarnasi açıklamaları ("Taze
       malzemeleri, dengeli baharat uyumu ve geleneksel pişirme tekniğiyle...")
       ve baklava-dilimi ("Bu özgün ev mutfağı sürümü..."). Çeviriler dolgusuz.
@@ -105,7 +105,7 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
       kraker, özel şef x2 vb.) 25 Eylül toplu yayınıyla gelmiş, hiç
       incelenmemişti. İncelenip derinleştirilirse açılabilir; özel şef
       yazısı sitenin vermediği bir hizmeti anlatıyor.
-- [ ] **Başlığı yanlış vaat eden 2 tarif noindex'te, düzeltme bekliyor:**
+- [x] (12 Ekim ölçüldü: Tahinli Piyaz ve Kıymalı Kol Böreği'nin tüm nüshaları taslakta, 404; yayındaki bezelye tarifinin başlığı "Etli Bezelye Yemeği", kuşbaşıyla uyumlu, yalnız slug 'kiymali') **Başlığı yanlış vaat eden 2 tarif noindex'te, düzeltme bekliyor:**
       Antalya Usulü Tahinli Piyaz (ne malzemede ne adımda tahin var) ve
       Kıymalı Kol Böreği (adımlar peynirli harç diyor). Düzeltilmiş içerik
       içe aktarılınca ImportRecipeContent noindex'i kendi kaldırır.
@@ -249,6 +249,22 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [ ] Hukuki gözden geçirme: gizlilik, çerez, kullanım koşulları ve yasal merkez EN metinleri sahibi tarafından okunmalı
 - [ ] Eski blog kategori çevirisi (4aceb39) ve medya beyanı zamanları (1f2c561) bu yayınla birlikte gidiyor; canlıda kontrol edilmedi
 
+## 12 Ekim ikinci tur: tarif sadakati, süreler, EN bardak etiketi
+Veri işleri canlıda yazıldı ve doğrulandı (yayın gerektirmez). Geri alma kayıtları IntegrityReport'ta.
+- [x] sucuklu-yumurta (1500): 7 şablon adım gerçek adımlarla, özet ve açıklama listeyle uyumlu (coni:kaynak 30678); tuz "1 çay kaşığı" -> "1 tutam" (30679); süre 15+20 -> 3+7 (30681). Canlıda şablon metin 0, "⏱ 10 dk". İndekse açıldı, sonra geri kapatıldı (30682 geri_alindi): aynı yemeğin fotoğraflı, 7 dilde açık sürümü bakir-tavada-sucuklu-yumurta-z7w5b var; iki sayfa aynı aramada yarışırdı. noindex,follow kalıyor
+- [x] pastirmali-yumurta tuz "1 çay kaşığı" -> "1 tutam" (adım "azıcık" diyor; 30681). 7 dilde 200 + index: tutam / pinch / Prise / щепотка / szczypta / pitada / نیشگون
+- [x] 44 tek kelimelik TR adım başlığı (26 tarif) tarifin kendi başlık üslubuyla yazıldı (coni:kaynak 30678; "Pişir" -> "Fırında pişir", "Hazırlık" -> "Tavuğu ve sebzeleri doğrama"). Canlıda 27 sayfada 51 başlık var, yabancı sayfa kapanmadı
+- [x] Yabancı dilde "Step 1: Adım 1 (Execution & Cooking)" kalıplı adım başlıkları (en 13, de 10, ru 11, pl 139, pt 139): hepsi kapalı sayfalarda, çeviri kapısı engelliyor; canlı kusur değil
+- [x] Şablon dolgu açıklamaları (meta açıklama olarak da basılıyordu): limonlu-akdeniz-makarnasi, firin-sebzeli-taco-kasesi, nohutlu-akdeniz-kasesi, baklava-dilimi, sebzeli-tavuk-6tpev; TR çevirilerin anlamına eşitlendi (coni:kaynak 30684). Canlıda kalıp cümle 0, indeks korunuyor
+- [x] Adımda geçip listede olmayan malzeme: 127 açık tarif tarandı, 32 isabetten 8'i yanlış alarm (ceviz büyüklüğünde, krema tereyağına döner, "tuz eklemeyin", Kuru kekik/Galeta Unu/Tam yağlı süt zaten listede). Yenibahar #264 açıldı (coni:malzeme 30685). 18 tarife 24 satır (coni:malzeme-ekle 30687): 15 tuz, karabiber, su, yoğurt (isteğe bağlı), lahana sarmasına zeytinyağı + toz tarçın + yenibahar + su, açmaya yumurta sarısı, bazlamaya tereyağı (isteğe bağlı), ayva tatlısına limon. Canlıda 126 istek: açık 105 sayfanın hepsi 200 + index, yeni satır her dilde kendi adıyla, Türkçe sızıntı 0
+- [x] Süre alanı adımlarla çelişiyordu (30691): limonlu-semifreddo 25 -> 391 dk (6 saat dondurma), sutlac-kibris 50 -> 325 (4 saat buzdolabı, ~65 dk pişirme), cevizli-sarma-corek 155 -> 185 (ikinci mayalanma), peynirli-kraker 35 -> 65 (30 dk dinlenme)
+- [x] Kod (f99f9f5, 0669a7b): EN "cup (200 ml)" sabitti, "½ cup (200 ml) olive oil" toplam gibi okunuyordu; etiket artık toplamı söyler ("½ cup (100 ml)"), hacmi söyleyen satırın altına ikinci "100 ml" basılmaz; tekil/çoğul görünen sayıdan ("1 cups" -> "1 cup", "1 onions" -> "1 onion"); Almancada sıfat miktardan sonra küçük harf ("½ Wasserglas ungesalzene Erdnüsse", 51 malzeme adı)
+- [x] Lahmacun: eski /tarifler/lahmacun (Eylül'de Rusça 40 gösterim) ve aynı içerikli iki taslak nüsha (yjv2w, 885j7) 404'tü; üçü geleneksel-citir-lahmacun-23a2f'ye 301 (SlugRedirect 4172-4174, rapor 30693). Canlıda tr/ru/en/de her biri kendi dilindeki sürüme 301. lahmacun-durum-* farklı yemek, çöp içerik, 404 kalıyor
+- [x] Başlık (c89469b, kullanıcı: "üst butonlar çok kötü"): masaüstünde 4 ayrı çerçeveli/gölgeli/yükselen kutu (TR, Tema, Yönetim, Hesabım) -> çerçevesiz, menü bağlantılarıyla aynı ağırlık; yalnız Hesabım ince çerçeveli, Üye Ol dolu (eski kural dolgusunu siliyordu); tema yalnız ikon. Telefonda 68 px tema hapı + koyu menü kutusu -> aynı boyda iki ince çerçeveli yuvarlak, 320 px'te taşma yok. Fotoğraflı tarif başlığında kontroller beyaz yazı + yarı saydam koyu zemin. Güneş ikonu 1,98 -> 4,77:1. Ana sayfa explore kapalıyken çift aynı düğme gizlendi. Yerelde 1280/375/320, açık/koyu, oturum açık/kapalı doğrulandı; hedefli 177/177
+- [x] Yayın c89469b (f99f9f5 + 0669a7b + c89469b): tam paket 1856/1856, release.sh exit 0, /health c89469b. Canlıda: EN lahana sarması "½ cup (100 ml) olive oil", "3 cups (600 ml) water", 1 kişilik "⅛ cup (25 ml)" ikinci satır boş; DE "1 TL gemahlener Zimt"; ana sayfa başlığı 1280 px sade kontroller, 375 px iki eşit yuvarlak
+- [ ] Bulunan: DE sayılabilir ad çoğullaşmıyor ("3 Zwiebel" -> "3 Zwiebeln"; adSayiyla yalnız EN); "⏱ 391 dk" uzun sürelerde saat olarak okunmalı ("6 sa 31 dk"); 60 kısa kart özeti slogan ("Kıbrıs'ın meşhur mahluta çorbası.") - şablon değil, düşük öncelik; ru "Яичные желтки — 1 шт." çoğul ad (Rus liste geleneğinde kabul edilir)
+- [x] İncelenip kusur olmadığı görülen: panel admin/seo/opportunities kartında tanımsız --hc-surface-card (kart bilerek koyu, yedek #121212 doğru; token tanımlamak açık temada beyaz kart üstüne beyaz yazı yapardı); taşan (bounce) eğriler (azaltılmış hareket app.css:322'de site genelinde kapalı, üslup tercihi); eski hc-btn ailesi (aynı tokenlar, dokunmatik 44 px bloğunda)
+
 ## 12 Ekim: düğmeler (ön yüz denetimi ve sağlamlaştırma)
 Ölçüm canlıda (ana sayfa, /tarifler, tarif, /blog; 1024 ve 375 px; açık ve koyu): 17 düğmede 10 farklı imza, birincil düğme 2,71:1, odak halkası 2,18-2,75:1, dokunmatik hedefler 24-40 px.
 - [x] 8a00332: --hc-brand-contrast açıkta #171717 (6,28:1), --hc-focus-ring (#c2410c / #fb923c), (pointer: coarse) 44 px, yıldız 44 px, ham turuncu/kehribar düğmeler hc-v3-btn--primary, emoji/ok glifi yerine x-ui.icon, adım rozeti kalktı (de "Timer starten" basıyordu) + recipe.timer.start 7 dil, 5 dilde ters pişirme modu etiketi, SSS kartı tanımsız --hc-surface-card, POST çift gönderim kilidi
@@ -262,8 +278,8 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [x] 6a86487: coni:malzeme Türkçe ad anahtarıyla katalogda olmayan malzemeyi açar; geri al kullanılmıyorsa siler
 - [x] Canlıda: coni:malzeme 4 malzeme açtı #260 Çörek Otu, #261 Sumak, #262 Marul, #263 Kek, 24 ad (--geri-al=30637); coni:malzeme-ekle 4 satır (--geri-al=30638; önce bu geri alınır). 4 tarif x 7 dil 200/index, yeni satır her dilde görünüyor: peynirli-borek (çörek otu 1 çay k.), coban-salata (sumak, isteğe bağlı), kekli-ev-yapimi-supangle-cgxs3 (kek 100 g, isteğe bağlı), mercimek-koftesi-s57cm (marul 1 adet). cevizli-sarma-corek düştü: özet düzeltilmiş, adımda pudra şekeri yok
 - [x] TR adım başlığı "Adım N": 127 açık tarifin 96'sında 463 adım. 4 yazar ajan + 2 bağımsız doğrulayıcı (456 başlıktan 4'ü düzeltildi, uydurma 0); mekanik kontrol 0 hata. coni:kaynak 95 tarif 461 alan (456 başlık + 5 adım dilbilgisi: "kabarın" -> "kabarmaya bırakın" x3, "kabarana" x1, adana "özdeşleştirin"), --geri-al=30639. Canlıda kalan "Adım N" yalnız sucuklu-yumurta (yer tutucu adımlar, noindex, site haritasında yok; atlandı). Açık yabancı sayfa 738 (dil başına 123) korundu
-- [ ] sucuklu-yumurta (id 1500): published+verified ama 7 adımı şablon metin ("Malzemeleri yıkayın ve hazırlayın"), sucuk/yumurta geçmiyor; noindex ama erişilebilir. AdSense incelemesi siteye bakıyor: TR kaynağı yazılmalı ya da yayından kaldırılmalı (kullanıcı kararı)
-- [ ] Bulunan: de satırında sıfat büyük harf ("½ Wasserglas Ungesalzene Erdnüsse"); katalogda "(Şerbet için)" ekli ayrı malzemeler (Toz Şeker, Su)
+- [x] (12 Ekim ikinci tur, adımlar yazıldı) sucuklu-yumurta (id 1500): published+verified ama 7 adımı şablon metin ("Malzemeleri yıkayın ve hazırlayın"), sucuk/yumurta geçmiyor; noindex ama erişilebilir. AdSense incelemesi siteye bakıyor: TR kaynağı yazılmalı ya da yayından kaldırılmalı (kullanıcı kararı)
+- [ ] Bulunan: (sıfat kısmı 12 Ekim 0669a7b ile düzeldi) de satırında sıfat büyük harf ("½ Wasserglas Ungesalzene Erdnüsse"); katalogda "(Şerbet için)" ekli ayrı malzemeler (Toz Şeker, Su)
 
 ## 11 Ekim ikinci tur: sadakat denetimi ve pt-BR
 Çalışma klasörü: oturum scratchpad'i `denetim/` (girdi, cikti/<dil>, kontrol.py, DENETIM.md) ve `kaynak/` (TR asıl dışa aktarımı).
