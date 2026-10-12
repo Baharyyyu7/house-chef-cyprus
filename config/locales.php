@@ -134,7 +134,7 @@ return [
             'enabled' => true,
         ],
         'pt' => [
-            'flag' => '🇵🇹',
+            'flag' => '🇧🇷',
             'label' => 'Portuguese',
             'native_label' => 'Português',
             'html_locale' => 'pt',
