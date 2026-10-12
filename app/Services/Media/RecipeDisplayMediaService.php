@@ -48,7 +48,9 @@ final class RecipeDisplayMediaService
                 'media' => $specific,
                 'card_url' => (string) $cardUrl,
                 'hero_url' => (string) $heroUrl,
-                'alt' => (string) ($specific->alt_text ?: $recipe->title),
+                // Kayıtlı alt Türkçe cümle ("... servis edilmiş hâlde"); yabancı
+                // sayfada "AI generated image: <Türkçe cümle>" basılıyordu.
+                'alt' => (string) (turkce_sayfa() ? ($specific->alt_text ?: $recipe->title) : ($recipe->translated('title') ?: $recipe->title)),
                 'is_synthetic' => (bool) $specific->generated_by_ai,
                 'is_fallback' => false,
                 'badge_label' => null,

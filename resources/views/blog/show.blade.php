@@ -102,10 +102,10 @@
             @if($kibrisYazisi)
                 <section class="mt-12 rounded-2xl border p-5 flex flex-wrap items-center justify-between gap-4" style="border-color: var(--hc-border-default)">
                     <div>
-                        <p class="hc-kicker text-xs">Kıbrıs Mutfağı</p>
-                        <p class="font-bold text-base mt-1" style="color: var(--hc-text-primary)">Doğrulanmış tariflerin tamamı tek koleksiyonda</p>
+                        <p class="hc-kicker text-xs">{{ __('blog.show.cyprus_cta_kicker') }}</p>
+                        <p class="font-bold text-base mt-1" style="color: var(--hc-text-primary)">{{ __('blog.show.cyprus_cta_title') }}</p>
                     </div>
-                    <a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">Kıbrıs Yemekleri &rarr;</a>
+                    <a class="hc-v3-btn hc-v3-btn--primary" href="{{ route('cuisines.show', 'kibris-mutfagi') }}">{{ __('footer.cypriot_food') }} &rarr;</a>
                 </section>
             @endif
              @if($recipesToDisplay->isNotEmpty())

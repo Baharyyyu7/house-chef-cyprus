@@ -87,7 +87,7 @@ final class CuisineHubController extends Controller
         $h1 = $isKibris ? 'Kıbrıs Yemekleri ve Yemek Tarifleri' : ($isKibrisEn ? __('cuisine.kibris_en_h1') : __('cuisine.h1', ['name' => taxonomy_name($mutfak)]));
         $faq = $isKibris ? [
             ['question' => 'Kıbrıs Yemekleri nelerdir?', 'answer' => 'Hellim, şeftali kebabı, molehiya, kolokas, magarina bulli, pirohu ve pilavuna Kıbrıs mutfağında karşılaşabileceğiniz lezzetler arasındadır. Malzemeler ve hazırlama yöntemleri aileden aileye değişebilir.'],
-            ['question' => 'Kıbrıs Yemek Tarifi nereden bulunur?', 'answer' => 'House Chef Cyprus arşivi “Kıbrıs Yemek Tarif” ve “Yemek Kıbrıs” niyetleri için denenmiş ve doğrulanmış geleneksel ada tariflerini sunar.'],
+            ['question' => 'Kıbrıs Yemek Tarifi nereden bulunur?', 'answer' => 'Bu sayfadaki '.$tarifler->count().' tarifin her birinde malzemeler gram ve ev ölçüsüyle, hazırlık adımları süreleriyle birlikte yer alır. Evdeki malzemelerle yapılabilecek Kıbrıs yemeklerini malzemeye göre tarif bulma aracıyla da arayabilirsiniz.'],
             ['question' => 'Şeftali kebabında şeftali var mı?', 'answer' => 'Şeftali kebabı adını meyveden alan bir tatlı değildir. Kıyma, soğan, maydanoz ve baharatlarla hazırlanan harç, gömlek yağına sarılarak pişirilir.'],
         ] : ($isKibrisEn ? [
             ['question' => __('cuisine.kibris_en_faq_1_q'), 'answer' => __('cuisine.kibris_en_faq_1_a')],

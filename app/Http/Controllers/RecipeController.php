@@ -336,7 +336,7 @@ final class RecipeController extends Controller
             'seoImage' => $sosyalGorsel['url'] ?? $displayMedia['hero_url'] ?? null,
             'seoImageWidth' => $sosyalGorsel['width'] ?? 1600,
             'seoImageHeight' => $sosyalGorsel['height'] ?? 1000,
-            'seoImageAlt' => $heroMedia?->alt_text ?? $displayMedia['alt'] ?? null,
+            'seoImageAlt' => turkce_sayfa() ? ($heroMedia?->alt_text ?? $displayMedia['alt'] ?? null) : $recipe->translated('title'),
             'cuisineUrl' => $cuisineUrl,
             'relatedGuides' => $internalLinks->recipeGuidesFor($recipe, app()->getLocale()),
             'faqs' => $schemaService->generateRecipeFaqs($recipe, app()->getLocale()),

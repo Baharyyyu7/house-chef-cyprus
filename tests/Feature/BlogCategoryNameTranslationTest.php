@@ -87,4 +87,25 @@ final class BlogCategoryNameTranslationTest extends TestCase
             $this->assertSame($en, $bu, $dil);
         }
     }
+
+    /** Kıbrıs yazısının hub kutusu yabancı sayfada Türkçe basılıyordu. */
+    public function test_cyprus_hub_box_speaks_the_page_language(): void
+    {
+        $kategori = BlogCategory::query()->create([
+            'public_id' => (string) Str::ulid(),
+            'name' => 'Kıbrıs Mutfağı',
+            'slug' => 'kibris-mutfagi',
+            'description' => 'Kıbrıs sofrası.',
+        ]);
+        $yazi = BlogPost::query()->create([
+            'title' => 'Hellim rehberi', 'slug' => 'hellim-rehberi', 'excerpt' => 'Özet.', 'body' => 'Gövde metni.',
+            'status' => 'published', 'published_at' => '2026-10-05 10:00:00', 'blog_category_id' => $kategori->id,
+        ]);
+        foreach (['title' => 'Halloumi-Leitfaden', 'excerpt' => 'Zusammenfassung.', 'body' => 'Textkörper.'] as $alan => $deger) {
+            $yazi->translations()->create(['locale' => 'de', 'field' => $alan, 'value' => $deger]);
+        }
+
+        $this->get('/de/blog/hellim-rehberi')->assertOk()->assertSee('Alle geprüften Rezepte in einer Sammlung')->assertSee('Zyprische Gerichte')->assertDontSee('Doğrulanmış')->assertDontSee('Kıbrıs Yemekleri');
+        $this->get('/blog/hellim-rehberi')->assertOk()->assertSee('Doğrulanmış tariflerin tamamı tek koleksiyonda')->assertSee('Kıbrıs Yemekleri');
+    }
 }

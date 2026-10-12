@@ -29,7 +29,8 @@ final class RecipeIngredientDisplayService
             // başa konsa Almanca, Lehçe, Rusça ve Portekizcede adla cinsiyet
             // ve sayı uyumu gerekirdi ("4 Tomaten, gerieben"). Portekizce not
             // virgülden sonra da uyar ("1 cebola, picada"), o yüzden ad verilir.
-            $hazirlik = $this->formatter->hazirlik($line->preparation_note ?: $line->display_note ?: $line->preparation, $ad);
+            // Dişle ölçülen sarımsakta not dişe uyar: "3 dentes de alho, ralados".
+            $hazirlik = $this->formatter->hazirlik($line->preparation_note ?: $line->display_note ?: $line->preparation, $line->display_measure_code === 'dis' ? $etiket : $ad);
             $display = app()->getLocale() === (string) config('locales.default', 'tr')
                 ? trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $etiket, $hazirlik, $line->ingredient?->name])))
                 : $this->formatter->yabanciSatir(trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $etiket]))), $ad, $etiket !== '').($hazirlik === null ? '' : (app()->getLocale() === 'fa' ? '، ' : ', ').$hazirlik);

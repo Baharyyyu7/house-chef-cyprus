@@ -14,7 +14,6 @@
         <h1 class="mt-4 font-display text-4xl font-semibold sm:text-5xl">{{ $seoH1 ?? __('cuisine.h1', ['name' => taxonomy_name($mutfak)]) }}</h1>
 
         @if($isKibrisHub)
-            <p class="hc-body-sm mt-2 max-w-2xl font-semibold tracking-wide text-gold-700 dark:text-gold-300">Kıbrıs · Kıbrıs Yemek · Kıbrıs Yemek Tarif · Yemek Kıbrıs · Kıbrıs Yemekleri</p>
             <p class="hc-body-lg mt-3 max-w-3xl leading-relaxed text-muted">Kıbrıs mutfağını evde keşfetmek için bu koleksiyondaki {{ $tarifler->count() }} tarifi inceleyebilirsiniz. Hellimle hazırlanan yemeklerden sebze ve et yemeklerine, hamur işlerinden tatlılara kadar farklı seçeneklerin malzemelerini ve hazırlama adımlarını bir arada bulabilirsiniz.</p>
             <section class="mt-8 max-w-3xl">
                 <h2 class="font-display text-xl font-semibold">Sofranıza uygun tarifi seçin</h2>

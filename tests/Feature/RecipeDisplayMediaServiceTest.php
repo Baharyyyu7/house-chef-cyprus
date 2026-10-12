@@ -76,6 +76,12 @@ final class RecipeDisplayMediaServiceTest extends TestCase
         $this->assertFalse($result['is_fallback']);
         $this->assertNotNull($result['media']);
         $this->assertSame('Kıbrıs Kleftiko Fotoğrafı', $result['alt']);
+
+        // Yabancı sayfada kayıtlı Türkçe alt değil, tarifin o dildeki adı.
+        $recipe->translations()->create(['locale' => 'en', 'field' => 'title', 'value' => 'Cypriot Kleftiko']);
+        app()->setLocale('en');
+        $this->assertSame('Cypriot Kleftiko', $this->service->resolve($recipe->fresh())['alt']);
+        app()->setLocale('tr');
     }
 
     public function test_uses_brand_mark_when_no_approved_media_instead_of_another_dish_photo(): void

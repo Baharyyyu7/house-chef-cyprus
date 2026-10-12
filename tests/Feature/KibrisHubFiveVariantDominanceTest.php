@@ -57,10 +57,11 @@ final class KibrisHubFiveVariantDominanceTest extends TestCase
         // H1: anahtar kelime cümlesi tek başlıkta.
         $this->assertStringContainsString('<h1', $icerik);
         $this->assertStringContainsString('Kıbrıs Yemekleri', $icerik);
-        // Varyant şeridi görünür: hedef kelimelerin tamamı insan gözüyle de okunur.
-        $this->assertStringContainsString('Kıbrıs Yemek Tarif', $icerik);
-        $this->assertStringContainsString('Yemek Kıbrıs', $icerik);
-        $this->assertStringContainsString('Kıbrıs Yemekleri', $icerik);
+        // 12 Ekim 2026: görünür varyant şeridi ("Kıbrıs · Kıbrıs Yemek · Kıbrıs
+        // Yemek Tarif · Yemek Kıbrıs") ve okura "arama niyeti" anlatan SSS yanıtı
+        // anahtar kelime doldurmaydı; varyantlar 301 ve başlıkla taşınır.
+        $this->assertStringNotContainsString('Kıbrıs · Kıbrıs Yemek', $icerik);
+        $this->assertStringNotContainsString('niyetleri', $icerik);
         // Çıkmaz sokak değil: dahili linkler hub'dan ileri taşır.
         $this->assertStringContainsString('Kıbrıs ara', $icerik);
     }
