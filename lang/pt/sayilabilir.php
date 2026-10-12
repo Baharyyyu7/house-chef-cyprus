@@ -46,4 +46,5 @@ return [
     'massa yufka' => 'folhas de massa yufka',
     'massa yufka fresca' => 'folhas de massa yufka fresca',
     'massa filo para baklava' => 'folhas de massa filo para baklava',
+    'lágrima de mástique' => 'lágrimas de mástique',
 ];

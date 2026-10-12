@@ -37,4 +37,5 @@ return [
     'Kopfsalat' => 'Kopfsalate',
     'Wassermelonenscheibe' => 'Wassermelonenscheiben',
     'Tintenfischring' => 'Tintenfischringe',
+    'Mastixkorn' => 'Mastixkörner',
 ];

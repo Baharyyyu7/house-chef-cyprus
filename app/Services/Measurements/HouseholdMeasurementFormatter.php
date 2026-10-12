@@ -94,8 +94,18 @@ final class HouseholdMeasurementFormatter
 
         $cogul = $this->cogulSayisi($miktar) > 1;
 
+        // İngilizce çekim son sözcüğe bakar; parantez onu saklıyordu ve canlıda
+        // "1 kapia peppers (sweet red)" basılıyordu. Çoğulda ad olduğu gibi
+        // kalır: katalogdaki parantezli sayılabilir ad zaten çoğul, özel ad
+        // olan "tırnak pide" ise "pides" olmamalı.
         if ($dil === 'en') {
-            return $cogul ? Str::plural($ad) : Str::singular($ad);
+            if ($cogul) {
+                return Str::plural($ad);
+            }
+
+            [$bas, $ek] = array_pad(explode(' (', $ad, 2), 2, null);
+
+            return Str::singular($bas).($ek === null ? '' : ' ('.$ek);
         }
 
         $ciftler = $this->sozluk('sayilabilir');

@@ -50,6 +50,12 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
         $this->assertSame('cup (225 ml)', $bicim->measureLabel($this->birim('su_bardagi'), '1.125'));
         $this->assertSame('onion', $bicim->adSayiyla('onion', '1.125', ''));
         $this->assertSame('onions', $bicim->adSayiyla('onion', '2.25', ''));
+        // Parantez son sözcüğü saklıyordu: "1 kapia peppers (sweet red)".
+        $this->assertSame('kapia pepper (sweet red)', $bicim->adSayiyla('kapia peppers (sweet red)', '1', ''));
+        $this->assertSame('kapia peppers (sweet red)', $bicim->adSayiyla('kapia peppers (sweet red)', '2', ''));
+        $this->assertSame('tırnak pide (Turkish flatbread)', $bicim->adSayiyla('tırnak pide (Turkish flatbread)', '2', ''));
+        $this->assertSame('mastic tears', $bicim->adSayiyla('mastic tears', '3', ''));
+        $this->assertSame('mastic tear', $bicim->adSayiyla('mastic tears', '1', ''));
         // Hacmi söyleyen etiketin altına "100 ml" bir daha basılmaz; gramda basılır.
         $this->assertFalse($bicim->ikinciSatirGerekli('ml', 'su_bardagi'));
         $this->assertTrue($bicim->ikinciSatirGerekli('g', 'su_bardagi'));
@@ -115,12 +121,16 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
         $this->assertSame('Frisches Yufka-Teigblatt', $bicim->adSayiyla('Frische Yufka-Teigblätter', '1', ''));
         $this->assertSame('Tırnak-Pide (türkisches Fladenbrot)', $bicim->adSayiyla('Tırnak-Pide (türkisches Fladenbrot)', '3', ''));
         $this->assertSame('Eier', $bicim->adSayiyla('Eier', '1', 'EL'));
+        $this->assertSame('Mastixkörner', $bicim->adSayiyla('Mastixkörner', '3', ''));
+        $this->assertSame('Mastixkorn', $bicim->adSayiyla('Mastixkörner', '1', ''));
 
         app()->setLocale('pt');
         $this->assertSame('ovo', $bicim->adSayiyla('ovos', '1', ''));
         $this->assertSame('pães lavash', $bicim->adSayiyla('pão lavash', '4', ''));
         $this->assertSame('ovo caipira', $bicim->adSayiyla('ovos caipiras', '1', ''));
         $this->assertSame('suco de limão-siciliano fresco', $bicim->adSayiyla('suco de limão-siciliano fresco', '2', ''));
+        $this->assertSame('lágrimas de mástique', $bicim->adSayiyla('lágrimas de mástique', '3', ''));
+        $this->assertSame('lágrima de mástique', $bicim->adSayiyla('lágrimas de mástique', '1', ''));
 
         app()->setLocale('ru');
         $this->assertSame('яйца', $bicim->adSayiyla('яйца', '1', ''));
