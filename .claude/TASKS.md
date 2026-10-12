@@ -249,6 +249,13 @@ Dal: claude/web-system-analysis-v2 (taban c0cf1fd = canlı). Ajan dalları: clau
 - [ ] Hukuki gözden geçirme: gizlilik, çerez, kullanım koşulları ve yasal merkez EN metinleri sahibi tarafından okunmalı
 - [ ] Eski blog kategori çevirisi (4aceb39) ve medya beyanı zamanları (1f2c561) bu yayınla birlikte gidiyor; canlıda kontrol edilmedi
 
+## 12 Ekim: düğmeler (ön yüz denetimi ve sağlamlaştırma)
+Ölçüm canlıda (ana sayfa, /tarifler, tarif, /blog; 1024 ve 375 px; açık ve koyu): 17 düğmede 10 farklı imza, birincil düğme 2,71:1, odak halkası 2,18-2,75:1, dokunmatik hedefler 24-40 px.
+- [x] 8a00332: --hc-brand-contrast açıkta #171717 (6,28:1), --hc-focus-ring (#c2410c / #fb923c), (pointer: coarse) 44 px, yıldız 44 px, ham turuncu/kehribar düğmeler hc-v3-btn--primary, emoji/ok glifi yerine x-ui.icon, adım rozeti kalktı (de "Timer starten" basıyordu) + recipe.timer.start 7 dil, 5 dilde ters pişirme modu etiketi, SSS kartı tanımsız --hc-surface-card, POST çift gönderim kilidi
+- [x] Yerelde (sqlite + seed) doğrulandı: 375 px dokunmatikte tarif/ana sayfa/tarifler/blog 0 küçük hedef, yatay taşma yok; açık ve koyu temada metinli düğmelerde 0 kontrast hatası; kilit POST'ta kapanır, GET ve önlenmiş formda kapanmaz, bfcache'te açılır
+- [x] Tam paket 1856/1856; yayın 8a00332 (/health 8a00332). Canlıda: CSS tokenları ve (pointer:coarse) bloğu sunuluyor; ispanakli-borek TR/EN/DE/RU 200; de rozet "Timer starten" 0, aria "Timer für 10 Min. starten", "Bildschirm anlassen"; 1024 px açık ve koyu temada 41 düğmede 0 kontrast hatası, birincil #171717/#ff6b00, odak #c2410c/#fb923c; 375 px dokunmatikte tarif/tarifler/blog 0 küçük hedef, yatay taşma yok (ana sayfa sekmeleri hesaplanan 44 px, ölçülen 41 giriş animasyonu ölçeği)
+- [ ] Bulunan: hareket katmanında taşan (bounce) eğriler (tema anahtarı, dil, karusel, sosyal, .hc-motion); eski hc-btn ailesi (30 kullanım) hc-v3-btn ile aynı ölçüde ama ayrı kural; admin/seo/opportunities tanımsız --hc-surface-card
+
 ## 11 Ekim üçüncü tur: malzeme satırı dilbilgisi, eksik katalog, TR adım başlıkları
 - [x] Yayın 6a86487 (tam paket 1855/1855, /health 6a86487, invariants temiz). Canlıda izmir-sambali 7 dil: ru "Сахарный песок (для сиропа) — 3 стакана", pl "Cukier (do syropu) – 3 szklanki", pt "3 copos de açúcar", tr/en/de/fa değişmedi
 - [x] 733b7f9: ru/pl malzeme satırı adı başa alır ("Сахарный песок — 3 стакана", "Cukier – 3 szklanki"); pt ölçüden sonra "de" ("3 copos de açúcar"). Canlıda ölçüldü: ru/pl ad yalın halde, pt "de" yok. pl adet "szt.", pt-BR birimler maço/pacote/punhado ("molho" Brezilya'da sos)
