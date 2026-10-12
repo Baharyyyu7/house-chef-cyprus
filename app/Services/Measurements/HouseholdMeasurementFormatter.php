@@ -107,6 +107,12 @@ final class HouseholdMeasurementFormatter
             return $miktar === '' ? $ad : $ad.($dil === 'ru' ? " \u{2014} " : " \u{2013} ").$miktar;
         }
 
+        // Almancada sıfat yalnız satır başında büyük: "Gemahlener Zimt" ama
+        // "1 TL gemahlener Zimt". Katalog adı tek başına basıldığı için büyük.
+        if ($dil === 'de' && $miktar !== '' && preg_match('/^\p{Lu}\p{Ll}+(?:e|er|es|en|em)\s+\p{Lu}/u', $ad) === 1) {
+            $ad = mb_strtolower(mb_substr($ad, 0, 1)).mb_substr($ad, 1);
+        }
+
         return trim($miktar.($dil === 'pt' && $birimli && $ad !== '' ? ' de ' : ' ').$ad);
     }
 

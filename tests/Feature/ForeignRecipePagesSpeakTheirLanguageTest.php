@@ -91,6 +91,12 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
 
         app()->setLocale('de');
         $this->assertSame('1 TL Natron', $bicim->yabanciSatir('1 TL', 'Natron', true));
+        // Canlıda "½ Wasserglas Ungesalzene Erdnüsse" basılıyordu.
+        $this->assertSame('½ Wasserglas ungesalzene Erdnüsse', $bicim->yabanciSatir('½ Wasserglas', 'Ungesalzene Erdnüsse', true));
+        $this->assertSame('2 grüne Paprika', $bicim->yabanciSatir('2', 'Grüne Paprika', false));
+        $this->assertSame('1 TL schwarzer Pfeffer', $bicim->yabanciSatir('1 TL', 'Schwarzer Pfeffer', true));
+        $this->assertSame('Frische Minze', $bicim->yabanciSatir('', 'Frische Minze', false));
+        $this->assertSame('2 EL Tomatenmark', $bicim->yabanciSatir('2 EL', 'Tomatenmark', true));
     }
 
     public function test_canonical_unit_code_is_localized_or_dropped(): void
