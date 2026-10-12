@@ -40,9 +40,19 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
         app()->setLocale('en');
         $this->assertSame('tbsp', $bicim->measureLabel($this->birim('yemek_kasigi'), '3'));
         $this->assertSame('', $bicim->measureLabel($this->birim('adet'), '4'));
-        // "glass" İngilizce mutfakta ölçü değil; su bardağı 200 ml'lik cup.
-        $this->assertSame('cup (200 ml)', $bicim->measureLabel($this->birim('su_bardagi'), '0.5'));
-        $this->assertSame('cups (200 ml)', $bicim->measureLabel($this->birim('su_bardagi'), '1.5'));
+        // "glass" İngilizce mutfakta ölçü değil; su bardağı 200 ml'lik cup ve
+        // parantez toplamı söyler: "½ cup (200 ml)" toplam gibi okunuyordu.
+        $this->assertSame('cup (100 ml)', $bicim->measureLabel($this->birim('su_bardagi'), '0.5'));
+        $this->assertSame('cups (300 ml)', $bicim->measureLabel($this->birim('su_bardagi'), '1.5'));
+        $this->assertSame('cup', $bicim->measureLabel($this->birim('su_bardagi')));
+        // 1,125 bardak "1" basılır; etiket de tekil kalır.
+        $this->assertSame('1', $bicim->quantity('1.125', $this->birim('su_bardagi')));
+        $this->assertSame('cup (225 ml)', $bicim->measureLabel($this->birim('su_bardagi'), '1.125'));
+        $this->assertSame('onion', $bicim->adSayiyla('onion', '1.125', ''));
+        $this->assertSame('onions', $bicim->adSayiyla('onion', '2.25', ''));
+        // Hacmi söyleyen etiketin altına "100 ml" bir daha basılmaz; gramda basılır.
+        $this->assertFalse($bicim->ikinciSatirGerekli('ml', 'su_bardagi'));
+        $this->assertTrue($bicim->ikinciSatirGerekli('g', 'su_bardagi'));
         $this->assertSame('1½', $bicim->quantity('1.5', $this->birim('su_bardagi')));
         $this->assertSame('1.25', $bicim->quantity('1.25'));
         $this->assertSame('grated', $bicim->hazirlik('Rendelenmiş'));
@@ -55,6 +65,10 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
         app()->setLocale('ru');
         $this->assertSame('шт.', $bicim->measureLabel($this->birim('adet'), '4'));
         $this->assertSame('стакана', $bicim->measureLabel($this->birim('su_bardagi'), '0.5'));
+        $this->assertTrue($bicim->ikinciSatirGerekli('ml', 'su_bardagi'));
+
+        app()->setLocale('tr');
+        $this->assertTrue($bicim->ikinciSatirGerekli('ml', 'su_bardagi'));
     }
 
     /** Canlıda "3 стакана сахарный песок", "3 szklanki cukier", "3 copos açúcar" basılıyordu. */

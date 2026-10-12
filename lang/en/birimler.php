@@ -5,7 +5,7 @@ return [
     'yemek_kasigi' => 'tbsp',
     'gram' => 'g',
     'g' => 'g',
-    'su_bardagi' => 'cup (200 ml)|cups (200 ml)',
+    'su_bardagi' => 'cup (:ml ml)|cups (:ml ml)',
     'tatli_kasigi' => 'dessertspoon|dessertspoons',
     'cay_kasigi' => 'tsp',
     'mililitre' => 'ml',

@@ -16,6 +16,14 @@ final class HouseholdMeasurementFormatter
     private const METRIK_ONDALIK = ['kg', 'kilogram', 'l', 'litre'];
 
     /**
+     * Etiketi ":ml" taşıyan ev ölçüsünün bir biriminin hacmi. Türk su bardağı
+     * 200 ml, ABD cup'ı 240; İngilizce etiket bu yüzden hacmi de söyler. 12 Ekim
+     * 2026'ya kadar "cup (200 ml)" sabitti ve "½ cup (200 ml) olive oil" toplam
+     * gibi okunuyordu.
+     */
+    private const ML = ['su_bardagi' => 200];
+
+    /**
      * Türkçe ad sözlüğü: kanonik kod tablodaki adla eşleşmezse buraya düşer.
      * "1 cay_kasigi", "2 dis", "3 item" ekranda ham kod olarak basılıyordu.
      *
@@ -77,7 +85,7 @@ final class HouseholdMeasurementFormatter
             return $ad;
         }
 
-        return (float) $miktar > 1 ? Str::plural($ad) : Str::singular($ad);
+        return $this->cogulSayisi($miktar) > 1 ? Str::plural($ad) : Str::singular($ad);
     }
 
     /**
@@ -111,6 +119,11 @@ final class HouseholdMeasurementFormatter
         $esle = ['item' => 'adet', 'gram' => 'g', 'mililitre' => 'ml', 'kilogram' => 'kg', 'litre' => 'l'];
         $kanonik = $esle[(string) $kanonik] ?? (string) $kanonik;
         $gorunen = $esle[(string) $gorunen] ?? (string) $gorunen;
+
+        // "½ cup (100 ml)" hacmi zaten söylüyor; altına bir daha "100 ml" basılmaz.
+        if ($kanonik === 'ml' && ! $this->turkce() && str_contains((string) ($this->sozluk('birimler')[$gorunen] ?? ''), ':ml')) {
+            return false;
+        }
 
         return $kanonik !== '' && $kanonik !== 'adet' && $kanonik !== $gorunen;
     }
@@ -168,7 +181,7 @@ final class HouseholdMeasurementFormatter
         $yabanci = $this->turkce() ? null : ($this->sozluk('birimler')[$unit->code] ?? null);
 
         if ($yabanci !== null) {
-            return $yabanci === '' ? '' : (new MessageSelector)->choose($yabanci, $this->cogulSayisi($quantity), app()->getLocale());
+            return $yabanci === '' ? '' : $this->hacimli((new MessageSelector)->choose($yabanci, $this->cogulSayisi($quantity), app()->getLocale()), (string) $unit->code, $quantity);
         }
 
         return $isPlural ? ($unit->plural_name ?: $unit->name) : ($unit->singular_name ?: $unit->name);
@@ -190,7 +203,21 @@ final class HouseholdMeasurementFormatter
 
         $satir = $this->sozluk('birimler')[$kod] ?? null;
 
-        return $satir === null ? $kod : ($satir === '' ? '' : (new MessageSelector)->choose($satir, $this->cogulSayisi($miktar), app()->getLocale()));
+        return $satir === null ? $kod : ($satir === '' ? '' : $this->hacimli((new MessageSelector)->choose($satir, $this->cogulSayisi($miktar), app()->getLocale()), $kod, $miktar));
+    }
+
+    /** "cup (:ml ml)" miktarın toplam hacmini söyler; miktar yoksa parantez düşer. */
+    private function hacimli(string $etiket, string $kod, string|int|float|null $miktar): string
+    {
+        if (! str_contains($etiket, ':ml')) {
+            return $etiket;
+        }
+
+        if ($miktar === null || ! isset(self::ML[$kod])) {
+            return trim(str_replace('(:ml ml)', '', $etiket));
+        }
+
+        return str_replace(':ml', (string) (int) round((float) $miktar * self::ML[$kod]), $etiket);
     }
 
     /**
@@ -255,8 +282,10 @@ final class HouseholdMeasurementFormatter
     {
         $sayi = $miktar === null ? 1.0 : (float) $miktar;
 
-        if (floor($sayi) === $sayi) {
-            return (int) $sayi;
+        // Sayı ekranda göründüğü gibi: 1,125 bardak "1" basılıyor, "1 cups" değil.
+        $gorunen = $this->kesir($sayi);
+        if (ctype_digit($gorunen)) {
+            return (int) $gorunen;
         }
 
         return $sayi < 1 && ! in_array(app()->getLocale(), ['pl', 'ru'], true) ? 1 : 2;
