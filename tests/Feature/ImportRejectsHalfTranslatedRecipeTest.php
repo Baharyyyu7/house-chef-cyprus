@@ -152,6 +152,54 @@ final class ImportRejectsHalfTranslatedRecipeTest extends TestCase
         $this->assertSame(1, Recipe::query()->translatedInto('en')->count());
     }
 
+    /**
+     * 12 Ekim 2026 02:20: gece içe aktarımı 27 tarifin coni:ceviri ile
+     * yazılmış pt/pl/fa başlık ve adımlarını klasördeki eski kalıp dosyayla
+     * ezdi; 81 sayfa 404 verdi. Dosya yalnız eksik alanı doldurur.
+     */
+    public function test_dolu_tarif_ve_adim_cevirisini_ezmez_eksigi_doldurur(): void
+    {
+        $tarif = $this->tarif();
+        $adim = $tarif->steps()->firstOrFail();
+        $tarif->translations()->create(['locale' => 'en', 'field' => 'title', 'value' => 'Halloumi Börek']);
+        $adim->translations()->create(['locale' => 'en', 'field' => 'instruction', 'value' => 'Roll the yufka out thinly.']);
+        $veri = $this->govdesiz();
+        $veri['steps'] = [['position' => 1, 'title' => 'Roll the dough', 'instruction' => 'Roll the phyllo thin.']];
+        $veri['ingredients'] = [['slug' => 'hellim', 'name' => 'halloumi']];
+        $this->dosya($veri);
+
+        $this->artisan('content:import-translations --apply')->assertSuccessful();
+
+        $this->assertSame('Halloumi Börek', $tarif->fresh()->translated('title', 'en'));
+        $this->assertSame('Roll the yufka out thinly.', $adim->fresh()->translated('instruction', 'en'));
+        $this->assertSame('Cypriot style', $tarif->fresh()->translated('excerpt', 'en'));
+        $this->assertSame('Roll the dough', $adim->fresh()->translated('title', 'en'));
+    }
+
+    public function test_adimlari_kalip_olan_dosya_reddedilir(): void
+    {
+        $tarif = $this->tarif();
+        RecipeStep::query()->create([
+            'recipe_id' => $tarif->id,
+            'position' => 2,
+            'title' => 'Pişir',
+            'instruction' => 'Fırında 30 dakika pişir.',
+        ]);
+        $veri = $this->govdesiz();
+        $veri['steps'] = [
+            ['position' => 1, 'title' => 'Step 1', 'instruction' => 'In step 1, carefully proceed with the culinary preparation: ensure appropriate heat.'],
+            ['position' => 2, 'title' => 'Step 2', 'instruction' => 'In step 2, carefully proceed with the culinary preparation: ensure appropriate heat.'],
+        ];
+        $veri['ingredients'] = [['slug' => 'hellim', 'name' => 'halloumi']];
+        $this->dosya($veri);
+
+        $this->artisan('content:import-translations --apply')
+            ->expectsOutputToContain('adımlar kalıp çeviri')
+            ->assertSuccessful();
+
+        $this->assertSame(0, $tarif->fresh()->translations()->count());
+    }
+
     public function test_tarif_dosyasi_eksik_malzeme_adini_doldurur(): void
     {
         $this->tarif();

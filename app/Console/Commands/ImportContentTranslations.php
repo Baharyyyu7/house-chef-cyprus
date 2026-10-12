@@ -7,7 +7,9 @@ namespace App\Console\Commands;
 use App\Models\BlogPost;
 use App\Models\Ingredient;
 use App\Models\Recipe;
+use App\Models\RecipeStep;
 use App\Models\SlugRedirect;
+use App\Services\Seo\RecipeTranslationGate;
 use Illuminate\Console\Command;
 
 /**
@@ -47,6 +49,7 @@ final class ImportContentTranslations extends Command
         $varsayilan = (string) config('locales.default', 'tr');
 
         $alinan = 0;
+        $yazilanAlan = 0;
         $atlanan = [];
 
         foreach (glob($kok.'/*', GLOB_ONLYDIR) ?: [] as $dilDizini) {
@@ -178,26 +181,11 @@ final class ImportContentTranslations extends Command
                 }
 
                 foreach ($gerekli as $alan) {
-                    $kayit->translations()->updateOrCreate(
-                        ['locale' => $locale, 'field' => $alan],
-                        ['value' => trim((string) $alanlar[$alan])]
-                    );
+                    $yazilanAlan += $this->eksikseYaz($kayit, $locale, $alan, trim((string) $alanlar[$alan]));
                 }
 
                 foreach ($cocukIsleri as [$cocuk, $cocukAlan, $cocukDeger]) {
-                    // Malzeme adı bütün tariflerde ortak ve coni:malzeme ile
-                    // düzenleniyor; bir tarif dosyası eski adı taşıyabilir.
-                    // 28 Eylül 2026 02:20'de gece içe aktarımı düzeltilmiş
-                    // 1.257 adı eski çöple ("sivri فلفل") geri yazdı. Dosya
-                    // yalnız eksik adı doldurur.
-                    if ($cocuk instanceof Ingredient && filled($cocuk->translations()->where('locale', $locale)->where('field', $cocukAlan)->value('value'))) {
-                        continue;
-                    }
-
-                    $cocuk->translations()->updateOrCreate(
-                        ['locale' => $locale, 'field' => $cocukAlan],
-                        ['value' => $cocukDeger]
-                    );
+                    $yazilanAlan += $this->eksikseYaz($cocuk, $locale, $cocukAlan, $cocukDeger);
                 }
 
                 $alinan++;
@@ -205,7 +193,9 @@ final class ImportContentTranslations extends Command
         }
 
         $this->newLine();
-        $this->components->info($alinan.($yaz ? ' kayıt çevirisi içeri alındı.' : ' kayıt içeri alınmaya hazır.'));
+        $this->components->info($yaz
+            ? $alinan.' kayıt dosyası geçerli, '.$yazilanAlan.' eksik alan dolduruldu (dolu çeviri ezilmez).'
+            : $alinan.' kayıt içeri alınmaya hazır.');
 
         foreach ($atlanan as $sebep => $liste) {
             $this->components->warn(count($liste).' atlandı — '.$sebep);
@@ -233,7 +223,7 @@ final class ImportContentTranslations extends Command
      * ama gövdesi Türkçe kalan sayfa demektir.
      *
      * @param  array<string, mixed>  $veri
-     * @param  list<array{0: object, 1: string, 2: string}>  $isler
+     * @param  list<array{0: RecipeStep|Ingredient, 1: string, 2: string}>  $isler
      * @return string|null Sorun varsa atlanma sebebi, yoksa null
      */
     private function tarifGovdesi(Recipe $tarif, array $veri, array &$isler): ?string
@@ -273,7 +263,42 @@ final class ImportContentTranslations extends Command
             }
         }
 
+        // Teslim klasöründeki eski dosyaların adımları "No passo 1, proceda
+        // com cuidado à confeção..." kalıbı. Kapı bu sayfayı zaten açmaz;
+        // dosya eksik alanı da bu çöple doldurmasın.
+        $talimatlar = array_values(array_map(
+            static fn (array $is): string => $is[2],
+            array_filter($isler, static fn (array $is): bool => $is[0] instanceof RecipeStep && $is[1] === 'instruction')
+        ));
+
+        if (app(RecipeTranslationGate::class)->kalipMi($talimatlar)) {
+            return 'adımlar kalıp çeviri';
+        }
+
         return null;
+    }
+
+    /**
+     * Teslim dosyası yalnız eksik çeviriyi doldurur, dolu olanı ezmez.
+     *
+     * Komut her gece 02:20'de teslim klasörünün tamamını yeniden okur.
+     * Klasörde aylar önceki dosyalar duruyor; sonradan coni:ceviri ve
+     * coni:malzeme ile düzeltilen çeviriler her gece eski hâline dönüyordu.
+     * 28 Eylül 2026'da 1.257 malzeme adı, 12 Ekim 2026'da 27 tarifin pt/pl/fa
+     * başlık, özet ve adımları (1.098 alan) kalıp metne döndü; o 81 sayfa
+     * 404 verdi. Bilinçli değiştirme yolu coni:ceviri-toplu --zorla.
+     *
+     * @return int Yazılan alan sayısı (0 ya da 1)
+     */
+    private function eksikseYaz(Recipe|BlogPost|RecipeStep|Ingredient $kayit, string $locale, string $alan, string $deger): int
+    {
+        if (filled($kayit->translations()->where('locale', $locale)->where('field', $alan)->value('value'))) {
+            return 0;
+        }
+
+        $kayit->translations()->updateOrCreate(['locale' => $locale, 'field' => $alan], ['value' => $deger]);
+
+        return 1;
     }
 
     /**
@@ -284,9 +309,9 @@ final class ImportContentTranslations extends Command
      * kilitlerdi.
      *
      * @param  array<string, mixed>|null  $gelen
-     * @param  list<array{0: object, 1: string, 2: string}>  $isler
+     * @param  list<array{0: RecipeStep|Ingredient, 1: string, 2: string}>  $isler
      */
-    private function cocukAlanlari(object $kayit, ?array $gelen, string $etiket, array &$isler): ?string
+    private function cocukAlanlari(RecipeStep|Ingredient $kayit, ?array $gelen, string $etiket, array &$isler): ?string
     {
         foreach ($kayit->translatableFields() as $alan) {
             $kaynak = trim((string) $kayit->getRawOriginal($alan));
