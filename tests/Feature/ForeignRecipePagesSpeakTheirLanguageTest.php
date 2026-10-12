@@ -141,6 +141,29 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
         $this->assertSame('г', $bicim->birimKodu('g', '100'));
     }
 
+    /** Canlıda Portekizce not mastardı: "1 cebola, picar", "3 tomates, ralar". */
+    public function test_portuguese_note_agrees_with_the_ingredient(): void
+    {
+        $bicim = app(HouseholdMeasurementFormatter::class);
+
+        app()->setLocale('pt');
+        $this->assertSame('picada', $bicim->hazirlik('doğranmış', 'cebola'));
+        $this->assertSame('ralados', $bicim->hazirlik('rendelenmiş', 'tomates'));
+        $this->assertSame('quebradas grosseiramente', $bicim->hazirlik('iri dövülmüş', 'nozes sem casca'));
+        $this->assertSame('bem picados', $bicim->hazirlik('ince doğranmış', 'pimentões verdes compridos'));
+        $this->assertSame('espremido', $bicim->hazirlik('suyu sıkılmış', 'limão-siciliano'));
+        $this->assertSame('derretida', $bicim->hazirlik('eritilmiş', 'manteiga'));
+        $this->assertSame('limpa', $bicim->hazirlik('ayıklanmış', 'vagem'));
+        $this->assertSame('em cubos', $bicim->hazirlik('küp doğranmış', 'tomates'));
+
+        foreach (require lang_path('pt/hazirlik.php') as $karsilik) {
+            $this->assertDoesNotMatchRegularExpression('/\b(?:picar|ralar|cortar|frigorífico|sumo|cozer|barrar)\b/u', $karsilik);
+        }
+
+        app()->setLocale('de');
+        $this->assertSame('gehackt', $bicim->hazirlik('doğranmış', 'Zwiebel'));
+    }
+
     public function test_a_note_without_a_translation_is_dropped_not_printed_in_turkish(): void
     {
         app()->setLocale('de');

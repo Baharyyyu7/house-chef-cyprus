@@ -260,8 +260,11 @@ final class HouseholdMeasurementFormatter
      * Not ("rendelenmiş", "halka doğranmış") tarif satırında Türkçe
      * duruyordu ve yabancı sayfada "4 adet rendelenmiş tomatoes" diye
      * basılıyordu. Karşılığı olmayan not yabancı dilde hiç basılmaz.
+     *
+     * Portekizce not adın cinsine ve sayısına uyar (":o"): 12 Ekim 2026'ya
+     * kadar mastardı, "1 cebola, picar" basılıyordu.
      */
-    public function hazirlik(?string $not): ?string
+    public function hazirlik(?string $not, string $ad = ''): ?string
     {
         $not = trim((string) $not);
 
@@ -269,7 +272,24 @@ final class HouseholdMeasurementFormatter
             return $not === '' ? null : $not;
         }
 
-        return $this->sozluk('hazirlik')[mb_strtolower($not)] ?? null;
+        $karsilik = $this->sozluk('hazirlik')[mb_strtolower($not)] ?? null;
+
+        return $karsilik === null ? null : str_replace(':o', $this->portekizceEk($ad), $karsilik);
+    }
+
+    /**
+     * Portekizce sıfat eki adın baş sözcüğünden: cebola -> a, tomates -> os,
+     * nozes -> as, limão-siciliano -> o. Sıfat addan sonra gelir, baş sözcük
+     * ilkidir.
+     */
+    private function portekizceEk(string $ad): string
+    {
+        $bas = mb_strtolower(explode('-', preg_split('/[\s(,]/u', trim($ad))[0] ?? '')[0]);
+        $cogul = (mb_strlen($bas) > 3 && str_ends_with($bas, 's')) || $bas === 'pinoli';
+        $tekil = $cogul ? (string) preg_replace(['/ões$/u', '/zes$/u', '/s$/u'], ['ão', 'z', ''], $bas) : $bas;
+        $disi = preg_match('/(?:a|ã|gem|ção|dade)$/u', $tekil) === 1 || in_array($tekil, ['carne', 'alface', 'noz', 'raiz', 'couve', 'pele', 'semente', 'maionese'], true);
+
+        return ($disi ? 'a' : 'o').($cogul ? 's' : '');
     }
 
     /**

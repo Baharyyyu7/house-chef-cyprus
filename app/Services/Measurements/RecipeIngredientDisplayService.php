@@ -23,14 +23,16 @@ final class RecipeIngredientDisplayService
             $quantity = $line->display_quantity ?? $line->quantity;
             $scaled = $quantity === null ? null : bcmul((string) $quantity, $factor, 4);
             $unit = $line->display_measure_code ? ($this->birimler[$line->display_measure_code] ??= Unit::query()->where('code', $line->display_measure_code)->first()) : null;
-            $hazirlik = $this->formatter->hazirlik($line->preparation_note ?: $line->display_note ?: $line->preparation);
+            $etiket = $this->formatter->measureLabel($unit, $scaled);
+            $ad = $this->formatter->adSayiyla((string) $line->ingredient?->name, $scaled, $etiket);
             // Yabancı dilde not adın arkasına virgülle gelir: sıfat olarak
             // başa konsa Almanca, Lehçe, Rusça ve Portekizcede adla cinsiyet
-            // ve sayı uyumu gerekirdi ("4 Tomaten, gerieben").
-            $etiket = $this->formatter->measureLabel($unit, $scaled);
+            // ve sayı uyumu gerekirdi ("4 Tomaten, gerieben"). Portekizce not
+            // virgülden sonra da uyar ("1 cebola, picada"), o yüzden ad verilir.
+            $hazirlik = $this->formatter->hazirlik($line->preparation_note ?: $line->display_note ?: $line->preparation, $ad);
             $display = app()->getLocale() === (string) config('locales.default', 'tr')
                 ? trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $etiket, $hazirlik, $line->ingredient?->name])))
-                : $this->formatter->yabanciSatir(trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $etiket]))), $this->formatter->adSayiyla((string) $line->ingredient?->name, $scaled, $etiket), $etiket !== '').($hazirlik === null ? '' : (app()->getLocale() === 'fa' ? '، ' : ', ').$hazirlik);
+                : $this->formatter->yabanciSatir(trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $etiket]))), $ad, $etiket !== '').($hazirlik === null ? '' : (app()->getLocale() === 'fa' ? '، ' : ', ').$hazirlik);
             $canonical = $line->canonical_quantity ?? $line->grams;
             $canonicalScaled = $canonical === null ? null : bcmul((string) $canonical, $factor, 4);
             $canonicalUnit = $line->canonical_unit ?: ($line->grams !== null ? 'g' : null);

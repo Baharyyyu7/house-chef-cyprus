@@ -138,7 +138,7 @@ return [
             'label' => 'Portuguese',
             'native_label' => 'Português',
             'html_locale' => 'pt',
-            'og_locale' => 'pt_PT',
+            'og_locale' => 'pt_BR',
             'direction' => 'ltr',
             'enabled' => true,
         ],
