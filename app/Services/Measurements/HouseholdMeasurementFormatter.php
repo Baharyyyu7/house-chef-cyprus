@@ -76,16 +76,42 @@ final class HouseholdMeasurementFormatter
     }
 
     /**
-     * Sayılabilir malzemede İngilizce ad sayıya uyar: "1 egg yolk",
-     * "3 onions". Birimi olan satırda ad yalın kalır ("2 tbsp flour").
+     * Sayılabilir malzemede ad sayıya uyar: "1 egg yolk", "3 onions".
+     * Birimi olan satırda ad yalın kalır ("2 tbsp flour").
+     *
+     * 12 Ekim 2026'da canlıda Almanca "1 Eier", "2 Quitte", Portekizce
+     * "1 ovos", "4 pão lavash" basılıyordu: katalog adı kimi dilde tekil
+     * kimi dilde çoğul. Almanca ve Portekizce çoğul düzensiz; tekil-çoğul
+     * çiftleri lang/{dil}/sayilabilir.php'de.
      */
     public function adSayiyla(string $ad, string|int|float|null $miktar, string $birimEtiketi): string
     {
-        if (app()->getLocale() !== 'en' || $birimEtiketi !== '' || $miktar === null || $ad === '') {
+        $dil = app()->getLocale();
+
+        if (! in_array($dil, ['en', 'de', 'pt'], true) || $birimEtiketi !== '' || $miktar === null || $ad === '') {
             return $ad;
         }
 
-        return $this->cogulSayisi($miktar) > 1 ? Str::plural($ad) : Str::singular($ad);
+        $cogul = $this->cogulSayisi($miktar) > 1;
+
+        if ($dil === 'en') {
+            return $cogul ? Str::plural($ad) : Str::singular($ad);
+        }
+
+        $ciftler = $this->sozluk('sayilabilir');
+        $harita = $cogul ? $ciftler : array_flip($ciftler);
+        $anahtarlar = array_keys($harita);
+        usort($anahtarlar, fn (string $a, string $b): int => mb_strlen($b) <=> mb_strlen($a));
+
+        if ($anahtarlar === []) {
+            return $ad;
+        }
+
+        // "de"den sonraki ad tümleçtir ("suco de limão-siciliano"), parantez
+        // içi açıklamadır ("Tırnak-Pide (türkisches Fladenbrot)"); ikisi de değişmez.
+        $desen = '/(?<!\p{L})(?<!(?<!\p{L})de )(?:'.implode('|', array_map(fn (string $k): string => preg_quote($k, '/'), $anahtarlar)).')(?!\p{L})(?![^(]*\))/u';
+
+        return (string) preg_replace_callback($desen, fn (array $m): string => $harita[$m[0]], $ad);
     }
 
     /**
@@ -109,7 +135,9 @@ final class HouseholdMeasurementFormatter
 
         // Almancada sıfat yalnız satır başında büyük: "Gemahlener Zimt" ama
         // "1 TL gemahlener Zimt". Katalog adı tek başına basıldığı için büyük.
-        if ($dil === 'de' && $miktar !== '' && preg_match('/^\p{Lu}\p{Ll}+(?:e|er|es|en|em)\s+\p{Lu}/u', $ad) === 1) {
+        // Sıfat zinciri ve zarfla başlayan sıfat da sayılır: "2 geröstete rote
+        // Paprika", "1 frisch gepresster Zitronensaft". "oder" sıfat değildir.
+        if ($dil === 'de' && $miktar !== '' && preg_match('/^(?:\p{Lu}\p{Ll}+(?:e|er|es|en|em)|Grob|Fein|Frisch)\s+(?:(?!oder\s)\p{Ll}+(?:e|er|es|en|em)\s+)*\p{Lu}/u', $ad) === 1) {
             $ad = mb_strtolower(mb_substr($ad, 0, 1)).mb_substr($ad, 1);
         }
 

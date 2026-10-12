@@ -1,0 +1,40 @@
+<?php
+
+// Birimsiz satırda adın tekili => çoğulu. Katalogda ikisi karışık durur
+// ("Eier", "Zwiebel"); satır sayıya göre birini basar. Sıfatlı nötr ad
+// tekilde -es alır, o yüzden ifadesiyle yazılır.
+return [
+    'Ei' => 'Eier',
+    'Zwiebel' => 'Zwiebeln',
+    'Frühlingszwiebel' => 'Frühlingszwiebeln',
+    'Tomate' => 'Tomaten',
+    'Kartoffel' => 'Kartoffeln',
+    'Zitrone' => 'Zitronen',
+    'Karotte' => 'Karotten',
+    'Gurke' => 'Gurken',
+    'Essiggurke' => 'Essiggurken',
+    'Aubergine' => 'Auberginen',
+    'Quitte' => 'Quitten',
+    'Feige' => 'Feigen',
+    'Heidelbeere' => 'Heidelbeeren',
+    'Olive' => 'Oliven',
+    'Garnele' => 'Garnelen',
+    'Champignon' => 'Champignons',
+    'Lorbeerblatt' => 'Lorbeerblätter',
+    'Teigblatt' => 'Teigblätter',
+    'Frisches Yufka-Teigblatt' => 'Frische Yufka-Teigblätter',
+    'Minzblatt' => 'Minzblätter',
+    'Frisches Minzblatt' => 'Frische Minzblätter',
+    'Zimtstange' => 'Zimtstangen',
+    'Gewürznelke' => 'Gewürznelken',
+    'Artischockenboden' => 'Artischockenböden',
+    'Lammhaxe' => 'Lammhaxen',
+    'Lammkeule' => 'Lammkeulen',
+    'Lammschulter' => 'Lammschultern',
+    'Hähnchenbrust' => 'Hähnchenbrüste',
+    'Fladenbrot' => 'Fladenbrote',
+    'Knolle' => 'Knollen',
+    'Kopfsalat' => 'Kopfsalate',
+    'Wassermelonenscheibe' => 'Wassermelonenscheiben',
+    'Tintenfischring' => 'Tintenfischringe',
+];

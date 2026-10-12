@@ -97,6 +97,33 @@ final class ForeignRecipePagesSpeakTheirLanguageTest extends TestCase
         $this->assertSame('1 TL schwarzer Pfeffer', $bicim->yabanciSatir('1 TL', 'Schwarzer Pfeffer', true));
         $this->assertSame('Frische Minze', $bicim->yabanciSatir('', 'Frische Minze', false));
         $this->assertSame('2 EL Tomatenmark', $bicim->yabanciSatir('2 EL', 'Tomatenmark', true));
+        $this->assertSame('2 geröstete rote Paprika', $bicim->yabanciSatir('2', 'Geröstete rote Paprika', false));
+        $this->assertSame('1 frisch gepresster Zitronensaft', $bicim->yabanciSatir('1', 'Frisch gepresster Zitronensaft', false));
+    }
+
+    /** Canlıda Almanca "1 Eier", "2 Quitte", Portekizce "1 ovos", "4 pão lavash" basılıyordu. */
+    public function test_countable_ingredient_agrees_with_the_number(): void
+    {
+        $bicim = app(HouseholdMeasurementFormatter::class);
+
+        app()->setLocale('de');
+        $this->assertSame('Ei', $bicim->adSayiyla('Eier', '1', ''));
+        $this->assertSame('Quitten', $bicim->adSayiyla('Quitte', '2', ''));
+        $this->assertSame('Zwiebeln', $bicim->adSayiyla('Zwiebel', '1.5', ''));
+        $this->assertSame('Zwiebel', $bicim->adSayiyla('Zwiebel', '0.5', ''));
+        $this->assertSame('Ei vom Bauernhof', $bicim->adSayiyla('Eier vom Bauernhof', '1', ''));
+        $this->assertSame('Frisches Yufka-Teigblatt', $bicim->adSayiyla('Frische Yufka-Teigblätter', '1', ''));
+        $this->assertSame('Tırnak-Pide (türkisches Fladenbrot)', $bicim->adSayiyla('Tırnak-Pide (türkisches Fladenbrot)', '3', ''));
+        $this->assertSame('Eier', $bicim->adSayiyla('Eier', '1', 'EL'));
+
+        app()->setLocale('pt');
+        $this->assertSame('ovo', $bicim->adSayiyla('ovos', '1', ''));
+        $this->assertSame('pães lavash', $bicim->adSayiyla('pão lavash', '4', ''));
+        $this->assertSame('ovo caipira', $bicim->adSayiyla('ovos caipiras', '1', ''));
+        $this->assertSame('suco de limão-siciliano fresco', $bicim->adSayiyla('suco de limão-siciliano fresco', '2', ''));
+
+        app()->setLocale('ru');
+        $this->assertSame('яйца', $bicim->adSayiyla('яйца', '1', ''));
     }
 
     public function test_canonical_unit_code_is_localized_or_dropped(): void
