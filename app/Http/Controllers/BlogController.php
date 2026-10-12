@@ -178,7 +178,7 @@ final class BlogController extends Controller
         $posts = $category->posts()->publiclyVisible()->translatedInto()->with(['category', 'tags', 'heroMedia', 'media'])->latest('published_at')->paginate(12)->withPath(route('blog.category', $category));
         abort_if($posts->currentPage() > $posts->lastPage(), 404);
 
-        return view('blog.index', ['posts' => $posts, 'title' => $category->name.' · Blog', 'seoIndexability' => ['canonical' => route('blog.category', $category), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
+        return view('blog.index', ['posts' => $posts, 'title' => taxonomy_name($category).' · Blog', 'seoIndexability' => ['canonical' => route('blog.category', $category), 'robots' => request()->query() === [] ? 'index,follow' : 'noindex,follow']]);
     }
 
     public function tag(BlogTag $tag): View

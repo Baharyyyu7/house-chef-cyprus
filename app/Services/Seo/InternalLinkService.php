@@ -352,7 +352,7 @@ final class InternalLinkService
             return [
                 'label' => $label,
                 'url' => $localeUrl->urlFor($targetLocale, '/blog/'.$post->slug),
-                'kicker' => $post->category?->name ?? __('blog.show.kitchen_note', [], $targetLocale),
+                'kicker' => $post->category ? taxonomy_name($post->category, $targetLocale) : __('blog.show.kitchen_note', [], $targetLocale),
                 'excerpt' => $excerpt,
             ];
         })->all();

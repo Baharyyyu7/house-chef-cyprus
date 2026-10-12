@@ -496,7 +496,7 @@ final class LlmsTxtController extends Controller
 
             foreach ($blogs as $blog) {
                 $title = $this->translator->translateBlogTitle($blog, 'en');
-                $category = $blog->category?->name ?? 'Guide';
+                $category = $blog->category ? taxonomy_name($blog->category, 'en') : 'Guide';
                 $desc = $this->translator->translateBlogDescription($blog, 'en');
 
                 $lines[] = sprintf('### %s', $title);
@@ -701,7 +701,7 @@ final class LlmsTxtController extends Controller
             }
 
             foreach ($yazilar as $yazi) {
-                $category = $yazi->category?->name ?? 'Guide';
+                $category = $yazi->category ? taxonomy_name($yazi->category, $locale) : 'Guide';
                 $desc = trim((string) ($yazi->excerpt ?: substr(strip_tags((string) $yazi->body), 0, 200)));
                 $satirlar[] = sprintf('### %s', $yazi->title);
                 $satirlar[] = sprintf('- URL: %s', $diller->urlFor($locale, '/blog/'.$yazi->slug));

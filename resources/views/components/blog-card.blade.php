@@ -3,7 +3,7 @@
 @php
     $media = app(\App\Services\Media\PublicMediaEligibilityService::class)
         ->heroOrFirstEligible($post->heroMedia, $post->media);
-    $kategori = $post->category?->name ?? __('blog.index.kitchen_note');
+    $kategori = $post->category ? taxonomy_name($post->category) : __('blog.index.kitchen_note');
     // Özet satırın ortasında kesik geliyordu ("...lezz"); kelime sınırında kısalır.
     $ozet = \Illuminate\Support\Str::limit(trim((string) $post->excerpt), 150, '…', preserveWords: true);
     $yapayZeka = (bool) $media?->generated_by_ai;

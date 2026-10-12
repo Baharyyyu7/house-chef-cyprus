@@ -45,7 +45,7 @@
                     x-bind:aria-hidden="gorunur({{ $sira }}) ? 'false' : 'true'"
                     x-bind:tabindex="gorunur({{ $sira }}) ? 0 : -1"
                 >
-                    <span class="hc-karusel__etiket">{{ $post->category?->name ?? __('blog.index.kitchen_note') }}</span>
+                    <span class="hc-karusel__etiket">{{ $post->category ? taxonomy_name($post->category) : __('blog.index.kitchen_note') }}</span>
                     <span class="hc-karusel__baslik"><span>{{ $post->translated('title') }}</span></span>
                     <span class="hc-karusel__ozet"><span>{{ \Illuminate\Support\Str::limit(trim((string) $post->translated('excerpt')), 105, '…', preserveWords: true) }}</span></span>
                     <span class="hc-karusel__tarih">{{ $post->published_at?->format('d.m.Y') }}</span>

@@ -62,11 +62,12 @@ if (! function_exists('taxonomy_name')) {
      *
      * @param  object{name?: string, slug?: string}  $model
      */
-    function taxonomy_name(object $model): string
+    function taxonomy_name(object $model, ?string $locale = null): string
     {
         $kayit = (string) ($model->name ?? '');
+        $locale ??= app()->getLocale();
 
-        if (app()->getLocale() === config('locales.default', 'tr')) {
+        if ($locale === config('locales.default', 'tr')) {
             return $kayit;
         }
 
@@ -82,7 +83,7 @@ if (! function_exists('taxonomy_name')) {
         }
 
         $anahtar = "taxonomy.{$tur}.{$model->slug}";
-        $ceviri = __($anahtar);
+        $ceviri = __($anahtar, [], $locale);
 
         return $ceviri === $anahtar ? $kayit : $ceviri;
     }
