@@ -1167,6 +1167,85 @@ a.hc-nav-control {
 .hc-header-over-hero:not(.is-scrolled) .hc-nav-actions .hc-locale__caret { color: rgba(255,255,255,.72); }
 .hc-header-over-hero:not(.is-scrolled) .hc-nav-actions .hc-theme-switch__knob { background: rgba(255,255,255,.12); box-shadow: none; }
 
+/* Başlık kontrolleri, 12 Ekim 2026. Dil, tema, yönetim ve hesap dört ayrı
+   çerçeveli, gölgeli, üstüne gelince yükselen kutuydu; yanındaki 13 piksellik
+   menü bağlantılarından ağır basıyordu. Artık menü bağlantılarıyla aynı yazı
+   ağırlığında ve çerçevesiz; yalnız hesap ince çerçeveli, kayıt dolu birincil
+   düğme. Tema yalnız ikon, adı aria-label'da. Tarif fotoğrafı üstündeki
+   başlık (.hc-header-over-hero) kendi kurallarıyla daha özgül kalır. */
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate { gap: .25rem; }
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-locale__trigger,
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-theme-switch,
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate > a.hc-nav-control,
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-user-trigger {
+    height: var(--hc-nav-control);
+    min-height: var(--hc-nav-control);
+    border: 1px solid transparent;
+    border-radius: 9999px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--hc-text-primary);
+    font-size: .8125rem;
+    font-weight: 600;
+    transform: none;
+}
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-locale__code,
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate > a.hc-nav-control,
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-user-trigger > span:nth-child(2) { font-weight: 600; }
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-theme-switch { width: var(--hc-nav-control); padding: 0; justify-content: center; }
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-theme-switch__label { display: none; }
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-user-trigger { margin-left: .25rem; border-color: var(--hc-line); background: var(--hc-surface); }
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate > a.hc-btn-gold { margin-left: .25rem; background: var(--hc-brand-primary); color: var(--hc-brand-contrast); }
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-locale__trigger:hover,
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-theme-switch:hover,
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate > a.hc-nav-control:not(.hc-btn-gold):hover {
+    border-color: transparent;
+    background: color-mix(in srgb, var(--hc-text-primary) 7%, transparent);
+    box-shadow: none;
+    transform: none;
+}
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-user-trigger:hover { border-color: var(--hc-border-strong); background: var(--hc-surface); box-shadow: none; transform: none; }
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate > a.hc-btn-gold:hover { background: var(--hc-brand-hover); box-shadow: none; transform: none; }
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-locale__trigger:focus-visible,
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-theme-switch:focus-visible,
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate > a.hc-nav-control:focus-visible,
+.hc-public-header .hc-nav-actions.hc-nav-actions--separate .hc-user-trigger:focus-visible { outline: 2px solid var(--hc-focus-ring); outline-offset: 2px; }
+/* Fotoğraf üstünde çerçevesiz koyu yazı okunmaz: aynı kontroller yarı saydam
+   koyu zemin ve beyaz yazı alır. */
+.hc-public-header.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions.hc-nav-actions--separate .hc-locale__trigger,
+.hc-public-header.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions.hc-nav-actions--separate .hc-theme-switch,
+.hc-public-header.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions.hc-nav-actions--separate > a.hc-nav-control:not(.hc-btn-gold),
+.hc-public-header.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions.hc-nav-actions--separate .hc-user-trigger {
+    border-color: rgba(255,255,255,.24);
+    background: rgba(17,17,15,.45);
+    color: #fff;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+.hc-public-header.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions.hc-nav-actions--separate .hc-locale__trigger:hover,
+.hc-public-header.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions.hc-nav-actions--separate .hc-theme-switch:hover,
+.hc-public-header.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions.hc-nav-actions--separate > a.hc-nav-control:not(.hc-btn-gold):hover,
+.hc-public-header.hc-header-over-hero:not(.is-scrolled) .hc-nav-actions.hc-nav-actions--separate .hc-user-trigger:hover { border-color: rgba(255,255,255,.4); background: rgba(17,17,15,.6); color: #fff; }
+
+/* Dar ekranda aynı dil: tema anahtarı 68 piksellik bir hap, menü koyu bir
+   kutuydu. İkisi de aynı boyda, ince çerçeveli yuvarlak. */
+.hc-theme-switch.hc-nav-control.hc-theme-switch--ikon { width: var(--hc-nav-control); padding: 0; justify-content: center; border-color: var(--hc-line); background: var(--hc-surface); }
+.hc-theme-switch.hc-nav-control.hc-theme-switch--ikon .hc-theme-switch__knob,
+.hc-theme-switch.hc-nav-control.hc-theme-switch--ikon[aria-checked="true"] .hc-theme-switch__knob { width: 1.25rem; height: 1.25rem; background: transparent; box-shadow: none; transform: none; }
+.hc-menu-button { display: grid; place-items: center; width: var(--hc-nav-control); height: var(--hc-nav-control); border: 1px solid var(--hc-line); border-radius: 9999px; background: var(--hc-surface); color: var(--hc-text-primary); }
+.hc-menu-button:hover,
+.hc-theme-switch.hc-nav-control.hc-theme-switch--ikon:hover { border-color: var(--hc-border-strong); box-shadow: none; }
+.hc-menu-button:active { transform: scale(.96); }
+.hc-menu-button:focus-visible { outline: 2px solid var(--hc-focus-ring); outline-offset: 2px; }
+.hc-header-over-hero:not(.is-scrolled) > nav .hc-menu-button,
+.hc-header-over-hero:not(.is-scrolled) > nav .hc-theme-switch.hc-theme-switch--ikon { border-color: rgba(255,255,255,.28); background: rgba(17,17,15,.45); color: #fff; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+@media (prefers-reduced-motion: reduce) { .hc-menu-button:active { transform: none; } }
+/* Topuz kalkınca güneş doğrudan krem zeminde: amber-500 orada 1,98:1. Tek
+   içeriği ikon olan düğmede en az 3:1 gerekir; amber-700 4,8:1. Fotoğraf
+   üstünde koyu zemin olduğu için açık ton kalır. */
+.hc-public-header .hc-theme-switch .hc-theme-switch__icon.text-amber-500 { color: #b45309; }
+.hc-public-header.hc-header-over-hero:not(.is-scrolled) .hc-theme-switch .hc-theme-switch__icon.text-amber-500 { color: #f59e0b; }
+
 
 /* Tema geçişi: tarayıcı iki kareyi çapraz geçirir. Süre kısa, çünkü bu bir
    durum değişimi; yolculuk değil. */

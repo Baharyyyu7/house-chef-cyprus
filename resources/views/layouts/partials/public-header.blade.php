@@ -138,8 +138,8 @@
                          gezinme baglantisina ulasilamiyordu. Dar ekranda dil
                          secici cubuktan cikip cekmeceye giriyor. --}}
                     <div class="hidden sm:block"><x-locale-switcher /></div>
-                    <x-theme-switch class="hc-nav-control shrink-0" />
-                    <button type="button" @click="menuOpen = !menuOpen" class="grid h-[var(--hc-nav-control)] w-[var(--hc-nav-control)] place-items-center rounded-xl border border-white/20 bg-charcoal-900/80 text-white backdrop-blur-md transition duration-200 active:scale-95 hover:border-white/40 dark:border-stone-700/80 dark:bg-stone-800/80" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="{{ __('ux.open_menu') }}"><x-ui.icon name="menu" size="20" /></button>
+                    <x-theme-switch class="hc-nav-control hc-theme-switch--ikon shrink-0" />
+                    <button type="button" @click="menuOpen = !menuOpen" class="hc-menu-button transition duration-200" :aria-expanded="menuOpen" aria-controls="mobile-nav" aria-label="{{ __('ux.open_menu') }}"><x-ui.icon name="menu" size="20" /></button>
                 </div>
             </nav>
             {{-- Çekmece kendini modal ilan ediyor; o hâlde arkası gerçekten

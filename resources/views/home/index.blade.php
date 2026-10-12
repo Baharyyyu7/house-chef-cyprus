@@ -8,7 +8,7 @@
         <div class="hc-hero__copy">
             <h1 class="hc-hero__title hc-animate-fade-up">{{ __('home.hero_title') }}</h1>
             <p class="hc-hero__lede hc-animate-fade-up">{{ __('home.hero_subtitle', ['count' => number_format((int) ($homeRecipeCount ?? 0), 0, ',', '.')]) }}</p>
-            <div class="hc-hero__actions hc-animate-fade-up"><a class="hc-hero__cta hc-btn-primary" href="{{ $siteFeatures->enabled('explore') ? '#hero-ingredient' : route('recipes.index') }}"><span>{{ $siteFeatures->enabled('explore') ? __('home.hero_cta') : __('home.browse_archive') }}</span><x-ui.icon name="arrow-right" size="18" /></a><a class="hc-hero__link hc-hero-secondary" href="{{ route('recipes.index') }}"><span>{{ __('home.browse_archive') }}</span><x-ui.icon name="arrow-right" size="16" /></a></div>
+            <div class="hc-hero__actions hc-animate-fade-up"><a class="hc-hero__cta hc-btn-primary" href="{{ $siteFeatures->enabled('explore') ? '#hero-ingredient' : route('recipes.index') }}"><span>{{ $siteFeatures->enabled('explore') ? __('home.hero_cta') : __('home.browse_archive') }}</span><x-ui.icon name="arrow-right" size="18" /></a>@if ($siteFeatures->enabled('explore'))<a class="hc-hero__link hc-hero-secondary" href="{{ route('recipes.index') }}"><span>{{ __('home.browse_archive') }}</span><x-ui.icon name="arrow-right" size="16" /></a>@endif</div>
             <p class="hc-hero__proof hc-animate-fade-up">{{ __('home.editorial_verified_only') }}</p>
         </div>
         @if($siteFeatures->enabled('explore') && ! empty($homeMatchShowcase))
