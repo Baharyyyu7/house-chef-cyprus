@@ -68,7 +68,7 @@ AdSense "Düşük değere sahip içerik" dedi; herkese açık şablon yüzey tas
       "dizine açıldı" sayacı yalnız kapıya bakıyor, dolu `chef_tip` çevrilmezse
       sayfa 404 kalıyor. Türkçe kaynakta şablon dolgu cümlesi varsa ("Taze
       malzemeleri, dengeli baharat uyumu...") çeviriye taşıma.
-- [ ] **Yabancı sayfalarda kalan Türkçe** (28 Eylül ikinci tarama sonrası).
+- [x] (13 Ekim ölçüldü: açık 6 x 136 tarif sayfasının çevirilerinde ğ/ş/ı/İ geçen kelimelerin hepsi özel ad ya da yemek adı (kadayıf, pastırma, kaşar, höşmerim, İzmir, imam bayıldı, tırnak pide); Farsça blog kalıbı 268 yazıda var ama hiçbiri fa'da açık değil; blog kategori adları b413ccd ile düzeldi. Kalan: ipucu/sık hata/saklama alanları yabancı dilde gizli (özellik), şef hizmeti kullanıcı kararı) **Yabancı sayfalarda kalan Türkçe** (28 Eylül ikinci tarama sonrası).
       Arayüz, çerez bandı, malzeme seçicisi, taksonomi, diyet adları, blog
       dizini ve SSS düzeldi; ticari bloklar yabancı dilde gizli. Kalan:
       blog kategori adları (BlogCategory çevrilmiyor), Farsça blog
