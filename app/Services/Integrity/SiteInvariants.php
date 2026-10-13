@@ -12,6 +12,7 @@ use App\Models\Recipe;
 use App\Models\SlugRedirect;
 use App\Services\Seo\BlogIndexability;
 use App\Services\Seo\RecipeQualityGateService;
+use App\Services\Seo\YaziIcBaglantilari;
 
 /**
  * Üretim verisinde bir daha olmaması gereken şeyler.
@@ -43,6 +44,7 @@ final class SiteInvariants
             $this->indeksteKusurluTarif(),
             $this->indeksteKapidanGecmemisYazi(),
             $this->ayniKonudaCoklaNusha(),
+            $this->yazidaKirikIcBaglanti(),
         ]));
     }
 
@@ -214,6 +216,40 @@ final class SiteInvariants
             'kural' => 'ayni_konuda_cokla_nusha',
             'ihlal' => (int) $gruplar->flatten()->count(),
             'mesaj' => $gruplar->count().' konuda birden çok nüsha indekste; kendi sayfalarımız aynı sorguda yarışıyor: '.implode(', ', array_slice($gruplar->keys()->all(), 0, 3)),
+        ];
+    }
+
+    /**
+     * Yayındaki yazının gövdesinde, o dildeki canlı sayfaya doğrudan gitmeyen
+     * tarif ya da yazı bağlantısı.
+     *
+     * 13 Ekim 2026'da 100 yazıda 50 adres 404'tü: 27 Eylül'de taslağa alınan
+     * tariflere giden bağlantılar üç hafta kimse görmeden durdu.
+     *
+     * @return array{kural: string, ihlal: int, mesaj: string}|null
+     */
+    private function yazidaKirikIcBaglanti(): ?array
+    {
+        $baglantilar = app(YaziIcBaglantilari::class);
+        $kusurlar = [];
+
+        foreach (BlogPost::query()->publiclyVisible()->orderBy('id')->cursor() as $yazi) {
+            foreach ($baglantilar->kusurlar($yazi) as $k) {
+                $kusurlar[] = $k + ['yazi' => $yazi->slug];
+            }
+        }
+
+        if ($kusurlar === []) {
+            return null;
+        }
+
+        $olu = count(array_filter($kusurlar, static fn (array $k): bool => $k['hedef'] === null));
+        $ornek = array_map(static fn (array $k): string => $k['dil'].':'.$k['adres'], array_slice($kusurlar, 0, 3));
+
+        return [
+            'kural' => 'yazida_kirik_ic_baglanti',
+            'ihlal' => count($kusurlar),
+            'mesaj' => count($kusurlar).' gövde bağlantısı o dildeki canlı sayfaya doğrudan gitmiyor ('.$olu.' tanesinin açık sayfası yok): '.implode(', ', $ornek).'. Onarım: blog:ic-baglanti-onar.',
         ];
     }
 }
