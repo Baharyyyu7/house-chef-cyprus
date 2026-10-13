@@ -25,15 +25,17 @@ final class RecipeIngredientDisplayService
             $unit = $line->display_measure_code ? ($this->birimler[$line->display_measure_code] ??= Unit::query()->where('code', $line->display_measure_code)->first()) : null;
             $etiket = $this->formatter->measureLabel($unit, $scaled);
             $ad = $this->formatter->adSayiyla((string) $line->ingredient?->name, $scaled, $etiket);
-            // Yabancı dilde not adın arkasına virgülle gelir: sıfat olarak
-            // başa konsa Almanca, Lehçe, Rusça ve Portekizcede adla cinsiyet
-            // ve sayı uyumu gerekirdi ("4 Tomaten, gerieben"). Portekizce not
-            // virgülden sonra da uyar ("1 cebola, picada"), o yüzden ad verilir.
-            // Dişle ölçülen sarımsakta not dişe uyar: "3 dentes de alho, ralados".
+            // Not her dilde adın arkasına virgülle gelir. Yabancı dilde sıfat
+            // olarak başa konsa Almanca, Lehçe, Rusça ve Portekizcede adla
+            // cinsiyet ve sayı uyumu gerekirdi ("4 Tomaten, gerieben"). Türkçede
+            // başa konan uzun not okunmuyordu ("1 su bardağı 500 g hamura, 50 g
+            // açarken serpmek için Un"); yayındaki 108 notun 66'sı virgüllü.
+            // Portekizce not virgülden sonra da uyar ("1 cebola, picada"), o
+            // yüzden ad verilir. Dişle ölçülen sarımsakta not dişe uyar.
             $hazirlik = $this->formatter->hazirlik($line->preparation_note ?: $line->display_note ?: $line->preparation, $line->display_measure_code === 'dis' ? $etiket : $ad);
-            $display = app()->getLocale() === (string) config('locales.default', 'tr')
-                ? trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $etiket, $hazirlik, $line->ingredient?->name])))
-                : $this->formatter->yabanciSatir(trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $etiket]))), $ad, $etiket !== '').($hazirlik === null ? '' : (app()->getLocale() === 'fa' ? '، ' : ', ').$hazirlik);
+            $display = (app()->getLocale() === (string) config('locales.default', 'tr')
+                ? trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $etiket, $line->ingredient?->name])))
+                : $this->formatter->yabanciSatir(trim(implode(' ', array_filter([$this->formatter->quantity($scaled, $unit), $etiket]))), $ad, $etiket !== '')).($hazirlik === null ? '' : (app()->getLocale() === 'fa' ? '، ' : ', ').$hazirlik);
             $canonical = $line->canonical_quantity ?? $line->grams;
             $canonicalScaled = $canonical === null ? null : bcmul((string) $canonical, $factor, 4);
             $canonicalUnit = $line->canonical_unit ?: ($line->grams !== null ? 'g' : null);
