@@ -222,7 +222,7 @@ Schedule::call(fn () => app(SchedulerHealthService::class)->run('seo_keyword_clu
 Schedule::call(fn () => app(SchedulerHealthService::class)->run('operations_digest', fn () => app(OperationsDigestService::class)->send()))->name('operations_digest')->dailyAt('07:30')->withoutOverlapping(30);
 
 // Zamanlayıcıyı iki kaynak tetikliyor: Hostinger cron'u (17 Eylül'de geri
-// geldi, her dakika :02'de) ve /_zamanlayici Worker'ı (20-50 sn sonra).
+// geldi, beş dakikada bir :02'de) ve /_zamanlayici Worker'ı (her dakika).
 // withoutOverlapping yalnız eşzamanlı koşuyu engeller; hızlı biten günlük
 // görevler (yedek, IndexNow, çeviri içe aktarımı, bütünlük denetimleri)
 // aynı dakikada iki kez koşuyordu. İki tetikleyici yedek olarak kalıyor;
