@@ -22,8 +22,9 @@ use Illuminate\Support\Facades\Log;
  * düzeltilemiyor.
  *
  * Bu uç, cron yerine dışarıdan bir zamanlayıcının (Cloudflare Worker cron
- * trigger) uygulamayı dürtmesini sağlar. Sunucu tarafı cron düzeldiğinde
- * bu uç kapatılabilir; token kaldırılırsa kendiliğinden 404 olur.
+ * trigger) uygulamayı dürtmesini sağlar. Cron 17 Eylül'de geri geldi; iki
+ * tetikleyici yedek olarak birlikte koşuyor, görev başına dakikada tek koşu
+ * routes/console.php sonundaki onOneServer ile. Token kaldırılırsa uç 404 olur.
  *
  * Güvenlik:
  * - Token yoksa ya da eşleşmiyorsa 404 döner. 403 dönmek ucun var olduğunu

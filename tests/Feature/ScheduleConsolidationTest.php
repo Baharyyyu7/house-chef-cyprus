@@ -8,6 +8,7 @@ use App\Mail\OperationsDigestMail;
 use App\Models\SystemEvent;
 use App\Services\Scheduler\OperationsDigestService;
 use App\Services\SchedulerHealthService;
+use Illuminate\Console\Scheduling\CacheSchedulingMutex;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -45,6 +46,24 @@ final class ScheduleConsolidationTest extends TestCase
             $beklenen = str_starts_with($ad, 'backup_') ? 120 : 30;
             $this->assertSame($beklenen, $gorev->expiresAt, $ad);
         }
+    }
+
+    public function test_two_triggers_in_the_same_minute_run_each_task_once(): void
+    {
+        // Hostinger cron'u ve /_zamanlayici Worker'ı aynı dakikada schedule:run
+        // koşuyor; 13 Ekim'de günlük görevlerin hepsi iki rapor yazmıştı.
+        foreach ($this->gorevler() as $ad => $gorev) {
+            $this->assertTrue($gorev->onOneServer, $ad);
+        }
+
+        // İki tetikleyici ayrı süreç; ortak olan yalnız önbellekteki muteks.
+        $muteks = app(CacheSchedulingMutex::class);
+        $gorev = $this->gorevler()['content_integrity_guard'];
+        $dakika = Carbon::parse('2026-10-13 01:05:02');
+
+        $this->assertTrue($muteks->create($gorev, $dakika));
+        $this->assertFalse($muteks->create($gorev, $dakika->copy()->addSeconds(40)));
+        $this->assertTrue($muteks->create($gorev, $dakika->copy()->addMinute()));
     }
 
     public function test_removed_tasks_are_not_scheduled(): void
